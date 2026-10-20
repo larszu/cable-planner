@@ -51,6 +51,9 @@
   lengths follow the drawn route — split into the stock lengths you own.
 - **Rooms, floors, risers, 3D.** Every cable end reads *floor · room · device ·
   port*; the signal path shows the whole chain through plates and house runs.
+  A room carries a room number and an address; with an address set, the
+  inspector shows an OpenStreetMap map (no API key; offline it falls back to
+  a link that opens the map in the browser).
 - **Every list for the build day.** Pull list, patch list, termination list,
   BOM, patch sheets, faceplates, acceptance record, QR labels — one report
   editor, preview equals export.
@@ -86,7 +89,8 @@
   one by one or in batches (`set_device`, `set_devices`; credentials stay in
   the UI), rooms and floors (`list_locations`, `list_floors`,
   `create_location`, `set_location`, `delete_location`, `place_in_location`,
-  `create_floor`, `set_floor`; an ambiguous room name is refused), and a
+  `create_floor`, `set_floor`; room number and address included; an ambiguous room name is
+  refused), and a
   check against a cable list (`verify_cabling`). Each write call is one undo
   step.
 - **Connecting Claude.** *Settings → MCP* starts the server on

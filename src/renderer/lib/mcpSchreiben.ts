@@ -822,12 +822,14 @@ export const fuehreSchreibwerkzeugAus = (
       if (typeof m === 'string') return nein(m)
       if (typeof args.color === 'string' && args.color) patch.color = args.color
       if (typeof args.notes === 'string') patch.notes = args.notes || undefined
+      if (typeof args.roomNumber === 'string') patch.roomNumber = args.roomNumber.trim() || undefined
+      if (typeof args.address === 'string') patch.address = args.address.trim() || undefined
       if (m.width !== undefined) patch.width = m.width
       if (m.height !== undefined) patch.height = m.height
       const dx = m.x !== undefined ? m.x - l.x : 0
       const dy = m.y !== undefined ? m.y - l.y : 0
       const geaendert = [...Object.keys(patch), ...(dx || dy ? ['position'] : [])]
-      if (geaendert.length === 0) return nein('Nothing to change - pass at least one of name, floor, x, y, width, height, color, notes.')
+      if (geaendert.length === 0) return nein('Nothing to change - pass at least one of name, floor, x, y, width, height, color, notes, roomNumber, address.')
       if (dx || dy) {
         // Dieselbe Semantik wie das Ziehen in der Oberflaeche: mit
         // `moveContents` zieht der Inhalt mit.

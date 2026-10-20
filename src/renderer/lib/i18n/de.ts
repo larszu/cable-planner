@@ -3558,6 +3558,11 @@ export const de: Dict = {
   'location.field.riserTitle':
     'In der 3D-Gebäudeansicht geht dieser Rahmen durch alle Etagen, und Kabel zwischen Etagen werden durch ihn gezeichnet statt als Luftlinie.',
   'location.field.notes': 'Notizen',
+  'location.field.roomNumber': 'Raumnummer',
+  'location.field.address': 'Adresse',
+  'location.field.addressPlaceholder': 'Straße, PLZ, Ort',
+  'location.map.title': 'Karte zur Adresse',
+  'location.map.open': 'In OpenStreetMap öffnen',
   'location.field.width': 'Breite (m)',
   'location.tip':
     'Tipp: Der Rahmen bewegt sich standardmäßig unabhängig. Aktiviere „Geräte mitnehmen", wenn alle enthaltenen Geräte beim Verschieben des Rahmens mitwandern sollen.',
