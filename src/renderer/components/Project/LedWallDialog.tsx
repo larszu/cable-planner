@@ -35,7 +35,7 @@ import { useUiStore } from '../../store/uiStore'
 import { format, useTranslation } from '../../lib/i18n'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
-import { pixelMapSvg, portUrteil, rasterFuer, wandSumme } from '../../lib/ledWall'
+import { pixelMapSvg, portUrteil, rasterFuer, wandSumme, zuschnitt } from '../../lib/ledWall'
 import type { LedPanelType, LedWall } from '../../types/ledWall'
 
 const neueId = (prefix: string): string =>
@@ -74,6 +74,88 @@ const Zahl = ({
         className="w-full border border-cp-border bg-cp-surface-3 p-1.5"
       />
     </label>
+  )
+}
+
+// Quellzuschnitt (#1000): welchen Ausschnitt einer Standardquelle der
+// Prozessor zeigen muss, damit sie die Wand unverzerrt und mittig fuellt.
+// Die Ebene ist die Wandaufloesung; nur die Quelle ist frei waehlbar.
+const QuellZuschnitt = ({ wandB, wandH }: { wandB: number; wandH: number }) => {
+  const t = useTranslation()
+  const [quelle, setQuelle] = useState({ b: 1920, h: 1080 })
+  const [kopiert, setKopiert] = useState<string | null>(null)
+  const z = zuschnitt(wandB, wandH, quelle.b, quelle.h)
+  const achse = !z
+    ? ''
+    : z.achse === 'keine'
+      ? t('led.crop.axis.none', 'none, same aspect ratio')
+      : z.achse === 'x'
+        ? t('led.crop.axis.x', 'sides (X)')
+        : t('led.crop.axis.y', 'top and bottom (Y)')
+  const kopieren = (name: string, wert: number) => {
+    void navigator.clipboard?.writeText(String(wert)).then(
+      () => setKopiert(name),
+      () => undefined,
+    )
+  }
+  return (
+    <div className="mt-3">
+      <h4 className="mb-2 font-semibold text-cp-text-secondary">
+        {t('led.crop.title', 'Source crop')}
+      </h4>
+      <div className="grid grid-cols-2 items-end gap-2">
+        <Zahl
+          label={t('led.crop.sourceW', 'Source width (px)')}
+          wert={quelle.b}
+          onFertig={(n) => n !== undefined && setQuelle((q) => ({ ...q, b: n }))}
+        />
+        <Zahl
+          label={t('led.crop.sourceH', 'Source height (px)')}
+          wert={quelle.h}
+          onFertig={(n) => n !== undefined && setQuelle((q) => ({ ...q, h: n }))}
+        />
+      </div>
+      {z ? (
+        <>
+          <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">
+            {(
+              [
+                ['x', 'X', z.x],
+                ['w', t('led.crop.width', 'Width'), z.breite],
+                ['y', 'Y', z.y],
+                ['h', t('led.crop.height', 'Height'), z.hoehe],
+              ] as const
+            ).map(([k, label, wert]) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => kopieren(k, wert)}
+                title={t('led.crop.copy', 'Copy value')}
+                className="min-h-11 rounded-cp-control border border-cp-border bg-cp-surface-3 p-2 text-left"
+              >
+                <span className="block text-cp-text-muted">{label}</span>
+                <span className="block font-mono tabular-nums">
+                  {wert}
+                  {kopiert === k ? ` · ${t('led.crop.copied', 'copied')}` : ''}
+                </span>
+              </button>
+            ))}
+          </div>
+          <p className="mt-1 text-cp-text-muted">
+            {format(t('led.crop.result', 'Cropped: {axis}. Scale {scale} %, layer {w} × {h}.'), {
+              axis: achse,
+              scale: Math.round(z.skalierung * 1000) / 10,
+              w: wandB,
+              h: wandH,
+            })}
+          </p>
+        </>
+      ) : (
+        <p className="mt-2 text-cp-text-muted">
+          {t('led.crop.none', 'The wall needs a resolution first.')}
+        </p>
+      )}
+    </div>
   )
 }
 
@@ -456,6 +538,8 @@ export const LedWallDialog = () => {
                 'Size the breaker on the peak, not the average. An LED wall draws a multiple of its average on a white frame, and a breaker chosen from the average trips on the first white flash.',
               )}
             />
+
+            <QuellZuschnitt wandB={summe.pixels.x} wandH={summe.pixels.y} />
 
             {/* Die Sending Card. */}
             <div className="mt-3 grid grid-cols-3 items-end gap-2">

@@ -11,7 +11,37 @@
 // ab und weist den Rest aus, statt ihn verschwinden zu lassen.
 // ───────────────────────────────────────────────────────────────────────────
 import { describe, expect, it } from 'vitest'
-import { pixelMap, pixelMapSvg, portUrteil, rasterFuer, wandSumme } from '../src/renderer/lib/ledWall'
+import { pixelMap, pixelMapSvg, portUrteil, rasterFuer, wandSumme, zuschnitt } from '../src/renderer/lib/ledWall'
+
+describe('zuschnitt (#1000)', () => {
+  it('beschneidet eine breitere Quelle seitlich und mittig', () => {
+    // 1920×1080 auf 832×1248: sichtbar 1080·832/1248 = 720 breit, X = 600
+    expect(zuschnitt(832, 1248, 1920, 1080)).toEqual({
+      achse: 'x', x: 600, breite: 720, y: 0, hoehe: 1080, skalierung: 1248 / 1080,
+    })
+  })
+  it('beschneidet bei 5:3 die Seiten', () => {
+    expect(zuschnitt(1040, 624, 1920, 1080)).toMatchObject({ achse: 'x', x: 60, breite: 1800, hoehe: 1080 })
+  })
+  it('beschneidet eine hoehere Quelle oben und unten', () => {
+    // 32:9-Wand: sichtbar 540 hoch, Y = 270
+    expect(zuschnitt(3840, 1080, 1920, 1080)).toMatchObject({ achse: 'y', x: 0, breite: 1920, y: 270, hoehe: 540 })
+  })
+  it('laesst gleiches Seitenverhaeltnis unbeschnitten', () => {
+    expect(zuschnitt(960, 540, 1920, 1080)).toEqual({
+      achse: 'keine', x: 0, breite: 1920, y: 0, hoehe: 1080, skalierung: 0.5,
+    })
+  })
+  it('bleibt bei krummen Werten in der Quelle', () => {
+    const z = zuschnitt(1001, 777, 1919, 1081)!
+    expect(z.x + z.breite).toBeLessThanOrEqual(1919)
+    expect(z.y + z.hoehe).toBeLessThanOrEqual(1081)
+  })
+  it('liefert nichts bei fehlenden Werten', () => {
+    expect(zuschnitt(0, 1080, 1920, 1080)).toBeUndefined()
+    expect(zuschnitt(1920, 1080, Number.NaN, 1080)).toBeUndefined()
+  })
+})
 import type { LedPanelType, LedWall } from '../src/renderer/types/ledWall'
 
 /** Ein Kachelmass, wie es die Branche fährt: 500 × 500 mm, 128 × 128 px. */
