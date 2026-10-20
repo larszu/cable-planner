@@ -79,6 +79,8 @@ export interface AusfuellErgebnis {
   fundstelle?: string
   /** Der Textausschnitt, in dem gezaehlt wurde. Bei der KI leer. */
   schnipsel?: string
+  /** Websuche ohne Desktop-App: nur Wikipedia, keine echten Suchergebnisse. */
+  eingeschraenkt?: boolean
 }
 
 /**
@@ -98,8 +100,8 @@ export const felderAusfuellen = async (
     const hints = await suggestFromAI(geraetename, kategorie)
     return { hints, quelle: 'ki' }
   }
-  const { hints, source, snippet } = await suggestFromWeb(geraetename, kategorie)
-  return { hints, quelle: 'web', fundstelle: source, schnipsel: snippet }
+  const { hints, source, snippet, limited } = await suggestFromWeb(geraetename, kategorie)
+  return { hints, quelle: 'web', fundstelle: source, schnipsel: snippet, eingeschraenkt: limited }
 }
 
 /**
