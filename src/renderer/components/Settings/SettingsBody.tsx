@@ -62,41 +62,42 @@ const TAB_ICONS: Record<SettingsSection, LucideIcon> = {
   advanced: Settings,
 }
 
-const TAB_FALLBACK_LABEL: Record<SettingsSection, string> = {
-  project: 'Projekt',
-  modules: 'Module',
-  appearance: 'Darstellung',
-  editing: 'Bearbeiten',
-  hotkeys: 'Hotkeys',
-  integrations: 'Integrationen',
-  deviceLibrary: 'Device library',
-  mcp: 'MCP',
-  configs: 'Konfigurationen',
-  cableTypes: 'Cable types',
-  stammdaten: 'Master data',
-  schema: 'Kategorien & Felder',
-  sync: 'Netzwerk-Sync',
-  nachweise: 'Nachweise',
-  advanced: 'Erweitert',
-}
+// Statische t()-Aufrufe statt Fallback-Map: nur so sieht lang:check die Fallbacks (#971).
+const tabLabels = (t: (key: string, fallback: string) => string): Record<SettingsSection, string> => ({
+  project: t('settings.tab.project', 'Project'),
+  modules: t('settings.tab.modules', 'Modules'),
+  appearance: t('settings.tab.appearance', 'Appearance'),
+  editing: t('settings.tab.editing', 'Editing'),
+  hotkeys: t('settings.tab.hotkeys', 'Hotkeys'),
+  integrations: t('settings.tab.integrations', 'Integrations'),
+  deviceLibrary: t('settings.tab.deviceLibrary', 'Device library'),
+  mcp: t('settings.tab.mcp', 'MCP'),
+  configs: t('settings.tab.configs', 'Configurations'),
+  cableTypes: t('settings.tab.cableTypes', 'Cable types'),
+  stammdaten: t('settings.tab.stammdaten', 'Master data'),
+  schema: t('settings.tab.schema', 'Categories & fields'),
+  sync: t('settings.tab.sync', 'Network sync'),
+  nachweise: t('settings.tab.nachweise', 'Credentials'),
+  advanced: t('settings.tab.advanced', 'Advanced'),
+})
 
-const TAB_FALLBACK_TITLE: Record<SettingsSection, string> = {
-  project: 'Projekt-Einstellungen',
-  modules: 'Module',
-  appearance: 'Darstellung',
-  editing: 'Bearbeiten',
-  hotkeys: 'Tastenkürzel',
-  integrations: 'Integrationen',
-  deviceLibrary: 'Device library (devices.zumpelars.de)',
-  mcp: 'MCP-Server (Claude fragt den Plan)',
-  configs: 'Geräte-Konfigurationen',
-  cableTypes: 'Cable types',
-  stammdaten: 'Master data (connectors, standards, layers)',
-  schema: 'Kategorien & Felder (Feld-Builder)',
-  sync: 'Netzwerk-Sync',
-  nachweise: 'Nachweise (Qualifikationen, Versicherungen)',
-  advanced: 'Erweitert',
-}
+const tabTitles = (t: (key: string, fallback: string) => string): Record<SettingsSection, string> => ({
+  project: t('settings.tabTitle.project', 'Project settings'),
+  modules: t('settings.tabTitle.modules', 'Modules'),
+  appearance: t('settings.tabTitle.appearance', 'Appearance'),
+  editing: t('settings.tabTitle.editing', 'Editing'),
+  hotkeys: t('settings.tabTitle.hotkeys', 'Keyboard shortcuts'),
+  integrations: t('settings.tabTitle.integrations', 'Integrations'),
+  deviceLibrary: t('settings.tabTitle.deviceLibrary', 'Device library (devices.zumpelars.de)'),
+  mcp: t('settings.tabTitle.mcp', 'MCP server (Claude queries the plan)'),
+  configs: t('settings.tabTitle.configs', 'Device configurations'),
+  cableTypes: t('settings.tabTitle.cableTypes', 'Cable types'),
+  stammdaten: t('settings.tabTitle.stammdaten', 'Master data (connectors, standards, layers)'),
+  schema: t('settings.tabTitle.schema', 'Categories & fields (field builder)'),
+  sync: t('settings.tabTitle.sync', 'Network sync'),
+  nachweise: t('settings.tabTitle.nachweise', 'Credentials (qualifications, insurance)'),
+  advanced: t('settings.tabTitle.advanced', 'Advanced'),
+})
 
 /**
  * Die Liste kommt aus der Icon-Tabelle statt noch einmal hingeschrieben zu
@@ -127,6 +128,7 @@ interface SettingsBodyProps {
 export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, headerAction }: SettingsBodyProps) => {
   const [section, setSection] = useState<SettingsSection>(isSection(initialSection) ? initialSection : 'project')
   const t = useTranslation()
+  const labels = tabLabels(t)
 
   const navItem = (id: SettingsSection) => (
     <button
@@ -138,7 +140,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
       }`}
     >
       <Icon icon={TAB_ICONS[id]} size="sm" />
-      <span>{t(`settings.tab.${id}`, TAB_FALLBACK_LABEL[id])}</span>
+      <span>{labels[id]}</span>
     </button>
   )
 
@@ -157,7 +159,7 @@ export const SettingsBody = ({ onClose, initialSection, headerProps, titleId, he
           className="flex shrink-0 items-center justify-between border-b border-cp-border-muted px-4 py-2 select-none"
         >
           <h2 id={titleId} className="text-cp-xl font-semibold">
-            {t(`settings.tabTitle.${section}`, TAB_FALLBACK_TITLE[section])}
+            {tabTitles(t)[section]}
           </h2>
           <div className="flex items-center gap-1">
             {headerAction}
