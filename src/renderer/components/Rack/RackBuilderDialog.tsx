@@ -337,6 +337,10 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
     return !((ma === 'front' && mb === 'rear') || (ma === 'rear' && mb === 'front'))
   }
 
+  // #1051 — Zwei Halbbreiten-Geraete auf verschiedenen Haelften teilen sich die HE.
+  const sharesWidth = (a: RackPlacementDraft, b: RackPlacementDraft): boolean =>
+    !(a.rackHalfWidth && b.rackHalfWidth && (a.rackHalf ?? 'left') !== (b.rackHalf ?? 'left'))
+
   const conflicts = useMemo(() => {
     const issues: string[] = []
     for (const placement of draft.placements) {
@@ -375,7 +379,8 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
             b.startUnit,
             b.startUnit + b.rackUnits - 1,
           ) &&
-          mountsOverlapInDepth(a, b)
+          mountsOverlapInDepth(a, b) &&
+          sharesWidth(a, b)
         ) {
           issues.push(
             format(t('rack.conflict.overlaps', '{a} overlaps with {b}.'), { a: a.name, b: b.name }),
@@ -505,7 +510,22 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
         targetUnit = Math.max(1, draft.totalUnits - units + 1)
       }
     }
-    const placement = toPlacement(effectiveTemplate, targetUnit)
+    let placement = toPlacement(effectiveTemplate, targetUnit)
+    // #1051 — Halbbreite zuerst neben ein einzelnes Halbbreiten-Geraet setzen.
+    if (placement.rackHalfWidth && typeof options?.preferStartUnit !== 'number') {
+      const partner = draft.placements.find(
+        (p) =>
+          p.rackHalfWidth &&
+          p.rackUnits === units &&
+          !draft.placements.some((q) => q !== p && q.rackHalfWidth && q.startUnit === p.startUnit),
+      )
+      if (partner) {
+        placement = {
+          ...toPlacement(effectiveTemplate, partner.startUnit),
+          rackHalf: (partner.rackHalf ?? 'left') === 'left' ? 'right' : 'left',
+        }
+      }
+    }
     // v7.9.76 / #170 — Mount-Side direkt am Placement setzen falls der
     // Caller "vorne" oder "hinten" gewählt hat (Library-Quick-Button oder
     // Drag&Drop-Modifier). Default bleibt 'full' (= placement.mountSide
@@ -1314,7 +1334,15 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             left: railInsetPx + renderedOffsetX * mmToPx,
                             width: rackTpl!.widthMm! * mmToPx,
                           }
-                        : { top, height, left: 0, right: 0 }
+                        : item.rackHalfWidth
+                          ? {
+                              top,
+                              height,
+                              // Rueckansicht gespiegelt wie beim Shelf-Device (#204).
+                              left: ((item.rackHalf ?? 'left') === 'left') === (side !== 'rear') ? 0 : '50%',
+                              width: '50%',
+                            }
+                          : { top, height, left: 0, right: 0 }
                       return (
                         <div
                           key={`${side}-block-${item.id}`}
