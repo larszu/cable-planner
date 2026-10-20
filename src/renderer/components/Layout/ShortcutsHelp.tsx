@@ -12,6 +12,8 @@ import { useUiStore } from '../../store/uiStore'
 import {
   KEYBOARD_LAYOUTS,
   SHORTCUT_GROUPS,
+  withUserHotkeys,
+  type ShortcutGroup,
   formatCombo,
   formatKey,
   keyLabelsFor,
@@ -46,11 +48,18 @@ const ShortcutRows = ({ items, labels }: { items: ShortcutItem[]; labels: KeyLab
   )
 }
 
-const KeyboardView = ({ labels }: { labels: KeyLabels }) => {
+const KeyboardView = ({ labels, groups }: { labels: KeyLabels; groups: ShortcutGroup[] }) => {
   const t = useTranslation()
   const lang = useUiStore((s) => s.language)
   const layout = KEYBOARD_LAYOUTS[layoutForLanguage(lang)]
-  const byKey = useMemo(() => shortcutsByKey(layout), [layout])
+  const byKey = useMemo(
+    () =>
+      shortcutsByKey(
+        layout,
+        groups.flatMap((g) => g.items),
+      ),
+    [layout, groups],
+  )
   const [hover, setHover] = useState<string | null>(null)
   const [pinned, setPinned] = useState<string | null>(null)
   const active = hover ?? pinned
@@ -140,6 +149,8 @@ export const ShortcutsHelp = () => {
   }, [])
 
   const labels = keyLabelsFor(isMac, t)
+  const hotkeys = useUiStore((s) => s.hotkeys)
+  const groups = useMemo(() => withUserHotkeys(SHORTCUT_GROUPS, hotkeys), [hotkeys])
   const views: { id: View; icon: typeof Keyboard; label: string }[] = [
     {
       id: 'keyboard',
@@ -180,10 +191,10 @@ export const ShortcutsHelp = () => {
         ))}
       </div>
       {view === 'keyboard' ? (
-        <KeyboardView labels={labels} />
+        <KeyboardView labels={labels} groups={groups} />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {SHORTCUT_GROUPS.map((g) => (
+          {groups.map((g) => (
             <div key={g.id}>
               <h3 className="mb-2 text-cp-sm font-semibold text-cp-text-secondary">
                 {t(g.titleKey, g.fallback)}

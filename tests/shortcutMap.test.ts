@@ -6,6 +6,9 @@ import {
   keyLabelsFor,
   layoutForLanguage,
   shortcutsByKey,
+  SHORTCUT_GROUPS,
+  tokensFromCombo,
+  withUserHotkeys,
 } from '../src/renderer/lib/shortcutMap'
 
 const ids = (m: Map<string, { id: string }[]>, code: string) => (m.get(code) ?? []).map((i) => i.id)
@@ -41,5 +44,18 @@ describe('shortcutMap (#949)', () => {
     expect(formatCombo(['Mod', 'Shift', 'S'], keyLabelsFor(true, t))).toBe('⌘+⇧+S')
     expect(formatCombo(['Mod', 'Shift', 'S'], keyLabelsFor(false, t))).toBe('Ctrl+Shift+S')
     expect(formatCombo(['ArrowUp', 'ArrowDown'], keyLabelsFor(false, t))).toBe('↑ ↓')
+  })
+
+  it('shows bindings from Settings -> Hotkeys', () => {
+    expect(tokensFromCombo('Ctrl+Shift+S')).toEqual(['Mod', 'Shift', 'S'])
+    expect(tokensFromCombo('Ctrl++')).toEqual(['Mod', '+'])
+    const groups = withUserHotkeys(SHORTCUT_GROUPS, { undo: 'Alt+U', toggleArrows: '' })
+    const items = groups.flatMap((g) => g.items)
+    expect(items.find((i) => i.id === 'undo')?.keys).toEqual(['Alt', 'U'])
+    expect(items.some((i) => i.id === 'toggleArrows')).toBe(false)
+    const byKey = shortcutsByKey(KEYBOARD_LAYOUTS.qwertz, items)
+    expect(ids(byKey, 'U')).toEqual(['undo'])
+    expect(ids(byKey, 'Alt')).toEqual(['undo'])
+    expect(ids(byKey, 'A')).toEqual(['selectAll'])
   })
 })

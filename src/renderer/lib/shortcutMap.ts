@@ -9,6 +9,8 @@
 export interface ShortcutItem {
   id: string
   keys: string[]
+  /** uiStore.hotkeys action; when set, the user's binding replaces `keys`. */
+  action?: string
   labelKey: string
   fallback: string
 }
@@ -20,9 +22,10 @@ export interface ShortcutGroup {
   items: ShortcutItem[]
 }
 
-const item = (id: string, keys: string[], fallback: string): ShortcutItem => ({
+const item = (id: string, keys: string[], fallback: string, action?: string): ShortcutItem => ({
   id,
   keys,
+  action,
   labelKey: `shortcutsHelp.${id}`,
   fallback,
 })
@@ -33,10 +36,10 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
     titleKey: 'shortcutsHelp.file',
     fallback: 'File',
     items: [
-      item('new', ['Mod', 'N'], 'New project'),
-      item('open', ['Mod', 'O'], 'Open project'),
-      item('save', ['Mod', 'S'], 'Save'),
-      item('saveAs', ['Mod', 'Shift', 'S'], 'Save as'),
+      item('new', ['Mod', 'N'], 'New project', 'newProject'),
+      item('open', ['Mod', 'O'], 'Open project', 'openProject'),
+      item('save', ['Mod', 'S'], 'Save', 'save'),
+      item('saveAs', ['Mod', 'Shift', 'S'], 'Save as', 'saveAs'),
     ],
   },
   {
@@ -44,14 +47,14 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
     titleKey: 'shortcutsHelp.edit',
     fallback: 'Edit',
     items: [
-      item('undo', ['Mod', 'Z'], 'Undo'),
-      item('redo', ['Mod', 'Y'], 'Redo'),
+      item('undo', ['Mod', 'Z'], 'Undo', 'undo'),
+      item('redo', ['Mod', 'Y'], 'Redo', 'redo'),
       item('copy', ['Mod', 'C'], 'Copy'),
       item('paste', ['Mod', 'V'], 'Paste'),
       item('duplicate', ['Mod', 'D'], 'Duplicate'),
-      item('selectAll', ['Mod', 'A'], 'Select all'),
-      item('delete', ['Delete'], 'Delete selection'),
-      item('escape', ['Escape'], 'Deselect / cancel'),
+      item('selectAll', ['Mod', 'A'], 'Select all', 'selectAll'),
+      item('delete', ['Delete'], 'Delete selection', 'deleteSelected'),
+      item('escape', ['Escape'], 'Deselect / cancel', 'clearSelection'),
     ],
   },
   {
@@ -75,17 +78,39 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
     titleKey: 'shortcutsHelp.panels',
     fallback: 'Panels & view',
     items: [
-      item('toggleLibrary', ['Mod', 'B'], 'Show/hide library'),
-      item('toggleProperties', ['Mod', 'I'], 'Show/hide properties'),
-      item('jumpToPatches', ['P'], 'Open patch list'),
-      item('toggleArrows', ['A'], 'Toggle arrow display'),
+      item('toggleLibrary', ['Mod', 'B'], 'Show/hide library', 'toggleLibrary'),
+      item('toggleProperties', ['Mod', 'I'], 'Show/hide properties', 'toggleProperties'),
+      item('jumpToPatches', ['P'], 'Open patch list', 'jumpToPatches'),
+      item('toggleArrows', ['A'], 'Toggle arrow display', 'toggleArrows'),
     ],
   },
 ]
 
 export const ALL_SHORTCUTS: ShortcutItem[] = SHORTCUT_GROUPS.flatMap((g) => g.items)
 
+/** Hotkey combo string ('Ctrl+Shift+S', see lib/hotkeys) as key tokens. */
+export const tokensFromCombo = (combo: string): string[] =>
+  combo
+    .split(/\+(?=.)/)
+    .filter(Boolean)
+    .map((p) => (p === 'Ctrl' || p === 'Meta' ? 'Mod' : p.length === 1 ? p.toUpperCase() : p))
+
+/** Applies the user's bindings from uiStore.hotkeys; an emptied binding drops the item. */
+export const withUserHotkeys = (
+  groups: ShortcutGroup[],
+  hotkeys: Record<string, string>,
+): ShortcutGroup[] =>
+  groups.map((g) => ({
+    ...g,
+    items: g.items.flatMap((it) => {
+      if (!it.action || !(it.action in hotkeys)) return [it]
+      const keys = tokensFromCombo(hotkeys[it.action])
+      return keys.length ? [{ ...it, keys }] : []
+    }),
+  }))
+
 export interface KeyLabels {
+  alt: string
   mod: string
   shift: string
   del: string
@@ -102,6 +127,7 @@ const ARROW: Record<string, string> = {
 export const formatKey = (key: string, labels: KeyLabels): string => {
   if (key === 'Mod') return labels.mod
   if (key === 'Shift') return labels.shift
+  if (key === 'Alt') return labels.alt
   if (key === 'Delete') return labels.del
   if (key === 'Escape') return labels.esc
   return ARROW[key] ?? key
@@ -118,6 +144,7 @@ export const keyLabelsFor = (mac: boolean, t: (k: string, f: string) => string):
   shift: mac ? '⇧' : t('shortcut.shift', 'Shift'),
   del: t('shortcut.del', 'Del'),
   esc: t('shortcut.esc', 'Esc'),
+  alt: mac ? '⌥' : t('shortcut.alt', 'Alt'),
 })
 
 // --- Virtual keyboard -------------------------------------------------------
@@ -145,6 +172,7 @@ const chars = (s: string) => [...s].map((c) => key(c, c, [c]))
 
 const bottomRow = [
   key('Mod', null, ['Mod'], 1.5),
+  key('Alt', null, ['Alt'], 1.25),
   key('Space', '', [' '], 6),
   key('ArrowLeft', null, ['ArrowLeft']),
   key('ArrowUp', null, ['ArrowUp']),

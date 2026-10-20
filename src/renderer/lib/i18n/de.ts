@@ -5795,6 +5795,7 @@ export const de: Dict = {
   'shortcut.ctrlS': 'Strg+S',
   'shortcut.ctrlShiftS': 'Strg+Umsch+S',
   'shortcut.ctrlY': 'Strg+Y',
+  'shortcut.alt': 'Alt',
   'shortcut.ctrlZ': 'Strg+Z',
   'shortcut.del': 'Entf',
   'shortcut.esc': 'Esc',
