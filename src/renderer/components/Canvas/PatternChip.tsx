@@ -4,7 +4,7 @@ import { stampForRows } from '../../lib/documentStamp'
 import { usePatternStore } from '../../store/patternStore'
 import { usePatternBefunde, usePatternOverview, usePatternRouting, usePatternSumme } from '../../hooks/usePattern'
 import { diagnoseZeilen } from '../../lib/patternDiagnose'
-import { patternPruefzeilen, patternRouting } from '../../lib/patternRouting'
+import { patternPruefzeilen, patternRouting, quellAusgaenge } from '../../lib/patternRouting'
 import { testPatternSvg } from '../../lib/testPattern'
 import { HubSwitchDialog } from './HubSwitchDialog'
 import { schaltbareWege } from '../../lib/controlActions'
@@ -80,6 +80,7 @@ export function PatternChip() {
 
   const bildSpeichern = () => {
     if (!quellName) return
+    const ausgaenge = quellAusgaenge(project, quelleId ?? undefined)
     // ADR-004: das Bild traegt den Dokument-Stempel. Wozu — jemand
     // fotografiert einen Monitor, auf dem das Bild steht, und schickt das
     // Foto. Ohne Stempel ist das ein Beweis fuer „irgendwann"; mit Stempel
@@ -102,7 +103,14 @@ export function PatternChip() {
       `testbild-${quellName.replace(/[^\w.-]+/g, '_')}.svg`,
       testPatternSvg({
         name: quellName,
-        zeile2: format(t('canvas.pattern.line2', '{n} arrival points per plan'), { n: ziele }),
+        zeile2: [
+          ausgaenge.length
+            ? format(t('canvas.pattern.fromPort', 'from {ports}'), { ports: ausgaenge.join(', ') })
+            : '',
+          format(t('canvas.pattern.line2', '{n} arrival points per plan'), { n: ziele }),
+        ]
+          .filter(Boolean)
+          .join(' · '),
         zeile3: `${stempel.project}${stempel.revision ? ` · ${stempel.revision}` : ''} · ${stempel.fingerprint}${stempel.drifted ? ' *' : ''}`,
       }),
       'image/svg+xml',

@@ -1589,6 +1589,7 @@ export const de: Dict = {
     'Was der Plan hier vorsieht — kein Videobild. Diese App sieht nicht, was wirklich ankommt.',
   'canvas.pattern.label': 'Prüfbild',
   'canvas.pattern.line2': '{n} Ankunftsorte laut Plan',
+  'canvas.pattern.fromPort': 'aus {ports}',
   'canvas.pattern.none': 'keine',
   'canvas.pattern.open': '· {n} offen',
   'canvas.pattern.pickTitle':

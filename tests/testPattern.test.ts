@@ -315,3 +315,29 @@ describe('Das Feld am Knoten sagt, dass es eine Erwartung ist', () => {
     expect(chip).toMatch(/canvas\.pattern\.open'/)
   })
 })
+
+describe('quellAusgaenge (#990)', () => {
+  it('nennt nur belegte Ausgänge der Quelle, in Gerätereihenfolge', async () => {
+    const { quellAusgaenge } = await import('../src/renderer/lib/patternRouting')
+    const project = {
+      equipment: [
+        {
+          id: 'cam',
+          outputs: [
+            { id: 'o1', name: 'SDI OUT 1' },
+            { id: 'o2', name: 'SDI OUT 2' },
+            { id: 'o3', name: 'HDMI' },
+          ],
+        },
+      ],
+      cables: [
+        { fromEquipmentId: 'cam', fromPortId: 'o3' },
+        { fromEquipmentId: 'cam', fromPortId: 'o1' },
+        { fromEquipmentId: 'x', fromPortId: 'o2' },
+      ],
+    } as never
+    expect(quellAusgaenge(project, 'cam')).toEqual(['SDI OUT 1', 'HDMI'])
+    expect(quellAusgaenge(project, undefined)).toEqual([])
+    expect(quellAusgaenge(project, 'fehlt')).toEqual([])
+  })
+})
