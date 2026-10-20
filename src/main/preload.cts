@@ -27,6 +27,7 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         hits: { title: string; url: string; snippet: string }[]
         pages: { url: string; text: string }[]
       }>,
+    pdfText: (bytes: Uint8Array) => ipcRenderer.invoke('webSearch:pdf-text', bytes) as Promise<string>,
   },
   rentman: {
     getProjects: () => ipcRenderer.invoke('rentman:get-projects') as Promise<unknown[]>,

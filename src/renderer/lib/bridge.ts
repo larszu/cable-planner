@@ -246,6 +246,8 @@ export type CablePlannerApi = {
       hits: { title: string; url: string; snippet: string }[]
       pages: { url: string; text: string }[]
     }>
+    /** Klartext eines PDF-Datenblatts (leer, wenn nicht lesbar). */
+    pdfText: (bytes: Uint8Array) => Promise<string>
   }
   rentman: {
     getProjects: () => Promise<unknown[]>
@@ -1049,6 +1051,7 @@ const webFallbackApi: CablePlannerApi = {
   // Wikipedia/DuckDuckGo-Kurztexte zurueck (`webPortSuggestions`).
   webSearch: {
     search: async () => ({ hits: [], pages: [] }),
+    pdfText: async () => '',
   },
   rentman: {
     getProjects: () => fetchRentmanPaginated('/projects'),

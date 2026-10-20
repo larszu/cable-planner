@@ -47,8 +47,8 @@
 // in der Ansicht — dort, wo `t()` ausgeschrieben steht und der
 // Sprach-Waechter ihn findet.
 // ───────────────────────────────────────────────────────────────────────────
-import { suggestFromAI } from './aiSuggestions'
-import { suggestFromWeb } from './webPortSuggestions'
+import { getApiKey, getSelectedAiProvider, suggestFromAI, suggestFromDatasheetAI } from './aiSuggestions'
+import { scanConnectors, suggestFromWeb } from './webPortSuggestions'
 import type { PortGroupHint } from './portSuggestions'
 
 /**
@@ -100,4 +100,30 @@ export const felderAusfuellen = async (
   }
   const { hints, source, snippet } = await suggestFromWeb(geraetename, kategorie)
   return { hints, quelle: 'web', fundstelle: source, schnipsel: snippet }
+}
+
+/**
+ * Ports aus einem hochgeladenen Datenblatt (Text bereits ausgelesen).
+ *
+ * Mit hinterlegtem Schluessel liest das Modell das Dokument — Datenblaetter
+ * sind Tabellen, und die versteht es besser als jede Stichwortsuche. Ohne
+ * Schluessel zaehlt `scanConnectors` die Stecker; die Fundstelle ist dann der
+ * Dateiname, damit die Vorlage sagt, woraus geraten wurde.
+ */
+export const datenblattAusfuellen = async (
+  datenblatt: string,
+  dateiname: string,
+  geraetename: string,
+  kategorie: string,
+): Promise<AusfuellErgebnis> => {
+  if (getApiKey(getSelectedAiProvider())) {
+    const hints = await suggestFromDatasheetAI(geraetename, kategorie, datenblatt)
+    return { hints, quelle: 'ki', fundstelle: dateiname }
+  }
+  return {
+    hints: scanConnectors(datenblatt),
+    quelle: 'web',
+    fundstelle: dateiname,
+    schnipsel: datenblatt.slice(0, 400),
+  }
 }
