@@ -40,9 +40,8 @@
 //   npm run build && xvfb-run -a node scripts/screenshots.mjs
 //
 // Schreibt nach `docs/screenshots/` und stempelt `aufnahme.json` mit der
-// Version, gegen die aufgenommen wurde. `tests/screenshotsAktuell.test.ts`
-// vergleicht diesen Stempel mit `package.json` — damit faellt das naechste
-// Altern auf, statt unsichtbar zu bleiben.
+// Version, gegen die aufgenommen wurde — zur Auskunft. Ein Abgleich mit
+// `package.json` findet nicht statt; die Bilder werden auf Zuruf erneuert.
 // ───────────────────────────────────────────────────────────────────────────
 
 import { _electron as electron } from 'playwright-core'

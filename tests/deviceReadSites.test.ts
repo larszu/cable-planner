@@ -145,6 +145,8 @@ const SONSTIGE_DOMAENEN = [
   'streamCredential',
   'sync',
   'updater',
+  // Websuche fuer Port-Vorschlaege — fragt das Netz, kein Geraet.
+  'webSearch',
 ] as const
 
 const READS_DEVICE = new RegExp(`cablePlannerApi\\.(${GERAETE_DOMAENEN.join('|')})\\.[A-Za-z]`)

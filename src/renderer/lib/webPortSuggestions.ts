@@ -1,9 +1,62 @@
-// Free, no-API-key port suggestions. Combines Wikipedia REST summary +
-// DuckDuckGo Instant Answer to harvest a snippet about the device, then
-// scans the snippet for connector keywords. Coverage is hit-and-miss but
+// Free, no-API-key port suggestions. On the desktop: real search results
+// (main process, `webSearchService`) and the text of the top result pages.
+// Fallback / browser: Wikipedia REST summary + DuckDuckGo Instant Answer.
+// The text is then scanned for connector keywords. Coverage is hit-and-miss but
 // works for well-known broadcast/AV gear without any account or token.
 import { ALL_CONNECTOR_TYPES, type ConnectorType } from '../types/equipment'
 import type { PortGroupHint } from './portSuggestions'
+import { cablePlannerApi, hasDesktopBridge } from './bridge'
+
+// Nur Saetze, die von Anschluessen reden. Eine ganze Produktseite nennt
+// „HDMI" auch im Menue und im Zubehoer; gezaehlt wird nur, wo daneben
+// Eingang/Ausgang/Port steht.
+const PORT_CONTEXT =
+  /\b(inputs?|outputs?|ports?|connectors?|interfaces?|i\/o|loop|eing(a|ä)ng\w*|ausg(a|ä)ng\w*|anschl(u|ü)ss\w*|schnittstellen?)\b/i
+
+const portSentences = (text: string): string =>
+  text
+    .split(/(?<=[.;!?])\s+|\s{2,}/)
+    .filter((s) => s.length < 400 && PORT_CONTEXT.test(s))
+    .join(' ')
+
+// Abschnittstitel einer Datenblatt-Seite: „Inputs .", „Outputs:",
+// „Eingänge". Steht einer davon vor einem Stecker, gibt ER die Richtung an —
+// in Spezifikationstabellen steht „input" sonst nirgends neben dem Stecker.
+const HEADING = /\b(inputs?|outputs?|eing(?:a|ä)ng\w*|ausg(?:a|ä)ng\w*)\s*[.:]/gi
+
+/** Ab dem ersten Ein-/Ausgangs-Abschnitt (Datenblatt), sonst nur Port-Saetze. */
+const specRegion = (text: string): string => {
+  HEADING.lastIndex = 0
+  const m = HEADING.exec(text)
+  return m ? text.slice(m.index, m.index + 6000) : portSentences(text)
+}
+
+const directionAt = (text: string, idx: number): 'in' | 'out' | undefined => {
+  let last: string | undefined
+  HEADING.lastIndex = 0
+  let m: RegExpExecArray | null
+  while ((m = HEADING.exec(text)) && m.index < idx) {
+    if (idx - m.index < 2500) last = m[1].toLowerCase()
+  }
+  if (!last) return undefined
+  return /^(out|ausg)/.test(last) ? 'out' : 'in'
+}
+
+/** Echte Suchergebnisse ueber den Hauptprozess (am Desktop). */
+const webSearch = async (query: string): Promise<{ inhalt: string; source: string }> => {
+  if (!hasDesktopBridge) return { inhalt: '', source: '' }
+  try {
+    const { hits, pages } = await cablePlannerApi.webSearch.search(`${query} inputs outputs specifications`)
+    const parts = [
+      ...pages.map((p) => ({ url: p.url, inhalt: specRegion(p.text) })),
+      ...hits.map((h) => ({ url: h.url, inhalt: portSentences(h.snippet) })),
+    ].filter((p) => p.inhalt)
+    if (!parts.length) return { inhalt: '', source: '' }
+    return { inhalt: parts.map((p) => p.inhalt).join('\n'), source: parts[0].url }
+  } catch {
+    return { inhalt: '', source: '' }
+  }
+}
 
 const wikiSummary = async (query: string): Promise<string> => {
   // Try the page directly first; fall back to opensearch+REST.
@@ -95,8 +148,11 @@ export const suggestFromWeb = async (
   category: string,
 ): Promise<{ hints: PortGroupHint[]; source: string; snippet: string }> => {
   const query = `${deviceName} ${category}`.trim()
-  const [wiki, ddg] = await Promise.all([wikiSummary(deviceName), ddgInstant(query)])
-  const snippet = `${wiki}\n${ddg}`.trim()
+  const web = await webSearch(deviceName)
+  const [wiki, ddg] = web.inhalt
+    ? ['', '']
+    : await Promise.all([wikiSummary(deviceName), ddgInstant(query)])
+  const snippet = (web.inhalt || `${wiki}\n${ddg}`).trim()
   if (!snippet) return { hints: [], source: 'web', snippet: '' }
 
   // For each connector keyword, count distinct mentions (capped) in the
@@ -106,9 +162,12 @@ export const suggestFromWeb = async (
     let m: RegExpExecArray | null
     kw.re.lastIndex = 0
     while ((m = kw.re.exec(snippet))) {
-      const dir = kw.direction ?? DIRECTION_NEAR(snippet, m.index) ?? 'in'
+      const dir = kw.direction ?? directionAt(snippet, m.index) ?? DIRECTION_NEAR(snippet, m.index) ?? 'in'
       const count = COUNT_NEAR(snippet, m.index)
-      const key = `${kw.connector}|${dir}|${kw.label}`
+      // Ein Schluessel je Stecker und Richtung: „12G-SDI", „SDI" und „BNC"
+      // im selben Datenblatt sind dieselben Buchsen, nicht drei Gruppen. Das
+      // Etikett bleibt das des ersten (spezifischsten) Stichworts.
+      const key = `${kw.connector}|${dir}`
       const existing = buckets.get(key)
       if (existing) {
         existing.count = Math.max(existing.count, count)
@@ -126,5 +185,9 @@ export const suggestFromWeb = async (
   // Validate connector type is in the allowed enum (defensive).
   const valid = ALL_CONNECTOR_TYPES as readonly ConnectorType[]
   const hints = Array.from(buckets.values()).filter((h) => valid.includes(h.connectorType))
-  return { hints, source: wiki ? 'wikipedia' : 'duckduckgo', snippet: snippet.slice(0, 400) }
+  return {
+    hints,
+    source: web.source || (wiki ? 'wikipedia' : 'duckduckgo'),
+    snippet: snippet.slice(0, 400),
+  }
 }

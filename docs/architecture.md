@@ -72,6 +72,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `streamKey:*` | `credentialsIpc.ts` | `get`, `has`, `save`, `delete` je Ausspielziel (Initiative 9). Eigener Namensraum neben `credentials:*`, weil ein Kanal eine Domäne ist: dort wohnen die Integrationen (Rentman, NetBox), hier die Ziele des Projekts. Ein Account je Ziel (`stream-key:<id>`) — ein gemeinsamer Blob nähme beim Löschen eines Ziels entweder alle Keys mit oder keinen. |
 | `graphml:*` | `graphmlIpc.ts` | `open-file` |
 | `print:*` | `printIpc.ts` | `pdf-bytes` |
+| `webSearch:*` | `webSearchIpc.ts` | `search` — DuckDuckGo-Ergebnisseite + Text der ersten Treffer für „Ports aus dem Namen raten“ (CORS sperrt das im Renderer) |
 | `logs:*` | `logIpc.ts` | `renderer-error` (Renderer → Main, one-way) |
 | `signaling:*` | `signalingIpc.ts` | LAN-Signaling-Relay für die Yjs/WebRTC-Kollaboration (#413) |
 | `collabDiscovery:*` | `collabDiscoveryIpc.ts` | Bonjour/mDNS-Discovery von Kollaborations-Peers im LAN |

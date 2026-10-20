@@ -21,6 +21,13 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         message: string
       }>,
   },
+  webSearch: {
+    search: (query: string) =>
+      ipcRenderer.invoke('webSearch:search', query) as Promise<{
+        hits: { title: string; url: string; snippet: string }[]
+        pages: { url: string; text: string }[]
+      }>,
+  },
   rentman: {
     getProjects: () => ipcRenderer.invoke('rentman:get-projects') as Promise<unknown[]>,
     getProjectEquipment: (projectId: string) =>

@@ -33,6 +33,7 @@ import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
 import { registerMcpIpc } from './ipc/mcpIpc.js'
 import { registerCollabDiscoveryIpc } from './ipc/collabDiscoveryIpc.js'
 import { registerPrintIpc } from './ipc/printIpc.js'
+import { registerWebSearchIpc } from './ipc/webSearchIpc.js'
 import { registerLibraryIpc } from './ipc/libraryIpc.js'
 import { registerSignalingIpc } from './ipc/signalingIpc.js'
 import { stopSignalingServer } from './signalingServer.js'
@@ -412,6 +413,7 @@ app.whenReady().then(async () => {
   registerMcpIpc()
   registerCollabDiscoveryIpc()
   registerPrintIpc()
+  registerWebSearchIpc()
   registerLibraryIpc()
   registerSignalingIpc()
 

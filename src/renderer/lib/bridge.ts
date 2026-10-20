@@ -240,6 +240,13 @@ export type CablePlannerApi = {
     deleteToken: () => Promise<boolean>
     testToken: () => Promise<{ ok: boolean; message: string }>
   }
+  /** Echte Suchergebnisse (DuckDuckGo-HTML + Treffer-Seiten), nur am Desktop. */
+  webSearch: {
+    search: (query: string) => Promise<{
+      hits: { title: string; url: string; snippet: string }[]
+      pages: { url: string; text: string }[]
+    }>
+  }
   rentman: {
     getProjects: () => Promise<unknown[]>
     getProjectEquipment: (projectId: string) => Promise<unknown[]>
@@ -1037,6 +1044,11 @@ const webFallbackApi: CablePlannerApi = {
         }
       }
     },
+  },
+  // Im Browser sperrt CORS die Ergebnisseite — die Websuche faellt dort auf
+  // Wikipedia/DuckDuckGo-Kurztexte zurueck (`webPortSuggestions`).
+  webSearch: {
+    search: async () => ({ hits: [], pages: [] }),
   },
   rentman: {
     getProjects: () => fetchRentmanPaginated('/projects'),
