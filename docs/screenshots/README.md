@@ -29,7 +29,17 @@ rendern erst, sobald die passend benannten Dateien hier liegen.
 > Beispielprojekt, in einem Wegwerf-Profil (`CP_USER_DATA_DIR`) und mit
 > `--lang=en-US`, damit ein deutscher Mac kein deutsches Bild liefert.
 > `camera-control.png` entsteht nur mit laufender LZ Camera Bridge:
-> `CP_BRIDGE=localhost:9700 npm run docs:shots`. `atem-multiview.png` ist
+> `CP_BRIDGE=localhost:9700 npm run docs:shots`. Lokal (auch macOS) die
+> Bridge vorher in einem zweiten Terminal starten — ohne Kamera, sie genügt
+> für die Aufnahme:
+>
+> ```sh
+> cd ../lz-camera-bridge && npm ci && npm run bridge   # lauscht auf 9700
+> ```
+>
+> Der Workflow `docs-shots.yml` checkt `larszu/lz-camera-bridge` selbst aus,
+> startet sie und bricht ab, wenn `camera-control.png` im Stempel fehlt.
+> `atem-multiview.png` ist
 > noch die alte Aufnahme — das Beispielprojekt hat keinen ATEM.
 >
 > **Stand 2026-10-14 (v9.6.0, Design-Vertrag 2026-10):** alle Bilder in der

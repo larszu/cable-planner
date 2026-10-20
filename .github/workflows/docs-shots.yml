@@ -69,8 +69,34 @@ jobs:
       - name: Bauen
         run: npm run build
 
+      # Ohne laufende LZ Camera Bridge ueberspringt screenshots.mjs
+      # camera-control.png, der Stempel bleibt unvollstaendig und
+      # tests/screenshotsAktuell.test.ts wird nie gruen (#1055). Die Bridge
+      # startet ohne Kamera und genuegt fuer die Aufnahme.
+      - uses: actions/checkout@v5
+        with:
+          repository: larszu/lz-camera-bridge
+          path: .bridge
+      - name: LZ Camera Bridge starten
+        working-directory: .bridge
+        run: |
+          npm ci
+          nohup npm run bridge > ../bridge.log 2>&1 &
+          for i in $(seq 1 60); do
+            nc -z localhost 9700 && exit 0
+            sleep 1
+          done
+          cat ../bridge.log >&2
+          echo "Bridge lauscht nach 60 s nicht auf 9700." >&2
+          exit 1
+
       - name: Aufnehmen
+        env:
+          CP_BRIDGE: localhost:9700
         run: xvfb-run -a node scripts/screenshots.mjs
+
+      - name: Aufgenommen ist camera-control.png
+        run: grep -q camera-control.png docs/screenshots/aufnahme.json || { cat bridge.log; exit 1; }
 
       - name: Bilder committen (falls sie sich geändert haben)
         run: |
