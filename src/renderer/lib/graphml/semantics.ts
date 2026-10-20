@@ -38,6 +38,9 @@ export interface ResolvedPort {
   rawLabel: string
   /** 0..1 — how confident the connector inference is. */
   confidence: number
+  /** Signal carried, from the function cell next to the port ("Cam 1",
+   *  "ME1 IMAG"). Becomes Port.contentLabel. */
+  signal?: string
 }
 
 export type DeviceCategory = string
@@ -173,7 +176,7 @@ const looksLikeDeviceRect = (n: GraphmlNode) => {
 /** Decorative shapes we deliberately skip: legends, headings, title
  *  blocks. Identified by the presence of a recognisable section
  *  keyword in the main label and zero edges incident on them. */
-const DECORATIVE_LABELS = /^(Legende|Titel|Legend|Title|Header|Footer|Index|Datum|Autor|Auftraggeber|Kunde)$/i
+const DECORATIVE_LABELS = /^(Legende|Titel|Legend|Title|Header|Footer|Index|Datum|Autor|Auftraggeber|Kunde)$|^(Kabel|Signal|Farb)?legende\b|^(cable |signal |colou?r )?legend\b/i
 
 const looksDecorative = (n: GraphmlNode) => {
   const main = n.labels[0]?.text.trim()
@@ -283,84 +286,373 @@ const associateFloatingPortLabels = (
   return result
 }
 
-/** Pattern 1: spatial inference. Walks the flat top-level node list,
- *  marks the visually-large nodes as device candidates, and assigns
- *  every port-sized sibling node to its nearest device — by either
- *  containment OR adjacency (port shapes attached to a device's edge
- *  are a common yEd convention; see the Missionswerk file where the
- *  60×20 port markers sit OUTSIDE the device's bbox, touching its
- *  left or right edge). The 10-pixel tolerance below matches the
- *  layout style used by yEd's auto-snap when port shapes are dragged
- *  next to a device rect.
+/** Gap (px) under which two rectangles count as touching. yEd's grid
+ *  snap leaves sub-pixel seams between cells drawn edge to edge. */
+const TOUCH_GAP_PX = 3
+
+/** Distance between two rectangles (0 when they touch or overlap). */
+const rectGap = (a: GraphmlGeometry, b: GraphmlGeometry) => {
+  const dx = Math.max(a.x - (b.x + b.width), 0, b.x - (a.x + a.width))
+  const dy = Math.max(a.y - (b.y + b.height), 0, b.y - (a.y + a.height))
+  return Math.sqrt(dx * dx + dy * dy)
+}
+
+/** Table header cells ("Type | Func. | Input | Source | Dest") that
+ *  name a column instead of a port or signal. */
+const HEADER_LABELS = /^(type|typ|func\.?|function|funktion|input|output|in|out|source|quelle|dest|destination|ziel|signal|position|port|anschluss|nr\.?|#)$/i
+
+const mainText = (n: GraphmlNode) => n.labels.map((l) => l.text.trim()).filter(Boolean).join(' ')
+
+/** A device body must be a real block, not a one-line caption (179×20
+ *  "Hyperdeck 1 Oben Links") or a vertical bracket (20×80 "HD Out"). */
+const DOTTED_QUAD = /\b\d{1,3}(?:\.\d{1,3}){3}\b/
+
+/** "Net. 192.168.5.21" cells annotate a device; they are never one. */
+const isIpCell = (n: GraphmlNode) => DOTTED_QUAD.test(mainText(n)) && mainText(n).length <= 32
+
+const looksLikeDeviceBody = (n: GraphmlNode) => {
+  if (!n.geometry || isIpCell(n) || HEADER_LABELS.test(mainText(n))) return false
+  const { width, height } = n.geometry
+  if (looksLikeDeviceRect(n) && width >= 100 && height >= 40) return true
+  // Vertical name strip along a device's side ("Kamerazug DOLLY /
+  // Blackmagic URSA Broadcast G2", 40×260): the device's only label.
+  return mainText(n).length >= 6 && width >= 30 && height >= 80 && height >= width * 1.5
+}
+
+/** Pattern 1: spatial inference for flat installation diagrams.
  *
- *  Ties go to the smaller-area device that still satisfies the
- *  distance threshold — the closer visual neighbour. */
+ *  Real yEd plans draw a device as a body rectangle plus a column of
+ *  small cells per side: connector cells ("3G/SDI In 1") hang OUTSIDE
+ *  the body, touching its edge, and function cells ("Cam 1") sit inside
+ *  or next to them in the same row. Some devices are drawn as a whole
+ *  table (Videohub: Input | Source | Signal | Dest) with the body only a
+ *  caption block under it. Port cells therefore are not necessarily
+ *  near the body's centre — what holds is that they are part of one
+ *  contiguous patch of touching cells that also touches the body.
+ *
+ *  1. Cells (small nodes) are grouped into clusters of touching rects;
+ *     every device body touching a cluster joins it.
+ *  2. A port is a cell that some edge ends on, or a connector-looking
+ *     cell in the same column as such a port (unused inputs of a matrix).
+ *  3. Each port goes to the nearest body of its cluster, or to the
+ *     nearest body overall within a small radius when it floats.
+ *  4. The non-port, non-header cell nearest in the same row becomes the
+ *     port's signal label (contentLabel). */
 const collectFlatCandidates = (
   topNodes: GraphmlNode[],
   edges: GraphmlEdge[],
-): { candidates: DeviceCandidate[]; portToDevice: Map<string, string> } => {
-  const devices = topNodes.filter((n) => looksLikeDeviceRect(n) && !looksDecorative(n))
-  const portCandidates = topNodes.filter((n) => isPortShaped(n.geometry) && !devices.includes(n))
-
-  const portToDevice = new Map<string, string>()
-  const deviceMap = new Map<string, DeviceCandidate>(
-    devices.map((d) => [d.id, { node: d, portNodes: [] }]),
+): {
+  candidates: DeviceCandidate[]
+  portToDevice: Map<string, string>
+  rowLabels: Map<string, string>
+  consumed: Set<string>
+  ownerOfNode: Map<string, string>
+  ipByDevice: Map<string, string>
+  subtitleOf: Map<string, string>
+} => {
+  const devices = topNodes.filter((n) => looksLikeDeviceBody(n) && !looksDecorative(n))
+  const deviceIds = new Set(devices.map((d) => d.id))
+  // Cells: everything small, plus unlabeled frames (the empty 80×440
+  // strip of a patch panel, the 160×170 body behind a computer's name
+  // strip) — those carry no meaning of their own but connect the cells
+  // around them, and cables are sometimes drawn onto them.
+  const cells = topNodes.filter(
+    (n) =>
+      !!n.geometry &&
+      !deviceIds.has(n.id) &&
+      !looksDecorative(n) &&
+      n.geometry.width <= 260 &&
+      (n.geometry.height <= 60 || !mainText(n)),
   )
 
-  const ADJACENCY_TOLERANCE_PX = 12
+  const endpointIds = new Set<string>()
+  for (const e of edges) {
+    endpointIds.add(e.sourceId)
+    endpointIds.add(e.targetId)
+  }
 
-  for (const port of portCandidates) {
-    if (!port.geometry) continue
-    const p = center(port.geometry)
+  // Union-find over cells + devices. Devices never merge with each
+  // other directly — two bodies drawn side by side stay two devices.
+  const parent = new Map<string, string>()
+  const find = (id: string): string => {
+    let r = id
+    while (parent.get(r) !== r) r = parent.get(r)!
+    parent.set(id, r)
+    return r
+  }
+  const union = (a: string, b: string) => {
+    const ra = find(a)
+    const rb = find(b)
+    if (ra !== rb) parent.set(ra, rb)
+  }
+  for (const n of [...cells, ...devices]) parent.set(n.id, n.id)
+  // Bucket cells on a coarse grid so the pairwise touch test stays
+  // linear-ish on 1000+ node plans.
+  const BUCKET = 200
+  const buckets = new Map<string, GraphmlNode[]>()
+  const keysFor = (g: GraphmlGeometry) => {
+    const out: string[] = []
+    for (let bx = Math.floor((g.x - TOUCH_GAP_PX) / BUCKET); bx <= Math.floor((g.x + g.width + TOUCH_GAP_PX) / BUCKET); bx += 1) {
+      for (let by = Math.floor((g.y - TOUCH_GAP_PX) / BUCKET); by <= Math.floor((g.y + g.height + TOUCH_GAP_PX) / BUCKET); by += 1) {
+        out.push(`${bx}:${by}`)
+      }
+    }
+    return out
+  }
+  for (const c of cells) {
+    for (const k of keysFor(c.geometry!)) {
+      const list = buckets.get(k)
+      if (list) list.push(c)
+      else buckets.set(k, [c])
+    }
+  }
+  for (const c of cells) {
+    for (const k of keysFor(c.geometry!)) {
+      for (const o of buckets.get(k) ?? []) {
+        if (o.id <= c.id) continue
+        if (rectGap(c.geometry!, o.geometry!) <= TOUCH_GAP_PX) union(c.id, o.id)
+      }
+    }
+  }
+  const devicesByCluster = new Map<string, GraphmlNode[]>()
+  for (const d of devices) {
+    for (const k of keysFor(d.geometry!)) {
+      for (const c of buckets.get(k) ?? []) {
+        if (rectGap(c.geometry!, d.geometry!) <= TOUCH_GAP_PX) union(c.id, d.id)
+      }
+    }
+  }
+  const isHeader = (n: GraphmlNode) => HEADER_LABELS.test(mainText(n))
+  const portIds = new Set<string>()
+  for (const c of cells) {
+    if (endpointIds.has(c.id) && !isHeader(c) && mainText(c) && c.geometry!.height <= 60) portIds.add(c.id)
+  }
+
+  // Clusters with cabled cells but no body: small boxes drawn at cell
+  // size (a 96×40 converter, a 140×40 LED controller, a lone 164×20
+  // "BenqPD3200u" monitor). The biggest labelled non-port cell is the
+  // device; failing that, the cabled cell itself stands for the device.
+  {
+    const groups = new Map<string, GraphmlNode[]>()
+    for (const c of cells) {
+      const r = find(c.id)
+      const list = groups.get(r)
+      if (list) list.push(c)
+      else groups.set(r, [c])
+    }
+    const rootsWithDevice = new Set(devices.map((d) => find(d.id)))
+    for (const [root, members] of groups) {
+      if (rootsWithDevice.has(root)) continue
+      if (!members.some((m) => endpointIds.has(m.id))) continue
+      const area = (n: GraphmlNode) => n.geometry!.width * n.geometry!.height
+      const body =
+        members
+          .filter((m) => !portIds.has(m.id) && mainText(m) && !isHeader(m) && !isIpCell(m) && !/^tba$/i.test(mainText(m)))
+          .sort((a, b) => area(b) - area(a))[0] ??
+        (members.length === 1 ? members[0] : null)
+      if (!body) continue
+      portIds.delete(body.id)
+      devices.push(body)
+      deviceIds.add(body.id)
+    }
+  }
+
+  // Two "devices" in one drawing:
+  //  - a caption box sitting inside a computer's empty frame
+  //    ("ProPresenter 7 / LED Background" inside the Mac mini) is the
+  //    software running there, not a second box;
+  //  - a body overlapped by a vertical name strip is that strip's
+  //    device (the strip names it; the body's own text is kept as
+  //    subtitle).
+  const subtitleOf = new Map<string, string>()
+  {
+    const frames = cells.filter((c) => !mainText(c) && c.geometry!.height > 60)
+    const inside = (a: GraphmlGeometry, b: GraphmlGeometry) =>
+      a.x >= b.x - 1 && a.y >= b.y - 1 && a.x + a.width <= b.x + b.width + 1 && a.y + a.height <= b.y + b.height + 1
+    const overlapArea = (a: GraphmlGeometry, b: GraphmlGeometry) =>
+      Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) *
+      Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y))
+    const isStrip = (d: GraphmlNode) => d.geometry!.height >= d.geometry!.width * 1.5 && d.geometry!.width <= 60
+    const demote = new Set<string>()
+    for (const d of devices) {
+      const frame = frames.find((f) => inside(d.geometry!, f.geometry!))
+      if (!frame) continue
+      const other = devices.find((o) => o !== d && !demote.has(o.id) && find(o.id) === find(frame.id) && !inside(o.geometry!, frame.geometry!))
+      if (other) demote.add(d.id)
+    }
+    for (const strip of devices.filter(isStrip)) {
+      for (const body of devices) {
+        if (body === strip || isStrip(body) || demote.has(body.id)) continue
+        if (overlapArea(strip.geometry!, body.geometry!) <= 0) continue
+        demote.add(body.id)
+        subtitleOf.set(strip.id, mainText(body).replace(/\s+/g, ' '))
+      }
+    }
+    for (let i = devices.length - 1; i >= 0; i -= 1) {
+      const d = devices[i]
+      if (!demote.has(d.id)) continue
+      devices.splice(i, 1)
+      deviceIds.delete(d.id)
+      cells.push(d)
+      // Bodies never merged with other bodies; as a cell it now joins
+      // everything it touches, the naming strip included.
+      for (const o of [...cells, ...devices]) {
+        if (o.id !== d.id && rectGap(d.geometry!, o.geometry!) <= TOUCH_GAP_PX) union(d.id, o.id)
+      }
+    }
+  }
+
+  // A device may have joined a cluster through any of its cells; group
+  // the bodies per final root afterwards.
+  for (const d of devices) {
+    const r = find(d.id)
+    const list = devicesByCluster.get(r)
+    if (list) list.push(d)
+    else devicesByCluster.set(r, [d])
+  }
+
+  // Same-column connector cells: unused inputs/outputs of a matrix.
+  const columnKey = (g: GraphmlGeometry) => `${Math.round(g.x)}|${Math.round(g.width)}`
+  // Cables drawn onto an empty strip or a body end at a row: the
+  // labelled cell of the same patch at that height is the port.
+  {
+    const nodeById = new Map([...cells, ...devices].map((n) => [n.id, n]))
+    const byRoot = new Map<string, GraphmlNode[]>()
+    for (const c of cells) {
+      if (!mainText(c) || isHeader(c) || isIpCell(c) || c.geometry!.height > 60) continue
+      const r = find(c.id)
+      const list = byRoot.get(r)
+      if (list) list.push(c)
+      else byRoot.set(r, [c])
+    }
+    const adopt = (nodeId: string, ox: number, oy: number) => {
+      const n = nodeById.get(nodeId)
+      if (!n || portIds.has(n.id) || (mainText(n) && !deviceIds.has(n.id))) return
+      const c = center(n.geometry!)
+      const pt = { x: c.x + ox, y: c.y + oy }
+      let best: GraphmlNode | null = null
+      let bestDist = 200
+      for (const cell of byRoot.get(find(n.id)) ?? []) {
+        if (cell.id === n.id || deviceIds.has(cell.id)) continue
+        const g = cell.geometry!
+        if (pt.y < g.y || pt.y > g.y + g.height) continue
+        const dist = distanceToRect(g, pt)
+        if (dist < bestDist) {
+          best = cell
+          bestDist = dist
+        }
+      }
+      if (best) portIds.add(best.id)
+    }
+    for (const e of edges) {
+      adopt(e.sourceId, e.pathOffset.sx, e.pathOffset.sy)
+      adopt(e.targetId, e.pathOffset.tx, e.pathOffset.ty)
+    }
+  }
+
+  // Uncabled rows of a port column are ports too (spare inputs of a
+  // matrix, the second SDI out of a camera). One cabled cell is enough
+  // for connector-looking text; free text needs two, so a lone network
+  // cell does not turn the function column it sits in into ports.
+  const columnHits = new Map<string, number>()
+  for (const c of cells) {
+    if (!portIds.has(c.id)) continue
+    const k = `${find(c.id)}|${columnKey(c.geometry!)}|${Math.round(c.geometry!.height)}`
+    columnHits.set(k, (columnHits.get(k) ?? 0) + 1)
+  }
+  const portColumns = new Set(columnHits.keys())
+  for (const c of cells) {
+    if (portIds.has(c.id) || deviceIds.has(c.id) || isHeader(c)) continue
+    const k = `${find(c.id)}|${columnKey(c.geometry!)}|${Math.round(c.geometry!.height)}`
+    if (!portColumns.has(k) || !mainText(c) || isIpCell(c)) continue
+    if ((columnHits.get(k) ?? 0) >= 2 || inferConnectorType(mainText(c)).confidence >= 0.9) portIds.add(c.id)
+  }
+
+  const deviceMap = new Map<string, DeviceCandidate>(devices.map((d) => [d.id, { node: d, portNodes: [] }]))
+  const portToDevice = new Map<string, string>()
+  const FLOATING_RADIUS_PX = 40
+  const nearestOf = (n: GraphmlNode, pool: GraphmlNode[]) => {
+    let best: GraphmlNode | null = null
+    let bestDist = Infinity
+    for (const d of pool) {
+      if (d.id === n.id) continue
+      const dist = rectGap(n.geometry!, d.geometry!)
+      if (dist < bestDist || (dist === bestDist && best && d.geometry!.width * d.geometry!.height < best.geometry!.width * best.geometry!.height)) {
+        best = d
+        bestDist = dist
+      }
+    }
+    return best
+  }
+  // Every cluster member knows its device, so a cable drawn onto a
+  // frame or a function cell still finds the right box.
+  const ownerOfNode = new Map<string, string>()
+  const ipByDevice = new Map<string, string>()
+  for (const c of cells) {
+    if (deviceIds.has(c.id)) continue
+    const own = devicesByCluster.get(find(c.id))
+    if (!own?.length) continue
+    const owner = nearestOf(c, own)
+    if (!owner) continue
+    ownerOfNode.set(c.id, owner.id)
+    const ip = isIpCell(c) ? DOTTED_QUAD.exec(mainText(c))?.[0] : undefined
+    if (ip && !ipByDevice.has(owner.id)) ipByDevice.set(owner.id, ip)
+  }
+  for (const c of cells) {
+    if (!portIds.has(c.id)) continue
+    const own = devicesByCluster.get(find(c.id))
+    const pool = own && own.length > 0 ? own : devices
+    let best: GraphmlNode | null = null
+    let bestDist = Infinity
+    for (const d of pool) {
+      const dist = rectGap(c.geometry!, d.geometry!)
+      if (dist < bestDist || (dist === bestDist && best && d.geometry!.width * d.geometry!.height < best.geometry!.width * best.geometry!.height)) {
+        best = d
+        bestDist = dist
+      }
+    }
+    if (!best) continue
+    if (!own?.length && bestDist > FLOATING_RADIUS_PX) continue
+    deviceMap.get(best.id)!.portNodes.push(c)
+    portToDevice.set(c.id, best.id)
+  }
+
+  // Row labels: nearest labelled non-port cell in the same row and
+  // cluster. Ties go toward the device body (inputs read rightwards,
+  // outputs leftwards — the function column sits between port and body).
+  const rowLabels = new Map<string, string>()
+  const consumed = new Set<string>()
+  const labelCells = cells.filter((c) => !portIds.has(c.id) && !deviceIds.has(c.id) && !isHeader(c) && !isIpCell(c) && mainText(c) && !/^tba$/i.test(mainText(c)))
+  const labelsByCluster = new Map<string, GraphmlNode[]>()
+  for (const c of cells) {
+    if (devicesByCluster.has(find(c.id))) consumed.add(c.id)
+  }
+  for (const l of labelCells) {
+    const r = find(l.id)
+    const list = labelsByCluster.get(r)
+    if (list) list.push(l)
+    else labelsByCluster.set(r, [l])
+  }
+  for (const [portId, devId] of portToDevice) {
+    const port = cells.find((c) => c.id === portId)!
+    const pc = center(port.geometry!)
+    const dc = center(deviceMap.get(devId)!.node.geometry!)
     let best: GraphmlNode | null = null
     let bestScore = Infinity
-    for (const dev of devices) {
-      if (!dev.geometry) continue
-      const dist = distanceToRect(dev.geometry, p)
-      if (dist > ADJACENCY_TOLERANCE_PX) continue
-      // Prefer enclosure (dist=0) over adjacency, then smaller device area.
-      const score = dist * 100 + dev.geometry.width * dev.geometry.height
+    for (const l of labelsByCluster.get(find(portId)) ?? []) {
+      const lc = center(l.geometry!)
+      if (Math.abs(lc.y - pc.y) > Math.min(port.geometry!.height, l.geometry!.height) / 2) continue
+      const towardBody = Math.sign(lc.x - pc.x) === Math.sign(dc.x - pc.x)
+      const score = Math.abs(lc.x - pc.x) + (towardBody ? 0 : 10000)
       if (score < bestScore) {
-        best = dev
+        best = l
         bestScore = score
       }
     }
-    if (best) {
-      deviceMap.get(best.id)?.portNodes.push(port)
-      portToDevice.set(port.id, best.id)
-    }
+    if (best) rowLabels.set(portId, mainText(best))
   }
 
-  // Second pass: refine using edge incidence. If an edge connects a
-  // small node we already classified as a port to its parent device,
-  // we keep that link — but if the small node is referenced by an edge
-  // to ANOTHER device's territory, that's the strongest signal that it
-  // belongs to that other device. yEd users sometimes draw the port
-  // shape near device A but wire it to device B because the cabling
-  // logically lives there. Re-assign in that case.
-  for (const edge of edges) {
-    if (edge.id.includes('::')) continue // group-internal, ignore
-    const src = topNodes.find((n) => n.id === edge.sourceId)
-    const tgt = topNodes.find((n) => n.id === edge.targetId)
-    if (!src || !tgt) continue
-    const srcIsPort = portCandidates.includes(src)
-    const tgtIsPort = portCandidates.includes(tgt)
-    const srcIsDevice = devices.includes(src)
-    const tgtIsDevice = devices.includes(tgt)
-
-    // Edge from a device to a small node not yet attached anywhere:
-    // adopt that small node as the device's port.
-    if (srcIsDevice && tgtIsPort && !portToDevice.has(tgt.id)) {
-      deviceMap.get(src.id)?.portNodes.push(tgt)
-      portToDevice.set(tgt.id, src.id)
-    }
-    if (tgtIsDevice && srcIsPort && !portToDevice.has(src.id)) {
-      deviceMap.get(tgt.id)?.portNodes.push(src)
-      portToDevice.set(src.id, tgt.id)
-    }
-  }
-
-  return { candidates: [...deviceMap.values()], portToDevice }
+  return { candidates: [...deviceMap.values()], portToDevice, rowLabels, consumed, ownerOfNode, ipByDevice, subtitleOf }
 }
 
 /** Pattern 2: nested-graph inference. Walks a single container group
@@ -403,6 +695,7 @@ const buildResolvedDevice = (
   category: DeviceCategory,
   edgeIncidenceByPort: Map<string, { asSource: number; asTarget: number }>,
   floatingPortLabels: Map<string, string>,
+  rowLabels: Map<string, string> = new Map(),
 ): ResolvedDevice => {
   const dev = candidate.node
   const mainLabel = dev.labels.find((l) => !/^ip[:\s]/i.test(l.text))?.text.trim() ?? dev.labels[0]?.text.trim() ?? dev.id
@@ -462,6 +755,16 @@ const buildResolvedDevice = (
     if (port.data['Direction']) {
       const d = port.data['Direction'].toLowerCase()
       dir = d.startsWith('out') ? 'out' : d.startsWith('in') ? 'in' : 'bidirectional'
+    } else if (
+      hint &&
+      (hint.asSource === 0) !== (hint.asTarget === 0) &&
+      !(conn.confidence >= 0.9 && inferDirection(rawLabel, null) !== 'bidirectional')
+    ) {
+      // A drawn cable says more than a signal name: a Videohub output
+      // cell is often labelled with its destination ("ATEM In 10").
+      // A connector cell that states its direction ("3G/SDI Out") is
+      // trusted over the arrow, which yEd users draw either way round.
+      dir = hint.asSource > 0 ? 'out' : 'in'
     } else {
       dir = inferDirection(rawLabel, hint)
       if (dir === 'bidirectional') {
@@ -485,6 +788,7 @@ const buildResolvedDevice = (
       direction: dir,
       rawLabel,
       confidence: conn.confidence,
+      signal: rowLabels.get(port.id),
     }
     if (dir === 'in') inputs.push(resolved)
     else if (dir === 'out') outputs.push(resolved)
@@ -568,6 +872,12 @@ export const resolveGraphml = (doc: GraphmlDocument): ImportPreview => {
   const portToDevice = new Map<string, string>()
   const deviceCategory = new Map<string, DeviceCategory>()
   const skippedNodes: Array<{ id: string; reason: string }> = []
+  let rowLabels = new Map<string, string>()
+  const consumedLabelIds = new Set<string>()
+  let ownerOfNode = new Map<string, string>()
+  let ipByDevice = new Map<string, string>()
+  let subtitleOf = new Map<string, string>()
+  let flatMode = false
 
   if (categoryLikeContainers.length >= 2) {
     // Pattern 2 — template library
@@ -595,6 +905,12 @@ export const resolveGraphml = (doc: GraphmlDocument): ImportPreview => {
       deviceCategory.set(c.node.id, 'Importiert')
     }
     for (const [port, dev] of flat.portToDevice) portToDevice.set(port, dev)
+    rowLabels = flat.rowLabels
+    ownerOfNode = flat.ownerOfNode
+    ipByDevice = flat.ipByDevice
+    subtitleOf = flat.subtitleOf
+    flatMode = true
+    for (const id of flat.consumed) consumedLabelIds.add(id)
 
     // Nested groups in flat diagrams are typically the legend / title
     // blocks — skip them with a reason.
@@ -611,10 +927,10 @@ export const resolveGraphml = (doc: GraphmlDocument): ImportPreview => {
   // node beside it). Match each label to its closest port within an
   // adjacency radius. Consumed label IDs are remembered so they don't
   // surface as "skipped — Decorative shape" below.
-  const consumedLabelIds = new Set<string>()
-  const floatingPortLabels = associateFloatingPortLabels(
+  // Cells already explained by a device table are not free labels.
+  const floatingPortLabels = flatMode ? new Map<string, string>() : associateFloatingPortLabels(
     candidates,
-    doc.nodes.filter((n) => n.parentId == null),
+    doc.nodes.filter((n) => n.parentId == null && !consumedLabelIds.has(n.id) && !portToDevice.has(n.id)),
     consumedLabelIds,
   )
 
@@ -638,8 +954,16 @@ export const resolveGraphml = (doc: GraphmlDocument): ImportPreview => {
       deviceCategory.get(c.node.id) ?? 'Importiert',
       edgeIncidenceByPort,
       floatingPortLabels,
+      rowLabels,
     ),
   )
+  for (const dev of devices) {
+    if (!dev.ipAddress && ipByDevice.has(dev.graphmlId)) dev.ipAddress = ipByDevice.get(dev.graphmlId)!
+    if (subtitleOf.has(dev.graphmlId)) dev.subtitle = subtitleOf.get(dev.graphmlId)!
+    // Multi-line yEd captions ("Blackmagic\nSmart Videohub 20") read as
+    // one name on the canvas.
+    dev.name = dev.name.replace(/\s*\n\s*/g, ' ').trim()
+  }
 
   // Index ports by their original GraphML node id to wire edges later.
   const portByGraphmlId = new Map<string, { device: ResolvedDevice; port: ResolvedPort }>()
@@ -663,11 +987,69 @@ export const resolveGraphml = (doc: GraphmlDocument): ImportPreview => {
   const cables: ResolvedCable[] = []
   const unresolvedEdges: GraphmlEdge[] = []
 
+  const nodeById = new Map(doc.nodes.map((n) => [n.id, n]))
+  // Cable drawn onto a frame, function cell or device body: the line
+  // still ends at a specific row. Take the port of the owning device
+  // nearest to where yEd draws the endpoint; only if none is close does
+  // the device get a synthesized port.
+  const SNAP_PX = 25
+  const resolveEndpoint = (
+    nodeId: string,
+    offset: { x: number; y: number },
+  ): { device: ResolvedDevice; port: ResolvedPort } | ResolvedDevice | null => {
+    const direct = portByGraphmlId.get(nodeId)
+    if (direct) return direct
+    const devId = deviceByGraphmlId.has(nodeId) ? nodeId : ownerOfNode.get(nodeId)
+    const device = devId ? deviceByGraphmlId.get(devId) : undefined
+    if (!device) return null
+    const node = nodeById.get(nodeId)
+    if (!node?.geometry) return device
+    const c = center(node.geometry)
+    const pt = { x: c.x + offset.x, y: c.y + offset.y }
+    let best: { device: ResolvedDevice; port: ResolvedPort } | null = null
+    let bestDist = SNAP_PX
+    // Second chance: same row, beside the strip the line was drawn on.
+    let rowBest: { device: ResolvedDevice; port: ResolvedPort } | null = null
+    let rowDist = 200
+    for (const p of [...device.inputs, ...device.outputs]) {
+      const pn = nodeById.get(p.graphmlId)
+      if (!pn?.geometry) continue
+      const dist = distanceToRect(pn.geometry, pt)
+      if (dist <= bestDist) {
+        best = { device, port: p }
+        bestDist = dist
+      }
+      if (pt.y >= pn.geometry.y && pt.y <= pn.geometry.y + pn.geometry.height && dist < rowDist) {
+        rowBest = { device, port: p }
+        rowDist = dist
+      }
+    }
+    return best ?? rowBest ?? device
+  }
+  const isPortRef = (v: unknown): v is { device: ResolvedDevice; port: ResolvedPort } =>
+    !!v && typeof v === 'object' && 'port' in v
+
   for (const edge of doc.edges) {
-    const srcPort = portByGraphmlId.get(edge.sourceId)
-    const dstPort = portByGraphmlId.get(edge.targetId)
-    const srcDev = deviceByGraphmlId.get(edge.sourceId)
-    const dstDev = deviceByGraphmlId.get(edge.targetId)
+    let srcRef = resolveEndpoint(edge.sourceId, { x: edge.pathOffset.sx, y: edge.pathOffset.sy })
+    let dstRef = resolveEndpoint(edge.targetId, { x: edge.pathOffset.tx, y: edge.pathOffset.ty })
+    // Output wired back into an input of the same device (a scaler's
+    // screen re-entry) is a real cable; input -> output on one device
+    // only marks a loop-through and is skipped below.
+    const loopback =
+      isPortRef(srcRef) && isPortRef(dstRef) && srcRef.device === dstRef.device &&
+      srcRef.port.direction === 'out' && dstRef.port.direction === 'in'
+    // Arrow drawn from the input to the output: the cable still runs
+    // output -> input.
+    if (
+      (isPortRef(srcRef) && srcRef.port.direction === 'in' && (!isPortRef(dstRef) || dstRef.port.direction !== 'in')) ||
+      (isPortRef(dstRef) && dstRef.port.direction === 'out' && (!isPortRef(srcRef) || srcRef.port.direction !== 'out'))
+    ) {
+      ;[srcRef, dstRef] = [dstRef, srcRef]
+    }
+    const srcPort = isPortRef(srcRef) ? srcRef : undefined
+    const dstPort = isPortRef(dstRef) ? dstRef : undefined
+    const srcDev = srcRef && !isPortRef(srcRef) ? srcRef : undefined
+    const dstDev = dstRef && !isPortRef(dstRef) ? dstRef : undefined
 
     // Decorative case: an edge from a device's main rect to one of its
     // own port shapes ("this is a port marker for me"). yEd uses this
@@ -677,7 +1059,7 @@ export const resolveGraphml = (doc: GraphmlDocument): ImportPreview => {
     if (dstDev && srcPort && srcPort.device.graphmlId === dstDev.graphmlId) continue
 
     // Same-device port-to-port (intra-device patch): also decorative.
-    if (srcPort && dstPort && srcPort.device.graphmlId === dstPort.device.graphmlId) continue
+    if (srcPort && dstPort && srcPort.device.graphmlId === dstPort.device.graphmlId && !loopback) continue
 
     // Real cable: port → port across two different devices.
     if (srcPort && dstPort) {
@@ -819,6 +1201,7 @@ const portToDomainPort = (p: ResolvedPort): Port => ({
   type: p.connectorType,
   connectorType: p.connectorType,
   direction: p.direction,
+  ...(p.signal ? { contentLabel: p.signal } : {}),
 })
 
 export const toEquipmentItem = (dev: ResolvedDevice) => ({
