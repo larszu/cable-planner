@@ -22,6 +22,7 @@
 // Papier bringt, ist ein Kästchen zu viel.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { fotosAmGeraet } from './fotoMasse'
 import type { CablePlannerProject } from '../types/project'
 import type { EquipmentItem, Port } from '../types/equipment'
 import type { Foto } from '../types/foto'
@@ -237,9 +238,13 @@ export function datenblattFelder(
 export const vorauswahl = (felder: readonly DatenblattFeld[]): Set<string> =>
   new Set(felder.filter((f) => f.wert !== '').map((f) => f.key))
 
-/** Die Fotos, die auf dieses Gerät zeigen — in der Reihenfolge des Plans. */
+/** Die Fotos dieses Geräts und seines Typs (#962) — in der Reihenfolge des Plans. */
 export const geraeteFotos = (project: CablePlannerProject, equipmentId: string): Foto[] =>
-  (project.fotos ?? []).filter((f) => f.zeigtAuf?.equipmentId === equipmentId)
+  fotosAmGeraet(
+    project.fotos,
+    equipmentId,
+    project.equipment.find((e) => e.id === equipmentId)?.deviceTypeId,
+  )
 
 export interface DatenblattOptionen {
   auswahl: ReadonlySet<string>
