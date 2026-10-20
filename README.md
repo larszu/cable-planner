@@ -89,6 +89,17 @@
   `create_floor`, `set_floor`; an ambiguous room name is refused), and a
   check against a cable list (`verify_cabling`). Each write call is one undo
   step.
+- **Connecting Claude.** *Settings → MCP* starts the server on
+  `http://127.0.0.1:4187/mcp` (port changeable there; if it is busy, a random
+  one is used and the tab says so). The on/off and write switches are
+  remembered across restarts, so a client set up once keeps working. The tab
+  copies the ready `claude mcp add --transport http cable-planner … --header
+  "Authorization: Bearer …"` command, a `mcpServers` JSON block, and a `curl`
+  call for sessions that cannot load a new server:
+  `curl -s http://127.0.0.1:4187/mcp -H "Authorization: Bearer <token>"
+  -H "Content-Type: application/json" -H "Accept: application/json,
+  text/event-stream" -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`
+  (`tools/call` with `{"name":…,"arguments":…}` works the same way).
 - **Offline first.** One JSON file per project, secrets in the OS keychain.
 - **Calm by default.** One single-line toolbar over the plan: defaults,
   frame, selection tools and the layer chips; everything else sits under

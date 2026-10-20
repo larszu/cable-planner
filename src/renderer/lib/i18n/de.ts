@@ -3710,6 +3710,17 @@ export const de: Dict = {
     'Geräte aus der Bibliothek und eigene Geräte setzen, Kabel anlegen und entfernen, Kabel-Angaben und Rackhöhen setzen, Racks speichern, Geräte umbenennen — über dieselben Store-Aktionen wie die Leinwand. Jeder Aufruf ist EIN Undo-Schritt und hinterlässt eine Zeile unter „Was Claude geändert hat". Schaltbefehle an Geräte (Videohub, ATEM) werden nie angeboten. Gilt ab dem nächsten Start des Servers.',
   'mcp.trace': 'Was Claude geändert hat',
   'mcp.copy': 'Kopieren',
+  'mcp.copied': 'Kopiert',
+  'mcp.setupJson': 'JSON für .mcp.json oder andere Clients',
+  'mcp.setupCurl': 'Ohne Client-Neustart: per curl aufrufen',
+  'mcp.port': 'Port',
+  'mcp.portHint': 'Wirkt beim nächsten Start des Servers.',
+  'mcp.remembered':
+    'Der Schalter wird gemerkt: War der Server beim Beenden an, startet er beim nächsten Programmstart wieder, auf demselben Port.',
+  'mcp.fallbackPort':
+    'Port {port} war belegt – der Server läuft auf einem zufälligen Port. Gespeicherte Client-Einträge finden ihn erst wieder, wenn {port} frei ist.',
+  'statusbar.mcp.write': '· darf ändern',
+  'statusbar.mcp.read': '· nur lesen',
   'statusbar.mcp.title':
     'Der lokale MCP-Server läuft — Claude kann diesen Plan LESEN. Klick öffnet den Schalter und das Token.',
   'statusbar.mcp.on': 'MCP',

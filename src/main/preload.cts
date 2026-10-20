@@ -502,6 +502,7 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         url: string
         verbunden: boolean
         schreibenErlaubt: boolean
+        ausweichPort: boolean
         token: string
       }>,
     stop: () => ipcRenderer.invoke('mcp:stop') as Promise<{ ok: boolean }>,
@@ -512,6 +513,7 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         url: string
         verbunden: boolean
         schreibenErlaubt: boolean
+        ausweichPort: boolean
       }>,
     setSchreibmodus: (an: boolean) =>
       ipcRenderer.invoke('mcp:setSchreibmodus', an) as Promise<{
@@ -520,7 +522,12 @@ contextBridge.exposeInMainWorld('cablePlanner', {
         url: string
         verbunden: boolean
         schreibenErlaubt: boolean
+        ausweichPort: boolean
       }>,
+    einstellungen: () =>
+      ipcRenderer.invoke('mcp:einstellungen') as Promise<{ an: boolean; schreibenErlaubt: boolean; port: number }>,
+    setPort: (port: number) =>
+      ipcRenderer.invoke('mcp:setPort', port) as Promise<{ an: boolean; schreibenErlaubt: boolean; port: number }>,
     token: () => ipcRenderer.invoke('mcp:token') as Promise<{ token: string }>,
     resetToken: () => ipcRenderer.invoke('mcp:resetToken') as Promise<{ token: string }>,
     /**
