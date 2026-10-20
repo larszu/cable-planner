@@ -79,8 +79,14 @@
   from port groups (`create_device`), cables one by one or in batches
   (`connect_ports`, `connect_many` — exact port names, input to input
   refused, reversed pairs flipped, occupied inputs only with `replace`), rack
-  heights and racks (`set_rack_units`, `arrange_rack`), and a check against a
-  cable list (`verify_cabling`). Each write call is one undo step.
+  heights and racks (`set_rack_units`, `arrange_rack`), device fields from a
+  customer list — IP, subnet mask, management VLAN, serial number, notes —
+  one by one or in batches (`set_device`, `set_devices`; credentials stay in
+  the UI), rooms and floors (`list_locations`, `list_floors`,
+  `create_location`, `set_location`, `delete_location`, `place_in_location`,
+  `create_floor`, `set_floor`; an ambiguous room name is refused), and a
+  check against a cable list (`verify_cabling`). Each write call is one undo
+  step.
 - **Offline first.** One JSON file per project, secrets in the OS keychain.
 - **Calm by default.** One single-line toolbar over the plan: defaults,
   frame, selection tools and the layer chips; everything else sits under

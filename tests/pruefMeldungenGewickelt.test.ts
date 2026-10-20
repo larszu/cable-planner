@@ -100,7 +100,8 @@ const BESTAND: Record<string, number> = {
   // Server Deutsch, sobald die Oberflaeche auf Deutsch steht, und ein Client
   // bekaeme je nach Einstellung des Planers eine andere Antwort auf dieselbe
   // Frage.
-  'lib/mcpWerkzeuge.ts': 8,
+  // #1066 — +2 fuer list_locations/list_floors, gleiche Begruendung.
+  'lib/mcpWerkzeuge.ts': 10,
   // #873 — dieselbe Begruendung wie eine Zeile darueber: die Saetze gehen an
   // den MCP-CLIENT und nicht auf ein Blatt. `mcpLog` traegt einen davon als
   // Feldnamen (`text`). `lib/mcpSchreiben.ts` steht seit #1052 auf 0: die

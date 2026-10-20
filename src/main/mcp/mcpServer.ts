@@ -256,6 +256,28 @@ const baueServer = (): McpServer => {
   // sonst existieren sie fuer den Client gar nicht. Ein Werkzeug, das immer
   // „nicht erlaubt" antwortet, ist dieselbe Sorte Luege wie ein Knopf, der
   // jedes Mal 403 bekommt (ADR-005).
+  mcp.registerTool(
+    'list_locations',
+    {
+      title: 'List rooms',
+      description: 'Room frames (locations) of the plan with id, floor, position, size and the devices inside - the same assignment the canvas shows.',
+      annotations: { readOnlyHint: true },
+      inputSchema: { floor: z.string().optional().describe('Only rooms on this floor.') },
+    },
+    async (args) => werkzeugAntwort('list_locations', args as Record<string, unknown>),
+  )
+
+  mcp.registerTool(
+    'list_floors',
+    {
+      title: 'List floors',
+      description: 'Floors of the plan, bottom to top, with elevation in metres (null = not stated) and room count.',
+      annotations: { readOnlyHint: true },
+      inputSchema: {},
+    },
+    async (args) => werkzeugAntwort('list_floors', args as Record<string, unknown>),
+  )
+
   if (state.schreibenErlaubt) {
     mcp.registerTool(
       'connect_ports',
@@ -425,6 +447,154 @@ const baueServer = (): McpServer => {
         inputSchema: { deviceId: z.string(), name: z.string() },
       },
       async (args) => werkzeugAntwort('rename_device', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'set_device',
+      {
+        title: 'Set device details',
+        description:
+          'Change fields of one device: name, notes, IP address, subnet mask, management VLAN, serial number, category, position. Invalid IPs or masks are refused with a reason. Credentials are not written over MCP.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+        inputSchema: {
+          deviceId: z.string().describe('Device name or id.'),
+          name: z.string().optional(),
+          notes: z.string().optional().describe('Empty text clears it.'),
+          ipAddress: z.string().optional().describe('IPv4, e.g. 192.168.1.20. Empty text clears it.'),
+          subnetMask: z.string().optional().describe('Dotted, e.g. 255.255.255.0.'),
+          managementVlanId: z.number().int().min(1).max(4094).nullable().optional().describe('null clears it.'),
+          serialNumber: z.string().optional(),
+          category: z.string().optional(),
+          x: z.number().optional(),
+          y: z.number().optional(),
+        },
+      },
+      async (args) => werkzeugAntwort('set_device', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'set_devices',
+      {
+        title: 'Set details of many devices',
+        description:
+          'set_device for up to 200 devices in one call and one undo step - for a customer device list. Refused rows are reported one by one; the others are applied.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+        inputSchema: {
+          devices: z
+            .array(
+              z.object({
+                deviceId: z.string().describe('Device name or id.'),
+          name: z.string().optional(),
+          notes: z.string().optional().describe('Empty text clears it.'),
+          ipAddress: z.string().optional().describe('IPv4, e.g. 192.168.1.20. Empty text clears it.'),
+          subnetMask: z.string().optional().describe('Dotted, e.g. 255.255.255.0.'),
+          managementVlanId: z.number().int().min(1).max(4094).nullable().optional().describe('null clears it.'),
+          serialNumber: z.string().optional(),
+          category: z.string().optional(),
+          x: z.number().optional(),
+          y: z.number().optional(),
+              }),
+            )
+            .min(1)
+            .max(200),
+        },
+      },
+      async (args) => werkzeugAntwort('set_devices', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'create_location',
+      {
+        title: 'Create a room',
+        description:
+          'Add a room frame. The floor must exist (create_floor). Without x/y it goes right of the plan; default size 600 x 400. A name that already exists is refused.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+        inputSchema: {
+          name: z.string(),
+          floor: z.string().optional(),
+          x: z.number().optional(),
+          y: z.number().optional(),
+          width: z.number().min(40).optional(),
+          height: z.number().min(40).optional(),
+          color: z.string().optional(),
+          notes: z.string().optional(),
+        },
+      },
+      async (args) => werkzeugAntwort('create_location', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'set_location',
+      {
+        title: 'Change a room',
+        description:
+          'Rename a room, move it to another floor, move or resize it. Moving follows the canvas: with "move contents" on, the devices inside move along.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+        inputSchema: {
+          locationId: z.string().describe('Room name or id.'),
+          name: z.string().optional(),
+          floor: z.string().optional().describe('Empty text removes the floor.'),
+          x: z.number().optional(),
+          y: z.number().optional(),
+          width: z.number().min(40).optional(),
+          height: z.number().min(40).optional(),
+          color: z.string().optional(),
+          notes: z.string().optional(),
+        },
+      },
+      async (args) => werkzeugAntwort('set_location', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'delete_location',
+      {
+        title: 'Remove a room',
+        description: 'Remove one room frame. The devices inside stay where they are. One undo step takes it back.',
+        annotations: { readOnlyHint: false, destructiveHint: true },
+        inputSchema: { locationId: z.string().describe('Room name or id.') },
+      },
+      async (args) => werkzeugAntwort('delete_location', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'place_in_location',
+      {
+        title: 'Put devices into a room',
+        description:
+          'Arrange devices in rows inside a room frame - no coordinates needed. The frame grows when they do not fit. One call, one undo step.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+        inputSchema: {
+          locationId: z.string().describe('Room name or id.'),
+          deviceIds: z.array(z.string()).min(1).max(200).describe('Device names or ids.'),
+        },
+      },
+      async (args) => werkzeugAntwort('place_in_location', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'create_floor',
+      {
+        title: 'Create a floor',
+        description: 'Add a floor on top of the list (the list runs bottom to top). elevationM in metres, optional.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+        inputSchema: { name: z.string(), elevationM: z.number().optional() },
+      },
+      async (args) => werkzeugAntwort('create_floor', args as Record<string, unknown>),
+    )
+
+    mcp.registerTool(
+      'set_floor',
+      {
+        title: 'Change a floor',
+        description: 'Rename a floor (its rooms follow) or set its elevation in metres (null clears it). Renaming onto another floor is refused.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+        inputSchema: {
+          floor: z.string().describe('Current floor name.'),
+          name: z.string().optional(),
+          elevationM: z.number().nullable().optional(),
+        },
+      },
+      async (args) => werkzeugAntwort('set_floor', args as Record<string, unknown>),
     )
   }
 

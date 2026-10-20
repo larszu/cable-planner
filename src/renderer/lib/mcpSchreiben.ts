@@ -58,6 +58,10 @@ import { connectorToCableType } from './cableInheritance'
 import { cablesEndingAt, targetKey } from './portOccupancy'
 import { presetFromEquipmentSelection } from './rackPreset'
 import { canArrangeInRack } from './rackArrange'
+import { maskToBits, parseIpv4 } from './subnet'
+import { locationForEquipment } from './equipmentLocation'
+import { etagenSchluessel } from './etagen'
+import type { Floor, LocationFrame } from '../types/location'
 import { templateFromGroups, type PortGroupDraft } from '../components/Library/libraryPanelHelpers'
 
 /** Die Namen der schreibenden Werkzeuge. */
@@ -71,17 +75,27 @@ export const MCP_SCHREIBWERKZEUGE = [
   'connect_many',
   'set_rack_units',
   'arrange_rack',
+  'set_device',
+  'set_devices',
+  'create_location',
+  'set_location',
+  'delete_location',
+  'place_in_location',
+  'create_floor',
+  'set_floor',
 ] as const
 
 export type McpSchreibwerkzeug = (typeof MCP_SCHREIBWERKZEUGE)[number]
 
 /** Welche davon etwas WEGNEHMEN — sie tragen `destructiveHint`. */
-export const MCP_ZERSTOEREND: ReadonlySet<string> = new Set(['disconnect_cable'])
+export const MCP_ZERSTOEREND: ReadonlySet<string> = new Set(['disconnect_cable', 'delete_location'])
 
 /** Hoechstens so viele Kabel je `connect_many`. */
 export const MCP_KABEL_MAX = 200
 /** Groesste Rackhoehe, die ein Werkzeug setzt (HE). */
 export const MCP_HE_MAX = 60
+/** Hoechstens so viele Geraete je `set_devices` / `place_in_location`. */
+export const MCP_GERAETE_MAX = 200
 
 type KabelEntwurf = {
   fromEquipmentId: string
@@ -114,6 +128,13 @@ export interface Aktionen {
   addCustomTemplate: (template: EquipmentTemplate) => void
   addKnownCategories: (categories: string[]) => void
   addGroupPreset: (preset: GroupPreset) => void
+  // ─── #1066 ───
+  addLocation: (partial?: Partial<LocationFrame>) => void
+  updateLocation: (id: string, patch: Partial<LocationFrame>) => void
+  deleteLocation: (id: string) => void
+  moveLocationWithContents: (id: string, dx: number, dy: number, containedEquipmentIds: string[]) => void
+  setFloors: (floors: Floor[]) => void
+  renameFloor: (alt: string, neu: string) => void
   /** Der Plan NACH den Aktionen dieses Aufrufs — `addEquipment` vergibt die
    *  Id im Store und gibt sie nicht zurueck. */
   aktuell: () => Readonly<CablePlannerProject>
@@ -399,6 +420,167 @@ const gruppenAus = (roh: unknown): PortGroupDraft[] | string => {
   return gruppen
 }
 
+// ─── Geraetefelder (#1065) ─────────────────────────────────────────────────
+
+/**
+ * Ein Feldwunsch → ein Patch fuer `updateEquipment`, oder ein Satz, warum
+ * nicht. Leerer Text loescht ein Feld (ausser dem Namen).
+ *
+ * ZUGANGSDATEN NICHT. `username`/`password` werden abgelehnt statt
+ * uebergangen: „Claude darf meinen Plan aendern" heisst nicht „Claude
+ * schreibt Kennwoerter in den Plan" (#1065). Die traegt der Mensch in der
+ * Oberflaeche ein.
+ */
+const geraetePatch = (args: Record<string, unknown>): Partial<EquipmentItem> | string => {
+  if (args.username !== undefined || args.password !== undefined) {
+    return 'Credentials (username, password) are not written over MCP - enter them in the device inspector.'
+  }
+  const patch: Partial<EquipmentItem> = {}
+  const text = (k: string): string | undefined | null => {
+    const v = args[k]
+    if (v === undefined) return undefined
+    return typeof v === 'string' ? v.trim() : null
+  }
+  if (args.name !== undefined) {
+    const n = text('name')
+    if (!n) return 'A device needs a name - an empty one would hide it in every list.'
+    patch.name = n
+  }
+  for (const k of ['notes', 'serialNumber', 'category'] as const) {
+    const v = text(k)
+    if (v === null) return `${k} must be text.`
+    if (v !== undefined) patch[k] = v || undefined
+  }
+  const ip = text('ipAddress')
+  if (ip === null) return 'ipAddress must be text.'
+  if (ip !== undefined) {
+    if (ip && !parseIpv4(ip)) return `"${ip}" is not an IPv4 address (four numbers 0-255, e.g. 192.168.1.20).`
+    patch.ipAddress = ip || undefined
+  }
+  const maske = text('subnetMask')
+  if (maske === null) return 'subnetMask must be text.'
+  if (maske !== undefined) {
+    if (maske && (!/^\d{1,3}(\.\d{1,3}){3}$/.test(maske) || maskToBits(maske) === null)) {
+      return `"${maske}" is not a subnet mask; write it dotted with contiguous ones, e.g. 255.255.255.0.`
+    }
+    patch.subnetMask = maske || undefined
+  }
+  if (args.managementVlanId !== undefined) {
+    const v = args.managementVlanId
+    if (v === null) patch.managementVlanId = undefined
+    else if (typeof v !== 'number' || !Number.isInteger(v) || v < 1 || v > 4094) {
+      return 'managementVlanId must be a whole number from 1 to 4094, or null to clear it.'
+    } else patch.managementVlanId = v
+  }
+  for (const k of ['x', 'y'] as const) {
+    if (args[k] === undefined) continue
+    const n = zahl(args[k])
+    if (n === undefined) return `${k} must be a number.`
+    patch[k] = n
+  }
+  if (Object.keys(patch).length === 0) {
+    return 'Nothing to change - pass at least one of name, notes, ipAddress, subnetMask, managementVlanId, serialNumber, category, x, y.'
+  }
+  return patch
+}
+
+const setzeGeraet = (
+  project: Readonly<CablePlannerProject>,
+  aktionen: Aktionen,
+  args: Record<string, unknown>,
+): { ok: true; deviceId: string; name: string; changed: string[] } | { ok: false; fehler: string } => {
+  const g = findeGeraet(project, args.deviceId)
+  if (!g.ok) return { ok: false, fehler: g.fehler }
+  const patch = geraetePatch(args)
+  if (typeof patch === 'string') return { ok: false, fehler: `${g.wert.name}: ${patch}` }
+  aktionen.updateEquipment(g.wert.id, patch)
+  if (patch.category) aktionen.addKnownCategories([patch.category])
+  return { ok: true, deviceId: g.wert.id, name: g.wert.name, changed: Object.keys(patch) }
+}
+
+// ─── Raeume und Etagen (#1066) ─────────────────────────────────────────────
+
+const klein = (s: string) => s.trim().toLowerCase()
+
+/** Raum per Id oder Name. Ein doppelter Name wird abgelehnt, nicht geraten. */
+export const findeRaum = (
+  project: Readonly<CablePlannerProject>,
+  ref: unknown,
+): { ok: true; wert: LocationFrame } | { ok: false; fehler: string } => {
+  const r = typeof ref === 'string' ? ref.trim() : ''
+  const alle = project.locations ?? []
+  if (!r) return { ok: false, fehler: 'Pass locationId: a room id or name (see list_locations).' }
+  const perId = alle.find((l) => l.id === r)
+  if (perId) return { ok: true, wert: perId }
+  const treffer = alle.filter((l) => klein(l.name) === klein(r))
+  if (treffer.length === 1) return { ok: true, wert: treffer[0] }
+  if (treffer.length > 1) {
+    return {
+      ok: false,
+      fehler: `"${r}" names ${treffer.length} rooms (${treffer.map((l) => `${l.id}${l.floor ? ` on ${l.floor}` : ''}`).join(', ')}); pass the id.`,
+    }
+  }
+  return { ok: false, fehler: `No room "${r}". Rooms: ${alle.map((l) => `"${l.name}"`).slice(0, 20).join(', ') || 'none'}.` }
+}
+
+const findeEtage = (project: Readonly<CablePlannerProject>, ref: unknown): Floor | undefined => {
+  const r = typeof ref === 'string' ? klein(ref) : ''
+  return r ? (project.floors ?? []).find((f) => etagenSchluessel(f.name) === r) : undefined
+}
+
+/** Eine genannte Etage muss es geben — ein Tippfehler ist keine neue Etage (#911). */
+const etageOderFehler = (project: Readonly<CablePlannerProject>, roh: unknown): string | { name: string } | undefined => {
+  if (roh === undefined) return undefined
+  if (typeof roh !== 'string') return 'floor must be text.'
+  if (!roh.trim()) return { name: '' }
+  const f = findeEtage(project, roh)
+  if (!f) return `No floor "${roh}". Floors: ${(project.floors ?? []).map((x) => `"${x.name}"`).join(', ') || 'none'} - create_floor first.`
+  return { name: f.name }
+}
+
+const masse = (args: Record<string, unknown>): Partial<LocationFrame> | string => {
+  const patch: Partial<LocationFrame> = {}
+  for (const k of ['x', 'y'] as const) {
+    if (args[k] === undefined) continue
+    const n = zahl(args[k])
+    if (n === undefined) return `${k} must be a number.`
+    patch[k] = n
+  }
+  for (const k of ['width', 'height'] as const) {
+    if (args[k] === undefined) continue
+    const n = zahl(args[k])
+    if (n === undefined || n < 40) return `${k} must be a number of at least 40.`
+    patch[k] = n
+  }
+  return patch
+}
+
+const GERAET_B = 220
+const GERAET_H = 140
+const ABSTAND = 40
+const TITEL = 40
+
+/**
+ * Ordnet Geraete zeilenweise im Rahmen an; reicht der Platz nicht, waechst
+ * der Rahmen. Kein Aufrufer soll Koordinaten rechnen (#1066).
+ */
+export const ordneImRaum = (raum: LocationFrame, geraete: readonly EquipmentItem[]) => {
+  const zelleB = Math.max(...geraete.map((e) => e.width ?? GERAET_B)) + ABSTAND
+  const zelleH = Math.max(...geraete.map((e) => e.height ?? GERAET_H)) + ABSTAND
+  const spalten = Math.max(1, Math.floor((raum.width - ABSTAND) / zelleB))
+  const plaetze = geraete.map((e, i) => ({
+    id: e.id,
+    x: raum.x + ABSTAND + (i % spalten) * zelleB,
+    y: raum.y + TITEL + Math.floor(i / spalten) * zelleH,
+  }))
+  const zeilen = Math.ceil(geraete.length / spalten)
+  return {
+    plaetze,
+    hoehe: Math.max(raum.height, TITEL + zeilen * zelleH),
+    breite: Math.max(raum.width, ABSTAND + Math.min(spalten, geraete.length) * zelleB),
+  }
+}
+
 export const fuehreSchreibwerkzeugAus = (
   project: Readonly<CablePlannerProject>,
   aktionen: Aktionen,
@@ -562,6 +744,180 @@ export const fuehreSchreibwerkzeugAus = (
       if (!name) return nein('A device needs a name - an empty one would hide it in every list.')
       aktionen.updateEquipment(geraet.id, { name })
       return ja(`Renamed "${geraet.name}" to "${name}".`, { deviceId: geraet.id, name })
+    }
+
+    case 'set_device': {
+      const r = setzeGeraet(project, aktionen, args)
+      if (!r.ok) return nein(r.fehler)
+      return ja(`Updated ${r.changed.join(', ')} on "${r.name}".`, { deviceId: r.deviceId, changed: r.changed })
+    }
+
+    case 'set_devices': {
+      const liste = Array.isArray(args.devices) ? (args.devices as Array<Record<string, unknown>>) : []
+      if (liste.length === 0) return nein('Pass devices: a list of {deviceId, ...fields}.')
+      if (liste.length > MCP_GERAETE_MAX) return nein(`At most ${MCP_GERAETE_MAX} devices per call; split the list.`)
+      const results = liste.map((zeile, index) => {
+        const r = setzeGeraet(project, aktionen, zeile ?? {})
+        return r.ok ? { index, ok: true, deviceId: r.deviceId, changed: r.changed } : { index, ok: false, error: r.fehler }
+      })
+      const geaendert = results.filter((r) => r.ok).length
+      const satz = `${geaendert} of ${liste.length} devices updated${geaendert < liste.length ? `, ${liste.length - geaendert} refused (see results)` : ''}.`
+      const daten = { updated: geaendert, refused: liste.length - geaendert, results }
+      return geaendert > 0 ? ja(satz, daten) : nein(satz, daten)
+    }
+
+    case 'create_location': {
+      const name = typeof args.name === 'string' ? args.name.trim() : ''
+      if (!name) return nein('A room needs a name.')
+      if ((project.locations ?? []).some((l) => klein(l.name) === klein(name))) {
+        return nein(`A room "${name}" already exists - a second one would make the name ambiguous. Use set_location or another name.`)
+      }
+      const etage = etageOderFehler(project, args.floor)
+      if (typeof etage === 'string') return nein(etage)
+      const m = masse(args)
+      if (typeof m === 'string') return nein(m)
+      const rechts = [
+        ...project.equipment.map((e) => e.x + (e.width ?? GERAET_B)),
+        ...(project.locations ?? []).map((l) => l.x + l.width),
+      ]
+      aktionen.addLocation({
+        name,
+        width: 600,
+        height: 400,
+        x: (rechts.length ? Math.max(...rechts) : 0) + 100,
+        y: 100,
+        ...m,
+        ...(etage?.name ? { floor: etage.name } : {}),
+        ...(typeof args.color === 'string' && args.color ? { color: args.color } : {}),
+        ...(typeof args.notes === 'string' && args.notes ? { notes: args.notes } : {}),
+      })
+      const neu = aktionen.aktuell().locations?.at(-1)
+      if (!neu || neu.name !== name) return nein('The planner did not add the room.')
+      return ja(`Created room "${name}"${neu.floor ? ` on ${neu.floor}` : ''}.`, {
+        locationId: neu.id,
+        name: neu.name,
+        floor: neu.floor ?? null,
+        x: neu.x,
+        y: neu.y,
+        width: neu.width,
+        height: neu.height,
+      })
+    }
+
+    case 'set_location': {
+      const raum = findeRaum(project, args.locationId)
+      if (!raum.ok) return nein(raum.fehler)
+      const l = raum.wert
+      const patch: Partial<LocationFrame> = {}
+      if (args.name !== undefined) {
+        const n = typeof args.name === 'string' ? args.name.trim() : ''
+        if (!n) return nein('A room needs a name.')
+        if ((project.locations ?? []).some((o) => o.id !== l.id && klein(o.name) === klein(n))) return nein(`Another room is already called "${n}".`)
+        patch.name = n
+      }
+      const etage = etageOderFehler(project, args.floor)
+      if (typeof etage === 'string') return nein(etage)
+      if (etage) patch.floor = etage.name || undefined
+      const m = masse(args)
+      if (typeof m === 'string') return nein(m)
+      if (typeof args.color === 'string' && args.color) patch.color = args.color
+      if (typeof args.notes === 'string') patch.notes = args.notes || undefined
+      if (m.width !== undefined) patch.width = m.width
+      if (m.height !== undefined) patch.height = m.height
+      const dx = m.x !== undefined ? m.x - l.x : 0
+      const dy = m.y !== undefined ? m.y - l.y : 0
+      const geaendert = [...Object.keys(patch), ...(dx || dy ? ['position'] : [])]
+      if (geaendert.length === 0) return nein('Nothing to change - pass at least one of name, floor, x, y, width, height, color, notes.')
+      if (dx || dy) {
+        // Dieselbe Semantik wie das Ziehen in der Oberflaeche: mit
+        // `moveContents` zieht der Inhalt mit.
+        if (l.moveContents !== false) {
+          const drin = project.equipment.filter((e) => locationForEquipment(e, [l])).map((e) => e.id)
+          aktionen.moveLocationWithContents(l.id, dx, dy, drin)
+        } else {
+          aktionen.updateLocation(l.id, { x: l.x + dx, y: l.y + dy })
+        }
+      }
+      if (Object.keys(patch).length) aktionen.updateLocation(l.id, patch)
+      return ja(`Updated ${geaendert.join(', ')} of room "${patch.name ?? l.name}".`, { locationId: l.id, changed: geaendert })
+    }
+
+    case 'delete_location': {
+      const raum = findeRaum(project, args.locationId)
+      if (!raum.ok) return nein(raum.fehler)
+      aktionen.deleteLocation(raum.wert.id)
+      return ja(`Removed the room frame "${raum.wert.name}"; its devices stay where they are. One undo step takes it back.`, {
+        removed: raum.wert.id,
+      })
+    }
+
+    case 'place_in_location': {
+      const raum = findeRaum(project, args.locationId)
+      if (!raum.ok) return nein(raum.fehler)
+      const refs = Array.isArray(args.deviceIds) ? args.deviceIds : []
+      if (refs.length === 0) return nein('Pass deviceIds: the devices to put into the room.')
+      if (refs.length > MCP_GERAETE_MAX) return nein(`At most ${MCP_GERAETE_MAX} devices per call; split the list.`)
+      const geraete: EquipmentItem[] = []
+      for (const ref of refs) {
+        const g = findeGeraet(project, ref)
+        if (!g.ok) return nein(g.fehler)
+        if (geraete.some((e) => e.id === g.wert.id)) return nein(`"${g.wert.name}" is listed twice.`)
+        geraete.push(g.wert)
+      }
+      const { plaetze, hoehe, breite } = ordneImRaum(raum.wert, geraete)
+      const gewachsen = hoehe !== raum.wert.height || breite !== raum.wert.width
+      if (gewachsen) aktionen.updateLocation(raum.wert.id, { height: hoehe, width: breite })
+      for (const p of plaetze) aktionen.updateEquipment(p.id, { x: p.x, y: p.y })
+      return ja(`Placed ${geraete.length} devices in room "${raum.wert.name}"${gewachsen ? ' (the frame grew to fit them)' : ''}.`, {
+        locationId: raum.wert.id,
+        placed: geraete.map((e) => e.name),
+        width: breite,
+        height: hoehe,
+      })
+    }
+
+    case 'create_floor': {
+      const name = typeof args.name === 'string' ? args.name.trim() : ''
+      if (!name) return nein('A floor needs a name.')
+      if (findeEtage(project, name)) return nein(`A floor "${name}" already exists.`)
+      const hoehe = args.elevationM === undefined ? undefined : zahl(args.elevationM)
+      if (args.elevationM !== undefined && hoehe === undefined) return nein('elevationM must be a number (metres).')
+      // Die Liste laeuft von unten nach oben: eine neue Etage kommt oben an.
+      aktionen.setFloors([...(project.floors ?? []), { name, ...(hoehe !== undefined ? { elevationM: hoehe } : {}) }])
+      return ja(`Created floor "${name}".`, { name, elevationM: hoehe ?? null })
+    }
+
+    case 'set_floor': {
+      const etage = findeEtage(project, args.floor)
+      if (!etage) {
+        return nein(`No floor "${String(args.floor ?? '')}". Floors: ${(project.floors ?? []).map((f) => `"${f.name}"`).join(', ') || 'none'}.`)
+      }
+      const geaendert: string[] = []
+      let name = etage.name
+      if (args.name !== undefined) {
+        const neu = typeof args.name === 'string' ? args.name.trim() : ''
+        if (!neu) return nein('A floor needs a name.')
+        const andere = findeEtage(project, neu)
+        if (andere && andere !== etage) return nein(`A floor "${andere.name}" already exists - renaming would merge two floors.`)
+        if (neu !== etage.name) {
+          aktionen.renameFloor(etage.name, neu)
+          name = neu
+          geaendert.push('name')
+        }
+      }
+      if (args.elevationM !== undefined) {
+        const h = args.elevationM === null ? null : zahl(args.elevationM)
+        if (h === undefined) return nein('elevationM must be a number (metres), or null to clear it.')
+        const floors = (aktionen.aktuell().floors ?? []).map((f) => {
+          if (f.name !== name) return f
+          if (h === null) return { name: f.name }
+          return { ...f, elevationM: h }
+        })
+        aktionen.setFloors(floors)
+        geaendert.push('elevationM')
+      }
+      if (geaendert.length === 0) return nein('Nothing to change - pass name or elevationM.')
+      return ja(`Updated ${geaendert.join(', ')} of floor "${name}".`, { name, changed: geaendert })
     }
 
     default:
