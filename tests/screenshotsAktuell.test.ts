@@ -47,8 +47,6 @@ const aufnahme = (): Aufnahme =>
 const appVersion = (): string =>
   (JSON.parse(readFileSync(join(WURZEL, 'package.json'), 'utf8')) as { version: string }).version
 
-const majorMinor = (v: string) => v.split('.').slice(0, 2).join('.')
-
 /**
  * Bilder im Ordner, die NICHT aus `docs:shots` stammen.
  *
@@ -60,14 +58,10 @@ const majorMinor = (v: string) => v.split('.').slice(0, 2).join('.')
 const VON_HAND = ['atem-multiview.png']
 
 describe('Die README-Bilder sind gegen die aktuelle Version aufgenommen', () => {
-  it('der Stempel nennt dieselbe Minor-Version wie package.json', () => {
-    expect(
-      majorMinor(aufnahme().version),
-      'Die Bilder stammen aus einer aelteren Minor-Version. Ein Titelbild ist ' +
-        'die erste Auskunft ueber das Produkt, und eine veraltete ist eine ' +
-        'falsche. Neu aufnehmen: `npm run build && xvfb-run -a npm run docs:shots`.',
-    ).toBe(majorMinor(appVersion()))
-  })
+  // Der Versions-Abgleich (Stempel = Minor-Version aus package.json) ist am
+  // 2026-10-20 auf Wunsch des Eigentuemers entfallen: jede Minor-Version
+  // machte CI rot, bis jemand die Bilder neu aufnahm — Aufwand ohne Nutzen
+  // fuer die Planung. Die Bilder werden nur noch auf Zuruf erneuert.
 
   it('jede gestempelte Datei liegt auch wirklich da', () => {
     const fehlend = aufnahme().dateien.filter((d) => !existsSync(join(ORDNER, d)))
