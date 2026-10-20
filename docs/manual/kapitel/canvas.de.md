@@ -14,6 +14,8 @@ Die Toolbar ist eine schwebende Leiste oben links auf dem Canvas, eine Zeile, mi
 
 Unter **Mehr** stehen: Ebenen-Verwaltung (eigene Ebene anlegen, alle wieder einblenden), Sperren, Signalweg, Räume, 3D, Schema, Schaltbild, Prüfbild, Abschließen, Badges, Anmerkungen, Hallenplan und Symbole. Hallenplan, Symbole und Anmerkungen gibt es zusätzlich im Menü *Ansicht*. Eine eingeschaltete Betriebsart – Signalweg, Schaltbild, Prüfbild – erscheint mit ihrem Stand direkt in der Leiste.
 
+Ist beim Prüfbild eine Quelle gewählt, öffnet **Sichern…** ein Menü mit drei Einträgen: **Prüfbild (SVG)** für Mediaplayer, Standbildspeicher oder Laptop – das Bild trägt den Gerätenamen, die belegten Ausgänge des Geräts (z. B. „aus SDI OUT 1“) und den Planstand –, **Prüfblatt (CSV)** als Begehungsliste aller Ankunftsorte und **Abnahmeblatt (CSV)** mit dem, was vor Ort gesehen wurde.
+
 Auf dem Telefon zeigt die Leiste nur Defaults und Mehr; Ebenen, Rahmen und Auswahl-Knöpfe stehen dort unter Mehr, damit der Plan die Breite bekommt.
 
 ![Toolbar-Hauptansicht](bilder/de/canvas-leiste-01-leiste-ganz.jpg)
