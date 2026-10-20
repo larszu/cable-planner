@@ -35,6 +35,12 @@
 export interface FotoZiel {
   equipmentId?: string
   cableId?: string
+  /**
+   * Der GERAETETYP (#962): das Foto gilt fuer jedes Geraet mit dieser
+   * `deviceTypeId`. Steht es zusaetzlich zu `equipmentId`, ist es EIN
+   * Datensatz an beiden Stellen — die Bilddaten liegen nur einmal im Plan.
+   */
+  deviceTypeId?: string
 }
 
 /** Woher das Foto kam. Kein Freitext: davon hängt ab, wem man glaubt. */

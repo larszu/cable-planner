@@ -23,7 +23,8 @@ import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
 import { nimmFoto } from '../../../lib/fotoAufnahme'
 import { fotosOhneZiel, fotosZu } from '../../../lib/fotoMasse'
-import type { FotoZiel } from '../../../types/foto'
+import { confirmDialog } from '../../../lib/confirmDialog'
+import type { Foto, FotoZiel } from '../../../types/foto'
 
 /**
  * Die Liste selbst — ohne Rahmen.
@@ -32,7 +33,17 @@ import type { FotoZiel } from '../../../types/foto'
  * Abschnitte haben: dort steht sie als gewöhnlicher Block. Zwei Fassungen
  * derselben Liste wären zwei Stellen, an denen ein Foto anders aussieht.
  */
-export const FotoListe = ({ ziel }: { ziel?: FotoZiel }) => {
+export const FotoListe = ({
+  ziel,
+  typId,
+  nur,
+}: {
+  ziel?: FotoZiel
+  /** #962 — Typ des Geraets: beim Hinzufuegen wird gefragt, ob das Foto auch fuer den Typ gilt. */
+  typId?: string
+  /** Engere Auswahl als `ziel` — die Geraete-Liste blendet hier die Typ-Fotos aus. */
+  nur?: (f: Foto) => boolean
+}) => {
   const t = useTranslation()
   const alle = useProjectStore((s) => s.project.fotos)
   const addFoto = useProjectStore((s) => s.addFoto)
@@ -45,7 +56,7 @@ export const FotoListe = ({ ziel }: { ziel?: FotoZiel }) => {
   // auf nichts zeigt, gehört dem Projekt („so sah die Halle aus"). Genau da
   // landet auch ein Foto vom Telefon, bei dem niemand ein Gerät gewählt hat
   // — es darf nicht unsichtbar sein, nur weil es keine Kiste nennt.
-  const fotos = ziel ? fotosZu(alle, ziel) : fotosOhneZiel(alle)
+  const fotos = (ziel ? fotosZu(alle, ziel) : fotosOhneZiel(alle)).filter(nur ?? (() => true))
 
   const aufnehmen = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const dateien = [...(e.target.files ?? [])]
@@ -54,9 +65,22 @@ export const FotoListe = ({ ziel }: { ziel?: FotoZiel }) => {
     // ein Fehlschlag.
     e.target.value = ''
     if (dateien.length === 0) return
+    // #962 — EIN Datensatz mit beiden Zielen statt einer Kopie: das Bild
+    // laege sonst zweimal in der Projektdatei.
+    const auchTyp =
+      typId !== undefined &&
+      (await confirmDialog(t('foto.alsoTypeTitle', 'Also use for the device type?'), {
+        body: t(
+          'foto.alsoTypeBody',
+          'The photo then shows on every device of this type in the plan. It is stored only once.',
+        ),
+        okLabel: t('foto.alsoTypeYes', 'Also for the device type'),
+        cancelLabel: t('foto.alsoTypeNo', 'Only this device'),
+      }))
+    const wohin = auchTyp ? { ...ziel, deviceTypeId: typId } : ziel
     setLaeuft(true)
     for (const datei of dateien) {
-      const aufnahme = await nimmFoto(datei, new Date().toISOString(), 'planer', ziel)
+      const aufnahme = await nimmFoto(datei, new Date().toISOString(), 'planer', wohin)
       if (aufnahme) addFoto(aufnahme.foto)
     }
     setLaeuft(false)
@@ -166,18 +190,47 @@ export const ProjektFotos = () => {
   )
 }
 
-/** Derselbe Inhalt als sortierbarer Abschnitt — für die Geräte-Leiste. */
-export const FotoSection = ({ ziel, id }: { ziel: FotoZiel; id: string }) => {
+/**
+ * Derselbe Inhalt als sortierbarer Abschnitt — für die Geräte-Leiste.
+ *
+ * #962 — mit `typId` zwei Listen: die Fotos DIESES Geräts und die seines
+ * Typs. Ein Foto, das für beide gilt, steht nur in der Typ-Liste; sonst
+ * stünde dasselbe Bild zweimal untereinander.
+ */
+export const FotoSection = ({ ziel, id, typId }: { ziel: FotoZiel; id: string; typId?: string }) => {
   const t = useTranslation()
   const alle = useProjectStore((s) => s.project.fotos)
-  const anzahl = fotosZu(alle, ziel).length
+  const geraetAnzahl = useProjectStore((s) =>
+    typId ? s.project.equipment.filter((e) => e.deviceTypeId === typId).length : 0,
+  )
+  const nurEigene = (f: Foto) => !typId || f.zeigtAuf?.deviceTypeId !== typId
+  const anzahl =
+    fotosZu(alle, ziel).filter(nurEigene).length + (typId ? fotosZu(alle, { deviceTypeId: typId }).length : 0)
   return (
     <SortableSection
       id={id}
       title={t('foto.section', 'Photos')}
       subtitle={anzahl > 0 ? String(anzahl) : undefined}
     >
-      <FotoListe ziel={ziel} />
+      {typId ? (
+        <div className="space-y-3">
+          <div>
+            <div className="mb-1 text-cp-xs font-semibold text-cp-text-muted">
+              {t('foto.thisDevice', 'This device')}
+            </div>
+            <FotoListe ziel={ziel} typId={typId} nur={nurEigene} />
+          </div>
+          <div>
+            <div className="mb-1 text-cp-xs font-semibold text-cp-text-muted">
+              {t('foto.deviceType', 'Device type')} · {geraetAnzahl}{' '}
+              {geraetAnzahl === 1 ? t('foto.deviceOne', 'device') : t('foto.deviceMany', 'devices')}
+            </div>
+            <FotoListe ziel={{ deviceTypeId: typId }} />
+          </div>
+        </div>
+      ) : (
+        <FotoListe ziel={ziel} />
+      )}
     </SortableSection>
   )
 }

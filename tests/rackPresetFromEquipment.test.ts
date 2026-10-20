@@ -267,6 +267,7 @@ describe('die Ausschluss-Liste bleibt vollstaendig', () => {
       'isRackShelf',
       'name',
       'outputs',
+      'rackHalfWidth',
       'rackUnits',
       'rearPanelCrop',
       'rearPanelImageUrl',

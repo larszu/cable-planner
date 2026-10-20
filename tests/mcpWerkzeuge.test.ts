@@ -84,6 +84,8 @@ describe('#872 — die Werkzeuge', () => {
       'plan_findings',
       'search_library',
       'verify_cabling',
+      'list_locations',
+      'list_floors',
     ])
   })
 

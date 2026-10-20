@@ -13,7 +13,7 @@ import type { EquipmentTemplate, Port } from '../types/equipment'
 //
 // Das ist die Regel aus `docs/device-identity-concept.md`, wörtlich befolgt.
 // Aus dieser Umgebung antwortet `crestron.com` mit 200, die Blätter liegen
-// unten. Sechs Geräte, jedes mit geöffnetem Blatt.
+// unten. Jedes Gerät mit geöffnetem Blatt.
 //
 // ─── WAS DABEI HERAUSKAM, UND NICHT IM GEDAECHTNIS GESTANDEN HAETTE ────────
 //
@@ -72,6 +72,7 @@ const dcFass = (name: string) => port(name, 'DC Barrel', 'Power')
 const STREAM = 'Networking'
 const AUDIO = 'Audio'
 const VIDEO = 'Video'
+const CONTROL = 'Control'
 
 interface CrestronEntry {
   deviceTypeId: string
@@ -293,6 +294,152 @@ export const CRESTRON_CATALOG: CrestronEntry[] = [
         '12 Mic/Line ein, 8 Line aus · Echounterdrückung auf allen 12 Kanälen · Dante primär/sekundär, VoIP und LAN sind DREI getrennte RJ45 · 439 x 44 x 365 mm (483 mm mit Rackwinkeln) · 4,2 kg · 100-240 V, 1,8 A',
       width: 280,
       height: 700,
+    },
+  },
+
+  // Quelle: https://docs.crestron.com/en-us/9496/Content/Topics/Specifications/Specifications-E30.htm
+  {
+    match: ['dmnvxe30', 'crestrondmnvxe30', 'nvxe30'],
+    deviceTypeId: '052b3532-8378-5678-8bd9-e180ee84483e',
+    template: {
+      manufacturerUrl: 'https://docs.crestron.com/en-us/9496/Content/Topics/Specifications/Specifications-E30.htm',
+      name: 'Crestron DM-NVX-E30',
+      category: STREAM,
+      // Blatt: reiner Encoder. Ethernet 1 (PoE+ Type 2 Class 4, 25,5 W) ·
+      // HDMI INPUT · AUDIO 5-pol Klemme (AUSGANG, nicht Eingang) · CONSOLE
+      // Micro-USB · IR 1-2 auf EINER 4-pol Klemme · COM 5-pol · 24VDC 1.25A.
+      inputs: [
+        hdmi('HDMI Input'),
+        rj45('Ethernet 1 (1G, PoE+ Type 2 Class 4)'),
+        port('Console (Micro-USB)', 'USB Micro-B', 'Serial'),
+        dcFass('24VDC 1.25A'),
+      ],
+      outputs: [
+        klemme('Audio Out (5-pol, symm./unsymm.)', 5),
+        klemme('IR/Serial 1-2 (4-pol, zwei Ports auf einer Klemme)', 4),
+        klemme('COM (RS-232, 5-pol)', 5),
+      ],
+      notes:
+        '138 x 236 x 30 mm · 0,91 kg · Aufnahme 15 W typisch · PoE+ (IEEE 802.3at Type 2 Class 4) oder Netzteil PW-2412WU (separat) · nur Encoder',
+      width: 240,
+      height: 260,
+    },
+  },
+
+  // Quelle: https://www.crestron.com/getmedia/8773a110-b45d-4917-9eb9-399ffd2b6c13/ss_hd-ext-usb-2000-c
+  {
+    match: ['hdrxusb2000c', 'crestronhdrxusb2000c'],
+    deviceTypeId: '41542baf-a905-5093-a380-459c1f3781a4',
+    template: {
+      manufacturerUrl: 'https://www.crestron.com/getmedia/8773a110-b45d-4917-9eb9-399ffd2b6c13/ss_hd-ext-usb-2000-c',
+      name: 'Crestron HD-RX-USB-2000-C (Empfänger)',
+      category: VIDEO,
+      // Blatt „Connectors – Receiver": HDMI OUT · AUDIO OUT (Klinke UND 5-pol
+      // Klemme, parallel) · USB host Type A · USB device Micro-B · LAN RJ45
+      // 10/100 · COM (Klinke UND 3-pol, parallel) · IR IN und IR OUT (je
+      // Klinke UND 2-pol, parallel) · HDBT IN RJ45 geschirmt. KEIN
+      // Netzeingang: der Strom kommt ueber das Netzteil am Sender.
+      inputs: [
+        port('HDBT In (RJ45 geschirmt, HDBaseT)', 'Ethernet/RJ45', 'HDBaseT'),
+        port('USB Device (Micro-B)', 'USB Micro-B', 'USB'),
+        port('IR In (Klinke ODER 2-pol Klemme, parallel)', 'Jack 3.5 mm TS', 'IR'),
+      ],
+      outputs: [
+        hdmi('HDMI Out'),
+        port('Audio Out (3,5-mm-Klinke ODER 5-pol Klemme, parallel)', 'Jack 3.5 mm TRS', 'Audio'),
+        port('USB Host (Type A, 1 A)', 'USB Type A', 'USB'),
+        rj45('LAN (10/100)'),
+        port('COM (RS-232, Klinke ODER 3-pol Klemme, parallel)', 'Jack 3.5 mm TRS', 'Serial'),
+        port('IR Out (Klinke ODER 2-pol Klemme, parallel)', 'Jack 3.5 mm TS', 'IR'),
+      ],
+      notes:
+        'Empfänger zum HD-TX-USB-2000-C (Blatt: HD-EXT-USB-2000-C) · 114 x 244 x 25 mm · kein eigener Netzeingang, versorgt über das Netzteil am Sender',
+      width: 240,
+      height: 300,
+    },
+  },
+
+  // Quelle: https://www.crestron.com/products/model/TSW-760
+  {
+    match: ['tsw760', 'crestrontsw760'],
+    deviceTypeId: '7dfedad9-aba5-5b9a-ae20-1dcbf5e01939',
+    template: {
+      manufacturerUrl: 'https://www.crestron.com/products/model/TSW-760',
+      name: 'Crestron TSW-760',
+      category: CONTROL,
+      // Blatt: LAN (PoE) RJ45 10/100, PoE+-Geraet · USB Type A (Host, fuer
+      // Belegungsleuchte/Flurschild). Nur PoE, kein Netzteileingang.
+      inputs: [rj45('LAN (10/100, PoE+)')],
+      outputs: [port('USB Host (Type A, Lichtleiste)', 'USB Type A', 'USB')],
+      notes:
+        '7-Zoll-Touchpanel · 122 x 194 x 39 mm · 400 g · nur PoE (IEEE 802.3at Type 2), Injektor PWE-4803RU separat',
+      width: 200,
+      height: 160,
+    },
+  },
+
+  // Quelle: https://www.crestron.com/getmedia/00cf674a-f30c-486f-94e3-2d6a0b52ec91/ss_cp3
+  {
+    match: ['cp3', 'crestroncp3', 'cp3n', 'crestroncp3n'],
+    deviceTypeId: 'd9e90190-8c0f-5126-98fc-6e9973862144',
+    template: {
+      manufacturerUrl: 'https://www.crestron.com/getmedia/00cf674a-f30c-486f-94e3-2d6a0b52ec91/ss_cp3',
+      name: 'Crestron CP3',
+      category: CONTROL,
+      // Blatt: RELAY 1-8 auf (2) 8-pol Klemmen · I/O 1-8 Versiport auf (1)
+      // 9-pol · IR/SERIAL 1-8 auf (2) 8-pol · COM 1 5-pol (RS-232/422/485) ·
+      // COM 2-3 je 3-pol · SD-Slot · USB Type A · LAN RJ45 10/100 · NET
+      // (Cresnet) 4-pol · 24VDC 2.0A · vorn COMPUTER USB Type B.
+      // CP3N ist laut Blatt nicht getrennt aufgefuehrt; der Match haengt ihn
+      // an, weil Bestandsplaene ihn so nennen.
+      inputs: [
+        rj45('LAN (10/100)'),
+        klemme('I/O 1-8 Versiport (9-pol)', 9),
+        port('Computer (USB Type B, vorn)', 'USB Type B', 'Serial'),
+        dcFass('24VDC 2.0A'),
+      ],
+      outputs: [
+        klemme('Relay 1-4 (8-pol)', 8),
+        klemme('Relay 5-8 (8-pol)', 8),
+        klemme('IR/Serial 1-4 (8-pol)', 8),
+        klemme('IR/Serial 5-8 (8-pol)', 8),
+        klemme('COM 1 (RS-232/422/485, 5-pol)', 5),
+        klemme('COM 2 (RS-232, 3-pol)', 3),
+        klemme('COM 3 (RS-232, 3-pol)', 3),
+        port('USB Host (Type A)', 'USB Type A', 'USB'),
+        klemme('NET Cresnet (4-pol)', 4),
+      ],
+      isRackDevice: true,
+      rackUnits: 1,
+      notes:
+        '3-Series Control System · 44 x 439 x 167 mm (483 mm mit Rackwinkeln) · 1,42 kg · Netzteil PW-2420RU mitgeliefert, speist Cresnet mit · SD-Slot bis 32 GB · abgekündigt',
+      width: 280,
+      height: 520,
+    },
+  },
+
+  // Quelle: https://www.crestron.com/Products/Catalog/Inactive/Discontinued/C/CGEIB-IP
+  {
+    match: ['cgeibip', 'crestroncgeibip'],
+    deviceTypeId: '99493edd-12d9-5dda-9eba-69cb6b2a5c10',
+    template: {
+      manufacturerUrl: 'https://www.crestron.com/Products/Catalog/Inactive/Discontinued/C/CGEIB-IP',
+      name: 'Crestron CGEIB-IP',
+      category: CONTROL,
+      // Blatt: Power (Wago) · BUS KNX/EIB (Wago) · RS-232 DB9 female · LAN
+      // RJ45 10/100.
+      inputs: [
+        rj45('LAN (10/100)'),
+        port('Power 24 V AC/DC (Wago)', 'Terminal Block', 'Power'),
+      ],
+      outputs: [
+        port('KNX/EIB Bus (Wago)', 'Terminal Block', 'Data'),
+        port('RS-232 (DB9 female)', 'DB9', 'Serial'),
+      ],
+      notes:
+        'KNX-Gateway für die Hutschiene (2 TE) · 90 x 35 x 70 mm · 105 g · 1,8 W bei 24 V AC/DC, Netzteil separat · abgekündigt',
+      width: 200,
+      height: 180,
     },
   },
 ]

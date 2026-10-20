@@ -88,11 +88,19 @@ describe('#873 — der Umfang', () => {
       'connect_many',
       'set_rack_units',
       'arrange_rack',
+      'set_device',
+      'set_devices',
+      'create_location',
+      'set_location',
+      'delete_location',
+      'place_in_location',
+      'create_floor',
+      'set_floor',
     ])
   })
 
-  it('nur das Entfernen ist zerstoerend', () => {
-    expect([...MCP_ZERSTOEREND]).toEqual(['disconnect_cable'])
+  it('nur das Entfernen (Kabel, Raumrahmen) ist zerstoerend', () => {
+    expect([...MCP_ZERSTOEREND]).toEqual(['disconnect_cable', 'delete_location'])
   })
 
   it('bietet KEIN Schalten an — kein Videohub, kein ATEM', () => {

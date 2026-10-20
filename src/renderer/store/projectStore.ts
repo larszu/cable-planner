@@ -220,6 +220,14 @@ const loadAutosavedProject = (): CablePlannerProject | null => {
 }
 
 
+export interface TemplatePatch {
+  name?: string
+  category?: string
+  shortName?: string
+  subtitle?: string
+  notes?: string
+}
+
 export interface ProjectState {
   project: CablePlannerProject
   filePath?: string
@@ -493,8 +501,9 @@ export interface ProjectState {
    *  Bibliotheks-Vorlagen im offenen Projekt mit. Liefert die Zahl der
    *  geaenderten Geraete, Kabel und Vorlagen. */
   renameStammdatum: (art: StammdatenArt, oldName: string, newName: string) => number
-  /** Update name and/or category of an existing library template. */
-  updateCustomTemplate: (currentName: string, patch: { name?: string; category?: string }) => void
+  /** Update the editable fields of an existing library template. An empty
+   *  shortName/subtitle/notes clears the field. */
+  updateCustomTemplate: (currentName: string, patch: TemplatePatch) => void
   /** v7.9.13 — Markiert ein Library-Template permanent als 19"-Rack-
    *  Gerät mit gegebener HE-Höhe. Nutzt der Rack-Builder wenn der User
    *  ein Nicht-Rack-Template hinzufügt und im Dialog bestätigt dass

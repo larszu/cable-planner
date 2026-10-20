@@ -13,7 +13,9 @@ import {
   FOTO_BUDGET_BYTES,
   FOTO_KANTE_MAX,
   fotoMasse,
+  fotosAmGeraet,
   fotosOhneZiel,
+  fotosZumTyp,
   fotosZu,
   hatBild,
   mitBilddaten,
@@ -135,5 +137,24 @@ describe('die Sicherungskopie traegt die Fotos NICHT', () => {
     // Der Datensatz steht trotzdem drin — sonst waere das Foto nach einem
     // Absturz spurlos weg.
     expect(roh).toContain('"id":"a"')
+  })
+})
+
+describe('Fotos am Geraetetyp (#962)', () => {
+  const fotos = [
+    foto('nurGeraet', { zeigtAuf: { equipmentId: 'g1' } }),
+    foto('beides', { zeigtAuf: { equipmentId: 'g1', deviceTypeId: 'T' } }),
+    foto('nurTyp', { zeigtAuf: { deviceTypeId: 'T' } }),
+    foto('andererTyp', { zeigtAuf: { deviceTypeId: 'U' } }),
+  ]
+  it('ein Typ-Foto gilt fuer jedes Geraet des Typs, ohne Kopie', () => {
+    expect(fotosZumTyp(fotos, 'T').map((f) => f.id)).toEqual(['beides', 'nurTyp'])
+    expect(fotosAmGeraet(fotos, 'g2', 'T').map((f) => f.id)).toEqual(['beides', 'nurTyp'])
+    expect(fotosAmGeraet(fotos, 'g1', 'T').map((f) => f.id)).toEqual(['nurGeraet', 'beides', 'nurTyp'])
+  })
+  it('ohne Typ-Id keine Typ-Fotos, und ein Typ-Foto gehoert nicht dem Projekt', () => {
+    expect(fotosZumTyp(fotos, undefined)).toEqual([])
+    expect(fotosZu(fotos, { deviceTypeId: 'U' }).map((f) => f.id)).toEqual(['andererTyp'])
+    expect(fotosOhneZiel(fotos)).toEqual([])
   })
 })

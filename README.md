@@ -70,7 +70,9 @@
   patterns borderless on a screen of this computer, from the display in the
   plan. Desktop app with [ffmpeg](https://ffmpeg.org/) installed.
 - **On site.** Phones join by QR code, tick off work and send photos back into
-  the plan.
+  the plan. Photos attach to a single device or to its device type (shown on
+  every device of that type); adding one to a device asks whether it also
+  applies to the type.
 - **Together.** Live co-editing over WebRTC, optional cloud copy with revisions,
   a shared device library across the planner suite.
 - **Ask Claude.** A local MCP server answers questions about the open plan.
@@ -79,12 +81,33 @@
   from port groups (`create_device`), cables one by one or in batches
   (`connect_ports`, `connect_many` — exact port names, input to input
   refused, reversed pairs flipped, occupied inputs only with `replace`), rack
-  heights and racks (`set_rack_units`, `arrange_rack`), and a check against a
-  cable list (`verify_cabling`). Each write call is one undo step.
+  heights and racks (`set_rack_units`, `arrange_rack`), device fields from a
+  customer list — IP, subnet mask, management VLAN, serial number, notes —
+  one by one or in batches (`set_device`, `set_devices`; credentials stay in
+  the UI), rooms and floors (`list_locations`, `list_floors`,
+  `create_location`, `set_location`, `delete_location`, `place_in_location`,
+  `create_floor`, `set_floor`; an ambiguous room name is refused), and a
+  check against a cable list (`verify_cabling`). Each write call is one undo
+  step.
+- **Connecting Claude.** *Settings → MCP* starts the server on
+  `http://127.0.0.1:4187/mcp` (port changeable there; if it is busy, a random
+  one is used and the tab says so). The on/off and write switches are
+  remembered across restarts, so a client set up once keeps working. The tab
+  copies the ready `claude mcp add --transport http cable-planner … --header
+  "Authorization: Bearer …"` command, a `mcpServers` JSON block, and a `curl`
+  call for sessions that cannot load a new server:
+  `curl -s http://127.0.0.1:4187/mcp -H "Authorization: Bearer <token>"
+  -H "Content-Type: application/json" -H "Accept: application/json,
+  text/event-stream" -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`
+  (`tools/call` with `{"name":…,"arguments":…}` works the same way).
 - **Offline first.** One JSON file per project, secrets in the OS keychain.
 - **Calm by default.** One single-line toolbar over the plan: defaults,
   frame, selection tools and the layer chips; everything else sits under
   *More*. Devices are neutral cards with their colour as a thin edge.
+- **Shortcuts at a glance.** Press `?` (or *Help → Keyboard shortcuts*) for a
+  virtual keyboard — QWERTZ in German, QWERTY otherwise, ⌘/⇧ on a Mac —
+  with every assigned key highlighted; hover or click a key to see its
+  actions. The list view stays one click away.
 - **Light and dark.** A neutral interface with the brand blue as the only
   accent. *Auto* follows the system; *Light* and *Dark* are one click away
   with the theme button in the header, in *Settings → Appearance* or the

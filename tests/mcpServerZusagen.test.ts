@@ -24,7 +24,8 @@ describe('#872 — der Server bindet an das Loopback und nirgends sonst', () => 
   const code = ohneKommentare(SERVER)
 
   it('hoert auf 127.0.0.1', () => {
-    expect(code).toContain("server.listen(0, '127.0.0.1'")
+    expect(code).toContain("server.listen(port, '127.0.0.1'")
+    expect(code.match(/server\.listen\(/g)).toHaveLength(1)
   })
 
   it('und NICHT auf 0.0.0.0 oder einer LAN-Adresse', () => {

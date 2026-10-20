@@ -157,7 +157,7 @@ export const EquipmentProperties = () => {
 
       <OptionalFieldsSection equipment={equipment} />
 
-      <FotoSection ziel={{ equipmentId: equipment.id }} id="fotos" />
+      <FotoSection ziel={{ equipmentId: equipment.id }} typId={equipment.deviceTypeId} id="fotos" />
 
       <DisplayFlagsSection equipment={equipment} />
 

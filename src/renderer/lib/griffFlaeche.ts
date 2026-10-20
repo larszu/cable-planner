@@ -31,3 +31,21 @@ export const griffAusdehnung = (
     vertikal: Math.round(Math.min(fehlt / 2, vertikalMax) * 10) / 10,
   }
 }
+
+/**
+ * #951 — Mindestmass einer Port-Zeile (`role="button"` im EquipmentNode),
+ * WCAG 2.2, 2.5.8 „Target Size (Minimum)", Stufe AA.
+ *
+ * Die Zeile ist `PORT_ROW` hoch (Vorgabe 22) — das Raster gibt die Hoehe vor,
+ * und sie zu erhoehen hiesse jedes Geraet laenger und jede Buchse neben das
+ * Gitter zu setzen. Stattdessen waechst nur die Trefferflaeche: ein
+ * unsichtbarer Rand oben und unten (`padding` + `background-clip:
+ * content-box`), sodass Schrift, Hover-Flaeche und Buchsen-Lage gleich
+ * bleiben. Der Rand reicht dafuer je um `ueberstand` in die Nachbar-Reihe;
+ * die spaeter gerenderte Reihe liegt oben, die Mitte jeder Zeile gehoert also
+ * weiter ihrem eigenen Port.
+ */
+export const PORT_ZIEL_MIN = 24
+
+export const portZielUeberstand = (portRow: number): number =>
+  Math.max(0, Math.ceil((PORT_ZIEL_MIN - portRow) / 2))

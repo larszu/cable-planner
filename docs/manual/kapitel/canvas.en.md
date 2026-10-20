@@ -14,6 +14,8 @@ The toolbar is a floating single-line bar in the top left of the canvas; drag th
 
 **More** holds: layer management (create a custom layer, show all again), Lock, signal path, rooms, 3D, Schematic, Circuit, Test pattern, Finalise, Badges, Annotations, Floor plan and Symbols. Floor plan, Symbols and Annotations are also in the *View* menu. A mode that is switched on – signal path, circuit, test pattern – shows up with its status directly in the bar.
 
+With a test pattern source picked, **Save…** opens a menu with three entries: **Test pattern image (SVG)** for a media player, stills store or laptop – the image carries the device name, the device's connected outputs (e.g. "from SDI OUT 1") and the plan revision –, **Check sheet (CSV)** as the walk-around list of all arrival points, and **Sign-off sheet (CSV)** with what was actually seen on site.
+
 On a phone the bar shows only Defaults and More; layers, frame and selection buttons are under More so the plan gets the width.
 
 ![Toolbar main view](bilder/en/canvas-leiste-01-leiste-ganz.jpg)

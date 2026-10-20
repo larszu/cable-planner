@@ -243,3 +243,23 @@ export const patternPruefzeilen = (
     hinweis: o.endNote || o.end,
   })),
 ]
+
+/**
+ * Die Ausgänge der Quelle, an denen laut Plan ein Kabel steckt (#990).
+ *
+ * Steht als zweite Zeile auf dem gespeicherten Prüfbild: wer vor dem Monitor
+ * steht, sieht dann nicht nur WELCHES Gerät, sondern aus WELCHER Buchse das
+ * Bild kommt. Reihenfolge wie am Gerät, jeder Ausgang einmal.
+ */
+export const quellAusgaenge = (
+  project: CablePlannerProject,
+  quelleId: string | undefined,
+): string[] => {
+  if (!quelleId) return []
+  const geraet = project.equipment.find((e) => e.id === quelleId)
+  if (!geraet) return []
+  const belegt = new Set(
+    project.cables.filter((c) => c.fromEquipmentId === quelleId).map((c) => c.fromPortId),
+  )
+  return geraet.outputs.filter((p) => belegt.has(p.id)).map((p) => p.name)
+}

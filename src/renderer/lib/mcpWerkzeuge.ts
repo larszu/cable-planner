@@ -32,6 +32,7 @@ import { deviceInterfaces } from './networkInterfaces'
 import { streamZeilen } from './streamEndpoints'
 import { cableLabelId } from './docIds'
 import { findeGeraet, findePort } from './mcpAufloesen'
+import { locationForEquipment } from './equipmentLocation'
 import type { CablePlannerProject } from '../types/project'
 import type { EquipmentItem, EquipmentTemplate, Port } from '../types/equipment'
 
@@ -44,6 +45,8 @@ export const MCP_WERKZEUGE = [
   'plan_findings',
   'search_library',
   'verify_cabling',
+  'list_locations',
+  'list_floors',
 ] as const
 
 export type McpWerkzeug = (typeof MCP_WERKZEUGE)[number]
@@ -306,7 +309,8 @@ export const beantworteWerkzeug = (
         daten: {
           total: alle.length,
           offset,
-          devices: seite.map(geraetZeile),
+          // #1066 — dieselbe Raumzuordnung wie die Oberflaeche (Mitte im Rahmen).
+          devices: seite.map((e) => ({ ...geraetZeile(e), location: locationForEquipment(e, project.locations ?? [])?.name ?? null })),
         },
         text: `${alle.length} devices match; showing ${seite.length} from ${offset}.`,
       }
@@ -392,6 +396,33 @@ export const beantworteWerkzeug = (
         },
         text: `${alle.length} cables match; showing ${seite.length} from ${offset}.`,
       }
+    }
+
+    case 'list_locations': {
+      const etage = typeof args.floor === 'string' ? args.floor.trim().toLowerCase() : ''
+      const raeume = (project.locations ?? []).filter((l) => !etage || (l.floor ?? '').trim().toLowerCase() === etage)
+      const zeilen = raeume.map((l) => ({
+        id: l.id,
+        name: l.name,
+        floor: l.floor ?? null,
+        x: l.x,
+        y: l.y,
+        width: l.width,
+        height: l.height,
+        moveContents: l.moveContents !== false,
+        devices: project.equipment.filter((e) => locationForEquipment(e, project.locations ?? [])?.id === l.id).map((e) => e.name),
+      }))
+      return { daten: { total: zeilen.length, locations: zeilen }, text: `${zeilen.length} rooms${etage ? ` on ${String(args.floor)}` : ''}.` }
+    }
+
+    case 'list_floors': {
+      const floors = (project.floors ?? []).map((f) => ({
+        name: f.name,
+        // Nicht angegeben ist nicht 0 m.
+        elevationM: f.elevationM ?? null,
+        rooms: (project.locations ?? []).filter((l) => (l.floor ?? '').trim().toLowerCase() === f.name.trim().toLowerCase()).length,
+      }))
+      return { daten: { total: floors.length, floors }, text: `${floors.length} floors, bottom to top.` }
     }
 
     case 'plan_findings': {
