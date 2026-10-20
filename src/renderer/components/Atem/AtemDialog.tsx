@@ -370,7 +370,7 @@ export const AtemDialog = ({ onClose, preselectedDeviceId }: AtemDialogProps) =>
             {status === 'connected' && (
               <button
                 type="button"
-                onClick={openAtemMvLayout}
+                onClick={() => openAtemMvLayout(preselectedDeviceId)}
                 className="bg-cp-ok text-white px-3 py-2 text-cp-base hover:brightness-110"
                 title={t('atem.dialog.mvLive', 'Show multiviewer layout live')}
               >

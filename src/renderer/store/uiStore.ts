@@ -1011,8 +1011,8 @@ interface UiState extends PersistedUiState {
   /** Bedarf 21 — Plan gegen Vorgefundenes. */
   reconcileOpen: boolean
   setReconcileOpen: (open: boolean) => void
-  atemMvLayout: { open: boolean }
-  openAtemMvLayout: () => void
+  atemMvLayout: { open: boolean; deviceId?: string }
+  openAtemMvLayout: (deviceId?: string) => void
   closeAtemMvLayout: () => void
   atemMvConfig: { open: boolean; deviceId?: string }
   openAtemMvConfig: (deviceId?: string) => void
@@ -1650,7 +1650,7 @@ export const useUiStore = create<UiState>((set) => ({
   reconcileOpen: false,
   setReconcileOpen: (open) => set({ reconcileOpen: open }),
   atemMvLayout: { open: false },
-  openAtemMvLayout: () => set({ atemMvLayout: { open: true } }),
+  openAtemMvLayout: (deviceId) => set({ atemMvLayout: { open: true, deviceId } }),
   closeAtemMvLayout: () => set({ atemMvLayout: { open: false } }),
   atemMvConfig: { open: false },
   openAtemMvConfig: (deviceId) => set({ atemMvConfig: { open: true, deviceId } }),

@@ -371,6 +371,14 @@ const CLASSIFIED: Site[] = [
       'gelesene ATEM-State bleibt in lokalem `useState` und wird nie ' +
       'persistiert. Steht hier, weil der Test bewusst zu breit faengt.',
   },
+  {
+    file: 'components/Atem/MultiviewerLayoutView.tsx',
+    verdict: 'liest-nur',
+    reason:
+      '#1008: holt das Geraet nur, um die Live-Fenster mit den Canvas-Portnamen ' +
+      'zu beschriften. Der ATEM-State bleibt in lokalem `useState`, in den Plan ' +
+      'wird nichts geschrieben.',
+  },
 ]
 
 const walk = (dir: string): string[] =>
@@ -435,9 +443,11 @@ describe('die Messung selbst', () => {
   })
 
   it('nimmt eine Datei ohne Plan-Bezug NICHT mit', () => {
-    // `MultiviewerLayoutView` liest den ATEM und fasst den Store nicht an;
-    // sie gehoert nicht in die Liste und darf sie nicht aufblaehen.
-    expect(measured()).not.toContain('components/Atem/MultiviewerLayoutView.tsx')
+    // `DeviceLibraryTab` fragt die Geraetebibliothek und fasst den Store nicht
+    // an; er gehoert nicht in die Liste und darf sie nicht aufblaehen.
+    // (Bis #1008 stand hier `MultiviewerLayoutView` — die liest jetzt die
+    // Canvas-Portnamen und ist deshalb eingeordnet.)
+    expect(measured()).not.toContain('components/Settings/tabs/DeviceLibraryTab.tsx')
   })
 
   it('jede Bruecken-Domaene ist eingeordnet — Geraet oder nicht', () => {

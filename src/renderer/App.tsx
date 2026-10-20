@@ -1564,7 +1564,7 @@ export default function App() {
       {atemDialog.open && (
         <AtemDialog onClose={closeAtemDialog} preselectedDeviceId={atemDialog.deviceId} />
       )}
-      {atemMvLayout.open && <MultiviewerLayoutView onClose={closeAtemMvLayout} />}
+      {atemMvLayout.open && <MultiviewerLayoutView deviceId={atemMvLayout.deviceId} onClose={closeAtemMvLayout} />}
       <AtemMvConfigDialog />
       <AtemAudioRouterDialog />
       <DrumMicingDialog />
