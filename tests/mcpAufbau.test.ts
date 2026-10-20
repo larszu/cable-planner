@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { useProjectStore } from '../src/renderer/store/projectStore'
 import { beantworteWerkzeug } from '../src/renderer/lib/mcpWerkzeuge'
 import { EINGEBAUTER_KATALOG } from '../src/renderer/lib/eingebauterKatalog'
@@ -11,14 +11,10 @@ import { EINGEBAUTER_KATALOG } from '../src/renderer/lib/eingebauterKatalog'
 // derselbe Weg, den `App.tsx` fuer eine Frage aus dem MCP-Server nimmt.
 // ---------------------------------------------------------------------------
 
-// Die Uhr laeuft je Aufruf weiter: ein Agent ruft ueber HTTP, nicht in einer
-// Schleife, und der Schutz gegen Render-Schleifen (80 Aenderungen in 250 ms)
-// soll hier nicht anschlagen.
-const schreibe = (werkzeug: string, args: Record<string, unknown>) => {
-  const antwort = useProjectStore.getState().mcpSchreiben(werkzeug, args)
-  vi.advanceTimersByTime(300)
-  return antwort
-}
+// #1057 — ohne Uhrentrick: MCP-Schreibaufrufe zaehlen nicht fuer den Schutz
+// gegen Render-Schleifen (80 Aenderungen in 250 ms).
+const schreibe = (werkzeug: string, args: Record<string, unknown>) =>
+  useProjectStore.getState().mcpSchreiben(werkzeug, args)
 
 const lies = (werkzeug: string, args: Record<string, unknown>) => {
   const s = useProjectStore.getState()
@@ -96,12 +92,7 @@ const baueRegie = () => {
   return mischer
 }
 
-afterEach(() => {
-  vi.useRealTimers()
-})
-
 beforeEach(() => {
-  vi.useFakeTimers()
   const s = useProjectStore.getState()
   useProjectStore.setState({
     project: { ...s.project, equipment: [], cables: [], mcpLog: [] },
@@ -322,5 +313,37 @@ describe('#1052 — search_library und set_rack_units', () => {
     const sw = useProjectStore.getState().project.equipment.find((e) => e.name === 'Netzwerk-Switch')
     expect([sw?.isRackDevice, sw?.rackUnits]).toEqual([true, 1])
     expect(schreibe('set_rack_units', { deviceId: 'Netzwerk-Switch', rackUnits: 0.5 }).ok).toBe(false)
+  })
+})
+
+describe('#1057 — schnelle Aufrufe und Kabel ohne Laenge', () => {
+  it('viele Aufrufe ohne Pause loesen die Schleifensperre nicht aus', () => {
+    baueRegie()
+    for (const s of SOLL) {
+      const r = schreibe('connect_ports', alsKabel(s))
+      expect(r.ok, r.text).toBe(true)
+    }
+    for (let i = 0; i < 60; i++) {
+      expect(schreibe('connect_ports', { ...alsKabel(SOLL[0]), replace: true }).ok).toBe(true)
+    }
+    expect(useProjectStore.getState().project.cables).toHaveLength(SOLL.length)
+  })
+
+  it('ausserhalb von MCP greift die Sperre weiter', () => {
+    expect(() => {
+      for (let i = 0; i < 100; i++) useProjectStore.setState({ groupPresets: [] })
+    }).toThrow(/set-rate guard/)
+  })
+
+  it('ein Kabel ohne Laenge bleibt leer statt 0 m, mit Laenge steht sie da', () => {
+    baueRegie()
+    expect(schreibe('connect_ports', alsKabel(SOLL[0])).ok).toBe(true)
+    expect(schreibe('connect_many', { cables: [{ ...alsKabel(SOLL[1]), length: 12 }, alsKabel(SOLL[2])] }).ok).toBe(true)
+    const kabel = useProjectStore.getState().project.cables
+    expect(kabel.map((c) => c.length)).toEqual([undefined, 12, undefined])
+    expect(JSON.parse(JSON.stringify(kabel)).filter((c: object) => 'length' in c)).toHaveLength(1)
+    const liste = lies('list_cables', {})
+    const laengen = (liste.daten.cables as Array<{ lengthM: number | null }>).map((c) => c.lengthM)
+    expect(laengen).toEqual([null, 12, null])
   })
 })

@@ -1,3 +1,4 @@
+import { checkProjectSetRate } from './projectRateGuard'
 import type { LoadDrop, LoadReport } from '../types/loadReport'
 import type { MobileDropReport } from '../types/mobileReport'
 import { v4 as uuidv4 } from 'uuid'
@@ -1943,27 +1944,6 @@ const healRentmanLibraryFromProject = (
         (u) => !customLibrary.some((t) => t.name === u.name),
       ),
     )
-}
-
-/** v7.8.4 — set-rate guard. When the store mutates more than
- *  PROJECT_RATE_THRESHOLD times within PROJECT_RATE_WINDOW_MS, throw
- *  so the React error boundary captures the stack with a real
- *  pointer to the offending caller. Without this, the silent #185
- *  loop just chews the renderer with no actionable info. */
-const PROJECT_RATE_THRESHOLD = 80
-const PROJECT_RATE_WINDOW_MS = 250
-let projectRecentSetTs: number[] = []
-const checkProjectSetRate = () => {
-  const now = Date.now()
-  projectRecentSetTs.push(now)
-  projectRecentSetTs = projectRecentSetTs.filter((t) => now - t <= PROJECT_RATE_WINDOW_MS)
-  if (projectRecentSetTs.length > PROJECT_RATE_THRESHOLD) {
-    const count = projectRecentSetTs.length
-    projectRecentSetTs = []
-    throw new Error(
-      `[CablePlanner] projectStore set-rate guard tripped: ${count} mutations in ${PROJECT_RATE_WINDOW_MS} ms. Render-loop suspected — captured stack pinpoints the offending caller.`,
-    )
-  }
 }
 
 /** v7.9.9 — Store-Factory. Erlaubt sowohl die Default-Instanz mit

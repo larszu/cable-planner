@@ -327,7 +327,7 @@ const internalCablesFromSelection = (
       toPortName,
       name: c.name,
       type: c.type,
-      length: c.length,
+      length: c.length ?? 0,
     }
     if (c.color) entry.color = c.color
     if (c.standard) entry.standard = c.standard

@@ -63,7 +63,7 @@ export const createGroupPresetSlice: StateCreator<ProjectState, [], [], GroupPre
           toPortName: toPort?.name ?? '',
           name: c.name,
           type: c.type,
-          length: c.length,
+          length: c.length ?? 0,
           color: c.color,
           standard: c.standard,
         }

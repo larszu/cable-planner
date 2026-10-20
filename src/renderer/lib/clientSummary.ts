@@ -160,7 +160,7 @@ export function clientSummary(project: CablePlannerProject): ClientSummary {
   }
 
   // ── Kabel ───────────────────────────────────────────────────────────────
-  const meter = cables.reduce((sum, c) => sum + (Number.isFinite(c.length) ? c.length : 0), 0)
+  const meter = cables.reduce((sum, c) => sum + (c.length !== undefined && Number.isFinite(c.length) ? c.length : 0), 0)
   rows.push({
     gruppe: 'Kabel',
     kennzahl: 'Kabel gesamt',

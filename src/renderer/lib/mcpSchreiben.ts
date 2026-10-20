@@ -90,7 +90,7 @@ type KabelEntwurf = {
   toPortId: string
   name: string
   type: Cable['type']
-  length: number
+  length?: number
   color: string
   notes: string
 } & Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
@@ -280,10 +280,9 @@ const planeKabel = (
     toEquipmentId: ziel.id,
     toPortId: zPort.id,
     name: typeof w.name === 'string' ? w.name : '',
-    // Die 0 steht, wenn keine Laenge genannt wurde — wie im Vorschlags-Dialog
-    // des Schaltbilds. Die Antwort sagt das, damit aus der 0 keine Messung
-    // wird.
-    length: laenge ?? 0,
+    // #1057 — ohne genannte Laenge bleibt das Feld leer, nicht 0: list_cables
+    // meldet dann null, und Stuecklisten zaehlen kein 0-m-Kabel.
+    ...(laenge !== undefined ? { length: laenge } : {}),
     notes: typeof w.notes === 'string' ? w.notes : '',
   }
 
@@ -331,7 +330,7 @@ const planeKabel = (
   }
 }
 
-const LUECKE = 'No length was given, so it stands at 0 - that is a gap, not a measurement.'
+const LUECKE = 'No length was given, so it stays empty - that is a gap, not a measurement.'
 
 const verbinde = (
   project: Readonly<CablePlannerProject>,
@@ -428,7 +427,7 @@ export const fuehreSchreibwerkzeugAus = (
       if (kabel.length > MCP_KABEL_MAX) return nein(`At most ${MCP_KABEL_MAX} cables per call; split the list.`)
       const r = verbinde(project, aktionen, kabel)
       const ohneLaenge = kabel.filter((k, i) => r.ergebnisse[i].ok && zahl(k?.length) === undefined).length
-      const satz = `${r.angelegt} of ${kabel.length} cables connected${r.abgelehnt ? `, ${r.abgelehnt} refused (see results)` : ''}.${ohneLaenge ? ` ${ohneLaenge} without length stand at 0 - gaps, not measurements.` : ''}`
+      const satz = `${r.angelegt} of ${kabel.length} cables connected${r.abgelehnt ? `, ${r.abgelehnt} refused (see results)` : ''}.${ohneLaenge ? ` ${ohneLaenge} without length stay empty - gaps, not measurements.` : ''}`
       const daten = { created: r.angelegt, refused: r.abgelehnt, results: r.ergebnisse }
       // Teilerfolg ist Erfolg: die angelegten Kabel stehen im Plan (und im
       // Undo-Schritt), die abgelehnten stehen einzeln in `results`.

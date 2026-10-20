@@ -829,7 +829,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const edges = useMemo<Edge[]>(
     () =>
       project.cables.map((item) => {
-        const lengthColor = cableColorMode === 'byLength' ? colorByLength(item.length) : null
+        const lengthColor = cableColorMode === 'byLength' ? colorByLength(item.length ?? 0) : null
         // In byLength mode, cables with no matching length rule get a neutral grey so they're
         // visually distinct from manually-colored cables and easy to spot.
         // `byLayer` faerbt NUR die Darstellung; `item.color` bleibt
