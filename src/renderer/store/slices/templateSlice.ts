@@ -199,6 +199,9 @@ export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSli
           ...t,
           name: newName,
           ...(newCat ? { category: newCat } : {}),
+          ...optionalText('shortName', patch.shortName),
+          ...optionalText('subtitle', patch.subtitle),
+          ...optionalText('notes', patch.notes),
         }
       })
       persistCustomLibrary(next)
@@ -297,3 +300,13 @@ export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSli
       return { customLibrary: templates }
     }),
 })
+
+/** Undefined = Feld nicht im Patch (bleibt), leer = Feld entfernen. */
+function optionalText<K extends 'shortName' | 'subtitle' | 'notes'>(
+  key: K,
+  value: string | undefined,
+): Partial<Record<K, string | undefined>> {
+  if (value === undefined) return {}
+  const trimmed = value.trim()
+  return { [key]: trimmed || undefined } as Partial<Record<K, string | undefined>>
+}
