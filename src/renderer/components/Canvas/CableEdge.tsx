@@ -54,6 +54,29 @@ interface CableEdgeData {
  * weird. The crossings are computed against `otherSegments`, which
  * should be the segments of all OTHER cables on the canvas.
  */
+type Waypoints = NonNullable<Cable['waypoints']>
+type WaypointBatch = (byId: Map<string, Waypoints>) => void
+/** Erstmals berechnete Kabelwege, gesammelt bis zum Ende des Commits.
+ *  Nach einem Import zeichnen sich hunderte Kabel gleichzeitig; ein
+ *  `updateCable` je Kabel waeren hunderte `set` in einer Millisekunde,
+ *  und der Set-Rate-Guard (80 in 250 ms) haelt das fuer eine
+ *  Render-Schleife. Gesammelt ist es ein `set` und ein Undo-Schritt.
+ *  Schluessel ist die Store-Aktion, weil Sub-Canvases eigene Stores haben. */
+const pendingWaypoints = new Map<WaypointBatch, Map<string, Waypoints>>()
+const queueWaypointPersist = (flush: WaypointBatch, cableId: string, waypoints: Waypoints) => {
+  let batch = pendingWaypoints.get(flush)
+  if (!batch) {
+    batch = new Map()
+    pendingWaypoints.set(flush, batch)
+    queueMicrotask(() => {
+      const ready = pendingWaypoints.get(flush)
+      pendingWaypoints.delete(flush)
+      if (ready) flush(ready)
+    })
+  }
+  batch.set(cableId, waypoints)
+}
+
 const buildPathWithBumps = (
   points: { x: number; y: number }[],
   otherSegments: Array<{
@@ -459,6 +482,7 @@ export const CableEdge = ({
   // Waypoints — danach bleibt der Pfad stabil bis der User explizit
   // "automatisch neu routen" wählt.
   const updateCable = useProjectStore((s) => s.updateCable)
+  const setCableWaypointsBatch = useProjectStore((s) => s.setCableWaypointsBatch)
   // #507 — Aktive Drag-Overrides der Off-Page-Symbol-Offsets (während des
   // Ziehens). Außerhalb eines Drags wird der persistierte Wert vom Kabel
   // verwendet, damit Undo/Redo greift.
@@ -541,7 +565,7 @@ export const CableEdge = ({
       // sitzen. Damit ist jede Buchse ein Gitterpunkt des Wegfinders.
       rasterPx: raster.GRID_SIZE,
     })
-    updateCable(cable.id, { waypoints: ausAStern ?? orthogonalWaypoints })
+    queueWaypointPersist(setCableWaypointsBatch, cable.id, ausAStern ?? orthogonalWaypoints)
     // `obstacles`/`obstacleIds` werden bei jedem Render neu gebaut und waeren
     // als Abhaengigkeit eine Endlosschleife; der Effekt laeuft ohnehin genau
     // einmal je Kabel (`persistTriedRef`) und liest sie dabei frisch.

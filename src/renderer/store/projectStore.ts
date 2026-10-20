@@ -447,6 +447,10 @@ export interface ProjectState {
   /** #294 — Port-Konflikt verwerfen, kein neues Kabel anlegen. */
   cancelPortConflict: () => void
   updateCable: (id: string, patch: Partial<Cable>) => void
+  /** Persistiert die erstmals berechneten Wege vieler Kabel in EINEM
+   *  `set`. Nach einem Import zeichnen sich hunderte Kabel im selben
+   *  Commit; je Kabel ein `updateCable` loeste den Set-Rate-Guard aus. */
+  setCableWaypointsBatch: (byId: Map<string, Cable['waypoints']>) => void
   /** Vergibt allen Kabeln gemaess `metadata.cableNumbering` eine neue
    *  `cableNumber`. No-op wenn kein Schema gesetzt ist. */
   renumberCables: () => void
