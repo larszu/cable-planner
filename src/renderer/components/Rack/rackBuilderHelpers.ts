@@ -57,6 +57,7 @@ export const toPlacement = (template: EquipmentTemplate, startUnit: number): Rac
   inputs: sanitizeTemplatePorts(template.inputs),
   outputs: sanitizeTemplatePorts(template.outputs),
   isRackDevice: template.isRackDevice ?? !!template.rackUnits,
+  ...(template.rackHalfWidth ? { rackHalfWidth: true, rackHalf: 'left' as const } : {}),
   frontPanelImageUrl: template.frontPanelImageUrl,
   rearPanelImageUrl: template.rearPanelImageUrl,
   frontPanelCrop: template.frontPanelCrop,
@@ -117,8 +118,10 @@ export const draftFromPreset = (preset: GroupPreset): RackDraft => {
   const mountSideByIndex = new Map<number, 'front' | 'rear' | 'full' | undefined>()
   // v7.9.82 / #170 — Shelf-Offsets dito.
   const shelfOffsetByIndex = new Map<number, { x?: number; z?: number }>()
+  const rackHalfByIndex = new Map<number, 'left' | 'right'>()
   for (const p of preset.rack?.placements ?? []) {
     if (p.mountSide) mountSideByIndex.set(p.itemIndex, p.mountSide)
+    if (p.rackHalf) rackHalfByIndex.set(p.itemIndex, p.rackHalf)
     if (p.shelfOffsetX != null || p.shelfOffsetZ != null) {
       shelfOffsetByIndex.set(p.itemIndex, { x: p.shelfOffsetX, z: p.shelfOffsetZ })
     }
@@ -150,6 +153,9 @@ export const draftFromPreset = (preset: GroupPreset): RackDraft => {
       isRackShelf: item.isRackShelf,
       shelfOffsetX: shelfOffsetByIndex.get(index)?.x,
       shelfOffsetZ: shelfOffsetByIndex.get(index)?.z,
+      ...(item.rackHalfWidth
+        ? { rackHalfWidth: true, rackHalf: rackHalfByIndex.get(index) ?? 'left' }
+        : {}),
       // #335 — Rentman-ID des Inhalts über Reload erhalten.
       rentmanId: item.rentmanId,
     }

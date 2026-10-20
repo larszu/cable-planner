@@ -15,6 +15,9 @@ export interface RackPlacementDraft {
   inputs: EquipmentTemplate['inputs']
   outputs: EquipmentTemplate['outputs']
   isRackDevice: boolean
+  /** #1051 — Half-width device and the half of the U it occupies (front view). */
+  rackHalfWidth?: boolean
+  rackHalf?: 'left' | 'right'
   /** v7.9.14 — Optionale Position des Geräts im RackInternalCanvas
    *  (eigenständige 2D-Ansicht der Internal-Verkabelung). Wird wie
    *  beim normalen Canvas frei vom User gesetzt und persistiert mit

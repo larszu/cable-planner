@@ -143,6 +143,10 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       category: 'Video Router',
       inputs: [...sdiIn(72), port('Ethernet', 'Ethernet/RJ45')],
       outputs: sdiOut(72),
+      // 5 HE laut Haendler-Datenblaettern; die Techspecs-Seite fuehrt die
+      // Universal-Modelle nicht mehr.
+      isRackDevice: true,
+      rackUnits: 5,
       width: 260,
       height: 520,
     },
@@ -159,6 +163,10 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       category: 'Video Router',
       inputs: [...sdiIn(288), port('Ethernet', 'Ethernet/RJ45')],
       outputs: sdiOut(288),
+      // 18 HE laut Haendler-Datenblaettern; die Techspecs-Seite fuehrt die
+      // Universal-Modelle nicht mehr.
+      isRackDevice: true,
+      rackUnits: 18,
       width: 300,
       height: 1600,
     },
@@ -436,8 +444,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     records: 'per-device',
     // Ports nach den Techspecs. Die frueheren XLR-Audio-Ein-/Ausgaenge hat
     // das Geraet nicht; analoges Audio gibt es nur als Kopfhoerer-Klinke.
-    // Halbe 19"-Breite, 1 HE (#1033). Eine Breitenangabe in mm nennt die
-    // Seite nicht, deshalb kein widthMm (das wuerde es zum Shelf-Geraet machen).
+    // Halbe 19"-Breite, 1 HE (#1033): rackHalfWidth statt widthMm (#1051).
     // Quelle: https://www.blackmagicdesign.com/products/hyperdeckstudio
     template: {
       manufacturerUrl: 'https://www.blackmagicdesign.com/products/hyperdeckstudio',
@@ -463,6 +470,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       ],
       isRackDevice: true,
       rackUnits: 1,
+      rackHalfWidth: true,
       notes:
         'Half rack width, 1 rack unit height (techspecs). Power: 1 x internal 100-240 V AC, 1 x 4-pin XLR 12 V DC in.',
       width: 240, height: 200,

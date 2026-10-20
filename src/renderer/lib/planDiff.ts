@@ -277,6 +277,7 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   isRackDevice: 'substantive',
   isRackShelf: 'substantive',
   rackUnits: 'substantive',
+  rackHalfWidth: 'substantive',
   rackInstanceId: 'substantive',
   rackInstanceLabel: 'substantive',
   rackInstanceStartUnit: 'substantive',

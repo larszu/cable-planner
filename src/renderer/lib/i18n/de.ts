@@ -4539,6 +4539,9 @@ export const de: Dict = {
   'rack.layout': 'Rack-Layout',
   'rack.mount.full': 'Full-Depth',
   'rack.mountLabel': 'Montage',
+  'rack.halfLabel': 'Hälfte (Vorderansicht)',
+  'rack.half.left': 'Links',
+  'rack.half.right': 'Rechts',
   'rack.mountTitle':
     'full = volle Rack-Tiefe. front = nur vorne. rear = nur hinten (z.B. Patchblende).',
   'rack.newRack': 'Neues Rack',

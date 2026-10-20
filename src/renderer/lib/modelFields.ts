@@ -113,6 +113,7 @@ export const MODEL_FIELDS = [
   'isRackDevice',
   'isRackShelf',
   'rackUnits',
+  'rackHalfWidth',
   'width',
   'height',
   'widthMm',

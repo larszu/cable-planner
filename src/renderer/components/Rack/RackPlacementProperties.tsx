@@ -196,6 +196,21 @@ export const RackPlacementProperties = ({
               <option value="rear">{t('props.rack.rearOnly', 'Rear only')}</option>
             </select>
           </label>
+          {selectedPlacement.rackHalfWidth && (
+            <label className="block">
+              {t('rack.halfLabel', 'Half (front view)')}
+              <select
+                value={selectedPlacement.rackHalf ?? 'left'}
+                onChange={(event) =>
+                  onUpdate(selectedPlacement.id, { rackHalf: event.target.value as 'left' | 'right' })
+                }
+                className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
+              >
+                <option value="left">{t('rack.half.left', 'Left')}</option>
+                <option value="right">{t('rack.half.right', 'Right')}</option>
+              </select>
+            </label>
+          )}
         </div>
         {/* STL-Upload für 3D-Modell. */}
         <div className="block">

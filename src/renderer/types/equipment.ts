@@ -759,6 +759,8 @@ export interface EquipmentItem {
   isRackDevice?: boolean
   /** Optional rack height in HE/U for future 2D rack layouts. */
   rackUnits?: number
+  /** #1051 — Half 19" width: two such devices share one U side by side. */
+  rackHalfWidth?: boolean
   /** v7.9.9 — Snapshot der internen Rack-Verkabelung wenn das Item
    *  durch "Black-Box-Einfügen" auf das Canvas gelegt wurde. Wird vom
    *  EquipmentNode genutzt um die internen Verbindungen als Overlay
@@ -1571,6 +1573,8 @@ export interface GroupPreset {
       /** v7.9.82 / #170 — Shelf-Devices: Tiefen-Position innerhalb des Racks
        *  (mm von der Front, 0 = ganz vorne). Default 0. */
       shelfOffsetZ?: number
+      /** #1051 — Haelfte eines Halbbreiten-Geraets (Vorderansicht). Fehlt → 'left'. */
+      rackHalf?: 'left' | 'right'
     }>
     /** v7.9.14 — Canvas-Positionen für den RackInternalCanvas. Wird
      *  vom Rack-Builder beim Speichern befüllt, falls der User Geräte

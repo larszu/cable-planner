@@ -83,6 +83,7 @@ export const presetFromDraft = (
     // v7.9.75 / #170 — Patchblende-/Shelf-Marker persistieren.
     isPatchPanel: placement.isPatchPanel,
     isRackShelf: placement.isRackShelf,
+    ...(placement.rackHalfWidth ? { rackHalfWidth: true } : {}),
     // #335 — Rentman-Id des Inhalts erhalten (nur wenn gesetzt).
     ...(placement.rentmanId ? { rentmanId: placement.rentmanId } : {}),
     width: 240,
@@ -101,6 +102,7 @@ export const presetFromDraft = (
     // truthy-Check verwarf den gueltigen Wert 0 (linke Kante / Front).
     ...(placement.shelfOffsetX != null ? { shelfOffsetX: placement.shelfOffsetX } : {}),
     ...(placement.shelfOffsetZ != null ? { shelfOffsetZ: placement.shelfOffsetZ } : {}),
+    ...(placement.rackHalfWidth && placement.rackHalf ? { rackHalf: placement.rackHalf } : {}),
   }))
 
   // v7.8.5 — Interne Kabel referenzieren Geraete per Placement-Id; hier auf
@@ -212,6 +214,7 @@ export const RACK_DRAFT_FIELDS_NOT_FROM_EQUIPMENT = [
   'mountSide',     // Front/Rear/Full — im Rack gesetzt, nicht am Geraet
   'shelfOffsetX',  // Shelf-Position im Rack
   'shelfOffsetZ',
+  'rackHalf',      // Haelfte eines Halbbreiten-Geraets (#1051)
 ] as const
 
 /**
@@ -243,6 +246,7 @@ export const itemFromEquipment = (eq: EquipmentItem): GroupPreset['items'][numbe
   deviceTypeId: eq.deviceTypeId,
   isRackDevice: eq.isRackDevice ?? !!eq.rackUnits,
   rackUnits: Math.max(1, eq.rackUnits ?? 1),
+  ...(eq.rackHalfWidth ? { rackHalfWidth: true } : {}),
   frontPanelImageUrl: eq.frontPanelImageUrl,
   rearPanelImageUrl: eq.rearPanelImageUrl,
   frontPanelCrop: eq.frontPanelCrop,
