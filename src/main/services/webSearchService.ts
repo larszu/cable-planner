@@ -27,6 +27,26 @@ const UA =
 const TIMEOUT_MS = 8000
 const PAGE_LIMIT = 3
 const PAGE_TEXT_MAX = 20000
+const PDF_TEXT_MAX = 60000
+const PDF_BYTES_MAX = 25 * 1024 * 1024
+
+/**
+ * Klartext eines PDF-Datenblatts. `unpdf` ist pdf.js ohne Browser; geladen
+ * erst beim ersten Datenblatt, damit der Start der App nichts davon merkt.
+ */
+export const pdfToText = async (bytes: Uint8Array): Promise<string> => {
+  if (!bytes.byteLength || bytes.byteLength > PDF_BYTES_MAX) return ''
+  const { getDocumentProxy, extractText } = await import('unpdf')
+  const pdf = await getDocumentProxy(new Uint8Array(bytes))
+  const { text } = await extractText(pdf, { mergePages: true })
+  return text.slice(0, PDF_TEXT_MAX)
+}
+
+const getPdfText = async (url: string): Promise<string> => {
+  const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(TIMEOUT_MS * 2) })
+  if (!res.ok || !(res.headers.get('content-type') ?? '').includes('pdf')) return ''
+  return pdfToText(new Uint8Array(await res.arrayBuffer()))
+}
 
 const decodeEntities = (s: string): string =>
   s
@@ -89,15 +109,22 @@ export const searchWeb = async (query: string): Promise<WebSearchResult> => {
   } catch {
     return { hits: [], pages: [] }
   }
-  const targets = hits.filter((h) => !/\.pdf($|\?)/i.test(h.url)).slice(0, PAGE_LIMIT)
-  const pages = await Promise.all(
-    targets.map(async (h) => {
+  // Ein PDF-Treffer ist meist DAS Datenblatt — es kommt zuerst, vor den
+  // HTML-Seiten. Mehr als eines lohnt nicht: sie sind gross und doppeln sich.
+  const isPdf = (h: WebSearchHit) => /\.pdf($|\?)/i.test(h.url)
+  const pdfHit = hits.find(isPdf)
+  const htmlHits = hits.filter((h) => !isPdf(h)).slice(0, PAGE_LIMIT)
+  const pages = await Promise.all([
+    ...(pdfHit
+      ? [getPdfText(pdfHit.url).then((text) => ({ url: pdfHit.url, text }), () => ({ url: pdfHit.url, text: '' }))]
+      : []),
+    ...htmlHits.map(async (h) => {
       try {
         return { url: h.url, text: htmlToText(await getText(h.url)) }
       } catch {
         return { url: h.url, text: '' }
       }
     }),
-  )
+  ])
   return { hits, pages: pages.filter((p) => p.text) }
 }

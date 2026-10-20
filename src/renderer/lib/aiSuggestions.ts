@@ -451,6 +451,28 @@ export const suggestFromAI = async (
 }
 
 /**
+ * Ports aus einem hochgeladenen Datenblatt. Das Modell bekommt den Text des
+ * Datenblatts und keine Websuche: die Quelle ist das Dokument, nicht das
+ * Netz. Gekappt, weil ein 60-seitiges Handbuch sonst das Token-Budget frisst.
+ */
+export const suggestFromDatasheetAI = async (
+  deviceName: string,
+  category: string,
+  datasheet: string,
+): Promise<PortGroupHint[]> => {
+  const prompt = `${PROMPT_TEMPLATE(deviceName || 'see datasheet', category)}
+
+Use ONLY the datasheet text below as the source. If it covers several models, list the connectors of
+the model named above (or, if no name is given, the main model of the datasheet).
+
+--- DATASHEET ---
+${datasheet.slice(0, 40000)}
+--- END ---`
+  const text = await completeWithAI(prompt)
+  return normalizeHints(parseJsonResponse(text))
+}
+
+/**
  * #414 — Generische Text→Text-Completion (2026-09-28: optional mit Bildern —
  * alle drei Anbieter nehmen sie in derselben Nachricht; siehe
  * `lib/fotoPortErkennung.ts`) über den ausgewählten Provider.

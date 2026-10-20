@@ -48,7 +48,9 @@ const webSearch = async (query: string): Promise<{ inhalt: string; source: strin
   try {
     const { hits, pages } = await cablePlannerApi.webSearch.search(`${query} inputs outputs specifications`)
     const parts = [
-      ...pages.map((p) => ({ url: p.url, inhalt: specRegion(p.text) })),
+      // Ein PDF ist das Datenblatt selbst: ganz lesen, die Anschluss-
+      // Tabelle steht oft weit hinten (Rear Panel).
+      ...pages.map((p) => ({ url: p.url, inhalt: /\.pdf($|\?)/i.test(p.url) ? p.text : specRegion(p.text) })),
       ...hits.map((h) => ({ url: h.url, inhalt: portSentences(h.snippet) })),
     ].filter((p) => p.inhalt)
     if (!parts.length) return { inhalt: '', source: '' }
@@ -127,34 +129,47 @@ const KEYWORDS: KW[] = [
 ]
 
 // Detect counts like "4 SDI inputs", "2× HDMI", "12 BNC connectors"
-const COUNT_NEAR = (text: string, idx: number): number => {
+const COUNT_NEAR = (text: string, idx: number): number | undefined => {
   const before = text.slice(Math.max(0, idx - 30), idx)
   const m = before.match(/(\d{1,3})\s*[×x]?\s*$/)
   if (m) {
     const n = Number(m[1])
     if (n >= 1 && n <= 64) return n
   }
-  return 1
-}
-const DIRECTION_NEAR = (text: string, idx: number): 'in' | 'out' | undefined => {
-  const window = text.slice(Math.max(0, idx - 30), Math.min(text.length, idx + 60)).toLowerCase()
-  if (/\b(output|out|send|return out)/.test(window)) return 'out'
-  if (/\b(input|in|return|loop in)/.test(window)) return 'in'
   return undefined
 }
+// Datenblatt-Tabellen: „12G-SDI INPUT 4", „LINE IN 2 3.5 mm …". Die Zahl
+// steht HINTER dem Stecker, getrennt hoechstens durch IN/OUT/LOOP.
+// Versionsnummern („HDMI 2.0") fallen durch das `(?![.\d])`.
+const COUNT_AFTER = (text: string, end: number): number | undefined => {
+  const after = text.slice(end, end + 30)
+  const m = after.match(/^[\s&/-]*(?:(?:input|output|in|out|loop)s?[\s&/-]*)*(\d{1,2})(?![.\d])(?:\s*(?:groups?|x|×))?(?!\s*(?:mm|hz|bit|g\b|k\b|p\b))/i)
+  if (!m) return undefined
+  const n = Number(m[1])
+  return n >= 1 && n <= 64 ? n : undefined
+}
+// Das NAECHSTE Richtungswort gewinnt. Vorher gewann „output" immer, sobald es
+// irgendwo im Fenster stand — in einer Datenblatt-Tabelle steht die
+// Ausgangszeile aber direkt unter der Eingangszeile.
+const DIRECTION_NEAR = (text: string, idx: number): 'in' | 'out' | undefined => {
+  const from = Math.max(0, idx - 30)
+  const window = text.slice(from, Math.min(text.length, idx + 60)).toLowerCase()
+  const re = /\b(outputs?|out|send|inputs?|in|return|loop)\b/g
+  let best: { dist: number; dir: 'in' | 'out' } | undefined
+  let m: RegExpExecArray | null
+  while ((m = re.exec(window))) {
+    const dist = Math.abs(from + m.index - idx)
+    const dir = /^(out|send)/.test(m[1]) ? 'out' : 'in'
+    if (!best || dist < best.dist) best = { dist, dir }
+  }
+  return best?.dir
+}
 
-export const suggestFromWeb = async (
-  deviceName: string,
-  category: string,
-): Promise<{ hints: PortGroupHint[]; source: string; snippet: string }> => {
-  const query = `${deviceName} ${category}`.trim()
-  const web = await webSearch(deviceName)
-  const [wiki, ddg] = web.inhalt
-    ? ['', '']
-    : await Promise.all([wikiSummary(deviceName), ddgInstant(query)])
-  const snippet = (web.inhalt || `${wiki}\n${ddg}`).trim()
-  if (!snippet) return { hints: [], source: 'web', snippet: '' }
-
+/**
+ * Stecker-Stichworte im Text zaehlen. Die Richtung kommt aus dem letzten
+ * Abschnittstitel (Inputs/Outputs), sonst aus den Woertern daneben.
+ */
+export const scanConnectors = (snippet: string): PortGroupHint[] => {
   // For each connector keyword, count distinct mentions (capped) in the
   // snippet. Group by direction when the surrounding text hints at it.
   const buckets = new Map<string, PortGroupHint>()
@@ -163,7 +178,7 @@ export const suggestFromWeb = async (
     kw.re.lastIndex = 0
     while ((m = kw.re.exec(snippet))) {
       const dir = kw.direction ?? directionAt(snippet, m.index) ?? DIRECTION_NEAR(snippet, m.index) ?? 'in'
-      const count = COUNT_NEAR(snippet, m.index)
+      const count = COUNT_NEAR(snippet, m.index) ?? COUNT_AFTER(snippet, m.index + m[0].length) ?? 1
       // Ein Schluessel je Stecker und Richtung: „12G-SDI", „SDI" und „BNC"
       // im selben Datenblatt sind dieselben Buchsen, nicht drei Gruppen. Das
       // Etikett bleibt das des ersten (spezifischsten) Stichworts.
@@ -185,6 +200,22 @@ export const suggestFromWeb = async (
   // Validate connector type is in the allowed enum (defensive).
   const valid = ALL_CONNECTOR_TYPES as readonly ConnectorType[]
   const hints = Array.from(buckets.values()).filter((h) => valid.includes(h.connectorType))
+  return hints
+}
+
+export const suggestFromWeb = async (
+  deviceName: string,
+  category: string,
+): Promise<{ hints: PortGroupHint[]; source: string; snippet: string }> => {
+  const query = `${deviceName} ${category}`.trim()
+  const web = await webSearch(deviceName)
+  const [wiki, ddg] = web.inhalt
+    ? ['', '']
+    : await Promise.all([wikiSummary(deviceName), ddgInstant(query)])
+  const snippet = (web.inhalt || `${wiki}\n${ddg}`).trim()
+  if (!snippet) return { hints: [], source: 'web', snippet: '' }
+
+  const hints = scanConnectors(snippet)
   return {
     hints,
     source: web.source || (wiki ? 'wikipedia' : 'duckduckgo'),

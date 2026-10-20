@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, lazy, Suspense } from 'react'
-import { Settings, Globe, Sparkles } from 'lucide-react'
+import { Settings, Globe, Sparkles, FileText } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '../shared/Icon'
 import { Spinner } from '../shared/Spinner'
@@ -14,7 +14,8 @@ import { infoDialog } from '../../lib/infoDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { useSettingsStore } from '../../store/settingsStore'
 import { type PortGroupHint } from '../../lib/portSuggestions'
-import { felderAusfuellen } from '../../lib/felderAusfuellen'
+import { datenblattAusfuellen, felderAusfuellen, type AusfuellErgebnis } from '../../lib/felderAusfuellen'
+import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import {
   getAiProviderConfig,
   getApiKey,
@@ -468,6 +469,97 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
    * Der Fehlerzweig fuer den fehlenden Schluessel bleibt, aber nur fuer die
    * KI-Quelle: die Websuche braucht keinen.
    */
+  /** Treffer der Websuche, der KI oder eines Datenblatts in die Gruppen uebernehmen. */
+  const ergebnisUebernehmen = (ergebnis: AusfuellErgebnis) => {
+    if (ergebnis.hints.length === 0) {
+      setSuggestError(
+        ergebnis.quelle === 'ki'
+          ? t('library.suggest.ai.noPorts', 'The model returned no ports.')
+          : ergebnis.schnipsel
+            ? format(
+                t(
+                  'library.suggest.web.noPlugs',
+                  'No connectors detected in the {source} snippet. Refine manufacturer + model.',
+                ),
+                { source: ergebnis.fundstelle ?? 'web' },
+              )
+            : t('library.suggest.web.noHit', 'No hit on the web. Refine manufacturer + model.'),
+      )
+      return
+    }
+    setGroups(hintsToLocalDrafts(ergebnis.hints))
+    if (ergebnis.quelle === 'ki') {
+      setGroupsOrigin(
+        ergebnis.fundstelle
+          ? format(t('library.origin.aiDatasheet', 'AI reading of {source} — check against the datasheet'), {
+              source: ergebnis.fundstelle,
+            })
+          : t('library.origin.ai', 'AI suggestion with web search — check against the datasheet'),
+      )
+      setSuggestInfo(
+        format(t('library.suggest.ai.ok', '{n} port group(s) accepted from {provider}.'), {
+          n: ergebnis.hints.length,
+          provider: getAiProviderConfig(getSelectedAiProvider()).label,
+        }),
+      )
+    } else {
+      // Der Web-Weg ist der einzige, der eine echte Fundstelle mitbringt —
+      // und den Schnipsel, in dem die Stecker gezaehlt wurden. Genau der
+      // gehoert aufbewahrt: er macht die Angabe nachpruefbar, statt sie nur
+      // als „aus dem Web" zu kennzeichnen. Der Schnipsel wird gekuerzt,
+      // damit die Vorlage nicht einen halben Wikipedia-Artikel
+      // mitschleppt.
+      setGroupsOrigin(
+        format(
+          t('library.origin.web', 'Derived from {source} (connectors counted in the text): "{snippet}"'),
+          {
+            source: ergebnis.fundstelle ?? 'web',
+            snippet: (ergebnis.schnipsel ?? '').replace(/\s+/g, ' ').trim().slice(0, 160),
+          },
+        ),
+      )
+      setSuggestInfo(
+        format(t('library.suggest.web.ok', '{n} port group(s) accepted from {source}.'), {
+          n: ergebnis.hints.length,
+          source: ergebnis.fundstelle ?? 'web',
+        }),
+      )
+    }
+  }
+
+  /**
+   * Datenblatt-Upload: PDF ueber den Hauptprozess (`unpdf`), HTML/Text direkt.
+   * Danach dieselbe Uebernahme wie beim Ausfuellen.
+   */
+  const handleDatenblatt = async (file: File) => {
+    setSuggestError('')
+    setSuggestInfo('')
+    setAusfuellLaeuft(true)
+    try {
+      const istPdf = /\.pdf$/i.test(file.name) || file.type === 'application/pdf'
+      const text = istPdf
+        ? await cablePlannerApi.webSearch.pdfText(new Uint8Array(await file.arrayBuffer()))
+        : /\.html?$/i.test(file.name)
+          ? (new DOMParser().parseFromString(await file.text(), 'text/html').body?.innerText ?? '')
+          : await file.text()
+      if (!text.trim()) {
+        setSuggestError(
+          istPdf && !hasDesktopBridge
+            ? t('library.datasheet.desktopOnly', 'PDF datasheets can only be read in the desktop app.')
+            : t('library.datasheet.noText', 'No text found in the datasheet (scanned image?).'),
+        )
+        return
+      }
+      ergebnisUebernehmen(await datenblattAusfuellen(text, file.name, name, category))
+    } catch (err) {
+      setSuggestError(
+        err instanceof Error ? err.message : t('library.suggest.failed', 'Filling in failed.'),
+      )
+    } finally {
+      setAusfuellLaeuft(false)
+    }
+  }
+
   const handleAusfuellen = async () => {
     setSuggestError('')
     setSuggestInfo('')
@@ -509,56 +601,7 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
     setAusfuellLaeuft(true)
     try {
       const ergebnis = await felderAusfuellen(ausfuellQuelle, name, category)
-      if (ergebnis.hints.length === 0) {
-        setSuggestError(
-          ergebnis.quelle === 'ki'
-            ? t('library.suggest.ai.noPorts', 'The model returned no ports.')
-            : ergebnis.schnipsel
-              ? format(
-                  t(
-                    'library.suggest.web.noPlugs',
-                    'No connectors detected in the {source} snippet. Refine manufacturer + model.',
-                  ),
-                  { source: ergebnis.fundstelle ?? 'web' },
-                )
-              : t('library.suggest.web.noHit', 'No hit on the web. Refine manufacturer + model.'),
-        )
-        return
-      }
-      setGroups(hintsToLocalDrafts(ergebnis.hints))
-      if (ergebnis.quelle === 'ki') {
-        setGroupsOrigin(
-          t('library.origin.ai', 'AI suggestion with web search — check against the datasheet'),
-        )
-        setSuggestInfo(
-          format(t('library.suggest.ai.ok', '{n} port group(s) accepted from {provider}.'), {
-            n: ergebnis.hints.length,
-            provider: getAiProviderConfig(getSelectedAiProvider()).label,
-          }),
-        )
-      } else {
-        // Der Web-Weg ist der einzige, der eine echte Fundstelle mitbringt —
-        // und den Schnipsel, in dem die Stecker gezaehlt wurden. Genau der
-        // gehoert aufbewahrt: er macht die Angabe nachpruefbar, statt sie nur
-        // als „aus dem Web" zu kennzeichnen. Der Schnipsel wird gekuerzt,
-        // damit die Vorlage nicht einen halben Wikipedia-Artikel
-        // mitschleppt.
-        setGroupsOrigin(
-          format(
-            t('library.origin.web', 'Derived from {source} (connectors counted in the text): "{snippet}"'),
-            {
-              source: ergebnis.fundstelle ?? 'web',
-              snippet: (ergebnis.schnipsel ?? '').replace(/\s+/g, ' ').trim().slice(0, 160),
-            },
-          ),
-        )
-        setSuggestInfo(
-          format(t('library.suggest.web.ok', '{n} port group(s) accepted from {source}.'), {
-            n: ergebnis.hints.length,
-            source: ergebnis.fundstelle ?? 'web',
-          }),
-        )
-      }
+      ergebnisUebernehmen(ergebnis)
     } catch (err) {
       setSuggestError(
         err instanceof Error ? err.message : t('library.suggest.failed', 'Filling in failed.'),
@@ -1400,6 +1443,23 @@ const portsZuGruppen = (ports: Port[], direction: 'in' | 'out'): PortGroupDraft[
                     </span>
                   )}
                 </button>
+                <label
+                  className={`cursor-pointer border border-violet-700/70 px-2 py-1 text-violet-200 hover:bg-violet-900/40 ${ausfuellLaeuft ? 'pointer-events-none opacity-50' : ''}`}
+                  title={t('library.datasheet.title', 'Read the port groups from a datasheet (PDF, HTML or text)')}
+                >
+                  <Icon icon={FileText} size="xs" className="mr-1 inline-block align-text-bottom" />
+                  {t('library.datasheet.upload', 'Datasheet…')}
+                  <input
+                    type="file"
+                    accept=".pdf,.html,.htm,.txt,application/pdf,text/html,text/plain"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      e.target.value = ''
+                      if (file) void handleDatenblatt(file)
+                    }}
+                  />
+                </label>
                 <span className="text-cp-text-muted">
                   {ausfuellQuelle === 'ki'
                     ? t('library.create.fill.fromAi', 'from the AI model — needs an API key')
