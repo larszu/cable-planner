@@ -64,6 +64,9 @@ import {
 } from '../../lib/jobHandover'
 import { cableLabelId, equipmentAssetTag, qrPayload } from '../../lib/docIds'
 import { PanelHint } from '../shared/PanelHint'
+import { equipmentLabelQr } from '../../lib/equipmentLabelQr'
+import { effectiveServer } from '../../lib/deviceLibraryUrl'
+import { useDeviceLibraryStore } from '../../store/deviceLibraryStore'
 
 type ExportRow = {
   key: string
@@ -84,6 +87,8 @@ export const InstallationDocsDialog = () => {
   const applyPendingChange = useProjectStore((s) => s.applyPendingChange)
   const rejectPendingChange = useProjectStore((s) => s.rejectPendingChange)
   const editorName = useSettingsStore((s) => s.editorName)
+  const libraryServer = effectiveServer(useSettingsStore((s) => s.deviceLibraryUrl))
+  const libraryEntries = useDeviceLibraryStore((s) => s.cache.entries)
   const setEditorName = useSettingsStore((s) => s.setEditorName)
 
   const [reserve, setReserve] = useState(10)
@@ -437,14 +442,17 @@ export const InstallationDocsDialog = () => {
       const gapX = (pageW - 2 * margin - cols * cellW) / (cols - 1)
       let x = margin
       let y = margin
-      const items: { id: string; label: string; sub: string; kind: 'cable' | 'equipment' }[] = []
+      const items: { label: string; sub: string[]; payload: string }[] = []
       for (const c of project.cables) {
         const id = c.qrId || cableLabelId(c)
-        items.push({ id, label: id, sub: c.name || c.type, kind: 'cable' })
+        items.push({ label: id, sub: [c.name || c.type], payload: qrPayload('cable', id, id) })
       }
+      // #993 — Geraete tragen Bibliotheksseite, Datenblatt oder Klartext,
+      // und das Etikett nennt Hersteller/Modell auch ohne Link.
       for (const e of project.equipment) {
         const id = e.qrId || equipmentAssetTag(e)
-        items.push({ id, label: id, sub: e.name, kind: 'equipment' })
+        const q = equipmentLabelQr(e, id, libraryEntries, libraryServer)
+        items.push({ label: id, sub: q.lines, payload: q.payload })
       }
       if (items.length === 0) {
         setInfo(t('docs.qr.empty', 'No elements present.'))
@@ -453,7 +461,7 @@ export const InstallationDocsDialog = () => {
       }
       let col = 0
       for (const it of items) {
-        const dataUrl = await QRCode.toDataURL(qrPayload(it.kind, it.id, it.label), {
+        const dataUrl = await QRCode.toDataURL(it.payload, {
           margin: 0,
           width: 256,
         })
@@ -461,7 +469,8 @@ export const InstallationDocsDialog = () => {
         doc.setFontSize(9)
         doc.text(it.label, x + cellH - 4, y + 6)
         doc.setFontSize(7)
-        doc.text(doc.splitTextToSize(it.sub, cellW - cellH).slice(0, 3), x + cellH - 4, y + 11)
+        const subLines = it.sub.flatMap((l) => doc.splitTextToSize(l, cellW - cellH) as string[])
+        doc.text(subLines.slice(0, 4), x + cellH - 4, y + 11)
         col += 1
         if (col >= cols) {
           col = 0
