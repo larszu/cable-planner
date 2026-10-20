@@ -57,6 +57,10 @@
 - **Every list for the build day.** Pull list, patch list, termination list,
   BOM, patch sheets, faceplates, acceptance record, QR labels — one report
   editor, preview equals export.
+- **Drum micing in a few clicks.** Pick a technique preset (minimal, Glyn
+  Johns, Recorderman, full close-mic) and a subsnake size: channels are
+  patched to the subsnake in order, with patch list and cable-end labels
+  (P-touch/Dymo CSV) ready to export.
 - **Control at the device.** ATEM multiviewer and audio, Videohub routing,
   PTZ cameras through the LZ Camera Bridge (joystick, presets, the shots
   planned in MultiCam driven and stored in the head, one offset on site, live

@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { X, Plus, Trash2, Zap, AlertTriangle, Wrench, Check } from 'lucide-react'
+import { X, Plus, Trash2, Zap, AlertTriangle, Wrench, Check, Download, Tag } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
@@ -13,7 +13,16 @@ import {
   deriveDrumBom,
   drumBomToText,
   DRUM_TECHNIQUES,
+  SUBSNAKE_SIZES,
+  drumSubsnake,
+  drumPatchTable,
+  drumLabelRows,
 } from '../../lib/drumMicing'
+import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import { csvFromTable } from '../../lib/documentStamp'
+import { toCsv } from '../../lib/csv'
+import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
 import type { DrumKitPlan, DrumMicPlacement, DrumTechnique, DrumZone } from '../../types/drumKit'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
@@ -71,6 +80,7 @@ export const DrumMicingDialog = () => {
   const open = useUiStore((s) => s.drumMicingOpen)
   const setOpen = useUiStore((s) => s.setDrumMicingOpen)
   const drumKit = useProjectStore((s) => s.project.drumKit)
+  const projectName = useProjectStore((s) => s.project.metadata.name)
   const setDrumKit = useProjectStore((s) => s.setDrumKit)
 
   const plan: DrumKitPlan = drumKit ?? emptyDrumKit()
@@ -166,6 +176,28 @@ export const DrumMicingDialog = () => {
       if (!ok) return
     }
     commit({ ...plan, mics: placements, technique: tech })
+  }
+
+  // #1001 — Subsnake + Exporte. Der Patch ist abgeleitet (Kanal n = Eingang n),
+  // deshalb gibt es hier nur Name und Groesse, keinen Patch-Editor.
+  const subsnake = drumSubsnake(plan)
+  const overflow = derivation.channels.filter((c) => c.subsnakeInput === undefined).length
+  const setSubsnake = (patch: Partial<typeof subsnake>) =>
+    commit({ ...plan, subsnake: { ...subsnake, ...patch } })
+  const fileName = (suffix: string, ext: string) =>
+    buildExportFilenameWithSuffix(projectName || 'cable-planner', suffix, ext)
+  const exportPatchList = () =>
+    downloadBlob(fileName('drum-patchliste', 'csv'), csvFromTable(drumPatchTable(plan)), 'text/csv;charset=utf-8')
+  // Gleiches Format wie die Kabel-Etiketten der Patchliste (#349): Label1/Label2,
+  // ASCII-sicher fuer P-touch/Dymo.
+  const exportLabels = () => {
+    const ascii = (v: string) => sanitizeForPdf(v)
+    const rows = drumLabelRows(plan).map((r) => [ascii(r.label1), ascii(r.label2)])
+    downloadBlob(
+      fileName('drum-etiketten', 'csv'),
+      toCsv(['Label1', 'Label2'], rows, { delimiter: ',', bom: false }),
+      'text/csv;charset=utf-8',
+    )
   }
 
   const clearAll = () => commit({ ...plan, mics: [], technique: 'custom' })
@@ -432,6 +464,57 @@ export const DrumMicingDialog = () => {
               )}
             </div>
 
+            {/* Subsnake + Exporte (#1001) */}
+            <div className="border-b border-cp-border-muted p-3">
+              <h3 className="mb-2 text-cp-xs font-semibold text-cp-text-muted">
+                {t('drum.subsnake', 'Subsnake')}
+              </h3>
+              <div className="flex items-center gap-1">
+                <input
+                  value={subsnake.name}
+                  onChange={(e) => setSubsnake({ name: e.target.value })}
+                  aria-label={t('drum.subsnakeName', 'Subsnake name')}
+                  className="w-full border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+                />
+                <select
+                  value={subsnake.inputs}
+                  onChange={(e) => setSubsnake({ inputs: Number(e.target.value) })}
+                  aria-label={t('drum.subsnakeInputs', 'Inputs')}
+                  className="border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
+                >
+                  {SUBSNAKE_SIZES.map((n) => (
+                    <option key={n} value={n}>
+                      {format(t('drum.subsnakeSize', '{n} in'), { n: String(n) })}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {overflow > 0 && (
+                <p className="mt-1 flex items-center gap-1 text-cp-xs text-cp-warn">
+                  <AlertTriangle size={11} />
+                  {format(t('drum.subsnakeOverflow', '{n} channels do not fit on the subsnake'), { n: String(overflow) })}
+                </p>
+              )}
+              <div className="mt-2 flex flex-wrap gap-1">
+                <button
+                  type="button"
+                  onClick={exportPatchList}
+                  disabled={derivation.channelCount === 0}
+                  className="inline-flex items-center gap-1 bg-cp-accent px-2 py-1 text-cp-xs text-cp-accent-text hover:bg-cp-accent-hover disabled:opacity-50"
+                >
+                  <Download size={12} /> {t('drum.exportPatch', 'Patch list')}
+                </button>
+                <button
+                  type="button"
+                  onClick={exportLabels}
+                  disabled={derivation.channelCount === 0}
+                  className="inline-flex items-center gap-1 border border-cp-border-muted px-2 py-1 text-cp-xs text-cp-text-secondary hover:bg-cp-surface-2 disabled:opacity-50"
+                >
+                  <Tag size={12} /> {t('drum.exportLabels', 'Labels')}
+                </button>
+              </div>
+            </div>
+
             {/* Ableitungen */}
             <div className="p-3">
               <h3 className="mb-2 text-cp-xs font-semibold text-cp-text-muted">
@@ -464,6 +547,9 @@ export const DrumMicingDialog = () => {
                     <tr key={c.channel} className="border-b border-cp-border-muted/50">
                       <td className="py-0.5 pr-1 text-cp-text-faint">{c.channel}</td>
                       <td className="py-0.5 pr-1 text-cp-text-secondary">{c.label}</td>
+                      <td className="py-0.5 pr-1 text-cp-text-faint" title={t('drum.subsnake', 'Subsnake')}>
+                        {c.subsnakeInput ?? <AlertTriangle size={11} className="inline text-cp-warn" />}
+                      </td>
                       <td className="py-0.5 text-cp-text">
                         {c.micUnknown ? <span className="text-cp-warn">{t('drum.pending', '(mic open)')}</span> : c.micName}
                       </td>
@@ -476,7 +562,7 @@ export const DrumMicingDialog = () => {
                   ))}
                   {derivation.channels.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="py-2 text-cp-text-faint">
+                      <td colSpan={5} className="py-2 text-cp-text-faint">
                         {t('drum.emptyList', 'No microphones placed yet.')}
                       </td>
                     </tr>
