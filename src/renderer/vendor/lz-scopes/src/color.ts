@@ -3,6 +3,7 @@
 // R'G'B' / Y' in 0..1 where 0 = black level and 1 = nominal peak (100 %).
 
 import { CAMERA_GAMUTS, LOG_CURVES, isLogCurve, logSceneToSignal, logSignalToScene, type CameraGamutId, type LogCurve } from './camera';
+import { t as tr } from './i18n';
 
 /** Y'CbCr matrix and default primaries. '601' = 525 lines (SMPTE-C), '601-625' = 625 lines (EBU). */
 export type Colorspace = '709' | '2020' | '601' | '601-625';
@@ -18,7 +19,7 @@ export const isLog = (t: Transfer): t is LogCurve => isLogCurve(t);
 export const GAMMA_EXP: Partial<Record<Transfer, number>> = { sdr: 2.4, g22: 2.2, g26: 2.6, g28: 2.8 };
 export const isGamma = (t: Transfer): t is GammaTransfer => t in GAMMA_EXP || t === 'srgb' || t === 'linear';
 
-const GAMMA_LABELS: Record<GammaTransfer, string> = { sdr: 'SDR BT.1886 (γ 2,4)', g22: 'Gamma 2,2', g26: 'Gamma 2,6', g28: 'Gamma 2,8', srgb: 'sRGB', linear: 'Linear' };
+const GAMMA_LABELS: Record<GammaTransfer, string> = { sdr: tr('color.gamma.sdr'), g22: tr('color.gamma.g22'), g26: tr('color.gamma.g26'), g28: tr('color.gamma.g28'), srgb: 'sRGB', linear: tr('color.gamma.linear') };
 export function transferLabel(t: Transfer) {
   return isLog(t) ? LOG_CURVES[t].name : isGamma(t) ? GAMMA_LABELS[t] : t.toUpperCase();
 }
@@ -106,7 +107,7 @@ export function gamutConvert(from: Gamut, to: Gamut) {
 
 export type DisplaySpace = 'srgb' | 'p3' | 'rec709' | 'raw';
 export const DISPLAY_LABELS: Record<DisplaySpace, string> = {
-  srgb: 'sRGB-Display', p3: 'Display P3', rec709: 'Rec.709 / BT.1886 (2.4)', raw: 'Signal direkt (ohne Umrechnung)',
+  srgb: tr('color.display.srgb'), p3: 'Display P3', rec709: 'Rec.709 / BT.1886 (2.4)', raw: tr('color.display.raw'),
 };
 
 /** What the end device can show, via CSS media queries. */
@@ -193,7 +194,7 @@ export function sceneToSignal(x: number, t: LogCurve) { return logSceneToSignal(
 export function levelText(v: number, t: Transfer, lw = 1000) {
   if (isLog(t)) {
     const x = signalToScene(v, t), st = x > 0 ? Math.log2(x / 0.18) : -Infinity;
-    return `${(x * 100).toFixed(1)} % Szene (${Number.isFinite(st) ? `${st >= 0 ? '+' : ''}${st.toFixed(1)}` : '−∞'} Bl.)`;
+    return tr('color.levelLog', { pct: (x * 100).toFixed(1), stops: Number.isFinite(st) ? `${st >= 0 ? '+' : ''}${st.toFixed(1)}` : '−∞' });
   }
   return `${Math.round(signalToNits(v, t, lw))} cd/m² (${transferLabel(t)}${t === 'hlg' && lw !== 1000 ? ` ${lw}` : ''})`;
 }
@@ -281,57 +282,61 @@ export interface FalseColorBand { from: number; to: number; color: string; label
  */
 export const FALSE_COLOR_PRESETS: Record<string, FalseColorBand[]> = {
   ARRI: [
-    { from: 0, to: 2.5, color: '#8a2be2', label: 'Schwarz-Clip' },
-    { from: 2.5, to: 4, color: '#1e5bff', label: 'knapp über Schwarz' },
-    { from: 38, to: 42, color: '#22c55e', label: '18 % Grau' },
-    { from: 52, to: 56, color: '#ff6ec7', label: 'Grau +1 Blende' },
-    { from: 97, to: 99, color: '#ffd400', label: 'knapp unter Weiß' },
-    { from: 99, to: 100.01, color: '#ff1f1f', label: 'Weiß-Clip' },
+    { from: 0, to: 2.5, color: '#8a2be2', label: tr('color.fc.blackClip') },
+    { from: 2.5, to: 4, color: '#1e5bff', label: tr('color.fc.aboveBlack') },
+    { from: 38, to: 42, color: '#22c55e', label: tr('color.fc.grey18') },
+    { from: 52, to: 56, color: '#ff6ec7', label: tr('color.fc.greyPlus1') },
+    { from: 97, to: 99, color: '#ffd400', label: tr('color.fc.belowWhite') },
+    { from: 99, to: 100.01, color: '#ff1f1f', label: tr('color.fc.whiteClip') },
   ],
-  Belichtung: [
-    { from: 0, to: 5, color: '#6a0dad', label: 'abgesoffen' },
-    { from: 5, to: 20, color: '#1e3a8a', label: 'Schatten' },
-    { from: 40, to: 50, color: '#16a34a', label: 'Mittelton' },
-    { from: 55, to: 70, color: '#f472b6', label: 'Hautton' },
-    { from: 90, to: 97, color: '#facc15', label: 'Lichter' },
+  Belichtung: [ // key is persisted; display name in FALSE_COLOR_NAMES
+    { from: 0, to: 5, color: '#6a0dad', label: tr('color.fc.crushed') },
+    { from: 5, to: 20, color: '#1e3a8a', label: tr('color.fc.shadows') },
+    { from: 40, to: 50, color: '#16a34a', label: tr('color.fc.midtone') },
+    { from: 55, to: 70, color: '#f472b6', label: tr('color.fc.skin') },
+    { from: 90, to: 97, color: '#facc15', label: tr('color.fc.highlights') },
     { from: 97, to: 100.01, color: '#dc2626', label: 'Clip' },
   ],
   'RED Video': [
-    { from: -7, to: 5, color: '#7a2fbf', label: 'Violett', range: '0–4' },
-    { from: 5, to: 6, color: '#1f5bff', label: 'Blau', range: '5' },
-    { from: 10, to: 13, color: '#0fa3a3', label: 'Petrol, tiefe Schatten', range: '10–12' },
-    { from: 41, to: 49, color: '#22c55e', label: 'Grün, 18 % Grau', range: '41–48' },
-    { from: 61, to: 71, color: '#ff6ec7', label: 'Rosa, helle Haut', range: '61–70' },
-    { from: 92, to: 94, color: '#e8d98a', label: 'Stroh', range: '92–93' },
-    { from: 94, to: 96, color: '#ffe600', label: 'Gelb', range: '94–95' },
+    { from: -7, to: 5, color: '#7a2fbf', label: tr('color.fc.violet'), range: '0–4' },
+    { from: 5, to: 6, color: '#1f5bff', label: tr('color.fc.blue'), range: '5' },
+    { from: 10, to: 13, color: '#0fa3a3', label: tr('color.fc.tealDeep'), range: '10–12' },
+    { from: 41, to: 49, color: '#22c55e', label: tr('color.fc.greenGrey'), range: '41–48' },
+    { from: 61, to: 71, color: '#ff6ec7', label: tr('color.fc.pinkSkin'), range: '61–70' },
+    { from: 92, to: 94, color: '#e8d98a', label: tr('color.fc.straw'), range: '92–93' },
+    { from: 94, to: 96, color: '#ffe600', label: tr('color.fc.yellow'), range: '94–95' },
     { from: 96, to: 99, color: '#ff8c00', label: 'Orange', range: '96–98' },
-    { from: 99, to: 109.01, color: '#ff1f1f', label: 'Rot, Clip', range: '99–100' },
+    { from: 99, to: 109.01, color: '#ff1f1f', label: tr('color.fc.redClip'), range: '99–100' },
   ],
   'Sony SDR': [
-    { from: -7, to: 0, color: '#000000', label: 'Schwarz' },
-    { from: 0, to: 1, color: '#7a2fbf', label: 'Violett' },
-    { from: 1, to: 13, color: '#1f5bff', label: 'Blau' },
-    { from: 13, to: 23, color: '#7fc8ff', label: 'Hellblau' },
-    { from: 43, to: 48, color: '#22c55e', label: 'Grün' },
-    { from: 56, to: 59, color: '#ff6ec7', label: 'Rosa' },
+    { from: -7, to: 0, color: '#000000', label: tr('color.fc.black') },
+    { from: 0, to: 1, color: '#7a2fbf', label: tr('color.fc.violet') },
+    { from: 1, to: 13, color: '#1f5bff', label: tr('color.fc.blue') },
+    { from: 13, to: 23, color: '#7fc8ff', label: tr('color.fc.lightBlue') },
+    { from: 43, to: 48, color: '#22c55e', label: tr('color.fc.green') },
+    { from: 56, to: 59, color: '#ff6ec7', label: tr('color.fc.pink') },
     { from: 79, to: 84, color: '#00e5ff', label: 'Cyan' },
-    { from: 84, to: 94, color: '#ffe600', label: 'Gelb' },
+    { from: 84, to: 94, color: '#ffe600', label: tr('color.fc.yellow') },
     { from: 94, to: 100, color: '#ff8c00', label: 'Orange' },
-    { from: 100, to: 109.01, color: '#ff1f1f', label: 'Rot' },
+    { from: 100, to: 109.01, color: '#ff1f1f', label: tr('color.fc.red') },
   ],
   'Sony S-Log3': [
-    { from: -7, to: 3.5, color: '#7a2fbf', label: 'Violett' },
-    { from: 3.5, to: 5.6, color: '#1f5bff', label: 'Blau' },
-    { from: 24.6, to: 34.4, color: '#7fc8ff', label: 'Hellblau' },
-    { from: 38.9, to: 42.2, color: '#22c55e', label: 'Grün' },
+    { from: -7, to: 3.5, color: '#7a2fbf', label: tr('color.fc.violet') },
+    { from: 3.5, to: 5.6, color: '#1f5bff', label: tr('color.fc.blue') },
+    { from: 24.6, to: 34.4, color: '#7fc8ff', label: tr('color.fc.lightBlue') },
+    { from: 38.9, to: 42.2, color: '#22c55e', label: tr('color.fc.green') },
     { from: 43.8, to: 46.5, color: '#00e5ff', label: 'Cyan' },
-    { from: 47.8, to: 50.8, color: '#ffb3d9', label: 'Hellrosa' },
-    { from: 54.3, to: 58, color: '#ff6ec7', label: 'Rosa' },
+    { from: 47.8, to: 50.8, color: '#ffb3d9', label: tr('color.fc.lightPink') },
+    { from: 54.3, to: 58, color: '#ff6ec7', label: tr('color.fc.pink') },
     { from: 87.7, to: 90.6, color: '#ff8c00', label: 'Orange' },
-    { from: 91.3, to: 93.4, color: '#ffe600', label: 'Gelb' },
-    { from: 93.4, to: 96.1, color: '#ff1f1f', label: 'Rot' },
+    { from: 91.3, to: 93.4, color: '#ffe600', label: tr('color.fc.yellow') },
+    { from: 93.4, to: 96.1, color: '#ff1f1f', label: tr('color.fc.red') },
   ],
 };
+
+/** Display names of the false-colour presets (the keys are persisted and stay as they are). */
+export const FALSE_COLOR_NAMES: Record<string, string> = { Belichtung: tr('color.fc.exposure') };
+export const falseColorName = (k: string) => FALSE_COLOR_NAMES[k] ?? k;
 
 /** Legend text of a band's range. */
 export const bandRange = (b: FalseColorBand) => b.range ?? `${b.from}–${Math.min(100, b.to)}`;
@@ -476,8 +481,8 @@ export function bt2390Eetf(e: number, srcPeak: number, tgtPeak: number): number 
 /** How the picture view shows HDR/log on an SDR display. */
 export type HdrPreview = 'bt2408' | 'bt2446a';
 export const HDR_PREVIEW_LABELS: Record<HdrPreview, string> = {
-  bt2408: 'BT.2408 hybrid-linear (×0,5, BT.2390-Roll-off)',
-  bt2446a: 'BT.2446 Methode A (1000 → 100 cd/m²)',
+  bt2408: tr('color.hdr.bt2408'),
+  bt2446a: tr('color.hdr.bt2446a'),
 };
 /** Luma weights of BT.2020 (BT.2446 Table 2). */
 const K2020 = [0.2627, 0.678, 0.0593];

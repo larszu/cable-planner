@@ -1,0 +1,40 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
+// Deutsche Übersetzung zu en/genlock.ts.
+import type en from '../en/genlock';
+import type { Translation } from '../types';
+
+export default {
+  'genlock.title': 'REFERENZ / GENLOCK · DeckLink-Referenzeingang',
+  'genlock.untested': 'ungeprüft – keine DeckLink-Karte mit Referenzeingang im Test',
+  'genlock.noHelper': 'DeckLink nicht verfügbar',
+  'genlock.noRefInput': 'Diese Karte hat keinen Referenzeingang',
+  'genlock.locked': 'gelockt',
+  'genlock.notLocked': 'nicht gelockt',
+  'genlock.unknown': 'unbekannt',
+  'genlock.reference': 'Referenz',
+  'genlock.format': 'Format',
+  'genlock.formatUnknown': 'nicht erkannt (Karte ohne Referenz-Formaterkennung oder kein Signal)',
+  'genlock.bb': 'Black Burst (SD-Format)',
+  'genlock.tls': 'Tri-Level-Sync (HD-Format)',
+  'genlock.derived': 'aus dem Format abgeleitet',
+  'genlock.offset': 'Genlock-Offset (eingestellt)',
+  'genlock.px': 'Pixel',
+  'genlock.range511': 'Bereich ±511 Pixel',
+  'genlock.rangeFull': 'Bereich ± halbes Gesamtraster',
+  'genlock.input': 'Eingang',
+  'genlock.noPhaseApi': 'Zeitversatz Eingang ↔ Referenz: liefert die DeckLink-API nicht',
+  'genlock.phaseTitle': 'BILDTAKT ↔ ST-2059-RASTER',
+  'genlock.phaseSystem': 'Systemuhr',
+  'genlock.phasePtp': 'PTP (Uhr-Panel)',
+  'genlock.phaseNone': 'Quelle im Panel ist keine laufende DeckLink-/NDI-Quelle',
+  'genlock.mean': 'Lage',
+  'genlock.sd': 'Streuung',
+  'genlock.drift': 'Drift',
+  'genlock.jumps': 'Sprünge – Drift unsicher',
+  'genlock.driftWait': 'Drift: sammelt …',
+  'genlock.phaseNote': 'Ankunftszeit inkl. Übertragung – aussagekräftig sind Konstanz und Drift',
+  'genlock.tc': 'Timecode der Quelle',
+  'genlock.tcNote': 'Vergleich mit LTC und Tageszeit im Uhr-Panel',
+  'genlock.device': 'DeckLink-Gerät',
+  'genlock.bridgeDown': 'Bridge nicht erreichbar',
+} satisfies Translation<typeof en>;

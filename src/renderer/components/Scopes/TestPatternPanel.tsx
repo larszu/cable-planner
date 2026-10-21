@@ -3,8 +3,6 @@ import { MonitorPlay, X } from 'lucide-react'
 import { PATTERNS, RESOLUTIONS, patternById, renderPattern } from '../../vendor/lz-scopes/src'
 import { cablePlannerApi, hasDesktopBridge, type TestPatternScreen } from '../../lib/bridge'
 import { format, useTranslation } from '../../lib/i18n'
-import { patternGroup, patternName } from '../../lib/testPatternNames'
-import { useUiStore } from '../../store/uiStore'
 import { Icon } from '../shared/Icon'
 import type { EquipmentItem } from '../../types/equipment'
 
@@ -27,7 +25,6 @@ import type { EquipmentItem } from '../../types/equipment'
  */
 export default function TestPatternPanel({ equipment }: { equipment: EquipmentItem }) {
   const t = useTranslation()
-  const lang = useUiStore((s) => s.language)
   const [musterId, setMusterId] = useState('smpte75')
   const [label, setLabel] = useState(equipment.name)
   const [aufloesung, setAufloesung] = useState('native')
@@ -115,10 +112,10 @@ export default function TestPatternPanel({ equipment }: { equipment: EquipmentIt
         className={feld}
       >
         {gruppen.map((g) => (
-          <optgroup key={g} label={patternGroup(g, lang)}>
+          <optgroup key={g} label={g}>
             {PATTERNS.filter((p) => p.group === g).map((p) => (
               <option key={p.id} value={p.id}>
-                {patternName(p, lang)}
+                {p.name}
                 {p.animated ? ` (${t('testPattern.still', 'still frame')})` : ''}
               </option>
             ))}

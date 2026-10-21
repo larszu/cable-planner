@@ -28,14 +28,6 @@ export type Signal =
   | 'sine' | 'square' | 'triangle' | 'saw' | 'white' | 'pink' | 'pink-band' | 'sweep' | 'steps'
   | 'ebu-ident' | 'glits' | 'ident-lr' | 'polarity' | 'avsync' | 'blits' | 'ebu-multi';
 
-export const SIGNAL_LABELS: Record<Signal, string> = {
-  sine: 'Sinus', square: 'Rechteck', triangle: 'Dreieck', saw: 'Sägezahn',
-  white: 'Weißes Rauschen', pink: 'Rosa Rauschen', 'pink-band': 'Rosa Rauschen 500–2000 Hz (Tech 3343)',
-  sweep: 'Log-Sweep', steps: 'Stufen-Sweep (Terzmitten)',
-  'ebu-ident': 'EBU-Stereo-Ident', glits: 'GLITS', 'ident-lr': 'Kanal-Ident L/R', polarity: 'Polaritätstest', avsync: 'A/V-Sync-Piep',
-  blits: 'BLITS (5.1-Ident, Tech 3304)', 'ebu-multi': 'EBU-Mehrkanal-Ident (Tech 3304)',
-};
-
 export interface ChannelRoute { on: boolean; invert: boolean; trim: number }
 
 export interface GenConfig {

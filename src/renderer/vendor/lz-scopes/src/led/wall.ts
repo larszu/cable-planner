@@ -1,4 +1,5 @@
 // @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
+import { t } from '../i18n';
 // LED wall model (#10): wall and cabinet geometry, cabinet numbering, and the pattern
 // settings shared between the main window and the pattern output window (same origin,
 // so both read them from localStorage).
@@ -9,6 +10,15 @@
 // See docs/research/led-wall-und-messgeraete.md, A.1 and A.4.
 
 export type CabinetOrder = 'rows' | 'cols' | 'snake';
+
+/** LED processor family – selects the wording of correction hints (src/led/processorHints.ts). */
+export type ProcessorKind = 'novastar-lct' | 'novastar-vx' | 'brompton' | 'other';
+export const PROCESSOR_LABELS: Record<ProcessorKind, string> = {
+  'novastar-lct': 'NovaStar (NovaLCT)',
+  'novastar-vx': t('led.proc.vx'),
+  brompton: 'Brompton Tessera',
+  other: t('led.proc.other'),
+};
 
 export interface WallConfig {
   name: string;
@@ -23,6 +33,8 @@ export interface WallConfig {
   order: CabinetOrder;
   /** number of the first cabinet */
   start: number;
+  /** processor driving the wall */
+  processor: ProcessorKind;
 }
 
 export type RGB01 = [number, number, number];
@@ -53,7 +65,7 @@ export interface LedSettings {
   };
 }
 
-export const DEFAULT_WALL: WallConfig = { name: 'Wand 1', cabW: 192, cabH: 192, cols: 10, rows: 5, modW: 0, modH: 0, offX: 0, offY: 0, order: 'rows', start: 1 };
+export const DEFAULT_WALL: WallConfig = { name: t('led.wall.default'), cabW: 192, cabH: 192, cols: 10, rows: 5, modW: 0, modH: 0, offX: 0, offY: 0, order: 'rows', start: 1, processor: 'novastar-lct' };
 
 export const DEFAULT_SETTINGS: LedSettings = {
   wall: DEFAULT_WALL, level: 50, channels: [true, true, true], gridStep: 16, lowMax: 20, scroll: 'h',
@@ -104,6 +116,7 @@ export function sanitizeWall(v: Partial<WallConfig> | null | undefined): WallCon
     offX: int(x.offX, 0, 8192, 0), offY: int(x.offY, 0, 8192, 0),
     order: x.order === 'cols' || x.order === 'snake' ? x.order : 'rows',
     start: int(x.start, 0, 99999, 1),
+    processor: x.processor && x.processor in PROCESSOR_LABELS ? x.processor : d.processor,
   };
   wall.offX = Math.min(wall.offX, 16384 - wall.cabW * wall.cols);
   wall.offY = Math.min(wall.offY, 16384 - wall.cabH * wall.rows);
@@ -185,13 +198,13 @@ export function deleteWall(name: string) {
  * ICVFX (UE 5.7 docs): R, G, B, W as the minimum set, a 5×5×5 grid in 0.25 steps to verify.
  */
 export const PATCH_PRESETS: { id: string; name: string; list: () => RGB01[] }[] = [
-  { id: 'rgbw', name: 'R, G, B, W (Unreal-Mindestsatz)', list: () => [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 1]] },
+  { id: 'rgbw', name: t('led.preset.rgbw'), list: () => [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 1]] },
   {
-    id: 'grid5', name: '5×5×5-Gitter in 0,25 (Unreal-Prüfsatz, 125 Felder)',
+    id: 'grid5', name: t('led.preset.grid5'),
     list: () => { const o: RGB01[] = []; for (let r = 0; r < 5; r++) for (let g = 0; g < 5; g++) for (let b = 0; b < 5; b++) o.push([r / 4, g / 4, b / 4]); return o; },
   },
-  { id: 'gray10', name: 'Graustufen 0–100 % in 10 %', list: () => Array.from({ length: 11 }, (_, i) => [i / 10, i / 10, i / 10] as RGB01) },
-  { id: 'gray-low', name: 'Graustufen 0–10 % in 1 %', list: () => Array.from({ length: 11 }, (_, i) => [i / 100, i / 100, i / 100] as RGB01) },
+  { id: 'gray10', name: t('led.preset.gray10'), list: () => Array.from({ length: 11 }, (_, i) => [i / 10, i / 10, i / 10] as RGB01) },
+  { id: 'gray-low', name: t('led.preset.grayLow'), list: () => Array.from({ length: 11 }, (_, i) => [i / 100, i / 100, i / 100] as RGB01) },
 ];
 
 /** Parse a patch list: one colour per line, "r g b" or "r,g,b" in 0–1, 0–100 % (with %) or 0–255. */

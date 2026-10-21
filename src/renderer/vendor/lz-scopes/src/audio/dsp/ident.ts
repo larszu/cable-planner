@@ -20,6 +20,7 @@
 import type { ChannelInfo } from './layouts';
 import { clockwiseOrder } from './layouts';
 import { BLITS_FREQS } from './signals';
+import { lang, t } from '../../i18n';
 
 const BLOCKS = 3200; // 32 s of 10 ms blocks
 const PRESENT = 1e-5; // −50 dBFS RMS: a channel below this carries no line-up tone
@@ -38,8 +39,8 @@ export interface IdentReport {
 }
 
 export const IDENT_LABELS: Record<IdentKind, string> = {
-  ebu: 'EBU-Stereo-Ident (R 49)', glits: 'GLITS', blits: 'BLITS (Tech 3304)', 'ebu-multi': 'EBU-Mehrkanal-Ident (Tech 3304)',
-  'lz-lr': 'LZ Kanal-Ident L/R', tone: 'Dauerton',
+  ebu: t('audio.id.kindEbu'), glits: 'GLITS', blits: t('audio.id.kindBlits'), 'ebu-multi': t('audio.sig.ebuMulti'),
+  'lz-lr': t('audio.id.kindLz'), tone: t('audio.id.kindTone'),
 };
 
 interface Run { on: boolean; start: number; len: number; complete: boolean }
@@ -170,15 +171,15 @@ export class IdentDetector {
         const r = a / d;
         report.corr = r;
         const L = this.info[0].name, R = this.info[1].name;
-        if (r < -0.9) report.findings.push({ level: 'bad', text: `Polarität invertiert: ${L} und ${R} gegenphasig (Korrelation ${fmt2(r)})` });
-        else if (r > 0.9) report.findings.push({ level: 'ok', text: `${L}/${R} gleichphasig (Korrelation ${fmt2(r)})` });
-        else report.findings.push({ level: 'warn', text: `${L}/${R} nicht kohärent (Korrelation ${fmt2(r)})` });
+        if (r < -0.9) report.findings.push({ level: 'bad', text: t('audio.id.inverted', { l: L, r: R, corr: fmt2(r) }) });
+        else if (r > 0.9) report.findings.push({ level: 'ok', text: t('audio.id.inPhase', { l: L, r: R, corr: fmt2(r) }) });
+        else report.findings.push({ level: 'warn', text: t('audio.id.incoherent', { l: L, r: R, corr: fmt2(r) }) });
       }
     }
     // missing channels (main channels only; an LFE may legitimately be silent)
     if (present.some(Boolean)) {
       present.forEach((p, c) => {
-        if (!p && !this.info[c].lfe) report.findings.push({ level: 'bad', text: `Kanal ${this.info[c].name} fehlt (kein Signal über −50 dBFS)` });
+        if (!p && !this.info[c].lfe) report.findings.push({ level: 'bad', text: t('audio.id.missing', { name: this.info[c].name }) });
       });
     }
     // line-up level (EBU R 68: −18 dBFS); BLITS section 3 (−24 dBFS) and bursts pull the median only little
@@ -187,8 +188,8 @@ export class IdentDetector {
       if (lv.length) {
         const mean = lv.reduce((s, v) => s + v, 0) / lv.length;
         report.findings.push(Math.abs(mean + 18) <= 0.5
-          ? { level: 'ok', text: `Pegel ${fmt1(mean)} dBFS (Ausrichtungspegel −18 dBFS, EBU R 68)` }
-          : { level: 'warn', text: `Pegel ${fmt1(mean)} dBFS – Ausrichtungspegel ist −18 dBFS (EBU R 68)` });
+          ? { level: 'ok', text: t('audio.id.levelOk', { db: fmt1(mean) }) }
+          : { level: 'warn', text: t('audio.id.levelWarn', { db: fmt1(mean) }) });
       }
     }
     return report;
@@ -254,12 +255,12 @@ export class IdentDetector {
     if (blits.filter((c) => c >= 0).length >= 3) {
       const complete = blits.length >= expectedBlits.length - 1 && !blits.includes(-2);
       const findings = complete ? compareOrder(expectedBlits, blits, info, present)
-        : [{ level: 'info' as const, text: `BLITS: Kennungsfolge noch unvollständig (${blits.filter((c) => c >= 0).length} von ${expectedBlits.length})` }];
+        : [{ level: 'info' as const, text: `BLITS: ${t('audio.id.incomplete', { n: blits.filter((c) => c >= 0).length, of: expectedBlits.length })}` }];
       // tone frequency of each burst against Tech 3304 (L/R 880, C 1320, LFE 82.5, Ls/Rs 660 Hz)
       blits.forEach((ch, k) => {
         const want = BLITS_FREQS[k], f = ch >= 0 ? burstFreq(ch) : null;
         if (want === undefined || f === null) return;
-        if (Math.abs(f - want) > Math.max(15, want * 0.08)) findings.push({ level: 'warn', text: `${info[ch].name}: ${Math.round(f)} Hz statt ${want} Hz (BLITS-Kennung ${k + 1})` });
+        if (Math.abs(f - want) > Math.max(15, want * 0.08)) findings.push({ level: 'warn', text: t('audio.id.blitsFreq', { name: info[ch].name, f: Math.round(f), want, k: k + 1 }) });
       });
       return { kind: 'blits', findings };
     }
@@ -268,11 +269,11 @@ export class IdentDetector {
     const ebu = chain(solo(lfe), 50, 100, expected.length);
     if (ebu.filter((c) => c >= 0).length >= 3) {
       const findings = ebu.length >= expected.length - 1 ? compareOrder(expected, ebu, info, present)
-        : [{ level: 'info' as const, text: `Kennungsfolge noch unvollständig (${ebu.length} von ${expected.length})` }];
+        : [{ level: 'info' as const, text: t('audio.id.incompleteCap', { n: ebu.length, of: expected.length }) }];
       for (const l of lfe) {
         const f = this.channelFreq(l, on, zc);
-        if (present[l] && f !== null && Math.abs(f - 80) > 10) findings.push({ level: 'warn', text: `${info[l].name}: ${Math.round(f)} Hz statt 80 Hz` });
-        if (!present[l]) findings.push({ level: 'warn', text: `${info[l].name}: kein 80-Hz-Ton (Tech 3304 §4.2)` });
+        if (present[l] && f !== null && Math.abs(f - 80) > 10) findings.push({ level: 'warn', text: t('audio.id.lfeFreq', { name: info[l].name, f: Math.round(f) }) });
+        if (!present[l]) findings.push({ level: 'warn', text: t('audio.id.lfeMissing', { name: info[l].name }) });
       }
       return { kind: 'ebu-multi', findings };
     }
@@ -305,12 +306,12 @@ function stereo(runs: Run[][], present: boolean[]): Partial<IdentReport> {
   const bursts = (c: number, len: number) => runs[c].filter((r) => r.on && r.complete && near(r.len, len));
   const offDuring = (c: number, a: number, b: number) => runs[c].some((r) => !r.on && r.start < b && r.start + r.len > a && r.len >= 5);
   const swapped = (left: number): Finding[] => left === 0
-    ? [{ level: 'ok', text: 'L/R richtig zugeordnet' }]
-    : [{ level: 'bad', text: 'L/R vertauscht – die Kennung des linken Kanals liegt rechts' }];
+    ? [{ level: 'ok', text: t('audio.id.lrOk') }]
+    : [{ level: 'bad', text: t('audio.id.lrSwappedLong') }];
   if (!present[0] || !present[1]) {
     // one channel only: the pattern still tells which channel it belongs to
     const c = present[0] ? 0 : 1;
-    if (gaps(c, 25).length >= 1 || gaps(c, 30).length >= 1) return { kind: 'tone', findings: [{ level: 'info', text: 'Kennung nur auf einem Kanal – Zuordnung nicht prüfbar' }] };
+    if (gaps(c, 25).length >= 1 || gaps(c, 30).length >= 1) return { kind: 'tone', findings: [{ level: 'info', text: t('audio.id.oneChannel') }] };
     return { kind: 'tone', findings: [] };
   }
   for (const x of [0, 1]) {
@@ -335,7 +336,7 @@ function stereo(runs: Run[][], present: boolean[]): Partial<IdentReport> {
     }
     // LZ Kanal-Ident: one 400 ms tone on L, two on R (1.0 s and 1.6 s after the L tone)
     const tx = bursts(x, 40), ty = bursts(y, 40);
-    if (tx.some((t) => ty.some((a) => near(a.start - t.start, 100)) && ty.some((b) => near(b.start - t.start, 160)))) return { kind: 'lz-lr', findings: swapped(x) };
+    if (tx.some((u) => ty.some((a) => near(a.start - u.start, 100)) && ty.some((b) => near(b.start - u.start, 160)))) return { kind: 'lz-lr', findings: swapped(x) };
   }
   return { kind: 'tone', findings: [] };
 }
@@ -356,17 +357,18 @@ export function compareOrder(expected: number[], found: number[], info: ChannelI
   for (let k = 0; k < found.length && k < expected.length; k++) {
     const e = expected[k], f = found[k];
     if (e === f || done.has(k) || f === -2) continue;
-    if (f < 0) { out.push({ level: 'bad', text: `Kennung von ${name(e)} fehlt (${name(e)} stumm oder nicht belegt)` }); continue; }
+    if (f < 0) { out.push({ level: 'bad', text: t('audio.id.identMissing', { name: name(e) }) }); continue; }
     const j = expected.indexOf(f);
     if (j >= 0 && found[j] === e) {
       done.add(j);
       const [a, b] = [e, f].sort((x, y) => x - y).map(name);
-      out.push({ level: 'bad', text: a === 'L' && b === 'R' ? 'L/R vertauscht' : `${a} und ${b} vertauscht` });
-    } else out.push({ level: 'bad', text: `Kennung von ${name(e)} kommt auf ${name(f)}` });
+      out.push({ level: 'bad', text: a === 'L' && b === 'R' ? t('audio.id.lrSwapped') : t('audio.id.swapped', { a, b }) });
+    } else out.push({ level: 'bad', text: t('audio.id.identOn', { a: name(e), b: name(f) }) });
   }
-  if (!out.length && found.length >= expected.length) out.push({ level: 'ok', text: `Kanalfolge richtig (${expected.map(name).join(', ')})` });
+  if (!out.length && found.length >= expected.length) out.push({ level: 'ok', text: t('audio.id.orderOk', { list: expected.map(name).join(', ') }) });
   return out;
 }
 
-const fmt1 = (v: number) => v.toFixed(1).replace('.', ',').replace('-', '−');
-const fmt2 = (v: number) => (v >= 0 ? '+' : '') + v.toFixed(2).replace('.', ',').replace('-', '−');
+const dec = (s: string) => (lang() === 'de' ? s.replace('.', ',') : s);
+const fmt1 = (v: number) => dec(v.toFixed(1)).replace('-', '−');
+const fmt2 = (v: number) => (v >= 0 ? '+' : '') + dec(v.toFixed(2)).replace('-', '−');

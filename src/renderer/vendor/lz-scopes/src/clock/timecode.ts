@@ -10,22 +10,32 @@
 //   2 × floor(MM/10) + 107892 × HH).
 // - ST 2059-2:2021 Annex A: timeOfNextJam from a user jam time on the Local Time scale.
 //
-// Not in ST 2059-1: rates above 30 Hz. ST 2059-1 only defines LTC codeword rates up to 30 Hz;
-// for 50/60 Hz this module counts frames 0…49/59 and, for 60/1.001 DF, drops 4 frame numbers
-// per minute except every tenth minute. That is the common display convention (the ST 12-1
-// frame-pair scheme is not freely available) and is labelled as such in the UI.
+// Rates above 30 Hz (research: docs/research/clock-ptp.md, "Timecode über 30 fps"):
+// ST 2059-1 defines LTC codeword rates only up to 30 Hz. ST 12-1 (not free) counts 50/60p in
+// frame pairs: frame number 0…24/29 plus a flag for the second frame of the pair – FFmpeg's
+// libavutil/timecode.c cites "SMPTE ST 12-1:2014 Sec 12.1" for exactly that packing. Editing
+// and camera software display the full count instead: FFmpeg counts 0…59 and drops 4 numbers
+// per minute at 60/1.001 DF, Canon offers DF at 59.94/119.88 fps, Avid shows the project rate
+// unless the editing timebase is set to 25p/30p. Default here: full count 0…49/59 (59.94 DF:
+// 4 numbers per minute, not at multiples of ten minutes); `toPairs` gives the ST 12-1 form.
+// LTC at 50/60p runs at 25/30 code words per second, i.e. in frame pairs.
 // Colour frame identification (colorFrameIdentificationMode) is not implemented (always 0).
+
+import { lang } from '../i18n';
+
+/** Decimal comma in German labels. */
+const dec = (s: string) => (lang() === 'de' ? s.replace(/\./g, ',') : s);
 
 export interface Rate { id: string; label: string; num: number; den: number; nominal: number; dfAllowed: boolean }
 
 export const RATES: Rate[] = [
-  { id: '23.98', label: '23,98 (24/1,001)', num: 24000, den: 1001, nominal: 24, dfAllowed: false },
+  { id: '23.98', label: dec('23.98 (24/1.001)'), num: 24000, den: 1001, nominal: 24, dfAllowed: false },
   { id: '24', label: '24', num: 24, den: 1, nominal: 24, dfAllowed: false },
   { id: '25', label: '25', num: 25, den: 1, nominal: 25, dfAllowed: false },
-  { id: '29.97', label: '29,97 (30/1,001)', num: 30000, den: 1001, nominal: 30, dfAllowed: true },
+  { id: '29.97', label: dec('29.97 (30/1.001)'), num: 30000, den: 1001, nominal: 30, dfAllowed: true },
   { id: '30', label: '30', num: 30, den: 1, nominal: 30, dfAllowed: false },
   { id: '50', label: '50', num: 50, den: 1, nominal: 50, dfAllowed: false },
-  { id: '59.94', label: '59,94 (60/1,001)', num: 60000, den: 1001, nominal: 60, dfAllowed: true },
+  { id: '59.94', label: dec('59.94 (60/1.001)'), num: 60000, den: 1001, nominal: 60, dfAllowed: true },
   { id: '60', label: '60', num: 60, den: 1, nominal: 60, dfAllowed: false },
 ];
 export const rateById = (id: string) => RATES.find((r) => r.id === id) ?? RATES[2];
@@ -37,6 +47,21 @@ export function rateForFps(fps: number): Rate {
 }
 /** Beyond ST 2059-1 (> 30 Hz): see the header. */
 export const beyondSt2059 = (r: Rate) => r.nominal > 30;
+
+/** Frame-pair rate of a 50/60 Hz rate (ST 12-1 counting, LTC code word rate): 25, 30, 29.97. */
+export const pairRate = (r: Rate): Rate => (r.nominal > 30 ? RATES.find((x) => x.nominal === r.nominal / 2 && x.den === r.den) ?? r : r);
+
+/** ST 12-1 frame-pair form of a full-count address at > 30 Hz: pair number and flag for the second frame. */
+export function toPairs(t: TimeAddress, r: Rate): TimeAddress & { second: boolean } {
+  if (r.nominal <= 30) return { ...t, second: false };
+  return { ...t, ff: Math.floor(t.ff / 2), second: t.ff % 2 === 1 };
+}
+/** Inverse of toPairs. */
+export const fromPairs = (t: TimeAddress & { second?: boolean }, r: Rate): TimeAddress =>
+  (r.nominal <= 30 ? { ...t } : { hh: t.hh, mm: t.mm, ss: t.ss, ff: t.ff * 2 + (t.second ? 1 : 0), df: t.df });
+
+/** "10:00:00:12.1" – pair number with the pair flag (own notation; ST 12-1 only defines the bit). */
+export const formatPairs = (t: TimeAddress & { second: boolean }) => `${formatTc(t)}.${t.second ? 1 : 0}`;
 
 export interface TimeAddress { hh: number; mm: number; ss: number; ff: number; df: boolean }
 

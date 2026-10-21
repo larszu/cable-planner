@@ -1,0 +1,43 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
+// Deutsche Übersetzung zu en/color.ts.
+import type en from '../en/color';
+import type { Translation } from '../types';
+
+export default {
+  'color.display.srgb': 'sRGB-Display',
+  'color.display.raw': 'Signal direkt (ohne Umrechnung)',
+  'color.hdr.bt2408': 'BT.2408 hybrid-linear (×0,5, BT.2390-Roll-off)',
+  'color.hdr.bt2446a': 'BT.2446 Methode A (1000 → 100 cd/m²)',
+  'color.fc.blackClip': 'Schwarz-Clip',
+  'color.fc.aboveBlack': 'knapp über Schwarz',
+  'color.fc.grey18': '18 % Grau',
+  'color.fc.greyPlus1': 'Grau +1 Blende',
+  'color.fc.belowWhite': 'knapp unter Weiß',
+  'color.fc.whiteClip': 'Weiß-Clip',
+  'color.fc.crushed': 'abgesoffen',
+  'color.fc.shadows': 'Schatten',
+  'color.fc.midtone': 'Mittelton',
+  'color.fc.skin': 'Hautton',
+  'color.fc.highlights': 'Lichter',
+  'color.fc.violet': 'Violett',
+  'color.fc.blue': 'Blau',
+  'color.fc.tealDeep': 'Petrol, tiefe Schatten',
+  'color.fc.greenGrey': 'Grün, 18 % Grau',
+  'color.fc.pinkSkin': 'Rosa, helle Haut',
+  'color.fc.straw': 'Stroh',
+  'color.fc.yellow': 'Gelb',
+  'color.fc.redClip': 'Rot, Clip',
+  'color.fc.black': 'Schwarz',
+  'color.fc.lightBlue': 'Hellblau',
+  'color.fc.green': 'Grün',
+  'color.fc.pink': 'Rosa',
+  'color.fc.red': 'Rot',
+  'color.fc.lightPink': 'Hellrosa',
+  'color.gamma.sdr': 'SDR BT.1886 (γ 2,4)',
+  'color.gamma.g22': 'Gamma 2,2',
+  'color.gamma.g26': 'Gamma 2,6',
+  'color.gamma.g28': 'Gamma 2,8',
+  'color.gamma.linear': 'Linear',
+  'color.levelLog': '{pct} % Szene ({stops} Bl.)',
+  'color.fc.exposure': 'Belichtung',
+} satisfies Translation<typeof en>;

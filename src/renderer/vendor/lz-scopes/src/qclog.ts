@@ -7,12 +7,13 @@
 
 import type { R103Result } from './ycbcr';
 import type { Stats } from './sources';
+import { lang, t } from './i18n';
 
 export type QcType = 'r103' | 'r103total' | 'clip' | 'superwhite' | 'subblack' | 'black' | 'freeze' | 'silence';
 export const QC_TYPES: QcType[] = ['r103', 'r103total', 'clip', 'superwhite', 'subblack', 'black', 'freeze', 'silence'];
 export const QC_LABELS: Record<QcType, string> = {
-  r103: 'R 103 außerhalb −5/105 % (> 1 % Fläche)', r103total: 'R 103 Gesamtbereich 4–1019 verletzt', clip: 'Weiß-Clipping',
-  superwhite: 'Super-White > 100 %', subblack: 'Sub-Black < 0 %', black: 'Schwarzbild', freeze: 'Standbild (eingefroren)', silence: 'Ton-Stille',
+  r103: t('tools.qc.r103'), r103total: t('tools.qc.r103total'), clip: t('tools.qc.clip'),
+  superwhite: t('tools.qc.superwhite'), subblack: t('tools.qc.subblack'), black: t('tools.qc.black'), freeze: t('tools.qc.freeze'), silence: t('tools.qc.silence'),
 };
 
 export interface QcSettings {
@@ -47,14 +48,14 @@ export function evaluate(i: QcInput, s: QcSettings): Record<QcType, QcCondition>
   const clip = st ? Math.max(...st.clipHigh) : 0;
   const c = (on: boolean, value: number, detail: string): QcCondition => ({ on, value, detail });
   return {
-    r103: c(!!i.r103?.alarm, i.r103?.pref ?? 0, i.r103 ? `${pct(i.r103.pref)} der Fläche` : ''),
-    r103total: c((i.r103?.total ?? 0) > 0, i.r103?.total ?? 0, i.r103 ? `${pct(i.r103.total)} der Fläche` : ''),
-    clip: c(clip > s.clip, clip, `${pct(clip)} der Pixel`),
+    r103: c(!!i.r103?.alarm, i.r103?.pref ?? 0, i.r103 ? t('tools.qc.ofArea', { v: pct(i.r103.pref) }) : ''),
+    r103total: c((i.r103?.total ?? 0) > 0, i.r103?.total ?? 0, i.r103 ? t('tools.qc.ofArea', { v: pct(i.r103.total) }) : ''),
+    clip: c(clip > s.clip, clip, t('tools.qc.ofPixels', { v: pct(clip) })),
     superwhite: c(!!st && st.yMax > 1.005, st?.yMax ?? 0, st ? `Y′ max ${pct(st.yMax)}` : ''),
     subblack: c(!!st && st.yMin < -0.005, st?.yMin ?? 0, st ? `Y′ min ${pct(st.yMin)}` : ''),
     black: c(!!st && st.samples > 0 && st.yMax < s.black, st?.yMax ?? 0, st ? `Y′ max ${pct(st.yMax)}` : ''),
-    freeze: c(i.freezeApplies && i.unchangedMs >= s.freezeMs, i.unchangedMs, `${(i.unchangedMs / 1000).toFixed(1)} s unverändert`),
-    silence: c(i.peakDb !== null && i.peakDb < s.silenceDb, i.peakDb ?? 0, i.peakDb !== null ? `Spitze ${Number.isFinite(i.peakDb) ? i.peakDb.toFixed(1) : '−∞'} dBFS` : ''),
+    freeze: c(i.freezeApplies && i.unchangedMs >= s.freezeMs, i.unchangedMs, t('tools.qc.unchanged', { s: (i.unchangedMs / 1000).toFixed(1) })),
+    silence: c(i.peakDb !== null && i.peakDb < s.silenceDb, i.peakDb ?? 0, i.peakDb !== null ? t('tools.qc.peak', { db: Number.isFinite(i.peakDb) ? i.peakDb.toFixed(1) : '−∞' }) : ''),
   };
 }
 
@@ -101,7 +102,7 @@ export class QcLog {
 /** The app's log (all sources). */
 export const qcLog = new QcLog();
 
-const iso = (t: number) => new Date(t).toISOString();
+const iso = (ms: number) => new Date(ms).toISOString();
 
 /** CSV (semicolon-separated, UTF-8) of the events of the chosen types. */
 export function toCsv(events: QcEvent[], types: QcType[] = QC_TYPES): string {
@@ -110,7 +111,7 @@ export function toCsv(events: QcEvent[], types: QcType[] = QC_TYPES): string {
     e.id, iso(e.start), e.end ? iso(e.end) : '', e.end ? ((e.end - e.start) / 1000).toFixed(2) : '', e.tcStart ?? '', e.tcEnd ?? '',
     q(e.source), e.type, q(QC_LABELS[e.type]), q(e.detail),
   ].join(';'));
-  return ['nr;start;ende;dauer_s;tc_start;tc_ende;quelle;typ;ereignis;detail', ...rows].join('\n');
+  return [t('tools.qc.csvHeader'), ...rows].join('\n');
 }
 
 /** Cheap fingerprint of a frame for freeze detection: 256 decoded samples. */
@@ -133,18 +134,18 @@ export function drawQcLog(ctx: CanvasRenderingContext2D, w: number, h: number, l
   const list = log.events.filter((e) => types.includes(e.type));
   const active = list.filter((e) => e.end === null).length;
   ctx.fillStyle = LABEL;
-  ctx.fillText(`QC-Protokoll · ${list.length} Ereignisse${active ? ` · ${active} aktiv` : ''}`, 8, 6);
+  ctx.fillText(t('tools.qc.title', { n: list.length }) + (active ? t('tools.qc.active', { n: active }) : ''), 8, 6);
   const cols = [8, 82, 180, 300, 520, 590];
   ctx.fillStyle = 'rgba(230,215,170,0.55)';
-  ['Start', 'TC', 'Quelle', 'Ereignis', 'Dauer', 'Wert'].forEach((t, i) => ctx.fillText(t, cols[i], 24));
+  ['Start', 'TC', t('tools.qc.colSource'), t('tools.qc.colEvent'), t('tools.qc.colDuration'), t('tools.qc.colValue')].forEach((head, i) => ctx.fillText(head, cols[i], 24));
   const rows = Math.max(0, Math.floor((h - 42) / 15));
   list.slice(-rows).reverse().forEach((e, i) => {
     const y = 40 + i * 15, on = e.end === null;
     ctx.fillStyle = on ? '#ff6b6b' : '#d6d6d6';
     const d = ((e.end ?? now) - e.start) / 1000;
-    const t = new Date(e.start).toLocaleTimeString('de-DE');
-    [t, e.tcStart ?? '–', e.source.slice(0, 16), QC_LABELS[e.type].slice(0, 32), `${d.toFixed(1)} s${on ? ' …' : ''}`, e.detail].forEach((s, k) => ctx.fillText(s, cols[k], y));
+    const time = new Date(e.start).toLocaleTimeString(lang() === 'de' ? 'de-DE' : 'en-GB');
+    [time, e.tcStart ?? '–', e.source.slice(0, 16), QC_LABELS[e.type].slice(0, 32), `${d.toFixed(1)} s${on ? ' …' : ''}`, e.detail].forEach((s, k) => ctx.fillText(s, cols[k], y));
   });
-  if (!list.length) { ctx.fillStyle = '#6b7078'; ctx.fillText('Keine Ereignisse. Geprüft werden alle laufenden Quellen viermal pro Sekunde.', 8, 44); }
+  if (!list.length) { ctx.fillStyle = '#6b7078'; ctx.fillText(t('tools.qc.empty'), 8, 44); }
   ctx.restore();
 }

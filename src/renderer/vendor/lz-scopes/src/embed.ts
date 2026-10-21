@@ -8,6 +8,10 @@ import { SCOPE_LABELS, type ScopeType, type Unit } from './graticule';
 import { DEFAULT_SKIN, defaultPanel, drawPanel, panelSignature, type PanelState, type Tint } from './panel';
 import { Renderer } from './renderer';
 import type { Source } from './sources';
+import { t } from './i18n';
+// DOM helpers only, no app styles: hosts embed this next to their own CSS (the CSS below is all it brings)
+import { h } from './ui/dom';
+import { select } from './ui/controls';
 
 export interface ScopeViewOptions {
   scopes?: ScopeType[];
@@ -22,11 +26,11 @@ export interface ScopeViewOptions {
 }
 
 const CSS = `
-.lzs-root{position:relative;display:grid;gap:3px;width:100%;height:100%;background:#0b0c0e;font:11px system-ui,sans-serif;color:#d9dce0}
+.lzs-root{--lzs-radius:var(--radius-s,6px);position:relative;display:grid;gap:3px;width:100%;height:100%;background:#0b0c0e;font:11px system-ui,sans-serif;color:#d9dce0}
 .lzs-root>canvas.lzs-gl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.lzs-panel{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;border:1px solid #22262b;border-radius:3px}
+.lzs-panel{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;border:1px solid #22262b;border-radius:var(--lzs-radius)}
 .lzs-head{position:relative;z-index:1;display:flex;gap:4px;padding:2px 3px;background:rgba(17,19,22,.92);border-bottom:1px solid #22262b}
-.lzs-head select{font:inherit;color:inherit;background:#181b1f;border:1px solid #2d3238;border-radius:3px;padding:1px 3px}
+.lzs-head select{font:inherit;color:inherit;background:#181b1f;border:1px solid #2d3238;border-radius:var(--lzs-radius);padding:1px 3px}
 .lzs-body{position:relative;flex:1;min-height:0}
 .lzs-body canvas{position:absolute;inset:0;width:100%;height:100%}`;
 
@@ -45,13 +49,10 @@ export class ScopeView {
   private opts: Required<Omit<ScopeViewOptions, 'onScopesChange' | 'emptyText'>> & ScopeViewOptions;
 
   constructor(container: HTMLElement, options: ScopeViewOptions = {}) {
-    if (!styled) { const st = document.createElement('style'); st.textContent = CSS; document.head.append(st); styled = true; }
+    if (!styled) { document.head.append(h('style', {}, CSS)); styled = true; }
     this.opts = { scopes: ['wf-luma', 'vector'], unit: 'percent', tint: 'green', maxSamples: 1_000_000, selectors: true, ...options };
-    this.root = document.createElement('div');
-    this.root.className = 'lzs-root';
-    this.glCanvas = document.createElement('canvas');
-    this.glCanvas.className = 'lzs-gl';
-    this.root.append(this.glCanvas);
+    this.glCanvas = h('canvas', { class: 'lzs-gl' });
+    this.root = h('div', { class: 'lzs-root' }, this.glCanvas);
     container.append(this.root);
     this.renderer = new Renderer(this.glCanvas);
     this.setScopes(this.opts.scopes);
@@ -72,23 +73,15 @@ export class ScopeView {
     this.root.style.gridAutoRows = '1fr';
     this.panels = scopes.map((scope, i) => {
       const state = defaultPanel(scope);
-      const body = document.createElement('div'); body.className = 'lzs-body';
-      const overlay = document.createElement('canvas'); body.append(overlay);
-      const el = document.createElement('div'); el.className = 'lzs-panel';
-      if (this.opts.selectors) {
-        const head = document.createElement('div'); head.className = 'lzs-head';
-        const sel = document.createElement('select');
-        for (const [k, label] of Object.entries(SCOPE_LABELS)) {
-          if (k === 'stats') continue;
-          sel.append(new Option(label, k, false, k === scope));
-        }
-        sel.onchange = () => {
-          const next = [...this.opts.scopes]; next[i] = sel.value as ScopeType;
-          this.setScopes(next); this.opts.onScopesChange?.(next);
-        };
-        head.append(sel); el.append(head);
-      }
-      el.append(body);
+      const overlay = h('canvas');
+      const body = h('div', { class: 'lzs-body' }, overlay);
+      const el = h('div', { class: 'lzs-panel' },
+        this.opts.selectors && h('div', { class: 'lzs-head' },
+          select(scope, Object.entries(SCOPE_LABELS).filter(([k]) => k !== 'stats'), (v) => {
+            const next = [...this.opts.scopes]; next[i] = v as ScopeType;
+            this.setScopes(next); this.opts.onScopesChange?.(next);
+          })),
+        body);
       this.root.append(el);
       return { state, el, body, overlay };
     });
@@ -119,7 +112,7 @@ export class ScopeView {
       const o = {
         unit: this.opts.unit, tint: this.opts.tint, maxSamples: this.opts.maxSamples, falsePreset: 'ARRI',
         zebra: 0.95, zebraLow: 0, frozen: false, displayFps: 0, skin: DEFAULT_SKIN, display,
-        emptyText: this.opts.emptyText ?? 'Kein Signal',
+        emptyText: this.opts.emptyText ?? t('output.noSignal'),
       };
       const sig = panelSignature(p.state, src, body, o) + dpr;
       if (this.sigs.get(i) === sig) return;

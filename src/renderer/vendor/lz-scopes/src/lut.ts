@@ -6,6 +6,7 @@
 // Jean-Francois Bouchard): .cube l. 352–421, .spi3d l. 433–480, .3dl l. 483–521, CSPLUTV100
 // l. 524–624. Written anew in TypeScript; deviations: .3dl output scale from the bit depth
 // instead of the file maximum, CSP pre-LUTs as "n / n inputs / n outputs" rows per channel.
+import { t } from './i18n';
 
 type V3 = [number, number, number];
 
@@ -24,7 +25,7 @@ const nums = (line: string) => line.trim().split(/\s+/).map(Number);
 const lines = (text: string) => text.split(/\r?\n/).map((l) => l.replace(/#.*/, '').trim()).filter(Boolean);
 
 function checkFinite(a: Float32Array, what: string) {
-  for (let i = 0; i < a.length; i++) if (!Number.isFinite(a[i])) throw new LutError(`${what}: ungültiger Wert`);
+  for (let i = 0; i < a.length; i++) if (!Number.isFinite(a[i])) throw new LutError(t('lut.err.invalidValue', { name: what }));
 }
 
 /** .cube: Adobe (DOMAIN_MIN/MAX) and Resolve (LUT_1D/3D_INPUT_RANGE, 1D shaper before 3D). */
@@ -44,9 +45,9 @@ export function parseCube(text: string, name = 'lut.cube'): Lut {
     else if (key === 'LUT_3D_INPUT_RANGE') r3 = [Number(rest[0]), Number(rest[1])];
     else if (/^[-+.\d]/.test(key)) rows.push(nums(l));
   }
-  if (!s1 && !s3) throw new LutError(`${name}: LUT_1D_SIZE oder LUT_3D_SIZE fehlt`);
+  if (!s1 && !s3) throw new LutError(t('lut.err.noSize', { name }));
   const need = s1 + s3 ** 3;
-  if (rows.length !== need) throw new LutError(`${name}: ${rows.length} Zeilen statt ${need}`);
+  if (rows.length !== need) throw new LutError(t('lut.err.rows', { name, n: rows.length, need }));
   const lut: Lut = { name, format: 'cube', title };
   const take = (from: number, n: number) => {
     const a = new Float32Array(n * 3);
@@ -73,9 +74,9 @@ export function parse3dl(text: string, name = 'lut.3dl'): Lut {
   const ls = lines(text).filter((l) => !/^[A-Za-z]/.test(l)); // skip e.g. "3DMESH" / "Mesh 4 12"
   const mesh = nums(ls[0]);
   const n = mesh.length;
-  if (n < 2) throw new LutError(`${name}: Mesh-Zeile fehlt`);
+  if (n < 2) throw new LutError(t('lut.err.noMesh', { name }));
   const rows = ls.slice(1).map(nums).filter((r) => r.length >= 3);
-  if (rows.length !== n ** 3) throw new LutError(`${name}: ${rows.length} Zeilen statt ${n ** 3}`);
+  if (rows.length !== n ** 3) throw new LutError(t('lut.err.rows', { name, n: rows.length, need: n ** 3 }));
   const maxOut = Math.max(...rows.map((r) => Math.max(r[0], r[1], r[2])));
   const bits = [10, 12, 14, 16].find((b) => maxOut <= 2 ** b - 1) ?? 16;
   const scale = 2 ** bits - 1, inMax = mesh[n - 1] || 1;
@@ -87,26 +88,26 @@ export function parse3dl(text: string, name = 'lut.3dl'): Lut {
     data[o] = rows[k][0] / scale; data[o + 1] = rows[k][1] / scale; data[o + 2] = rows[k][2] / scale;
   }
   // non-uniform meshes are not supported: the mesh must be evenly spaced
-  for (let i = 1; i < n; i++) if (Math.abs(mesh[i] - (inMax * i) / (n - 1)) > inMax / (n - 1) / 2) throw new LutError(`${name}: ungleichmäßiges Mesh`);
+  for (let i = 1; i < n; i++) if (Math.abs(mesh[i] - (inMax * i) / (n - 1)) > inMax / (n - 1) / 2) throw new LutError(t('lut.err.unevenMesh', { name }));
   return { name, format: '3dl', cube: { size: n, data, min: [0, 0, 0], max: [1, 1, 1] } };
 }
 
 /** .spi3d (Sony Imageworks): "SPILUT 1.0", "3 3", "N N N", then "r g b R G B" with indices. */
 export function parseSpi3d(text: string, name = 'lut.spi3d'): Lut {
   const ls = lines(text);
-  if (!ls[0]?.startsWith('SPILUT')) throw new LutError(`${name}: Kopf SPILUT fehlt`);
+  if (!ls[0]?.startsWith('SPILUT')) throw new LutError(t('lut.err.noHeader', { name, header: 'SPILUT' }));
   const [nx, ny, nz] = nums(ls[2]);
-  if (!(nx === ny && ny === nz && nx > 1)) throw new LutError(`${name}: nur würfelförmige spi3d werden unterstützt`);
+  if (!(nx === ny && ny === nz && nx > 1)) throw new LutError(t('lut.err.cubicOnly', { name, fmt: 'spi3d' }));
   const n = nx, data = new Float32Array(n ** 3 * 3), seen = new Uint8Array(n ** 3);
   for (const l of ls.slice(3)) {
-    const t = nums(l);
-    if (t.length < 6) continue;
-    const [r, g, b] = t;
-    if (r < 0 || g < 0 || b < 0 || r >= n || g >= n || b >= n) throw new LutError(`${name}: Index außerhalb`);
+    const row = nums(l);
+    if (row.length < 6) continue;
+    const [r, g, b] = row;
+    if (r < 0 || g < 0 || b < 0 || r >= n || g >= n || b >= n) throw new LutError(t('lut.err.indexOutside', { name }));
     const i = (b * n + g) * n + r;
-    data.set(t.slice(3, 6), i * 3); seen[i] = 1;
+    data.set(row.slice(3, 6), i * 3); seen[i] = 1;
   }
-  if (seen.some((v) => !v)) throw new LutError(`${name}: unvollständig`);
+  if (seen.some((v) => !v)) throw new LutError(t('lut.err.incomplete', { name }));
   return { name, format: 'spi3d', cube: { size: n, data, min: [0, 0, 0], max: [1, 1, 1] } };
 }
 
@@ -121,7 +122,7 @@ export function parseSpi1d(text: string, name = 'lut.spi1d'): Lut {
     else if (k === 'Components') comp = Number(r[0]);
     else if (/^[-+.\d]/.test(k)) vals.push(nums(l));
   }
-  if (!len || vals.length !== len) throw new LutError(`${name}: ${vals.length} Werte statt ${len}`);
+  if (!len || vals.length !== len) throw new LutError(t('lut.err.values', { name, n: vals.length, need: len }));
   const data = new Float32Array(len * 3);
   vals.forEach((v, i) => data.set(comp === 1 ? [v[0], v[0], v[0]] : v.slice(0, 3), i * 3));
   return { name, format: 'spi1d', pre: { size: len, data, min: [from[0], from[0], from[0]], max: [from[1], from[1], from[1]] } };
@@ -134,21 +135,21 @@ export function parseSpi1d(text: string, name = 'lut.spi1d'): Lut {
  */
 export function parseCsp(text: string, name = 'lut.csp'): Lut {
   const ls = lines(text);
-  if (ls[0] !== 'CSPLUTV100') throw new LutError(`${name}: Kopf CSPLUTV100 fehlt`);
-  if (ls[1] !== '3D') throw new LutError(`${name}: nur 3D-CSP wird unterstützt`);
+  if (ls[0] !== 'CSPLUTV100') throw new LutError(t('lut.err.noHeader', { name, header: 'CSPLUTV100' }));
+  if (ls[1] !== '3D') throw new LutError(t('lut.err.csp3dOnly', { name }));
   let i = 2;
   if (ls[i] === 'BEGIN METADATA') { while (i < ls.length && ls[i] !== 'END METADATA') i++; i++; }
   const pre: { inp: number[]; out: number[] }[] = [];
   for (let c = 0; c < 3; c++) {
     const n = Number(ls[i++]);
     const inp = nums(ls[i++]), out = nums(ls[i++]);
-    if (!(n >= 2) || inp.length !== n || out.length !== n) throw new LutError(`${name}: Pre-LUT ${c + 1} ungültig`);
+    if (!(n >= 2) || inp.length !== n || out.length !== n) throw new LutError(t('lut.err.preLut', { name, n: c + 1 }));
     pre.push({ inp, out });
   }
   const [nr, ng, nb] = nums(ls[i++]);
-  if (!(nr === ng && ng === nb && nr > 1)) throw new LutError(`${name}: nur würfelförmige CSP werden unterstützt`);
+  if (!(nr === ng && ng === nb && nr > 1)) throw new LutError(t('lut.err.cubicOnly', { name, fmt: 'CSP' }));
   const rows = ls.slice(i).map(nums).filter((r) => r.length >= 3);
-  if (rows.length !== nr ** 3) throw new LutError(`${name}: ${rows.length} Zeilen statt ${nr ** 3}`);
+  if (rows.length !== nr ** 3) throw new LutError(t('lut.err.rows', { name, n: rows.length, need: nr ** 3 }));
   const data = new Float32Array(nr ** 3 * 3);
   rows.forEach((r, k) => data.set(r.slice(0, 3), k * 3));
   const identity = pre.every((p) => p.inp.length === 2 && p.inp[0] === 0 && p.inp[1] === 1 && p.out[0] === 0 && p.out[1] === 1);
@@ -177,7 +178,7 @@ export function parseLut(text: string, name: string): Lut {
   if (ext === '.spi3d') return parseSpi3d(text, name);
   if (ext === '.spi1d') return parseSpi1d(text, name);
   if (ext === '.csp') return parseCsp(text, name);
-  throw new LutError(`${name}: Format nicht unterstützt (${LUT_EXTENSIONS.join(', ')})`);
+  throw new LutError(t('lut.err.format', { name, list: LUT_EXTENSIONS.join(', ') }));
 }
 
 // ---------------------------------------------------------------- application (CPU mirror of the shader)

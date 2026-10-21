@@ -1,0 +1,42 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
+// Deutsche Übersetzung zu en/testmedia.ts.
+import type en from '../en/testmedia';
+import type { Translation } from '../types';
+
+export default {
+  'testmedia.cosmosAttr': 'Cosmos Laundromat – Blender Studio (Blender Foundation), HDR-Grading Netflix mit Fotokem Keep Me Posted; Netflix Open Content, CC BY 4.0',
+  'testmedia.cosmosNote': 'PQ-kodiert mit P3-Primärfarben laut Netflix, in der Datei nicht signalisiert und nur 8 bit: Transfer PQ und Gamut P3 werden beim Öffnen gesetzt. Für Pegel und Gamut tauglich, für Banding-Tests nicht.',
+  'testmedia.meridianNote': 'PQ-kodiert mit P3-Primärfarben laut Netflix, in der Datei nicht signalisiert und nur 8 bit: Transfer PQ und Gamut P3 werden beim Öffnen gesetzt.',
+  'testmedia.rerendered': '2013 neu gerendert, {fmt}',
+  'testmedia.perFileName': '(laut Dateiname)',
+  'testmedia.imagesTitle': 'Eigene Testbilder, Logo, Favoriten',
+  'testmedia.name': 'Name',
+  'testmedia.useAsLogo': 'Als Logo verwenden: eigenes Logo-Testbild und „Kreis und Uhr + Logo“',
+  'testmedia.logo': 'Logo',
+  'testmedia.unfav': 'Aus den Favoriten nehmen',
+  'testmedia.fav': 'Als Favorit',
+  'testmedia.show': 'Zeigen',
+  'testmedia.deleteStored': 'Aus dem Speicher löschen',
+  'testmedia.delete': 'Löschen',
+  'testmedia.uploadImages': '+ Bilder hochladen',
+  'testmedia.uploadLogo': 'Logo hochladen …',
+  'testmedia.noLogo': 'Kein Logo',
+  'testmedia.noImages': 'Noch keine eigenen Bilder.',
+  'testmedia.favourites': 'Favoriten',
+  'testmedia.noFavs': 'Keine. Mit ☆ neben der Testbild-Auswahl einer Quelle oder hier bei eigenen Bildern markieren; Favoriten stehen oben in der Auswahl.',
+  'testmedia.videosTitle': 'Testvideos',
+  'testmedia.fileFromServer': 'Datei vom Server',
+  'testmedia.cancel': 'Abbrechen',
+  'testmedia.open': 'Öffnen',
+  'testmedia.deleteLocal': 'Lokale Kopie löschen',
+  'testmedia.error': 'Fehler',
+  'testmedia.intro': 'Frei lizenzierte Filme in mehreren Auflösungen und Fassungen. Sie liegen nicht im Programm: ',
+  'testmedia.introDesktop': 'Die Desktop-App lädt sie auf Klick vom offiziellen Server, prüft Größe und SHA-256 (Stand 06.10.2026) und behält sie im Profilordner.',
+  'testmedia.introBrowser': 'Im Browser lassen sie sich nicht laden und prüfen, weil die Server keine Freigabe für andere Seiten senden (CORS, geprüft 06.10.2026). Datei über den Link speichern (ZIP entpacken) und als Quelle „Datei …“ öffnen, oder die Desktop-App nutzen.',
+  'testmedia.attribution': 'Namensnennung: Big Buck Bunny ',
+  'testmedia.hdrNote': '. Die HDR-Fassungen sind 8-bit-H.264 mit PQ-Kodierung ohne Farbkennzeichnung; die App setzt Transfer und Gamut beim Öffnen. Einzelheiten: THIRD_PARTY.md.',
+  'testmedia.imagesHint': 'Bilder bleiben in diesem Browser bzw. im Profil der Desktop-App gespeichert (IndexedDB), bis sie hier gelöscht werden; höchstens {mb} MB je Bild. Sie werden 1:1 gezeigt, wenn die Auflösung passt, sonst eingepasst. Ein Logo am besten als PNG mit Transparenz.',
+  'testmedia.unfavName': '{name} aus den Favoriten nehmen',
+  'testmedia.verifying': 'prüfen …',
+  'testmedia.download': 'Laden ({size})',
+} satisfies Translation<typeof en>;

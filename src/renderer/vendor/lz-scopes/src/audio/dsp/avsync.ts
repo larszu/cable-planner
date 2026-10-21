@@ -1,4 +1,5 @@
 // @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
+import { t } from '../../i18n';
 // A/V offset from a flash (luma step in the picture) and a beep (1 kHz burst in the sound),
 // both stamped with the presentation timestamps (PTS) of the same ffmpeg process
 // (bridge protocol 2). Signal pair: test pattern “A/V-Sync” + generator “A/V-Sync-Piep”,
@@ -45,9 +46,9 @@ export function rateAv(ms: number): AvRating {
   return 'unacceptable';
 }
 export const AV_RATING_TEXT: Record<AvRating, string> = {
-  undetectable: 'nicht wahrnehmbar (BT.1359: +45 … −125 ms)',
-  acceptable: 'wahrnehmbar, noch akzeptabel (BT.1359: +90 … −185 ms)',
-  unacceptable: 'nicht akzeptabel (außerhalb +90 … −185 ms, BT.1359)',
+  undetectable: t('audio.av.undetectable'),
+  acceptable: t('audio.av.acceptable'),
+  unacceptable: t('audio.av.unacceptable'),
 };
 
 const HIST = 64;
@@ -199,7 +200,7 @@ export class AvSyncMeter {
       frameMs: dts.length ? dts[dts.length >> 1] * 1000 : null,
       flashes: this.flashes.length,
       beeps: this.beeps.length,
-      problem: this.noPts ? 'Keine Zeitstempel (PTS) von der Quelle – A/V-Versatz nicht messbar' : '',
+      problem: this.noPts ? t('audio.av.noPts') : '',
     };
   }
 }

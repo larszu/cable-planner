@@ -6,6 +6,7 @@
 
 import type { PatternDef } from '../patterns';
 import { cabinets, ledSettings, patchIndex, wallSize, type RGB01 } from './wall';
+import { num, t } from '../i18n';
 
 type Ctx = CanvasRenderingContext2D;
 type RGB = [number, number, number];
@@ -120,7 +121,7 @@ function lowGray(ctx: Ctx, W: number, H: number) {
     rect(ctx, [i, i, i], ox + (i * ww) / n, oy, ww / n, wh * 0.88);
     label(ctx, String(i), ox + ((i + 0.5) * ww) / n, oy + wh * 0.92, Math.min(wh * 0.035, (ww / n) * 0.45), '#888');
   }
-  label(ctx, `Codewerte 0–${s.lowMax} (8 bit, ${((s.lowMax / 255) * 100).toFixed(1).replace('.', ',')} %)`, ox + ww / 2, oy + wh * 0.97, Math.min(wh * 0.025, 28), '#666');
+  label(ctx, t('led.pat.lowCodes', { max: s.lowMax, pct: num((s.lowMax / 255) * 100, 1) }), ox + ww / 2, oy + wh * 0.97, Math.min(wh * 0.025, 28), '#666');
 }
 
 /** Low-level ramps: codes 0…lowMax stretched over the full width, rows W, R, G, B. */
@@ -138,7 +139,7 @@ function shutter(ctx: Ctx, W: number, H: number, t: number) {
   // top strip: white on even, black on odd frames
   rect(ctx, f % 2 ? [0, 0, 0] : [255, 255, 255], ox, oy, ww, wh * 0.12);
   label(ctx, String(f).padStart(6, '0'), ox + ww / 2, oy + wh * 0.36, Math.min(wh * 0.28, ww * 0.16), '#fff');
-  label(ctx, `t = ${t.toFixed(3).replace('.', ',')} s`, ox + ww / 2, oy + wh * 0.55, Math.min(wh * 0.06, 60), '#aaa');
+  label(ctx, `t = ${num(t, 3)} s`, ox + ww / 2, oy + wh * 0.55, Math.min(wh * 0.06, 60), '#aaa');
   // vertical bars moving right, horizontal bars moving down (8 px per frame)
   const bw = Math.max(4, Math.round(ww / 32)), step = 8;
   for (let x = ((f * step) % (bw * 4)) - bw * 4; x < ww; x += bw * 4) {
@@ -184,17 +185,17 @@ function patch(ctx: Ctx, W: number, H: number, t: number) {
   }
 }
 
-export const LED_GROUP = 'LED-Wand';
+export const LED_GROUP = t('led.pat.group');
 
 export const LED_PATTERNS: PatternDef[] = [
-  { id: 'led-cabinet-grid', name: 'Cabinet-Raster mit ID', group: LED_GROUP, draw: (c, w, h) => cabinetGrid(c, w, h, false) },
-  { id: 'led-module-grid', name: 'Cabinet- und Modulraster', group: LED_GROUP, draw: (c, w, h) => cabinetGrid(c, w, h, true) },
-  { id: 'led-pixelmap', name: 'Pixel-Mapping (Gitter, Diagonale, Eckpixel)', group: LED_GROUP, draw: pixelMap },
+  { id: 'led-cabinet-grid', name: t('led.pn.cabinetGrid'), group: LED_GROUP, draw: (c, w, h) => cabinetGrid(c, w, h, false) },
+  { id: 'led-module-grid', name: t('led.pn.moduleGrid'), group: LED_GROUP, draw: (c, w, h) => cabinetGrid(c, w, h, true) },
+  { id: 'led-pixelmap', name: t('led.pn.pixelmap'), group: LED_GROUP, draw: pixelMap },
   { id: 'led-scroll', name: 'Scroll 1 px/Frame', group: LED_GROUP, animated: true, draw: scroll },
-  { id: 'led-flat', name: 'Vollfeld freier Pegel', group: LED_GROUP, draw: flat },
-  { id: 'led-lowgray', name: 'Graustufen fein (Low-Level)', group: LED_GROUP, draw: lowGray },
-  { id: 'led-lowramp', name: 'Rampen fein W R G B (Low-Level)', group: LED_GROUP, draw: lowRamp },
-  { id: 'led-shutter', name: 'Shutter/Genlock (Frame-Zähler)', group: LED_GROUP, animated: true, draw: shutter },
-  { id: 'led-moire', name: 'Moiré (Linienpaare, Kreise)', group: LED_GROUP, draw: moire },
-  { id: 'led-patch', name: 'Messfeld / Patch-Sequenzer', group: LED_GROUP, animated: true, draw: patch },
+  { id: 'led-flat', name: t('led.pn.flat'), group: LED_GROUP, draw: flat },
+  { id: 'led-lowgray', name: t('led.pn.lowGray'), group: LED_GROUP, draw: lowGray },
+  { id: 'led-lowramp', name: t('led.pn.lowRamp'), group: LED_GROUP, draw: lowRamp },
+  { id: 'led-shutter', name: t('led.pn.shutter'), group: LED_GROUP, animated: true, draw: shutter },
+  { id: 'led-moire', name: t('led.pn.moire'), group: LED_GROUP, draw: moire },
+  { id: 'led-patch', name: t('led.pn.patch'), group: LED_GROUP, animated: true, draw: patch },
 ];

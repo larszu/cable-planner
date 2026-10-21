@@ -13,6 +13,10 @@ import { GpuStats } from './gpuStats';
 import { LatencyMeter, type RtpStats } from './latency';
 import { effectiveWidth, mergeLowLatency, type LowLatencyConfig } from './lowLatency';
 import { meanLuma } from './luma';
+import { t } from './i18n';
+import { bridgeMessage } from './i18n/bridgeMessage';
+import { streamRoute } from './streamRoute';
+import { FrameHistory, pickFrame } from './record/sync';
 
 export { meanLuma };
 
@@ -58,6 +62,8 @@ export interface SourceSettings {
   lowLatency?: boolean;
   /** this source's own low-latency settings; missing fields follow the global ones */
   ll?: Partial<LowLatencyConfig>;
+  /** bridge: keep a ring buffer for "save the last … s" (src/record/record.ts) */
+  ring?: boolean;
 }
 
 export interface StreamInfo {
@@ -122,6 +128,15 @@ export function bridgeInputParams(url: string, set: SourceSettings): Record<stri
   return q;
 }
 
+/**
+ * DaVinci Resolve source (#88): 'still' = exact still through the scripting API (paused),
+ * 'window' = live capture of the Resolve viewer (playing), 'none' = playing without a live
+ * picture (`why` says why).
+ */
+export interface ResolveRoute { route: 'still' | 'window' | 'none'; why?: 'remote' | 'browser' | 'noWindow' | 'noViewer' | 'denied' | 'starting'; playing: boolean }
+
+/** Element sources (camera, capture, files): CPU readbacks per second at most (cpuFrame; debug switch cpuFrameHz). */
+export const CPU_FRAME_HZ = 15;
 export const DEFAULT_SETTINGS: SourceSettings = { transfer: 'auto', colorspace: 'auto', gamut: 'auto', hlgLw: 1000, width: 960, fps: 0, depth: 8, transport: 'tcp', audio: true };
 
 let nextId = 1;
@@ -150,6 +165,8 @@ export class Source {
   pattern = { id: 'smpte75', width: 1920, height: 1080, label: '' };
   frameSeq = 0;
   fps = 0;
+  /** frame rate the camera/capture track promises (getSettings), 0 = unknown */
+  nominalFps = 0;
   dropped = 0;
   frozen = false;
   stats: Stats | null = null;
@@ -171,37 +188,50 @@ export class Source {
   monitorError = '';
   private lastFrame: { px: ArrayLike<number>; w: number; h: number; step: number; scale: number; roi: [number, number, number, number][] | null; decode: Decode } | null = null;
   private r103Cache = new Map<string, { key: string; at: number; res: R103Result }>();
-  private cpuCache: { seq: string; f: { px: ArrayLike<number>; w: number; h: number; decode: Decode } | null } = { seq: '', f: null };
+  private cpuCache: { seq: string; at: number; f: { px: ArrayLike<number>; w: number; h: number; decode: Decode } | null } = { seq: '', at: -Infinity, f: null };
   private cpuCanvas: HTMLCanvasElement | null = null;
-  /** The current frame on the CPU: raw data, or a readback of the element (at most 960 px wide), once per frame. */
+  /** counts real CPU frames (readbacks or new raw data); caches below key on it */
+  private cpuSeq = 0;
+  /**
+   * The current frame on the CPU: raw data, or a readback of the element (at most 960 px wide).
+   * The element readback waits for the GPU (drawImage + getImageData), which is expensive under
+   * ANGLE/D3D11 (docs/research/windows-und-ndi.md); it runs at most CPU_FRAME_HZ times a second.
+   */
   cpuFrame() {
-    const seq = `${this.frameSeq}:${this.width}x${this.height}`;
+    const size = `${this.width}x${this.height}`;
+    const seq = `${this.frameSeq}:${size}`;
     if (this.cpuCache.seq === seq) return this.cpuCache.f;
+    const element = !this.data && !!this.element && !!this.width;
+    const hz = Number(debugFlags().cpuFrameHz) || CPU_FRAME_HZ;
+    const now = performance.now();
+    if (element && this.cpuCache.f && this.cpuCache.seq.endsWith(`:${size}`) && now - this.cpuCache.at < 1000 / hz) return this.cpuCache.f;
     let f: { px: ArrayLike<number>; w: number; h: number; decode: Decode } | null = null;
     if (this.data) f = { px: this.data, w: this.width, h: this.height, decode: this.decoder() };
-    else if (this.element && this.width) {
+    else if (element) {
       const w = Math.min(960, this.width), h = Math.max(1, Math.round((this.height * w) / this.width));
       this.cpuCanvas ??= document.createElement('canvas');
       const c = this.cpuCanvas; if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
       const ctx = c.getContext('2d', { willReadFrequently: true })!;
-      try { ctx.drawImage(this.element, 0, 0, w, h); f = { px: ctx.getImageData(0, 0, w, h).data, w, h, decode: rgbDecoder(255) }; } catch { f = null; }
+      try { ctx.drawImage(this.element!, 0, 0, w, h); f = { px: ctx.getImageData(0, 0, w, h).data, w, h, decode: rgbDecoder(255) }; } catch { f = null; }
     }
-    this.cpuCache = { seq, f };
+    this.cpuSeq++;
+    this.cpuCache = { seq, at: now, f };
     return f;
   }
   private extremes: { seq: string; v: LineExtremes | null } = { seq: '', v: null };
   /** Min/max Y′ per picture line (minmax.ts), once per frame. */
   lineExtremes(): LineExtremes | null {
-    const seq = `${this.frameSeq}:${this.colorspace}`;
-    if (this.extremes.seq !== seq) { const f = this.cpuFrame(); this.extremes = { seq, v: f ? lineExtremes(f.px, f.w, f.h, f.decode, this.colorspace) : null }; }
+    const f = this.cpuFrame();
+    const seq = `${this.cpuSeq}:${this.colorspace}`;
+    if (this.extremes.seq !== seq) this.extremes = { seq, v: f ? lineExtremes(f.px, f.w, f.h, f.decode, this.colorspace) : null };
     return this.extremes.v;
   }
   private neutral: { key: string; v: NeutralCast | null } = { key: '', v: null };
   /** Mean cast of the near-neutral pixels (minmax.ts), once per frame and setting. */
   neutralCast(threshold: number, lo: number, hi: number): NeutralCast | null {
-    const key = `${this.frameSeq}:${this.colorspace}:${threshold}:${lo}:${hi}`;
+    const f = this.cpuFrame();
+    const key = `${this.cpuSeq}:${this.colorspace}:${threshold}:${lo}:${hi}`;
     if (this.neutral.key !== key) {
-      const f = this.cpuFrame();
       this.neutral = { key, v: f ? neutralCast(f.px, f.w, f.h, Math.max(1, Math.round(Math.sqrt((f.w * f.h) / 60000))), f.decode, this.colorspace, threshold, lo, hi) : null };
     }
     return this.neutral.v;
@@ -294,6 +324,20 @@ export class Source {
     ys.sort((a, b) => a - b);
     return { lo: ys[Math.floor(ys.length * 0.05)], hi: ys[Math.floor(ys.length * 0.95)], n: ys.length };
   }
+  /** Decoded R′G′B′ samples inside the ROI (whole frame without ROI), at most ~`max` (green qualifier, match/core.ts). */
+  roiSamples(max = 40000): number[][] {
+    const f = this.lastFrame ?? this.readbackFrame();
+    if (!f) return [];
+    const sx = f.w / this.width, sy = f.h / this.height;
+    const rects = this.activeRois().length ? this.activeRois().map((r) => [r[0] * sx, r[1] * sy, r[2] * sx, r[3] * sy]) : [[0, 0, f.w, f.h]];
+    const area = rects.reduce((a, [x0, y0, x1, y1]) => a + (x1 - x0) * (y1 - y0), 0);
+    const step = Math.max(f.step, Math.ceil(Math.sqrt(area / max)));
+    const out: number[][] = [];
+    for (const [x0, y0, x1, y1] of rects) for (let y = Math.floor(y0); y < Math.min(f.h, y1); y += step) {
+      for (let x = Math.floor(x0); x < Math.min(f.w, x1); x += step) out.push(f.decode(f.px, (y * f.w + x) * 4));
+    }
+    return out;
+  }
   probe: { x: number; y: number } | null = null;
   /** Region of interest in source pixels [x0, y0, x1, y1). */
   roi: [number, number, number, number] | null = null;
@@ -333,6 +377,8 @@ export class Source {
   get rtpInfo() { return this.info?.rtp ?? null; }
   /** own RTP reception counters from the bridge's stats (1 s) */
   rtpStats: RtpStats | null = null;
+  /** frame phase against the ST 2059-1 grid, from the bridge stats of capture-helper sources (server/phase.mjs, #72) */
+  phase: import('./genlock').PhaseReport | null = null;
   private patternTimer: ReturnType<typeof setInterval> | null = null;
   private media: MediaStream | null = null;
   private objectUrl: string | null = null;
@@ -343,7 +389,7 @@ export class Source {
   constructor(kind: SourceKind, name?: string, settings?: Partial<SourceSettings>) {
     this.id = `s${nextId++}`;
     this.kind = kind;
-    this.name = name ?? { stream: 'Stream', webcam: 'Kamera', screen: 'Bildschirm/Fenster', file: 'Datei', pattern: 'Testbild', folder: 'Ordner', audio: 'Audio' }[kind];
+    this.name = name ?? t(`source.kind.${kind}`);
     this.settings = { ...DEFAULT_SETTINGS, ...settings };
   }
 
@@ -354,16 +400,16 @@ export class Source {
   }
   /** Where the transfer comes from – shown next to "auto" so the UI never pretends to know. */
   get transferOrigin(): string {
-    if (this.settings.transfer !== 'auto') return 'manuell';
-    if (this.kind === 'pattern') return 'Testbild';
-    if (!this.info) return 'keine Metadaten, Annahme';
-    return transferSignalled(this.info.transfer) ? 'Metadaten' : 'nicht signalisiert, Annahme';
+    if (this.settings.transfer !== 'auto') return t('source.origin.manual');
+    if (this.kind === 'pattern') return t('source.origin.pattern');
+    if (!this.info) return t('source.origin.noMeta');
+    return transferSignalled(this.info.transfer) ? t('source.origin.meta') : t('source.origin.notSignalled');
   }
   get colorspaceOrigin(): string {
-    if (this.settings.colorspace !== 'auto') return 'manuell';
-    if (!this.info) return this.kind === 'pattern' ? 'Testbild' : 'keine Metadaten, Annahme nach Bildhöhe';
+    if (this.settings.colorspace !== 'auto') return t('source.origin.manual');
+    if (!this.info) return this.kind === 'pattern' ? t('source.origin.pattern') : t('source.origin.noMetaHeight');
     const m = this.info.matrix, p = this.info.primaries;
-    return (m && m !== 'unknown') || (p && p !== 'unknown') ? 'Metadaten' : 'nicht signalisiert, Annahme nach Bildhöhe';
+    return (m && m !== 'unknown') || (p && p !== 'unknown') ? t('source.origin.meta') : t('source.origin.notSignalledHeight');
   }
   get colorspace(): Colorspace {
     if (this.settings.colorspace !== 'auto') return this.settings.colorspace;
@@ -392,10 +438,22 @@ export class Source {
     if (!this.frozen) this.frameSeq++;
   }
 
+  /** counts connect attempts, so a late answer of an earlier one is ignored */
+  private connectSeq = 0;
+
   connectStream(url: string, bridge: string) {
     this.stop();
     this.url = url;
-    this.set('connecting', 'Verbinde …');
+    this.set('connecting', t('source.status.connecting'));
+    const seq = ++this.connectSeq;
+    // a platform shell may receive this URL itself (iOS: RTSP direct, #90) – same frame protocol
+    const direct = streamRoute.resolve(url, this.settings);
+    if (direct) {
+      this.rtpStats = null; this.phase = null;
+      direct.then((ws) => { if (seq === this.connectSeq && this.status === 'connecting') this.connectFrames(ws, false); })
+        .catch((e: Error) => { if (seq === this.connectSeq) this.set('error', e.message); });
+      return;
+    }
     const { fps, depth, transport } = this.settings;
     const ll = this.llConfig;
     const width = effectiveWidth(this.settings.width, this.lowLatency, ll.width);
@@ -407,6 +465,7 @@ export class Source {
     else if (this.settings.yuv) { q.set('format', 'yuv'); q.set('depth', '16'); }
     if (this.lowLatency && ll.ownRtp) q.set('rtp', 'own');
     this.rtpStats = null;
+    this.phase = null;
     this.connectFrames(`${bridge}/stream?${q}`, false);
   }
 
@@ -415,7 +474,7 @@ export class Source {
    * e.g. a host bridge that keeps the camera address to itself: `ws://host/scope/3`.
    */
   connectFrames(wsUrl: string, reset = true) {
-    if (reset) { this.stop(); this.url = wsUrl; this.set('connecting', 'Verbinde …'); }
+    if (reset) { this.stop(); this.url = wsUrl; this.set('connecting', t('source.status.connecting')); }
     const ws = openFrameSocket(wsUrl);
     this.ws = ws;
     ws.onmessage = (ev) => {
@@ -428,8 +487,8 @@ export class Source {
           this.monitor?.close(); this.monitor = null; this.audioAnchor = null;
           this.audio = a ? new AudioAnalysis(a.sampleRate, a.channels, a.layout) : null;
           if (this.audio && a) this.audio.label = `Bridge · ${a.codec ?? ''} ${a.sampleRate / 1000} kHz`.replace('  ', ' ');
-          const pic = msg.width ? `${msg.sourceWidth}×${msg.sourceHeight} ${msg.codec ?? ''}`.trim() : 'nur Ton';
-          this.set('live', a ? `${pic} · Ton ${a.codec ?? ''} ${a.sampleRate / 1000} kHz ${a.channels} Kan.` : msg.proto === 2 ? `${pic} · kein Ton` : pic);
+          const pic = msg.width ? `${msg.sourceWidth}×${msg.sourceHeight} ${msg.codec ?? ''}`.trim() : t('source.status.soundOnly');
+          this.set('live', a ? `${pic} · ${t('source.status.sound', { codec: a.codec ?? '', khz: a.sampleRate / 1000, ch: a.channels })}` : msg.proto === 2 ? `${pic} · ${t('source.status.noSound')}` : pic);
         } else if (msg.type === 'tc') {
           this.tc = { ...msg, at: performance.now() };
         } else if (msg.type === 'apts') {
@@ -439,12 +498,23 @@ export class Source {
           this.dropped = msg.dropped;
           this.latency.onBridgeStats(msg.stampAge);
           this.rtpStats = msg.rtp ?? null;
-          if (msg.message) this.set(this.status === 'live' ? 'live' : 'connecting', msg.message);
+          this.phase = msg.phase ?? null;
+          if (msg.rec) Source.onRecord?.(this, msg.rec);
+          if (msg.ring) Source.onRecord?.(this, msg.ring);
+          if (msg.message) this.set(this.status === 'live' ? 'live' : 'connecting', bridgeMessage(msg));
+        } else if (msg.type === 'record' || msg.type === 'ring' || msg.type === 'playback') {
+          // local recording in the bridge (server/recorder.mjs)
+          Source.onRecord?.(this, msg);
+        } else if (msg.type === 'resolve') {
+          // DaVinci Resolve (#88): timeline playing / paused again (server/resolveWatch.mjs)
+          Source.onResolve?.(this, msg);
         } else if (msg.type === 'error' || msg.type === 'end') {
-          this.set(msg.type === 'end' ? 'ended' : 'error', msg.message);
+          this.set(msg.type === 'end' ? 'ended' : 'error', bridgeMessage(msg));
         }
         return;
       }
+      // an exact still again after a live capture (#88): back to the stream's own format
+      if (this.liveShown) this.showLive(null);
       const buf = ev.data as ArrayBuffer;
       if (this.info?.proto === 2) {
         // 16-byte header: 'LZV1' | 'LZA1', uint32, float64 (docs/frame-protocol.md)
@@ -473,6 +543,7 @@ export class Source {
         }
         if (this.frozen) return;
         this.data = px;
+        this.held.push(px);
         this.tick();
         this.latency.onFrame(ev.meta);
         Source.onArrive?.(this);
@@ -480,13 +551,78 @@ export class Source {
       }
       if (this.frozen) return;
       this.data = this.depth === 16 ? new Uint16Array(buf) : new Uint8Array(buf);
+      this.held.push(this.data);
       this.tick();
       this.latency.onFrame(ev.meta);
       Source.onArrive?.(this);
     };
-    ws.onerror = () => this.set('error', 'Bridge nicht erreichbar – läuft `npm run dev` bzw. `npm start`?');
-    ws.onclose = () => { if (this.ws === ws && this.status === 'live') this.set('ended', 'Verbindung beendet'); };
+    ws.onerror = () => this.set('error', t('source.status.bridgeUnreachable'));
+    ws.onclose = () => { if (this.ws === ws && this.status === 'live') this.set('ended', t('source.status.connectionEnded')); };
   }
+
+  /** DaVinci Resolve (#88): how the picture gets here right now – set by src/resolvePlayback.ts. */
+  resolveRoute: ResolveRoute | null = null;
+  /** a 'resolve' message of the bridge arrived (main.ts → src/resolvePlayback.ts) */
+  static onResolve: ((s: Source, msg: { state: 'playing' | 'paused'; played?: boolean; project?: string | null }) => void) | null = null;
+  /** last raw frames with their arrival time, for "freeze all" with latency compensation (#140 step 2) */
+  readonly held = new FrameHistory<Uint8Array | Uint16Array>();
+  /**
+   * Freeze on the held frame closest to scene moment `scene` (wall ms); this source shows the
+   * scene `latencyMs` late. Element sources (camera, files in the page) freeze on their current picture.
+   */
+  freezeAt(scene: number, latencyMs: number) {
+    const f = this.data ? pickFrame(this.held.frames, scene, latencyMs) : null;
+    if (f && f.frame !== this.data && f.frame.length === this.data!.length) { this.data = f.frame; this.frameSeq++; }
+    this.frozen = true;
+  }
+  /** a recording message of the bridge arrived (src/record/record.ts) */
+  static onRecord: ((s: Source, msg: Record<string, unknown>) => void) | null = null;
+  /** Send a text message on this source's bridge connection; false without one. */
+  sendBridge(msg: object): boolean {
+    if (!this.ws) return false;
+    this.ws.send(JSON.stringify(msg));
+    return true;
+  }
+  /** Media stream for MediaRecorder: camera/screen, video file or the pattern canvas; null for bridge sources. */
+  captureStream(fps = 25): MediaStream | null {
+    if (this.media) return this.media;
+    const el = (this.videoEl ?? this.element) as (HTMLMediaElement & { captureStream?: () => MediaStream }) | HTMLCanvasElement | null;
+    if (el instanceof HTMLCanvasElement) {
+      // canvas.captureStream() yields frames only when the canvas is painted on screen; ours is not in
+      // the document. Chromium: feed it frame by frame (MediaStreamTrackGenerator), else captureStream.
+      const Gen = (globalThis as unknown as { MediaStreamTrackGenerator?: new (o: { kind: string }) => MediaStreamTrack & { writable: WritableStream<VideoFrame> } }).MediaStreamTrackGenerator;
+      if (!Gen || typeof VideoFrame === 'undefined') return el.captureStream(fps);
+      const gen = new Gen({ kind: 'video' });
+      const writer = gen.writable.getWriter();
+      const t0 = performance.now();
+      const timer = setInterval(() => {
+        if (gen.readyState === 'ended') { clearInterval(timer); writer.close().catch(() => {}); return; }
+        writer.write(new VideoFrame(el, { timestamp: Math.round((performance.now() - t0) * 1000) })).catch(() => {});
+      }, 1000 / fps);
+      return new MediaStream([gen]);
+    }
+    return el && 'captureStream' in el && typeof el.captureStream === 'function' ? el.captureStream() : null;
+  }
+  /** called by stop(), e.g. to end a live capture that belongs to this source */
+  static onStop: ((s: Source) => void) | null = null;
+  private liveShown = false;
+  /**
+   * Show a captured picture instead of the bridge frames (Resolve playback, #88); null goes
+   * back to the frames – done by the next still as well.
+   */
+  showLive(el: HTMLCanvasElement | null) {
+    if (el) {
+      this.liveShown = true;
+      this.data = null; this.element = el; this.width = el.width; this.height = el.height; this.depth = 8;
+      this.tick();
+      return;
+    }
+    if (!this.liveShown) return;
+    this.liveShown = false;
+    this.element = null;
+    if (this.info) { this.width = this.info.width; this.height = this.info.height; this.depth = this.info.depth; }
+  }
+  get showingLive() { return this.liveShown; }
 
   /**
    * Feed frames without a WebSocket, e.g. from an Electron main process over a
@@ -542,7 +678,7 @@ export class Source {
   async startFolder() {
     this.stop();
     const picker = (window as unknown as { showDirectoryPicker?: (o?: object) => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker;
-    if (!picker) { this.set('error', 'Ordner-Überwachung braucht Chrome, Edge oder die Desktop-App'); return; }
+    if (!picker) { this.set('error', t('source.status.folderNeedsChrome')); return; }
     let dir: FileSystemDirectoryHandle;
     try { dir = await picker({ id: 'lz-scopes-watch', mode: 'read' }); } catch { this.set('idle'); return; }
     this.name = dir.name;
@@ -554,7 +690,7 @@ export class Source {
         const f = await (entry as FileSystemFileHandle).getFile();
         if (!newest || f.lastModified > newest.lastModified) newest = f;
       }
-      if (!newest) { this.set('live', `${dir.name}: noch kein Bild (JPG/PNG/WebP/AVIF)`); return; }
+      if (!newest) { this.set('live', t('source.status.folderEmpty', { dir: dir.name })); return; }
       const key = `${newest.name}:${newest.lastModified}:${newest.size}`;
       if (key === last) return;
       last = key;
@@ -574,7 +710,7 @@ export class Source {
 
   async startCapture(kind: 'webcam' | 'screen', deviceId?: string, desktopId?: string) {
     this.stop();
-    this.set('connecting', 'Warte auf Freigabe …');
+    this.set('connecting', t('source.status.waitPermission'));
     try {
       this.media = kind === 'webcam'
         ? await navigator.mediaDevices.getUserMedia({ video: { ...(deviceId ? { deviceId: { exact: deviceId } } : {}), width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } }, audio: false })
@@ -588,7 +724,8 @@ export class Source {
       this.attachVideo(v);
       const track = this.media.getVideoTracks()[0];
       this.deviceId = track.getSettings().deviceId ?? deviceId ?? '';
-      track.addEventListener('ended', () => this.set('ended', 'Aufnahme beendet'));
+      this.nominalFps = Math.round(track.getSettings().frameRate ?? 0);
+      track.addEventListener('ended', () => this.set('ended', t('source.status.captureEnded')));
       this.set('live', `${v.videoWidth}×${v.videoHeight} ${track.label}`);
     } catch (e) {
       this.set('error', (e as Error).message);
@@ -605,7 +742,7 @@ export class Source {
       await img.decode();
       this.element = img; this.width = img.naturalWidth; this.height = img.naturalHeight; this.depth = 8;
       this.tick();
-      this.set('live', `${this.width}×${this.height} Bild`);
+      this.set('live', `${this.width}×${this.height} ${t('source.status.image')}`);
       return;
     }
     const v = document.createElement('video');
@@ -616,7 +753,24 @@ export class Source {
       this.set('live', `${v.videoWidth}×${v.videoHeight} Video`);
       this.tapElement(v).catch(() => { /* no sound track or no AudioContext */ });
     } catch (e) {
-      this.set('error', `Nicht abspielbar: ${(e as Error).message}`);
+      this.set('error', t('source.status.notPlayable', { msg: (e as Error).message }));
+    }
+  }
+
+  /** Play a video from a URL (cached test videos, lzs-media://, #52); CORS keeps WebGL readable. */
+  async openVideoUrl(url: string, name: string) {
+    this.stop();
+    this.name = name;
+    const v = document.createElement('video');
+    v.crossOrigin = 'anonymous';
+    v.muted = true; v.loop = true; v.playsInline = true; v.src = url;
+    try {
+      await v.play();
+      this.attachVideo(v);
+      this.set('live', `${v.videoWidth}×${v.videoHeight} Video`);
+      this.tapElement(v).catch(() => { /* no sound track or no AudioContext */ });
+    } catch (e) {
+      this.set('error', t('source.status.notPlayable', { msg: (e as Error).message }));
     }
   }
 
@@ -692,7 +846,7 @@ export class Source {
   /** Sound of a video/audio element: routed into the analysis, audible only with monitoring. */
   private async tapElement(el: HTMLMediaElement) {
     this.audioTap?.close();
-    const tap = await AudioTap.fromElement(el, (chs, n, rate) => this.feed(chs, n, rate, `Datei · ${rate / 1000} kHz`));
+    const tap = await AudioTap.fromElement(el, (chs, n, rate) => this.feed(chs, n, rate, `${t('source.kind.file')} · ${rate / 1000} kHz`));
     this.audioTap = tap;
     el.addEventListener('play', () => tap.resume());
   }
@@ -719,8 +873,8 @@ export class Source {
     this.stop();
     const inp = this.audioIn;
     if (inp.mode === 'bridge') {
-      if (!inp.bridgeUrl) { this.set('idle', 'Gerät wählen'); return; }
-      if (!bridge) { this.set('error', 'Bridge nicht verbunden'); return; }
+      if (!inp.bridgeUrl) { this.set('idle', t('source.status.chooseDevice')); return; }
+      if (!bridge) { this.set('error', t('source.status.bridgeNotConnected')); return; }
       this.connectStream(inp.bridgeUrl, bridge);
       return;
     }
@@ -728,7 +882,7 @@ export class Source {
       if (inp.mode === 'generator') {
         generator.setLoopback((chs, n, rate) => this.feed(chs, n, rate, `Generator · ${rate / 1000} kHz`));
         this.generatorBound = true;
-        this.set('live', generator.running ? 'Generator (Rückweg)' : 'Generator (Rückweg) – Generator starten');
+        this.set('live', generator.running ? t('source.status.generatorReturn') : t('source.status.generatorReturnStart'));
         return;
       }
       if (inp.mode === 'file') {
@@ -743,15 +897,15 @@ export class Source {
         this.set('live', `${file.name}`);
         return;
       }
-      this.set('connecting', 'Warte auf Freigabe …');
+      this.set('connecting', t('source.status.waitPermission'));
       this.media = await navigator.mediaDevices.getUserMedia({ audio: measurementConstraints(inp.deviceId || undefined), video: false });
       const track = this.media.getAudioTracks()[0];
       const st = track.getSettings();
       const tap = await AudioTap.fromStream(this.media, (chs, n, rate) => this.feed(chs, n, rate, `${track.label} · ${rate / 1000} kHz`));
       this.audioTap = tap;
-      track.addEventListener('ended', () => this.set('ended', 'Gerät getrennt'));
-      const off = [st.echoCancellation, st.noiseSuppression, st.autoGainControl].some((x) => x === true) ? ' · Achtung: Browser-Regelung aktiv' : '';
-      this.set('live', `${track.label || 'Audiogerät'} · ${tap.ctx.sampleRate / 1000} kHz${st.channelCount ? ` · ${st.channelCount} Kan.` : ''}${off}`);
+      track.addEventListener('ended', () => this.set('ended', t('source.status.deviceDisconnected')));
+      const off = [st.echoCancellation, st.noiseSuppression, st.autoGainControl].some((x) => x === true) ? ` · ${t('source.status.browserAgc')}` : '';
+      this.set('live', `${track.label || t('source.audioDevice')} · ${tap.ctx.sampleRate / 1000} kHz${st.channelCount ? ` · ${t('source.channels', { n: st.channelCount })}` : ''}${off}`);
     } catch (e) {
       this.set('error', (e as Error).message);
     }
@@ -763,6 +917,9 @@ export class Source {
   }
 
   stop() {
+    this.connectSeq++;
+    Source.onStop?.(this);
+    this.liveShown = false; this.resolveRoute = null;
     if (this.folderTimer) { clearInterval(this.folderTimer); this.folderTimer = null; }
     if (this.reverseTimer) { clearInterval(this.reverseTimer); this.reverseTimer = null; }
     if (this.patternTimer) { clearInterval(this.patternTimer); this.patternTimer = null; }
@@ -777,6 +934,7 @@ export class Source {
     if (this.videoEl) { this.videoEl.pause(); this.videoEl.srcObject = null; this.videoEl = null; }
     if (this.objectUrl) { URL.revokeObjectURL(this.objectUrl); this.objectUrl = null; }
     this.history.clear();
+    this.held.clear();
     this.element = null; this.data = null; this.yuv = null; this.info = null; this.tc = null; this.width = 0; this.height = 0; this.stats = null;
     this.fps = 0; this.dropped = 0;
     if (this.status !== 'idle') this.set('idle');

@@ -11,10 +11,12 @@
 import type { MeterState } from './meter';
 import { cctMcCamy, duvFromUv, xyToUv, xyzToXy, type Reading } from './photometry';
 import { spectrumToXyz, type Spectrum } from './spectrum';
+import { bridgeMessage } from '../i18n/bridgeMessage';
+import { t } from '../i18n';
 
-export type DriverId = 'opple' | 'argyll' | 'datei';
+export type DriverId = 'opple' | 'argyll' | 'datei'; // lang-ok: persisted driver id
 export const DRIVER_LABELS: Record<DriverId, string> = {
-  opple: 'Opple Light Master (Bluetooth)', argyll: 'Spektrometer/Kolorimeter über ArgyllCMS', datei: 'Spektrum aus Datei',
+  opple: 'Opple Light Master (Bluetooth)', argyll: t('opple.drv.argyll'), datei: t('opple.ui.fromFile'),
 };
 
 /** What the sidebar, the scopes and the LED-wall dialog need from a meter. */
@@ -85,23 +87,23 @@ export class ArgyllLightMeter extends EventTarget implements LightDevice {
   }
 
   connect(): Promise<void> {
-    this.status('connecting', 'Starte spotread über die Bridge …');
+    this.status('connecting', t('opple.drv.starting'));
     return new Promise((ok, fail) => {
       let ws: WebSocket;
       try { ws = new WebSocket(`${this.wsBase()}/meter`); } catch (e) { this.status('error', (e as Error).message); fail(e); return; }
       this.ws = ws;
       let settled = false;
       ws.onopen = () => ws.send(JSON.stringify({ cmd: 'open', ambient: true, ...(this.port ? { port: this.port } : {}) }));
-      ws.onerror = () => { this.status('error', 'Bridge nicht erreichbar (Desktop-App oder npm start)'); if (!settled) { settled = true; fail(new Error(this.message)); } };
-      ws.onclose = () => { this.loop = false; this.reject(new Error('Verbindung zum Messgerät beendet')); if (this.state !== 'error') this.status('idle', 'getrennt'); };
+      ws.onerror = () => { this.status('error', t('opple.ui.noBridge')); if (!settled) { settled = true; fail(new Error(this.message)); } };
+      ws.onclose = () => { this.loop = false; this.reject(new Error(t('calib.meter.closed'))); if (this.state !== 'error') this.status('idle', t('opple.m.disconnected')); };
       ws.onmessage = (e) => {
         const m = JSON.parse(String(e.data));
         if (m.type === 'log') { for (const l of String(m.text).split(/\r?\n/)) if (l.trim()) this.frames.push(l); if (this.frames.length > 300) this.frames.splice(0, this.frames.length - 300); if (/Ambient/.test(m.text)) this.ambient = true; }
-        else if (m.type === 'status') this.status(this.state === 'connected' ? 'connected' : 'calibrating', m.message);
-        else if (m.type === 'ready') { if (!settled) { settled = true; this.status('connected', 'Messgerät bereit (ArgyllCMS, ungeprüft)'); ok(); } }
+        else if (m.type === 'status') this.status(this.state === 'connected' ? 'connected' : 'calibrating', bridgeMessage(m));
+        else if (m.type === 'ready') { if (!settled) { settled = true; this.status('connected', t('opple.drv.ready')); ok(); } }
         else if (m.type === 'light') this.onLight(m as LightEvent);
-        else if (m.type === 'error') { this.status('error', m.message); this.reject(new Error(m.message)); if (!settled) { settled = true; fail(new Error(m.message)); } }
-        else if (m.type === 'closed') { this.status('error', `spotread beendet (Code ${m.code ?? '?'})`); if (!settled) { settled = true; fail(new Error(this.message)); } }
+        else if (m.type === 'error') { const text = bridgeMessage(m); this.status('error', text); this.reject(new Error(text)); if (!settled) { settled = true; fail(new Error(text)); } }
+        else if (m.type === 'closed') { this.status('error', t('calib.meter.endedCode', { code: m.code ?? '?' })); if (!settled) { settled = true; fail(new Error(this.message)); } }
       };
     });
   }
@@ -123,11 +125,11 @@ export class ArgyllLightMeter extends EventTarget implements LightDevice {
   private reject(e: Error) { const p = this.pending; this.pending = null; p?.fail(e); }
 
   measure(timeout = 60000): Promise<Reading> {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return Promise.reject(new Error('nicht verbunden'));
-    if (this.pending) return Promise.reject(new Error('Messung läuft noch'));
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return Promise.reject(new Error(t('opple.ui.notConnected')));
+    if (this.pending) return Promise.reject(new Error(t('opple.drv.busy')));
     return new Promise((ok, fail) => {
-      const t = window.setTimeout(() => this.reject(new Error('keine Messung (Gerät bereit? Kalibrierung?)')), timeout);
-      this.pending = { ok: (r) => { clearTimeout(t); ok(r); }, fail: (e) => { clearTimeout(t); fail(e); } };
+      const timer = window.setTimeout(() => this.reject(new Error(t('opple.drv.noReading'))), timeout);
+      this.pending = { ok: (r) => { clearTimeout(timer); ok(r); }, fail: (e) => { clearTimeout(timer); fail(e); } };
       this.ws!.send(JSON.stringify({ cmd: 'read' }));
     });
   }
@@ -161,6 +163,6 @@ export class ArgyllLightMeter extends EventTarget implements LightDevice {
     this.stop();
     try { this.ws?.send(JSON.stringify({ cmd: 'close' })); } catch { /* closed */ }
     this.ws?.close(); this.ws = null;
-    this.status('idle', 'getrennt');
+    this.status('idle', t('opple.m.disconnected'));
   }
 }
