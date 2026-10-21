@@ -147,17 +147,28 @@ export const de: Dict = {
   'adern.tab.anschluss': 'Anschlüsse (Bündel)',
   'adern.tab.normen': 'Farbnormen',
   'adern.title': 'Adern, Farbnormen, Anschlüsse und Faser-Polarität',
+  'aiPlan.complete': 'Plan vervollständigen',
+  'aiPlan.completionPreview': 'Vorschau: {r} neue Räume, {d} neue Geräte, {c} Kabel, {u} Geräte ergänzt',
+  'aiPlan.dropHint':
+    'Dokumente hier ablegen — Blockschaltbilder, IP-Listen, Stücklisten, Grundrisse (PDF, Excel, CSV, Bilder, .cableplan). Der offene Plan wird daraus ergänzt.',
   'aiPlan.generate': 'Generieren',
   'aiPlan.generating': 'Generiere…',
   'aiPlan.insert': 'In den Plan einfügen',
   'aiPlan.noKey':
     'Kein AI-API-Key hinterlegt. Bitte in den Einstellungen → AI einen Provider-Key eintragen.',
+  'aiPlan.notesLabel': 'Hinweis an die KI (optional)',
+  'aiPlan.notesPlaceholder': 'z. B. „Nur Seminarräume 1–5; die IP-Liste gilt"',
+  'aiPlan.nothingMissing': 'Die Dokumente enthalten nichts, was dem Plan fehlt.',
+  'aiPlan.pickFiles': 'Dateien wählen',
   'aiPlan.preview': 'Vorschau: {d} Geräte, {c} Kabel',
   'aiPlan.promptLabel': 'System in Klartext beschreiben',
   'aiPlan.promptPlaceholder':
     'z. B. "2 Kameras über SDI in einen Switcher, PGM-Out auf einen Recorder und einen Multiviewer-Monitor"',
+  'aiPlan.reading': 'Lese Dokumente…',
+  'aiPlan.removeFile': '{name} entfernen',
   'aiPlan.reviewHint': 'Vorschau wird angezeigt — nichts wird ohne Bestätigung eingefügt.',
   'aiPlan.title': 'KI-Plan-Generierung',
+  'aiPlan.tooLarge': 'Zusammen {size} — mehr, als eine Anfrage tragen kann. Dokumente in mehreren Runden schicken.',
   'analysis.action.count': '{n} Zeilen, sortiert nach Dringlichkeit.',
   'analysis.action.hint':
     'Diese Seite sagt, was ansteht — sie bearbeitet nichts. Jede Zeile kommt aus der Stelle, die sie meldet: Crew, Kosten, Belege, Lager. Was hier fehlt, fehlt auch dort; hier entsteht keine zweite Rechnung.',

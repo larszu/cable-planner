@@ -317,6 +317,13 @@ export interface ProjectState {
    *  vergeben (die Kabel referenzieren die mitgelieferten IDs). */
   insertGeneratedPlan: (equipment: EquipmentItem[], cables: import('../types/cable').Cable[]) => void
   /**
+   * KI-Plan aus Dokumenten (lib/planVervollstaendigung): Räume, Geräte, Kabel
+   * und Angaben an bestehenden Geräten in EINEM Schritt. Additiv — nur leere
+   * Felder werden gefüllt, Ports angehängt; Lage ändert sich nur bei Rahmen,
+   * die wachsen oder nachrücken, und bei Geräten darin.
+   */
+  applyPlanErgaenzung: (e: import('../lib/planVervollstaendigung').PlanErgaenzung) => void
+  /**
    * #597 — Ergebnis eines NetBox-Abgleichs anwenden (Erstimport wie
    * „Aktualisieren"). Rein additiv: neue Geräte/Kabel/Rack-Rahmen kommen
    * dazu, an bestehenden Geräten werden nur neu hinzugekommene Ports
