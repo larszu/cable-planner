@@ -104,7 +104,7 @@ const InfoDialog = ({ title, options, onDone }: Props) => {
             style={{
               marginBottom: 16,
               fontSize: 13,
-              color: '#cbd5e1',
+              color: 'var(--cp-text-secondary)',
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word',
             }}

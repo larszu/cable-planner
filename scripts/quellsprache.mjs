@@ -441,6 +441,38 @@ export const messeSprachmix = (wurzel, quellsprache) => {
 }
 
 // CLI: `node scripts/quellsprache.mjs <wurzel> <sprache>`
+/**
+ * Daten-Beschriftungen: `label: '…'` und `description: '…'` in Objekt-Literalen.
+ *
+ * DER BLINDE FLECK, DEN DAS SCHLIESST (gefunden 2026-10-21 beim Handbuch).
+ * `t(`onboarding.preset.${p.id}.label`, p.label)` hat einen VARIABLEN
+ * Fallback. `fallbackMuster` verlangt ein Literal und sieht ihn nicht, und
+ * `sichtbareTexte` kennt nur JSX, Attribute und Dialog-Aufrufe — das
+ * Objekt-Literal in `lib/modules.ts`, aus dem der Text kommt, sah keiner der
+ * beiden. So stand in der englischen Oberflaeche „Festinstallation" und
+ * „Temporäre Produktionen — …" im Erststart-Dialog, und lang:check blieb gruen.
+ *
+ * Als RATSCHE und nicht auf null: im Bestand stehen weitere deutsche
+ * Daten-Beschriftungen (Kabelfarben, Projektvorlagen, Modulbeschreibungen),
+ * die eigens nachzuziehen sind. Die Zahl darf sinken, nicht steigen.
+ */
+const DATEN_BESCHRIFTUNG = /\b(?:label|description):\s*(['"])((?:[^\\]|\\.){4,}?)\1/g
+
+export const DATEN_GRENZE = { 'src/renderer': 37, 'src/mobile': 0, 'src/viewer': 0 }
+
+export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
+  const ziel = quellsprache === 'de' ? 'en' : 'de'
+  const funde = []
+  for (const datei of dateien(wurzel)) {
+    const rel = relative(wurzel, datei).split(sep).join('/')
+    if (rel.includes('i18n') || rel.includes('__tests__') || rel.includes('.test.')) continue
+    for (const m of ohneKommentare(readFileSync(datei, 'utf8')).matchAll(DATEN_BESCHRIFTUNG)) {
+      if (klassifiziere(m[2]) === ziel) funde.push({ datei: rel, text: m[2].slice(0, 100) })
+    }
+  }
+  return funde
+}
+
 if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
   const [, , wurzel, sprache] = process.argv
   if (!wurzel || !sprache) {
@@ -533,6 +565,19 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
         `  gefunden: ${JSON.stringify(gefunden)}\n` +
         'Das Muster findet entweder echte Beschriftungen nicht mehr oder wieder ' +
         'Kommentare und Quelltext. Beides macht die Zahl unten wertlos.',
+    )
+    process.exit(1)
+  }
+
+  const daten = messeDatenBeschriftungen(wurzel, sprache)
+  const datenGrenze = DATEN_GRENZE[wurzel.replace(/\/+$/, '')] ?? 0
+  console.log(`Daten-Beschriftungen: ${daten.length} in der anderen Sprache (Grenze ${datenGrenze}).`)
+  if (daten.length !== datenGrenze) {
+    for (const f of daten) console.error(`  ${f.datei}: ${f.text}`)
+    console.error(
+      daten.length > datenGrenze
+        ? `\n${daten.length - datenGrenze} mehr als erlaubt: label/description in der Quellsprache schreiben, Uebersetzung ins Woerterbuch.`
+        : `\nDATEN_GRENZE fuer ${wurzel} auf ${daten.length} senken.`,
     )
     process.exit(1)
   }

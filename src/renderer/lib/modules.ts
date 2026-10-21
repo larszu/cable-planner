@@ -22,7 +22,7 @@ export interface ModuleMeta {
 export const MODULES: ModuleMeta[] = [
   {
     id: 'festinstallation',
-    label: 'Festinstallation',
+    label: 'Fixed installation',
     description:
       'Lebenszyklus/Service, Asset-Register & QR-Etiketten, Übergabe-Doku und Feld-Rückkanal.',
   },
@@ -83,20 +83,20 @@ export const PRESETS: PresetMeta[] = [
   {
     id: 'show',
     label: 'Show / Event',
-    description: 'Temporäre Produktionen — schnell planen, vor Ort abhaken.',
+    description: 'Temporary productions — plan fast, check off on site.',
     modules: ['mobile', 'rentman'],
   },
   {
     id: 'festinstallation',
-    label: 'Festinstallation',
-    description: 'Dauerhafte Anlagen — mitwachsende Doku, Service, Übergabe.',
+    label: 'Fixed installation',
+    description: 'Permanent systems — living documentation, service, handover.',
     // NetBox ist die typische Dokumentationsquelle für Festinstallationen.
     modules: ['festinstallation', 'mobile', 'netbox'],
   },
   {
     id: 'rental',
-    label: 'Vermietung / Rental',
-    description: 'Lagerbestand & Verfügbarkeit über Projekte hinweg.',
+    label: 'Rental',
+    description: 'Stock & availability across projects.',
     modules: ['rental', 'rentman'],
   },
 ]
