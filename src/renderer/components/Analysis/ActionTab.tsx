@@ -48,6 +48,7 @@ export const ActionTab = () => {
   const t = useTranslation()
   const titel = (i: ActionItem): string => {
     const ns = TITEL_NS[i.source]
+    if (i.titleSatz) return satzText(i.titleSatz, t)
     return ns ? t(`${ns}.${i.kind}`, i.title) : i.title
   }
   const project = useProjectStore((s) => s.project)

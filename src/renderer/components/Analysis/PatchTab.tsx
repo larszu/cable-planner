@@ -1,3 +1,4 @@
+import { satzText } from '../../lib/satz'
 import { useMemo, useState } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
@@ -224,7 +225,7 @@ export const PatchTab = ({ projectName }: { projectName: string }) => {
                       <td className="py-1 pr-2">
                         <Weg row={r} />
                         {r.end !== 'switch' && (
-                          <div className={`mt-0.5 ${ENDE_TON[r.end]}`}>{r.endNote}</div>
+                          <div className={`mt-0.5 ${ENDE_TON[r.end]}`}>{r.endSatz ? satzText(r.endSatz, t) : r.endNote}</div>
                         )}
                         {r.conflict && <div className="mt-0.5 text-cp-warn">{r.conflict}</div>}
                       </td>
