@@ -16,8 +16,9 @@ import { klassifiziere } from '../scripts/quellsprache.mjs'
 // Woerter — die waere immer unvollstaendig und wuerde beim naechsten neuen
 // Wort stillschweigend durchlassen. Er kennt stattdessen die Liste der
 // Woerter, in denen „ae/oe/ue" KEIN Umlaut-Ersatz ist: englische Begriffe
-// („value", „request"), deutsche Woerter mit echter Vokalfolge („neue",
-// „Steuerung", „Quelle") und Hex-Ziffernfolgen. Alles andere ist ein Befund.
+// („value", „issue"), Silbenregeln fuer deutsche Woerter mit echter
+// Vokalfolge („neue", „Steuerung", „Quelle" — `istEchteFolge`) und
+// Hex-Ziffernfolgen. Alles andere ist ein Befund.
 // Wer ein neues englisches Wort einfuehrt, traegt es unten ein; wer eine neue
 // ASCII-Ersatzform einfuehrt, faellt auf.
 //
@@ -81,76 +82,33 @@ const INNEN: Partial<Record<ts.SyntaxKind, [number, number]>> = {
 }
 
 /**
- * Woerter, in denen „ae/oe/ue" kein Umlaut-Ersatz ist. Wer hier etwas
+ * Woerter, in denen „ae/oe/ue" kein Umlaut-Ersatz ist und die keine
+ * Silbenregel (`istEchteFolge`) erklaert — praktisch nur noch Englisch und
+ * Eigennamen. Deutsche Woerter mit echter Vokalfolge (Quelle, Steuer, Dauer,
+ * aktuell) gehoeren NICHT hierher, sondern sind eine Regel. Wer hier etwas
  * eintraegt, sagt: dieses Wort ist so richtig geschrieben.
  */
 const HARMLOS = new Set(
   [
-    // Englisch — Fachbegriffe, Feldnamen im Klartext, Fliesstext in Belegen
-    'does', 'doesNotFit', 'goes', 'value', 'values', 'withoutValue', 'typeValue',
-    'renderValue', 'roleValue', 'kpiValue', 'manualValues', 'request', 'requests',
-    'requestFailed', 'issue', 'issues', 'issued', 'issueHint', 'unique', 'due',
-    'dueBack', 'newDueBack', 'moveDueBack', 'overdue', 'overdueSince', 'returnDue',
-    'returnOverdue', 'query',
-    'querySelector', 'querySelectorAll', 'querier', 'igmpQuerier', 'sequence',
-    'question', 'questions', 'technique', 'analogue', 'catalogue', 'colleague',
-    'coexist', 'continue', 'cues', 'guess', 'guessed', 'whoever', 'true', 'blue',
-    'bluebird', 'bluemic', 'venue', 'venues', 'newVenue', 'addVenue', 'venueAnswer',
-    'venueAnswers', 'venueNetworkRequest', 'frequency', 'frequencies',
-    'frequencyMhz', 'frequencyLabel', 'frequencyPlaceholder',
-    // Deutsch mit echter Vokalfolge — kein Umlaut dahinter
-    'neu', 'neue', 'neuer', 'neues', 'neuen', 'neuerdings', 'aktuell', 'aktuelle',
-    'aktuellen', 'aktueller', 'aktuelles', 'aktuellste', 'quelle', 'quellen',
-    'quellgerät', 'quellgeräte', 'quellgeräts',
-    'quell', 'signalquelle', 'produktionsquelle', 'steuer', 'steuern', 'steuert',
-    'steuersatz', 'steuersätze', 'steuerbetrag', 'mehrwertsteuer', 'umsatzsteuer',
-    'steuerbar', 'steuerbare', 'steuerbaren', 'steuerbares',
-    'steuerung', 'steueradern', 'steuerverkehr', 'geraetesteuerung', 'frequenz',
-    // Bedarf 120 (2026-09-08): „dauert" ist richtiges Deutsch — die
-    // Silbengrenze faellt in „da-uert" mitten in ein „ue", genau wie bei
-    // „Ste-uer". Dieselbe Ursache, dieselbe Aufnahme in die Liste.
-    'dauer', 'dauert', 'dauern', 'dauernd', 'dauerhaft', 'andauernd',
-    // S-3 (2026-09-08): „Steuerzeichen" ist richtiges Deutsch und wurde
-    // gemeldet — die Silbengrenze faellt in „Ste-uer" mitten in ein „ue".
-    // Dasselbe gilt fuer die uebrigen Zusammensetzungen mit „Steuer-", die
-    // in dieser Liste noch fehlten.
-    // facility Issue #2 (2026-09-10): dieselbe Silbengrenze noch einmal —
-    // „Ste-ueradresse" und „Da-uerleistung". Beide sind richtiges Deutsch und
-    // heissen genau das, was das Gebaeude angibt.
-    'steueradresse', 'steueradressen', 'dauerleistung',
-    'steuerzeichen', 'steuerbefehl', 'steuerbefehle', 'steuerprotokoll',
-    'steuerprotokolle', 'steuerport', 'steuerweg', 'steuerwege',
-    'frequenzen', 'frequenzgang', 'frequenzabstand', 'funkfrequenz',
-    'sendefrequenz', 'bauen', 'dauerhaft', 'dauerhafte', 'genaue', 'teuerste',
-    'auszugrauen', 'koexistenz', 'manuell', 'manuelle', 'manuellen', 'individuell',
-    'eventuell', 'virtuell', 'treue', 'feuer', 'feuerwehr', 'europa', 'euro',
-    // Eigennamen, Protokolle, Einheiten
+    // Englisch — Fachbegriffe, Feldnamen im Klartext, Fliesstext in Belegen.
+    // camelCase-Bezeichner zerfallen vorher in Teile (`withoutValue` →
+    // „value"), deshalb steht hier nur das Grundwort. Alles mit „qu" davor
+    // (request, query, unique, frequency, sequence …) erklaeren die
+    // Silbenregeln oben.
+    'does', 'goes', 'value', 'values', 'issue', 'issues', 'issued', 'due', 'overdue',
+    'analogue', 'catalogue', 'colleague', 'continue', 'discontinued', 'cues', 'guess',
+    'guessed', 'whoever', 'true', 'blue', 'bluebird', 'bluemic', 'venue', 'venues',
+    // Kleingeschriebene Modul-/Komponentennamen im Klartext
+    'venuescopedialog', 'catalogueevidence',
+    // Eigennamen, Protokolle, Einheiten. 2026-09-28, mit dem Cisco-Katalog:
+    // „UPOE" ist Ciscos Schreibweise fuer Universal PoE — das U davor macht
+    // aus dem „OE" kein „Ö".
     'segoe', 'poe', 'poestandard', 'poestandards', 'poebudget', 'poebudgetw',
-    'erpoe', 'aes', 'aea', 'aearibbonmics', 'gerätesteuerung',
-    // 2026-09-28, mit dem Cisco-Katalog: „UPOE" und „UPOE+" sind Ciscos
-    // Schreibweise fuer Universal PoE (60 W bzw. 90 W je Port). Derselbe Grund
-    // wie bei „poe" drei Zeilen darueber — nur dass hier ein U davorsteht, und
-    // das macht aus dem „OE" kein „Ö".
-    'upoe',
-    // Und noch zwei richtige Woerter mit derselben Silbengrenze: „Ste-uersystem"
-    // (das Crestron-Steuersystem, an dem der Extender ausdruecklich NICHT
-    // haengt) und das englische „discontinued" — Crestron fuehrt den
-    // HD-MD4X1-4K-E unter „Discontinued", und das ist der Name der Rubrik.
-    'steuersystem', 'steuersysteme', 'discontinued',
+    'erpoe', 'upoe', 'aes', 'aea', 'aearibbonmics',
     // Ein Paar fuer sich ist nie ein deutsches Wort: es kommt aus einer UUID,
     // aus einem URL-Pfad („/ue_US/") oder aus `danteNaming`, das genau diese
     // Ersetzung VORNIMMT, weil Dante-Namen ASCII sein muessen.
     'ae', 'oe', 'ue',
-    // Deutsch, und richtig geschrieben — „ue"/„ae"/„oe" ueber eine Silben-
-    // oder Wortgrenze hinweg.
-    // #881 (2026-09-18): „quer" selbst fehlte, waehrend „querschnitt"
-    // dastand — dieselbe Silbengrenze („qu-er"), nur ohne Nachsilbe. Eine
-    // LED-Wand ist „{c} Kacheln quer", und das ist richtiges Deutsch.
-    'zuerst', 'neuere', 'neueren', 'neueste', 'quer', 'querschnitt', 'dauer',
-    'störquelle', 'signalquelle', 'signalquellen', 'prüfquelle', 'frequenzbänder',
-    'frequenzregulierung', 'frequenzband', 'mittenfrequenz', 'frequenztabelle', 'koexistieren', 'graues', 'visuell', 'visuelle',
-    'virtuelle', 'individuelle', 'aktuellem', 'nachbauen', 'zuerste',
-    'queueconnection', 'venuescopedialog', 'catalogueevidence',
   ].map((w) => w.toLowerCase()),
 )
 
@@ -199,6 +157,52 @@ const AUSNAHMEN: Record<string, readonly string[]> = {
 
 /** Hex-Folgen (Farben, Fingerabdruecke) bestehen nur aus a-f und Ziffern. */
 const istHex = (wort: string) => wort.length >= 3 && /^[0-9a-f]+$/i.test(wort)
+
+/**
+ * camelCase-Bezeichner zerfallen in ihre Teile: `toEquipmentId` traegt „oE"
+ * ueber eine Grenze hinweg, `withoutValue` ist „without" + „Value". Ein Paar
+ * zaehlt nur innerhalb eines Teils und nur gleich geschrieben („ae", „Ae", „AE").
+ */
+const teilwoerter = (wort: string): string[] => wort.split(/(?<=[a-zäöüß])(?=[A-ZÄÖÜ])/)
+
+/**
+ * Silbenregeln: wann ein „ae/oe/ue" eine echte Vokalfolge ist und KEIN
+ * Umlaut-Ersatz. Sie gelten je Fundstelle, nicht je Wort — „Steuerfuehrung"
+ * bleibt ein Befund, obwohl „Steuer" harmlos ist.
+ *
+ * Frueher stand jede Zusammensetzung einzeln in HARMLOS (Signalquelle,
+ * Schallquelle, Mittenfrequenz, Frequenztabelle, Steuersystem …), und jedes
+ * neue Kompositum war ein Fehlalarm. Die Regeln treffen den Wortbaustein, also
+ * auch das naechste Kompositum:
+ *  - „qu" + e: Quelle, Frequenz, quer, Request, unique — nach q steht im
+ *    Deutschen nie ein ü.
+ *  - Diphthong + e: „eu"/„au" vor e — Steuer, Feuer, neue, treue, Dauer,
+ *    bauen, genaue. „eü"/„aü" kommt nicht vor.
+ *  - „-uell" nach t/n/s/d: aktuell, manuell, visuell, individuell. Nicht
+ *    nach f: „fuellen" ist „füllen".
+ *  - „ko-ex": Koexistenz, coexist.
+ *  - „zu-er": zuerst — Vorsilbe „zu" vor „er".
+ */
+const istEchteFolge = (klein: string, i: number): boolean => {
+  const vor = klein[i - 1] ?? ''
+  if (klein.startsWith('ue', i)) {
+    if (vor === 'q') return true
+    if (vor === 'e' || vor === 'a') return true
+    if ('tnsd'.includes(vor) && vor !== '' && klein.startsWith('ll', i + 2)) return true
+    if (i === 1 && vor === 'z' && klein[i + 2] === 'r') return true
+  }
+  if (klein.startsWith('oe', i) && (vor === 'k' || vor === 'c') && klein[i + 2] === 'x') return true
+  return false
+}
+
+/** Traegt dieses Teilwort ein Paar, das keine Silbenregel erklaert? */
+const hatErsatzform = (teil: string): boolean => {
+  const klein = teil.toLowerCase()
+  for (const m of teil.matchAll(/ae|oe|ue|Ae|Oe|Ue|AE|OE|UE/g)) {
+    if (!istEchteFolge(klein, m.index!)) return true
+  }
+  return false
+}
 
 interface Befund {
   datei: string
@@ -263,14 +267,11 @@ const scanne = (): { befunde: Befund[]; literale: number } => {
         const istDeutsch = klassifiziere(ohnePlatzhalter) === 'de'
         if (istDeutsch && !erlaubt.has(text.toLowerCase()) && !KENNUNGEN.has(text.trim()) && !istSchluessel(text)) {
           for (const wort of ohnePlatzhalter.match(/[A-Za-zÄÖÜäöüß]+/g) ?? []) {
-            // Auf dem WORT in seiner Schreibweise, nicht auf der Kleinform:
-            // `toEquipmentId` traegt „oE" ueber eine camelCase-Grenze hinweg,
-            // und das ist kein Umlaut-Ersatz. Nur gleich geschriebene Paare
-            // zaehlen — „ae", „Ae", „AE".
-            if (!/ae|oe|ue|Ae|Oe|Ue|AE|OE|UE/.test(wort)) continue
-            const klein = wort.toLowerCase()
-            if (HARMLOS.has(klein) || erlaubt.has(klein) || istHex(wort)) continue
-            befunde.push({ datei: kurz, wort, text: text.slice(0, 70) })
+            for (const teil of teilwoerter(wort)) {
+              if (HARMLOS.has(teil.toLowerCase()) || erlaubt.has(teil.toLowerCase()) || istHex(teil)) continue
+              if (!hatErsatzform(teil)) continue
+              befunde.push({ datei: kurz, wort: teil, text: text.slice(0, 70) })
+            }
           }
         }
       }
@@ -280,6 +281,30 @@ const scanne = (): { befunde: Befund[]; literale: number } => {
   }
   return { befunde, literale }
 }
+
+describe('Silbenregeln: echte Vokalfolge oder Umlaut-Ersatz', () => {
+  // Die Regeln sind eine LOECHERBEDINGUNG wie die Schluessel-Form unten:
+  // was sie durchlassen, prueft niemand mehr. Deshalb stehen beide Seiten hier.
+  it('laesst richtige deutsche Woerter durch', () => {
+    for (const w of [
+      'Schallquelle', 'Quellhöhe', 'Frequenzband', 'Mittenfrequenz', 'Frequenztabelle',
+      'quer', 'Steuerung', 'Feuerwehr', 'neue', 'Dauerleistung', 'bauen', 'genaue',
+      'aktuell', 'manuell', 'visuell', 'individuelle', 'Koexistenz', 'zuerst',
+    ]) expect(hatErsatzform(w), w).toBe(false)
+  })
+
+  it('meldet ASCII-Ersatzformen weiter', () => {
+    for (const w of [
+      'fuer', 'Groesse', 'Aenderung', 'Geraet', 'Laenge', 'fuellen', 'Uebergabe',
+      'Steuerfuehrung', 'Rueckgabe', 'hoeher', 'Menue', 'zurueck',
+    ]) expect(hatErsatzform(w), w).toBe(true)
+  })
+
+  it('zerlegt camelCase, damit Paare ueber die Grenze nicht zaehlen', () => {
+    expect(teilwoerter('toEquipmentId')).toEqual(['to', 'Equipment', 'Id'])
+    expect(teilwoerter('withoutValue')).toEqual(['without', 'Value'])
+  })
+})
 
 describe('was als Schluessel durchgeht, und was nicht', () => {
   // Die Ausnahme fuer i18n-Schluessel ist eine LOECHERBEDINGUNG: was sie
