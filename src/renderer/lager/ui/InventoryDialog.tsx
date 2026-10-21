@@ -1230,7 +1230,7 @@ const LocationsTab = ({ dimsEditor, formatDims, codeCell }: LocationsTabProps) =
                     {/* Modell UND Ort in jeder Zeile — beides verlangt der
                         Beleg ausdruecklich, und ohne beides „finds nothing
                         actionable". */}
-                    {AUDIT_LABEL[h.outcome]} · {h.label || h.code}
+                    {t(`inventory.auditOutcome.${h.outcome}`, AUDIT_LABEL[h.outcome])} · {h.label || h.code}
                     {/* Bedarf 150: gescannt oder abgehakt steht dran. Ein
                         Etikett gelesen zu haben ist eine andere Auskunft als
                         eine Zeile angeklickt zu haben. */}
@@ -1796,7 +1796,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
         <ul className="mb-2 flex flex-col gap-1 text-cp-xs">
           {identitaetsBefunde.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{IDENTITY_FINDING_LABEL[f.kind]}</strong> — {f.text}
+              <strong>{t(`inventory.identityFinding.${f.kind}`, IDENTITY_FINDING_LABEL[f.kind])}</strong> — {f.text}
             </li>
           ))}
         </ul>
@@ -1826,7 +1826,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                   <span
                     className="bg-amber-900/50 px-1.5 py-0.5 text-cp-xs text-amber-200"
                     title={affectedServices(u)
-                      .map((x) => FAULT_SERVICE_LABEL[x])
+                      .map((x) => t(`fault.service.${x}`, FAULT_SERVICE_LABEL[x]))
                       .join(', ')}
                   >
                     {t('inventory.openFaults', '{n} open faults').replace(
@@ -1908,7 +1908,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                       <span>{e.detail}</span>
                       {e.kind === 'fault' && (e.services ?? []).length > 0 && (
                         <span className="text-cp-text-faint">
-                          ({(e.services ?? []).map((x) => FAULT_SERVICE_LABEL[x]).join(', ')})
+                          ({(e.services ?? []).map((x) => t(`fault.service.${x}`, FAULT_SERVICE_LABEL[x])).join(', ')})
                         </span>
                       )}
                       {e.kind === 'fault' && !e.resolved && (
@@ -1944,7 +1944,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                           )
                         }
                       />
-                      {FAULT_SERVICE_LABEL[sv]}
+                      {t(`fault.service.${sv}`, FAULT_SERVICE_LABEL[sv])}
                     </label>
                   ))}
                   <button
@@ -2624,7 +2624,7 @@ const CheckoutTab = () => {
                             const absage = sign(r.id, leg, name)
                             setSignRefusal(
                               absage && absage !== 'unknown-record'
-                                ? SIGNATURE_REFUSAL_LABEL[absage]
+                                ? t(`handover.refusal.${absage}`, SIGNATURE_REFUSAL_LABEL[absage])
                                 : null,
                             )
                           }}

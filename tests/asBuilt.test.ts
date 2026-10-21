@@ -100,7 +100,7 @@ describe('asBuiltTable — das Artefakt, das der Post fehlt', () => {
     ]).rows
     expect(zeile[2]).toBe('Kamera 1')
     expect(zeile[3]).toBe('Kamera 2')
-    expect(zeile[4]).toBe(AS_BUILT_VERDICT_LABEL.differs)
+    expect(zeile[4]).toBe('weicht ab') // kanonisch deutsch, die Quelle ist englisch
   })
 
   it('schreibt einen NAMEN statt einer leeren Zelle', () => {
@@ -111,7 +111,7 @@ describe('asBuiltTable — das Artefakt, das der Post fehlt', () => {
 
   it('nennt die Quelle der Ablesung im Klartext', () => {
     const [zeile] = asBuiltTable([eintrag({ source: 'videohub', at: jetzt })]).rows
-    expect(zeile[5]).toBe(READING_SOURCE_LABEL.videohub)
+    expect(zeile[5]).toBe('Router')
   })
 
   it('sortiert nach Gegenstand und Feld — zwei Laeufe muessen vergleichbar sein', () => {

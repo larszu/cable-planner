@@ -1936,7 +1936,7 @@ const DeviceBomSection = () => {
                       )}
                     </td>
                     <td className={`px-2 py-1 ${OUTCOME_STYLE[row.outcome] ?? ''}`} title={row.reason}>
-                      {outcomeLabel(row.outcome)}
+                      {t(`planBom.outcome.${row.outcome}`, outcomeLabel(row.outcome))}
                       {row.short !== undefined && row.short > 0 && (
                         <span className="ml-1 text-cp-danger">
                           {format(t('export.devicebom.short', '— {n} missing'), { n: row.short })}

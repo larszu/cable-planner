@@ -111,7 +111,7 @@ describe('das Blatt traegt Modell UND Ort', () => {
   })
 
   it('haelt die Etiketten kanonisch deutsch', () => {
-    expect(AUDIT_LABEL['wrong-place']).toBe('Am falschen Ort')
+    expect(AUDIT_LABEL['wrong-place']).toBe('At the wrong place')
   })
 })
 

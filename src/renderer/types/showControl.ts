@@ -114,9 +114,9 @@ export type LauscherLage =
   | 'nicht-gebunden'
 
 export const LAUSCHER_LAGE_LABEL = {
-  aus: 'aus',
-  lauscht: 'lauscht',
-  'nicht-gebunden': 'eingeschaltet, aber nicht gebunden',
+  aus: 'off',
+  lauscht: 'listening',
+  'nicht-gebunden': 'switched on, but not bound',
 } satisfies Record<LauscherLage, string>
 
 export interface LauscherZustand {

@@ -50,7 +50,7 @@ export type SceneFormat =
 export const SCENE_FORMAT_LABEL: Readonly<Record<SceneFormat, string>> = {
   x32: 'X32 / M32',
   wing: 'WING',
-  unknown: 'nicht erkannt',
+  unknown: 'not recognised',
 }
 
 /** Ein Kanal, wie er in der Szenendatei steht. */

@@ -43,6 +43,7 @@ import {
   type SceneImport,
 } from '../types/sceneImport'
 import type { CsvTable } from './csv'
+import { kanonisch } from './kanonisch'
 
 /**
  * Die Kanal-Zeile.
@@ -138,10 +139,10 @@ export function parseSceneFile(text: string): SceneImport {
 export type SceneDiffKind = 'added' | 'removed' | 'renamed' | 'recolored'
 
 export const SCENE_DIFF_LABEL: Readonly<Record<SceneDiffKind, string>> = {
-  added: 'neu beschriftet',
-  removed: 'Beschriftung entfernt',
-  renamed: 'umbenannt',
-  recolored: 'Farbe geändert',
+  added: 'newly labelled',
+  removed: 'label removed',
+  renamed: 'renamed',
+  recolored: 'colour changed',
 }
 
 export interface SceneDiffRow {
@@ -227,7 +228,7 @@ export function sceneDiffTable(rows: readonly SceneDiffRow[]): CsvTable {
     headers: ['Ch', 'Was', 'Vorher', 'Nachher'],
     rows: rows.map((r) => [
       r.ch,
-      SCENE_DIFF_LABEL[r.kind],
+      kanonisch(`scene.diff.${r.kind}`, SCENE_DIFF_LABEL[r.kind]),
       r.kind === 'recolored' ? (r.beforeColor ?? NO_COLOR) : r.before || NO_NAME,
       r.kind === 'recolored' ? (r.afterColor ?? NO_COLOR) : r.after || NO_NAME,
     ]),

@@ -46,13 +46,14 @@ import type {
   CheckoutSignature,
 } from '../types/checkout'
 import type { CsvTable } from '../../lib/csv'
+import { kanonisch } from '../../lib/kanonisch'
 
 /** Welches Bein des Vorgangs unterschrieben wird. */
 export type HandoverLeg = 'out' | 'in'
 
 export const LEG_LABEL: Readonly<Record<HandoverLeg, string>> = {
-  out: 'Ausgabe',
-  in: 'Rückgabe',
+  out: 'Checkout',
+  in: 'Return',
 }
 
 /** Warum eine Unterschrift nicht angenommen wird. */
@@ -65,12 +66,11 @@ export type SignatureRefusal =
   | 'not-returned'
 
 export const SIGNATURE_REFUSAL_LABEL: Readonly<Record<SignatureRefusal, string>> = {
-  'no-name': 'Ohne Namen ist es keine Unterschrift.',
+  'no-name': 'Without a name it is not a signature.',
   'already-signed':
-    'Hier steht schon eine Unterschrift. Ein Beleg, der sich austauschen lässt, ist keiner — ' +
-    'eine Korrektur gehört als Notiz daneben.',
+    'There is already a signature here. A receipt that can be swapped out is no receipt — a correction belongs next to it as a note.',
   'not-returned':
-    'Der Container ist noch nicht zurück. Gegengezeichnet wird, was zurückgekommen ist.',
+    'The container is not back yet. Countersigned is what has come back.',
 }
 
 /**
@@ -131,10 +131,10 @@ export type SignatureState =
   | 'none'
 
 export const SIGNATURE_STATE_LABEL: Readonly<Record<SignatureState, string>> = {
-  both: 'beidseitig quittiert',
-  'out-only': 'nur Ausgabe quittiert',
-  'in-only': 'nur Rückgabe quittiert',
-  none: 'nicht quittiert',
+  both: 'signed both ways',
+  'out-only': 'only checkout signed',
+  'in-only': 'only return signed',
+  none: 'not signed',
 }
 
 export function signatureState(record: CheckoutRecord): SignatureState {
@@ -228,7 +228,7 @@ export function handoverSignatureTable(record: CheckoutRecord): CsvTable {
     const sig = leg === 'out' ? record.out.signature : record.in?.signature
     return [
       record.nodeLabel,
-      LEG_LABEL[leg],
+      kanonisch(`handover.leg.${leg}`, LEG_LABEL[leg]),
       sig?.name ?? NOT_SIGNED,
       sig ? datum(sig.at) : datum(leg === 'out' ? record.out.at : record.in?.at),
       sig?.note ?? '',

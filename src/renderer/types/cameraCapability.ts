@@ -37,9 +37,9 @@
 export type ControlSupport = 'supported' | 'unsupported' | 'unknown'
 
 export const CONTROL_SUPPORT_LABEL: Readonly<Record<ControlSupport, string>> = {
-  supported: 'unterstützt',
-  unsupported: 'nicht unterstützt',
-  unknown: 'nicht belegt',
+  supported: 'supported',
+  unsupported: 'not supported',
+  unknown: 'not stated',
 }
 
 /**
@@ -66,20 +66,20 @@ export type CameraControl =
   | 'preset-store'
 
 export const CAMERA_CONTROL_LABEL: Readonly<Record<CameraControl, string>> = {
-  'pan-tilt': 'Schwenken und Neigen',
+  'pan-tilt': 'Pan and tilt',
   zoom: 'Zoom',
-  focus: 'Schärfe',
-  iris: 'Blende',
-  gain: 'Verstärkung',
-  shutter: 'Verschluss',
-  'nd-filter': 'ND-Filter',
-  'white-balance': 'Weißabgleich',
-  'colour-temperature': 'Farbtemperatur',
-  'red-gain': 'Rot-Anteil',
-  'blue-gain': 'Blau-Anteil',
+  focus: 'Focus',
+  iris: 'Iris',
+  gain: 'Gain',
+  shutter: 'Shutter',
+  'nd-filter': 'ND filter',
+  'white-balance': 'White balance',
+  'colour-temperature': 'Colour temperature',
+  'red-gain': 'Red gain',
+  'blue-gain': 'Blue gain',
   detail: 'Detail',
-  'preset-recall': 'Preset abrufen',
-  'preset-store': 'Preset speichern',
+  'preset-recall': 'Recall preset',
+  'preset-store': 'Store preset',
 }
 
 /** Was ein Modell laut Fundstelle kann und was nicht. */

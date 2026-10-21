@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import deSrc from '../src/renderer/lib/i18n/de.ts?raw'
+// Teil des deutschen Woerterbuchs, den `de.ts` ausbreitet (#1128).
+import kanonischSrc from '../src/renderer/lib/kanonischDe.ts?raw'
 import { cableCatalog } from '../src/renderer/types/cableSpec'
 import { VIDEO_FORMATS } from '../src/renderer/types/videoFormat'
 
@@ -31,7 +33,7 @@ import { VIDEO_FORMATS } from '../src/renderer/types/videoFormat'
 // Deutsch dort nichts — geschrieben in `Cable.notes`, also in die
 // Projektdatei. Die Frage dieses Tests bleibt dieselbe; sie wird nur an der
 // Stelle gestellt, an der die Quelle jetzt wirklich liegt.
-const deLines = deSrc.split('\n')
+const deLines = (deSrc + '\n' + kanonischSrc).split('\n')
 
 /** Die englische Quelle je Katalog-Schluessel — aus dem Katalog, nicht aus
  *  einem Woerterbuch. */

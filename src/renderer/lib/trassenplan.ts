@@ -39,6 +39,7 @@ import type { CsvCell, CsvTable } from './csv'
 import { DEFAULT_LENGTH_ESTIMATION } from './cableLengthEstimate'
 import { gebaeudeSzene, type GebaeudeSzene, type SzeneRaum, type SzeneSchacht } from './gebaeudeSzene'
 import { esc, fmt, quelle, vergleich, type Uebersetzen } from './druckblatt'
+import { kanonisch } from './kanonisch'
 
 export type DurchgangArt = 'raumgrenze' | 'schachtzugang' | 'geschossdecke' | 'ohne-weg'
 
@@ -47,10 +48,10 @@ const ART_REIHE: readonly DurchgangArt[] = ['raumgrenze', 'schachtzugang', 'gesc
 
 /** Kanonisch — geht in den Stempel ein. Die Oberfläche übersetzt über `durchgangArtText`. */
 export const DURCHGANG_ART_LABEL: Record<DurchgangArt, string> = {
-  raumgrenze: 'Raumgrenze',
-  schachtzugang: 'Schachtzugang',
-  geschossdecke: 'Geschossdecke im Schacht',
-  'ohne-weg': 'Etagenwechsel ohne Schacht',
+  raumgrenze: 'Room boundary',
+  schachtzugang: 'Shaft access',
+  geschossdecke: 'Floor slab in the shaft',
+  'ohne-weg': 'Floor change without a shaft',
 }
 
 export interface Durchgang {
@@ -210,7 +211,7 @@ interface Worte {
 }
 
 const KANONISCH: Worte = {
-  art: (a) => DURCHGANG_ART_LABEL[a],
+  art: (a) => kanonisch(`trassen.kind.${a}`, DURCHGANG_ART_LABEL[a]),
   ohneAngabe: 'ohne Angabe',
   mantelFehlt: (n) => `Mantel/Brandklasse fehlt bei ${n} Kabel${n === 1 ? '' : 'n'}`,
   grund: (g) =>

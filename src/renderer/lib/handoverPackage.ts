@@ -13,6 +13,7 @@ import { buildCableBomRows, cableBomTable } from './installerLists'
 import { stampLine, type DocumentStamp } from './documentStamp'
 import { buildDocQrPayload } from './qrPayload'
 import { INSTALL_STATUS_LABEL, type InstallStatus } from '../types/lifecycle'
+import { kanonisch } from './kanonisch'
 
 const fmtDate = (iso?: string): string => {
   if (!iso) return '—'
@@ -179,7 +180,7 @@ export const buildHandoverManifest = (
   lines.push('')
   for (const key of Object.keys(statusCounts)) {
     const label =
-      key === 'unset' ? 'ohne Status' : INSTALL_STATUS_LABEL[key as InstallStatus] ?? key
+      key === 'unset' ? 'ohne Status' : kanonisch(`lifecycle.status.${key as InstallStatus}`, INSTALL_STATUS_LABEL[key as InstallStatus]) ?? key
     lines.push(`- ${label}: ${statusCounts[key]}`)
   }
   lines.push(`- Kabel getestet: **${tested}** (davon PASS: **${passed}**)`)

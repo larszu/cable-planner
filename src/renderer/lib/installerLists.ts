@@ -24,6 +24,7 @@ import type { SplitResult, StockShortfall } from './cableSplit'
 import { portDisplayLabel } from './portLabel'
 import type { CsvCell, CsvTable } from './csv'
 import { csvFromTable, type DocumentStamp } from './documentStamp'
+import { kanonisch } from './kanonisch'
 
 /**
  * ADR-001 Inkrement 2 — hier stand die Aufloesung ein zweites Mal von Hand.
@@ -53,7 +54,7 @@ const portObj = (eq: EquipmentItem | undefined, portId: string): Port | undefine
   eq?.outputs.find((x) => x.id === portId) ?? eq?.inputs.find((x) => x.id === portId)
 
 const statusLabel = (c: Cable): string =>
-  c.installStatus ? INSTALL_STATUS_LABEL[c.installStatus] : ''
+  c.installStatus ? kanonisch(`lifecycle.status.${c.installStatus}`, INSTALL_STATUS_LABEL[c.installStatus]) : ''
 
 const testLabel = (c: Cable): string => {
   if (!c.testResult) return ''

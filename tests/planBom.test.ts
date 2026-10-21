@@ -179,9 +179,9 @@ describe('pickListCsv', () => {
 
 describe('outcomeLabel', () => {
   it('unterscheidet die drei Zustände im Klartext', () => {
-    expect(outcomeLabel('matched-by-type')).toBe('gedeckt')
-    expect(outcomeLabel('proposed-by-name')).toBe('VORSCHLAG')
-    expect(outcomeLabel('unmatched')).toBe('nicht im Lager')
+    expect(outcomeLabel('matched-by-type')).toBe('covered')
+    expect(outcomeLabel('proposed-by-name')).toBe('PROPOSAL')
+    expect(outcomeLabel('unmatched')).toBe('not in stock')
   })
 })
 

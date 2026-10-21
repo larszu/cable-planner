@@ -158,12 +158,12 @@ export type MicFindingKind =
   | 'carried-unconfirmed'
 
 export const MIC_FINDING_LABEL: Readonly<Record<MicFindingKind, string>> = {
-  'channel-double-booked': 'Zwei Personen auf demselben Kanal',
-  'pack-double-booked': 'Ein Sender an zwei Personen',
-  'performer-twice': 'Eine Person auf zwei Kanälen',
-  'channel-missing': 'Kanal steht nicht mehr im Rig-Plan',
-  'battery-unrecorded': 'Akku-Wechsel nicht festgehalten',
-  'carried-unconfirmed': 'Übernommen und nicht bestätigt',
+  'channel-double-booked': 'Two people on the same channel',
+  'pack-double-booked': 'One transmitter on two people',
+  'performer-twice': 'One person on two channels',
+  'channel-missing': 'Channel is no longer in the rig plan',
+  'battery-unrecorded': 'Battery change not recorded',
+  'carried-unconfirmed': 'Carried over and not confirmed',
 }
 
 export interface MicFinding {

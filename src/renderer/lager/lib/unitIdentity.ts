@@ -74,9 +74,9 @@ export function unitLabel(unit: InventoryUnit, audience: IdentityAudience): stri
 export type IdentityFindingKind = 'serial-duplicate' | 'houseref-duplicate' | 'no-identity'
 
 export const IDENTITY_FINDING_LABEL: Readonly<Record<IdentityFindingKind, string>> = {
-  'serial-duplicate': 'Zwei Einheiten mit derselben Herstellernummer',
-  'houseref-duplicate': 'Zwei Einheiten mit derselben Hausreferenz',
-  'no-identity': 'Einheit ganz ohne Nummer',
+  'serial-duplicate': 'Two units with the same serial number',
+  'houseref-duplicate': 'Two units with the same house reference',
+  'no-identity': 'Unit without any number',
 }
 
 export interface IdentityFinding {

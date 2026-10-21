@@ -71,8 +71,8 @@ export type ControlTarget =
   | 'simulator'
 
 export const CONTROL_TARGET_LABEL = {
-  device: 'Anlage',
-  simulator: 'Prüfstand (Emulator)',
+  device: 'Installation',
+  simulator: 'Test bench (emulator)',
 } satisfies Record<ControlTarget, string>
 
 /**
