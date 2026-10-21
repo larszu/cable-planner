@@ -186,4 +186,20 @@ export default {
   portable: {
     artifactName: 'LZ-Cable-Planner-${version}-portable.${ext}',
   },
+  // Linux like lz-scopes: AppImage + deb, the arch comes from the command line (--x64/--arm64,
+  // release.yml: one runner per arch), so the native modules are rebuilt on matching hardware.
+  linux: {
+    target: ['AppImage', 'deb'],
+    artifactName: 'LZ-Cable-Planner-${version}-${arch}.${ext}',
+    executableName: 'lz-cable-planner',
+    icon: 'build/icon.png',
+    category: 'Office;Engineering',
+    maintainer: 'Lars Zumpe <209382770+larszu@users.noreply.github.com>',
+    vendor: 'Lars Zumpe',
+    synopsis: 'Broadcast cabling planner',
+  },
+  deb: {
+    // keytar loads libsecret at runtime
+    depends: ['libsecret-1-0'],
+  },
 }
