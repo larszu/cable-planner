@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 // @ts-expect-error — reines JS-Hilfsmodul ohne Typen, absichtlich
-import { messeDatenBeschriftungen, mapWerte } from '../scripts/quellsprache.mjs'
+import { messeDatenBeschriftungen, mapWerte, importierteMapWerte } from '../scripts/quellsprache.mjs'
 import { PRESETS } from '../src/renderer/lib/modules'
 import { de } from '../src/renderer/lib/i18n/de'
 
@@ -43,5 +43,13 @@ describe('Maps als t()-Fallback', () => {
   it('liest die Werte einer Map, die an t() geht', () => {
     const quelle = "const STATUS_LABEL: Record<S, string> = {\n  open: 'offen',\n  built: { x: 'gebaut' },\n}"
     expect(mapWerte(quelle, 'STATUS_LABEL')).toEqual(['offen', 'gebaut'])
+  })
+})
+
+describe('importierte Maps', () => {
+  it('folgt dem relativen Import in die Quelldatei', () => {
+    const datei = resolve(__dirname, '../src/renderer/components/Settings/tabs/HotkeysTab.tsx')
+    const werte = importierteMapWerte(readFileSync(datei, 'utf8'), datei, 'HOTKEY_ACTION_LABEL') as string[]
+    expect(werte).toContain('Save project')
   })
 })

@@ -62,9 +62,9 @@ export type TallyVerdict =
   | 'unchecked'
 
 export const TALLY_VERDICT_LABEL: Readonly<Record<TallyVerdict, string>> = {
-  verified: 'gesehen und richtig',
-  lying: 'zeigt etwas Falsches',
-  dark: 'bleibt dunkel',
+  verified: 'seen and correct',
+  lying: 'shows something wrong',
+  dark: 'stays dark',
   unchecked: NOT_CHECKED,
 }
 

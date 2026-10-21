@@ -168,14 +168,14 @@ export const PROTOCOL_INFO = {
     adressen: 'index',
     rollen: ['input', 'crosspoint-output'],
     hinweis:
-      'Text-Protokoll über TCP. Die Nummern sind die Positionen in der Anschlussliste — das legt das Protokoll selbst so fest, es ist nichts einzutragen.',
+      'Text protocol over TCP. The numbers are the positions in the port list; the protocol itself defines this, nothing needs to be entered.',
   },
   atem: {
     label: 'Blackmagic ATEM',
     adressen: 'declared',
     rollen: ['input', 'program', 'preview', 'aux'],
     hinweis:
-      'Der Mischer spricht kein Text-Protokoll; gesendet wird über die ATEM-Bibliothek. Jeder Anschluss braucht seine Nummer am Mischer — die Position in der Liste sagt sie NICHT, weil Aux-Ausgänge und Mediaplayer dort in einem anderen Zahlenraum liegen.',
+      'The switcher speaks no text protocol; commands go through the ATEM library. Every port needs its number on the switcher. The position in the list does NOT give it, because aux outputs and media players live in a different number range there.',
   },
   companion: {
     label: 'Bitfocus Companion (all vendors, ~500 modules)',
@@ -185,7 +185,7 @@ export const PROTOCOL_INFO = {
     adressen: 'declared',
     rollen: ['input', 'crosspoint-output'],
     hinweis:
-      'Companion spricht das Protokoll, der Plan sagt WAS geschaltet wird. Voraussetzung: eine laufende Companion-Instanz mit dem Modul des Geräts und EINER Schaltfläche, deren Route-Aktion ihre Argumente aus zwei Custom-Variablen zieht. Damit ist jedes Gerät bedienbar, für das es ein Companion-Modul gibt — ohne dass hier ein Protokoll nachgebaut wird.',
+      'Companion speaks the protocol, the plan says WHAT is switched. Requires a running Companion instance with the device module and ONE button whose route action takes its arguments from two custom variables. That makes every device with a Companion module controllable, without re-implementing a protocol here.',
   },
   text: {
     label: 'Documented text protocol (Ross, Panasonic, Roland, Quartz …)',
@@ -197,7 +197,7 @@ export const PROTOCOL_INFO = {
     adressen: 'declared',
     rollen: ['input', 'crosspoint-output'],
     hinweis:
-      'Für jedes Gerät, das zeilenorientierten Text über TCP versteht. Die Form der Zeile, das Zeilenende und die Zählweise stehen im Handbuch des Geräts und werden hier eingetragen — geraten wird nichts, und vor dem Senden steht der Text wortwörtlich im Dialog.',
+      'For any device that understands line-based text over TCP. The line format, line ending and numbering come from the device manual and are entered here. Nothing is guessed, and before sending the exact text is shown in the dialog.',
   },
 } satisfies Record<ControlProtocol, ProtocolInfo>
 

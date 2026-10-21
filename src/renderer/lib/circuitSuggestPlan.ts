@@ -30,7 +30,7 @@ import type { CableType } from '../types/cable'
 import { circuitFromProject, istStromKabel, LEERE_SIM, type CircuitSim } from './circuitFromProject'
 import { schaltungsVorschlaege, type Befund, type TafelZeile } from './circuitSuggest'
 import { CIRCUIT_KIND_INFO } from '../types/circuit'
-import { tr } from './i18n'
+import { format, tr } from './i18n'
 
 /** Eine Ader, die sich so in den Plan eintragen lässt. */
 export interface PlanKante {
@@ -143,7 +143,10 @@ export const planVorschlaege = (
       const a = nachId.get(k.fromNode)
       const b = nachId.get(k.toNode)
       if (!a || !b) {
-        hindernis = `Gerät „${geraetName(a, k.fromNode)}" oder „${geraetName(b, k.toNode)}" steht nicht mehr im Plan.`
+        hindernis = format(
+          tr('circuit.plan.deviceGone', 'Device “{a}” or “{b}” is no longer in the plan.'),
+          { a: geraetName(a, k.fromNode), b: geraetName(b, k.toNode) },
+        )
         break
       }
       const pa = anschlussFuer(a, k.fromTerminal, belegt)
@@ -152,10 +155,14 @@ export const planVorschlaege = (
       if (fehlt) {
         const bauart = fehlt.eq.circuitKind
           ? tr(`circuit.kind.${fehlt.eq.circuitKind}`, CIRCUIT_KIND_INFO[fehlt.eq.circuitKind].label)
-          : 'Gerät'
-        hindernis =
-          `${bauart} „${fehlt.eq.name}" hat keinen freien Anschluss mit Klemme ${fehlt.klemme}. ` +
-          'Die Klemme steht in den Eigenschaften am Anschluss — ohne sie lässt sich die Ader nicht eintragen.'
+          : tr('circuit.plan.device', 'Device')
+        hindernis = format(
+          tr(
+            'circuit.plan.noTerminal',
+            '{kind} “{name}” has no free port with terminal {terminal}. The terminal is set in the port properties; without it the wire cannot be entered.',
+          ),
+          { kind: bauart, name: fehlt.eq.name, terminal: String(fehlt.klemme) },
+        )
         break
       }
       belegt.add(pa!.id)

@@ -135,7 +135,7 @@ describe('der Vorschlag, der sich nicht eintragen lässt', () => {
     expect(r.vorschlaege.length).toBeGreaterThan(0)
     const gehindert = r.vorschlaege.filter((v) => v.hindernis !== undefined)
     expect(gehindert.length).toBeGreaterThan(0)
-    expect(gehindert.some((v) => v.hindernis?.includes('Klemme 2'))).toBe(true)
+    expect(gehindert.some((v) => v.hindernis?.includes('terminal 2'))).toBe(true)
     expect(gehindert.some((v) => v.hindernis?.includes('W2'))).toBe(true)
     // Und er traegt dann auch keine halbe Kantenliste.
     for (const v of gehindert) expect(v.kanten).toEqual([])
@@ -169,7 +169,7 @@ describe('der Vorschlag, der sich nicht eintragen lässt', () => {
   it('sagt in derselben Zeile, was zu tun ist', () => {
     const r = planVorschlaege(halbeWechselschaltung([0, 1, undefined]))
     const g = r.vorschlaege.find((v) => v.hindernis !== undefined)
-    expect(g?.hindernis).toContain('Eigenschaften')
+    expect(g?.hindernis).toContain('properties')
   })
 
   it('behält die Wahrheitstafel auch dann', () => {

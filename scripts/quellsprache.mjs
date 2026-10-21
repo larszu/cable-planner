@@ -41,7 +41,7 @@
 // keine englische Zeile, sondern zwei Feldnamen.
 // ───────────────────────────────────────────────────────────────────────────
 import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { join, relative, sep } from 'node:path'
+import { dirname, join, relative, sep } from 'node:path'
 
 /** Woerter, die es nur im Deutschen gibt. */
 const DEUTSCH = [
@@ -455,8 +455,10 @@ export const messeSprachmix = (wurzel, quellsprache) => {
  * AUCH MAPS, deren Werte an `t()` gehen: `t(`annotations.status.${s}`,
  * STATUS_LABEL[s])` liest den Fallback aus `const STATUS_LABEL = { open:
  * 'offen' }`. Erkannt wird die Map in DERSELBEN Datei wie der Aufruf; alle
- * ihre Zeichenketten-Werte werden klassifiziert. Eine importierte Map sieht
- * die Messung nicht — dafuer greift dort meist `label:` von oben.
+ * ihre Zeichenketten-Werte werden klassifiziert. Steht die Map nicht in der
+ * Datei, folgt die Messung dem RELATIVEN Import (`import { X } from './y'`,
+ * auch `X as Z`) eine Ebene weit in die Quelldatei. Paket-Importe und
+ * Weiter-Exporte (`export { X } from`) verfolgt sie nicht.
  *
  * `vendor/` ist ausgenommen: die Kopie gehoert dem Upstream-Repo und wird
  * dort gepflegt (siehe `vendor/lz-scopes/VENDOR.md`).
@@ -483,6 +485,25 @@ export const mapWerte = (quelle, name) => {
   return [...quelle.slice(auf, ende).matchAll(MAP_WERT)].map((m) => m[2])
 }
 
+/** Loest `name` ueber einen relativen Import auf und liest die Map dort. */
+export const importierteMapWerte = (quelle, datei, name) => {
+  for (const m of quelle.matchAll(/import\s*(?:type\s*)?\{([^}]*)\}\s*from\s*['"](\.[^'"]+)['"]/g)) {
+    const teile = m[1].split(',').map((x) => x.trim().split(/\s+as\s+/))
+    const treffer = teile.find((t) => (t[1] ?? t[0]) === name)
+    if (!treffer) continue
+    const basis = join(dirname(datei), m[2]).replace(/\.js$/, '')
+    for (const kandidat of [basis, `${basis}.ts`, `${basis}.tsx`, join(basis, 'index.ts')]) {
+      try {
+        if (!statSync(kandidat).isFile()) continue
+      } catch {
+        continue
+      }
+      return mapWerte(ohneKommentare(readFileSync(kandidat, 'utf8')), treffer[0])
+    }
+  }
+  return []
+}
+
 export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'
   const funde = []
@@ -493,7 +514,10 @@ export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
     const quelle = ohneKommentare(readFileSync(datei, 'utf8'))
     const texte = [...quelle.matchAll(DATEN_BESCHRIFTUNG)].map((m) => m[2])
     const maps = new Set([...quelle.matchAll(MAP_ALS_FALLBACK)].map((m) => m[1]))
-    for (const name of maps) texte.push(...mapWerte(quelle, name))
+    for (const name of maps) {
+      const hier = mapWerte(quelle, name)
+      texte.push(...(hier.length > 0 ? hier : importierteMapWerte(quelle, datei, name)))
+    }
     for (const text of texte) {
       if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })
     }

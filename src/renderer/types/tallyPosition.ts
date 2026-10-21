@@ -59,10 +59,10 @@ export type TallyTransport =
 
 export const TALLY_TRANSPORT_LABEL: Readonly<Record<TallyTransport, string>> = {
   'tsl-umd-v31': 'TSL UMD v3.1',
-  gpio: 'GPIO / Kontakt',
-  ndi: 'NDI-Metadaten',
-  'switcher-native': 'Mischer selbst',
-  unknown: 'nicht festgelegt',
+  gpio: 'GPIO / contact',
+  ndi: 'NDI metadata',
+  'switcher-native': 'Switcher itself',
+  unknown: 'not set',
 }
 
 /**
@@ -88,13 +88,13 @@ export type TallyObservation =
   | 'not-checked'
 
 export const TALLY_OBSERVATION_LABEL: Readonly<Record<TallyObservation, string>> = {
-  red: 'rot',
-  green: 'grün',
-  off: 'aus',
-  blinking: 'blinkt',
-  'wrong-colour': 'falsche Farbe',
-  'wrong-position': 'falsche Position',
-  'not-checked': 'nicht geprüft',
+  red: 'red',
+  green: 'green',
+  off: 'off',
+  blinking: 'blinking',
+  'wrong-colour': 'wrong colour',
+  'wrong-position': 'wrong position',
+  'not-checked': 'not checked',
 }
 
 /** Eine Sichtprüfung an der Lampe. */
@@ -142,6 +142,6 @@ export interface TallyPosition {
 }
 
 /** Was auf dem Blatt steht, wo nichts festgehalten wurde. */
-export const NOT_CHECKED = 'nicht geprüft'
+export const NOT_CHECKED = 'not checked'
 export const NO_LAMP = 'keine Lampe benannt'
 export const NO_ENDPOINT = 'keine Adresse hinterlegt'
