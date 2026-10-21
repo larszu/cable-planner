@@ -84,6 +84,12 @@
   account. Pick a country to open its frequency table (Germany: BNetzA
   Vfg. 37/2026 and SRD) and see which channels fall outside it. Export the
   list as CSV or print it / save as PDF.
+- **LED walls.** Panel types, grid, weight, power and sending-card ports per
+  wall, a numbered pixel map, and the source crop: enter a source resolution
+  (1920 × 1080 by default) and get the centred X, width, Y and height to type
+  into the processor so the source fills the wall undistorted; tap a value to
+  copy it. The crop idea follows
+  [LedCropCalc](https://github.com/fiverecords/LedCropCalc).
 - **On site.** Phones join by QR code, tick off work and send photos back into
   the plan. Photos attach to a single device or to its device type (shown on
   every device of that type); adding one to a device asks whether it also

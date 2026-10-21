@@ -202,3 +202,56 @@ export function pixelMapSvg(panel: LedPanelType, columns: number, rows: number):
     `<rect width="${summe.pixels.x}" height="${summe.pixels.y}" fill="#132040"/>${rahmen}</svg>`
   )
 }
+
+// ─── Zuschnitt einer Quelle auf die Wand (#1000) ───────────────────────────
+// Idee nach LedCropCalc (fiverecords/LedCropCalc), selbst hergeleitet und
+// nicht kopiert: die Quelle wird so skaliert, dass sie die Wand ganz fuellt
+// (cover), die ueberstehende Achse wird mittig beschnitten. Die Werte sind
+// Quellpixel, wie ein Prozessor-Crop (X, Breite, Y, Hoehe) sie erwartet; die
+// nicht beschnittene Achse traegt die volle Quellgroesse, nicht 0 — Novastar
+// V-Can etwa will dort einen expliziten Wert.
+export interface Zuschnitt {
+  achse: 'keine' | 'x' | 'y'
+  x: number
+  breite: number
+  y: number
+  hoehe: number
+  /** Wandpixel je Quellpixel. */
+  skalierung: number
+}
+
+export function zuschnitt(
+  wandB: number,
+  wandH: number,
+  quelleB: number,
+  quelleH: number,
+): Zuschnitt | undefined {
+  if (![wandB, wandH, quelleB, quelleH].every((n) => Number.isFinite(n) && n > 0)) return undefined
+  // Kreuzprodukt statt Quotient: bei ganzen Zahlen exakt, 16:9 gegen 1920×1080
+  // faellt sonst durch eine Rundung in „beschneide 0 px".
+  const quelle = quelleB * wandH
+  const wand = wandB * quelleH
+  if (quelle === wand) {
+    return { achse: 'keine', x: 0, breite: quelleB, y: 0, hoehe: quelleH, skalierung: wandB / quelleB }
+  }
+  if (quelle > wand) {
+    const breite = Math.min(quelleB, Math.round((quelleH * wandB) / wandH))
+    return {
+      achse: 'x',
+      x: Math.floor((quelleB - breite) / 2),
+      breite,
+      y: 0,
+      hoehe: quelleH,
+      skalierung: wandH / quelleH,
+    }
+  }
+  const hoehe = Math.min(quelleH, Math.round((quelleB * wandH) / wandB))
+  return {
+    achse: 'y',
+    x: 0,
+    breite: quelleB,
+    y: Math.floor((quelleH - hoehe) / 2),
+    hoehe,
+    skalierung: wandB / quelleB,
+  }
+}
