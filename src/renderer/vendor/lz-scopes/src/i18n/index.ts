@@ -64,6 +64,20 @@ export function setLang(l: Lang) {
   if (typeof document !== 'undefined') document.documentElement.lang = l;
 }
 
+const listeners = new Set<() => void>();
+/** Run `fn` after every language change by `useLang` (labels built at module load rebuild themselves). */
+export function onLangChange(fn: () => void) { listeners.add(fn); }
+
+/**
+ * Embedding hosts (#embed): follow the host app's language. Ignores the stored lz-scopes choice,
+ * leaves the host's `<html lang>` alone and relabels patterns and scope names in place.
+ */
+export function useLang(l: Lang) {
+  if (l === current) return;
+  current = l;
+  for (const fn of listeners) fn();
+}
+
 /** Save the choice and reload the window (sources and layout are persisted by main.ts). */
 export function setLangPref(p: LangPref, reload = true) {
   try {

@@ -40,7 +40,7 @@ export function mountMeterCheck(box: HTMLElement, host: MeterCheckHost) {
   let ref = '', mapMode: 'dy' | 'duv' | 'cct' = 'dy', range = 5;
   let targetId = 'd65', customXy: XY = [0.3127, 0.329], primSource: 'measured' | 'xy' = 'measured', primXy = ['', '', '', '', '', ''];
   let whitePoint = '';
-  let seq: PatchSequencer<XYZ> | null = null, running = false, progress = '', confirm: ((ok: boolean) => void) | null = null;
+  let seq: PatchSequencer<XYZ> | null = null, running = false, progress = '', answer: ((ok: boolean) => void) | null = null;
   let flicker: FlickerResult | null = null, flickerMsg = '';
   const map = h('canvas', { class: 'heat', width: 960, height: 300 });
   let stats: PointStat[] = [];
@@ -48,8 +48,8 @@ export function mountMeterCheck(box: HTMLElement, host: MeterCheckHost) {
   const status = () => oppleMeter.state === 'connected' ? t('led.m.connected', { model: oppleMeter.model === 'lm4' ? 'Light Master 4' : 'Light Master 3' }) : oppleMeter.message || t('led.m.notConnected');
   oppleMeter.addEventListener('status', () => render());
   document.addEventListener('keydown', (e) => {
-    if (!confirm || !box.isConnected || (e.target as Element | null)?.closest?.('input, select, textarea')) return;
-    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); confirm(true); }
+    if (!answer || !box.isConnected || (e.target as Element | null)?.closest?.('input, select, textarea')) return;
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); answer(true); }
   });
 
   async function run() {
@@ -64,8 +64,8 @@ export function mountMeterCheck(box: HTMLElement, host: MeterCheckHost) {
       if (!auto) {
         progress = t('led.m.stepPlace', { i: i + 1, n: plan.length, point: st.point, colour: COLOUR_LABELS[st.colour] });
         render();
-        const ok = await new Promise<boolean>((res) => { confirm = res; signal.addEventListener('abort', () => res(false), { once: true }); });
-        confirm = null;
+        const ok = await new Promise<boolean>((res) => { answer = res; signal.addEventListener('abort', () => res(false), { once: true }); });
+        answer = null;
         if (!ok) return null;
       }
       progress = t('led.m.stepMeasuring', { i: i + 1, n: plan.length, point: st.point, colour: COLOUR_LABELS[st.colour] }); render();
@@ -79,7 +79,7 @@ export function mountMeterCheck(box: HTMLElement, host: MeterCheckHost) {
     }, { settleMs: auto ? settle : 300 });
     try { await seq.run(); progress = seq.stopped ? t('led.m.aborted') : t('led.m.done'); }
     catch (e) { progress = t('led.m.error', { msg: (e as Error).message }); }
-    running = false; seq = null; confirm = null; render();
+    running = false; seq = null; answer = null; render();
   }
 
   function evaluate() {
@@ -143,8 +143,8 @@ export function mountMeterCheck(box: HTMLElement, host: MeterCheckHost) {
         running
           ? button(t('led.m.abort'), () => seq?.stop())
           : button(t('led.m.start'), run, { variant: 'primary' }),
-        running && confirm && button(t('led.m.measureSpace'), () => confirm?.(true), { variant: 'primary' }),
-        running && confirm && button(t('led.m.skip'), () => confirm?.(false)),
+        running && answer && button(t('led.m.measureSpace'), () => answer?.(true), { variant: 'primary' }),
+        running && answer && button(t('led.m.skip'), () => answer?.(false)),
         results.size > 0 && button(t('led.m.clear'), () => { results.clear(); stats = []; ref = ''; host.onStats([]); render(); }),
         h('span', { class: 'hint', role: 'status' }, progress)),
       hint(t('led.m.howto')),

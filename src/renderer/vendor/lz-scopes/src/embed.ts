@@ -8,7 +8,7 @@ import { SCOPE_LABELS, type ScopeType, type Unit } from './graticule';
 import { DEFAULT_SKIN, defaultPanel, drawPanel, panelSignature, type PanelState, type Tint } from './panel';
 import { Renderer } from './renderer';
 import type { Source } from './sources';
-import { t } from './i18n';
+import { t, useLang, type Lang } from './i18n';
 // DOM helpers only, no app styles: hosts embed this next to their own CSS (the CSS below is all it brings)
 import { h } from './ui/dom';
 import { select } from './ui/controls';
@@ -23,7 +23,15 @@ export interface ScopeViewOptions {
   /** Text when no source is set. */
   emptyText?: string;
   onScopesChange?: (scopes: ScopeType[]) => void;
+  /**
+   * UI language of the host app ('de' | 'en'). Scope and pattern names follow it instead of the
+   * system or stored lz-scopes language; change it later with `setLang`. Omitted: standalone behaviour.
+   */
+  lang?: Lang;
 }
+
+/** Follow the host app's language (pattern and scope names); for hosts that use PATTERNS without a ScopeView. */
+export function setScopesLang(l: Lang) { useLang(l); }
 
 const CSS = `
 .lzs-root{--lzs-radius:var(--radius-s,6px);position:relative;display:grid;gap:3px;width:100%;height:100%;background:#0b0c0e;font:11px system-ui,sans-serif;color:#d9dce0}
@@ -46,10 +54,11 @@ export class ScopeView {
   private lastStats = 0;
   private dirty = true;
   private sigs = new Map<number, string>();
-  private opts: Required<Omit<ScopeViewOptions, 'onScopesChange' | 'emptyText'>> & ScopeViewOptions;
+  private opts: Required<Omit<ScopeViewOptions, 'onScopesChange' | 'emptyText' | 'lang'>> & ScopeViewOptions;
 
   constructor(container: HTMLElement, options: ScopeViewOptions = {}) {
     if (!styled) { document.head.append(h('style', {}, CSS)); styled = true; }
+    if (options.lang) useLang(options.lang);
     this.opts = { scopes: ['wf-luma', 'vector'], unit: 'percent', tint: 'green', maxSamples: 1_000_000, selectors: true, ...options };
     this.glCanvas = h('canvas', { class: 'lzs-gl' });
     this.root = h('div', { class: 'lzs-root' }, this.glCanvas);
@@ -60,6 +69,9 @@ export class ScopeView {
   }
 
   setSource(src: Source | null) { this.source = src; }
+
+  /** Switch to the host's new UI language and relabel the panel selectors. */
+  setLang(l: Lang) { useLang(l); this.setScopes(this.opts.scopes); }
 
   setOptions(o: Partial<Pick<ScopeViewOptions, 'unit' | 'tint' | 'maxSamples'>>) { Object.assign(this.opts, o); this.dirty = true; }
 

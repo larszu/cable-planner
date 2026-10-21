@@ -5,12 +5,12 @@
 // full-range RGB and are clipped to 0.
 
 import { bt709Oetf, hlgFromNits, pqEncode, type Colorspace } from './color';
-import { LED_PATTERNS } from './led/patterns';
+import { ledPatterns } from './led/patterns';
 import { avCalibration } from './audio/avcal';
-import { CodeRaster, NOTE_16, PATTERNS_16, PLUGE_16, drawRaster, plugeBoxes, plugeRaster, toFrame16, type Frame16 } from './patterns16';
+import { CodeRaster, note16, patterns16, PLUGE_16, drawRaster, plugeBoxes, plugeRaster, toFrame16, type Frame16 } from './patterns16';
 import { smpteLzRaster } from './egg';
 import { ramp10Labels, ramp10Raster } from './deep';
-import { lang, t, type Key } from './i18n';
+import { lang, onLangChange, t, type Key } from './i18n';
 
 export interface PatternDef {
   id: string;
@@ -298,7 +298,10 @@ function avSync(ctx: CanvasRenderingContext2D, w: number, h: number) {
   text(ctx, cal.note ? t('pattern.av.lead', { ms: Math.round(cal.videoLeadMs), note: cal.note }) : t('pattern.av.uncalibrated'), w / 2, h * 0.4, h * 0.022, css(gray(0.55)));
 }
 
-export const PATTERNS: PatternDef[] = [
+/** Built once per UI language: names, groups and notes are translated here. */
+function buildPatterns(): PatternDef[] {
+const NOTE_16 = note16();
+const PATTERNS: PatternDef[] = [
   // Vollfelder
   { id: 'red', name: t('pattern.red'), group: t('pattern.group.full'), draw: (c, w, h) => fill(c, [255, 0, 0], 0, 0, w, h) },
   { id: 'green', name: t('pattern.green'), group: t('pattern.group.full'), draw: (c, w, h) => fill(c, [0, 255, 0], 0, 0, w, h) },
@@ -475,7 +478,7 @@ export const PATTERNS: PatternDef[] = [
 ];
 
 // LED wall patterns (#10), drawn from the wall settings in src/led/wall.ts
-PATTERNS.push(...LED_PATTERNS);
+PATTERNS.push(...ledPatterns());
 
 // LZ display test set (Lars Zumpe Medienproduktion, bundled 1920×1080)
 // [number, file slug]; the slug is part of the bundled file name, the caption comes from pattern.lz.<n>
@@ -497,7 +500,7 @@ PATTERNS.splice(PATTERNS.findIndex((p) => p.id === 'smpte75') + 1, 0, {
 });
 
 // 16-bit patterns (issue #7): BT.2111-3 HDR bars, and exact frames for the BT.814 PLUGE
-for (const p of PATTERNS_16) {
+for (const p of patterns16()) {
   PATTERNS.push({
     id: p.id, name: p.name, group: 'HDR', transfer: p.transfer, colorspace: p.colorspace, note: NOTE_16,
     draw: (c, w, h) => drawRaster(c, p.raster(w, h), p.full), frame16: (w, h) => toFrame16(p.raster(w, h), p.full, p.colorspace),
@@ -520,6 +523,13 @@ PATTERNS.push({
   draw: (c, w, h) => drawRaster(c, ramp10Raster(w, h), true), frame16: (w, h) => toFrame16(ramp10Raster(w, h), true, '709'),
   raster: ramp10Raster, rasterFull: true, labels: ramp10Labels,
 });
+
+return PATTERNS;
+}
+
+export const PATTERNS: PatternDef[] = buildPatterns();
+// embedded hosts switch the language at run time (useLang): relabel in place, same array
+onLangChange(() => { PATTERNS.splice(0, PATTERNS.length, ...buildPatterns()); });
 
 export const RESOLUTIONS: [number, number][] = [[1280, 720], [1920, 1080], [2560, 1440], [3840, 2160], [1920, 1200], [1024, 768]];
 

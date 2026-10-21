@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { MonitorPlay, X } from 'lucide-react'
-import { PATTERNS, RESOLUTIONS, patternById, renderPattern } from '../../vendor/lz-scopes/src'
+import { PATTERNS, RESOLUTIONS, patternById, renderPattern, setScopesLang } from '../../vendor/lz-scopes/src'
+import { useUiStore } from '../../store/uiStore'
 import { cablePlannerApi, hasDesktopBridge, type TestPatternScreen } from '../../lib/bridge'
 import { format, useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
@@ -25,6 +26,8 @@ import type { EquipmentItem } from '../../types/equipment'
  */
 export default function TestPatternPanel({ equipment }: { equipment: EquipmentItem }) {
   const t = useTranslation()
+  // Musternamen in der Sprache der App (no-op, solange sie sich nicht aendert)
+  setScopesLang(useUiStore((s) => s.language))
   const [musterId, setMusterId] = useState('smpte75')
   const [label, setLabel] = useState(equipment.name)
   const [aufloesung, setAufloesung] = useState('native')
