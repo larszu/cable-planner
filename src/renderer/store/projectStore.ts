@@ -389,6 +389,11 @@ export interface ProjectState {
     offset: { dx: number; dy: number },
   ) => string[]
   updateEquipment: (id: string, patch: Partial<EquipmentItem>) => void
+  /** Gemessene Knotengroessen in EINEM Schritt nachfuehren. Beim ersten
+   *  Oeffnen eines Plans meldet ReactFlow alle Knoten auf einmal; einzeln
+   *  geschrieben loest das bei ~80 Geraeten den Set-Rate-Guard aus und die
+   *  Arbeitsflaeche bleibt leer. */
+  setEquipmentSizes: (sizes: Map<string, { width: number; height: number }>) => void
   /**
    * Die Auskunft des Gebaeudes uebernehmen (facility Issue #2).
    *
