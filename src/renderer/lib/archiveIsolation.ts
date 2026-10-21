@@ -58,6 +58,7 @@ import type { Cable } from '../types/cable'
 import type { EquipmentItem } from '../types/equipment'
 import type { ArchiveRecording, DeliveryDestination } from '../types/delivery'
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 
 export type ArchiveFindingKind =
   | 'not-stated'
@@ -234,25 +235,25 @@ export function archiveFindingText(f: ArchiveFinding): string {
 }
 
 export const ARCHIVE_FINDING_LABEL: Record<ArchiveFindingKind, string> = {
-  'not-stated': 'Archiv-Frage unbeantwortet',
-  'recorder-gone': 'Benannter Recorder fehlt im Plan',
-  'shares-encoder': 'Aufzeichnung und Ausspielung auf einem Gerät',
-  'fed-by-encoder': 'Aufzeichnung hängt hinter dem Encoder',
+  'not-stated': 'Archive question unanswered',
+  'recorder-gone': 'Named recorder missing from the plan',
+  'shares-encoder': 'Recording and delivery on one device',
+  'fed-by-encoder': 'Recording sits behind the encoder',
 }
 
 export const ARCHIVE_ANSWER_LABEL: Record<ArchiveRecording['answer'], string> = {
-  device: 'auf einem Gerät',
-  'none-by-choice': 'bewusst keine',
-  'not-stated': 'nicht beantwortet',
+  device: 'on a device',
+  'none-by-choice': 'deliberately none',
+  'not-stated': 'not answered',
 }
 
 /** Das Blatt: die Antwort und, falls es welche gibt, die Befunde. */
 export function archiveTable(a: ArchiveAssessment): CsvTable {
   const rows: CsvCell[][] = [
-    ['Antwort', ARCHIVE_ANSWER_LABEL[a.answer], a.recorder?.name ?? '', a.note ?? ''],
+    ['Antwort', kanonisch(`archive.answer.${a.answer}`, ARCHIVE_ANSWER_LABEL[a.answer]), a.recorder?.name ?? '', a.note ?? ''],
   ]
   for (const f of a.findings) {
-    rows.push(['Befund', ARCHIVE_FINDING_LABEL[f.kind], '', archiveFindingText(f)])
+    rows.push(['Befund', kanonisch(`archive.finding.${f.kind}`, ARCHIVE_FINDING_LABEL[f.kind]), '', archiveFindingText(f)])
   }
-  return { headers: ['Art', 'Was', 'Gerät', 'Text'], rows }
+  return { headers: spalten(['Kind', 'What', 'Device', 'Text']), rows }
 }

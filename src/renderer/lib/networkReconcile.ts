@@ -53,6 +53,7 @@ import type { EquipmentItem } from '../types/equipment'
 import { allDeviceInterfaces, interfaceLabel } from './networkInterfaces'
 import { parseCsv } from './csvParse'
 import type { CsvCell, CsvTable } from './csv'
+import { spalten } from './kanonisch'
 
 /** Ein Geraet, wie es die Abtastung vorgefunden hat. */
 export interface ScanEntry {
@@ -348,7 +349,7 @@ export function reconcileTable(report: ReconcileReport): CsvTable {
   }
   const basis: Record<MatchBasis, string> = { mac: 'MAC', ip: 'IP', name: 'Name' }
   return {
-    headers: ['Befund', 'Im Plan', 'Plan-IP', 'Vorgefunden', 'Gefundene IP', 'MAC', 'Zugeordnet über'],
+    headers: spalten(['Finding', 'In plan', 'Plan IP', 'Found', 'Found IP', 'MAC', 'Matched by']),
     rows: report.rows.map((r): CsvCell[] => [
       label[r.verdict],
       r.planned ?? '',

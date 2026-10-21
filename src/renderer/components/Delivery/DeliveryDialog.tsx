@@ -630,7 +630,7 @@ export const DeliveryDialog = () => {
                 <ul className="flex flex-col gap-1 text-cp-xs">
                   {archive.findings.map((f, i) => (
                     <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                      <strong>{ARCHIVE_FINDING_LABEL[f.kind]}</strong> — {archiveFindingText(f)}
+                      <strong>{t(`archive.finding.${f.kind}`, ARCHIVE_FINDING_LABEL[f.kind])}</strong> — {archiveFindingText(f)}
                     </li>
                   ))}
                 </ul>
@@ -769,7 +769,7 @@ export const DeliveryDialog = () => {
                 <ul className="flex flex-col gap-1 text-cp-xs">
                   {meta.findings.map((f, i) => (
                     <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                      <strong>{EVENT_METADATA_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                      <strong>{t(`eventMeta.finding.${f.kind}`, EVENT_METADATA_FINDING_LABEL[f.kind])}</strong> — {f.text}
                     </li>
                   ))}
                 </ul>
@@ -791,7 +791,7 @@ export const DeliveryDialog = () => {
                     Befunden, weil er entscheidet, ob „Abweichung" überhaupt
                     etwas heißen kann. */}
                 <span className="border border-cp-border-muted px-1.5 py-0.5 text-cp-xs text-cp-text-secondary">
-                  {JOB_BASIS_LABEL[sendung.basis]}
+                  {t(`job.basis.${sendung.basis}`, JOB_BASIS_LABEL[sendung.basis])}
                 </span>
                 <button
                   type="button"
@@ -847,7 +847,7 @@ export const DeliveryDialog = () => {
                       >
                         {Object.keys(TRANSMISSION_EVENT_LABEL).map((k) => (
                           <option key={k} value={k}>
-                            {TRANSMISSION_EVENT_LABEL[k as TransmissionEventKind]}
+                            {t(`transmission.event.${k}`, TRANSMISSION_EVENT_LABEL[k as TransmissionEventKind])}
                           </option>
                         ))}
                       </select>
@@ -883,7 +883,7 @@ export const DeliveryDialog = () => {
                       >
                         {Object.keys(TRANSMISSION_SOURCE_LABEL).map((k) => (
                           <option key={k} value={k}>
-                            {TRANSMISSION_SOURCE_LABEL[k as TransmissionSource]}
+                            {t(`transmission.source.${k}`, TRANSMISSION_SOURCE_LABEL[k as TransmissionSource])}
                           </option>
                         ))}
                       </select>
@@ -932,7 +932,7 @@ export const DeliveryDialog = () => {
                 <ul className="mb-2 flex flex-col gap-1 text-cp-xs text-cp-text-secondary">
                   {sendung.deviations.map((d) => (
                     <li key={d.section}>
-                      <strong>{d.label}</strong> — {d.detail}
+                      <strong>{t(`transmission.section.${d.section}`, d.label)}</strong> — {d.detail}
                     </li>
                   ))}
                 </ul>
@@ -941,7 +941,7 @@ export const DeliveryDialog = () => {
                 <ul className="flex flex-col gap-1 text-cp-xs">
                   {sendung.findings.map((f, i) => (
                     <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                      <strong>{TRANSMISSION_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                      <strong>{t(`transmission.finding.${f.kind}`, TRANSMISSION_FINDING_LABEL[f.kind])}</strong> — {f.text}
                     </li>
                   ))}
                 </ul>
@@ -1146,7 +1146,7 @@ export const DeliveryDialog = () => {
                 <ul className="mt-2 flex flex-col gap-1 text-cp-xs">
                   {fallback.findings.map((f, i) => (
                     <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                      <strong>{FALLBACK_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                      <strong>{t(`fallback.finding.${f.kind}`, FALLBACK_FINDING_LABEL[f.kind])}</strong> — {f.text}
                     </li>
                   ))}
                 </ul>

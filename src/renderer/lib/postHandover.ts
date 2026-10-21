@@ -58,6 +58,7 @@ import {
   switcherLinkFor,
 } from './labelDerivation'
 import { detectRecording } from './recording'
+import { kanonisch, spalten } from './kanonisch'
 
 /** Was in der Aufnahme-Spalte steht, wo der Plan keinen Recorder kennt. */
 export const NO_RECORDER = 'kein Recorder im Plan'
@@ -72,8 +73,8 @@ export type CardPrefixBasis =
   | 'name'
 
 export const PREFIX_BASIS_LABEL: Readonly<Record<CardPrefixBasis, string>> = {
-  number: 'Rollen-Nummer',
-  name: 'Rollen-Name',
+  number: 'Role number',
+  name: 'Role name',
 }
 
 /**
@@ -361,19 +362,19 @@ export const recordText = (binding: RecordBinding): string => {
  * die andere eine Bereinigung.
  */
 export const handoverManifestTable = (manifest: HandoverManifest): CsvTable => ({
-  headers: [
-    'Karten-Präfix',
-    'Grundlage',
-    'Rolle',
-    'Nummer',
-    'Gerät',
-    'Mischer',
-    'Mischer-Eingang',
-    'Aufzeichnung',
-  ],
+  headers: spalten([
+    'Card prefix',
+    'Basis',
+    'Role',
+    'Number',
+    'Device',
+    'Switcher',
+    'Switcher input',
+    'Recording',
+  ]),
   rows: manifest.rows.map((r) => [
     r.cardPrefix,
-    PREFIX_BASIS_LABEL[r.cardPrefixBasis],
+    kanonisch(`postHandover.prefixBasis.${r.cardPrefixBasis}`, PREFIX_BASIS_LABEL[r.cardPrefixBasis]),
     r.roleName,
     r.roleNumber ?? '',
     r.equipmentName,
@@ -384,6 +385,4 @@ export const handoverManifestTable = (manifest: HandoverManifest): CsvTable => (
 })
 
 /** Dasselbe Blatt direkt aus dem Projekt — der Weg fuer Register und Export. */
-export const handoverManifestTableForProject = (
-  project: Pick<CablePlannerProject, 'equipment' | 'cables' | 'sourceIdentities'>,
-): CsvTable => handoverManifestTable(buildHandoverManifest(project))
+export const handoverManifestTableForProject = (project: Pick<CablePlannerProject, 'equipment' | 'cables' | 'sourceIdentities'>): CsvTable => handoverManifestTable(buildHandoverManifest(project))

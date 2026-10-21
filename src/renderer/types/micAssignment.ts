@@ -80,8 +80,8 @@ export interface MicSession {
 export type AssignmentOrigin = 'manual' | 'carried'
 
 export const ORIGIN_LABEL: Readonly<Record<AssignmentOrigin, string>> = {
-  manual: 'von Hand',
-  carried: 'aus der vorigen Session übernommen',
+  manual: 'by hand',
+  carried: 'carried over from the previous session',
 }
 
 /** Wer trägt in dieser Session welche Strecke. */

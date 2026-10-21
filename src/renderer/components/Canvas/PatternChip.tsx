@@ -9,6 +9,7 @@ import { testPatternSvg } from '../../lib/testPattern'
 import { HubSwitchDialog } from './HubSwitchDialog'
 import { schaltbareWege } from '../../lib/controlActions'
 import { useTranslation, format } from '../../lib/i18n'
+import { spalten } from '../../lib/kanonisch'
 
 /**
  * Das Prüfbild — welche Quelle trägt es, und wo müsste es ankommen.
@@ -89,7 +90,7 @@ export function PatternChip() {
     const stempel = stampForRows(
       project,
       (p) => ({
-        headers: ['Gerät', 'Anschluss', 'Weg', 'Hinweis'],
+        headers: spalten(['Device', 'Connection', 'Path', 'Notice']),
         rows: patternPruefzeilen(patternRouting(p, quelleId ?? undefined)).map((z) => [
           z.geraet,
           z.anschluss,

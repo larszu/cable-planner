@@ -1,3 +1,4 @@
+import { kanonisch } from '../src/renderer/lib/kanonisch'
 import { describe, expect, it, beforeEach } from 'vitest'
 import {
   JOB_BASIS_LABEL,
@@ -141,8 +142,10 @@ describe('die drei Zustaende', () => {
   })
 
   it('haelt die Etiketten kanonisch deutsch', () => {
-    expect(JOB_BASIS_LABEL['as-quoted']).toBe('Wie geplant (kein As-Built)')
-    expect(JOB_FINDING_LABEL['as-built-stale']).toBe('Das As-Built ist überholt')
+    // Quelle englisch (#1128); im Blatt kanonisch deutsch.
+    expect(JOB_BASIS_LABEL['as-quoted']).toBe('As planned (no as-built)')
+    expect(kanonisch('job.basis.as-quoted', '')).toBe('Wie geplant (kein As-Built)')
+    expect(kanonisch('job.finding.as-built-stale', '')).toBe('Das As-Built ist überholt')
   })
 })
 

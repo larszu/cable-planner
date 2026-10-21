@@ -594,7 +594,7 @@ export const InstallationDocsDialog = () => {
                 job.basis === 'as-built' ? 'text-cp-text-secondary' : 'text-amber-300/90'
               }
             >
-              {JOB_BASIS_LABEL[job.basis]}
+              {t(`job.basis.${job.basis}`, JOB_BASIS_LABEL[job.basis])}
               {job.asBuilt ? ` — ${job.asBuilt.label}` : ''}
             </span>
           </div>
@@ -609,7 +609,7 @@ export const InstallationDocsDialog = () => {
             <ul className="mt-2 flex flex-col gap-1">
               {job.findings.map((f) => (
                 <li key={f.kind} className="text-cp-xs text-amber-300/90">
-                  <strong>{JOB_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                  <strong>{t(`job.finding.${f.kind}`, JOB_FINDING_LABEL[f.kind])}</strong> — {f.text}
                 </li>
               ))}
             </ul>

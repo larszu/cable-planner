@@ -143,8 +143,8 @@ export const EMPTY_EVENT_METADATA: EventMetadataPlan = {
  *  der Oberflaeche, weil sie auf dem Blatt landet: ein Dokument, dessen Text
  *  mit der eingestellten Sprache wechselt, aendert seinen Stand. */
 export const PRIVACY_LABEL: Readonly<Record<EventPrivacy, string>> = {
-  public: 'öffentlich',
-  unlisted: 'nicht gelistet',
-  private: 'privat',
-  'not-stated': 'nicht angegeben',
+  public: 'public',
+  unlisted: 'unlisted',
+  private: 'private',
+  'not-stated': 'not stated',
 }

@@ -229,7 +229,7 @@ export const TemplatesDialog = () => {
           }`}
         >
           {format(t('templates.basis', 'Basis: {basis}'), {
-            basis: JOB_BASIS_LABEL[tpl.basis],
+            basis: t(`job.basis.${tpl.basis}`, JOB_BASIS_LABEL[tpl.basis]),
           })}
         </div>
       )}

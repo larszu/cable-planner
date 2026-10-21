@@ -33,6 +33,7 @@ import {
   type EventPrivacy,
 } from '../types/eventMetadata'
 import type { CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 
 export type EventMetadataFindingKind =
   | 'no-metadata'
@@ -50,17 +51,17 @@ export type EventMetadataFindingKind =
 export const EVENT_METADATA_FINDING_LABEL: Readonly<
   Record<EventMetadataFindingKind, string>
 > = {
-  'no-metadata': 'Ziele stehen, Angaben fehlen ganz',
-  'no-destinations': 'Angaben stehen, aber kein Ziel',
-  'title-missing': 'Kein Titel für dieses Ziel',
-  'start-missing': 'Kein geplanter Beginn',
-  'start-timeless': 'Beginn nur als Datum, ohne Uhrzeit',
-  'start-unzoned': 'Beginn ohne Zeitzone',
-  'privacy-not-stated': 'Sichtbarkeit nicht angegeben',
-  'override-unexplained': 'Abweichung ohne Begründung',
-  'override-inert': 'Abweichung, die nichts abweicht',
-  'override-orphan': 'Abweichung ohne Ziel',
-  'backup-differs': 'Ausweichweg trägt andere Angaben als sein Primärweg',
+  'no-metadata': 'Destinations set, details missing entirely',
+  'no-destinations': 'Details set, but no destination',
+  'title-missing': 'No title for this destination',
+  'start-missing': 'No planned start',
+  'start-timeless': 'Start given as a date only, without a time',
+  'start-unzoned': 'Start without a time zone',
+  'privacy-not-stated': 'Visibility not stated',
+  'override-unexplained': 'Override without a reason',
+  'override-inert': 'Override that changes nothing',
+  'override-orphan': 'Override without a destination',
+  'backup-differs': 'Backup path carries different details than its primary',
 }
 
 export interface EventMetadataFinding {
@@ -295,9 +296,9 @@ const NO_REASON = 'ohne Begründung'
 const NOT_DEVIATING = '—'
 
 const ORIGIN_LABEL: Readonly<Record<MetadataOrigin, string>> = {
-  project: 'Projekt',
-  override: 'Abweichung',
-  none: 'nirgends',
+  project: 'project',
+  override: 'override',
+  none: 'nowhere',
 }
 
 /**
@@ -317,26 +318,26 @@ export function eventMetadataTable(project: CablePlannerProject): CsvTable {
   const startCell = start || NO_START
   const zoneCell = zone || (start && hasOffset(start) ? 'Offset im Zeitpunkt' : NO_ZONE)
   return {
-    headers: [
-      'Ziel',
-      'Plattform',
-      'Titel',
-      'Titel aus',
-      'Sichtbarkeit',
-      'Sichtbarkeit aus',
-      'Beginn',
-      'Angesagt in',
+    headers: spalten([
+      'Destination',
+      'Platform',
+      'Title',
+      'Title from',
+      'Visibility',
+      'Visibility from',
+      'Start',
+      'Announced in',
       'Thumbnail',
-      'Schlagworte',
-      'Abweichung begründet',
-    ],
+      'Tags',
+      'Override reason',
+    ]),
     rows: a.resolved.map((r) => [
       r.destinationName,
       r.platform,
       r.title || NO_TITLE,
-      ORIGIN_LABEL[r.titleFrom],
-      PRIVACY_LABEL[r.privacy],
-      ORIGIN_LABEL[r.privacyFrom],
+      kanonisch(`eventMeta.origin.${r.titleFrom}`, ORIGIN_LABEL[r.titleFrom]),
+      kanonisch(`eventMeta.privacy.${r.privacy}`, PRIVACY_LABEL[r.privacy]),
+      kanonisch(`eventMeta.origin.${r.privacyFrom}`, ORIGIN_LABEL[r.privacyFrom]),
       startCell,
       zoneCell,
       thumb,

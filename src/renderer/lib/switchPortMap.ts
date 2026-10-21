@@ -43,6 +43,7 @@ import { portDisplayLabel } from './portLabel'
 import { allDeviceInterfaces } from './networkInterfaces'
 import { detectNetworkDevice } from './deviceKind'
 import { durchBlenden, gegenendenJePort } from './patchPanel'
+import { spalten } from './kanonisch'
 
 /** Woher die Belegung eines Switch-Ports stammt. */
 export type PortOccupancySource = 'interface' | 'cable'
@@ -205,7 +206,7 @@ export function buildSwitchPortMaps(
  *  sprachabhaengig. */
 export function switchPortTable(map: SwitchPortMap): CsvTable {
   return {
-    headers: ['Port', 'Gerät', 'Schnittstelle', 'IP', 'VLAN', 'Quelle', 'Widerspruch'],
+    headers: spalten(['Port', 'Device', 'Interface', 'IP', 'VLAN', 'Source', 'Conflict']),
     rows: map.rows.map((r): CsvCell[] => [
       r.port,
       r.device ?? '',

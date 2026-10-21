@@ -2248,7 +2248,7 @@ const ClientTab = ({ projectName }: { projectName: string }) => {
           {t('analysis.client.basis', 'Basis of this sheet')}:
         </span>
         <span className="border border-[var(--cp-border-muted)] px-1.5 py-0.5 text-cp-xs text-[var(--cp-text-secondary)]">
-          {JOB_BASIS_LABEL[summary.basis]}
+          {t(`job.basis.${summary.basis}`, JOB_BASIS_LABEL[summary.basis])}
         </span>
         <CsvButton onClick={exportCsv} />
       </div>

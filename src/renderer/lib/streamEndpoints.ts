@@ -12,6 +12,7 @@ import {
 } from '../types/stream'
 import type { EquipmentItem } from '../types/equipment'
 import type { CsvCell, CsvTable } from './csv'
+import { spalten } from './kanonisch'
 
 /**
  * Was aus einer Stream-Adresse herausgetrennt wurde (Nachtrag #946). Liegt im
@@ -269,7 +270,7 @@ const RICHTUNG_DE: Record<StreamDirection, string> = {
  * sind nicht im Plan.
  */
 export const streamsTable = (equipment: readonly EquipmentItem[]): CsvTable => ({
-  headers: ['Gerät', 'Richtung', 'Protokoll', 'Stream-Adresse', 'VLAN', 'Codec', 'Format', 'Beschreibung'],
+  headers: spalten(['Device', 'Direction', 'Protocol', 'Stream address', 'VLAN', 'Codec', 'Format', 'Description']),
   rows: streamZeilen(equipment).map((r): CsvCell[] => [
     r.geraet,
     RICHTUNG_DE[r.stream.direction],
