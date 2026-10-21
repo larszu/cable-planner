@@ -32,6 +32,12 @@ export interface RfBand {
 
 const SRC_G4 =
   'https://www.sennheiser.com/globalassets/digizuite/40941-en-ew_g4_specifications_manufacturer_declarations_06_2025.pdf'
+const SRC_ULXD = 'https://pubs.shure.com/view/guide/ULXD/en-US.pdf'
+const SRC_QLXD = 'https://pubs.shure.com/view/guide/QLXD/en-US.pdf'
+const SRC_SLXD = 'https://pubs.shure.com/view/guide/SLXD/en-US.pdf'
+const SRC_AD = 'https://www.shure.com/en-US/docs/guide/AD4D'
+const SRC_D6000 =
+  'https://www.sennheiser.com/globalassets/digizuite/41650-en-sp_1194_v11.0_skm_6000_product_specification_en.pdf'
 const SRC_EWD =
   'https://sennheiser.com/globalassets/digizuite/50338-en-2025-sennheiser-ew-d--ew-dx-design-guide.pdf'
 
@@ -58,14 +64,88 @@ export const RF_BANDS: RfBand[] = [
   { mfr: 'Sennheiser', line: 'EW-D', band: 'V3-4', fromMHz: 925.2, toMHz: 937.3, source: SRC_EWD },
   { mfr: 'Sennheiser', line: 'EW-D', band: 'Y1-3', fromMHz: 1785.2, toMHz: 1799.8, source: SRC_EWD },
 
-  // ── Shure (QLX-D / ULX-D / SLX-D, US-Nominalbereiche) ─────────────────────
-  { mfr: 'Shure', line: 'QLXD/ULXD', band: 'G56', fromMHz: 470, toMHz: 514 },
-  { mfr: 'Shure', line: 'QLXD/ULXD', band: 'G50', fromMHz: 470, toMHz: 534 },
-  { mfr: 'Shure', line: 'Axient Digital', band: 'G57', fromMHz: 470, toMHz: 616, note: 'breites Tuning' },
-  { mfr: 'Shure', line: 'QLXD/ULXD', band: 'H50', fromMHz: 534, toMHz: 598 },
-  { mfr: 'Shure', line: 'SLX-D', band: 'H55', fromMHz: 514, toMHz: 558 },
-  { mfr: 'Shure', line: 'QLXD/ULXD', band: 'J50', fromMHz: 572, toMHz: 636 },
-  { mfr: 'Shure', line: 'ULXD', band: 'K59', fromMHz: 606, toMHz: 670 },
+  // Sennheiser EW-DX (gleicher Design Guide)
+  { mfr: 'Sennheiser', line: 'EW-DX', band: 'Q1-9', fromMHz: 470.2, toMHz: 550, source: SRC_EWD },
+  { mfr: 'Sennheiser', line: 'EW-DX', band: 'R1-9', fromMHz: 520, toMHz: 607.8, source: SRC_EWD },
+  { mfr: 'Sennheiser', line: 'EW-DX', band: 'S1-10', fromMHz: 606.2, toMHz: 693.8, source: SRC_EWD },
+  { mfr: 'Sennheiser', line: 'EW-DX', band: 'S2-10', fromMHz: 614.2, toMHz: 693.8, source: SRC_EWD },
+  { mfr: 'Sennheiser', line: 'EW-DX', band: 'S4-10', fromMHz: 630, toMHz: 693.8, source: SRC_EWD },
+  { mfr: 'Sennheiser', line: 'EW-DX', band: 'U1/5', fromMHz: 823.2, toMHz: 864.8, note: 'nur 823,2–831,8 / 863,2–864,8', source: SRC_EWD },
+  { mfr: 'Sennheiser', line: 'EW-DX', band: 'V3-4', fromMHz: 925.2, toMHz: 951.8, note: 'nur 925,2–937,3 / 941,7–951,8', source: SRC_EWD },
+  { mfr: 'Sennheiser', line: 'EW-DX', band: 'W5-6', fromMHz: 1240, toMHz: 1260, source: SRC_EWD },
+  { mfr: 'Sennheiser', line: 'EW-DX', band: 'Y1-3', fromMHz: 1785.2, toMHz: 1799.8, source: SRC_EWD },
+  // Sennheiser Digital 6000 (SKM 6000 Product Specification v11.0)
+  { mfr: 'Sennheiser', line: 'Digital 6000', band: 'A1-A4', fromMHz: 470, toMHz: 558, source: SRC_D6000 },
+  { mfr: 'Sennheiser', line: 'Digital 6000', band: 'A5-A8', fromMHz: 550, toMHz: 638, source: SRC_D6000 },
+  { mfr: 'Sennheiser', line: 'Digital 6000', band: 'B1-B4', fromMHz: 630, toMHz: 718, source: SRC_D6000 },
+
+  // ── Shure (Bandtabellen der Bedienungsanleitungen, pubs.shure.com) ───────
+  { mfr: 'Shure', line: 'ULX-D', band: 'G50', fromMHz: 470, toMHz: 534, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'G51', fromMHz: 470, toMHz: 534, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'G52', fromMHz: 479, toMHz: 534, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'G53', fromMHz: 470, toMHz: 510, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'G56', fromMHz: 470, toMHz: 636, note: 'nur ULXD1/2/4D/4Q', source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'G57', fromMHz: 470, toMHz: 608, note: 'nur ULXD1/2/4D/4Q', source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'G62', fromMHz: 510, toMHz: 530, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'H50', fromMHz: 534, toMHz: 598, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'H51', fromMHz: 534, toMHz: 598, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'J50', fromMHz: 572, toMHz: 636, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'J51', fromMHz: 572, toMHz: 636, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'K51', fromMHz: 606, toMHz: 670, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'L50', fromMHz: 632, toMHz: 696, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'L53', fromMHz: 632, toMHz: 714, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'M19', fromMHz: 694, toMHz: 703, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'P51', fromMHz: 710, toMHz: 782, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'Q51', fromMHz: 794, toMHz: 806, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'V50', fromMHz: 174, toMHz: 216, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'X52', fromMHz: 902, toMHz: 928, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'Z16', fromMHz: 1240, toMHz: 1260, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'Z17', fromMHz: 1492, toMHz: 1525, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'Z18', fromMHz: 1785, toMHz: 1805, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'Z19', fromMHz: 1785, toMHz: 1800, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'ULX-D', band: 'Z20', fromMHz: 1790, toMHz: 1805, source: SRC_ULXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'G51', fromMHz: 470, toMHz: 534, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'G53', fromMHz: 470, toMHz: 510, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'H51', fromMHz: 534, toMHz: 598, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'J51', fromMHz: 572, toMHz: 636, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'K51', fromMHz: 606, toMHz: 670, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'K52', fromMHz: 606, toMHz: 670, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'L52', fromMHz: 632, toMHz: 694, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'L53', fromMHz: 632, toMHz: 714, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'P51', fromMHz: 710, toMHz: 782, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'S50', fromMHz: 823, toMHz: 865, note: 'nur 823–832 / 863–865', source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'V51', fromMHz: 174, toMHz: 216, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'X52', fromMHz: 902, toMHz: 928, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'Z18', fromMHz: 1785, toMHz: 1805, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'QLX-D', band: 'Z19', fromMHz: 1785, toMHz: 1800, source: SRC_QLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'G59', fromMHz: 470, toMHz: 514, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'G60', fromMHz: 470, toMHz: 510, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'G61', fromMHz: 479, toMHz: 523, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'H55', fromMHz: 514, toMHz: 558, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'H56', fromMHz: 518, toMHz: 562, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'H57', fromMHz: 520, toMHz: 564, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'J53', fromMHz: 562, toMHz: 606, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'K59', fromMHz: 606, toMHz: 650, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'L55', fromMHz: 646, toMHz: 690, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'L56', fromMHz: 650, toMHz: 694, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'L58', fromMHz: 630, toMHz: 674, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'M55', fromMHz: 694, toMHz: 758, note: 'nur 694–703 / 748–758', source: SRC_SLXD },
+  { mfr: 'Shure', line: 'SLX-D', band: 'S50', fromMHz: 823, toMHz: 865, source: SRC_SLXD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'G53', fromMHz: 470, toMHz: 510, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'G54', fromMHz: 479, toMHz: 565, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'G56', fromMHz: 470, toMHz: 636, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'G57', fromMHz: 470, toMHz: 616, note: 'Lücke 608–614', source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'G62', fromMHz: 510, toMHz: 530, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'H54', fromMHz: 520, toMHz: 636, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'K53', fromMHz: 606, toMHz: 698, note: 'Lücke 608–614', source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'K55', fromMHz: 606, toMHz: 694, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'K56', fromMHz: 606, toMHz: 714, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'K57', fromMHz: 606, toMHz: 790, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'K58', fromMHz: 622, toMHz: 698, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'L54', fromMHz: 630, toMHz: 787, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'P55', fromMHz: 694, toMHz: 806, note: 'nur 694–703 / 748–758 / 803–806', source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'X51', fromMHz: 925, toMHz: 937.5, source: SRC_AD },
+  { mfr: 'Shure', line: 'Axient Digital', band: 'X55', fromMHz: 941, toMHz: 960, source: SRC_AD },
   { mfr: 'Shure', line: 'GLXD/BLX (900)', band: 'Z2/ISM', fromMHz: 902, toMHz: 928, note: 'US ISM 900 MHz' },
 
   // ── Sony (UWP-D, häufige EU-Ranges) ──────────────────────────────────────
