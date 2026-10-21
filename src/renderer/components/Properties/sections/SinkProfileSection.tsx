@@ -121,7 +121,7 @@ export const SinkProfileSection = ({ equipment }: { equipment: EquipmentItem }) 
                   >
                     {VIDEO_FORMATS.map((v) => (
                       <option key={v.id} value={v.id}>
-                        {v.label}
+                        {t(`videoFormat.${v.id}`, v.label)}
                       </option>
                     ))}
                   </select>

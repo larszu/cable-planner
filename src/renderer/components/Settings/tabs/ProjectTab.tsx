@@ -584,7 +584,7 @@ const PlanDefaultsSection = () => {
           >
             {VIDEO_FORMATS.map((f) => (
               <option key={f.id} value={f.id}>
-                {f.label}
+                {t(`videoFormat.${f.id}`, f.label)}
               </option>
             ))}
           </select>

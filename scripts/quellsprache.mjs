@@ -452,13 +452,36 @@ export const messeSprachmix = (wurzel, quellsprache) => {
  * beiden. So stand in der englischen Oberflaeche „Festinstallation" und
  * „Temporäre Produktionen — …" im Erststart-Dialog, und lang:check blieb gruen.
  *
- * Als RATSCHE und nicht auf null: im Bestand stehen weitere deutsche
- * Daten-Beschriftungen (Kabelfarben, Projektvorlagen, Modulbeschreibungen),
- * die eigens nachzuziehen sind. Die Zahl darf sinken, nicht steigen.
+ * AUCH MAPS, deren Werte an `t()` gehen: `t(`annotations.status.${s}`,
+ * STATUS_LABEL[s])` liest den Fallback aus `const STATUS_LABEL = { open:
+ * 'offen' }`. Erkannt wird die Map in DERSELBEN Datei wie der Aufruf; alle
+ * ihre Zeichenketten-Werte werden klassifiziert. Eine importierte Map sieht
+ * die Messung nicht — dafuer greift dort meist `label:` von oben.
+ *
+ * `vendor/` ist ausgenommen: die Kopie gehoert dem Upstream-Repo und wird
+ * dort gepflegt (siehe `vendor/lz-scopes/VENDOR.md`).
+ *
+ * Grenze NULL (2026-10-21 nachgezogen, #1117).
  */
 const DATEN_BESCHRIFTUNG = /\b(?:label|description):\s*(['"])((?:[^\\]|\\.){4,}?)\1/g
+const MAP_ALS_FALLBACK = /\b(?:t|tr|translate)\([^()]*?,\s*([A-Z][A-Z0-9_]*)\[/g
+const MAP_WERT = /:\s*(['"])((?:[^\\]|\\.){2,}?)\1/g
 
-export const DATEN_GRENZE = { 'src/renderer': 28, 'src/mobile': 0, 'src/viewer': 0 }
+export const DATEN_GRENZE = { 'src/renderer': 0, 'src/mobile': 0, 'src/viewer': 0 }
+
+/** Die Zeichenketten-Werte von `const NAME … = { … }` in `quelle`. */
+export const mapWerte = (quelle, name) => {
+  const start = quelle.search(new RegExp(`\\bconst\\s+${name}\\b[^=]*=\\s*\\{`))
+  if (start === -1) return []
+  const auf = quelle.indexOf('{', quelle.indexOf('=', start))
+  let tiefe = 0
+  let ende = auf
+  for (; ende < quelle.length; ende += 1) {
+    if (quelle[ende] === '{') tiefe += 1
+    else if (quelle[ende] === '}' && --tiefe === 0) break
+  }
+  return [...quelle.slice(auf, ende).matchAll(MAP_WERT)].map((m) => m[2])
+}
 
 export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'
@@ -466,8 +489,13 @@ export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
   for (const datei of dateien(wurzel)) {
     const rel = relative(wurzel, datei).split(sep).join('/')
     if (rel.includes('i18n') || rel.includes('__tests__') || rel.includes('.test.')) continue
-    for (const m of ohneKommentare(readFileSync(datei, 'utf8')).matchAll(DATEN_BESCHRIFTUNG)) {
-      if (klassifiziere(m[2]) === ziel) funde.push({ datei: rel, text: m[2].slice(0, 100) })
+    if (rel.startsWith('vendor/')) continue
+    const quelle = ohneKommentare(readFileSync(datei, 'utf8'))
+    const texte = [...quelle.matchAll(DATEN_BESCHRIFTUNG)].map((m) => m[2])
+    const maps = new Set([...quelle.matchAll(MAP_ALS_FALLBACK)].map((m) => m[1]))
+    for (const name of maps) texte.push(...mapWerte(quelle, name))
+    for (const text of texte) {
+      if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })
     }
   }
   return funde

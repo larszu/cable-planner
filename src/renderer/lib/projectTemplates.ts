@@ -97,7 +97,7 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       nameKey: 'templates.builtin.obVan.name',
       descKey: 'templates.builtin.obVan.desc',
       name: 'OB van',
-      description: 'Übertragungswagen mit Bühne und FOH — getrennte Standort-Rahmen.',
+      description: 'OB van with stage and FOH — separate location frames.',
       project: base('Ü-Wagen / OB-Van', 'Übertragungswagen-Setup', [
         frame('Ü-Wagen', 40, 40, 520, 360, '#38bdf8'),
         frame('Bühne', 620, 40, 520, 360, '#34d399'),
@@ -109,7 +109,7 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       nameKey: 'templates.builtin.studio.name',
       descKey: 'templates.builtin.studio.desc',
       name: 'TV-Studio',
-      description: 'Studio mit Regie und Studioboden.',
+      description: 'Studio with control room and studio floor.',
       project: base('TV-Studio', 'Studio-Setup', [
         frame('Regie', 40, 40, 520, 360, '#a78bfa'),
         frame('Studio', 620, 40, 520, 360, '#f472b6'),
@@ -121,7 +121,7 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       nameKey: 'templates.builtin.liveStage.name',
       descKey: 'templates.builtin.liveStage.desc',
       name: 'Live stage',
-      description: 'Bühne, FOH und Monitorwelt für Live-Events.',
+      description: 'Stage, FOH and monitor world for live events.',
       project: base('Live-Bühne', 'Live-Stage-Setup', [
         frame('Bühne', 40, 40, 640, 320, '#34d399'),
         frame('FOH', 40, 400, 300, 260, '#38bdf8'),
@@ -134,7 +134,7 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       nameKey: 'templates.builtin.corporate.name',
       descKey: 'templates.builtin.corporate.desc',
       name: 'Konferenz / Corporate',
-      description: 'Saal und Regie für Tagungen und Corporate-Events.',
+      description: 'Hall and control room for conferences and corporate events.',
       project: base('Konferenz / Corporate', 'Corporate-Setup', [
         frame('Saal', 40, 40, 640, 360, '#60a5fa'),
         frame('Regie', 740, 40, 360, 360, '#a78bfa'),
@@ -146,7 +146,7 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       nameKey: 'templates.builtin.worship.name',
       descKey: 'templates.builtin.worship.desc',
       name: 'Houses of Worship',
-      description: 'Altarraum/Bühne und Technikempore für Gottesdienste.',
+      description: 'Sanctuary/stage and tech gallery for church services.',
       project: base('Houses of Worship', 'HoW-Setup', [
         frame('Altarraum', 40, 40, 640, 320, '#fbbf24'),
         frame('Technik-Empore', 40, 400, 640, 220, '#38bdf8'),

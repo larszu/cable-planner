@@ -91,25 +91,25 @@ export const VIDEO_FORMATS: VideoFormat[] = [
   },
   {
     id: '2160p24',
-    label: '2160p23.98 / 2160p24 (6G oder Quad 3G)',
+    label: '2160p23.98 / 2160p24 (6G or Quad 3G)',
     carriers: ['SDI-6G', 'QuadLink-3G-2SI', 'QuadLink-3G-SquareDivision'],
     preferredCable: 'SDI-6G',
   },
   {
     id: '2160p25',
-    label: '2160p25 (6G oder Quad 3G)',
+    label: '2160p25 (6G or Quad 3G)',
     carriers: ['SDI-6G', 'QuadLink-3G-2SI', 'QuadLink-3G-SquareDivision'],
     preferredCable: 'SDI-6G',
   },
   {
     id: '2160p30',
-    label: '2160p29.97 / 2160p30 (6G oder Quad 3G)',
+    label: '2160p29.97 / 2160p30 (6G or Quad 3G)',
     carriers: ['SDI-6G', 'QuadLink-3G-2SI', 'QuadLink-3G-SquareDivision'],
     preferredCable: 'SDI-6G',
   },
   {
     id: '2160p50',
-    label: '2160p50 (12G oder Quad 3G)',
+    label: '2160p50 (12G or Quad 3G)',
     carriers: ['SDI-12G', 'QuadLink-3G-2SI', 'QuadLink-3G-SquareDivision'],
     preferredCable: 'SDI-12G',
     notesKey: 'catalog.videoFormat.2160p50.notes',
@@ -118,7 +118,7 @@ export const VIDEO_FORMATS: VideoFormat[] = [
   },
   {
     id: '2160p60',
-    label: '2160p59.94 / 2160p60 (12G oder Quad 3G)',
+    label: '2160p59.94 / 2160p60 (12G or Quad 3G)',
     carriers: ['SDI-12G', 'QuadLink-3G-2SI', 'QuadLink-3G-SquareDivision'],
     preferredCable: 'SDI-12G',
   },

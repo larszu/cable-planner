@@ -237,7 +237,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
               <option value="">{t('switching.protocolNone', 'none \u2014 nothing will be sent')}</option>
               {CONTROL_PROTOCOLS.map((k) => (
                 <option key={k} value={k}>
-                  {PROTOCOL_INFO[k].label}
+                  {t(`switching.protocol.${k}`, PROTOCOL_INFO[k].label)}
                 </option>
               ))}
             </select>

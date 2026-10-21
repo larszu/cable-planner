@@ -178,7 +178,7 @@ export const PROTOCOL_INFO = {
       'Der Mischer spricht kein Text-Protokoll; gesendet wird über die ATEM-Bibliothek. Jeder Anschluss braucht seine Nummer am Mischer — die Position in der Liste sagt sie NICHT, weil Aux-Ausgänge und Mediaplayer dort in einem anderen Zahlenraum liegen.',
   },
   companion: {
-    label: 'Bitfocus Companion (alle Hersteller, ~500 Module)',
+    label: 'Bitfocus Companion (all vendors, ~500 modules)',
     defaultPort: 8000,
     // Woher die Nummern kommen, entscheidet die Companion-Konfiguration
     // selbst (`nummern: 'position' | 'declared'`) — wie beim Text-Protokoll.
@@ -188,7 +188,7 @@ export const PROTOCOL_INFO = {
       'Companion spricht das Protokoll, der Plan sagt WAS geschaltet wird. Voraussetzung: eine laufende Companion-Instanz mit dem Modul des Geräts und EINER Schaltfläche, deren Route-Aktion ihre Argumente aus zwei Custom-Variablen zieht. Damit ist jedes Gerät bedienbar, für das es ein Companion-Modul gibt — ohne dass hier ein Protokoll nachgebaut wird.',
   },
   text: {
-    label: 'Erklärtes Text-Protokoll (Ross, Panasonic, Roland, Quartz …)',
+    label: 'Documented text protocol (Ross, Panasonic, Roland, Quartz …)',
     defaultPort: 0,
     // Woher die Nummern kommen, entscheidet die Konfiguration selbst
     // (`nummern: 'position' | 'declared'`) — deshalb steht hier weder das
