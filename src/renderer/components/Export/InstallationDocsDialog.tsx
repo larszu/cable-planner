@@ -56,7 +56,7 @@ import { bedienUebersichtHtml, bedienUebersichtStandTable } from '../../lib/bedi
 import { anhaengeTable } from '../../lib/anhaenge'
 import { kameraPositionsblattHtml, kameraPositionsblattStandTable } from '../../lib/kameraPositionsblatt'
 import { AnhaengeSection } from './AnhaengeSection'
-import { buildTablePdf, workbookBytes, type DocSheet } from '../../lib/tableDocExport'
+import { buildTablePdf, loadPublicSans, workbookBytes, type DocSheet } from '../../lib/tableDocExport'
 import type { CsvTable } from '../../lib/csv'
 import type { CablePlannerProject } from '../../types/project'
 import { buildHandoverManifest, handoverTable } from '../../lib/handoverPackage'
@@ -452,12 +452,13 @@ export const InstallationDocsDialog = () => {
     }
   }
   const exportPdf = async (rows: ExportRow[], suffix: string) => {
-    const { default: JsPdf } = await import('jspdf')
+    const [{ default: JsPdf }, fonts] = await Promise.all([import('jspdf'), loadPublicSans()])
     const doc = buildTablePdf(JsPdf, rows.map(sheetFor), {
       title: project.metadata.name || t('docs.handoverTitle', 'Installation handover'),
       tocLabel: t('docs.toc', 'Contents'),
       pageLabel: t('docs.pageOf', 'Page {n} of {total}'),
       cover: rows.length > 1,
+      fonts,
     })
     save(doc.output('blob'), suffix, 'pdf', 'application/pdf')
   }

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import jsPDF from 'jspdf'
 import { strFromU8, unzipSync, zipSync } from 'fflate'
 import * as XLSX from 'xlsx-js-style'
+import { readFileSync } from 'node:fs'
 import { buildTablePdf, buildWorkbook, columnWidths, workbookBytes, pdfSafe, sheetName } from '../src/renderer/lib/tableDocExport'
 
 const table = {
@@ -48,5 +49,18 @@ describe('tableDocExport (#992)', () => {
     const out = doc.output()
     expect(out).toContain('/Outlines')
     expect(out).toContain('/Link')
+  })
+  it('pdf embeds Public Sans and keeps arrows and quotes', () => {
+    const font = (w: string) => readFileSync(`src/renderer/assets/fonts/PublicSans-${w}.ttf`).toString('base64')
+    const doc = buildTablePdf(jsPDF, [{ title: 'Pull „A“', table }], {
+      title: 'Projekt → Halle',
+      tocLabel: 'Inhalt',
+      pageLabel: 'Seite {n} von {total}',
+      cover: false,
+      fonts: { regular: font('Regular'), bold: font('Bold') },
+    })
+    const out = doc.output()
+    expect(out).toContain('/FontFile2')
+    expect(out).toContain('PublicSans')
   })
 })
