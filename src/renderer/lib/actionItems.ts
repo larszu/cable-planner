@@ -101,6 +101,8 @@ export interface ActionItem {
   kind: string
   /** Der Text der Quelle. Wird hier NIE umformuliert. */
   title: string
+  /** `title` als Satz — fuer den Bildschirm in der App-Sprache. */
+  titleSatz?: Satz
   detail?: string
   /** `detail` als Satz — fuer den Bildschirm in der App-Sprache. */
   detailSatz?: Satz
@@ -218,10 +220,13 @@ export const actionItems = (input: ActionInput): ActionItem[] => {
       id: `subhire:${l.status}:${l.itemId}`,
       source: 'subhire',
       kind: l.status,
-      title:
-        l.status === 'overdue'
-          ? satzKanonisch(satz('rest.action.overdue', '{model} is overdue', { model: l.model }))
-          : satzKanonisch(satz('rest.action.noReturn', '{model} has no return date', { model: l.model })),
+      ...(() => {
+        const s =
+          l.status === 'overdue'
+            ? satz('rest.action.overdue', '{model} is overdue', { model: l.model })
+            : satz('rest.action.noReturn', '{model} has no return date', { model: l.model })
+        return { titleSatz: s, title: satzKanonisch(s) }
+      })(),
       // Der Zusatz kommt aus `ownershipNote` — derselbe Satz, der auf jedem
       // Blatt neben der Position steht. Ihn hier zweitens zu formulieren
       // hiesse, zwei Fassungen derselben Auskunft zu pflegen.

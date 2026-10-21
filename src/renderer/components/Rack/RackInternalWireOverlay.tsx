@@ -1,3 +1,4 @@
+import { satzText } from '../../lib/satz'
 import type { EquipmentItem, GroupPreset } from '../../types/equipment'
 import { useTranslation } from '../../lib/i18n'
 import { RackInternalCanvas } from './RackInternalCanvas'
@@ -121,7 +122,7 @@ export const RackInternalWireOverlay = ({
                 key={`${f.kind}-${f.index}-${i}`}
                 className={f.severity === 'error' ? 'text-cp-danger' : 'text-cp-warn'}
               >
-                {f.text}
+                {f.satz ? satzText(f.satz, t) : f.text}
               </li>
             ))}
           </ul>

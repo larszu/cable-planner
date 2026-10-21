@@ -1,3 +1,4 @@
+import { satzText } from '../../lib/satz'
 /**
  * #914 — „Signalweg zeigen": hebt die ganze Kette, in der dieses Kabel liegt,
  * auf dem Canvas hervor und listet ihre Stationen mit Etage · Raum · Geraet
@@ -104,7 +105,9 @@ export const SignalwegSection = ({ cable }: { cable: Cable }) => {
               </li>
             )
           })}
-          {k.endNote && <li className="text-cp-warn">{k.endNote}</li>}
+          {k.endNote && (
+            <li className="text-cp-warn">{k.endSatz ? satzText(k.endSatz, t) : k.endNote}</li>
+          )}
         </ol>
       ))}
     </div>

@@ -31,7 +31,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentTemplate } from '../types/equipment'
-import { satz, satzKanonisch } from './satz'
+import { befund, satz, type Satz } from './satz'
 
 /** Was diese Pruefung von einer Platzierung braucht. */
 export interface WireCheckPlacement {
@@ -89,6 +89,8 @@ export interface RackWireFinding {
   index: number
   /** Klartext fuer die Oberflaeche. */
   text: string
+  /** `text` als Satz, wo es einen gibt — fuer die App-Sprache. */
+  satz?: Satz
 }
 
 const portOf = (
@@ -115,8 +117,13 @@ export const rackWireFindings = (
 ): RackWireFinding[] => {
   const byId = new Map(placements.map((p) => [p.id, p]))
   const out: RackWireFinding[] = []
-  const melde = (kind: RackWireFindingKind, index: number, text: string) =>
-    out.push({ kind, severity: RACK_WIRE_FINDING_SEVERITY[kind], index, text })
+  const melde = (kind: RackWireFindingKind, index: number, text: string | Satz) =>
+    out.push({
+      kind,
+      severity: RACK_WIRE_FINDING_SEVERITY[kind],
+      index,
+      ...(typeof text === 'string' ? { text } : befund(text)),
+    })
 
   cables.forEach((c, index) => {
     const kabel = c.name?.trim() || c.type?.trim() || `Kabel ${index + 1}`
@@ -141,8 +148,8 @@ export const rackWireFindings = (
         'direction-mismatch',
         index,
         pv.direction === 'out'
-          ? satzKanonisch(satz('rest.rack.bothOut', '{kabel}: {von} and {nach} are both outputs', { kabel, von: von.name, nach: nach.name }))
-          : satzKanonisch(satz('rest.rack.bothIn', '{kabel}: {von} and {nach} are both inputs', { kabel, von: von.name, nach: nach.name })),
+          ? (satz('rest.rack.bothOut', '{kabel}: {von} and {nach} are both outputs', { kabel, von: von.name, nach: nach.name }))
+          : (satz('rest.rack.bothIn', '{kabel}: {von} and {nach} are both inputs', { kabel, von: von.name, nach: nach.name })),
       )
     }
 

@@ -47,8 +47,7 @@ import { detectDeviceKind } from './deviceKind'
 import { deviceCrosspoints } from './deviceCrosspoints'
 import { isPatchPanelDevice, patchPanelCounterpart } from './patchPanel'
 import { resolvePortLabel } from './portLabel'
-import { kanonisch } from './kanonisch'
-import { satz, satzKanonisch } from './satz'
+import { befundAls, satz, type Satz } from './satz'
 
 /** Welche Bauform den Weiterweg hergegeben hat. */
 export type PassThroughKind =
@@ -75,6 +74,16 @@ export type PassThroughKind =
    * Strom ein.
    */
   | 'adapter'
+
+/** Englische Quelle zu `PASS_THROUGH_LABEL` — fuer den Satz auf dem Bildschirm. */
+const PASS_THROUGH_EN: Readonly<Record<PassThroughKind, string>> = {
+  'patch-panel': 'Patch panel',
+  converter: 'Converter',
+  'distribution-amp': 'Distribution amplifier',
+  router: 'Router',
+  mixer: 'Mixer',
+  adapter: 'Adapter',
+}
 
 export const PASS_THROUGH_LABEL: Readonly<Record<PassThroughKind, string>> = {
   'patch-panel': 'Patchfeld',
@@ -125,6 +134,8 @@ export interface SignalChain {
   end: ChainEnd
   /** Klartext fuer die Anzeige; leer bei 'ziel'. */
   endNote: string
+  /** `endNote` als Satz — fuer den Bildschirm in der App-Sprache. */
+  endSatz?: Satz
   /** Zwischenebenen (Blenden, Wandler, …). Ohne die ist es kein Mehr-Ebenen-Weg. */
   levels: number
 }
@@ -147,6 +158,8 @@ interface Forward {
   cables: Cable[]
   /** Gesetzt, wenn der Weiterweg NICHT ableitbar war. */
   ambiguous?: string
+  /** `ambiguous` als Satz, wo es einen gibt. */
+  ambiguousSatz?: Satz
 }
 
 /**
@@ -167,10 +180,12 @@ const forwardFrom = (
       return {
         kind: 'patch-panel',
         cables: [],
-        ambiguous:
+        ...befundAls(
+          'ambiguous',
           device.inputs.length === device.outputs.length
-            ? kanonisch('rest.chain.notThrough', 'Port is not part of the patch panel pass-through')
-            : satzKanonisch(satz('rest.chain.uneven', 'Patch panel unevenly fitted ({hinten} rear, {vorn} front) — the position says nothing here', { hinten: device.inputs.length, vorn: device.outputs.length })),
+            ? satz('rest.chain.notThrough', 'Port is not part of the patch panel pass-through')
+            : satz('rest.chain.uneven', 'Patch panel unevenly fitted ({hinten} rear, {vorn} front) — the position says nothing here', { hinten: device.inputs.length, vorn: device.outputs.length }),
+        ),
       }
     }
     return { kind: 'patch-panel', cables: cablesFromPort.get(other.id) ?? [] }
@@ -248,9 +263,12 @@ const forwardFrom = (
       return {
         kind,
         cables: [],
-        ambiguous: liegtAn
-          ? kanonisch('rest.chain.noCableOut', 'Crosspoint set, but no cable on the switched output')
-          : kanonisch('rest.chain.noOutput', 'The planned routing puts this signal on no output'),
+        ...befundAls(
+          'ambiguous',
+          liegtAn
+            ? satz('rest.chain.noCableOut', 'Crosspoint set, but no cable on the switched output')
+            : satz('rest.chain.noOutput', 'The planned routing puts this signal on no output'),
+        ),
       }
     }
     return { kind, cables: outs }
@@ -357,7 +375,7 @@ export const signalChains = (
     const last = steps[steps.length - 1]
     const device = eqById.get(last.toEquipmentId)
 
-    const finish = (end: ChainEnd, endNote: string) => {
+    const finish = (end: ChainEnd, endNote: string, endSatz?: Satz) => {
       const levels = steps.filter((s) => s.through !== null).length
       if (levels === 0 && !opts.auchDirekte) return
       out.push({
@@ -365,6 +383,7 @@ export const signalChains = (
         steps,
         end,
         endNote,
+        ...(endSatz ? { endSatz } : {}),
         levels,
       })
     }
@@ -375,7 +394,12 @@ export const signalChains = (
     if (!fw) return finish('ziel', '')
     if (fw.ambiguous) {
       last.through = null
-      return finish('mehrdeutig', `${PASS_THROUGH_LABEL[fw.kind]}: ${fw.ambiguous}`)
+      const art = satz(`chain.passThrough.${fw.kind}`, PASS_THROUGH_EN[fw.kind])
+      return finish(
+        'mehrdeutig',
+        `${PASS_THROUGH_LABEL[fw.kind]}: ${fw.ambiguous}`,
+        fw.ambiguousSatz ? satz('chain.end.ambiguous', '{art}: {grund}', { art, grund: fw.ambiguousSatz }) : undefined,
+      )
     }
     if (fw.cables.length === 0) {
       last.through = null

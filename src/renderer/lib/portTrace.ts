@@ -69,7 +69,7 @@ import { allDeviceInterfaces } from './networkInterfaces'
 import { isPatchPanelDevice, patchPanelCounterpart } from './patchPanel'
 import { portDisplayLabel } from './portLabel'
 import { subnetCidr } from './subnet'
-import { satz, satzKanonisch } from './satz'
+import { satz, satzKanonisch, type Satz } from './satz'
 
 /** Welche Bauform eine Zwischenstation hat. */
 export type StageKind = 'patch-panel' | 'converter' | 'adapter'
@@ -166,6 +166,8 @@ export interface PortTraceRow {
   end: TraceEnd
   /** Klartext fuer die Anzeige; leer bei 'switch'. */
   endNote: string
+  /** `endNote` als Satz — fuer den Bildschirm in der App-Sprache. */
+  endSatz?: Satz
   source: TraceSource
   /** Beide Quellen sagen etwas, und sie widersprechen sich. */
   conflict?: string
@@ -198,6 +200,8 @@ interface Walk {
   stages: TraceStage[]
   end: TraceEnd
   endNote: string
+  /** `endNote` als Satz — fuer den Bildschirm in der App-Sprache. */
+  endSatz?: Satz
   switchDevice?: EquipmentItem
   switchPort?: string
   switchIsRouter?: boolean
@@ -235,7 +239,9 @@ const walkFrom = (
   const besucht = new Set<string>([startEquipmentId])
   let exitPortId = startPort.id
 
-  const stop = (end: TraceEnd, note: string): Walk => {
+  const stop = (end: TraceEnd, s: Satz | string): Walk => {
+    const note = typeof s === 'string' ? s : satzKanonisch(s)
+    if (typeof s !== 'string') walk.endSatz = s
     walk.end = end
     walk.endNote = note
     return walk
@@ -247,8 +253,8 @@ const walkFrom = (
       return stop(
         walk.stages.length === 0 ? 'ohne-kabel' : 'nicht-verkabelt',
         walk.stages.length === 0
-          ? kanonisch('rest.trace.noCable', 'No cable on this port')
-          : kanonisch('rest.trace.notCabled', 'The onward path is not cabled in the plan'),
+          ? satz('rest.trace.noCable', 'No cable on this port')
+          : satz('rest.trace.notCabled', 'The onward path is not cabled in the plan'),
       )
     }
     if (links.length > 1) {
@@ -287,8 +293,8 @@ const walkFrom = (
         return stop(
           'mehrdeutig',
           device.inputs.length === device.outputs.length
-            ? satzKanonisch(satz('rest.trace.notThrough', 'Patch panel {name}: the port is not part of the pass-through', { name: device.name }))
-            : satzKanonisch(satz('rest.trace.uneven', 'Patch panel {name} unevenly fitted ({hinten} rear, {vorn} front) — the position says nothing here', { name: device.name, hinten: device.inputs.length, vorn: device.outputs.length })),
+            ? (satz('rest.trace.notThrough', 'Patch panel {name}: the port is not part of the pass-through', { name: device.name }))
+            : (satz('rest.trace.uneven', 'Patch panel {name} unevenly fitted ({hinten} rear, {vorn} front) — the position says nothing here', { name: device.name, hinten: device.inputs.length, vorn: device.outputs.length })),
         )
       }
       walk.stages.push({
@@ -446,11 +452,12 @@ export function buildPortTrace(
       const segment = nic?.vlanId !== undefined ? segmentByVlan.get(nic.vlanId) : undefined
 
       const end: TraceEnd = walk ? walk.end : declaredSwitch ? 'switch' : 'ohne-kabel'
-      const endNote = walk
-        ? walk.endNote
+      const endSatz = walk
+        ? walk.endSatz
         : declaredSwitch
-          ? kanonisch('rest.trace.manualOnly', 'Entered by hand only — no cable in the plan goes there')
-          : kanonisch('rest.trace.noCableIface', 'No cable on this interface')
+          ? satz('rest.trace.manualOnly', 'Entered by hand only — no cable in the plan goes there')
+          : satz('rest.trace.noCableIface', 'No cable on this interface')
+      const endNote = walk ? walk.endNote : endSatz ? satzKanonisch(endSatz) : ''
 
       return {
         key: `${device.id}|${nic?.id ?? '-'}|${walk?.startPortId ?? '-'}`,
@@ -492,6 +499,7 @@ export function buildPortTrace(
           : {}),
         end,
         endNote: end === 'switch' ? '' : endNote,
+        ...(end !== 'switch' && endSatz ? { endSatz } : {}),
         source,
         ...(conflict ? { conflict } : {}),
       }

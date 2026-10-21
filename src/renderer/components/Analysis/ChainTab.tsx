@@ -1,3 +1,4 @@
+import { satzText } from '../../lib/satz'
 import { useMemo } from 'react'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation } from '../../lib/i18n'
@@ -59,7 +60,9 @@ const Kette = ({ chain }: { chain: SignalChain }) => {
       <div className={`mt-0.5 text-cp-xs ${ENDE_TON[chain.end]}`}>
         {chain.end === 'ziel'
           ? t('analysis.chain.endTarget', 'End device reached')
-          : chain.endNote}
+          : chain.endSatz
+            ? satzText(chain.endSatz, t)
+            : chain.endNote}
       </div>
     </li>
   )

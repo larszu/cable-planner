@@ -9,6 +9,21 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 export const BEFUNDE_DE: Readonly<Record<string, string>> = {
+  // Signalkette: Ende an einer Durchleitung (signalChain.ts).
+  'chain.end.ambiguous':
+    '{art}: {grund}',
+  'chain.passThrough.patch-panel':
+    'Patchfeld',
+  'chain.passThrough.converter':
+    'Wandler',
+  'chain.passThrough.distribution-amp':
+    'Distribution amplifier',
+  'chain.passThrough.router':
+    'Kreuzschiene',
+  'chain.passThrough.mixer':
+    'Mischer',
+  'chain.passThrough.adapter':
+    'Adapter',
   // Rueckfall-Saetze und Blatt-Zellen (#1142, Reste).
   'rest.asset.unnamed':
     'nicht benannt',
