@@ -85,6 +85,7 @@ const BUILTIN_EN_TO_DE: Record<string, string> = {
   Converter: 'Konverter',
   'Sync/Reference': 'Sync/Referenz',
   'Power distribution': 'Stromverteilung',
+  'Floor boxes': 'Bodentanks',
   Wireless: 'Funkstrecke',
   Mixer: 'Mischer',
   'Video Converter': 'Video-Konverter',
@@ -133,6 +134,7 @@ export const LEGACY_CATEGORY_RENAMES: Record<string, string> = {
   Konverter: 'Converter',
   'Sync/Referenz': 'Sync/Reference',
   Stromverteilung: 'Power distribution',
+  Bodentanks: 'Floor boxes',
   Funkstrecke: 'Wireless',
   Mischer: 'Mixer',
 }

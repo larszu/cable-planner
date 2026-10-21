@@ -47,9 +47,16 @@ import { einsetzen, type Platzhalterwerte } from '../lib/platzhalter'
 import type { Port } from './equipment'
 
 /** Was fuer eine Platte es ist. Kein Freitext: die Liste im Plan gruppiert danach. */
-export type FrontplattenArt = 'wandfeld' | 'stagebox' | 'blende' | 'sonstige'
+/** `bodentank` (#963): eine Bodendose im Raum — ein Anschlusspunkt wie das
+ *  Wandfeld, nur im Boden. Die 3D-Ansicht legt sie auf den Boden statt auf
+ *  Tischhoehe. */
+export type FrontplattenArt = 'wandfeld' | 'bodentank' | 'stagebox' | 'blende' | 'sonstige'
 
-export const FRONTPLATTEN_ARTEN: FrontplattenArt[] = ['wandfeld', 'stagebox', 'blende', 'sonstige']
+export const FRONTPLATTEN_ARTEN: FrontplattenArt[] = ['wandfeld', 'bodentank', 'stagebox', 'blende', 'sonstige']
+
+/** #963 — ist dieses Geraet ein Bodentank? */
+export const istBodentank = (device: { frontplatte?: Pick<Frontplatte, 'art'> }): boolean =>
+  device.frontplatte?.art === 'bodentank'
 
 export const istFrontplattenArt = (v: unknown): v is FrontplattenArt =>
   typeof v === 'string' && (FRONTPLATTEN_ARTEN as string[]).includes(v)

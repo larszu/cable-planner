@@ -49,7 +49,9 @@ const PX_JE_MM = 2.2
 const artLabel = (art: FrontplattenArt, t: (k: string, f: string) => string): string =>
   art === 'wandfeld'
     ? t('faceplate.kind.wall', 'Wall panel')
-    : art === 'stagebox'
+    : art === 'bodentank'
+      ? t('faceplate.kind.floorBox', 'Floor box')
+      : art === 'stagebox'
       ? t('faceplate.kind.stagebox', 'Stage box')
       : art === 'blende'
         ? t('faceplate.kind.panel', 'Rack panel')

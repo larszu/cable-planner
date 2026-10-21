@@ -59,7 +59,7 @@ export const categoryIsPatchPanel = (category: string | undefined): boolean =>
  * dadurch in Einzelstuecke. `sonstige` bleibt aussen vor: was das ist, sagt
  * die Art gerade nicht.
  */
-export const DURCHLEITENDE_PLATTEN: readonly FrontplattenArt[] = ['wandfeld', 'stagebox', 'blende']
+export const DURCHLEITENDE_PLATTEN: readonly FrontplattenArt[] = ['wandfeld', 'bodentank', 'stagebox', 'blende']
 
 /** Leitet diese Frontplatte ihrer Art nach durch? Ohne Platte: nein. */
 export const plattenDurchleitung = (device: { frontplatte?: Pick<Frontplatte, 'art'> }): boolean =>

@@ -3577,7 +3577,7 @@ export const de: Dict = {
   'gebaeude3d.button': '3D',
   'gebaeude3d.empty': 'Noch keine Räume. Rahmen auf dem Canvas zeichnen und ihnen eine Etage geben — jeder Rahmen wird hier ein Raum.',
   'gebaeude3d.footer':
-    '{rooms} Räume · {devices} Geräte · {cables} Kabel · {links} Raumverbindungen — ziehen zum Drehen, scrollen zum Zoomen',
+    '{rooms} Räume · {devices} Geräte · {cables} Kabel · {links} Raumverbindungen — Gerät oder Bodentank ziehen zum Verschieben, daneben ziehen zum Drehen, scrollen zum Zoomen',
   'gebaeude3d.labels': 'Beschriftung',
   'gebaeude3d.mode': 'Anzeigen',
   'gebaeude3d.modeCables': 'Einzelne Kabel',
@@ -3810,6 +3810,7 @@ export const de: Dict = {
   'faceplate.kind': 'Art',
   'faceplate.kindNone': 'keine Frontplatte',
   'faceplate.kind.wall': 'Wandanschlussfeld',
+  'faceplate.kind.floorBox': 'Bodentank',
   'faceplate.kind.stagebox': 'Stagebox',
   'faceplate.kind.panel': 'Rack-Blende',
   'faceplate.kind.other': 'Sonstige',
