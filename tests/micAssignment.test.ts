@@ -165,7 +165,8 @@ describe('a2Card', () => {
     expect(c?.channelLabel).toBe('Handsender 1')
     expect(c?.frequency).toBe('502.375 MHz')
     expect(c?.pack).toBe('AV-U1')
-    expect(c?.origin).toBe(ORIGIN_LABEL.manual)
+    expect(c?.origin).toBe('von Hand') // kanonisch deutsch; Quelle: ORIGIN_LABEL.manual = 'by hand'
+    expect(ORIGIN_LABEL.manual).toBe('by hand')
   })
 
   it('sagt „Kanal entfernt", wenn der Rig-Plan ihn nicht mehr fuehrt', () => {

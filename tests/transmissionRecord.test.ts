@@ -1,3 +1,4 @@
+import { kanonisch } from '../src/renderer/lib/kanonisch'
 import { describe, expect, it } from 'vitest'
 import {
   DELIVERY_SECTIONS,
@@ -271,7 +272,7 @@ describe('deliveryDeviations — was sich seit dem Bauzustand bewegt hat', () =>
     } as Partial<CablePlannerProject>)
     const abw = deliveryDeviations(p)
     expect(abw.map((d) => d.section)).toContain('deliveryDestinations')
-    expect(abw[0].label).toBe('Ausspielziele')
+    expect(abw[0].label).toBe('Delivery destinations')
   })
 
   it('meldet bewegte Bereiche ohne Eintrag als Luecke', () => {
@@ -368,8 +369,9 @@ describe('transmissionRecordTable — das Blatt fuer den Kunden', () => {
 
   it('traegt kanonisches Deutsch — der Stand haengt nicht an der Sprache', () => {
     expect(libQuelle).not.toContain("t('")
-    expect(TRANSMISSION_EVENT_LABEL.dropout).toBe('Abriss')
-    expect(TRANSMISSION_SOURCE_LABEL.observed).toBe('gesehen')
+    expect(TRANSMISSION_EVENT_LABEL.dropout).toBe('Dropout')
+    expect(kanonisch('transmission.event.dropout', '')).toBe('Abriss')
+    expect(kanonisch('transmission.source.observed', '')).toBe('gesehen')
   })
 
   it('traegt die Zusammenfassung NICHT — sie ist Fliesstext eines Menschen', () => {

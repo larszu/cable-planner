@@ -266,9 +266,9 @@ describe('Bedarf 90 — das Blatt', () => {
     )
     const tab = archiveTable(a)
     expect(tab.headers).toEqual(['Art', 'Was', 'Gerät', 'Text'])
-    expect(tab.rows[0]).toContain(ARCHIVE_ANSWER_LABEL.device)
+    expect(tab.rows[0]).toContain('auf einem Gerät')
     expect(tab.rows[0]).toContain('SSD im Schacht')
-    expect(tab.rows[1]).toContain(ARCHIVE_FINDING_LABEL['shares-encoder'])
+    expect(tab.rows[1]).toContain('Aufzeichnung und Ausspielung auf einem Gerät')
   })
 
   it('setzt keinen Platzhalter, wo nichts steht', () => {

@@ -29,6 +29,7 @@ import { deriveLabels, routerLinkFor, switcherLinkFor } from './labelDerivation'
 import { detectDeviceKind } from './deviceKind'
 import { umdAddressClashes } from './sourceIdentity'
 import { toCsv, type CsvTable } from './csv'
+import { spalten } from './kanonisch'
 
 export interface TallyMapDevice {
   id: string
@@ -225,7 +226,7 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
  * erstes unter den vergessenen nennt.
  */
 export const tallyMapTable = (map: TallyMap): CsvTable => ({
-  headers: ['Nr.', 'Rolle', 'Gerät(e)', 'Mischer', 'Eingang', 'UMD-Adresse'],
+  headers: spalten(['No.', 'Role', 'Device(s)', 'Switcher', 'Input', 'UMD address']),
   rows: map.rows.map((r) => [
     r.number ?? '',
     r.name,
@@ -242,7 +243,7 @@ export const tallyMapTableForProject = (project: TallyProject): CsvTable =>
 
 export const tallyMapCsv = (map: TallyMap): string =>
   toCsv(
-    ['Nr.', 'Rolle', 'Gerät(e)', 'Mischer', 'Eingang', 'UMD-Adresse'],
+    spalten(['No.', 'Role', 'Device(s)', 'Switcher', 'Input', 'UMD address']),
     map.rows.map((r) => [
       r.number ?? '',
       r.name,

@@ -47,13 +47,14 @@
 import type { CablePlannerProject, ProjectRevision } from '../types/project'
 import type { CsvTable } from './csv'
 import { planDiff } from './planDiff'
+import { kanonisch, spalten } from './kanonisch'
 
 export type JobBasis = 'as-built' | 'drifted' | 'as-quoted'
 
 export const JOB_BASIS_LABEL: Readonly<Record<JobBasis, string>> = {
-  'as-built': 'Wie gebaut',
-  drifted: 'As-Built veraltet',
-  'as-quoted': 'Wie geplant (kein As-Built)',
+  'as-built': 'As built',
+  drifted: 'As-built outdated',
+  'as-quoted': 'As planned (no as-built)',
 }
 
 export type JobHandoverFindingKind =
@@ -64,11 +65,11 @@ export type JobHandoverFindingKind =
   | 'no-venue'
 
 export const JOB_FINDING_LABEL: Readonly<Record<JobHandoverFindingKind, string>> = {
-  'no-as-built': 'Kein As-Built festgeschrieben',
-  'as-built-stale': 'Das As-Built ist überholt',
-  'open-questions': 'Fragen ans Haus stehen offen',
-  'unbuilt-notes': 'Offene Anmerkungen im Plan',
-  'no-venue': 'Kein Ort genannt',
+  'no-as-built': 'No as-built recorded',
+  'as-built-stale': 'The as-built is outdated',
+  'open-questions': 'Questions to the venue are open',
+  'unbuilt-notes': 'Open notes in the plan',
+  'no-venue': 'No venue named',
 }
 
 export interface JobHandoverFinding {
@@ -160,13 +161,13 @@ export function assessJobHandover(project: CablePlannerProject): JobHandover {
 export function jobHandoverTable(project: CablePlannerProject): CsvTable {
   const a = assessJobHandover(project)
   return {
-    headers: ['Grundlage', 'As-Built', 'Änderungen seither', 'Befund'],
+    headers: spalten(['Basis', 'As-Built', 'Changes since', 'Finding']),
     rows: [
       [
-        JOB_BASIS_LABEL[a.basis],
+        kanonisch(`job.basis.${a.basis}`, JOB_BASIS_LABEL[a.basis]),
         a.asBuilt ? `${a.asBuilt.label} (${a.asBuilt.createdAt})` : 'keins',
         a.changedSince,
-        a.findings.map((f) => JOB_FINDING_LABEL[f.kind]).join('; '),
+        a.findings.map((f) => kanonisch(`job.finding.${f.kind}`, JOB_FINDING_LABEL[f.kind])).join('; '),
       ],
     ],
   }

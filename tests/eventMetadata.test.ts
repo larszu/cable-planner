@@ -1,3 +1,4 @@
+import { kanonisch } from '../src/renderer/lib/kanonisch'
 import { describe, expect, it } from 'vitest'
 import {
   EVENT_METADATA_FINDING_LABEL,
@@ -289,7 +290,9 @@ describe('eventMetadataTable — das Blatt zum Abtippen', () => {
     // als veraltet.
     expect(libQuelle).not.toMatch(/\bfrom '\.\/i18n/)
     expect(libQuelle).not.toContain("t('")
-    expect(PRIVACY_LABEL.public).toBe('öffentlich')
+    // Quelle englisch (#1128); im Blatt kanonisch deutsch ueber kanonisch().
+    expect(PRIVACY_LABEL.public).toBe('public')
+    expect(kanonisch('eventMeta.privacy.public', PRIVACY_LABEL.public)).toBe('öffentlich')
   })
 
   it('ist als Dokument mit Stand und lesbarem Namen registriert', () => {

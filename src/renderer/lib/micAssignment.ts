@@ -24,6 +24,7 @@ import type { MicAssignment, MicPlot, MicSession, Performer } from '../types/mic
 import { NO_BATTERY_TIME, NO_PERFORMER_NAME, NO_PHOTO, ORIGIN_LABEL } from '../types/micAssignment'
 import type { WirelessChannel, WirelessRigPlan } from '../types/wirelessRig'
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch } from './kanonisch'
 
 /**
  * Wie eine Person auf einem Blatt heisst.
@@ -112,7 +113,7 @@ export function a2Card(
     pack: a.packUnitId ? packLabelOf(a.packUnitId) : 'nicht benannt',
     capsule: a.capsuleNote?.trim() || 'wie im Kanalplan',
     battery: batteryText(a, now),
-    origin: ORIGIN_LABEL[a.origin],
+    origin: kanonisch(`mic.origin.${a.origin}`, ORIGIN_LABEL[a.origin]),
     notes: a.notes?.trim() || '',
   }
 }

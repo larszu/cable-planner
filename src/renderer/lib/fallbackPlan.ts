@@ -53,6 +53,7 @@ import type { CablePlannerProject } from '../types/project'
 import type { DeliveryDestination } from '../types/delivery'
 import type { FallbackPlan, FallbackRule } from '../types/fallback'
 import type { CsvTable } from './csv'
+import { spalten } from './kanonisch'
 
 export type FallbackFindingKind =
   | 'scene-unknown'
@@ -63,12 +64,12 @@ export type FallbackFindingKind =
   | 'no-return-path'
 
 export const FALLBACK_FINDING_LABEL: Readonly<Record<FallbackFindingKind, string>> = {
-  'scene-unknown': 'Szene gibt es im Encoder nicht',
-  'scenes-unknown': 'Szenenliste fehlt — der Namensabgleich läuft nicht',
-  'stats-loopback': 'localhost ist eine Annahme über die Maschine',
-  'threshold-above-bitrate': 'Schwelle über der geplanten Bitrate',
-  'threshold-order': 'Schwellen stehen verkehrt herum',
-  'no-return-path': 'Kein Rückweg aus der Ausweichszene',
+  'scene-unknown': 'Scene does not exist in the encoder',
+  'scenes-unknown': 'Scene list missing — names cannot be checked',
+  'stats-loopback': 'localhost is an assumption about the machine',
+  'threshold-above-bitrate': 'Threshold above the planned bitrate',
+  'threshold-order': 'Thresholds are the wrong way round',
+  'no-return-path': 'No way back from the fallback scene',
 }
 
 export interface FallbackFinding {
@@ -221,16 +222,16 @@ export function fallbackTable(project: CablePlannerProject): CsvTable {
   const dests = project.deliveryDestinations ?? []
   const name = (id: string) => dests.find((d) => d.id === id)?.name ?? id
   return {
-    headers: [
-      'Ziel',
-      'Normalbetrieb',
-      'Niedrige Bitrate',
+    headers: spalten([
+      'Destination',
+      'Normal',
+      'Low bitrate',
       'Offline',
-      'Schwelle niedrig (kbit/s)',
-      'Schwelle offline (kbit/s)',
-      'Geplant (kbit/s)',
-      'Anmerkung',
-    ],
+      'Low threshold (kbit/s)',
+      'Offline threshold (kbit/s)',
+      'Planned (kbit/s)',
+      'Comment',
+    ]),
     rows: a.plan.rules.map((r) => {
       const d = dests.find((x) => x.id === r.destinationId)
       return [

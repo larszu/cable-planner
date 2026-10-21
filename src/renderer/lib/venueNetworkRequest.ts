@@ -57,6 +57,7 @@ import { allDeviceInterfaces } from './networkInterfaces'
 import { buildAddressPlan } from './addressPlan'
 import { subnetCidr } from './subnet'
 import type { CsvCell, CsvTable } from './csv'
+import { spalten } from './kanonisch'
 
 /**
  * Standards, die im Netz mit Multicast arbeiten — und damit vom IGMP-Verhalten
@@ -321,7 +322,7 @@ export function venueRequestTable(req: VenueNetworkRequest): CsvTable {
     jointTest: 'Gemeinsamer Testtermin',
   }
   return {
-    headers: ['Punkt', 'Art', 'Aus dem Plan', 'Frage an das Haus', 'Quelle'],
+    headers: spalten(['Point', 'Kind', 'From the plan', 'Question to the venue', 'Source']),
     rows: req.items.map((i): CsvCell[] => [
       label[i.key] ?? i.key,
       i.origin === 'derived' ? 'abgeleitet' : 'Frage',
@@ -357,7 +358,7 @@ export function rackDoorSheetTable(equipment: EquipmentItem[]): CsvTable {
     ])
   }
   return {
-    headers: ['Gerät', 'Schnittstelle', 'IP', 'Maske', 'Gateway', 'VLAN', 'MAC'],
+    headers: spalten(['Device', 'Interface', 'IP', 'Mask', 'Gateway', 'VLAN', 'MAC']),
     rows,
   }
 }
@@ -371,7 +372,7 @@ export function vlanTable(equipment: EquipmentItem[]): CsvTable {
     byVlan.set(nic.vlanId, [...(byVlan.get(nic.vlanId) ?? []), name])
   }
   return {
-    headers: ['VLAN', 'Geräte', 'Anzahl'],
+    headers: spalten(['VLAN', 'Devices', 'Count']),
     rows: [...byVlan.entries()]
       .sort((a, b) => a[0] - b[0])
       .map(([id, names]): CsvCell[] => [id, names.join(', '), names.length]),

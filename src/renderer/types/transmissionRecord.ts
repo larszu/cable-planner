@@ -61,14 +61,14 @@ export type TransmissionEventKind =
   | 'note'
 
 export const TRANSMISSION_EVENT_LABEL: Readonly<Record<TransmissionEventKind, string>> = {
-  start: 'Sendestart',
-  stop: 'Sendeende',
-  dropout: 'Abriss',
-  degraded: 'Verschlechterung',
-  switch: 'Umschaltung',
-  recovered: 'Wieder normal',
-  'config-change': 'Änderung während der Sendung',
-  note: 'Beobachtung',
+  start: 'Transmission start',
+  stop: 'Transmission end',
+  dropout: 'Dropout',
+  degraded: 'Degradation',
+  switch: 'Switch',
+  recovered: 'Back to normal',
+  'config-change': 'Change during transmission',
+  note: 'Observation',
 }
 
 /**
@@ -90,10 +90,10 @@ export type TransmissionSource =
   | 'unstated'
 
 export const TRANSMISSION_SOURCE_LABEL: Readonly<Record<TransmissionSource, string>> = {
-  observed: 'gesehen',
-  'from-log': 'aus Log abgetippt',
-  reported: 'gemeldet',
-  unstated: 'Herkunft nicht angegeben',
+  observed: 'seen',
+  'from-log': 'copied from a log',
+  reported: 'reported',
+  unstated: 'source not stated',
 }
 
 export interface TransmissionEvent {

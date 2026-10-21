@@ -1,3 +1,4 @@
+import { de } from '../src/renderer/lib/i18n/de'
 import { describe, expect, it } from 'vitest'
 import {
   FALLBACK_FINDING_LABEL,
@@ -370,9 +371,9 @@ describe('`localhost` ist eine Annahme — NOALBS #178', () => {
   })
 
   it('haelt die Etiketten kanonisch deutsch', () => {
-    expect(FALLBACK_FINDING_LABEL['stats-loopback']).toBe(
-      'localhost ist eine Annahme über die Maschine',
-    )
+    // Quelle englisch (#1128), Deutsch im Woerterbuch.
+    expect(FALLBACK_FINDING_LABEL['stats-loopback']).toBe('localhost is an assumption about the machine')
+    expect(de['fallback.finding.stats-loopback']).toBe('localhost ist eine Annahme über die Maschine')
   })
 })
 

@@ -30,6 +30,7 @@ import type { CsvCell, CsvTable } from './csv'
 import type { DeliveryDestination, EncodingProfile } from '../types/delivery'
 import { platformByKey } from '../types/delivery'
 import { COMPANION_SCHNITTSTELLE_HINWEIS } from './companionVariablen'
+import { spalten } from './kanonisch'
 
 export type DeliveryIssueKind =
   /** Backup weicht in einem der sechs Pflichtfelder ab. */
@@ -269,23 +270,23 @@ export function deliveryTable(destinations: DeliveryDestination[]): CsvTable {
   }
   const nameById = new Map(destinations.map((d) => [d.id, d.name]))
   return {
-    headers: [
-      'Ziel',
-      'Plattform',
+    headers: spalten([
+      'Destination',
+      'Platform',
       'Transport',
       'Ingest-URL',
-      'Key hinterlegt',
-      'Bild',
+      'Key stored',
+      'Picture',
       'Video',
       'Keyframe',
       'Audio',
-      'Backup von',
+      'Backup of',
       // E-23 — der Plan BENENNT die Show-Control-Adresse und druckt sie. Er
       // verschickt nichts; sie steht hier als Konfiguration, damit sie jemand
       // am Pult eintragen kann.
       'Show-Control',
-      'Befund',
-    ],
+      'Finding',
+    ]),
     rows: destinations.map((d): CsvCell[] => [
       d.name,
       d.platform,

@@ -47,6 +47,7 @@ import {
 import { latestAsBuilt, type JobBasis } from './jobHandover'
 import { planDiff } from './planDiff'
 import type { CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 
 /**
  * Die Projekt-Teile, deren Aenderung in einem Sendebericht als Abweichung der
@@ -60,10 +61,10 @@ export const DELIVERY_SECTIONS = [
 ] as const
 
 export const DELIVERY_SECTION_LABEL: Readonly<Record<string, string>> = {
-  deliveryDestinations: 'Ausspielziele',
-  fallback: 'Sicherheitsnetz',
-  archiveRecording: 'Archiv-Aufzeichnung',
-  eventMetadata: 'Angaben zur Veranstaltung',
+  deliveryDestinations: 'Delivery destinations',
+  fallback: 'Safety net',
+  archiveRecording: 'Archive recording',
+  eventMetadata: 'Event details',
 }
 
 export type TransmissionFindingKind =
@@ -79,16 +80,16 @@ export type TransmissionFindingKind =
   | 'no-summary'
 
 export const TRANSMISSION_FINDING_LABEL: Readonly<Record<TransmissionFindingKind, string>> = {
-  'no-events': 'Kein Eintrag — der Bericht wäre leer',
-  'no-as-built': 'Kein As-Built: Abweichungen sind nicht ableitbar',
-  'event-orphan': 'Eintrag auf ein Ziel, das es nicht mehr gibt',
-  'event-unzoned': 'Zeitpunkt ohne Zeitzone',
-  'event-outside-window': 'Zeitpunkt außerhalb des Einsatzzeitraums',
-  'event-unsourced': 'Herkunft der Angabe nicht genannt',
-  'dropout-without-end': 'Abriss ohne Wiederkehr und ohne Sendeende',
-  'switch-without-plan': 'Umschaltung auf einen Weg, den der Plan nicht kennt',
-  'deviations-unrecorded': 'Ausspielung weicht vom As-Built ab, ohne Eintrag',
-  'no-summary': 'Keine Zusammenfassung für den Kunden',
+  'no-events': 'No entry — the report would be empty',
+  'no-as-built': 'No as-built: deviations cannot be derived',
+  'event-orphan': 'Entry for a destination that no longer exists',
+  'event-unzoned': 'Time without a time zone',
+  'event-outside-window': 'Time outside the job window',
+  'event-unsourced': 'Source of the entry not named',
+  'dropout-without-end': 'Dropout without recovery and without end of transmission',
+  'switch-without-plan': 'Switch to a path the plan does not know',
+  'deviations-unrecorded': 'Delivery differs from the as-built, without an entry',
+  'no-summary': 'No summary for the client',
 }
 
 export interface TransmissionFinding {
@@ -292,12 +293,12 @@ export function transmissionRecordTable(project: CablePlannerProject): CsvTable 
   const a = assessTransmission(project)
   const byId = new Map((project.deliveryDestinations ?? []).map((d) => [d.id, d.name]))
   return {
-    headers: ['Zeit', 'Ziel', 'Was', 'Herkunft', 'Beobachtet von', 'Beschreibung'],
+    headers: spalten(['At', 'Destination', 'What', 'Origin', 'Observed by', 'Description']),
     rows: a.events.map((e) => [
       e.at,
       e.destinationId ? (byId.get(e.destinationId) ?? GONE) : WHOLE_SHOW,
-      TRANSMISSION_EVENT_LABEL[e.kind],
-      TRANSMISSION_SOURCE_LABEL[e.source],
+      kanonisch(`transmission.event.${e.kind}`, TRANSMISSION_EVENT_LABEL[e.kind]),
+      kanonisch(`transmission.source.${e.source}`, TRANSMISSION_SOURCE_LABEL[e.source]),
       e.observedBy?.trim() || NO_OBSERVER,
       e.text.trim() || NO_TEXT,
     ]),
