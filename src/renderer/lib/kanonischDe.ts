@@ -152,6 +152,11 @@ export const KANONISCH_DE: Readonly<Record<string, string>> = {
   'transmission.source.from-log': 'aus Log abgetippt',
   'transmission.source.reported': 'gemeldet',
   'transmission.source.unstated': 'Herkunft nicht angegeben',
+  // Buchungsstand im Crew-Kalender (Export) und in der Crew-Ansicht.
+  'labour.booking.pencil': 'vorgemerkt',
+  'labour.booking.hold': 'reserviert',
+  'labour.booking.confirmed': 'bestätigt',
+  'labour.booking.worked': 'geleistet',
   'job.basis.as-built': 'Wie gebaut',
   'job.basis.drifted': 'As-Built veraltet',
   'job.basis.as-quoted': 'Wie geplant (kein As-Built)',

@@ -235,7 +235,7 @@ export function assessTransmission(project: CablePlannerProject): TransmissionAs
     if (spaeter.length > 0) continue
     findings.push({
       kind: 'dropout-without-end',
-      text: `Auf „${TRANSMISSION_EVENT_LABEL[e.kind]}" um ${e.at} folgt weder eine Wiederkehr noch ein Sendeende. So gelesen ist die Sendung nicht zurückgekommen.`,
+      text: `Auf „${kanonisch(`transmission.event.${e.kind}`, TRANSMISSION_EVENT_LABEL[e.kind])}" um ${e.at} folgt weder eine Wiederkehr noch ein Sendeende. So gelesen ist die Sendung nicht zurückgekommen.`,
       eventId: e.id,
     })
   }

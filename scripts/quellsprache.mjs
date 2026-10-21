@@ -150,7 +150,7 @@ export const klassifiziere = (roh) => {
  * Musters sind die Defektform `zwei-rechnungen` im Kleinen.
  */
 export const fallbackMuster = () =>
-  /\b(?:t|tr|translate)\(\s*(?:[A-Za-z]+\s*,\s*)?(['"])[^'"]+\1\s*,\s*(['"])((?:[^\\]|\\.)*?)\2(?=\s*[,)])/g
+  /\b(?:t|tr|translate|kanonisch|satz)\(\s*(?:[A-Za-z]+\s*,\s*)?(['"])[^'"]+\1\s*,\s*(['"])((?:[^\\]|\\.)*?)\2(?=\s*[,)])/g
 
 const dateien = (dir) =>
   readdirSync(dir).flatMap((eintrag) => {
@@ -579,6 +579,37 @@ export const messeOhneT = (wurzel, quellsprache) => {
   return funde
 }
 
+/**
+ * Befund- und Begruendungstexte als Literal (#1142).
+ *
+ * `text: 'Kabel ohne Laenge'` in einem Befund ging an keinem t() vorbei,
+ * weil es keins gab: der Satz stand fertig im Datenobjekt und wurde so
+ * angezeigt und exportiert. Gemessen werden die Felder `text`, `reason`,
+ * `detail`, `message` und `grund`, deren Wert ein Literal ist (auch ein mit
+ * `+` verketteter oder ein Backtick-Satz). Die Quelle gehoert in `satz(key,
+ * 'English', werte)` (lib/satz.ts): Bildschirm ueber t(), Blatt kanonisch.
+ */
+const BEFUND_FELD = /\b(?:text|reason|detail|message|grund)\s*:\s*((?:(['"`])(?:[^\\]|\\.)*?\2\s*\+?\s*)+)/g
+const LITERAL = /(['"`])((?:[^\\]|\\.)*?)\1/g
+
+export const BEFUND_GRENZE = { 'src/renderer': 190, 'src/mobile': 0, 'src/viewer': 0 }
+
+export const messeBefundtexte = (wurzel, quellsprache) => {
+  const ziel = quellsprache === 'de' ? 'en' : 'de'
+  const funde = []
+  for (const datei of dateien(wurzel)) {
+    const rel = relative(wurzel, datei).split(sep).join('/')
+    if (rel.includes('i18n') || rel.includes('__tests__') || rel.includes('.test.')) continue
+    if (rel.startsWith('vendor/') || rel.endsWith('kanonischDe.ts')) continue
+    const quelle = ohneKommentare(readFileSync(datei, 'utf8'))
+    for (const m of quelle.matchAll(BEFUND_FELD)) {
+      const text = [...m[1].matchAll(LITERAL)].map((l) => l[2]).join('').replace(/\$\{[^}]*\}/g, ' ')
+      if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })
+    }
+  }
+  return funde
+}
+
 if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
   const [, , wurzel, sprache] = process.argv
   if (!wurzel || !sprache) {
@@ -693,6 +724,19 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
   if (ohneT.length > 0) {
     for (const f of ohneT) console.error(`  ${f.datei}: ${f.text}`)
     console.error('\nMap-Werte/Kopfzeilen englisch schreiben; UI ueber t()/tr(), Blaetter ueber kanonisch()/spalten().')
+    process.exit(1)
+  }
+
+  const befunde = messeBefundtexte(wurzel, sprache)
+  const befundGrenze = BEFUND_GRENZE[wurzel.replace(/\/+$/, '')] ?? 0
+  console.log(`Befundtexte: ${befunde.length} in der anderen Sprache (Grenze ${befundGrenze}).`)
+  if (befunde.length !== befundGrenze) {
+    if (befunde.length > befundGrenze) for (const f of befunde) console.error(`  ${f.datei}: ${f.text}`)
+    console.error(
+      befunde.length > befundGrenze
+        ? `\n${befunde.length - befundGrenze} mehr als erlaubt: Befundtexte ueber satz(key, 'English', werte) schreiben.`
+        : `\nBEFUND_GRENZE fuer ${wurzel} auf ${befunde.length} senken.`,
+    )
     process.exit(1)
   }
 

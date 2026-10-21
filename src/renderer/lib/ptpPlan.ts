@@ -231,7 +231,7 @@ export function buildPtpPlan(
         domain: d.domain,
         text:
           `Domäne ${d.domain} trägt zwei Profile: ` +
-          `${d.profiles.map((p) => PROFILE_LABEL[p]).join(' und ')}. Dieselbe Domäne, ` +
+          `${d.profiles.map((p) => kanonisch(`ptp.profile.${p}`, PROFILE_LABEL[p])).join(' und ')}. Dieselbe Domäne, ` +
           `zwei Vorstellungen davon, was darin gilt.`,
         deviceIds: ids,
       })
@@ -244,7 +244,7 @@ export function buildPtpPlan(
           kind: 'off-default',
           domain: d.domain,
           text:
-            `${m.label}: Profil ${PROFILE_LABEL[m.profile]} auf Domäne ${d.domain}. ` +
+            `${m.label}: Profil ${kanonisch(`ptp.profile.${m.profile}`, PROFILE_LABEL[m.profile])} auf Domäne ${d.domain}. ` +
             `Die Vorgabe dieses Profils ist ${vorgabe}. Das ist kein Fehler — aber es ` +
             `ist die Zahl, die man beim Fehlersuchen als Erstes sehen will.`,
           deviceIds: [m.equipmentId],

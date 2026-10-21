@@ -274,7 +274,7 @@ export function clientSummary(project: CablePlannerProject): ClientSummary {
   if (basis !== 'as-built') {
     findings.push({
       kind: 'no-as-built',
-      text: `Grundlage dieses Blatts: ${JOB_BASIS_LABEL[basis]}. Jede Bestandszahl darauf ist damit eine Planzahl und kein Leistungsnachweis — genau so steht es auch in der Spalte „Grundlage".`,
+      text: `Grundlage dieses Blatts: ${kanonisch(`job.basis.${basis}`, JOB_BASIS_LABEL[basis])}. Jede Bestandszahl darauf ist damit eine Planzahl und kein Leistungsnachweis — genau so steht es auch in der Spalte „Grundlage".`,
     })
   }
 
