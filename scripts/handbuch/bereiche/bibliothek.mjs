@@ -34,7 +34,10 @@ const insp = () => w.locator('aside:has(.spaltenkopf)').nth(1)
 const pause = (ms = 500) => w.waitForTimeout(ms)
 const rolle = (r, key, genau = false) => bib().getByRole(r, { name: a.muster(key, genau) }).first()
 const tab = (key) => rolle('button', key)
-const klickL = async (loc) => { await loc.click({ timeout: 8000 }); await pause(600) }
+const klickL = async (loc) => {
+  try { await loc.click({ timeout: 8000 }) } catch (e) { console.log('klickL:', String(e.message).split('\n')[0]); await a.zu().catch(() => {}) }
+  await pause(600)
+}
 const eintrag = (text) => bib().locator('[draggable="true"][role="button"]', { hasText: text }).first()
 const karte = (text) => bib().locator('div[draggable="true"]', { hasText: text }).first()
 const dialogAus = async (name) => { const t = await a.dialogText(); if (t) nachrichten.push({ name, text: t }) }
@@ -411,7 +414,7 @@ await s('kabel-eintrag-notiz', async () => {
   await a.dialog().getByPlaceholder(a.muster('cableLib.notePlaceholder')).fill(de ? 'Beispielnotiz' : 'Sample note')
 }, { ziel: () => a.dialog() })
 await s('kabel-eintrag-gespeichert', async () => {
-  await a.dialog().getByRole('button', { name: a.muster('common.save', true) }).click()
+  await w.getByRole('button', { name: a.muster('common.save', true) }).last().click()
   await pause(700)
 })
 await s('kabel-eintrag-zuruecksetzen', () => klickL(bib().getByTitle(a.text('cableLib.removeOverride')).first()), { ziel: () => a.dialog() })

@@ -1,5 +1,676 @@
 {
-  "create_general": "",
-  "cables_manage": "EINSTELLUNGEN\nProjekt\nModule\nDarstellung\nBearbeiten\nHotkeys\nIntegrationen\nGerätebibliothek\nMCP\nKonfigurationen\nKabeltypen\nStammdaten\nKategorien & Felder\nNetzwerk-Sync\nNachweise\nErweitert\nCable types\n\nKabeltypen sind die Vorlagen, die der Plan dir anbietet: Stecker, Signal-Standards, Farbe und Höchstlänge. mehr\n\nEigene Kabeltypen\n\nHier angelegt und in jedem Projekt auf diesem Rechner verfügbar.\n\n+ Neuer Kabeltyp\n\nNoch keiner — der eingebaute Katalog wird unverändert benutzt.\n\nGeänderte eingebaute Typen\n\nEin eingebauter Typ wird nie gelöscht, nur überschrieben. Zurücksetzen stellt die ausgelieferten Werte wieder her.\n\nKeine — jeder eingebaute Typ steht unverändert.\n\nDie Kabel-Bibliothek in der linken Seitenleiste bearbeitet einen Typ weiterhin an Ort und Stelle — sie zeigt, woraus du beim Planen wählst.",
-  "rack_builder": ""
+  "schritte": [
+    {
+      "nr": 1,
+      "name": "fenster-ueberblick",
+      "datei": "bibliothek-01-fenster-ueberblick.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n1\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11\nGerät suchen…\nDefaults\nRahmen\nSprache\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\nInspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientierung\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erstellen.\n• Mehrere Geräte auswählen und im Canvas als Gruppe speichern.\n• Rentman-Aktionen findest du im Equipment-Tab unter Rentman.\nExample: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\n"
+    },
+    {
+      "nr": 2,
+      "name": "spalte-einklappen",
+      "datei": "bibliothek-02-spalte-einklappen.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n›\nBibliothek\nGerät suchen…\nDefaults\nRahmen\nSprache\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\nInspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientierung\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erstellen.\n• Mehrere Geräte auswählen und im Canvas als Gruppe speichern.\n• Rentman-Aktionen findest du im Equipment-Tab unter Rentman.\nExample: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 74%\nv9.11.0-19-g9fc17dff"
+    },
+    {
+      "nr": 3,
+      "name": "spalte-einblenden",
+      "datei": "bibliothek-03-spalte-einblenden.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n1\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 4,
+      "name": "fenster-menue",
+      "datei": "bibliothek-04-fenster-menue.jpg",
+      "text": "‹\nFenster\nAbdocken (schwebend)\nIn eigenes Fenster\n\nDer Knopf lässt sich auch ziehen.\n\nBibliothek\nGeräte\nKabel\nGruppen\n1\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 5,
+      "name": "abgedockt",
+      "datei": "bibliothek-05-abgedockt.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\nBibliothek\nAndocken\nGeräte\nKabel\nGruppen\n1\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11\nGerät suchen…\nDefaults\nRahmen\nSprache\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\nInspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientierung\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erstellen.\n• Mehrere Geräte auswählen und im Canvas als Gruppe speichern.\n• Rentman-Aktionen findest du im Equipment-Tab unter Rentman.\nExample: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZ"
+    },
+    {
+      "nr": 6,
+      "name": "wieder-angedockt",
+      "datei": "bibliothek-06-wieder-angedockt.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n1\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11\nGerät suchen…\nDefaults\nRahmen\nSprache\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\nInspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientierung\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erstellen.\n• Mehrere Geräte auswählen und im Canvas als Gruppe speichern.\n• Rentman-Aktionen findest du im Equipment-Tab unter Rentman.\nExample: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\n"
+    },
+    {
+      "nr": 7,
+      "name": "spalte-verbreitern",
+      "datei": "bibliothek-07-spalte-verbreitern.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n1\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11\nGerät suchen…\nDefaults\nRahmen\nSprache\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\nInspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientierung\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erstellen.\n• Mehrere Geräte auswählen und im Canvas als Gruppe speichern.\n• Rentman-Aktionen findest du im Equipment-Tab unter Rentman.\nExample: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\n"
+    },
+    {
+      "nr": 8,
+      "name": "gruppe-zwei-geraete-markiert",
+      "datei": "bibliothek-08-gruppe-zwei-geraete-markiert.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n1\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11\nGerät suchen…\nDefaults\nRahmen\nSprache\nKabel verbinden\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\nGerät: Vision mixer\nEigenschaften\nFenster\n›\nAlle zu\nAlle auf\nName\nKurzname\nVM\nautomatisch\nUntertitel (optional, z.B. \"PGM Monitor\")\nInputs & Outputs\n4 In · 2 Out\nPorts spiegeln (Inputs rechts, Outputs links)\nAlle zuklappen\n≡\nInputs\n(4)\n+ Hinzufügen\n≡\n×\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3"
+    },
+    {
+      "nr": 9,
+      "name": "gruppe-name-eingeben",
+      "datei": "bibliothek-09-gruppe-name-eingeben.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n1\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11\nGerät suchen…\nDefaults\nRahmen\nSprache\nKabel verbinden\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\nGerät: Vision mixer\nEigenschaften\nFenster\n›\nAlle zu\nAlle auf\nName\nKurzname\nVM\nautomatisch\nUntertitel (optional, z.B. \"PGM Monitor\")\nInputs & Outputs\n4 In · 2 Out\nPorts spiegeln (Inputs rechts, Outputs links)\nAlle zuklappen\n≡\nInputs\n(4)\n+ Hinzufügen\n≡\n×\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3"
+    },
+    {
+      "nr": 10,
+      "name": "gruppe-gespeichert",
+      "datei": "bibliothek-10-gruppe-gespeichert.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n2\nRacks\n1\nGerätegruppen\nMehrere Geräte + Kabel als Vorlage\nKamera 2 und Mischer\n2 Geräte · 1 Kabel · 2 HE\nCamera 2, Vision mixer\n×"
+    },
+    {
+      "nr": 11,
+      "name": "geraete-lokal",
+      "datei": "bibliothek-11-geraete-lokal.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 12,
+      "name": "kategorie-aufklappen",
+      "datei": "bibliothek-12-kategorie-aufklappen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 13,
+      "name": "eintrag-hover",
+      "datei": "bibliothek-13-eintrag-hover.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 14,
+      "name": "eintrag-rechtsklick",
+      "datei": "bibliothek-14-eintrag-rechtsklick.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 15,
+      "name": "eintrag-favorit",
+      "datei": "bibliothek-15-eintrag-favorit.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 16,
+      "name": "eintrag-verstecken",
+      "datei": "bibliothek-16-eintrag-verstecken.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 17,
+      "name": "filter-menue",
+      "datei": "bibliothek-17-filter-menue.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAlle Kategorien einklappen\nSortierung\nManuell (Drag&Drop)\nAlphabetisch A → Z\nAlphabetisch Z → A\nVersteckte zeigen (1)\nLeere Kategorien zeigen\nNur eigenes Material\nAudio\n22\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 18,
+      "name": "filter-versteckte-zeigen",
+      "datei": "bibliothek-18-filter-versteckte-zeigen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAlle Kategorien einklappen\nSortierung\nManuell (Drag&Drop)\nAlphabetisch A → Z\nAlphabetisch Z → A\nVersteckte zeigen (1)\nLeere Kategorien zeigen\nNur eigenes Material\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 19,
+      "name": "versteckter-eintrag-sichtbar",
+      "datei": "bibliothek-19-versteckter-eintrag-sichtbar.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 20,
+      "name": "eintrag-wieder-zeigen",
+      "datei": "bibliothek-20-eintrag-wieder-zeigen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 21,
+      "name": "filter-alle-einklappen",
+      "datei": "bibliothek-21-filter-alle-einklappen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAlle Kategorien ausklappen\nSortierung\nManuell (Drag&Drop)\nAlphabetisch A → Z\nAlphabetisch Z → A\nVersteckte zeigen\nLeere Kategorien zeigen\nNur eigenes Material\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 22,
+      "name": "filter-sortierung-z-a",
+      "datei": "bibliothek-22-filter-sortierung-z-a.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAlle Kategorien ausklappen\nSortierung\nManuell (Drag&Drop)\nAlphabetisch A → Z\nAlphabetisch Z → A\nVersteckte zeigen\nLeere Kategorien zeigen\nNur eigenes Material\nFunkstrecke\n11\nKreuzschiene\n17\nBildmischer\n37\nVideo-Konverter\n7\nVideo\n24\nStative\n49\nSync/Referenz\n4\nStromverteilung\n6\nPatchfelder\n8\nNetzwerk\n60\nMonitore\n39\nMikrofone\n184\nLicht\n84\nObjektive\n835\nLED Processing\n4\nIT/Server\n2\nIP/NDI\n37\nIntercom\n13\nBodentanks\n2\nKonverter\n27\nControl\n3\nKameras\n381\nAudio\n22"
+    },
+    {
+      "nr": 23,
+      "name": "filter-sortierung-a-z",
+      "datei": "bibliothek-23-filter-sortierung-a-z.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAlle Kategorien ausklappen\nSortierung\nManuell (Drag&Drop)\nAlphabetisch A → Z\nAlphabetisch Z → A\nVersteckte zeigen\nLeere Kategorien zeigen\nNur eigenes Material\nAudio\n22\nKameras\n381\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStromverteilung\n6\nSync/Referenz\n4\nStative\n49\nVideo\n24\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 24,
+      "name": "filter-sortierung-manuell",
+      "datei": "bibliothek-24-filter-sortierung-manuell.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAlle Kategorien ausklappen\nSortierung\nManuell (Drag&Drop)\nAlphabetisch A → Z\nAlphabetisch Z → A\nVersteckte zeigen\nLeere Kategorien zeigen\nNur eigenes Material\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 25,
+      "name": "filter-nur-eigenes-material",
+      "datei": "bibliothek-25-filter-nur-eigenes-material.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAlle Kategorien ausklappen\nSortierung\nManuell (Drag&Drop)\nAlphabetisch A → Z\nAlphabetisch Z → A\nVersteckte zeigen\nLeere Kategorien zeigen\nNur eigenes Material\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 26,
+      "name": "filter-alle-ausklappen",
+      "datei": "bibliothek-26-filter-alle-ausklappen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAlle Kategorien einklappen\nSortierung\nManuell (Drag&Drop)\nAlphabetisch A → Z\nAlphabetisch Z → A\nVersteckte zeigen\nLeere Kategorien zeigen\nNur eigenes Material\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLAIDA PTZ4K-NDI-X30\nCameras · 0 in / 0 out\n×\nLAIDA UHD-100A\nCameras · 0 in / 0 out\n×\nLARRI ALEXA 35\nCameras · 0 in / 0 out\n×\nLARRI ALEXA 65\nCameras · 0 in / 0 out\n×\nLARRI ALEXA Classic\nCameras · 0 in / 0 out\n×\nLARRI ALEXA LF\nCameras · 0 in / 0 out\n×\nLARRI ALEXA Mini\nCameras · 0 in / 0 out\n×\nLA"
+    },
+    {
+      "nr": 27,
+      "name": "suche-strg-f",
+      "datei": "bibliothek-27-suche-strg-f.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11\nDefaults\nRahmen\nSprache\nKabel verbinden\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\nGerät: Multiviewer\nEigenschaften\nFenster\n›\nAlle zu\nAlle auf\nName\nKurzname\nM\nautomatisch\nUntertitel (optional, z.B. \"PGM Monitor\")\nInputs & Outputs\n1 In · 0 Out\nPorts spiegeln (Inputs rechts, Outputs links)\n≡\nInputs\n(1)\n+ Hinzufügen\n≡\n×\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3K.93C (SMPTE 304M)\nNeutrik Drag"
+    },
+    {
+      "nr": 28,
+      "name": "suche-tippen",
+      "datei": "bibliothek-28-suche-tippen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×"
+    },
+    {
+      "nr": 29,
+      "name": "suche-ohne-treffer",
+      "datei": "bibliothek-29-suche-ohne-treffer.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\n+\nKeine Geräte gefunden\nKein Treffer für „zzzzqqAvantis\". Versuche einen anderen Suchbegriff oder lösche das Suchfeld.\nSuche zurücksetzen"
+    },
+    {
+      "nr": 30,
+      "name": "suche-treffer-loeschen",
+      "datei": "bibliothek-30-suche-treffer-loeschen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 31,
+      "name": "suche-x-knopf",
+      "datei": "bibliothek-31-suche-x-knopf.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\n+\nAudio\n22\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×"
+    },
+    {
+      "nr": 32,
+      "name": "kategorie-einklappen",
+      "datei": "bibliothek-32-kategorie-einklappen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 33,
+      "name": "kategorie-hover-stift",
+      "datei": "bibliothek-33-kategorie-hover-stift.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 34,
+      "name": "kategorie-umbenennen-dialog",
+      "datei": "bibliothek-34-kategorie-umbenennen-dialog.jpg",
+      "text": "Kategorie umbenennen\nBeide Sprachen ausfüllen — beim Umschalten der UI-Sprache wird der jeweilige Name angezeigt. Leer lassen ist OK, dann fällt die Anzeige auf die andere Sprache zurück.\nDeutsch\nEnglisch\nAbbrechen\nOK"
+    },
+    {
+      "nr": 35,
+      "name": "kategorie-ziehen-griff",
+      "datei": "bibliothek-35-kategorie-ziehen-griff.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 36,
+      "name": "kategorie-losgelassen",
+      "datei": "bibliothek-36-kategorie-losgelassen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 37,
+      "name": "plus-menue",
+      "datei": "bibliothek-37-plus-menue.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nNeues Gerät…\nNeue Kategorie…\nDatei importieren…\nVorlagen einreichen…\nBibliotheks-Ordner öffnen…\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 38,
+      "name": "plus-neues-geraet",
+      "datei": "bibliothek-38-plus-neues-geraet.jpg",
+      "text": "Eigenes Gerät anlegen\nName\nKategorie\nAudio\nBildmischer\nBodentanks\nControl\nFunkstrecke\nIntercom\nIP/NDI\nIT/Server\nKabel\nKameras\nKonverter\nKreuzschiene\nLED Processing\nLicht\nMedienserver\nMikrofone\nMischpult\nMonitore\nMultiviewer\nNetzwerk\nObjektive\nPatchfelder\nPC\nProjektoren\nRigging\nSonstiges\nStative\nStrom\nStromverteilung\nSync/Referenz\nVideo\nVideo-Konverter\n+ Neue Kategorie…\n19\" Rack-Gerät\nIst Rack-Gerät\nPorts aus Foto erkennen: einen KI-Anbieter unter Einstellungen → Integrationen → AI hinterlegen. Einstellungen öffnen\nDie Ports aus dem Geräte-Namen raten\nAPI-Schlüssel hinterlegen (KI)\nAusfüllen\nDatenblatt…\naus einer Web-Suche — ohne API-Schlüssel\nPort-Gruppen\n+ Input-Gruppe\n+ Output-Gruppe\nNoch keine Anschlüsse — das ist in Ordnung. Jetzt oder später ergänzen; ein Kabel, das auf das Gerät gezogen wird, legt einen an.\nAbbrechen\nIn Bibliothek speichern\nNur im Projekt platzieren\nSpeichern + Platzieren"
+    },
+    {
+      "nr": 39,
+      "name": "plus-neue-kategorie",
+      "datei": "bibliothek-39-plus-neue-kategorie.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nOK\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 40,
+      "name": "kategorie-name-getippt",
+      "datei": "bibliothek-40-kategorie-name-getippt.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nOK\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 41,
+      "name": "kategorie-angelegt",
+      "datei": "bibliothek-41-kategorie-angelegt.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKabel\n0\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMedienserver\n0\nMikrofone\n184\nMischpult\n0\nMonitore\n39\nMultiviewer\n0\nNetzwerk\n60\nSonstiges\n0\nPatchfelder\n8\nPC\n0\nStrom\n0\nProjektoren\n0\nRigging\n0\nStative\n49\nVideo\n24\nBeispielkategorie\n0\nGerät hierher ziehen zum Verschieben\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 42,
+      "name": "plus-datei-importieren",
+      "datei": "bibliothek-42-plus-datei-importieren.jpg",
+      "text": "Gerät importiert\n\"Demo Encoder E1\" wurde der Library hinzugefügt.\nOK"
+    },
+    {
+      "nr": 43,
+      "name": "import-gleicher-name",
+      "datei": "bibliothek-43-import-gleicher-name.jpg",
+      "text": "Ein Gerät mit dem Namen \"Demo Encoder E1\" existiert bereits. Überschreiben?\nAbbrechen\nÜberschreiben"
+    },
+    {
+      "nr": 44,
+      "name": "import-unbekannte-datei",
+      "datei": "bibliothek-44-import-unbekannte-datei.jpg",
+      "text": "Datei nicht erkannt\nDiese Datei ist kein gültiger .cpdevice- oder .cpgroup-Export.\nOK"
+    },
+    {
+      "nr": 45,
+      "name": "plus-vorlagen-einreichen",
+      "datei": "bibliothek-45-plus-vorlagen-einreichen.jpg",
+      "text": "Vorlagen einreichen\n\n3 von 3 Vorlagen können eingereicht werden.\n\nDie Gerätebibliothek führt Hersteller und Modell getrennt. Die aus dem Vorlagennamen vorgeschlagene Trennung prüfen.\n\nRosendahl nanosyncs DDS\nDatenblatt: https://www.rosendahl-studiotechnik.com/nanosyncs.html\nLeistungsaufnahme nicht angegeben. Das ist in Ordnung – im Katalog steht dann „nicht angegeben\" statt einer 0, die wie eine Messung aussieht.\nRosendahl nanosyncs HD\nDatenblatt: https://www.rosendahl-studiotechnik.com/nanosyncs.html\nLeistungsaufnahme nicht angegeben. Das ist in Ordnung – im Katalog steht dann „nicht angegeben\" statt einer 0, die wie eine Messung aussieht.\nDemo Encoder E1\nDatenblatt: https://example.com/datasheets/encoder-e1.pdf\nLeistungsaufnahme nicht angegeben. Das ist in Ordnung – im Katalog steht dann „nicht angegeben\" statt einer 0, die wie eine Messung aussieht.\nZum Senden an die Gerätebibliothek zuerst anmelden. Eine Einreichungsdatei zu speichern geht auch ohne Konto. Anmelden…\nSchließen\nEinreichungsdatei speichern\n3 an die Gerätebibliothek senden"
+    },
+    {
+      "nr": 46,
+      "name": "eintrag-gefunden",
+      "datei": "bibliothek-46-eintrag-gefunden.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\n+\nAudio\n22\nKeine Treffer für \"Demo Encoder\"\nKabel\n0\nKeine Treffer für \"Demo Encoder\"\nKameras\n381\nKeine Treffer für \"Demo Encoder\"\nLED Processing\n4\nKeine Treffer für \"Demo Encoder\"\nObjektive\n835\nKeine Treffer für \"Demo Encoder\"\nLicht\n84\nKeine Treffer für \"Demo Encoder\"\nMedienserver\n0\nKeine Treffer für \"Demo Encoder\"\nMikrofone\n184\nKeine Treffer für \"Demo Encoder\"\nMischpult\n0\nKeine Treffer für \"Demo Encoder\"\nMonitore\n39\nKeine Treffer für \"Demo Encoder\"\nMultiviewer\n0\nKeine Treffer für \"Demo Encoder\"\nNetzwerk\n60\nKeine Treffer für \"Demo Encoder\"\nSonstiges\n0\nKeine Treffer für \"Demo Encoder\"\nPatchfelder\n8\nKeine Treffer für \"Demo Encoder\"\nPC\n0\nKeine Treffer für \"Demo Encoder\"\nStrom\n0\nKeine Treffer für \"Demo Encoder\"\nProjektoren\n0\nKeine Treffer für \"Demo Encoder\"\nRigging\n0\nKeine Treffer für \"Demo Encoder\"\nStative\n49\nKeine Treffer für \"Demo Encoder\"\nVideo\n25\nLDemo Encoder E1\nVideo · 2 in / 1 out\n×\nBeispielkategorie\n0\nKeine Treffer für \"Demo Encoder\"\nControl\n3\nKeine Treffer für \"Demo Encoder\"\nKonverter\n27\nKeine Treffer für \"Demo Encoder\"\nBodentanks\n2\nKeine Treffer für \"Demo Encoder\"\nIntercom\n13\nKeine Treffer für \"Demo Encoder\"\nIP/NDI\n37\nKeine Treffer für \"Demo Encoder\"\nIT/Server\n2\nKeine Treffer für \"Demo Encoder\"\nStromverteilung\n6\nKeine Treffer für \"Demo Encoder\"\nSync/Referenz\n4\nKeine Treffer für \"Demo Encoder\"\nVideo-Konverter\n7\nKeine Treffer für \"Demo Encoder\"\nBildmischer\n37\nKeine Treffer für \"Demo Encoder\"\nKreuzs"
+    },
+    {
+      "nr": 47,
+      "name": "eintrag-bearbeiten-inspector",
+      "datei": "bibliothek-47-eintrag-bearbeiten-inspector.jpg",
+      "text": "Inspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientierung\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erstellen.\n• Mehrere Geräte auswählen und im Canvas als Gruppe speichern.\n• Rentman-Aktionen findest du im Equipment-Tab unter Rentman."
+    },
+    {
+      "nr": 48,
+      "name": "eintrag-entfernen-abfrage",
+      "datei": "bibliothek-48-eintrag-entfernen-abfrage.jpg",
+      "text": "„Demo Encoder E1“ aus der Bibliothek entfernen?\nAbbrechen\nOK"
+    },
+    {
+      "nr": 49,
+      "name": "eintrag-export-tooltip",
+      "datei": "bibliothek-49-eintrag-export-tooltip.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\n+\nAudio\n22\nKeine Treffer für \"Demo Encoder\"\nKabel\n0\nKeine Treffer für \"Demo Encoder\"\nKameras\n381\nKeine Treffer für \"Demo Encoder\"\nLED Processing\n4\nKeine Treffer für \"Demo Encoder\"\nObjektive\n835\nKeine Treffer für \"Demo Encoder\"\nLicht\n84\nKeine Treffer für \"Demo Encoder\"\nMedienserver\n0\nKeine Treffer für \"Demo Encoder\"\nMikrofone\n184\nKeine Treffer für \"Demo Encoder\"\nMischpult\n0\nKeine Treffer für \"Demo Encoder\"\nMonitore\n39\nKeine Treffer für \"Demo Encoder\"\nMultiviewer\n0\nKeine Treffer für \"Demo Encoder\"\nNetzwerk\n60\nKeine Treffer für \"Demo Encoder\"\nSonstiges\n0\nKeine Treffer für \"Demo Encoder\"\nPatchfelder\n8\nKeine Treffer für \"Demo Encoder\"\nPC\n0\nKeine Treffer für \"Demo Encoder\"\nStrom\n0\nKeine Treffer für \"Demo Encoder\"\nProjektoren\n0\nKeine Treffer für \"Demo Encoder\"\nRigging\n0\nKeine Treffer für \"Demo Encoder\"\nStative\n49\nKeine Treffer für \"Demo Encoder\"\nVideo\n25\nLDemo Encoder E1\nVideo · 2 in / 1 out\n×\nBeispielkategorie\n0\nKeine Treffer für \"Demo Encoder\"\nControl\n3\nKeine Treffer für \"Demo Encoder\"\nKonverter\n27\nKeine Treffer für \"Demo Encoder\"\nBodentanks\n2\nKeine Treffer für \"Demo Encoder\"\nIntercom\n13\nKeine Treffer für \"Demo Encoder\"\nIP/NDI\n37\nKeine Treffer für \"Demo Encoder\"\nIT/Server\n2\nKeine Treffer für \"Demo Encoder\"\nStromverteilung\n6\nKeine Treffer für \"Demo Encoder\"\nSync/Referenz\n4\nKeine Treffer für \"Dem"
+    },
+    {
+      "nr": 50,
+      "name": "eintrag-klick-platziert",
+      "datei": "bibliothek-50-eintrag-klick-platziert.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\n+\nAudio\n22\nKeine Treffer für \"Demo Encoder\"\nKabel\n0\nKeine Treffer für \"Demo Encoder\"\nKameras\n381\nKeine Treffer für \"Demo Encoder\"\nLED Processing\n4\nKeine Treffer für \"Demo Encoder\"\nObjektive\n835\nKeine Treffer für \"Demo Encoder\"\nLicht\n84\nKeine Treffer für \"Demo Encoder\"\nMedienserver\n0\nKeine Treffer für \"Demo Encoder\"\nMikrofone\n184\nKeine Treffer für \"Demo Encoder\"\nMischpult\n0\nKeine Treffer für \"Demo Encoder\"\nMonitore\n39\nKeine Treffer für \"Demo Encoder\"\nMultiviewer\n0\nKeine Treffer für \"Demo Encoder\"\nNetzwerk\n60\nKeine Treffer für \"Demo Encoder\"\nSonstiges\n0\nKeine Treffer für \"Demo Encoder\"\nPatchfelder\n8\nKeine Treffer für \"Demo Encoder\"\nPC\n0\nKeine Treffer für \"Demo Encoder\"\nStrom\n0\nKeine Treffer für \"Demo Encoder\"\nProjektoren\n0\nKeine Treffer für \"Demo Encoder\"\nRigging\n0\nKeine Treffer für \"Demo Encoder\"\nStative\n49\nKeine Treffer für \"Demo Encoder\"\nVideo\n25\nLDemo Encoder E1\nVideo · 2 in / 1 out\nDoppelklick oder ziehen, um es zu platzieren\n×\nBeispielkategorie\n0\nKeine Treffer für \"Demo Encoder\"\nControl\n3\nKeine Treffer für \"Demo Encoder\"\nKonverter\n27\nKeine Treffer für \"Demo Encoder\"\nBodentanks\n2\nKeine Treffer für \"Demo Encoder\"\nIntercom\n13\nKeine Treffer für \"Demo Encoder\"\nIP/NDI\n37\nKeine Treffer für \"Demo Encoder\"\nIT/Server\n2\nKeine Treffer für \"Demo Encoder\"\nStromverteilung\n6\nKeine Treffer für \"Demo En"
+    },
+    {
+      "nr": 51,
+      "name": "eintrag-auf-canvas-ziehen",
+      "datei": "bibliothek-51-eintrag-auf-canvas-ziehen.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\n+\nAudio\n22\nKeine Treffer für \"Demo Encoder\"\nKabel\n0\nKeine Treffer für \"Demo Encoder\"\nKameras\n381\nKeine Treffer für \"Demo Encoder\"\nLED Processing\n4\nKeine Treffer für \"Demo Encoder\"\nObjektive\n835\nKeine Treffer für \"Demo Encoder\"\nLicht\n84\nKeine Treffer für \"Demo Encoder\"\nMedienserver\n0\nKeine Treffer für \"Demo Encoder\"\nMikrofone\n184\nKeine Treffer für \"Demo Encoder\"\nMischpult\n0\nKeine Treffer für \"Demo Encoder\"\nMonitore\n39\nKeine Treffer für \"Demo Encoder\"\nMultiviewer\n0\nKeine Treffer für \"Demo Encoder\"\nNetzwerk\n60\nKeine Treffer für \"Demo Encoder\"\nSonstiges\n0\nKeine Treffer für \"Demo Encoder\"\nPatchfelder\n8\nKeine Treffer für \"Demo Encoder\"\nPC\n0\nKeine Treffer für \"Demo Encoder\"\nStrom\n0\nKeine Treffer für \"Demo Encoder\"\nProjektoren\n0\nKeine Treffer für \"Demo Encoder\"\nRigging\n0\nKeine Treffer für \"Demo Encoder\"\nStative\n49\nKeine Treffer für \"Demo Encoder\"\nVideo\n25\nLDemo Encoder E1\nVideo · 2 in / 1 out\n×\nBeispielkategorie\n0\nKeine Treffer für \"Demo Encoder\"\nControl\n3\nKeine Treffer für \"Demo Encoder\"\nKonverter\n27\nKeine Treffer für \"Demo Encoder\"\nBodentanks\n2\nKeine Treffer für \"Demo Encoder\"\nIntercom\n13\nKeine Treffer für \"Demo Encoder\"\nIP/NDI\n37\nKeine Treffer für \"Demo Encoder\"\nIT/Server\n2\nKeine Treffer für \"Demo Encoder\"\nStromverteilung\n6\nKeine Treffer für \"Demo Encoder\"\nSync/Referenz\n4\nKeine Treffer für \"Dem"
+    },
+    {
+      "nr": 52,
+      "name": "eintrag-in-kategorie-ziehen",
+      "datei": "bibliothek-52-eintrag-in-kategorie-ziehen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\n+\nFunkstrecke\n11\nKeine Treffer für \"Demo Encoder\"\nKreuzschiene\n17\nKeine Treffer für \"Demo Encoder\"\nBildmischer\n37\nKeine Treffer für \"Demo Encoder\"\nVideo-Konverter\n7\nKeine Treffer für \"Demo Encoder\"\nVideo\n25\nLDemo Encoder E1\nVideo · 2 in / 1 out\n×\nStative\n49\nKeine Treffer für \"Demo Encoder\"\nSync/Referenz\n4\nKeine Treffer für \"Demo Encoder\"\nRigging\n0\nKeine Treffer für \"Demo Encoder\"\nProjektoren\n0\nKeine Treffer für \"Demo Encoder\"\nStromverteilung\n6\nKeine Treffer für \"Demo Encoder\"\nStrom\n0\nKeine Treffer für \"Demo Encoder\"\nPC\n0\nKeine Treffer für \"Demo Encoder\"\nPatchfelder\n8\nKeine Treffer für \"Demo Encoder\"\nSonstiges\n0\nKeine Treffer für \"Demo Encoder\"\nNetzwerk\n60\nKeine Treffer für \"Demo Encoder\"\nMultiviewer\n0\nKeine Treffer für \"Demo Encoder\"\nMonitore\n39\nKeine Treffer für \"Demo Encoder\"\nMischpult\n0\nKeine Treffer für \"Demo Encoder\"\nMikrofone\n184\nKeine Treffer für \"Demo Encoder\"\nMedienserver\n0\nKeine Treffer für \"Demo Encoder\"\nLicht\n84\nKeine Treffer für \"Demo Encoder\"\nObjektive\n835\nKeine Treffer für \"Demo Encoder\"\nLED Processing\n4\nKeine Treffer für \"Demo Encoder\"\nIT/Server\n2\nKeine Treffer für \"Demo Encoder\"\nIP/NDI\n37\nKeine Treffer für \"Demo Encoder\"\nIntercom\n13\nKeine Treffer für \"Demo Encoder\"\nBodentanks\n2\nKeine Treffer für \"Demo Encoder\"\nKonverter\n27\nKeine Treffer für \"Demo Encoder\"\nControl\n3\nKeine Treffer für \"Demo Encoder\"\nKameras\n381\nKeine Treffer für \"Demo Encoder\"\nKabel\n0\nKeine Treffer für \"Demo Encoder\"\nBeis"
+    },
+    {
+      "nr": 53,
+      "name": "eintrag-in-kategorie-abgelegt",
+      "datei": "bibliothek-53-eintrag-in-kategorie-abgelegt.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\n+\nFunkstrecke\n11\nKeine Treffer für \"Demo Encoder\"\nKreuzschiene\n17\nKeine Treffer für \"Demo Encoder\"\nBildmischer\n37\nKeine Treffer für \"Demo Encoder\"\nVideo-Konverter\n7\nKeine Treffer für \"Demo Encoder\"\nVideo\n25\nLDemo Encoder E1\nVideo · 2 in / 1 out\n×\nStative\n49\nKeine Treffer für \"Demo Encoder\"\nSync/Referenz\n4\nKeine Treffer für \"Demo Encoder\"\nRigging\n0\nKeine Treffer für \"Demo Encoder\"\nProjektoren\n0\nKeine Treffer für \"Demo Encoder\"\nStromverteilung\n6\nKeine Treffer für \"Demo Encoder\"\nStrom\n0\nKeine Treffer für \"Demo Encoder\"\nPC\n0\nKeine Treffer für \"Demo Encoder\"\nPatchfelder\n8\nKeine Treffer für \"Demo Encoder\"\nSonstiges\n0\nKeine Treffer für \"Demo Encoder\"\nNetzwerk\n60\nKeine Treffer für \"Demo Encoder\"\nMultiviewer\n0\nKeine Treffer für \"Demo Encoder\"\nMonitore\n39\nKeine Treffer für \"Demo Encoder\"\nMischpult\n0\nKeine Treffer für \"Demo Encoder\"\nMikrofone\n184\nKeine Treffer für \"Demo Encoder\"\nMedienserver\n0\nKeine Treffer für \"Demo Encoder\"\nLicht\n84\nKeine Treffer für \"Demo Encoder\"\nObjektive\n835\nKeine Treffer für \"Demo Encoder\"\nLED Processing\n4\nKeine Treffer für \"Demo Encoder\"\nIT/Server\n2\nKeine Treffer für \"Demo Encoder\"\nIP/NDI\n37\nKeine Treffer für \"Demo Encoder\"\nIntercom\n13\nKeine Treffer für \"Demo Encoder\"\nBodentanks\n2\nKeine Treffer für \"Demo Encoder\"\nKonverter\n27\nKeine Treffer für \"Demo Encoder\"\nControl\n3\nKeine Treffer für \"Demo Encoder\"\nKameras\n381\nKeine Treffer für \"Demo Encoder\"\nKabel\n0\nKeine Treffer für \"Demo Encoder\"\nBeis"
+    },
+    {
+      "nr": 54,
+      "name": "kategorie-umbenennen-ausgefuellt",
+      "datei": "bibliothek-54-kategorie-umbenennen-ausgefuellt.jpg",
+      "text": "Kategorie umbenennen\nBeide Sprachen ausfüllen — beim Umschalten der UI-Sprache wird der jeweilige Name angezeigt. Leer lassen ist OK, dann fällt die Anzeige auf die andere Sprache zurück.\nDeutsch\nEnglisch\nAbbrechen\nOK"
+    },
+    {
+      "nr": 55,
+      "name": "kategorie-umbenannt",
+      "datei": "bibliothek-55-kategorie-umbenannt.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKabel\n0\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMedienserver\n0\nMikrofone\n184\nMischpult\n0\nMonitore\n39\nMultiviewer\n0\nNetzwerk\n60\nSonstiges\n0\nPatchfelder\n8\nPC\n0\nStrom\n0\nProjektoren\n0\nRigging\n0\nStative\n49\nVideo\n25\nBeispiel-Kategorie\n0\nGerät hierher ziehen zum Verschieben\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 56,
+      "name": "filter-leere-kategorien-aus",
+      "datei": "bibliothek-56-filter-leere-kategorien-aus.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAlle Kategorien einklappen\nSortierung\nManuell (Drag&Drop)\nAlphabetisch A → Z\nAlphabetisch Z → A\nVersteckte zeigen\nLeere Kategorien zeigen\nNur eigenes Material\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n25\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 57,
+      "name": "filter-leere-kategorien-an",
+      "datei": "bibliothek-57-filter-leere-kategorien-an.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nLAllen & Heath Avantis\nAudio · 16 in / 14 out\n×\nLAllen & Heath dLive CDM32 MixRack\nAudio · 36 in / 17 out\n×\nLAllen & Heath DX168\nAudio · 18 in / 8 out\n×\nLAllen & Heath SQ-5\nAudio · 19 in / 14 out\n×\nLBehringer S16\nAudio · 18 in / 11 out\n×\nLBehringer S32\nAudio · 34 in / 21 out\n×\nLBehringer Wing\nAudio · 24 in / 17 out\n×\nLBehringer X32\nAudio · 42 in / 26 out\n×\nLBehringer X32 Compact\nAudio · 20 in / 12 out\n×\nLBehringer X32 Rack\nAudio · 20 in / 12 out\n×\nLCrestron Avia DSP-1283\nAudio · 20 in / 8 out\n×\nLDiGiCo S21\nAudio · 27 in / 15 out\n×\nLJünger Audio D*AP8\nAudio · 9 in / 6 out\n×\nLMidas DL32\nAudio · 34 in / 21 out\n×\nLMidas M32 Live\nAudio · 42 in / 24 out\n×\nLTC Electronics Clarity M Stereo\nAudio · 4 in / 1 out\n×\nLYamaha CL5\nAudio · 12 in / 10 out\n×\nLYamaha DM3-D\nAudio · 20 in / 9 out\n×\nLYamaha MSP3\nAudio · 2 in / 0 out\n×\nLYamaha MSP3A\nAudio · 2 in / 0 out\n×\nLYamaha QL5\nAudio · 36 in / 18 out\n×\nLYamaha Rio3224-D2\nAudio · 34 in / 20 out\n×\nKabel\n0\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMedienserver\n0\nMikrofone\n184\nMischpult\n0\nMonitore\n39\nMultiviewer\n0\nNetzwerk\n60\nSonstiges\n0\nPatchfelder\n8\nPC\n0\nStrom\n0\nProjektoren\n0\nRigging\n0\nStative\n49\nVideo\n25\nBeispiel-Kategorie\n0\nGerät hierher ziehen zum Verschieben\nControl\n3\nKonverter\n27\nBodentanks\n2\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11"
+    },
+    {
+      "nr": 58,
+      "name": "geteilt-uebersicht",
+      "datei": "bibliothek-58-geteilt-uebersicht.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nAktualisieren\n\nZum Holen oder Aktualisieren der Geräte bei der Gerätebibliothek anmelden. Bereits geholte Geräte bleiben nutzbar.\n\nAnmelden…\n4 Geräte lokal gespeichert\nVideo\nDemo Switcher V1\nverifiziert\n12 Bestätigungen\nSeite\nMonitore\nDemo Monitor M2\nbestätigt\n3 Bestätigungen\nSeite\nKameras\nDemo Camera K3\nunbestätigt\n0 Bestätigungen\nSeite\nAudio\nDemo Wireless W4\numstritten\n1 Bestätigungen\nSeite"
+    },
+    {
+      "nr": 59,
+      "name": "geteilt-suche",
+      "datei": "bibliothek-59-geteilt-suche.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nAktualisieren\n\nZum Holen oder Aktualisieren der Geräte bei der Gerätebibliothek anmelden. Bereits geholte Geräte bleiben nutzbar.\n\nAnmelden…\n4 Geräte lokal gespeichert\nMonitore\nDemo Monitor M2\nbestätigt\n3 Bestätigungen\nSeite"
+    },
+    {
+      "nr": 60,
+      "name": "geteilt-platzieren",
+      "datei": "bibliothek-60-geteilt-platzieren.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nLokal\nGeteilt\nRentman\nAktualisieren\n\nZum Holen oder Aktualisieren der Geräte bei der Gerätebibliothek anmelden. Bereits geholte Geräte bleiben nutzbar.\n\nAnmelden…\n4 Geräte lokal gespeichert\nVideo\nDemo Switcher V1\nverifiziert\n12 Bestätigungen\nSeite\nMonitore\nDemo Monitor M2\nbestätigt\n3 Bestätigungen\nSeite\nKameras\nDemo Camera K3\nunbestätigt\n0 Bestätigungen\nSeite\nAudio\nDemo Wireless W4\numstritten\n1 Bestätigungen\nSeite\nGerät suchen…\nDefaults\nRahmen\nSprache\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n!\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\n📺\nDemo Encoder E1\nVideo\nSDI In 1 · BNC\nSDI In 2 · BNC\nEthernet/RJ45 · LAN Out\n🌐\nDemo Switcher V1\nVideo\nIn 1 · BNC\nIn 2 · BNC\nBNC · PGM Out\nInspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientierung\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erst"
+    },
+    {
+      "nr": 61,
+      "name": "geteilt-anmelden",
+      "datei": "bibliothek-61-geteilt-anmelden.jpg",
+      "text": "Einstellungen\nProjekt\nModule\nDarstellung\nBearbeiten\nHotkeys\nIntegrationen\nGerätebibliothek\nMCP\nKonfigurationen\nKabeltypen\nStammdaten\nKategorien & Felder\nNetzwerk-Sync\nNachweise\nErweitert\nGerätebibliothek (devices.zumpelars.de)\nServer\n\nDie gemeinsame Gerätebibliothek, aus der der Planer Vorlagen abgleicht und an die er Vorlagen einreicht. Leer lassen für den Standard-Server.\n\nSpeichern\nStandard wiederherstellen\nAktiv: https://devices.zumpelars.de\nKonto\n\nDie Gerätebibliothek ist nur mit Konto nutzbar. Konten werden auf der Website angelegt: dort die E-Mail-Adresse bestätigen und die Richtlinien annehmen.\n\nE-Mail oder Benutzername\nPasswort\nAnmelden\nKonto anlegen\nPasswort vergessen\nMeine Geräte\n\nSelbst angelegte oder geänderte Vorlagen werden in die Gerätebibliothek hochgeladen; unveränderte eingebaute Vorlagen veröffentlicht das Projekt selbst. Hochgeladenes geht zuerst in die Moderation.\n\nEigene Geräte automatisch hochladen(beim Start und nach dem Ändern einer Vorlage, solange angemeldet)\nJetzt synchronisieren\nlädt Geändertes hoch, holt dann Aktualisierungen\nEigene Vorlagen (3)\nAbgleich\n\nHolt nur, was sich seit dem letzten Abgleich geändert hat. Die Geräte erscheinen schreibgeschützt in der Bibliothek unter „Geteilt“ und bleiben offline verfügbar.\n\nAus der Gerätebibliothek aktualisieren\n4 Geräte lokal gespeichert — zuletzt aktualisiert 29.9.2026, 10:00:00"
+    },
+    {
+      "nr": 62,
+      "name": "kabel-uebersicht",
+      "datei": "bibliothek-62-kabel-uebersicht.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nKabel-Library\n4 verbaut\n\nPresets mit Stecker- und Signalinfos. 1 eigener Kabeltyp. SDI-Empfehlung: SDI-3G.\n\nAudio / XLR\n(2)\nCinch/RCA\n(2)\nDB25\n(1)\nDB9\n(2)\nDisplayPort\n(2)\nDMX 5-pol (XLR)\n(1)\nDVI\n(1)\nEthernet\n(8)\nFiber\n(5)\nHDMI\n(3)\nLEMO 3K.93C (SMPTE 304M)\n(1)\nNeutrik Dragonfly (SMPTE 304M)\n(1)\nPower\n(3)\nS-Video\n(1)\nSDI\n(9)\nTriax\n(1)\nTriax (Damar & Hagen)\n(1)\nTriax (Fischer)\n(1)\nUSB\n(1)\nUSB-C\n(3)\nVGA\n(1)"
+    },
+    {
+      "nr": 63,
+      "name": "kabel-gruppe-aufklappen",
+      "datei": "bibliothek-63-kabel-gruppe-aufklappen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nKabel-Library\n4 verbaut\n\nPresets mit Stecker- und Signalinfos. 1 eigener Kabeltyp. SDI-Empfehlung: SDI-3G.\n\nAudio / XLR\n(2)\nCinch/RCA\n(2)\nDB25\n(1)\nDB9\n(2)\nDisplayPort\n(2)\nDMX 5-pol (XLR)\n(1)\nDVI\n(1)\nEthernet\n(8)\nFiber\n(5)\nHDMI\n(3)\nLEMO 3K.93C (SMPTE 304M)\n(1)\nNeutrik Dragonfly (SMPTE 304M)\n(1)\nPower\n(3)\nS-Video\n(1)\nSDI\n(9)\nSDI 3G (1080p50/60)\nBNC · max 100 m\nSDI-SD · SDI-HD · SDI-3G\nSDI 6G (4K30 4:2:0)\nBNC · max 70 m\nSDI-SD · SDI-HD · SDI-3G · SDI-6G\nSDI 12G (4K60)\nBNC · max 50 m\nSDI-SD · SDI-HD · SDI-3G · SDI-6G · SDI-12G\nReferenz Blackburst / Tri-Level (BNC)\nBNC · max 100 m\nBlackburst · Tri-Level\nWord Clock (BNC)\nBNC · max 50 m\nWord-Clock\nLTC Timecode (BNC)\nBNC · max 100 m\nLTC\nMADI Koax (BNC, 75Ω)\nBNC · max 200 m\nMADI · AES3\nAES3id (BNC, 75Ω)\nBNC · max 100 m\nAES3id\nDVB-ASI (BNC, 75Ω)\nBNC · max 100 m\nDVB-ASI\nTriax\n(1)\nTriax (Damar & Hagen)\n(1)\nTriax (Fischer)\n(1)\nUSB\n(1)\nUSB-C\n(3)\nVGA\n(1)"
+    },
+    {
+      "nr": 64,
+      "name": "kabel-eintrag-bearbeiten",
+      "datei": "bibliothek-64-kabel-eintrag-bearbeiten.jpg",
+      "text": "Kabeltyp bearbeiten\nName\nStecker-Typ\n+\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3K.93C (SMPTE 304M)\nNeutrik Dragonfly (SMPTE 304M)\nNeutrik opticalCON DUO\nNeutrik opticalCON QUAD\nF-Connector\nDB9\nDB25\nWireless/RF\nDMX 5-pol (XLR)\nDMX 3-pol (XLR)\nCinch/RCA\nSCART\nS-Video\nTT/Bantam\nMini-BNC\nMicro-BNC\nIEC 230V\nPowerCON\nSchuko 230V\nC7 Eurostecker\nCEE16\nCEE32\nCEE63\nPowerlock\nSocapex\nHarting\nKleeblatt\nXLR 3 Male\nXLR 3 Female\nCombo XLR/Jack\nspeakON 2 Pole\nspeakON 4 Pole\nBinding Post\nXLR 4 Male\nXLR 4 Female\nXLR 5 Male\nXLR 5 Female\nXLR 6 Male\nXLR 6 Female\nXLR 7 Male\nXLR 7 Female\nMIDI\nS-VHS\nUSB Type A\nUSB Type B\nUSB 3 Type A\nUSB 3 Type B\nFireWire 400\nFireWire 800\nPS/2\nFiber Optic LC\nFiber Optic SC\nFiber Optic ST\nToslink\nopticalCON DUO\nopticalCON QUAD\npowerCON Input\npowerCON Output\nLemo\nTourine 25\nTourine 37\nGeneric\nBlanking Panel\nPhoenix/Euroblock\nTerminal Block\nBare Wire\netherCON\nRJ11\nQSFP\nQSFP28\nSFP28\nQSFP-DD\nThunderbolt\nUSB Mini-B\nUSB Micro-B\nDB15\nDB37\nMini-DIN 4\nMini-DIN 7\nMini-DIN 8\nDIN 5-pol\nMini-DisplayPort\nMPO\nNEMA 5-15 (Edison)\nNEMA L5-20\nNEMA L6-20\nNEMA L6-30\nNEMA L21-30\nIEC C15\nIEC C20\npowerCON TRUE1\nCam-Lok\nDC Barrel\nPCIe 6-pin\nV-Mount\nD-Tap\nSMA\nRP-TNC\nMultipin\nCustom\nKabel-Farbe\nAuch kompatibel mit (optional)\nXLR\nMini-XLR\nJack"
+    },
+    {
+      "nr": 65,
+      "name": "kabel-eintrag-notiz",
+      "datei": "bibliothek-65-kabel-eintrag-notiz.jpg",
+      "text": "Kabeltyp bearbeiten\nName\nStecker-Typ\n+\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3K.93C (SMPTE 304M)\nNeutrik Dragonfly (SMPTE 304M)\nNeutrik opticalCON DUO\nNeutrik opticalCON QUAD\nF-Connector\nDB9\nDB25\nWireless/RF\nDMX 5-pol (XLR)\nDMX 3-pol (XLR)\nCinch/RCA\nSCART\nS-Video\nTT/Bantam\nMini-BNC\nMicro-BNC\nIEC 230V\nPowerCON\nSchuko 230V\nC7 Eurostecker\nCEE16\nCEE32\nCEE63\nPowerlock\nSocapex\nHarting\nKleeblatt\nXLR 3 Male\nXLR 3 Female\nCombo XLR/Jack\nspeakON 2 Pole\nspeakON 4 Pole\nBinding Post\nXLR 4 Male\nXLR 4 Female\nXLR 5 Male\nXLR 5 Female\nXLR 6 Male\nXLR 6 Female\nXLR 7 Male\nXLR 7 Female\nMIDI\nS-VHS\nUSB Type A\nUSB Type B\nUSB 3 Type A\nUSB 3 Type B\nFireWire 400\nFireWire 800\nPS/2\nFiber Optic LC\nFiber Optic SC\nFiber Optic ST\nToslink\nopticalCON DUO\nopticalCON QUAD\npowerCON Input\npowerCON Output\nLemo\nTourine 25\nTourine 37\nGeneric\nBlanking Panel\nPhoenix/Euroblock\nTerminal Block\nBare Wire\netherCON\nRJ11\nQSFP\nQSFP28\nSFP28\nQSFP-DD\nThunderbolt\nUSB Mini-B\nUSB Micro-B\nDB15\nDB37\nMini-DIN 4\nMini-DIN 7\nMini-DIN 8\nDIN 5-pol\nMini-DisplayPort\nMPO\nNEMA 5-15 (Edison)\nNEMA L5-20\nNEMA L6-20\nNEMA L6-30\nNEMA L21-30\nIEC C15\nIEC C20\npowerCON TRUE1\nCam-Lok\nDC Barrel\nPCIe 6-pin\nV-Mount\nD-Tap\nSMA\nRP-TNC\nMultipin\nCustom\nKabel-Farbe\nAuch kompatibel mit (optional)\nXLR\nMini-XLR\nJack"
+    },
+    {
+      "nr": 67,
+      "name": "kabel-eintrag-zuruecksetzen",
+      "datei": "bibliothek-67-kabel-eintrag-zuruecksetzen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 69,
+      "name": "kabel-eigener-typ",
+      "datei": "bibliothek-69-kabel-eigener-typ.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nKabel-Library\n4 verbaut\n\nPresets mit Stecker- und Signalinfos. 1 eigener Kabeltyp. SDI-Empfehlung: SDI-3G.\n\nAudio / XLR\n(2)\nXLR 3-pin Audio\nXLR · max 100 m\nAnalog-Audio · AES3\nDemo cable XLR 10 m\nEigen\nXLR · max 10 m\nGeneric\nSample entry\nCinch/RCA\n(2)\nDB25\n(1)\nDB9\n(2)\nDisplayPort\n(2)\nDMX 5-pol (XLR)\n(1)\nDVI\n(1)\nEthernet\n(8)\nFiber\n(5)\nHDMI\n(3)\nLEMO 3K.93C (SMPTE 304M)\n(1)\nNeutrik Dragonfly (SMPTE 304M)\n(1)\nPower\n(3)\nS-Video\n(1)\nSDI\n(9)\nTriax\n(1)\nTriax (Damar & Hagen)\n(1)\nTriax (Fischer)\n(1)\nUSB\n(1)\nUSB-C\n(3)\nVGA\n(1)"
+    },
+    {
+      "nr": 70,
+      "name": "kabel-eigener-typ-loeschen",
+      "datei": "bibliothek-70-kabel-eigener-typ-loeschen.jpg",
+      "text": "Kabeltyp \"Demo cable XLR 10 m\" löschen?\nVerbaute Kabel sind nicht betroffen.\nAbbrechen\nLöschen"
+    },
+    {
+      "nr": 71,
+      "name": "kabel-gruppe-verschieben",
+      "datei": "bibliothek-71-kabel-gruppe-verschieben.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nKabel-Library\n4 verbaut\n\nPresets mit Stecker- und Signalinfos. 1 eigener Kabeltyp. SDI-Empfehlung: SDI-3G.\n\nAudio / XLR\n(2)\nCinch/RCA\n(2)\nDB25\n(1)\nDB9\n(2)\nDisplayPort\n(2)\nDMX 5-pol (XLR)\n(1)\nDVI\n(1)\nEthernet\n(8)\nFiber\n(5)\nHDMI\n(3)\nLEMO 3K.93C (SMPTE 304M)\n(1)\nNeutrik Dragonfly (SMPTE 304M)\n(1)\nPower\n(3)\nS-Video\n(1)\nSDI\n(9)\nTriax\n(1)\nTriax (Damar & Hagen)\n(1)\nTriax (Fischer)\n(1)\nUSB\n(1)\nUSB-C\n(3)\nVGA\n(1)\nDraggable item Cinch/RCA was moved over droppable area DB9."
+    },
+    {
+      "nr": 72,
+      "name": "kabel-gruppe-losgelassen",
+      "datei": "bibliothek-72-kabel-gruppe-losgelassen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nKabel-Library\n4 verbaut\n\nPresets mit Stecker- und Signalinfos. 1 eigener Kabeltyp. SDI-Empfehlung: SDI-3G.\n\nAudio / XLR\n(2)\nDB25\n(1)\nDB9\n(2)\nCinch/RCA\n(2)\nDisplayPort\n(2)\nDMX 5-pol (XLR)\n(1)\nDVI\n(1)\nEthernet\n(8)\nFiber\n(5)\nHDMI\n(3)\nLEMO 3K.93C (SMPTE 304M)\n(1)\nNeutrik Dragonfly (SMPTE 304M)\n(1)\nPower\n(3)\nS-Video\n(1)\nSDI\n(9)\nTriax\n(1)\nTriax (Damar & Hagen)\n(1)\nTriax (Fischer)\n(1)\nUSB\n(1)\nUSB-C\n(3)\nVGA\n(1)\nDraggable item Cinch/RCA was dropped over droppable area DB9"
+    },
+    {
+      "nr": 73,
+      "name": "kabel-typen-verwalten",
+      "datei": "bibliothek-73-kabel-typen-verwalten.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nKabel-Library\n4 verbaut\n\nPresets mit Stecker- und Signalinfos. 1 eigener Kabeltyp. SDI-Empfehlung: SDI-3G.\n\nAudio / XLR\n(2)\nDB25\n(1)\nDB9\n(2)\nCinch/RCA\n(2)\nDisplayPort\n(2)\nDMX 5-pol (XLR)\n(1)\nDVI\n(1)\nEthernet\n(8)\nFiber\n(5)\nHDMI\n(3)\nLEMO 3K.93C (SMPTE 304M)\n(1)\nNeutrik Dragonfly (SMPTE 304M)\n(1)\nPower\n(3)\nS-Video\n(1)\nSDI\n(9)\nTriax\n(1)\nTriax (Damar & Hagen)\n(1)\nTriax (Fischer)\n(1)\nUSB\n(1)\nUSB-C\n(3)\nVGA\n(1)\nDraggable item Cinch/RCA was dropped over droppable area DB9\nGerät suchen…\nDefaults\nRahmen\nSprache\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n!\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\n📺\nDemo Encoder E1\nVideo\nSDI In 1 · BNC\nSDI In 2 · BNC\nEthernet/RJ45 · LAN Out\n🌐\nDemo Switcher V1\nVideo\nIn 1 · BNC\nIn 2 · BNC\nBNC · PGM Out\nInspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientierung\n• Geräte links aus der Library auf den "
+    },
+    {
+      "nr": 74,
+      "name": "gruppen-uebersicht",
+      "datei": "bibliothek-74-gruppen-uebersicht.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nGerätegruppen\nMehrere Geräte + Kabel als Vorlage\nKamera 2 und Mischer\n2 Geräte · 1 Kabel · 2 HE\nCamera 2, Vision mixer\n×\nKamera 1 und Multiviewer\n2 Geräte · 0 Kabel · 2 HE\nCamera 1, Multiviewer\n×"
+    },
+    {
+      "nr": 75,
+      "name": "gruppe-karte-hover",
+      "datei": "bibliothek-75-gruppe-karte-hover.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nGerätegruppen\nMehrere Geräte + Kabel als Vorlage\nKamera 2 und Mischer\n2 Geräte · 1 Kabel · 2 HE\nCamera 2, Vision mixer\n×\nKamera 1 und Multiviewer\n2 Geräte · 0 Kabel · 2 HE\nCamera 1, Multiviewer\n×"
+    },
+    {
+      "nr": 76,
+      "name": "gruppe-klick-platzieren",
+      "datei": "bibliothek-76-gruppe-klick-platzieren.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nGerätegruppen\nMehrere Geräte + Kabel als Vorlage\nKamera 2 und Mischer\n2 Geräte · 1 Kabel · 2 HE\nCamera 2, Vision mixer\n×\nKamera 1 und Multiviewer\n2 Geräte · 0 Kabel · 2 HE\nCamera 1, Multiviewer\n×\nGerät suchen…\nDefaults\nRahmen\nSprache\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n!\nCAM 2 → mixer (18m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\n📺\nDemo Encoder E1\nVideo\nSDI In 1 · BNC\nSDI In 2 · BNC\nEthernet/RJ45 · LAN Out\n🌐\nDemo Switcher V1\nVideo\nIn 1 · BNC\nIn 2 · BNC\nBNC · PGM Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nInspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientierung\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erstellen.\n• Mehrere Geräte auswählen und im Canvas als Gruppe speichern"
+    },
+    {
+      "nr": 77,
+      "name": "gruppe-auf-canvas-ziehen",
+      "datei": "bibliothek-77-gruppe-auf-canvas-ziehen.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nGerätegruppen\nMehrere Geräte + Kabel als Vorlage\nKamera 2 und Mischer\n2 Geräte · 1 Kabel · 2 HE\nCamera 2, Vision mixer\n×\nKamera 1 und Multiviewer\n2 Geräte · 0 Kabel · 2 HE\nCamera 1, Multiviewer\n×\nGerät suchen…\nDefaults\nRahmen\nSprache\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n!\nCAM 2 → mixer (18m)\n!\n!\n!\nCAM 2 → mixer (18m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\n📺\nDemo Encoder E1\nVideo\nSDI In 1 · BNC\nSDI In 2 · BNC\nEthernet/RJ45 · LAN Out\n🌐\nDemo Switcher V1\nVideo\nIn 1 · BNC\nIn 2 · BNC\nBNC · PGM Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nInspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientieru"
+    },
+    {
+      "nr": 78,
+      "name": "gruppe-umbenennen-dialog",
+      "datei": "bibliothek-78-gruppe-umbenennen-dialog.jpg",
+      "text": "Neuer Name der Vorlage:\nAbbrechen\nOK"
+    },
+    {
+      "nr": 79,
+      "name": "gruppe-umbenennen-eingetippt",
+      "datei": "bibliothek-79-gruppe-umbenennen-eingetippt.jpg",
+      "text": "Neuer Name der Vorlage:\nAbbrechen\nOK"
+    },
+    {
+      "nr": 80,
+      "name": "gruppe-umbenannt",
+      "datei": "bibliothek-80-gruppe-umbenannt.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nGerätegruppen\nMehrere Geräte + Kabel als Vorlage\nKamera und Mischer\n2 Geräte · 1 Kabel · 2 HE\nCamera 2, Vision mixer\n×\nKamera 1 und Multiviewer\n2 Geräte · 0 Kabel · 2 HE\nCamera 1, Multiviewer\n×"
+    },
+    {
+      "nr": 81,
+      "name": "gruppe-loeschen-abfrage",
+      "datei": "bibliothek-81-gruppe-loeschen-abfrage.jpg",
+      "text": "Gruppe \"Kamera und Mischer\" löschen?\nAbbrechen\nLöschen"
+    },
+    {
+      "nr": 82,
+      "name": "gruppe-reihenfolge-ziehen",
+      "datei": "bibliothek-82-gruppe-reihenfolge-ziehen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nGerätegruppen\nMehrere Geräte + Kabel als Vorlage\nKamera und Mischer\n2 Geräte · 1 Kabel · 2 HE\nCamera 2, Vision mixer\n×\nKamera 1 und Multiviewer\n2 Geräte · 0 Kabel · 2 HE\nCamera 1, Multiviewer\n×\nDraggable item e996db9a-91a6-4aed-8082-3a94e68486df was moved over droppable area 5a36612f-f2b1-4d35-93ee-4edc5df84843."
+    },
+    {
+      "nr": 83,
+      "name": "gruppe-reihenfolge-losgelassen",
+      "datei": "bibliothek-83-gruppe-reihenfolge-losgelassen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\nGerätegruppen\nMehrere Geräte + Kabel als Vorlage\nKamera 1 und Multiviewer\n2 Geräte · 0 Kabel · 2 HE\nCamera 1, Multiviewer\n×\nKamera und Mischer\n2 Geräte · 1 Kabel · 2 HE\nCamera 2, Vision mixer\n×\nDraggable item e996db9a-91a6-4aed-8082-3a94e68486df was dropped over droppable area 5a36612f-f2b1-4d35-93ee-4edc5df84843"
+    },
+    {
+      "nr": 84,
+      "name": "gruppe-import-gleicher-name",
+      "datei": "bibliothek-84-gruppe-import-gleicher-name.jpg",
+      "text": ""
+    },
+    {
+      "nr": 86,
+      "name": "racks-uebersicht",
+      "datei": "bibliothek-86-racks-uebersicht.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\n2D Rack Builder\nRack-Slots in HE, als platzierbare Gruppe gespeichert\nFürs Lager\n+ Neues Rack\nExample rack: small OB van\n4 Geräte · 12 HE · 3 Kabel\nPatch panel 16x BNC, Vision mixer, Multiviewer, IEC strip 8-way"
+    },
+    {
+      "nr": 87,
+      "name": "racks-karte-hover",
+      "datei": "bibliothek-87-racks-karte-hover.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\n2D Rack Builder\nRack-Slots in HE, als platzierbare Gruppe gespeichert\nFürs Lager\n+ Neues Rack\nExample rack: small OB van\n4 Geräte · 12 HE · 3 Kabel\nPatch panel 16x BNC, Vision mixer, Multiviewer, IEC strip 8-way"
+    },
+    {
+      "nr": 88,
+      "name": "racks-neues-rack",
+      "datei": "bibliothek-88-racks-neues-rack.jpg",
+      "text": "Neues Rack\nNeu\n\n2D Rack Builder · Geräte aus Library hinzufügen, HE-Position per Drag, Verkabelung internEsc schließen\n\nExportieren\nRack-Name *\nHöhe (HE)\nTiefe (mm)\nBibliothek\n33 / 1859\n+ Patchblende\n+ Rack-Shelf\nAuch Nicht-Rack-Geräte\nCrestron Avia DSP-1283\nAudio\n+ Ins Rack\n1 HE · 20 In · 8 Out\nCamera 2\nCameras\n+ Ins Rack\n1 HE · 0 In · 1 Out\nCrestron CP3\nControl\n+ Ins Rack\n1 HE · 4 In · 9 Out\nClear-Com CS-702\nIntercom\n+ Ins Rack\n1 HE · 4 In · 8 Out\nClear-Com MS-702\nIntercom\n+ Ins Rack\n1 HE · 5 In · 8 Out\nClear-Com SB-704\nIntercom\n+ Ins Rack\n1 HE · 6 In · 16 Out\nSonnet xMac mini Server Thunderbolt 3 (XMAC-MS-A-TB3)\nIT/Server\n+ Ins Rack\n1 HE · 2 In · 4 Out\nBrompton Tessera S4\nLED Processing\n+ Ins Rack\n1 HE · 5 In · 6 Out\nBrompton Tessera S8\nLED Processing\n+ Ins Rack\n2 HE · 9 In · 12 Out\nBrompton Tessera T1\nLED Processing\n+ Ins Rack\n1 HE · 6 In · 4 Out\nBrompton Tessera XD 10G\nLED Processing\n+ Ins Rack\n1 HE · 2 In · 11 Out\nVision mixer\nMixer\n+ Ins Rack\n1 HE · 4 In · 2 Out\nCisco Catalyst 9300 24-Port UPOE (C9300-24U)\nNetworking\n+ Ins Rack\n1 HE · 7 In · 27 Out\nCisco Catalyst 9300X 48-Port UPOE+ (C9300X-48HXN)\nNetworking\n+ Ins Rack\n1 HE · 7 In · 51 Out\nCisco Nexus 93108TC-EX\nNetworking\n+ Ins Rack\n1 HE · 6 In · 54 Out\nLuminex GigaCore 12\nNetworking\n+ Ins Rack\n1 HE · 2 In · 15 Out\nLuminex GigaCore 14R\nNetworking\n+ Ins Rack\n1 HE · 4 In · 16 Out\nLuminex GigaCore 16i\nNetworking\n+ Ins Rack\n1 HE · 1 In · 16 Out\nLuminex GigaCore 16RFO\nNetworking\n+ Ins Rack\n1 HE · 2 In · 21 Out\nLuminex Giga"
+    },
+    {
+      "nr": 89,
+      "name": "racks-bearbeiten",
+      "datei": "bibliothek-89-racks-bearbeiten.jpg",
+      "text": "Example rack: small OB van\nBearbeiten\n\n2D Rack Builder · Geräte aus Library hinzufügen, HE-Position per Drag, Verkabelung internEsc schließen\n\nExportieren\nRack-Name *\nHöhe (HE)\nTiefe (mm)\nBibliothek\n33 / 1859\n+ Patchblende\n+ Rack-Shelf\nAuch Nicht-Rack-Geräte\nCrestron Avia DSP-1283\nAudio\n+ Ins Rack\n1 HE · 20 In · 8 Out\nCamera 2\nCameras\n+ Ins Rack\n1 HE · 0 In · 1 Out\nCrestron CP3\nControl\n+ Ins Rack\n1 HE · 4 In · 9 Out\nClear-Com CS-702\nIntercom\n+ Ins Rack\n1 HE · 4 In · 8 Out\nClear-Com MS-702\nIntercom\n+ Ins Rack\n1 HE · 5 In · 8 Out\nClear-Com SB-704\nIntercom\n+ Ins Rack\n1 HE · 6 In · 16 Out\nSonnet xMac mini Server Thunderbolt 3 (XMAC-MS-A-TB3)\nIT/Server\n+ Ins Rack\n1 HE · 2 In · 4 Out\nBrompton Tessera S4\nLED Processing\n+ Ins Rack\n1 HE · 5 In · 6 Out\nBrompton Tessera S8\nLED Processing\n+ Ins Rack\n2 HE · 9 In · 12 Out\nBrompton Tessera T1\nLED Processing\n+ Ins Rack\n1 HE · 6 In · 4 Out\nBrompton Tessera XD 10G\nLED Processing\n+ Ins Rack\n1 HE · 2 In · 11 Out\nVision mixer\n1×\nMixer\n+ Weitere\n1 HE · 4 In · 2 Out\nCisco Catalyst 9300 24-Port UPOE (C9300-24U)\nNetworking\n+ Ins Rack\n1 HE · 7 In · 27 Out\nCisco Catalyst 9300X 48-Port UPOE+ (C9300X-48HXN)\nNetworking\n+ Ins Rack\n1 HE · 7 In · 51 Out\nCisco Nexus 93108TC-EX\nNetworking\n+ Ins Rack\n1 HE · 6 In · 54 Out\nLuminex GigaCore 12\nNetworking\n+ Ins Rack\n1 HE · 2 In · 15 Out\nLuminex GigaCore 14R\nNetworking\n+ Ins Rack\n1 HE · 4 In · 16 Out\nLuminex GigaCore 16i\nNetworking\n+ Ins Rack\n1 HE · 1 In · 16 Out\nLuminex GigaCore 16RFO\nNetworking\n+ Ins Rack\n1 HE · 2"
+    },
+    {
+      "nr": 90,
+      "name": "racks-klick-platziert",
+      "datei": "bibliothek-90-racks-klick-platziert.jpg",
+      "text": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen\n‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n3\nRacks\n1\n2D Rack Builder\nRack-Slots in HE, als platzierbare Gruppe gespeichert\nFürs Lager\n+ Neues Rack\nExample rack: small OB van\n4 Geräte · 12 HE · 3 Kabel\nPatch panel 16x BNC, Vision mixer, Multiviewer, IEC strip 8-way\nGerät suchen…\nDefaults\nRahmen\nSprache\nVideo\nAudio\nControl\nNetwork\nPower\nOther\n⋯\nMehr\nCAM 1 → mixer (12m)\nCAM 2 → mixer (18m)\nPGM → control room monitor (6m)\nMultiview → Multiviewer (6m)\n!\nCAM 2 → mixer (18m)\n!\n!\n!\nCAM 2 → mixer (18m)\n📷\nCamera 1\nCameras\nBNC · SDI Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\nMultiviewer\nMonitors\nSDI In · BNC\n🖥\nControl room monitor\nMonitors\nSDI In · BNC\n📺\nDemo Encoder E1\nVideo\nSDI In 1 · BNC\nSDI In 2 · BNC\nEthernet/RJ45 · LAN Out\n🌐\nDemo Switcher V1\nVideo\nIn 1 · BNC\nIn 2 · BNC\nBNC · PGM Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\n📷\nCamera 2\nCameras\nBNC · SDI Out\n🎙\nVision mixer\nMixer\nIn 1 · BNC\nIn 2 · BNC\nIn 3 · BNC\nIn 4 · BNC\nBNC · PGM Out\nBNC · Multiview Out\n🗄\nExample rack: small OB van (Rack)\nRack\nPatch panel 16x BNC· 8 In · 8 Out\nVision mixer· 4 In · 2 Out\nMultiviewer· 1 In · 0 Out\nIEC strip 8-way· 1 In · 8 Out\nPatch panel 16x BNC · Rear 1 · BNC\nPatch panel 16x BNC · Rear 2 · BNC\n"
+    },
+    {
+      "nr": 91,
+      "name": "racks-loeschen-abfrage",
+      "datei": "bibliothek-91-racks-loeschen-abfrage.jpg",
+      "text": "Rack \"Example rack: small OB van\" löschen?\nAbbrechen\nLöschen"
+    },
+    {
+      "nr": 92,
+      "name": "racks-leer",
+      "datei": "bibliothek-92-racks-leer.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n2\nRacks\n2D Rack Builder\nRack-Slots in HE, als platzierbare Gruppe gespeichert\nFürs Lager\n+ Neues Rack\nNoch kein Rack-Layout gespeichert."
+    },
+    {
+      "nr": 93,
+      "name": "racks-fuers-lager-leer",
+      "datei": "bibliothek-93-racks-fuers-lager-leer.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n2\nRacks\n2D Rack Builder\nRack-Slots in HE, als platzierbare Gruppe gespeichert\nFürs Lager\n+ Neues Rack\nNoch kein Rack-Layout zum Übergeben.\nNoch kein Rack-Layout gespeichert."
+    },
+    {
+      "nr": 94,
+      "name": "gruppen-leer",
+      "datei": "bibliothek-94-gruppen-leer.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nGerätegruppen\nMehrere Geräte + Kabel als Vorlage\n⧉\nNoch keine Gruppen gespeichert.\nWähle auf dem Canvas ≥ 2 Geräte aus und klicke Als Gruppe in der Canvas-Toolbar."
+    },
+    {
+      "nr": 95,
+      "name": "rentman-nicht-verknuepft",
+      "datei": "bibliothek-95-rentman-nicht-verknuepft.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nKein Rentman-Projekt verknüpft.\nRentman-Projekt verknüpfen…\nImportiert\nKatalog\nAbgleich\nImportierte Rentman-Geräte\nAlle ausklappen\n0 Geräte\nNoch keine Rentman-Geräte importiert."
+    },
+    {
+      "nr": 96,
+      "name": "rentman-projekt-verknuepfen-dialog",
+      "datei": "bibliothek-96-rentman-projekt-verknuepfen-dialog.jpg",
+      "text": "Aus Rentman importieren\nSchließen\nProjekte laden\n2 / 2 Projekte\nSortierung:\n# ↓\n# ↑\nDatum ↓\nDatum ↑\n#2602 Demo Concert Hall\nConcept\n#2601 Demo Fair Stand\nConfirmed"
+    },
+    {
+      "nr": 97,
+      "name": "rentman-projekte-geladen",
+      "datei": "bibliothek-97-rentman-projekte-geladen.jpg",
+      "text": "Aus Rentman importieren\nSchließen\nProjekte laden\n2 / 2 Projekte\nSortierung:\n# ↓\n# ↑\nDatum ↓\nDatum ↑\n#2602 Demo Concert Hall\nConcept\n#2601 Demo Fair Stand\nConfirmed"
+    },
+    {
+      "nr": 98,
+      "name": "rentman-katalog-ohne-verknuepfung",
+      "datei": "bibliothek-98-rentman-katalog-ohne-verknuepfung.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nKein Rentman-Projekt verknüpft.\nRentman-Projekt verknüpfen…\nImportiert\nKatalog\nAbgleich\nAlle Rentman-Equipments (Account-Katalog)\nKatalog laden"
+    },
+    {
+      "nr": 99,
+      "name": "rentman-abgleich-ohne-verknuepfung",
+      "datei": "bibliothek-99-rentman-abgleich-ohne-verknuepfung.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nKein Rentman-Projekt verknüpft.\nRentman-Projekt verknüpfen…\nImportiert\nKatalog\nAbgleich\nAbgleich Canvas ↔ Rentman\n12 nicht erfasst\nCamera 1Cameras\nkein Rentman-ID\nCamera 2Cameras\nkein Rentman-ID\nVision mixerMixer\nkein Rentman-ID\nMultiviewerMonitors\nkein Rentman-ID\nControl room monitorMonitors\nkein Rentman-ID\nDemo Encoder E1Video\nkein Rentman-ID\nDemo Switcher V1Video\nkein Rentman-ID\nCamera 2Cameras\nkein Rentman-ID\nVision mixerMixer\nkein Rentman-ID\nCamera 2Cameras\nkein Rentman-ID\nVision mixerMixer\nkein Rentman-ID\nExample rack: small OB van (Rack)Rack\nkein Rentman-ID"
+    },
+    {
+      "nr": 100,
+      "name": "rentman-verknuepft-importiert",
+      "datei": "bibliothek-100-rentman-verknuepft-importiert.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n1 entfernt\nAus Rentman aktualisieren / neue Items importieren1 fehlende Library-Einträge nachbauen\nImportiert\nKatalog\nAbgleich\nImportierte Rentman-Geräte\nAlle einklappen\n3 Geräte\nAKTIV\nDemo Fair Stand\n2 Geräte\nCameras\n(1)\nRDemo Camera A\nCameras · 0 in / 1 out\nMixer\n(1)\nRDemo Mixer B\nMixer · 0 in / 0 out\nDemo Concert Hall\n1 Geräte\nAudio\n(1)\nRDemo Wireless C\nAudio · 0 in / 0 out· Demo Concert Hall"
+    },
+    {
+      "nr": 101,
+      "name": "rentman-projekt-einklappen",
+      "datei": "bibliothek-101-rentman-projekt-einklappen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n1 entfernt\nAus Rentman aktualisieren / neue Items importieren1 fehlende Library-Einträge nachbauen\nImportiert\nKatalog\nAbgleich\nImportierte Rentman-Geräte\nAlle einklappen\n3 Geräte\nAKTIV\nDemo Fair Stand\n2 Geräte\nCameras\n(1)\nRDemo Camera A\nCameras · 0 in / 1 out\nMixer\n(1)\nRDemo Mixer B\nMixer · 0 in / 0 out\nDemo Concert Hall\n1 Geräte"
+    },
+    {
+      "nr": 102,
+      "name": "rentman-kategorie-aufklappen",
+      "datei": "bibliothek-102-rentman-kategorie-aufklappen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n1 entfernt\nAus Rentman aktualisieren / neue Items importieren1 fehlende Library-Einträge nachbauen\nImportiert\nKatalog\nAbgleich\nImportierte Rentman-Geräte\nAlle einklappen\n3 Geräte\nAKTIV\nDemo Fair Stand\n2 Geräte\nCameras\n(1)\nRDemo Camera A\nCameras · 0 in / 1 out\nMixer\n(1)\nDemo Concert Hall\n1 Geräte"
+    },
+    {
+      "nr": 104,
+      "name": "rentman-ports-verknuepft",
+      "datei": "bibliothek-104-rentman-ports-verknuepft.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n1 entfernt\nAus Rentman aktualisieren / neue Items importieren1 fehlende Library-Einträge nachbauen\nImportiert\nKatalog\nAbgleich\nImportierte Rentman-Geräte\nAlle einklappen\n3 Geräte\nAKTIV\nDemo Fair Stand\n2 Geräte\nCameras\n(1)\nRDemo Camera A\nCameras · 0 in / 1 out\nMixer\n(1)\nDemo Concert Hall\n1 Geräte"
+    },
+    {
+      "nr": 105,
+      "name": "rentman-suche",
+      "datei": "bibliothek-105-rentman-suche.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n1 entfernt\nAus Rentman aktualisieren / neue Items importieren1 fehlende Library-Einträge nachbauen\nImportiert\nKatalog\nAbgleich\nImportierte Rentman-Geräte\nAlle einklappen\n3 Geräte\nAKTIV\nDemo Fair Stand\n1 Geräte\nCameras\n(1)\nRDemo Camera A\nCameras · 0 in / 1 out"
+    },
+    {
+      "nr": 106,
+      "name": "rentman-suche-ohne-treffer",
+      "datei": "bibliothek-106-rentman-suche-ohne-treffer.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n1 entfernt\nAus Rentman aktualisieren / neue Items importieren1 fehlende Library-Einträge nachbauen\nImportiert\nKatalog\nAbgleich\nImportierte Rentman-Geräte\nAlle einklappen\n3 Geräte\nKeine Treffer für \"qqqq\"."
+    },
+    {
+      "nr": 107,
+      "name": "rentman-alle-einklappen",
+      "datei": "bibliothek-107-rentman-alle-einklappen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n1 entfernt\nAus Rentman aktualisieren / neue Items importieren1 fehlende Library-Einträge nachbauen\nImportiert\nKatalog\nAbgleich\nImportierte Rentman-Geräte\nAlle ausklappen\n3 Geräte\nAKTIV\nDemo Fair Stand\n2 Geräte\nDemo Concert Hall\n1 Geräte"
+    },
+    {
+      "nr": 108,
+      "name": "rentman-aktualisieren-dialog",
+      "datei": "bibliothek-108-rentman-aktualisieren-dialog.jpg",
+      "text": "Aus Rentman importieren\nSchließen\nProjekte laden\nRentman aktualisieren\n2 / 2 Projekte\nSortierung:\n# ↓\n# ↑\nDatum ↓\nDatum ↑\n#2602 Demo Concert Hall\nConcept\n#2601 Demo Fair Stand\nConfirmed\nMit diesem Plan verknüpft\nKein Equipment in diesem Projekt gefunden."
+    },
+    {
+      "nr": 109,
+      "name": "rentman-katalog-leer",
+      "datei": "bibliothek-109-rentman-katalog-leer.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n4 entfernt\nAus Rentman aktualisieren / neue Items importieren\nImportiert\nKatalog\nAbgleich\nAlle Rentman-Equipments (Account-Katalog)\nKatalog laden"
+    },
+    {
+      "nr": 110,
+      "name": "rentman-katalog-geladen",
+      "datei": "bibliothek-110-rentman-katalog-geladen.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n4 entfernt\nAus Rentman aktualisieren / neue Items importieren\nImportiert\nKatalog\nAbgleich\nAlle Rentman-Equipments (Account-Katalog)\n8\nAktualisieren\nAudio\n(1)\nDemo Wireless G\nRentman-ID 203\n+ Projekt\nVideo\n(2)\nDemo Mixer F\nRentman-ID 202\n+ Projekt\nCameras\n(1)\nDemo Camera E\nRentman-ID 201\n+ Projekt\nOhne Ordner (2)\nDemo Cable D\nRentman-ID 104\n+ Projekt\nDemo Cable H\nRentman-ID 204\n+ Projekt"
+    },
+    {
+      "nr": 111,
+      "name": "rentman-katalog-ordner",
+      "datei": "bibliothek-111-rentman-katalog-ordner.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n4 entfernt\nAus Rentman aktualisieren / neue Items importieren\nImportiert\nKatalog\nAbgleich\nAlle Rentman-Equipments (Account-Katalog)\n8\nAktualisieren\nAudio\n(1)\nDemo Wireless G\nRentman-ID 203\n+ Projekt\nVideo\n(2)\nOhne Ordner (2)\nDemo Cable D\nRentman-ID 104\n+ Projekt\nDemo Cable H\nRentman-ID 204\n+ Projekt"
+    },
+    {
+      "nr": 112,
+      "name": "rentman-katalog-suche",
+      "datei": "bibliothek-112-rentman-katalog-suche.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n4 entfernt\nAus Rentman aktualisieren / neue Items importieren\nImportiert\nKatalog\nAbgleich\nAlle Rentman-Equipments (Account-Katalog)\n8\nAktualisieren\nDemo Wireless G\nRentman-ID 203\n+ Projekt"
+    },
+    {
+      "nr": 113,
+      "name": "rentman-katalog-zum-projekt",
+      "datei": "bibliothek-113-rentman-katalog-zum-projekt.jpg",
+      "text": "\"Demo Wireless G\" zu Rentman hinzufügen?\nDas ändert dein Demo Fair Stand und ist nicht automatisch reversibel.\nAbbrechen\nHinzufügen"
+    },
+    {
+      "nr": 114,
+      "name": "rentman-abgleich",
+      "datei": "bibliothek-114-rentman-abgleich.jpg",
+      "text": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\nRacks\nLokal\nGeteilt\nRentman\nAktuell verknüpftes Rentman-Projekt\nDemo Fair Stand\n2 importiert\n8 ohne Rentman-ID\n4 entfernt\nAus Rentman aktualisieren / neue Items importieren\nImportiert\nKatalog\nAbgleich\nAbgleich Canvas ↔ Rentman\n8 nicht erfasst\nAus Rentman aktualisieren / neue Items importieren\nNicht mehr in Rentman vorhanden:\nCamera 1Cameras\nentfernt\nCamera 2Cameras\nentfernt\nVision mixerMixer\nentfernt\nMultiviewerMonitors\nentfernt\nControl room monitorMonitors\nkein Rentman-ID\nDemo Encoder E1Video\nkein Rentman-ID\nDemo Switcher V1Video\nkein Rentman-ID\nCamera 2Cameras\nkein Rentman-ID\nVision mixerMixer\nkein Rentman-ID\nCamera 2Cameras\nkein Rentman-ID\nVision mixerMixer\nkein Rentman-ID\nExample rack: small OB van (Rack)Rack\nkein Rentman-ID"
+    },
+    {
+      "nr": 115,
+      "name": "rentman-fehlende-nachbauen",
+      "datei": "bibliothek-115-rentman-fehlende-nachbauen.jpg",
+      "text": ""
+    }
+  ],
+  "fehler": [
+    "66 kabel-eintrag-gespeichert: locator.click: Timeout 30000ms exceeded.",
+    "68 kabel-eintrag-zurueckgesetzt: locator.click: Timeout 30000ms exceeded.",
+    "85 gruppe-import-ueberschrieben: locator.click: Timeout 30000ms exceeded.",
+    "103 rentman-eintrag-hover: locator.hover: Timeout 30000ms exceeded."
+  ]
 }
