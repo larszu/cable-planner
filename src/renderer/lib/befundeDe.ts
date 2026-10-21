@@ -9,6 +9,26 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 export const BEFUNDE_DE: Readonly<Record<string, string>> = {
+  // Inventar-Stueckliste: Begruendung im Tooltip und in der CSV.
+  'planBom.reason.origin':
+    'Stammt (auch) aus: {liste}.',
+  'planBom.reason.noCatalogType':
+    'Ohne Katalog-Typ — Modellname ist der Gerätename.',
+  // Warum ein Dokument nicht beurteilbar ist (UNJUDGEABLE_DOCUMENTS).
+  'doc.unjudgeable.kabel-bom':
+    'Der Inhalt hängt am Reserve-Aufschlag, den der Nutzer beim Export einstellt; dieser Prozentsatz steht nicht im Stempel.',
+  'doc.unjudgeable.videohub-labels':
+    'Es gibt eine Label-Datei je Videohub; das Register führt einen Stand je Bezeichner. Ein gemeinsamer Stand wäre beim zweiten Gerät falsch.',
+  'doc.unjudgeable.atem-mv-layout':
+    'Es gibt ein Multiviewer-Layout je Mischer, und die Fensterzahl ist eine Einstellung am Gerät, die nicht im Plan steht.',
+  'doc.unjudgeable.switch-port-karte':
+    'Es gibt eine Port-Karte je Switch; dieselbe Begründung wie bei den Videohub-Labels.',
+  'doc.unjudgeable.stueckliste':
+    'Der Inhalt hängt am Lagerbestand, der projektübergreifend lebt und nicht im Plan steht — dieselbe Liste ergibt morgen ein anderes Ergebnis.',
+  'doc.unjudgeable.job-grundlage':
+    'Der Zustand hängt an der Revisionsliste (As-Built). Der Revisions-Vergleich spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt als überholt, obwohl sich nichts geändert hat.',
+  'doc.unjudgeable.kunden-uebersicht':
+    'Jede Zeile nennt ihre Grundlage (Plan, As-Built, gemeldet), und die hängt an der Revisionsliste. Der Revisions-Vergleich spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt als überholt.',
   'impact.derivationFailed':
     'Die Ableitung dieses Dokuments ist an diesem Plan gescheitert.',
   'postHandover.gap.noDevice':

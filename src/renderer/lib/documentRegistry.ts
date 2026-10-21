@@ -11,6 +11,7 @@
  * importieren — hier laufen sie zusammen, dort nicht.
  */
 import type { CablePlannerProject } from '../types/project'
+import { satz, type Satz } from './satz'
 import { documentFingerprint, planFingerprint } from './documentStamp'
 import {
   pullListTable,
@@ -223,58 +224,26 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
  */
 export const UNJUDGEABLE_DOCUMENTS: Record<string, string> = {
   'kabel-bom':
-    'Der Inhalt hängt am Reserve-Aufschlag, den der Nutzer beim Export einstellt; ' +
-    'dieser Prozentsatz steht nicht im Stempel.',
-  // Bedarf 26 — was der Plan zwar erzeugt, aber nicht als EIN Dokument.
-  //
-  // Diese drei gibt es je GERAET: eine Label-Datei je Videohub, ein
-  // Multiviewer-Layout je Mischer, eine Port-Karte je Switch. Das Register
-  // fuehrt EINEN Stand je Bezeichner; ein gemeinsamer ergaebe einen Stand,
-  // der beim zweiten Geraet nicht passt — schlimmer als keiner.
-  //
-  // Sie hier zu nennen ist der Punkt: bis hierher fehlten sie ganz, und
-  // Verschweigen sieht in einer Impact-Liste aus wie „unberuehrt". Als
-  // `unknown` sagen sie, was wahr ist — nachsehen muss ein Mensch. Wer sie
-  // reproduzierbar machen will, braucht einen Bezeichner JE GERAET; das ist
-  // ein eigener Schritt.
+    'The content depends on the reserve margin the user sets at export; that percentage is not in the stamp.',
   'videohub-labels':
-    'Es gibt eine Label-Datei je Videohub; das Register führt einen Stand je ' +
-    'Bezeichner. Ein gemeinsamer Stand wäre beim zweiten Gerät falsch.',
+    'There is one label file per Videohub; the register keeps one state per identifier. A shared state would be wrong for the second device.',
   'atem-mv-layout':
-    'Es gibt ein Multiviewer-Layout je Mischer, und die Fensterzahl ist eine ' +
-    'Einstellung am Gerät, die nicht im Plan steht.',
+    'There is one multiviewer layout per switcher, and the window count is a device setting that is not in the plan.',
   'switch-port-karte':
-    'Es gibt eine Port-Karte je Switch; dieselbe Begründung wie bei den ' +
-    'Videohub-Labels.',
-  // Die Deckung haengt am LAGERBESTAND, und der steht nicht im Projekt: er
-  // lebt projektuebergreifend im Lager-Store. Dieselbe Liste ergibt morgen
-  // ein anderes Ergebnis, ohne dass sich am Plan etwas geaendert hat.
-  stueckliste:
-    'Der Inhalt hängt am Lagerbestand, der projektübergreifend lebt und nicht ' +
-    'im Plan steht — dieselbe Liste ergibt morgen ein anderes Ergebnis.',
-  // Bedarf 84 — die Grundlage der Übergabe. Der erste Wurf trug sie in
-  // `DOCUMENT_STANDS`, und der Guard „keine Dokument-Ableitung hängt an der
-  // Revisionsliste" hat das sofort gefangen — zu Recht: der Revisions-Vergleich
-  // spannt einen Snapshot mit `revisions: []` auf, und ein revisions-abhängiger
-  // Stand meldete danach JEDES Blatt als überholt, nur weil die Liste leer ist.
-  // Eine erfundene Abweichung ist derselbe Schaden wie ein erfundener Zustand
-  // (ADR-003). Dieselbe Begründung, aus der `buildHandoverManifest` seit jeher
-  // draußen steht.
+    'There is one port map per switch; same reason as for the Videohub labels.',
+  'stueckliste':
+    'The content depends on the warehouse stock, which lives across projects and is not in the plan — the same list gives a different result tomorrow.',
   'job-grundlage':
-    'Der Zustand hängt an der Revisionsliste (As-Built). Der Revisions-Vergleich ' +
-    'spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt ' +
-    'als überholt, obwohl sich nichts geändert hat.',
-  // Bedarf 81 — dieselbe Ursache, und sie ist hier eine bewusste Abwägung:
-  // die Übersicht trägt je Zeile eine Spalte „Grundlage" (Plan / As-Built /
-  // gemeldet), und genau die macht sie von der Revisionsliste abhängig. Die
-  // Spalte wegzulassen, um einen Stand zu bekommen, hiesse jede Planzahl wie
-  // einen Leistungsnachweis aussehen zu lassen — der teurere Fehler von
-  // beiden. Also lieber ein Blatt ohne Stand als ein Blatt ohne Grundlage.
+    'The state depends on the revision list (as-built). The revision comparison builds snapshots without that list — a state from it would report every sheet as superseded although nothing changed.',
   'kunden-uebersicht':
-    'Jede Zeile nennt ihre Grundlage (Plan, As-Built, gemeldet), und die hängt ' +
-    'an der Revisionsliste. Der Revisions-Vergleich spannt Snapshots ohne diese ' +
-    'Liste auf — ein Stand daraus meldete jedes Blatt als überholt.',
+    'Every row names its basis (plan, as-built, reported), and that depends on the revision list. The revision comparison builds snapshots without that list — a state from it would report every sheet as superseded.',
 }
+
+/** Die Begruendung als Satz: Bildschirm in der App-Sprache, Blatt kanonisch. */
+export const unjudgeableSatz = (docId: string): Satz | undefined =>
+  UNJUDGEABLE_DOCUMENTS[docId] !== undefined
+    ? satz(`doc.unjudgeable.${docId}`, UNJUDGEABLE_DOCUMENTS[docId])
+    : undefined
 
 /** Lesbarer Name eines Dokument-Bezeichners für Meldungen. */
 export const DOCUMENT_LABELS: Record<string, string> = {
