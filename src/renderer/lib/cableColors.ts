@@ -16,15 +16,15 @@ export interface LengthColorRule {
 }
 
 export const LENGTH_COLOR_RULES: LengthColorRule[] = [
-  { length: 1, color: '#ef4444', label: '1 m – rot' },
-  { length: 2, color: '#eab308', label: '2 m – gelb' },
-  { length: 3, color: '#22c55e', label: '3 m – grün' },
-  { length: 5, color: '#f8fafc', label: '5 m – weiß' },
-  { length: 10, color: '#ef4444', label: '10 m – rot' },
-  { length: 20, color: '#eab308', label: '20 m – gelb' },
-  { length: 25, color: '#eab308', dashArray: '12 8', label: '25 m – gelb/weiß gestrichelt' },
-  { length: 50, color: '#f8fafc', label: '50 m – weiß' },
-  { length: 100, color: '#ef4444', label: '100 m – rot' },
+  { length: 1, color: '#ef4444', label: '1 m – red' },
+  { length: 2, color: '#eab308', label: '2 m – yellow' },
+  { length: 3, color: '#22c55e', label: '3 m – green' },
+  { length: 5, color: '#f8fafc', label: '5 m – white' },
+  { length: 10, color: '#ef4444', label: '10 m – red' },
+  { length: 20, color: '#eab308', label: '20 m – yellow' },
+  { length: 25, color: '#eab308', dashArray: '12 8', label: '25 m – yellow/white dashed' },
+  { length: 50, color: '#f8fafc', label: '50 m – white' },
+  { length: 100, color: '#ef4444', label: '100 m – red' },
 ]
 
 /**

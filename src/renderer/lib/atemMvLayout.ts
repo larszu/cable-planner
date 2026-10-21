@@ -31,8 +31,8 @@ export const MV_LAYOUT_OPTIONS: { value: number; label: string }[] = [
   { value: 2, label: 'Small in Top-Right Corner' },
   { value: 4, label: 'Small in Bottom-Left Corner' },
   { value: 8, label: 'Small in Bottom-Right Corner' },
-  { value: 16, label: 'Grid (16 klein)' },
-  { value: 32, label: 'Quad (4 groß)' },
+  { value: 16, label: 'Grid (16 small)' },
+  { value: 32, label: 'Quad (4 big)' },
 ]
 
 export interface MvGridSpec {

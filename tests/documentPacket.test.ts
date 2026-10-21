@@ -212,7 +212,7 @@ describe('sheetFromTable', () => {
 describe('der Stapel im Export-Dialog', () => {
   it('ist ein eigener Abschnitt', () => {
     expect(dialogQuelle).toContain("{section === 'packet' && <PacketSection />}")
-    expect(dialogQuelle).toContain("packet: 'Unterlagen-Stapel',")
+    expect(dialogQuelle).toContain("packet: 'Document packet',")
   })
 
   it('nimmt die Uhr EINMAL fuer den ganzen Stapel', () => {

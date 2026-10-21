@@ -24,29 +24,29 @@ export const MODULES: ModuleMeta[] = [
     id: 'festinstallation',
     label: 'Fixed installation',
     description:
-      'Lebenszyklus/Service, Asset-Register & QR-Etiketten, Übergabe-Doku und Feld-Rückkanal.',
+      'Lifecycle/service, asset register & QR labels, handover docs and field feedback.',
   },
   {
     id: 'mobile',
     label: 'Mobile-Companion',
-    description: 'Handy-Patchliste, Steck-Check, QR-Scan-Lookup und Feld-Meldungen.',
+    description: 'Phone patch list, plug check, QR scan lookup and field reports.',
   },
   {
     id: 'rentman',
     label: 'Rentman',
-    description: 'Import/Export-Kopplung zu Rentman (Katalog + Kabelmengen).',
+    description: 'Import/export link to Rentman (catalogue + cable quantities).',
   },
   {
     id: 'rental',
-    label: 'Rental / Lager',
+    label: 'Rental / Stock',
     description:
-      'Lagerbestand, Eigentum & Verfügbarkeit, Mietkalkulation (im Aufbau, Phase 2+).',
+      'Stock, ownership & availability, rental pricing (in progress, phase 2+).',
   },
   {
     id: 'netbox',
     label: 'NetBox',
     description:
-      'Site oder Rack aus einer NetBox-Instanz als Kabelplan importieren und später nur um neue Geräte/Verbindungen ergänzen.',
+      'Import a site or rack from a NetBox instance as a cable plan and later add only new devices/connections.',
   },
 ]
 

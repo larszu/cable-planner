@@ -30,6 +30,7 @@ import type { CableType } from '../types/cable'
 import { circuitFromProject, istStromKabel, LEERE_SIM, type CircuitSim } from './circuitFromProject'
 import { schaltungsVorschlaege, type Befund, type TafelZeile } from './circuitSuggest'
 import { CIRCUIT_KIND_INFO } from '../types/circuit'
+import { tr } from './i18n'
 
 /** Eine Ader, die sich so in den Plan eintragen lässt. */
 export interface PlanKante {
@@ -149,7 +150,9 @@ export const planVorschlaege = (
       const pb = anschlussFuer(b, k.toTerminal, belegt)
       const fehlt = !pa ? { eq: a, klemme: k.fromTerminal } : !pb ? { eq: b, klemme: k.toTerminal } : undefined
       if (fehlt) {
-        const bauart = fehlt.eq.circuitKind ? CIRCUIT_KIND_INFO[fehlt.eq.circuitKind].label : 'Gerät'
+        const bauart = fehlt.eq.circuitKind
+          ? tr(`circuit.kind.${fehlt.eq.circuitKind}`, CIRCUIT_KIND_INFO[fehlt.eq.circuitKind].label)
+          : 'Gerät'
         hindernis =
           `${bauart} „${fehlt.eq.name}" hat keinen freien Anschluss mit Klemme ${fehlt.klemme}. ` +
           'Die Klemme steht in den Eigenschaften am Anschluss — ohne sie lässt sich die Ader nicht eintragen.'

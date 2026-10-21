@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 // @ts-expect-error — reines JS-Hilfsmodul ohne Typen, absichtlich
-import { messeDatenBeschriftungen } from '../scripts/quellsprache.mjs'
+import { messeDatenBeschriftungen, mapWerte } from '../scripts/quellsprache.mjs'
 import { PRESETS } from '../src/renderer/lib/modules'
 import { de } from '../src/renderer/lib/i18n/de'
 
@@ -36,5 +36,12 @@ describe('Modale Dialoge folgen dem Theme', () => {
       const src = readFileSync(resolve(__dirname, '../src/renderer/lib', f), 'utf8')
       expect(src, f).not.toMatch(/#1e293b|#334155|#cbd5e1|#e2e8f0/)
     }
+  })
+})
+
+describe('Maps als t()-Fallback', () => {
+  it('liest die Werte einer Map, die an t() geht', () => {
+    const quelle = "const STATUS_LABEL: Record<S, string> = {\n  open: 'offen',\n  built: { x: 'gebaut' },\n}"
+    expect(mapWerte(quelle, 'STATUS_LABEL')).toEqual(['offen', 'gebaut'])
   })
 })
