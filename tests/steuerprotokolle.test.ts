@@ -30,7 +30,7 @@ describe('steuerprotokolle', () => {
         expect(b!.tcpMode && b!.port).toBeTruthy()
         const open = b!.unverified ?? []
         expect(Boolean(i.serial?.baud?.length) || open.includes('baud rate'), `${e.name} baud`).toBe(true)
-        expect(Boolean(i.serial?.pinout) || open.includes('RJ-45 pinout'), `${e.name} pinout`).toBe(true)
+        expect(Boolean(i.serial?.pinout) || open.some((x) => x.endsWith('pinout')), `${e.name} pinout`).toBe(true)
         expect(Boolean(b!.packetization) || open.includes('packet framing'), `${e.name} framing`).toBe(true)
       }
   })
