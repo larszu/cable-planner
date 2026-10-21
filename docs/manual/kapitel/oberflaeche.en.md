@@ -1,177 +1,375 @@
 ## The interface
 
+### Main window layout
 
-![Application interface overview](bilder/en/oberflaeche-start.jpg)
+![Main window with the example project](bilder/en/oberflaeche-01-start.jpg)
 
-The interface of LZ Cable Planner consists of four main areas: the menu bar at the top, the library sidebar on the left, the canvas in the center, and the inspector panel on the right. The status bar is located at the bottom of the window.
+The main window has five areas:
 
-### Edit Menu
-
-![Edit menu](bilder/en/oberflaeche-menu-edit.jpg)
-
-The Edit menu contains functions for modifying selections on the canvas.
-
-| Function | Keyboard Shortcut | Description |
+| Area | Position | Contents |
 |---|---|---|
-| Undo | Ctrl+Z | Undo the last action |
-| Redo | Ctrl+Y | Redo the last undone action |
-| Duplicate | Ctrl+D | Duplicate selected equipment or cables |
-| Delete selection | Delete | Delete selected elements |
-| Select all | Ctrl+A | Select all equipment and cables in the plan |
-| Clear selection | Esc | Deselect all elements |
+| Header | top | menus *File*, *Edit*, *Tools*, *View*, *Help*, project name, undo/redo, theme button, *Phone access*, *Settings* |
+| Library | left | equipment, cables, groups and racks to place in the plan |
+| Canvas | centre | the plan with devices and cables, toolbar, search field, zoom buttons, overview map |
+| Inspector | right | properties of the selection |
+| Status bar | bottom | figures and notices about the project |
 
-### View Menu
+#### Header
 
-![View menu](bilder/en/oberflaeche-menu-view.jpg)
+![Header](bilder/en/oberflaeche-02-menueleiste.jpg)
 
-The View menu provides functions to affect the canvas view and control the display of various panels.
+Clicking the project name in the centre opens the dialog *Edit project metadata*.
 
-#### Zoom and Fitting
+![Edit project metadata](bilder/en/oberflaeche-10-projektname-klick.jpg)
 
-| Function | Description |
+| Field | Effect |
 |---|---|
-| Fit to view | Zoom the canvas so all elements are visible |
-| Zoom 100 % | Reset zoom to 100 % |
-| Zoom in | Increase canvas zoom level |
-| Zoom out | Decrease canvas zoom level |
+| Project name (required) | name in the header, status bar and printouts |
+| Contractor (company), Client, Planner / author, Project / job no. | details for the plan footer |
+| Event/rental start, Event/rental end | period of the job |
+| Description | free text |
+| Company logo, Client logo | image file via *Choose logo…* |
 
-#### Theme and Appearance
+These fields appear in the plan footer when exporting to PDF. *Save* applies them, *Cancel* discards them.
 
-| Function | Description |
-|---|---|
-| Theme: follow system | Light or dark following the operating system (Auto, default) |
-| Light theme | Always light |
-| Dark theme | Always dark |
-| Floor plan | Show or hide the floor plan panel |
-| Symbols | Show or hide the symbols panel |
-| Fullscreen | Display the app in fullscreen mode |
+The undo and redo buttons sit on the right of the header. They are greyed out while there is no step to take.
 
-#### Cables and Labels
+![Undo and redo in the header](bilder/en/oberflaeche-31-kopfleiste-rechts.jpg)
 
-| Function | Description |
-|---|---|
-| Snap to grid | Align equipment to a grid |
-| Hide cable labels | Hide cable designations on the canvas |
-| Show off-page names | Display names of equipment outside the plan area |
-| Color cables by length | Colorize cables based on their physical length |
-| Color cables by discipline | Colorize cables based on their discipline/domain |
+In a narrow window the header contracts; the menus stay available.
 
-#### Panels and Tools
+![Header in a narrow window](bilder/en/oberflaeche-81-schmal-kopfleiste.jpg)
 
-| Function | Description |
-|---|---|
-| Find device | Show or hide the canvas search field |
-| Canvas toolbar | Show or hide the canvas toolbar |
-| Annotations panel | Show or hide the annotations panel |
+#### File and Tools menus
 
-### Help Menu
+The *File* menu holds new, open, save, the imports and the exports. Its entries are described in the chapters [File and Import](#file-and-import) and [Export & Print](#export--print).
 
-![Help menu](bilder/en/oberflaeche-menu-help.jpg)
+![File menu](bilder/en/oberflaeche-07-menue-datei.jpg)
 
-The Help menu provides access to documentation and information about the application.
+The *Tools* menu is divided into groups, among them *Calculate*, *Check* and *Plan*. The tools are described in the tools chapters.
 
-| Function | Keyboard Shortcut | Description |
+![Tools menu](bilder/en/oberflaeche-08-menue-werkzeuge.jpg)
+
+#### Inspector with nothing selected
+
+With nothing selected, the inspector shows *Nothing selected*, the block *Photos of the project* with *Add photo…* and *Quick orientation* with four starting hints.
+
+![Inspector with nothing selected](bilder/en/oberflaeche-05-inspector-leer.jpg)
+
+### Arranging the side panels
+
+The library and the inspector can be collapsed, undocked, moved into a window of their own and resized.
+
+#### Window menu
+
+1. Click *Window* at the top of the side panel.
+
+   ![Window menu of the library](bilder/en/oberflaeche-11-fenster-bibliothek-menue.jpg)
+
+2. Choose *Undock (floating)*. The library floats above the canvas as a movable panel. *Dock* puts it back in place.
+
+   ![Library undocked](bilder/en/oberflaeche-12-bibliothek-abgedockt.jpg)
+
+*Open in its own window* opens the side panel as a separate application window. The *Window* button can also be dragged. The menus of the inspector and of the annotations panel offer the same entries.
+
+#### Collapsing and width
+
+- The arrow button next to *Window* collapses the side panel. Clicking the arrow at the edge expands it again.
+
+  ![Library collapsed](bilder/en/oberflaeche-14-bibliothek-eingeklappt.jpg)
+
+  ![Inspector collapsed](bilder/en/oberflaeche-17-inspector-eingeklappt.jpg)
+
+- The divider between side panel and canvas can be dragged with the mouse to change the width.
+
+  ![Library widened](bilder/en/oberflaeche-19-trennleiste-gezogen.jpg)
+
+- **Ctrl+B** hides and shows the library, **Ctrl+I** the inspector.
+
+The **P** key opens the patch list.
+
+![Patch list after pressing P](bilder/en/oberflaeche-23-tastatur-patchliste-p.jpg)
+
+### Edit menu
+
+![Edit menu](bilder/en/oberflaeche-24-bearbeiten-menue.jpg)
+
+| Entry | Shortcut | Effect |
 |---|---|---|
-| Command palette… | Ctrl+K | Quick access to commands via search |
-| Keyboard shortcuts… | | Display a list of all keyboard shortcuts |
-| Getting-started tour… | | Launch an interactive introduction to the app |
-| Check for updates… | | Search for new application versions |
-| About LZ Cable Planner… | | Display version information and credits |
+| Undo | Ctrl+Z | reverts the last step |
+| Redo | Ctrl+Y | restores the reverted step |
+| Duplicate | Ctrl+D | copies the selected elements |
+| Delete selection | Del | deletes the selected elements |
+| Select all | Ctrl+A | selects all elements of the plan |
+| Clear selection | Esc | clears the selection |
 
-### Command Palette
+![Everything selected](bilder/en/oberflaeche-25-bearbeiten-alles-auswaehlen.jpg)
 
-![Command palette](bilder/en/oberflaeche-command-palette.jpg)
+### View menu
 
-The command palette is a quick way to access the most important functions. It is opened with **Ctrl+K** or via *Help → Command palette…*. It allows you to search for and execute commands via text search.
+![View menu](bilder/en/oberflaeche-34-ansicht-menue.jpg)
 
-The command palette contains:
-- **Edit**: Undo, Redo, Duplicate, Select all
-- **View**: Fit to view, Zoom in, Zoom out, Reset zoom
-- **Tools**: Plan check, Patch list, Analyses, Bulk connect, Revisions, AI plan generation, CSV import, and more functions
+#### Zoom
 
-The command palette is especially useful when you don't remember the exact menu paths or when you want to quickly execute a function without navigating through the menus. Simply type the first letters of the command you're looking for to filter the list.
-
-### Status Bar
-
-![Status bar](bilder/en/oberflaeche-statusbar.jpg)
-
-The status bar at the bottom of the window displays important information about the current project:
-
-| Element | Description |
+| Entry | Effect |
 |---|---|
-| Project name | Name of the currently open project |
-| Equipment | Number of equipment elements |
-| Cables | Number of cable connections |
-| Locations | Number of rack locations |
-| Packed | Status and count of packed equipment |
-| File size | Size of the project file |
-| Plan check | Status of plan verification (green OK, red problems) |
-| Zoom | Current zoom level in percent |
-| Version | Installed app version |
+| Fit to view | zooms so that all elements are visible |
+| Zoom 100 % | sets the zoom to 100 % |
+| Zoom in | zooms in |
+| Zoom out | zooms out |
+| Fullscreen | switches the window to fullscreen and back |
 
-Additionally, the following badges may be displayed:
-- **Live collaboration**: indicates when live collaboration is active
-- **MCP server**: indicates if the MCP server is running and Claude is reading the plan
-- **Action items**: indicates when there are overdue tasks
+The current zoom level is shown in the status bar.
 
-### Theme Settings
+#### Theme
 
-#### Light Theme
+| Entry | Effect |
+|---|---|
+| Theme: follow system | light or dark according to the operating system |
+| Light theme | always light |
+| Dark theme | always dark |
 
-![Light theme](bilder/en/oberflaeche-theme-light.jpg)
+The same choice is offered by the theme button in the header (sun, moon or screen) and by *Settings → Appearance*. The choice is remembered.
 
-The app has a light and a dark theme with three settings: **Auto** (default, follows the operating system), **Light** and **Dark**. Switch in three places: the theme button on the right of the header (sun, moon or screen – one click opens the three settings), *Settings → Appearance* and the *View* menu. The choice is kept.
+![Light theme](bilder/en/oberflaeche-40-ansicht-helles-design-aus.jpg)
 
-### Canvas Visibility Options
+#### Grid and labels
 
-#### Snap to Grid
+| Entry | Effect |
+|---|---|
+| Snap to grid | devices snap to the grid while being moved |
+| Hide cable labels | hides the labels on the cables |
+| Show off-page names | shows the cable number or cable name on off-page connectors permanently; without the option it appears only on mouse-over |
 
-![Snap to grid](bilder/en/oberflaeche-snap-to-grid.jpg)
+A check mark in front of the entry shows that the option is on.
 
-With the "Snap to grid" option enabled, equipment that you move on the canvas automatically aligns to a grid. This makes arrangement easier and produces a neat layout result. You can enable or disable this option in the View menu.
+![Cable labels hidden](bilder/en/oberflaeche-45-ansicht-labels-aus.jpg)
 
-#### Hide Cable Labels
+#### Color cables by length
 
-![Hide cable labels](bilder/en/oberflaeche-hide-labels.jpg)
+*Color cables by length* colours the cables with the broadcast length colour code. The stored colour of each cable stays unchanged; a second click switches back.
 
-Cables can carry labels (such as port numbers). With "Hide cable labels" in the View menu, these can be hidden. This is useful when the canvas appears crowded or when you want to see only the connection structure.
+| Length | Colour |
+|---|---|
+| 1 m | red |
+| 2 m | yellow |
+| 3 m | green |
+| 5 m | white |
+| 10 m | red |
+| 20 m | yellow |
+| 25 m | yellow/white dashed |
+| 50 m | white |
+| 100 m | red |
 
-#### Cable Colors
+Cables of any other length appear grey.
 
-##### Color by Length
+![Cables of 1, 2, 3 and 5 m coloured by length](bilder/en/oberflaeche-53-ansicht-farbe-laenge-regel.jpg)
 
-![Color cables by length](bilder/en/oberflaeche-color-by-length.jpg)
+#### Color cables by discipline
 
-This option colorizes cables based on their physical length. Short cables receive one color, long cables another. This helps you see at a glance which cables are particularly long and may therefore be costly or difficult to route.
+*Color cables by discipline* colours each cable by its discipline: Video blue, Audio red, Control orange, Network green, Power violet, Other grey. Here too the stored colour stays unchanged. The two colour modes exclude each other.
 
-##### Color by Discipline
+![Cables coloured by discipline](bilder/en/oberflaeche-54-ansicht-farbe-gewerk-vergleich.jpg)
 
-![Color cables by discipline](bilder/en/oberflaeche-color-by-layer.jpg)
+#### Search field, toolbar and panels
 
-This option colorizes cables according to their discipline/domain (e.g., video, audio, data, power). This makes it easier to distinguish between different cable types on a complex plan.
+| Entry | Shortcut | Effect |
+|---|---|---|
+| Find device | Ctrl+F | shows and hides the search field above the canvas |
+| Canvas toolbar | | shows and hides the canvas toolbar |
+| Annotations panel | | opens and closes the *Annotations* panel |
+| Floor plan | | shows and hides the floor plan panel |
+| Symbols | | shows and hides the symbols panel |
 
-### Information and Help
+![Canvas without toolbar](bilder/en/oberflaeche-58-ansicht-werkzeugleiste-aus.jpg)
 
-#### About the Application
+The *Annotations* panel appears on the right. It filters by status with *all*, *offen*, *gebaut* and *erledigt*; *+ New annotation* creates an annotation. *Close* hides it.
 
-![About dialog](bilder/en/oberflaeche-about.jpg)
+![Annotations panel](bilder/en/oberflaeche-60-ansicht-anmerkungen-an.jpg)
 
-The About dialog displays the current version of LZ Cable Planner along with information about the publisher and the licences of the bundled third-party libraries. It can be accessed via *Help → About LZ Cable Planner…*.
+### Help menu
 
-Here you will find:
-- The current version number
-- The build date and time
-- The author (Lars Zumpe)
-- The GitHub repository (github.com/larszu/cable-planner)
-- Technologies used (Electron, React, ReactFlow, Vite, Tailwind)
-- Notice to report issues and feature requests directly on GitHub
+![Help menu](bilder/en/oberflaeche-83-hilfe-menue.jpg)
 
-### Uncaptured Functions
+| Entry | Shortcut | Effect |
+|---|---|---|
+| Command palette… | Ctrl+K | opens the command palette |
+| Keyboard shortcuts… | ? | opens the keyboard shortcut overview |
+| Getting-started tour… | | starts the tour of the interface |
+| Check for updates… | | asks for a newer version and reports the result |
+| About LZ Cable Planner… | | opens the dialog with version and build |
 
-The following elements could not be fully documented:
+#### Command palette
 
-- **Phone Access Dialog**: The button to start phone access may not be available in the test environment or was not successfully activated by the capture script.
-- **Collaboration Panel**: The Sync panel could not be successfully opened by the test script.
-- **Keyboard Shortcuts Dialog**: The dialog could not be successfully activated.
+![Command palette](bilder/en/oberflaeche-84-hilfe-befehlspalette.jpg)
 
-These functions are all present in the code and functional. The documentation focuses on the main menus and important settings for configuring the user interface.
+The command palette lists commands from *Edit*, *View* and *Tools*; each command shows its group on the right.
+
+1. Open the palette with **Ctrl+K** or via *Help → Command palette…*.
+2. Type part of the command name. The list shows only matching commands.
+
+   ![Search for “zoom”](bilder/en/oberflaeche-87-palette-suche-zoom.jpg)
+
+3. Pick a command with the arrow keys and run it with **Enter**.
+
+The search checks only the command names, not the groups. If nothing matches, the list shows *No commands found*.
+
+![No matches](bilder/en/oberflaeche-89-palette-keine-treffer.jpg)
+
+#### Keyboard shortcuts
+
+*Help → Keyboard shortcuts…* or the **?** key opens the overview.
+
+![Keyboard shortcuts, keyboard view](bilder/en/oberflaeche-94-hilfe-tastenkuerzel.jpg)
+
+The *Keyboard* view shows a keyboard; highlighted keys have an action, shown on mouse-over or click. The *List* view lists all shortcuts. They include:
+
+| Shortcut | Action |
+|---|---|
+| Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+Shift+S | New project, Open, Save, Save as |
+| Ctrl+C, Ctrl+V | Copy, Paste |
+| Ctrl+K | Command palette |
+| Ctrl+F | Find device |
+| Ctrl++ | New device at cursor |
+| Ctrl+B, Ctrl+I | Show/hide library or inspector |
+| P | Open patch list |
+| A | Toggle arrow display |
+| ? | this overview |
+
+#### Getting-started tour
+
+The tour takes seven steps through the interface: Welcome, File menu, Export menu, Settings → Rentman, Library, Properties, Cable plan & warnings. *Next* and *Back* page through it, *End tour* stops it.
+
+![First step of the tour](bilder/en/oberflaeche-96-hilfe-tour-1.jpg)
+
+#### About LZ Cable Planner
+
+![About LZ Cable Planner](bilder/en/oberflaeche-105-hilfe-ueber.jpg)
+
+The dialog shows:
+
+- Version
+- Build: date and time the program was built
+- Author
+- Repository (github.com/larszu/cable-planner)
+- Platform (Electron, React, ReactFlow, Vite, Tailwind)
+- the note to report issues and feature requests on GitHub
+
+The same dialog opens when you click the version number on the right of the status bar.
+
+### Status bar
+
+![Status bar](bilder/en/oberflaeche-06-statusleiste.jpg)
+
+From left to right the status bar shows:
+
+| Element | Meaning | Click |
+|---|---|---|
+| Project name | name of the project | |
+| devices, cables | count in the plan | |
+| frames | number of room frames | |
+| packed | devices marked as packed in their properties, e.g. *0/5 packed*; grey for none, yellow for some, green for all | |
+| Complexity | size estimate of the plan | |
+| Plan check | result of the running plan check | opens the plan check |
+| Rentman | connection to Rentman | |
+| Zoom | current zoom level | |
+| Version | program version | opens *About LZ Cable Planner* |
+
+In a narrow window the status bar hides frames, packed and Rentman.
+
+#### Complexity
+
+The badge adds up devices and cables:
+
+| Sum | Badge |
+|---|---|
+| below 8 | New |
+| from 8 | Small |
+| from 30 | Medium |
+| from 80 | Large |
+| from 200 | XL |
+
+The badge is only a guide to readability and working speed.
+
+![Complexity XL with 115 devices and 92 cables](bilder/en/oberflaeche-70-status-komplexitaet-xl.jpg)
+
+#### Plan check
+
+The badge has three states:
+
+| Colour | Meaning |
+|---|---|
+| green, *OK* | no findings |
+| yellow with a number | warnings only |
+| red with a number | at least one error |
+
+The number is the sum of errors and warnings.
+
+![Plan check with one warning](bilder/en/oberflaeche-71-status-plancheck-warnung.jpg)
+
+![Plan check with errors](bilder/en/oberflaeche-73-status-plancheck-fehler.jpg)
+
+A click opens the plan check with all findings. Clicking a finding selects the affected element.
+
+![Plan check open](bilder/en/oberflaeche-72-status-plancheck-klick.jpg)
+
+#### Notices that appear only when needed
+
+| Badge | Appears when | Click |
+|---|---|---|
+| *Network* with a number | there are network findings: missing or duplicate addresses, masks, segments | opens the analyses on the network tab |
+| *No recovery copy* | the browser store refused the project's recovery copy; the plan itself is not affected, save it to a file | |
+| *Photos* with MB | the photos in the plan exceed 40 MB; the file still opens but is hard to send by mail | |
+| *Due* with a number | returns, check-outs, hours, receipts or costs are overdue or due today | opens the analyses on *What is due* |
+| *Live* with participant count | a live collaboration is running | opens the settings on the network sync tab |
+| *MCP* | the local MCP server is running; next to it *· read only* or *· can edit*, during an active request *MCP · asking* | opens the settings on the MCP tab |
+
+![Network findings](bilder/en/oberflaeche-74-status-netz-befunde.jpg)
+
+![No recovery copy](bilder/en/oberflaeche-79-status-keine-sicherungskopie.jpg)
+
+![Photos above 40 MB](bilder/en/oberflaeche-77-status-fotos.jpg)
+
+#### Rentman indicator
+
+The Rentman indicator appears only when the Rentman module is enabled. It shows the name of the linked Rentman project, otherwise *Token ready* when an access token is stored, otherwise *Standalone*.
+
+![Linked Rentman project](bilder/en/oberflaeche-78-status-rentman-projekt.jpg)
+
+### Phone access
+
+The *Phone access* button in the header opens the dialog *Mobile access*. It starts a small web server on the local network; a phone opens the mobile view of the project via the QR code.
+
+![Mobile access dialog](bilder/en/oberflaeche-107-handy-dialog.jpg)
+
+| Element | Effect |
+|---|---|
+| Feedback from the phone: *Read only* | the phone cannot write anything back |
+| Feedback from the phone: *Contribute: ticks, cables, photos, new devices* | the phone may send back ticks, cables, photos and new devices |
+| *Start LAN server* | starts the server and shows the QR code |
+| *Make system access codes retrievable* | releases intercom access codes via a second code; selectable only for projects with an intercom configuration |
+| *Security notes* | expands the security notes |
+
+The server stops when the app closes or via the Stop button. The mobile view is described in the chapter [Web edition and tablet](#web-edition-and-tablet).
+
+![Security notes](bilder/en/oberflaeche-109-handy-sicherheitshinweise.jpg)
+
+### First start
+
+On the first start without a project two dialogs appear one after the other.
+
+1. *Welcome to LZ Cable Planner* offers *New project* and *Open project…*. *Decide later* closes the dialog.
+
+   ![Welcome dialog](bilder/en/oberflaeche-111-erststart-willkommen-dialog.jpg)
+
+2. *Welcome — what do you use LZ Cable Planner for?* asks for the use case. Choose one or more:
+
+   | Use case | enables the modules |
+   |---|---|
+   | Show / Event | Phone access, Rentman |
+   | Festinstallation (fixed install) | Fixed install, Phone access, NetBox |
+   | Vermietung / Rental | Rental, Rentman |
+
+   ![Use case selected](bilder/en/oberflaeche-113-erststart-modulfrage-auswahl.jpg)
+
+3. *Get started* applies the choice. *Decide later* leaves the modules as they are. Everything can be changed under *Settings → Modules*.
