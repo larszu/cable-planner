@@ -6,7 +6,19 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { projectHistory } from '../../store/projectHistory'
 import { useTranslation, format } from '../../lib/i18n'
-import { belegtDurch, istVollstaendig, loeseEnde, versteheSprache, type SprachKabel } from '../../lib/sprachKabel'
+import {
+  alsGeraet,
+  belegtDurch,
+  brauchtWandler,
+  findeVorlage,
+  findeWandlerVorlage,
+  fuehreSprachAuftraegeAus,
+  loeseEnde,
+  versteheSprache,
+  waehlePort as portFuer,
+  type SprachAuftrag,
+  type SprachKabel,
+} from '../../lib/sprachKabel'
 import type { CablePlannerProject } from '../../types/project'
 
 /**
@@ -51,6 +63,10 @@ const Inhalt = ({ onClose }: { onClose: () => void }) => {
   const [kabel, setKabel] = useState<SprachKabel[] | null>(null)
   const [unverstanden, setUnverstanden] = useState<string[]>([])
   const [ersetzen, setErsetzen] = useState<Record<number, boolean>>({})
+  // Abgewaehlte Vorschlaege: Bibliotheksvorlage je Ende, Wandler je Kabel.
+  const [vorlageAus, setVorlageAus] = useState<Record<string, boolean>>({})
+  const [wandlerAus, setWandlerAus] = useState<Record<number, boolean>>({})
+  const bibliothek = useProjectStore((s) => s.customLibrary)
   const [hoert, setHoert] = useState(false)
   const [meldung, setMeldung] = useState('')
   const erkennung = useRef<Erkennung | null>(null)
@@ -61,6 +77,8 @@ const Inhalt = ({ onClose }: { onClose: () => void }) => {
     setKabel(r.kabel)
     setUnverstanden(r.unverstanden)
     setErsetzen({})
+    setVorlageAus({})
+    setWandlerAus({})
     setMeldung('')
   }
 
@@ -99,39 +117,78 @@ const Inhalt = ({ onClose }: { onClose: () => void }) => {
     setKabel(kabel.map((x, j) => (j === i ? { ...x, [seite]: { ...x[seite], portId: portId || undefined } } : x)))
   }
 
-  const bereit = (kabel ?? []).filter((k, i) => istVollstaendig(k) && (!belegtDurch(project, k) || ersetzen[i]))
+  /** Fehlt das Geraet im Plan, schlaegt die Bibliothek eines vor. */
+  const vorlageFuer = (k: SprachKabel, i: number, seite: 'von' | 'nach') => {
+    const e = k[seite]
+    if (e.geraetId || e.kandidaten.length || vorlageAus[`${i}:${seite}`]) return undefined
+    return findeVorlage(bibliothek, e.wunsch)
+  }
+
+  const portAm = (k: SprachKabel, i: number, seite: 'von' | 'nach') => {
+    const v = vorlageFuer(k, i, seite)
+    if (v) return portFuer(alsGeraet(v), k[seite].wunsch, seite === 'von' ? 'from' : 'to').port
+    const g = geraetName(project, k[seite].geraetId)
+    return g ? [...g.outputs, ...g.inputs].find((p) => p.id === k[seite].portId) : undefined
+  }
+
+  const wandlerNoetig = (k: SprachKabel, i: number) => {
+    const q = portAm(k, i, 'von')
+    const z = portAm(k, i, 'nach')
+    return !!q && !!z && brauchtWandler(q.connectorType, z.connectorType)
+  }
+
+  const bereitIdx = (kabel ?? [])
+    .map((k, i) => ({ k, i }))
+    .filter(({ k, i }) => portAm(k, i, 'von') && portAm(k, i, 'nach') && (!belegtDurch(project, k) || ersetzen[i]))
+  const bereit = bereitIdx
 
   const uebernehmen = () => {
-    const liste = (kabel ?? [])
-      .map((k, i) => ({ k, i }))
-      .filter(({ k, i }) => istVollstaendig(k) && (!belegtDurch(project, k) || ersetzen[i]))
-      .map(({ k, i }) => ({
-        fromDeviceId: k.von.geraetId,
-        fromPortId: k.von.portId,
-        toDeviceId: k.nach.geraetId,
-        toPortId: k.nach.portId,
-        ...(ersetzen[i] ? { replace: true } : {}),
-      }))
-    if (!liste.length) return
-    // Ein Diktat, ein Undo-Schritt — dieselbe Klammer wie der MCP-Weg in App.tsx.
-    const antwort = projectHistory.transact(() => useProjectStore.getState().mcpSchreiben('connect_many', { cables: liste }))
-    if (antwort.ok) onClose()
-    else setMeldung(antwort.text)
+    const auftraege: SprachAuftrag[] = bereitIdx.map(({ k, i }) => {
+      const ende = (seite: 'von' | 'nach') => {
+        const v = vorlageFuer(k, i, seite)
+        return v ? { vorlage: v, wunsch: k[seite].wunsch } : { geraetId: k[seite].geraetId, portId: k[seite].portId, wunsch: k[seite].wunsch }
+      }
+      return { von: ende('von'), nach: ende('nach'), wandler: wandlerNoetig(k, i) && !wandlerAus[i], ersetzen: !!ersetzen[i] }
+    })
+    if (!auftraege.length) return
+    // Ein Diktat, ein Undo-Schritt — auch mit neuen Geraeten und Wandlern.
+    // Dieselbe Klammer wie der MCP-Weg in App.tsx.
+    const r = projectHistory.transact(() =>
+      fuehreSprachAuftraegeAus(
+        auftraege,
+        (w, a) => useProjectStore.getState().mcpSchreiben(w, a),
+        () => useProjectStore.getState().project,
+        bibliothek,
+      ),
+    )
+    if (r.ok) onClose()
+    else setMeldung(r.texte.join(' '))
   }
 
   const endeZeile = (k: SprachKabel, i: number, seite: 'von' | 'nach') => {
     const ende = k[seite]
-    const geraet = geraetName(project, ende.geraetId)
+    const vorlage = vorlageFuer(k, i, seite)
+    const vorschlag = !ende.geraetId && !ende.kandidaten.length ? findeVorlage(bibliothek, ende.wunsch) : undefined
+    const geraet = vorlage ? undefined : geraetName(project, ende.geraetId)
     const ports = geraet ? (seite === 'von' ? geraet.outputs : geraet.inputs) : []
     const kandidaten = ende.kandidaten.length ? ende.kandidaten : project.equipment
     return (
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <select
           aria-label={seite === 'von' ? t('voiceCabling.fromDevice', 'Source device') : t('voiceCabling.toDevice', 'Target device')}
-          value={ende.geraetId ?? ''}
-          onChange={(e) => waehleGeraet(i, seite, e.target.value)}
-          className={`rounded-cp-control border bg-cp-surface-2 px-2 py-1 text-cp-sm ${ende.geraetId ? 'border-cp-border' : 'border-cp-warn'}`}
+          value={vorlage ? '__bibliothek__' : (ende.geraetId ?? '')}
+          onChange={(e) => {
+            const wert = e.target.value
+            setVorlageAus({ ...vorlageAus, [`${i}:${seite}`]: wert !== '__bibliothek__' })
+            if (wert !== '__bibliothek__') waehleGeraet(i, seite, wert)
+          }}
+          className={`rounded-cp-control border bg-cp-surface-2 px-2 py-1 text-cp-sm ${ende.geraetId || vorlage ? 'border-cp-border' : 'border-cp-warn'}`}
         >
+          {vorschlag && (
+            <option value="__bibliothek__">
+              {format(t('voiceCabling.fromLibrary', 'Add from library: {name}'), { name: vorschlag.name })}
+            </option>
+          )}
           <option value="">
             {ende.kandidaten.length > 1
               ? format(t('voiceCabling.pick', 'Which one? ({count} match)'), { count: ende.kandidaten.length })
@@ -141,6 +198,13 @@ const Inhalt = ({ onClose }: { onClose: () => void }) => {
             <option key={e.id} value={e.id}>{e.name}</option>
           ))}
         </select>
+        {vorlage && (
+          <p className="text-cp-xs text-cp-text-muted">
+            {format(t('voiceCabling.newDevice', 'Not in the plan yet - placed on Connect, port {port}.'), {
+              port: portAm(k, i, seite)?.name ?? '?',
+            })}
+          </p>
+        )}
         {geraet && (
           <select
             aria-label={t('voiceCabling.port', 'Port')}
@@ -236,9 +300,11 @@ const Inhalt = ({ onClose }: { onClose: () => void }) => {
           )}
           {kabel.map((k, i) => {
             const alt = belegtDurch(project, k)
-            const q = geraetName(project, k.von.geraetId)?.outputs.find((p) => p.id === k.von.portId)
-            const z = geraetName(project, k.nach.geraetId)?.inputs.find((p) => p.id === k.nach.portId)
-            const anderesSignal = (q && z && q.connectorType !== z.connectorType) || k.nach.signalFehlt || k.von.signalFehlt
+            const q = portAm(k, i, 'von')
+            const z = portAm(k, i, 'nach')
+            const wandler = wandlerNoetig(k, i)
+            const wandlerVorlage = wandler && q && z ? findeWandlerVorlage(bibliothek, q.connectorType, z.connectorType) : null
+            const anderesSignal = !wandler && (k.nach.signalFehlt || k.von.signalFehlt)
             return (
               <li key={i} className="rounded-cp-card bg-cp-surface-2 p-3">
                 <p className="mb-2 text-cp-xs text-cp-text-muted">„{k.satz}"</p>
@@ -255,6 +321,16 @@ const Inhalt = ({ onClose }: { onClose: () => void }) => {
                       to: z?.connectorType ?? '?',
                     })}
                   </p>
+                )}
+                {wandler && (
+                  <label className="mt-2 flex items-center gap-2 text-cp-xs text-cp-warn">
+                    <input type="checkbox" checked={!wandlerAus[i]} onChange={(e) => setWandlerAus({ ...wandlerAus, [i]: !e.target.checked })} />
+                    {format(t('voiceCabling.insertConverter', 'Insert converter {from} to {to}: {name}'), {
+                      from: q?.connectorType ?? '?',
+                      to: z?.connectorType ?? '?',
+                      name: wandlerVorlage?.name ?? t('voiceCabling.genericConverter', 'generic converter'),
+                    })}
+                  </label>
                 )}
                 {alt && (
                   <label className="mt-2 flex items-center gap-2 text-cp-xs text-cp-warn">

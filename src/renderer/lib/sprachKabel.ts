@@ -14,7 +14,8 @@
 // REIN: kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 import type { CablePlannerProject } from '../types/project'
-import type { EquipmentItem, Port } from '../types/equipment'
+import type { ConnectorType, EquipmentItem, EquipmentTemplate, Port } from '../types/equipment'
+import { cableCatalog, checkCableCompatibility } from '../types/cableSpec'
 import type { LocationFrame } from '../types/location'
 import { locationForEquipment } from './equipmentLocation'
 
@@ -407,3 +408,140 @@ export const istVollstaendig = (k: SprachKabel): boolean =>
 /** Das Kabel, das schon am Ziel-Port steckt (fuer die Rueckfrage). */
 export const belegtDurch = (project: Readonly<CablePlannerProject>, k: SprachKabel) =>
   project.cables.find((c) => c.toEquipmentId === k.nach.geraetId && c.toPortId === k.nach.portId)
+
+// ─── Teil 2: Wandler und Geraete aus der Bibliothek (#1056) ────────────────
+
+/**
+ * Braucht die Strecke einen Wandler? Dieselbe Frage wie `rat` in
+ * mcpSchreiben: passt KEIN Katalogkabel auf beide Stecker, ja.
+ */
+export const brauchtWandler = (von: ConnectorType, nach: ConnectorType): boolean =>
+  von !== nach && !cableCatalog.some((spec) => checkCableCompatibility(von, nach, spec).level !== 'error')
+
+const istWandlerVorlage = (t: EquipmentTemplate) =>
+  /convert|wandler|konverter|scaler/i.test(`${t.name} ${t.category ?? ''}`)
+
+/**
+ * Die Bibliotheksvorlage, die `von` aufnimmt und `nach` ausgibt; nur
+ * Wandler. Null heisst: der Aufrufer legt einen generischen an.
+ */
+export const findeWandlerVorlage = (
+  bibliothek: readonly EquipmentTemplate[],
+  von: ConnectorType,
+  nach: ConnectorType,
+): EquipmentTemplate | null =>
+  bibliothek.find(
+    (t) =>
+      istWandlerVorlage(t) &&
+      t.inputs.some((p) => p.connectorType === von) &&
+      t.outputs.some((p) => p.connectorType === nach),
+  ) ?? null
+
+/** Vorlage fuer ein Ende, das im Plan nichts trifft. */
+export const findeVorlage = (
+  bibliothek: readonly EquipmentTemplate[],
+  wunsch: EndeWunsch,
+): EquipmentTemplate | undefined => {
+  if (!wunsch.suche.length) return undefined
+  const bewertet = bibliothek
+    .map((t) => ({ t, g: geraetGuete(alsGeraet(t), wunsch.suche) }))
+    .filter((x) => x.g >= 0.85)
+    .sort((a, b) => b.g - a.g || a.t.name.length - b.t.name.length)
+  return bewertet[0]?.t
+}
+
+/** Fuer die Portwahl an einer Vorlage, die noch nicht im Plan steht. */
+export const alsGeraet = (t: EquipmentTemplate): EquipmentItem => ({ ...t, id: '', x: 0, y: 0 }) as EquipmentItem
+
+export interface SchreibErgebnis {
+  ok: boolean
+  text: string
+  daten: Record<string, unknown>
+}
+
+export type Schreiber = (werkzeug: string, args: Record<string, unknown>) => SchreibErgebnis
+
+/** Was die Vorschau fuer ein Kabel festgelegt hat. */
+export interface SprachAuftragEnde {
+  geraetId?: string
+  /** Statt eines Geraets im Plan: diese Bibliotheksvorlage platzieren. */
+  vorlage?: EquipmentTemplate
+  portId?: string
+  wunsch: EndeWunsch
+}
+
+export interface SprachAuftrag {
+  von: SprachAuftragEnde
+  nach: SprachAuftragEnde
+  wandler: boolean
+  ersetzen: boolean
+}
+
+const neueId = (antwort: SchreibErgebnis) =>
+  antwort.ok && typeof antwort.daten.deviceId === 'string' ? antwort.daten.deviceId : undefined
+
+const portVon = (g: EquipmentItem | undefined, id?: string) =>
+  g?.outputs.find((x) => x.id === id) ?? g?.inputs.find((x) => x.id === id)
+
+/**
+ * Fuehrt die Auftraege aus: fehlende Geraete aus der Bibliothek platzieren,
+ * Wandler einsetzen, dann alle Kabel in EINEM `connect_many`. Der Aufrufer
+ * klammert das mit `projectHistory.transact` — ein Diktat, ein Undo-Schritt.
+ */
+export const fuehreSprachAuftraegeAus = (
+  auftraege: readonly SprachAuftrag[],
+  schreiben: Schreiber,
+  aktuell: () => Readonly<CablePlannerProject>,
+  bibliothek: readonly EquipmentTemplate[],
+): { ok: boolean; texte: string[] } => {
+  const texte: string[] = []
+  const kabel: Array<Record<string, unknown>> = []
+  const geraet = (id?: string) => aktuell().equipment.find((x) => x.id === id)
+  const ende = (e: SprachAuftragEnde, rolle: 'from' | 'to', bei?: { x: number; y: number }) => {
+    if (e.geraetId) return { geraetId: e.geraetId, portId: e.portId }
+    if (!e.vorlage) return null
+    const r = schreiben('add_device', { template: e.vorlage.name, ...(bei ?? {}) })
+    texte.push(r.text)
+    const g = geraet(neueId(r))
+    return g ? { geraetId: g.id, portId: waehlePort(g, e.wunsch, rolle).port?.id } : null
+  }
+  for (const a of auftraege) {
+    const q = ende(a.von, 'from')
+    const qGeraet = geraet(q?.geraetId)
+    const z = ende(a.nach, 'to', qGeraet ? { x: qGeraet.x + 500, y: qGeraet.y } : undefined)
+    if (!q?.portId || !z?.portId || !qGeraet) continue
+    const zGeraet = geraet(z.geraetId)
+    const qPort = portVon(qGeraet, q.portId)
+    const zPort = portVon(zGeraet, z.portId)
+    const ersetzen = a.ersetzen ? { replace: true } : {}
+    if (a.wandler && qPort && zPort && zGeraet) {
+      const mitte = { x: Math.round((qGeraet.x + zGeraet.x) / 2), y: Math.round((qGeraet.y + zGeraet.y) / 2) + 160 }
+      const vorlage = findeWandlerVorlage(bibliothek, qPort.connectorType, zPort.connectorType)
+      const r = vorlage
+        ? schreiben('add_device', { template: vorlage.name, ...mitte })
+        : schreiben('create_device', {
+            name: `Converter ${qPort.connectorType} to ${zPort.connectorType}`,
+            category: 'Converter',
+            portGroups: [
+              { direction: 'in', count: 1, connector: qPort.connectorType, labelPrefix: 'In' },
+              { direction: 'out', count: 1, connector: zPort.connectorType, labelPrefix: 'Out' },
+            ],
+            ...mitte,
+          })
+      texte.push(r.text)
+      const w = geraet(neueId(r))
+      const wIn = w?.inputs.find((x) => x.connectorType === qPort.connectorType)
+      const wOut = w?.outputs.find((x) => x.connectorType === zPort.connectorType)
+      if (w && wIn && wOut) {
+        kabel.push({ fromDeviceId: q.geraetId, fromPortId: q.portId, toDeviceId: w.id, toPortId: wIn.id })
+        kabel.push({ fromDeviceId: w.id, fromPortId: wOut.id, toDeviceId: z.geraetId, toPortId: z.portId, ...ersetzen })
+        continue
+      }
+    }
+    kabel.push({ fromDeviceId: q.geraetId, fromPortId: q.portId, toDeviceId: z.geraetId, toPortId: z.portId, ...ersetzen })
+  }
+  if (!kabel.length) return { ok: false, texte: [...texte, 'Nothing to connect.'] }
+  const r = schreiben('connect_many', { cables: kabel })
+  texte.push(r.text)
+  return { ok: r.ok, texte }
+}
