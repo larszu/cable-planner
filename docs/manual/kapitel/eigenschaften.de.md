@@ -1,260 +1,454 @@
 ## Inspector
 
-Der Inspector ist die rechte Seitenleiste der Anwendung. Sie zeigt Eigenschaften des aktuell ausgewählten Objekts — eines Geräts, eines Kabels, eines Rahmens oder einer Bibliotheks-Vorlage. Ist nichts ausgewählt, sieht der Inspector den Ist-Zustand des Plans: Fotos, die dem Plan gehören, und eine Schnelle Orientierung.
-
-![Nichts ausgewählt im Inspector](bilder/de/eigenschaften-nichts-ausgewaehlt.jpg)
+Der Inspector ist die rechte Seitenleiste. Er zeigt die Eigenschaften dessen, was ausgewählt ist: eines Geräts, eines Kabels, eines Rahmens oder einer Bibliotheks-Vorlage. Die Kopfzeile nennt die Auswahl, zum Beispiel *Gerät: Camera 1*, *Kabel: CAM 1 → mixer* oder *Rahmen: Regie*.
 
 ### Nichts ausgewählt
 
-Wenn Sie kein Objekt auf dem Canvas ausgewählt haben, zeigt der Inspector drei Dinge:
+![Inspector ohne Auswahl](bilder/de/eigenschaften-01-nichts-ausgewaehlt.jpg)
 
-- **Hinweis**: Eine kurze Orientierung — Geräte aus der Bibliothek auf den Canvas ziehen, Anschlüsse verbinden, um Kabel zu erstellen.
-- **Fotos des Plans**: Der Abschnitt *Projekt-Fotos* enthält alle Bilder, die Sie ohne Zielgerät an den Plan anhängt haben. Das gehört dem Plan als Ganzes, nicht einem einzelnen Gerät.
+Ohne Auswahl zeigt der Inspector:
+
+- *Nichts ausgewählt* mit dem Hinweis, ein Gerät, Kabel, einen Rahmen oder eine Library-Vorlage auszuwählen.
+- *Fotos des Projekts*: Fotos, die dem ganzen Plan gehören und keinem einzelnen Gerät. *Foto hinzufügen…* öffnet die Dateiauswahl. Jedes Foto zeigt Größe und Herkunft (*vom Planer* oder *vom Handy*) und hat ein Feld *Notiz*.
+- *Schnelle Orientierung* mit vier Hinweisen: Geräte aus der Library auf den Canvas setzen, Ports verbinden, um Kabel zu erstellen, mehrere Geräte auswählen und im Canvas als Gruppe speichern, Rentman-Aktionen im Equipment-Tab unter Rentman.
+
+![Projektfoto hinzugefügt](bilder/de/eigenschaften-02-projektfoto-hinzugefuegt.jpg)
+
+Der Knopf *Fenster* oben bietet *Abdocken (schwebend)* und *In eigenes Fenster*; der Pfeil daneben klappt den Inspector ein. Beides beschreibt [Seitenleisten anordnen](#seitenleisten-anordnen).
+
+![Fenster-Menü des Inspectors](bilder/de/eigenschaften-04-fenstermenue-offen.jpg)
 
 ### Geräteeigenschaften
 
-Wenn Sie ein Gerät auf dem Canvas anklicken, zeigt der Inspector alle Eigenschaften dieses Geräts in verschiebbaren und umsortierbar Abschnitten.
+Ein Klick auf ein Gerät im Canvas zeigt seine Eigenschaften.
 
-#### Struktur und Umsortieren
+![Gerät gewählt](bilder/de/eigenschaften-07-kamera-gewaehlt.jpg)
 
-Der Inspector organisiert Geräteeigenschaften in etwa 30 aufklappbaren Abschnitten. Jeder Abschnitt kann:
+Im Viewer-Modus und in einem abgeschlossenen Plan sind die Felder gesperrt; der Inspector sagt es oben. Ein abgeschlossener Plan wird über *Bearbeitung freigeben* im Canvas-Banner wieder bearbeitbar. Filtern und Auf- und Zuklappen gehen auch dann.
 
-- **Auf-/zugeklappt** werden durch Klick auf die Kopfzeile. Der Zustand wird gespeichert.
-- **Umsortiert** werden: Das ⠿-Griff-Symbol am linken Rand erlaubt Drag&Drop, um die Reihenfolge zu ändern. Die neue Reihenfolge wird pro Gerät gespeichert und überträgt sich auf alle Geräte derselben Art (z. B. alle Kameras).
+Oben stehen fest, in dieser Reihenfolge: Name, Kurzname, Untertitel, *Inputs & Outputs* und *Notiz*. Darunter folgen die aufklappbaren Abschnitte. Welche Abschnitte erscheinen, hängt von Kategorie, Gerät und eingeschalteten Modulen ab.
 
-![Geräteeigenschaften: Mixer-Überblick](bilder/de/eigenschaften-geraet-mixer-uebersicht.jpg)
+#### Abschnitte filtern, auf- und zuklappen
 
-#### Abschnitte filtern
+- Das Feld *Abschnitte filtern …* blendet alle Abschnitte aus, deren Titel, Untertitel oder Kennung den Suchtext nicht enthalten. Passende Abschnitte klappen auf. Das × leert das Feld.
+- *Alle zu* klappt alle Abschnitte zu, *Alle auf* klappt alle auf.
 
-Im oberen Bereich des Inspectors befindet sich ein Suchfeld mit dem Label *Abschnitte durchsuchen*. Geben Sie einen Namen oder Stichwort ein:
+![Filter „dmx“](bilder/de/eigenschaften-35-filter-dmx-getippt.jpg)
 
-- Der Filter sucht in der **Abschnitt-ID** (z. B. `network-config`), im **Titel** (z. B. „Netzwerk") und im **Untertitel** (z. B. „3 in · 2 out").
-- Alle Abschnitte, die nicht treffen, werden ausgeblendet.
-- Ein Treffer wird automatisch aufgeklappt.
+![Alle Abschnitte zugeklappt](bilder/de/eigenschaften-37-alle-zugeklappt.jpg)
 
-#### Alle aufklappen / zuklappen
+#### Abschnitte umsortieren
 
-Neben dem Suchfeld gibt es zwei Schaltflächen:
+Abschnitte mit dem Griff ⠿ lassen sich mit der Maus an eine andere Stelle ziehen. Die Reihenfolge gilt für alle Geräte und bleibt gespeichert. Name, Kurzname, Untertitel, *Inputs & Outputs* und *Notiz* stehen fest und haben keinen Griff.
 
-- **Alle auf** — öffnet alle Abschnitte.
-- **Alle zu** — schließt alle Abschnitte.
+#### Name, Kurzname, Untertitel
 
-### Die Abschnitte im Detail
+| Feld | Wirkung |
+|---|---|
+| Name | Bezeichnung des Geräts im Plan |
+| Kurzname | kurze Form für Port- und Endpunkt-Beschriftungen; ohne eigene Eingabe wird er aus dem Namen gebildet (*automatisch*). Der Stift öffnet das Feld; *auto* stellt den gebildeten Kurznamen wieder her |
+| Untertitel | optionale Zeile unter dem Namen am Knoten, z. B. „PGM Monitor“ |
 
-#### Name und Notiz (oben, nicht verschiebbar)
+![Kurzname bearbeiten](bilder/de/eigenschaften-10-kopf-kurzname-stift.jpg)
 
-- **Name**: Eindeutige Bezeichnung des Geräts (z. B. „ATEM 1", „Kamera Main").
-- **Notiz**: Freies Textfeld für alles, was keinen Platz in einem anderen Feld hat (z. B. Web-UI, Firmware-Version, Standort, Zugehörigkeit).
-- **Kurzname**: Automatisch aus dem Namen generiert (z. B. „ATEM" statt „ATEM Constellation 8K"). Wird in platzknappen Kontexten wie Port-Labels verwendet. Sie können den Auto-Vorschlag durch ein eigenes Wort überschreiben oder mit dem Refresh-Button (↻) zurücksetzen.
+#### Inputs & Outputs
 
-#### Ein- und Ausgänge (oben, Standardposition)
+Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie, z. B. *0 In · 1 Out*.
 
-![Abschnitt: Ein- und Ausgänge](bilder/de/eigenschaften-sektion-ports.jpg)
+![Inputs & Outputs](bilder/de/eigenschaften-15-ports-abschnitt.jpg)
 
-Die Anschlüsse sind direkt unter Name und Notiz — oben im Panel, weil die ganze Anwendung um die Verkabelung dreht.
+1. *+ Hinzufügen* legt einen Port in der Liste an.
 
-- **Eingänge**: Liste der Eingangs-Anschlüsse mit Typ (z. B. SDI, HDMI, Fiber).
-- **Ausgänge**: Liste der Ausgangs-Anschlüsse.
-- Je nach Gerät können Sie Anschlüsse hinzufügen, bearbeiten oder löschen.
-- Jeder Anschluss zeigt seinen Namen (z. B. „SDI 1") und seinen Typ.
+   ![Eingang hinzugefügt](bilder/de/eigenschaften-16-ports-eingang-hinzu.jpg)
 
-#### Kategorie
+2. Tragen Sie Nummer und Name ein und wählen Sie Steckertyp und Signalstandard.
 
-Wählen Sie die Geräte-Art (z. B. „Kamera", „Mischer", „Monitor", „Lagerbestand"). Die Kategorie bestimmt, welche anderen Felder im Inspector sichtbar sind (z. B. erscheint das Feld „Optik/Linse" nur bei Kameras).
+   ![Port mit BNC](bilder/de/eigenschaften-18-ports-anschlusstyp-bnc.jpg)
+
+3. Weitere Felder je Port:
+
+   | Feld | Werte |
+   |---|---|
+   | Inhalt / Funktion | freier Text, z. B. „PGM“ |
+   | Richtung | Richtung (auto), Nur Input, Nur Output, Bidirektional (z.B. Netzwerk) |
+   | Seite | Seite (auto), Links, Rechts |
+   | Geschlecht | Geschlecht (–), ♂ Male / Stecker, ♀ Female / Buchse |
+   | Gruppe | — Kein —, vorhandene Gruppen, *+ Neue Gruppe …* |
+
+   ![Signal, Inhalt und Richtung](bilder/de/eigenschaften-19-ports-signal-inhalt-richtung.jpg)
+
+4. Bei SDI-Ports klappt *SDI-Fähigkeiten (port-spezifisch)* auf: *Max Single-Link* überschreibt den Wert des Geräts für diesen Port; *Quad-Link Set* und *Dual-Link Set* fassen Ports zu einem Set zusammen (*+ Neues Set…*). Ein neues Set meldet, wie viele Ports ihm schon zugewiesen sind.
+
+   ![SDI-Fähigkeiten](bilder/de/eigenschaften-20-ports-sdi-faehigkeiten.jpg)
+
+Eine Gruppe fasst zusammengehörige Ports zusammen. Ihre Art ist *Stereo (L/R)*, *M/S*, *Summe (A/B)*, *Gebrückt (+/-)*, *Powerlock-Satz (L1/L2/L3/N/PE)* oder *Sonstige*; je Port wird die Rolle in der Gruppe gewählt, bei Stereo L oder R.
+
+Bei Glasfaser-Ports erscheinen zusätzlich *Breakout* (*DUO (2)*, *QUAD (4)*) mit einer Zeile je Faser (*TX (sendend)*, *RX (empfangend)*, *nicht angegeben*, *Faser hinzufügen*) sowie das *SFP-Modul* mit Stecker (LC, SC, ST, FC, E2000, MPO-MTP, opticalCON, LEMO) und Faserklasse (OM1–OM5, OS1, OS2).
+
+Am Ende der Steckertyp-Liste legt ein eigener Eintrag einen neuen Stecker-Typ an; die App fragt nach dem Namen. Das × löscht einen Port.
+
+Der Griff ≡ vor *Inputs* und *Outputs* tauscht die beiden Listen; *Ports spiegeln (Inputs rechts, Outputs links)* setzt die Eingänge an die rechte Seite des Knotens.
+
+![Gespiegelter Knoten im Canvas](bilder/de/eigenschaften-33-ports-spiegeln-canvas.jpg)
+
+#### Notiz
+
+Freies Feld für alles, was kein eigenes Feld hat, etwa Web-Oberfläche, Firmware oder Standort.
+
+#### Rentman-Hinweis und Kategorie
+
+Ist das Modul Rentman eingeschaltet und das Gerät nicht im verknüpften Rentman-Plan, steht dort *Nicht im Rentman-Plan erfasst*. Darunter wählt *Kategorie* die Geräteart; *+ Neue Kategorie…* legt eine eigene an. Der Abschnitt *Fachdaten — <Kategorie>* zeigt die Felder dieser Art, bei Monitoren etwa Panel-Typ, HDR, Helligkeit, Bildrate und Farbraum.
+
+![Fachdaten eines Monitors](bilder/de/eigenschaften-147-monitor-spezifikation.jpg)
+
+#### Optionale Felder
+
+![Optionale Felder](bilder/de/eigenschaften-41-opt-offen.jpg)
+
+| Feld | Wirkung |
+|---|---|
+| Als korrekt verifizieren | bestätigt mit Ihrem Namen, dass die Ports stimmen; die Zahl der Bestätigungen steht daneben |
+| Mietpreis / Tag | Preis mit Währung |
+| Hersteller-Link | Adresse des Datenblatts; *Öffnen* ruft sie auf |
+| Preis / Miete (€) | Wert für den Angebots-Export |
+| Referenzbild | Bild, z. B. der Port-Belegung (*Auswählen…*) |
+| Icon | Zeichen oder Emoji am Knoten, höchstens 2 Zeichen; leer bedeutet automatisch |
+
+![Verifiziert](bilder/de/eigenschaften-44-opt-verifiziert.jpg)
 
 #### Fotos
 
-Laden Sie Bilder des Geräts hoch. Sie werden in der Galerie unter den Eigenschaften angezeigt.
+*Foto hinzufügen…* hängt ein Foto an das Gerät. Hat das Gerät einen Gerätetyp aus der Bibliothek, fragt die App *Auch für den Gerätetyp übernehmen?*. Mit *Auch für den Gerätetyp* erscheint das Foto an jedem Gerät dieses Typs im Plan und wird nur einmal gespeichert; *Nur dieses Gerät* hängt es nur hier an. Der Abschnitt zeigt dann zwei Listen: *Dieses Gerät* und *Gerätetyp* mit der Zahl der Geräte dieses Typs.
 
-- **Hinzufügen**: Klicken Sie auf das Plus-Symbol oder ziehen Sie Bilder direkt ins Feld.
-- **Löschen**: Klicken Sie auf das X-Symbol eines Bildes.
+![Foto am Gerät](bilder/de/eigenschaften-50-fotos-hinzugefuegt.jpg)
 
-#### Informationen zu Geräteart
+#### Darstellung & Flags
 
-Wenn das Gerät eine Spezial-Unterstützung hat (z. B. ATEM, Videohub, GreenGo Intercom), zeigt dieser Abschnitt einen Knopf zum Öffnen eines Geräteinformationen-Dialogs oder zum Exportieren (z. B. Export-Patch für ATEM).
+![Darstellung & Flags](bilder/de/eigenschaften-52-flags-offen.jpg)
 
-#### ATEM-Eingangsnamen folgen dem Videohub
+| Feld | Wirkung |
+|---|---|
+| Kompakte Darstellung | Knoten zeigt nur Icon und Name, Ports als Punkte |
+| Gerätefarbe | Farbe des Knotens; *Reset* setzt sie zurück |
+| Gepackt / Pack-Status | markiert das Gerät als gepackt: ✓ im Canvas und Spalte in der Geräteliste |
+| Wandler (Patchliste folgt Durchgangskabel) | die Patchliste überspringt das Gerät und zeigt das nächste echte Ziel |
+| Patchfeld (Durchgang folgt der Position) | Ein- und Ausgang gleicher Position gelten als durchverbunden |
+| Verteilverstärker (1→N) | ein Eingang wird auf mehrere Ausgänge derselben Quelle verteilt |
+| Timecode | —, Quelle, Senke |
+| Tally | —, Quelle, Senke |
+| Embedding | —, Embedder, De-Embedder |
 
-Unter **Schalten** eines Videohubs mit dem Steuerprotokoll „Blackmagic Videohub" steht der Schalter **ATEM-Eingangsnamen folgen der Route dieses Videohubs** (Vorgabe: aus). Ist er an, listet der Abschnitt jeden Hub-Ausgang, der über Kabel (auch durch Patchfelder und Wandler) an einem ATEM-Eingang endet. Einzelne Verbindungen lassen sich abwählen.
+![Kompakter Knoten](bilder/de/eigenschaften-54-flags-kompakt-canvas.jpg)
 
-- **Folgen starten** verbindet sich mit dem Hub und hält die Verbindung offen. Bei jedem Umschalten, auch am Hardware-Panel oder aus anderer Software, bekommt der ATEM-Eingang den Namen der neuen Hub-Quelle: Langname bis 20 Zeichen, Kurzname 4 Zeichen mit erhaltener Endnummer (aus „Cam 12" wird „CA12"). Umlaute werden ausgeschrieben.
-- Voraussetzungen: IP-Adresse an Hub und ATEM, ATEM mit Steuerprotokoll „Blackmagic ATEM" und die Quellen-Nummer am ATEM-Eingang (**Schalten → Nummern am Gerät**). Was fehlt, steht an der Zeile.
-- Geschrieben werden nur Namen; geschaltet wird nichts. Gestartet wird nur per Knopf, nie beim Öffnen eines Projekts. Nur in der Desktop-App.
+#### Signalquelle (Rolle)
 
-#### Katalog und Herkunft
+Eine Rolle ist der redaktionelle Name einer Quelle, z. B. „Kamera 1“. Sie bleibt beim Gerätetausch erhalten. *Rolle* wählt eine vorhandene Rolle oder *Neue Rolle aus Gerätename anlegen…*. Eine Rolle hat Name, Nummer und eine TSL-UMD-Adresse; *Umbenennen* und *Verwerfen* ändern den Namen, *Rolle löschen* gibt alle Bindungen frei.
 
-- **Katalog-Typ**: Der Hersteller und die Modell-Nummer aus der Geräte-Bibliothek (z. B. „Blackmagic Design: ATEM Constellation 8K").
-- **Herkunft**: Zeigt, woher die Port-Informationen kommen (z. B. aus dem Datenblatt, manuell eingegeben, von Rentman).
-- **In die Bibliothek speichern**: Legt das Gerät als Vorlage ab, um es später schneller platzieren zu können.
+![Signalquelle](bilder/de/eigenschaften-60-quelle-offen.jpg)
 
-#### Netzwerk und Zugang
+#### Network & Access
 
-- **IP-Adresse**: Die Netzwerk-Adresse des Geräts (z. B. `192.168.1.10`).
-- **Benutzername, Passwort**: Anmeldedaten für die Web-UI oder die API des Geräts.
-- Diese Daten werden im Betriebssystem-Credential-Store gespeichert — nicht in der Projekt-Datei.
+![Network & Access](bilder/de/eigenschaften-66-netz-adresse-kennungen.jpg)
 
-#### Streams und Ausspielziele
+| Feld | Inhalt |
+|---|---|
+| IP Address, Subnet Mask, Gateway, VLAN-ID, MAC-Adresse | Netzdaten der ersten Schnittstelle |
+| Seriennummer, Asset-Tag, Interne Nummer | Kennungen des Geräts |
+| Einheit aus dem Bestand | die konkrete Einheit, die an diesem Platz steht |
+| Username, Password | Anmeldedaten des Geräts |
+| Rolle der ersten Schnittstelle | Medien primär, Medien sekundär, Steuerung, Management, nicht angegeben |
+| Weitere Netzwerk-Schnittstellen | *Hinzufügen* legt weitere Schnittstellen an, je mit Rolle, Switch, PTP-Profil (ST 2059-2, AES67, IEEE 1588 Default) und PTP-Rolle (Grandmaster, Boundary Clock, Slave) |
 
-Falls das Gerät Live-Video-Feeds aussendet:
+Username und Password stehen in der Projektdatei. Beim Export und beim Teilen entfernt die App sie.
 
-- **Stream-URL**: Der HTTP(S)- oder RTMP-Endpoint des Geräts.
-- **Stream-Keys / Zugangsdaten**: Werden sicher im Credential-Store hinterlegt.
+![Weitere Schnittstelle](bilder/de/eigenschaften-70-netz-schnittstelle-hinzu.jpg)
 
-#### Optik und Linsendaten (nur Kameras)
+#### Streams
 
-![Abschnitt: Optik/Linse](bilder/de/eigenschaften-sektion-optik.jpg)
+Streams, die das Gerät sendet oder empfängt. Benutzername, Passwort oder Passphrase in einer Adresse trennt die App heraus und legt sie im Schlüsselbund des Rechners ab, nie im Plan.
 
-Für Kameras zeigt dieser Abschnitt:
+1. *Stream hinzufügen* legt einen Eintrag an.
+2. Wählen Sie Protokoll (RTSP, SRT, RTMP, NDI, NDI-HX, HLS, MJPEG, WebRTC, WHIP, WHEP, RTP, ST 2110, Dante, AES67, Anderes) und Richtung (*Sendet*, *Empfängt*, *Sendet und empfängt*), dann Name, Adresse, Vorschau-Adresse, Port, Codec und Format.
 
-- **Linsenmodell**: Z. B. „Canon CN7x7", „Fujinon HA22x7.6".
-- **Fokussierer-Typ**: Manuell oder motorgesteuert (z. B. „Canon R-FS").
-- **Steuerungsart**: Serielle Steuerung, ESP32-Bridge, Simulator (zu Test-Zwecken).
+   ![Stream eingetragen](bilder/de/eigenschaften-74-streams-gefuellt.jpg)
 
-#### Stromversorgung und Stromkreis
+3. Auswahl:
 
-- **Stromverbrauch**: Die typische Leistungsaufnahme in Watt (z. B. 150 W).
-- **Stromkreis-Bauart**: Die Netzfrequenz und Betriebsart (z. B. „230 V AC, 16 A Kühlschrank" oder „12 V DC Batterie").
-- **Anschlusspunkte**: Eine Tabelle zeigt, welche Anschlüsse an welche Stromschiene gehen (z. B. „Eingang 1 → Stromkreis A, Klemme 1").
+   | Element | Wirkung |
+   |---|---|
+   | Standbild unter dem Gerät im Canvas zeigen | zeigt das Vorschaubild am Knoten |
+   | Live-Bild | spielt den Stream ab, solange die Anzeige offen ist |
+   | Scopes | zeigt Waveform und Vectorscope des Streams live; *Große Scopes* zeigt Waveform, Vectorscope, Parade und Histogramm in einem großen Panel |
+   | Live-Waveform unter dem Gerät im Canvas zeigen | zeigt die Waveform am Knoten |
+
+Das Live-Bild spielt die Desktop-App für RTSP, RTMP, SRT, HLS und MJPEG ab (braucht ffmpeg), der Browser HLS, MJPEG und WebRTC (WHEP). Die Adresse muss im lokalen Netz liegen; höchstens vier Streams laufen gleichzeitig. Geht es nicht, nennt die Anzeige den Grund.
+
+#### Lebenszyklus / Wartung
+
+Erscheint, wenn das Modul Festinstallation oder Vermietung eingeschaltet ist.
+
+![Lebenszyklus](bilder/de/eigenschaften-76-lebenszyklus-offen.jpg)
+
+| Feld | Werte |
+|---|---|
+| Status | — kein Status —, Geplant, Installiert, Getestet, In Betrieb, Störung, Außer Betrieb |
+| Garantie bis | Datum |
+| Wartungsintervall (Tage) | Zahl |
+| Eigentum (nur Vermietung) | — k.A. —, Eigenbestand, Angemietet, Sub-Hire |
+| Anschaffung, Lagerort, Lieferant (nur Vermietung) | Datum bzw. Text |
+| Service-Historie | Einträge mit Datum, Art (Installation, Inspektion, Reparatur, Austausch, Notiz), Text und Autor; *Hinzufügen* legt einen an |
+
+![Service-Historie](bilder/de/eigenschaften-79-lebenszyklus-historie.jpg)
+
+#### Optik (MultiCam-Plan)
+
+Bei Kameras aus einem MultiCam-Plan zeigt dieser Abschnitt nur lesend: Objektiv, Brennweitenbereich, eingestellte Brennweite, Extender, horizontalen Bildwinkel, Objektiv- und Kamera-Anschluss, Höhe, Schwenk, Neigung und eine Tabelle der Presets. Die Werte setzt der MultiCam-Planer; der nächste Kamera-Import aktualisiert sie.
+
+#### Steuerbare Funktionen
+
+Bei Kameras listet der Abschnitt je Steuerfunktion (Schwenken und Neigen, Zoom, Schärfe, Blende, Verstärkung, Verschluss, ND-Filter, Weißabgleich, Farbtemperatur, Rot- und Blau-Anteil, Detail, Preset abrufen und speichern), ob das Modell sie unterstützt. *nicht belegt* heißt, dass dazu keine Angabe vorliegt.
+
+![Steuerbare Funktionen](bilder/de/eigenschaften-81-kamerasteuerung.jpg)
+
+#### Steuerung über
+
+Für Geräte, deren Steuerschnittstellen die App kennt (etwa Kameras mit VISCA oder AW-Protokoll, HyperDeck, KUMO), zeigt dieser Abschnitt nur lesend je Schnittstelle: Protokoll, Übertragung (seriell, SDI oder IP), Anschluss, Baud, Format, Pinbelegung, Flusssteuerung, Mehrpunkt, Netzwerk-Port und für eine Netzwerk-Bridge Modus, Port und Pakete. Angaben, die nicht in der Herstellerdoku stehen, sind als *Nicht in der Herstellerdoku* markiert. *Quelle* verweist auf die Dokumentation.
+
+#### Stromverbrauch
+
+Felder Spannung (V), Stromstärke (A) und Leistung (W). Sind Spannung und Stromstärke gesetzt, berechnet die App die Leistung (P = U × I).
+
+![Stromverbrauch](bilder/de/eigenschaften-83-strom-werte.jpg)
+
+#### Schaltbild (Strom)
+
+*Bauart im Stromkreis* legt fest, als was das Gerät im Stromschaltbild zählt: keine, Einspeisung, Aus-Schalter, Wechselschalter, Kreuzschalter, Dimmer, Leuchte, Klemmstelle / Dose, Stromverteiler, Taster, Schütz, Relais, Not-Aus, FI-Schutzschalter, Leitungsschutzschalter. Danach wird jeder Anschluss einer Klemme der Bauart zugeordnet. Die Klemme hängt am Anschluss, nicht an seiner Position in der Liste.
+
+![Schaltbild-Bauart](bilder/de/eigenschaften-85-stromkreis-rolle.jpg)
 
 #### Adapter
 
-Falls das Gerät Adapter benötigt (z. B. XLR → BNC, Stecker → Buchse):
+*Dieses Gerät ist ein Adapter* öffnet die Felder:
 
-- Liste verfügbarer Adapter.
-- Sie können Adapter hinzufügen oder aus einer Vorlage übernehmen.
+| Feld | Werte |
+|---|---|
+| Seite zur Quelle, Seite zur Senke | Steckertypen |
+| Richtung | nur in eine Richtung, in beide Richtungen, nicht erklärt |
+| Speisung | passiv (kein Strom), aktiv, eigene Einspeisung, aktiv, Strom aus der Quelle, nicht erklärt |
+| Lässt höchstens durch | höchster Signalstandard |
+| Setzt an der Quelle voraus | Merkmal, das das Quellgerät unter *Kann* führen muss |
+| Notiz | Text |
 
-#### DMX (für Steuergeräte)
+*Kann* führt die Merkmale, die ein Gerät erklärt. Leer heißt „nicht erklärt“, nicht „kann nicht“.
 
-Für Geräte mit DMX-Steuerung:
+![Adapter eingetragen](bilder/de/eigenschaften-89-adapter-gefuellt.jpg)
 
-- **DMX-Startkanal**: Der erste belegte Kanal (z. B. 1, 65, etc.).
-- **DMX-Geräte-ID**: Die Universum- und Kanal-Nummer.
+#### DMX
 
-#### Hausverkabelung
+*Dieses Gerät wird über DMX adressiert* öffnet Hersteller, Modell, die Liste der Modi und Universe und Adresse. *+ Modus* legt einen Modus mit Name, Kanalzahl und Herkunft an (Von Hand, GDTF-Datei, Pult-Patch, Am Gerät abgelesen, Geschätzt). Mit gewähltem Modus zeigt die Kopfzeile Modus, Kanalzahl und Adresse. *Diese Adresse behalten* schützt die Adresse vor der automatischen Vergabe.
 
-Dokumentiert Verkabelungsrouten innerhalb des Geräts (z. B. vom Eingang zum Mischer-Kern zum Ausgang).
+![DMX eingetragen](bilder/de/eigenschaften-94-dmx-gefuellt.jpg)
 
-#### Formatprofil
+#### Hausanschluss
 
-Die Eingangs-/Ausgangs-Formate und Codec-Profile, wenn das Gerät mehrere Betriebsmodi unterstützt.
+*Gebäude-Datei laden…* liest eine `.avfacility`-Datei aus dem Gebäude-Werkzeug. Danach wählt *Hausanschluss* eine Dose oder Einspeisung des Hauses; die App zeigt Absicherung, Dauerleistung und ob die Dose geschaltet oder gedimmt ist. *Steueradresse* verknüpft eine Adresse des Hauses, etwa KNX oder DALI.
 
-#### Abmessungen
+![Hausanschluss zugeordnet](bilder/de/eigenschaften-98-haus-zugeordnet.jpg)
 
-Breite, Höhe und Tiefe in Millimetern. Wird später für 3D-Rack-Visualisierung und Platzbedarf-Planung verwendet.
+#### Formatprofil (Senke)
 
-#### Netzwerk-Konfiguration
+*Für dieses Gerät ist erklärt, welche Formate es annimmt* öffnet das Profil. *Herkunft (Pflicht)* sagt, woher die Angabe stammt; ohne Herkunft verwirft die App das Profil beim nächsten Laden. *+ Format* legt eine Zeile an: Format, Bittiefe (8, 10, 12 bit), Farbformat (RGB, YCbCr 4:4:4, 4:2:2, 4:2:0) und Dynamik (SDR, HDR10, HLG, Dolby Vision). Ohne Profil sagt der Plan „nicht erklärt“.
 
-Erweiterte Netzwerk-Settings (falls das Gerät mehrere Netzwerk-Modi oder VLANs unterstützt).
+![Formatprofil](bilder/de/eigenschaften-101-senke-format-hinzu.jpg)
 
-#### Modi
+#### Dimensionen
 
-Falls das Gerät verschiedene Betriebsmodi hat (z. B. „Aufnahme", „Live-Streaming", „Simulator"), können Sie diese hier konfigurieren.
+Breite, Höhe und Tiefe in mm. Die Kopfzeile zeigt die Maße.
 
-#### Rackplatz
+![Dimensionen](bilder/de/eigenschaften-104-masse-gefuellt.jpg)
 
-- **Rackposition**: Die HE (Höheneinheit) und Tiefe im 19"-Rack.
-- **Rack-3D-Ansicht**: Zeigt eine 3D-Visualisierung der Geräte im Rack.
+#### Betriebsmodi
 
-#### Lebenszyklus
+Ein Betriebsmodus ist ein eigenes Port-Layout des Geräts.
 
-- **Installationsstatus**: z. B. „Geplant", „Installiert", „Getestet", „Live".
-- **Test-Ergebnisse**: Bestätigung, dass das Gerät funktioniert.
-- **Wartungsplan**: Wartungstermine und nächste Überprüfung.
+1. *+ Neuer Modus (Editor)* öffnet *Neuer Betriebsmodus* mit Name, Beschreibung, Leistung und Gewicht in diesem Modus und eigenen Listen für Inputs und Outputs (*+ Port*). *Aus aktuellem Geräte-Layout übernehmen* kopiert die Ports des Geräts. *Modus anlegen* speichert.
 
-#### Druck und Dokumentation
+   ![Neuer Betriebsmodus](bilder/de/eigenschaften-107-modi-editor-gefuellt.jpg)
 
-Generiert Patch-Sheets und Dokumentation zum Ausdrucken (z. B. Geräte-Übersicht, Port-Listen).
+2. *+ aus aktuellem Layout speichern* legt einen Modus aus den aktuellen Ports an; die App fragt nach dem Namen.
+3. Je Modus öffnet *Editor* den Dialog; *Ports übernehmen* setzt das Layout des Modus am Gerät. Beim Löschen bleiben die Ports am Gerät erhalten.
 
-#### Anhänge
+![Modi](bilder/de/eigenschaften-112-modi-liste.jpg)
 
-Laden Sie Datenblätter, Handbücher oder andere Dateien hoch.
+#### Bibliothek
+
+*Als neue Standard-Vorlage speichern* überschreibt nach Rückfrage die Vorlage dieses Geräts in der Bibliothek. *Als neues Gerät in Library speichern* fragt nach einem Namen und legt eine neue Vorlage an.
+
+![Bibliothek](bilder/de/eigenschaften-115-bib-speichern-offen.jpg)
+
+#### Katalog & Herkunft
+
+Verknüpft das Gerät mit einem Modell aus dem eingebauten Katalog; Datenblatt-Link, Lager-Abgleich und Stückliste nutzen das. *Von Hand wählen* öffnet eine Liste aller Katalogmodelle.
+
+![Katalogwahl](bilder/de/eigenschaften-119-katalog-manuell.jpg)
+
+#### Gerät ersetzen
+
+*↔ Anderes Gerät wählen…* öffnet eine Liste der Bibliothek mit Kategoriefilter und Suche. Nach der Wahl zeigt die App, wie viele verkabelte Verbindungen bestehen und wie viele Eingänge und Ausgänge sie überträgt. *Ersetzen* tauscht das Gerät und erhält die Verkabelung.
+
+![Ersetzen bestätigen](bilder/de/eigenschaften-124-ersetzen-bestaetigung.jpg)
+
+#### Druck / Dokumentation
+
+| Knopf | Wirkung |
+|---|---|
+| Geräte-Datenblatt (A4) … | öffnet das Datenblatt dieses Geräts |
+| Patch-Sheet (A4 PDF) drucken | druckt das Patch-Sheet A4 |
+| Patch-Sheet (A3 PDF) drucken | druckt das Patch-Sheet A3 |
+
+Das Geräte-Datenblatt ist eine A4-Seite. Es gliedert sich in Fotos, Allgemein, Technische Daten, Fachdaten, Betrieb und Tabellen; jedes Feld hat ein Häkchen. *Ausgefüllte*, *Alle* und *Keine* setzen die Häkchen; *Drucken* und *PDF speichern* geben das Blatt aus.
+
+![Geräte-Datenblatt](bilder/de/eigenschaften-126-datenblatt-dialog.jpg)
+
+#### Schaltung (Signalweg)
+
+Bei Geräten mit Ein- und Ausgängen, etwa Mischern und Kreuzschienen, legt dieser Abschnitt je Ausgang fest, welcher Eingang darauf liegt. Die Kopfzeile zählt die geplanten Ausgänge.
+
+![Schaltung](bilder/de/eigenschaften-132-schaltung-kreuzpunkt.jpg)
+
+*Steuer-Protokoll* bestimmt, wohin geschaltet wird:
+
+| Protokoll | Zusatzfelder |
+|---|---|
+| keins — es wird nicht gesendet | keine |
+| Blackmagic Videohub | Ziel; Schalter *ATEM-Eingangsnamen folgen der Route dieses Videohubs* |
+| Blackmagic ATEM | Ziel; *Nummern am Gerät* je Ein- und Ausgang (Programm, Vorschau, Aux) |
+| Bitfocus Companion | Companion-IP, Port, *Verbindungen abrufen*, Seite, Zeile, Spalte und zwei Variablen für Ausgang und Eingang |
+| Erklärtes Text-Protokoll | Befehlszeile aus dem Handbuch des Geräts, Zeilenanfang, Zeilenende, Zählbeginn, Nummern, Ebene, Quittung, Port und Vorlagen, etwa Quartz / Evertz; eine Vorschau zeigt die gesendete Zeile |
+
+*Ziel* ist *Anlage* (das Gerät im Netz) oder *Prüfstand (Emulator)*.
+
+![Text-Protokoll mit Vorlage](bilder/de/eigenschaften-135-schaltung-text-vorlage.jpg)
+
+Ist bei einem Videohub *ATEM-Eingangsnamen folgen der Route dieses Videohubs* eingeschaltet, listet der Abschnitt jeden Hub-Ausgang, der über Kabel an einem ATEM-Eingang endet. *Folgen starten* hält die Verbindung zum Hub offen; bei jedem Umschalten bekommt der ATEM-Eingang den Namen der neuen Hub-Quelle (Langname bis 20 Zeichen, Kurzname 4 Zeichen). Geschrieben werden nur Namen. Nur in der Desktop-App.
+
+#### Rack / 19" Einstellungen
+
+*Ist ein 19" Rack-Gerät* öffnet Höhe in HE, *Ansicht* (Nur vorne, Nur hinten, Vorne + hinten), *Frontgrafik importieren + zuschneiden*, *Reargrafik importieren + zuschneiden* und eine 2D-Vorschau mit den Ports.
+
+![Rack-Einstellungen](bilder/de/eigenschaften-141-rack-hoehe-ansicht.jpg)
+
+#### Display
+
+Bei Monitoren: Auflösung und Diagonale in Zoll.
+
+![Display](bilder/de/eigenschaften-146-monitor-anzeige-gefuellt.jpg)
+
+#### Mehrere Geräte ausgewählt
+
+Der Inspector bearbeitet immer ein Gerät. Aktionen für mehrere ausgewählte Geräte, etwa als Gruppe speichern oder ausrichten, liegen im Canvas.
 
 ### Kabeleigenschaften
 
-Klicken Sie auf ein Kabel auf dem Canvas, um seine Eigenschaften zu sehen.
+Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 
-![Kabeleigenschaften: Überblick](bilder/de/eigenschaften-kabel-uebersicht.jpg)
+![Kabel gewählt](bilder/de/eigenschaften-160-kabel-gewaehlt.jpg)
 
-#### Verbindung (Von/Zu)
+| Feld | Wirkung |
+|---|---|
+| Kabeltyp / Standard festlegen | öffnet die Wahl von Kabeltyp und Standard |
+| Fotos | Fotos dieses Kabels |
+| Name | Bezeichnung; *↳ aus Quelle → Ziel* bildet sie aus Quelle und Ziel |
+| Länge (m) | Länge des Kabels |
+| Farbe | Farbe im Canvas |
+| Ebene (Layer) | Video, Audio, Control, Network, Power, Other; wirkt mit dem Layer-Filter der Werkzeugleiste |
+| Multicore / Snake | Name des Multicores, zu dem das Kabel gehört |
+| Tie-Line / Festverbindung (permanent) | markiert eine feste Verbindung |
+| Off-Page-Verbindung (Pfeil-Connector) | zeichnet statt der Linie zwei Pfeil-Verbinder mit *Netzname / Signalname* |
+| Signalweg zeigen | hebt den Weg des Signals im Canvas hervor |
+| Hausstrecke | ordnet das Kabel einer Strecke des Hauses zu |
+| Notiz | Text |
+| Kabel löschen | entfernt das Kabel |
 
-- **Von-Gerät und Von-Port**: Das Quell-Gerät und sein Port (z. B. „Camera 1 → SDI out").
-- **Zu-Gerät und Zu-Port**: Das Ziel-Gerät und sein Port (z. B. → „Mixer → SDI in 1").
-- Sie können diese durch Dropdown-Listen ändern.
+![Name aus Quelle und Ziel](bilder/de/eigenschaften-161-kabel-name-quelle-ziel.jpg)
 
-![Kabel: Verbindung](bilder/de/eigenschaften-kabel-verbindung.jpg)
+#### Signalweg zeigen
 
-#### Beschriftung und Farbe
+*Signalweg zeigen* hebt im Canvas alle Kabel und Geräte des Signalwegs hervor und blendet den Rest ab. Die Werkzeugleiste zeigt *Signalweg: n Kabel, n Geräte*; das × dort beendet die Hervorhebung.
 
-- **Name**: Eine Beschriftung für das Kabel (z. B. „Main Camera Feed").
-- **Farbe**: Klicken Sie auf das Farbfeld, um die Darstellungsfarbe zu ändern.
+![Signalweg im Canvas](bilder/de/eigenschaften-175-kabel-signalweg-canvas.jpg)
 
-#### Kabel-Typ und Spezifikation
+#### Festinstallation / Lebenszyklus
 
-- **Kabel-Spezifikation**: Wählen Sie einen Standard-Kabeltyp aus dem Katalog (z. B. „Belden 1694A SDI", „Fiber Optic SM9/125").
-- **Länge**: Die Kabellänge in Metern.
-- **Custom-Kabel**: Falls nicht im Katalog, können Sie den Typ als Freitext eingeben.
+| Feld | Werte |
+|---|---|
+| Status | — kein Status —, Geplant, Installiert, Getestet, In Betrieb, Störung, Außer Betrieb |
+| Trasse / Pfad | Text |
+| Mantel/Brandklasse | Text |
+| Term. A, Term. B | Terminierung an beiden Enden |
+| Faser A, Faser B | bei Glasfaser die belegte Faser je Ende |
+| Mess-/Test-Ergebnis | — nicht getestet —, PASS, FAIL; dazu *Marge dB*, *Standard/Limit* und *Report-Datei*; *Löschen* leert das Ergebnis |
 
-![Kabel: Routing und Spezifikation](bilder/de/eigenschaften-kabel-routing.jpg)
+![Lebenszyklus des Kabels](bilder/de/eigenschaften-167-kabel-messergebnis.jpg)
 
-#### Routing
+#### Adern (Strom)
 
-- **Orthogonal** (rechtwinkliger Knick): Das Kabel folgt einem rechtwinkeligen Weg (Standard).
-- **Diagonal**: Das Kabel verläuft gerade von Quelle zu Ziel.
-- **Gebogen**: Das Kabel zeigt einen Bezier-Kurvenverlauf.
+*Gehört zum Anschluss* ordnet das Kabel einem Anschluss aus *Werkzeuge → Adern und Farbnormen* zu. *+ Leiter* legt einen Leiter an: Rolle (L1, L2, L3, N, PE, frei), Farbe (leer bedeutet aus der Norm) und Grund für eine Abweichung.
 
-#### Aderaufbau (bei Mehrleitern-Kabeln)
+![Adern](bilder/de/eigenschaften-171-kabel-ader-gefuellt.jpg)
 
-Falls das Kabel mehrere Adern hat (z. B. ein Audio-Multikabel mit 4 Paaren):
+#### Verbindung
 
-- Liste der einzelnen Adern mit ihren Funktionen (z. B. „Ader 1: Audio L", „Ader 2: Audio R").
+Zeigt Quelle und Ziel. *Von Gerät*, *Port*, *Nach Gerät* und *Port* ändern die Enden; belegte Ports tragen den Zusatz *belegt*, und die App warnt, wenn ein Port schon belegt ist.
 
-#### Glasfaser-Modus (Fiber Optic)
+![Verbindung](bilder/de/eigenschaften-177-kabel-verbindung-offen.jpg)
 
-Falls das Kabel eine Glasfaser ist:
+#### Darstellung des Kabels
 
-- **Modus**: Singlemode (SM) oder Multimode (MM).
-- **Wellenlänge**: z. B. 1310 nm, 1550 nm.
+| Feld | Werte |
+|---|---|
+| Routing | Ortho, Linie, Kurve |
+| Stroke width | Linienstärke in px, Regler |
+| Label Position | Start, Mitte, End; ein Klick auf die aktive Position blendet die Beschriftung aus; der Regler verschiebt sie fein entlang des Kabels |
+| Endpoint-Labels (→ zum anderen Ende) | Auto (folgt *Einstellungen → Bearbeiten*), Anzeigen, Ausblenden |
+| Dashed, Arrow ◄, Arrow ► | gestrichelte Linie und Pfeile |
+| Bidirektional ⇌ | Pfeile an beiden Enden |
 
-#### Hausverkabelung und Steigschacht
+![Routing Kurve, Linienstärke und Beschriftung](bilder/de/eigenschaften-181-kabel-beschriftung-position.jpg)
 
-- Dokumentiert, ob das Kabel durch einen Hausverteilschrank oder Steigschacht führt.
-- Notizen zum Installationsroute.
+#### Funkverbindung
 
-#### Lebenszyklu und Test-Ergebnisse
+*Wireless Verbindung (kein Kabel)* macht aus dem Kabel eine Funkstrecke. Statt der Länge steht *Max. Reichweite (m)*; dazu kommen Frequenz und Kanal.
 
-- **Status**: z. B. „Geplant", „Installiert", „Getestet", „Live".
-- **Test-Resultat**: Pass/Fail mit Datum und Techniker.
+![Funkverbindung](bilder/de/eigenschaften-188-kabel-funk-felder.jpg)
+
+#### Adapter-Vorschlag
+
+Passen die Stecker beider Enden nicht zusammen oder haben sie dasselbe Geschlecht, zeigt das Kabel einen Hinweis und passende Adapter oder Wandler aus der Bibliothek. *Einsetzen* fügt den Adapter in die Strecke ein; ein Rückgängig-Schritt entfernt ihn wieder.
+
 
 ### Rahmen-Eigenschaften
 
-Klicken Sie auf einen Rahmen (LocationFrame), um seine Eigenschaften zu sehen.
+Ein Klick auf einen Rahmen zeigt seine Eigenschaften.
 
-#### Name
+![Rahmen-Eigenschaften](bilder/de/eigenschaften-196-rahmen-eigenschaften.jpg)
 
-Der Name des Rahmens/Raums (z. B. „Studio A", „Serverraum", „Kontrolle").
+| Feld | Wirkung |
+|---|---|
+| Name | Name des Raums |
+| Breite (m), Tiefe (m) | Größe; darunter die Fläche |
+| Stockwerk | Etage des Raums; *Etage hinzufügen…* legt eine an |
+| Farbe | Farbe des Rahmens |
+| Steigschacht / senkrechte Trasse | markiert den Rahmen als senkrechte Trasse zwischen Etagen |
+| Raumnummer, Adresse, Notizen | Text |
+| Etagen | Liste der Etagen von unten nach oben mit Fußbodenhöhe in Metern; die 3D-Ansicht stapelt die Räume danach. *Etagen aus der Gebäude-Auskunft übernehmen* liest sie aus einer Gebäude-Datei |
 
-#### Größe
+![Etagen](bilder/de/eigenschaften-202-etagen-verwaltung-offen.jpg)
 
-- **Breite, Höhe** in Pixeln auf dem Canvas (bestimmt die sichtbare Größe der Box).
+| Knopf | Wirkung |
+|---|---|
+| Stückliste exportieren | öffnet die Stückliste des Raums mit Geräten, internen Kabeln und externen Verbindungen; *Kabel zusammenfassen*, *Plan einbetten* und *PDF exportieren* |
+| Nur Rahmen löschen | löscht den Rahmen, die Geräte bleiben |
+| Rahmen + Inhalt löschen | löscht nach Rückfrage den Rahmen mit allen Geräten und deren Kabeln |
 
-#### Farbe
-
-Klicken Sie auf das Farbfeld, um die Rahmendarstellung zu ändern.
-
-#### Etage
-
-- **Stockwerk**: Wählen Sie aus vorhandenen Etagen oder erstellen Sie eine neue.
-- Etagen können eine Höhenkote (z. B. „3. Stock (18 m)") haben.
-
-#### Steigschacht
-
-Ein besonderer Rahmen, durch den mehrere Kabelleitungen vertikal verlaufen (Routing-Dokumentation).
-
-### Mehrfachauswahl
-
-Wenn Sie mehrere Geräte gleichzeitig auswählen (Ctrl+Click oder Drag-Auswahl), zeigt der Inspector Eigenschaften, die **für alle** gelten:
-
-- **Kategorie**: Nur wenn alle ausgewählten Geräte dieselbe Kategorie haben.
-- **Gemeinsame Felder**: Felder, deren Wert bei allen gleich ist.
-
-Dies erlaubt Batch-Änderungen, z. B. um mehrere Geräte auf einmal die gleiche Farbe zu geben oder in die gleiche Kategorie zu verschieben.
+![Stückliste](bilder/de/eigenschaften-206-rahmen-stueckliste-dialog.jpg)

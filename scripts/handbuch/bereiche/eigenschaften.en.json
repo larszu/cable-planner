@@ -1,0 +1,1229 @@
+{
+  "schritte": [
+    {
+      "nr": 1,
+      "name": "nichts-ausgewaehlt",
+      "datei": "eigenschaften-01-nichts-ausgewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 2,
+      "name": "projektfoto-hinzugefuegt",
+      "datei": "eigenschaften-02-projektfoto-hinzugefuegt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 3,
+      "name": "projektfoto-notiz",
+      "datei": "eigenschaften-03-projektfoto-notiz.jpg",
+      "text": ""
+    },
+    {
+      "nr": 4,
+      "name": "fenstermenue-offen",
+      "datei": "eigenschaften-04-fenstermenue-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 5,
+      "name": "inspektor-eingeklappt",
+      "datei": "eigenschaften-05-inspektor-eingeklappt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 6,
+      "name": "inspektor-wieder-offen",
+      "datei": "eigenschaften-06-inspektor-wieder-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 7,
+      "name": "kamera-gewaehlt",
+      "datei": "eigenschaften-07-kamera-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 8,
+      "name": "kopf-name-getippt",
+      "datei": "eigenschaften-08-kopf-name-getippt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 9,
+      "name": "kopf-name-zurueck",
+      "datei": "eigenschaften-09-kopf-name-zurueck.jpg",
+      "text": ""
+    },
+    {
+      "nr": 10,
+      "name": "kopf-kurzname-stift",
+      "datei": "eigenschaften-10-kopf-kurzname-stift.jpg",
+      "text": ""
+    },
+    {
+      "nr": 11,
+      "name": "kopf-kurzname-getippt",
+      "datei": "eigenschaften-11-kopf-kurzname-getippt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 12,
+      "name": "kopf-kurzname-auto",
+      "datei": "eigenschaften-12-kopf-kurzname-auto.jpg",
+      "text": ""
+    },
+    {
+      "nr": 13,
+      "name": "kopf-untertitel",
+      "datei": "eigenschaften-13-kopf-untertitel.jpg",
+      "text": ""
+    },
+    {
+      "nr": 14,
+      "name": "kopf-notiz",
+      "datei": "eigenschaften-14-kopf-notiz.jpg",
+      "text": ""
+    },
+    {
+      "nr": 15,
+      "name": "ports-abschnitt",
+      "datei": "eigenschaften-15-ports-abschnitt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 16,
+      "name": "ports-eingang-hinzu",
+      "datei": "eigenschaften-16-ports-eingang-hinzu.jpg",
+      "text": ""
+    },
+    {
+      "nr": 17,
+      "name": "ports-nummer-name",
+      "datei": "eigenschaften-17-ports-nummer-name.jpg",
+      "text": ""
+    },
+    {
+      "nr": 18,
+      "name": "ports-anschlusstyp-bnc",
+      "datei": "eigenschaften-18-ports-anschlusstyp-bnc.jpg",
+      "text": ""
+    },
+    {
+      "nr": 19,
+      "name": "ports-signal-inhalt-richtung",
+      "datei": "eigenschaften-19-ports-signal-inhalt-richtung.jpg",
+      "text": ""
+    },
+    {
+      "nr": 20,
+      "name": "ports-sdi-faehigkeiten",
+      "datei": "eigenschaften-20-ports-sdi-faehigkeiten.jpg",
+      "text": ""
+    },
+    {
+      "nr": 21,
+      "name": "ports-sdi-quadlink-neu",
+      "datei": "eigenschaften-21-ports-sdi-quadlink-neu.jpg",
+      "text": "Quad-link set QL-1 created\nCurrently has 1/4 ports. Please add more BNC ports and assign them to the set.\nOK"
+    },
+    {
+      "nr": 22,
+      "name": "ports-gruppe-neu",
+      "datei": "eigenschaften-22-ports-gruppe-neu.jpg",
+      "text": ""
+    },
+    {
+      "nr": 23,
+      "name": "ports-gruppe-art-stereo",
+      "datei": "eigenschaften-23-ports-gruppe-art-stereo.jpg",
+      "text": ""
+    },
+    {
+      "nr": 24,
+      "name": "ports-anschlusstyp-faser",
+      "datei": "eigenschaften-24-ports-anschlusstyp-faser.jpg",
+      "text": ""
+    },
+    {
+      "nr": 25,
+      "name": "ports-faser-duo",
+      "datei": "eigenschaften-25-ports-faser-duo.jpg",
+      "text": ""
+    },
+    {
+      "nr": 26,
+      "name": "ports-faser-hinzu",
+      "datei": "eigenschaften-26-ports-faser-hinzu.jpg",
+      "text": ""
+    },
+    {
+      "nr": 27,
+      "name": "ports-sfp-modul",
+      "datei": "eigenschaften-27-ports-sfp-modul.jpg",
+      "text": ""
+    },
+    {
+      "nr": 28,
+      "name": "ports-eigener-anschlusstyp-dialog",
+      "datei": "eigenschaften-28-ports-eigener-anschlusstyp-dialog.jpg",
+      "text": "New connector type (e.g. \"Speakon NL4\"):\nCancel\nOK"
+    },
+    {
+      "nr": 29,
+      "name": "ports-eingang-entfernt",
+      "datei": "eigenschaften-29-ports-eingang-entfernt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 30,
+      "name": "ports-listen-tauschen-vorher",
+      "datei": "eigenschaften-30-ports-listen-tauschen-vorher.jpg",
+      "text": ""
+    },
+    {
+      "nr": 31,
+      "name": "ports-listen-getauscht",
+      "datei": "eigenschaften-31-ports-listen-getauscht.jpg",
+      "text": ""
+    },
+    {
+      "nr": 32,
+      "name": "ports-spiegeln-haken",
+      "datei": "eigenschaften-32-ports-spiegeln-haken.jpg",
+      "text": ""
+    },
+    {
+      "nr": 33,
+      "name": "ports-spiegeln-canvas",
+      "datei": "eigenschaften-33-ports-spiegeln-canvas.jpg",
+      "text": ""
+    },
+    {
+      "nr": 34,
+      "name": "filter-leiste",
+      "datei": "eigenschaften-34-filter-leiste.jpg",
+      "text": ""
+    },
+    {
+      "nr": 35,
+      "name": "filter-dmx-getippt",
+      "datei": "eigenschaften-35-filter-dmx-getippt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 36,
+      "name": "filter-loeschen",
+      "datei": "eigenschaften-36-filter-loeschen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 37,
+      "name": "alle-zugeklappt",
+      "datei": "eigenschaften-37-alle-zugeklappt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 38,
+      "name": "alle-aufgeklappt",
+      "datei": "eigenschaften-38-alle-aufgeklappt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 39,
+      "name": "abschnitt-reihenfolge-vorher",
+      "datei": "eigenschaften-39-abschnitt-reihenfolge-vorher.jpg",
+      "text": ""
+    },
+    {
+      "nr": 40,
+      "name": "abschnitt-reihenfolge-gezogen",
+      "datei": "eigenschaften-40-abschnitt-reihenfolge-gezogen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 41,
+      "name": "opt-offen",
+      "datei": "eigenschaften-41-opt-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 42,
+      "name": "opt-verifizieren-dialog",
+      "datei": "eigenschaften-42-opt-verifizieren-dialog.jpg",
+      "text": "Your name (for device verification):\nCancel\nOK"
+    },
+    {
+      "nr": 43,
+      "name": "opt-verifizieren-name",
+      "datei": "eigenschaften-43-opt-verifizieren-name.jpg",
+      "text": "Your name (for device verification):\nCancel\nOK"
+    },
+    {
+      "nr": 44,
+      "name": "opt-verifiziert",
+      "datei": "eigenschaften-44-opt-verifiziert.jpg",
+      "text": ""
+    },
+    {
+      "nr": 45,
+      "name": "opt-miete-link-preis",
+      "datei": "eigenschaften-45-opt-miete-link-preis.jpg",
+      "text": ""
+    },
+    {
+      "nr": 46,
+      "name": "opt-symbol",
+      "datei": "eigenschaften-46-opt-symbol.jpg",
+      "text": ""
+    },
+    {
+      "nr": 47,
+      "name": "opt-symbol-canvas",
+      "datei": "eigenschaften-47-opt-symbol-canvas.jpg",
+      "text": ""
+    },
+    {
+      "nr": 48,
+      "name": "opt-symbol-auto",
+      "datei": "eigenschaften-48-opt-symbol-auto.jpg",
+      "text": ""
+    },
+    {
+      "nr": 49,
+      "name": "fotos-offen",
+      "datei": "eigenschaften-49-fotos-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 50,
+      "name": "fotos-hinzugefuegt",
+      "datei": "eigenschaften-50-fotos-hinzugefuegt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 51,
+      "name": "fotos-notiz",
+      "datei": "eigenschaften-51-fotos-notiz.jpg",
+      "text": ""
+    },
+    {
+      "nr": 52,
+      "name": "flags-offen",
+      "datei": "eigenschaften-52-flags-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 53,
+      "name": "flags-kompakt",
+      "datei": "eigenschaften-53-flags-kompakt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 54,
+      "name": "flags-kompakt-canvas",
+      "datei": "eigenschaften-54-flags-kompakt-canvas.jpg",
+      "text": ""
+    },
+    {
+      "nr": 55,
+      "name": "flags-farbe-eingepackt",
+      "datei": "eigenschaften-55-flags-farbe-eingepackt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 56,
+      "name": "flags-eingepackt-canvas",
+      "datei": "eigenschaften-56-flags-eingepackt-canvas.jpg",
+      "text": ""
+    },
+    {
+      "nr": 57,
+      "name": "flags-wandler-da",
+      "datei": "eigenschaften-57-flags-wandler-da.jpg",
+      "text": ""
+    },
+    {
+      "nr": 58,
+      "name": "flags-rollen",
+      "datei": "eigenschaften-58-flags-rollen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 59,
+      "name": "rentman-hinweis-kategorie",
+      "datei": "eigenschaften-59-rentman-hinweis-kategorie.jpg",
+      "text": ""
+    },
+    {
+      "nr": 60,
+      "name": "quelle-offen",
+      "datei": "eigenschaften-60-quelle-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 65,
+      "name": "netz-offen",
+      "datei": "eigenschaften-65-netz-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 66,
+      "name": "netz-adresse-kennungen",
+      "datei": "eigenschaften-66-netz-adresse-kennungen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 67,
+      "name": "netz-maske-gateway-vlan-mac",
+      "datei": "eigenschaften-67-netz-maske-gateway-vlan-mac.jpg",
+      "text": ""
+    },
+    {
+      "nr": 68,
+      "name": "netz-zugang",
+      "datei": "eigenschaften-68-netz-zugang.jpg",
+      "text": ""
+    },
+    {
+      "nr": 69,
+      "name": "netz-passwort-sichtbar",
+      "datei": "eigenschaften-69-netz-passwort-sichtbar.jpg",
+      "text": ""
+    },
+    {
+      "nr": 70,
+      "name": "netz-schnittstelle-hinzu",
+      "datei": "eigenschaften-70-netz-schnittstelle-hinzu.jpg",
+      "text": ""
+    },
+    {
+      "nr": 72,
+      "name": "streams-offen",
+      "datei": "eigenschaften-72-streams-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 73,
+      "name": "streams-hinzu",
+      "datei": "eigenschaften-73-streams-hinzu.jpg",
+      "text": ""
+    },
+    {
+      "nr": 74,
+      "name": "streams-gefuellt",
+      "datei": "eigenschaften-74-streams-gefuellt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 75,
+      "name": "streams-vorschau-adresse",
+      "datei": "eigenschaften-75-streams-vorschau-adresse.jpg",
+      "text": ""
+    },
+    {
+      "nr": 76,
+      "name": "lebenszyklus-offen",
+      "datei": "eigenschaften-76-lebenszyklus-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 77,
+      "name": "lebenszyklus-status-garantie",
+      "datei": "eigenschaften-77-lebenszyklus-status-garantie.jpg",
+      "text": ""
+    },
+    {
+      "nr": 78,
+      "name": "lebenszyklus-lager",
+      "datei": "eigenschaften-78-lebenszyklus-lager.jpg",
+      "text": ""
+    },
+    {
+      "nr": 79,
+      "name": "lebenszyklus-historie",
+      "datei": "eigenschaften-79-lebenszyklus-historie.jpg",
+      "text": ""
+    },
+    {
+      "nr": 80,
+      "name": "optik-sichtbar",
+      "datei": "eigenschaften-80-optik-sichtbar.jpg",
+      "text": ""
+    },
+    {
+      "nr": 81,
+      "name": "kamerasteuerung",
+      "datei": "eigenschaften-81-kamerasteuerung.jpg",
+      "text": ""
+    },
+    {
+      "nr": 82,
+      "name": "strom-offen",
+      "datei": "eigenschaften-82-strom-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 83,
+      "name": "strom-werte",
+      "datei": "eigenschaften-83-strom-werte.jpg",
+      "text": ""
+    },
+    {
+      "nr": 84,
+      "name": "stromkreis-offen",
+      "datei": "eigenschaften-84-stromkreis-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 85,
+      "name": "stromkreis-rolle",
+      "datei": "eigenschaften-85-stromkreis-rolle.jpg",
+      "text": ""
+    },
+    {
+      "nr": 86,
+      "name": "stromkreis-klemme",
+      "datei": "eigenschaften-86-stromkreis-klemme.jpg",
+      "text": ""
+    },
+    {
+      "nr": 87,
+      "name": "adapter-offen",
+      "datei": "eigenschaften-87-adapter-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 88,
+      "name": "adapter-haken",
+      "datei": "eigenschaften-88-adapter-haken.jpg",
+      "text": ""
+    },
+    {
+      "nr": 89,
+      "name": "adapter-gefuellt",
+      "datei": "eigenschaften-89-adapter-gefuellt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 90,
+      "name": "adapter-kann",
+      "datei": "eigenschaften-90-adapter-kann.jpg",
+      "text": ""
+    },
+    {
+      "nr": 91,
+      "name": "dmx-offen",
+      "datei": "eigenschaften-91-dmx-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 92,
+      "name": "dmx-haken",
+      "datei": "eigenschaften-92-dmx-haken.jpg",
+      "text": ""
+    },
+    {
+      "nr": 93,
+      "name": "dmx-modus-hinzu",
+      "datei": "eigenschaften-93-dmx-modus-hinzu.jpg",
+      "text": ""
+    },
+    {
+      "nr": 94,
+      "name": "dmx-gefuellt",
+      "datei": "eigenschaften-94-dmx-gefuellt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 95,
+      "name": "dmx-festgesetzt",
+      "datei": "eigenschaften-95-dmx-festgesetzt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 96,
+      "name": "haus-offen",
+      "datei": "eigenschaften-96-haus-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 97,
+      "name": "haus-geladen",
+      "datei": "eigenschaften-97-haus-geladen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 98,
+      "name": "haus-zugeordnet",
+      "datei": "eigenschaften-98-haus-zugeordnet.jpg",
+      "text": ""
+    },
+    {
+      "nr": 99,
+      "name": "senke-offen",
+      "datei": "eigenschaften-99-senke-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 100,
+      "name": "senke-haken",
+      "datei": "eigenschaften-100-senke-haken.jpg",
+      "text": ""
+    },
+    {
+      "nr": 101,
+      "name": "senke-format-hinzu",
+      "datei": "eigenschaften-101-senke-format-hinzu.jpg",
+      "text": ""
+    },
+    {
+      "nr": 102,
+      "name": "senke-gefuellt",
+      "datei": "eigenschaften-102-senke-gefuellt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 103,
+      "name": "masse-offen",
+      "datei": "eigenschaften-103-masse-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 104,
+      "name": "masse-gefuellt",
+      "datei": "eigenschaften-104-masse-gefuellt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 105,
+      "name": "modi-offen",
+      "datei": "eigenschaften-105-modi-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 106,
+      "name": "modi-editor-neu",
+      "datei": "eigenschaften-106-modi-editor-neu.jpg",
+      "text": "New operating mode\nName\nDescription (optional)\nPower (W) in this mode\nWeight (kg) in this mode\n0 port(s) in this mode\nAdopt current device layout\nInputs (0)\n+ Port\nNo inputs in this mode.\nOutputs (0)\n+ Port\nNo outputs in this mode.\nCancel\nCreate mode"
+    },
+    {
+      "nr": 107,
+      "name": "modi-editor-gefuellt",
+      "datei": "eigenschaften-107-modi-editor-gefuellt.jpg",
+      "text": "New operating mode\nName\nDescription (optional)\nPower (W) in this mode\nWeight (kg) in this mode\n1 port(s) in this mode\nAdopt current device layout\nInputs (0)\n+ Port\nNo inputs in this mode.\nOutputs (1)\n+ Port\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3K.93C (SMPTE 304M)\nNeutrik Dragonfly (SMPTE 304M)\nNeutrik opticalCON DUO\nNeutrik opticalCON QUAD\nF-Connector\nDB9\nDB25\nWireless/RF\nDMX 5-pol (XLR)\nDMX 3-pol (XLR)\nCinch/RCA\nSCART\nS-Video\nTT/Bantam\nMini-BNC\nMicro-BNC\nIEC 230V\nPowerCON\nSchuko 230V\nC7 Eurostecker\nCEE16\nCEE32\nCEE63\nPowerlock\nSocapex\nHarting\nKleeblatt\nXLR 3 Male\nXLR 3 Female\nCombo XLR/Jack\nspeakON 2 Pole\nspeakON 4 Pole\nBinding Post\nXLR 4 Male\nXLR 4 Female\nXLR 5 Male\nXLR 5 Female\nXLR 6 Male\nXLR 6 Female\nXLR 7 Male\nXLR 7 Female\nMIDI\nS-VHS\nUSB Type A\nUSB Type B\nUSB 3 Type A\nUSB 3 Type B\nFireWire 400\nFireWire 800\nPS/2\nFiber Optic LC\nFiber Optic SC\nFiber Optic ST\nToslink\nopticalCON DUO\nopticalCON QUAD\npowerCON Input\npowerCON Output\nLemo\nTourine 25\nTourine 37\nGeneric\nBlanking Panel\nPhoenix/Euroblock\nTerminal Block\nBare Wire\netherCON\nRJ11\nQSFP\nQSFP28\nUSB Mini-B\nUSB Micro-B\nDB15\nDB37\nMini-DIN 4\nMini-DIN 7\nMini-DIN 8\nDIN 5-pol\nMini-DisplayPort\nMPO\nNEMA 5-15 (Edison)\nNEMA L5-20\nNEMA L6-20\nNEMA L6-30\nNEMA L21-30\nIEC C15\nIEC C20\npow"
+    },
+    {
+      "nr": 108,
+      "name": "modi-editor-anschluss-hinzu",
+      "datei": "eigenschaften-108-modi-editor-anschluss-hinzu.jpg",
+      "text": "New operating mode\nName\nDescription (optional)\nPower (W) in this mode\nWeight (kg) in this mode\n2 port(s) in this mode\nAdopt current device layout\nInputs (1)\n+ Port\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3K.93C (SMPTE 304M)\nNeutrik Dragonfly (SMPTE 304M)\nNeutrik opticalCON DUO\nNeutrik opticalCON QUAD\nF-Connector\nDB9\nDB25\nWireless/RF\nDMX 5-pol (XLR)\nDMX 3-pol (XLR)\nCinch/RCA\nSCART\nS-Video\nTT/Bantam\nMini-BNC\nMicro-BNC\nIEC 230V\nPowerCON\nSchuko 230V\nC7 Eurostecker\nCEE16\nCEE32\nCEE63\nPowerlock\nSocapex\nHarting\nKleeblatt\nXLR 3 Male\nXLR 3 Female\nCombo XLR/Jack\nspeakON 2 Pole\nspeakON 4 Pole\nBinding Post\nXLR 4 Male\nXLR 4 Female\nXLR 5 Male\nXLR 5 Female\nXLR 6 Male\nXLR 6 Female\nXLR 7 Male\nXLR 7 Female\nMIDI\nS-VHS\nUSB Type A\nUSB Type B\nUSB 3 Type A\nUSB 3 Type B\nFireWire 400\nFireWire 800\nPS/2\nFiber Optic LC\nFiber Optic SC\nFiber Optic ST\nToslink\nopticalCON DUO\nopticalCON QUAD\npowerCON Input\npowerCON Output\nLemo\nTourine 25\nTourine 37\nGeneric\nBlanking Panel\nPhoenix/Euroblock\nTerminal Block\nBare Wire\netherCON\nRJ11\nQSFP\nQSFP28\nUSB Mini-B\nUSB Micro-B\nDB15\nDB37\nMini-DIN 4\nMini-DIN 7\nMini-DIN 8\nDIN 5-pol\nMini-DisplayPort\nMPO\nNEMA 5-15 (Edison)\nNEMA L5-20\nNEMA L6-20\nNEMA L6-30\nNEMA L21-30\nIEC C15\nIEC C20\npowerCON TRUE1\nCam-Lok\nDC Barrel\nPCIe 6-pin\nV-"
+    },
+    {
+      "nr": 109,
+      "name": "modi-angelegt",
+      "datei": "eigenschaften-109-modi-angelegt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 110,
+      "name": "modi-aus-anschluessen",
+      "datei": "eigenschaften-110-modi-aus-anschluessen.jpg",
+      "text": "Name of the new mode (e.g. \"12G Single-Link\" / \"HDMI Output Mode\"):\nCancel\nOK"
+    },
+    {
+      "nr": 111,
+      "name": "modi-aus-anschluessen-dialog",
+      "datei": "eigenschaften-111-modi-aus-anschluessen-dialog.jpg",
+      "text": "Name of the new mode (e.g. \"12G Single-Link\" / \"HDMI Output Mode\"):\nCancel\nOK"
+    },
+    {
+      "nr": 112,
+      "name": "modi-liste",
+      "datei": "eigenschaften-112-modi-liste.jpg",
+      "text": ""
+    },
+    {
+      "nr": 113,
+      "name": "modi-loeschen-dialog",
+      "datei": "eigenschaften-113-modi-loeschen-dialog.jpg",
+      "text": "Delete mode \"4K-Betrieb\"?\nThe corresponding ports stay on the device.\nCancel\nDelete"
+    },
+    {
+      "nr": 114,
+      "name": "modi-loeschen-frage",
+      "datei": "eigenschaften-114-modi-loeschen-frage.jpg",
+      "text": "Delete mode \"4K-Betrieb\"?\nThe corresponding ports stay on the device.\nCancel\nDelete"
+    },
+    {
+      "nr": 115,
+      "name": "bib-speichern-offen",
+      "datei": "eigenschaften-115-bib-speichern-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 116,
+      "name": "bib-speichern-vorlage-frage",
+      "datei": "eigenschaften-116-bib-speichern-vorlage-frage.jpg",
+      "text": "Save \"Camera 1\"?\nSave as a new default template in the library.\nCancel\nOK"
+    },
+    {
+      "nr": 117,
+      "name": "bib-speichern-neu-frage",
+      "datei": "eigenschaften-117-bib-speichern-neu-frage.jpg",
+      "text": "Save as a new device in the library. Name:\nCancel\nOK"
+    },
+    {
+      "nr": 118,
+      "name": "katalog-offen",
+      "datei": "eigenschaften-118-katalog-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 119,
+      "name": "katalog-manuell",
+      "datei": "eigenschaften-119-katalog-manuell.jpg",
+      "text": ""
+    },
+    {
+      "nr": 120,
+      "name": "katalog-suche",
+      "datei": "eigenschaften-120-katalog-suche.jpg",
+      "text": ""
+    },
+    {
+      "nr": 121,
+      "name": "ersetzen-offen",
+      "datei": "eigenschaften-121-ersetzen-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 122,
+      "name": "ersetzen-liste",
+      "datei": "eigenschaften-122-ersetzen-liste.jpg",
+      "text": ""
+    },
+    {
+      "nr": 123,
+      "name": "ersetzen-suche",
+      "datei": "eigenschaften-123-ersetzen-suche.jpg",
+      "text": ""
+    },
+    {
+      "nr": 124,
+      "name": "ersetzen-bestaetigung",
+      "datei": "eigenschaften-124-ersetzen-bestaetigung.jpg",
+      "text": "Replace Camera 1 with Sony PMW-F55?\nCurrently 1 cable connection(s). When replacing:\n• 0 input port(s) mapped\n• 1 output port(s) mapped\nCancel\nReplace"
+    },
+    {
+      "nr": 125,
+      "name": "druck-offen",
+      "datei": "eigenschaften-125-druck-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 126,
+      "name": "datenblatt-dialog",
+      "datei": "eigenschaften-126-datenblatt-dialog.jpg",
+      "text": "Device datasheet — Camera 1\n\nOne A4 page for this device. more\n\nPhotos\nAufbau am Vortag\nGeneral\nShort name\nKAM1\nCategory\nCameras\nType (as entered)\nBühne links\nLocation\n—\nAsset tag\nAV-0421\nSerial no.\nSN-0042\nFirmware\n—\nManufacturer page\nhttps://example.com/datenblatt\nNotes\nBeispielnotiz: Stativ steht hinter dem Vorhang.\nTechnical data\nDimensions (W × H × D)\n482 × 44 × 400 mm\nRack units\n—\nWeight\n—\nPower consumption\n345 W\nVoltage\n230 V\nCurrent\n1.5 A\nPhases\n—\nResolution\n—\nScreen size\n—\nCategory data\nSensor size\n—\nLens mount\n—\nConnection\n—\nBase ISO\n—\nDynamic range\n—\nMax. frame rate\n—\nGenlock input\n—\nOperation\nStatus\nInstalled\nOwnership\nOwned\nSupplier\nBeispiellieferant\nPurchase date\n2025-03-01\nWarranty until\n2028-06-30\nMaintenance interval\n365 days\nWeb interface\n—\nSwitcher input\n—\nTables\nPorts\n1\nNetwork\n1\nStreams\n1\nConnections\n1\nService history\n1\nFilled ones\nAll\nNone\nPrint\nSave PDF"
+    },
+    {
+      "nr": 127,
+      "name": "datenblatt-alle",
+      "datei": "eigenschaften-127-datenblatt-alle.jpg",
+      "text": "Device datasheet — Camera 1\n\nOne A4 page for this device. more\n\nPhotos\nAufbau am Vortag\nGeneral\nShort name\nKAM1\nCategory\nCameras\nType (as entered)\nBühne links\nLocation\n—\nAsset tag\nAV-0421\nSerial no.\nSN-0042\nFirmware\n—\nManufacturer page\nhttps://example.com/datenblatt\nNotes\nBeispielnotiz: Stativ steht hinter dem Vorhang.\nTechnical data\nDimensions (W × H × D)\n482 × 44 × 400 mm\nRack units\n—\nWeight\n—\nPower consumption\n345 W\nVoltage\n230 V\nCurrent\n1.5 A\nPhases\n—\nResolution\n—\nScreen size\n—\nCategory data\nSensor size\n—\nLens mount\n—\nConnection\n—\nBase ISO\n—\nDynamic range\n—\nMax. frame rate\n—\nGenlock input\n—\nOperation\nStatus\nInstalled\nOwnership\nOwned\nSupplier\nBeispiellieferant\nPurchase date\n2025-03-01\nWarranty until\n2028-06-30\nMaintenance interval\n365 days\nWeb interface\n—\nSwitcher input\n—\nTables\nPorts\n1\nNetwork\n1\nStreams\n1\nConnections\n1\nService history\n1\nFilled ones\nAll\nNone\nPrint\nSave PDF"
+    },
+    {
+      "nr": 128,
+      "name": "datenblatt-keine",
+      "datei": "eigenschaften-128-datenblatt-keine.jpg",
+      "text": "Device datasheet — Camera 1\n\nOne A4 page for this device. more\n\nPhotos\nAufbau am Vortag\nGeneral\nShort name\nKAM1\nCategory\nCameras\nType (as entered)\nBühne links\nLocation\n—\nAsset tag\nAV-0421\nSerial no.\nSN-0042\nFirmware\n—\nManufacturer page\nhttps://example.com/datenblatt\nNotes\nBeispielnotiz: Stativ steht hinter dem Vorhang.\nTechnical data\nDimensions (W × H × D)\n482 × 44 × 400 mm\nRack units\n—\nWeight\n—\nPower consumption\n345 W\nVoltage\n230 V\nCurrent\n1.5 A\nPhases\n—\nResolution\n—\nScreen size\n—\nCategory data\nSensor size\n—\nLens mount\n—\nConnection\n—\nBase ISO\n—\nDynamic range\n—\nMax. frame rate\n—\nGenlock input\n—\nOperation\nStatus\nInstalled\nOwnership\nOwned\nSupplier\nBeispiellieferant\nPurchase date\n2025-03-01\nWarranty until\n2028-06-30\nMaintenance interval\n365 days\nWeb interface\n—\nSwitcher input\n—\nTables\nPorts\n1\nNetwork\n1\nStreams\n1\nConnections\n1\nService history\n1\nFilled ones\nAll\nNone\nPrint\nSave PDF"
+    },
+    {
+      "nr": 129,
+      "name": "datenblatt-gefuellte",
+      "datei": "eigenschaften-129-datenblatt-gefuellte.jpg",
+      "text": "Device datasheet — Camera 1\n\nOne A4 page for this device. more\n\nPhotos\nAufbau am Vortag\nGeneral\nShort name\nKAM1\nCategory\nCameras\nType (as entered)\nBühne links\nLocation\n—\nAsset tag\nAV-0421\nSerial no.\nSN-0042\nFirmware\n—\nManufacturer page\nhttps://example.com/datenblatt\nNotes\nBeispielnotiz: Stativ steht hinter dem Vorhang.\nTechnical data\nDimensions (W × H × D)\n482 × 44 × 400 mm\nRack units\n—\nWeight\n—\nPower consumption\n345 W\nVoltage\n230 V\nCurrent\n1.5 A\nPhases\n—\nResolution\n—\nScreen size\n—\nCategory data\nSensor size\n—\nLens mount\n—\nConnection\n—\nBase ISO\n—\nDynamic range\n—\nMax. frame rate\n—\nGenlock input\n—\nOperation\nStatus\nInstalled\nOwnership\nOwned\nSupplier\nBeispiellieferant\nPurchase date\n2025-03-01\nWarranty until\n2028-06-30\nMaintenance interval\n365 days\nWeb interface\n—\nSwitcher input\n—\nTables\nPorts\n1\nNetwork\n1\nStreams\n1\nConnections\n1\nService history\n1\nFilled ones\nAll\nNone\nPrint\nSave PDF"
+    },
+    {
+      "nr": 130,
+      "name": "mischer-gewaehlt",
+      "datei": "eigenschaften-130-mischer-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 131,
+      "name": "schaltung-offen",
+      "datei": "eigenschaften-131-schaltung-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 132,
+      "name": "schaltung-kreuzpunkt",
+      "datei": "eigenschaften-132-schaltung-kreuzpunkt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 133,
+      "name": "schaltung-protokoll-atem",
+      "datei": "eigenschaften-133-schaltung-protokoll-atem.jpg",
+      "text": ""
+    },
+    {
+      "nr": 134,
+      "name": "schaltung-protokoll-text",
+      "datei": "eigenschaften-134-schaltung-protokoll-text.jpg",
+      "text": ""
+    },
+    {
+      "nr": 135,
+      "name": "schaltung-text-vorlage",
+      "datei": "eigenschaften-135-schaltung-text-vorlage.jpg",
+      "text": ""
+    },
+    {
+      "nr": 136,
+      "name": "schaltung-protokoll-companion",
+      "datei": "eigenschaften-136-schaltung-protokoll-companion.jpg",
+      "text": ""
+    },
+    {
+      "nr": 137,
+      "name": "schaltung-protokoll-videohub",
+      "datei": "eigenschaften-137-schaltung-protokoll-videohub.jpg",
+      "text": ""
+    },
+    {
+      "nr": 138,
+      "name": "schaltung-protokoll-keins",
+      "datei": "eigenschaften-138-schaltung-protokoll-keins.jpg",
+      "text": ""
+    },
+    {
+      "nr": 139,
+      "name": "rack-offen",
+      "datei": "eigenschaften-139-rack-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 140,
+      "name": "rack-haken",
+      "datei": "eigenschaften-140-rack-haken.jpg",
+      "text": ""
+    },
+    {
+      "nr": 141,
+      "name": "rack-hoehe-ansicht",
+      "datei": "eigenschaften-141-rack-hoehe-ansicht.jpg",
+      "text": ""
+    },
+    {
+      "nr": 142,
+      "name": "ports-mischer",
+      "datei": "eigenschaften-142-ports-mischer.jpg",
+      "text": ""
+    },
+    {
+      "nr": 143,
+      "name": "ports-umsortiert",
+      "datei": "eigenschaften-143-ports-umsortiert.jpg",
+      "text": ""
+    },
+    {
+      "nr": 144,
+      "name": "monitor-gewaehlt",
+      "datei": "eigenschaften-144-monitor-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 145,
+      "name": "monitor-anzeige-block",
+      "datei": "eigenschaften-145-monitor-anzeige-block.jpg",
+      "text": ""
+    },
+    {
+      "nr": 146,
+      "name": "monitor-anzeige-gefuellt",
+      "datei": "eigenschaften-146-monitor-anzeige-gefuellt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 147,
+      "name": "monitor-spezifikation",
+      "datei": "eigenschaften-147-monitor-spezifikation.jpg",
+      "text": ""
+    },
+    {
+      "nr": 148,
+      "name": "multiviewer-gewaehlt",
+      "datei": "eigenschaften-148-multiviewer-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 149,
+      "name": "atem-gewaehlt",
+      "datei": "eigenschaften-149-atem-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 150,
+      "name": "atem-karte",
+      "datei": "eigenschaften-150-atem-karte.jpg",
+      "text": ""
+    },
+    {
+      "nr": 151,
+      "name": "videohub-gewaehlt",
+      "datei": "eigenschaften-151-videohub-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 152,
+      "name": "greengo-gewaehlt",
+      "datei": "eigenschaften-152-greengo-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 153,
+      "name": "switch-gewaehlt",
+      "datei": "eigenschaften-153-switch-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 156,
+      "name": "patchfeld-gewaehlt",
+      "datei": "eigenschaften-156-patchfeld-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 157,
+      "name": "ledprozessor-gewaehlt",
+      "datei": "eigenschaften-157-ledprozessor-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 158,
+      "name": "mikrofon-gewaehlt",
+      "datei": "eigenschaften-158-mikrofon-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 159,
+      "name": "mikrofon-spezifikation",
+      "datei": "eigenschaften-159-mikrofon-spezifikation.jpg",
+      "text": ""
+    },
+    {
+      "nr": 160,
+      "name": "kabel-gewaehlt",
+      "datei": "eigenschaften-160-kabel-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 161,
+      "name": "kabel-name-quelle-ziel",
+      "datei": "eigenschaften-161-kabel-name-quelle-ziel.jpg",
+      "text": ""
+    },
+    {
+      "nr": 162,
+      "name": "kabel-laenge-farbe",
+      "datei": "eigenschaften-162-kabel-laenge-farbe.jpg",
+      "text": ""
+    },
+    {
+      "nr": 163,
+      "name": "kabel-lage-auswahl",
+      "datei": "eigenschaften-163-kabel-lage-auswahl.jpg",
+      "text": ""
+    },
+    {
+      "nr": 164,
+      "name": "kabel-typ-standard-knopf",
+      "datei": "eigenschaften-164-kabel-typ-standard-knopf.jpg",
+      "text": ""
+    },
+    {
+      "nr": 165,
+      "name": "kabel-lebenszyklus-offen",
+      "datei": "eigenschaften-165-kabel-lebenszyklus-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 166,
+      "name": "kabel-lebenszyklus-gefuellt",
+      "datei": "eigenschaften-166-kabel-lebenszyklus-gefuellt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 167,
+      "name": "kabel-messergebnis",
+      "datei": "eigenschaften-167-kabel-messergebnis.jpg",
+      "text": ""
+    },
+    {
+      "nr": 168,
+      "name": "kabel-multicore",
+      "datei": "eigenschaften-168-kabel-multicore.jpg",
+      "text": ""
+    },
+    {
+      "nr": 169,
+      "name": "kabel-adern-offen",
+      "datei": "eigenschaften-169-kabel-adern-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 170,
+      "name": "kabel-ader-hinzu",
+      "datei": "eigenschaften-170-kabel-ader-hinzu.jpg",
+      "text": ""
+    },
+    {
+      "nr": 171,
+      "name": "kabel-ader-gefuellt",
+      "datei": "eigenschaften-171-kabel-ader-gefuellt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 172,
+      "name": "kabel-haken-fest-offpage",
+      "datei": "eigenschaften-172-kabel-haken-fest-offpage.jpg",
+      "text": ""
+    },
+    {
+      "nr": 173,
+      "name": "kabel-offpage-netzname",
+      "datei": "eigenschaften-173-kabel-offpage-netzname.jpg",
+      "text": ""
+    },
+    {
+      "nr": 174,
+      "name": "kabel-signalweg-zeigen",
+      "datei": "eigenschaften-174-kabel-signalweg-zeigen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 175,
+      "name": "kabel-signalweg-canvas",
+      "datei": "eigenschaften-175-kabel-signalweg-canvas.jpg",
+      "text": ""
+    },
+    {
+      "nr": 176,
+      "name": "kabel-signalweg-ausblenden",
+      "datei": "eigenschaften-176-kabel-signalweg-ausblenden.jpg",
+      "text": ""
+    },
+    {
+      "nr": 177,
+      "name": "kabel-verbindung-offen",
+      "datei": "eigenschaften-177-kabel-verbindung-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 178,
+      "name": "kabel-routing",
+      "datei": "eigenschaften-178-kabel-routing.jpg",
+      "text": ""
+    },
+    {
+      "nr": 179,
+      "name": "kabel-routing-kurve",
+      "datei": "eigenschaften-179-kabel-routing-kurve.jpg",
+      "text": ""
+    },
+    {
+      "nr": 180,
+      "name": "kabel-linienstaerke",
+      "datei": "eigenschaften-180-kabel-linienstaerke.jpg",
+      "text": ""
+    },
+    {
+      "nr": 181,
+      "name": "kabel-beschriftung-position",
+      "datei": "eigenschaften-181-kabel-beschriftung-position.jpg",
+      "text": ""
+    },
+    {
+      "nr": 182,
+      "name": "kabel-beschriftung-ausgeblendet",
+      "datei": "eigenschaften-182-kabel-beschriftung-ausgeblendet.jpg",
+      "text": ""
+    },
+    {
+      "nr": 183,
+      "name": "kabel-beschriftung-regler",
+      "datei": "eigenschaften-183-kabel-beschriftung-regler.jpg",
+      "text": ""
+    },
+    {
+      "nr": 184,
+      "name": "kabel-endpunktbeschriftung",
+      "datei": "eigenschaften-184-kabel-endpunktbeschriftung.jpg",
+      "text": ""
+    },
+    {
+      "nr": 185,
+      "name": "kabel-strichel-pfeil",
+      "datei": "eigenschaften-185-kabel-strichel-pfeil.jpg",
+      "text": ""
+    },
+    {
+      "nr": 186,
+      "name": "kabel-bidirektional",
+      "datei": "eigenschaften-186-kabel-bidirektional.jpg",
+      "text": ""
+    },
+    {
+      "nr": 187,
+      "name": "kabel-funk",
+      "datei": "eigenschaften-187-kabel-funk.jpg",
+      "text": ""
+    },
+    {
+      "nr": 188,
+      "name": "kabel-funk-felder",
+      "datei": "eigenschaften-188-kabel-funk-felder.jpg",
+      "text": ""
+    },
+    {
+      "nr": 189,
+      "name": "kabel-notiz",
+      "datei": "eigenschaften-189-kabel-notiz.jpg",
+      "text": ""
+    },
+    {
+      "nr": 190,
+      "name": "kabel-typ-standard-dialog",
+      "datei": "eigenschaften-190-kabel-typ-standard-dialog.jpg",
+      "text": ""
+    },
+    {
+      "nr": 192,
+      "name": "kabel-adapter-vorschlag",
+      "datei": "eigenschaften-192-kabel-adapter-vorschlag.jpg",
+      "text": ""
+    },
+    {
+      "nr": 194,
+      "name": "kabel-loeschen-knopf",
+      "datei": "eigenschaften-194-kabel-loeschen-knopf.jpg",
+      "text": ""
+    },
+    {
+      "nr": 195,
+      "name": "rahmen-anlegen",
+      "datei": "eigenschaften-195-rahmen-anlegen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 196,
+      "name": "rahmen-eigenschaften",
+      "datei": "eigenschaften-196-rahmen-eigenschaften.jpg",
+      "text": ""
+    },
+    {
+      "nr": 197,
+      "name": "rahmen-name-groesse",
+      "datei": "eigenschaften-197-rahmen-name-groesse.jpg",
+      "text": ""
+    },
+    {
+      "nr": 198,
+      "name": "rahmen-etage-neu-dialog",
+      "datei": "eigenschaften-198-rahmen-etage-neu-dialog.jpg",
+      "text": "Name of the new floor (e.g. \"3rd floor\")\nCancel\nOK"
+    },
+    {
+      "nr": 199,
+      "name": "rahmen-etage-gesetzt",
+      "datei": "eigenschaften-199-rahmen-etage-gesetzt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 200,
+      "name": "rahmen-steigschacht",
+      "datei": "eigenschaften-200-rahmen-steigschacht.jpg",
+      "text": ""
+    },
+    {
+      "nr": 201,
+      "name": "rahmen-notiz",
+      "datei": "eigenschaften-201-rahmen-notiz.jpg",
+      "text": ""
+    },
+    {
+      "nr": 202,
+      "name": "etagen-verwaltung-offen",
+      "datei": "eigenschaften-202-etagen-verwaltung-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 203,
+      "name": "etagen-hoehe",
+      "datei": "eigenschaften-203-etagen-hoehe.jpg",
+      "text": ""
+    },
+    {
+      "nr": 204,
+      "name": "etagen-neu-dialog",
+      "datei": "eigenschaften-204-etagen-neu-dialog.jpg",
+      "text": "Name of the new floor (e.g. \"3rd floor\")\nCancel\nOK"
+    },
+    {
+      "nr": 205,
+      "name": "rahmen-loeschknoepfe",
+      "datei": "eigenschaften-205-rahmen-loeschknoepfe.jpg",
+      "text": ""
+    },
+    {
+      "nr": 206,
+      "name": "rahmen-stueckliste-dialog",
+      "datei": "eigenschaften-206-rahmen-stueckliste-dialog.jpg",
+      "text": "Bill of materials — Regie\nDevices: 3\nInternal cables: 2\nExternal connections: 2\nGroup cables\nEmbed plan\nExport PDF\nDevices\nPack\tName\tCategory\tS/N\tIP\tSpecs\n☐\tVision mixer\tMixer\t—\t—\t—\n☐\tMultiviewer\tMonitors\t—\t—\t—\n☐\tControl room monitor\tMonitors\t—\t—\t—\nInternal cables\nQty\tType\tLength (m)\n2×\tBNC\t6\nExternal connections\nQty\tType\tLength (m)\n1×\tBNC\t18\n1×\tBNC\t25"
+    },
+    {
+      "nr": 207,
+      "name": "rahmen-loeschen-frage",
+      "datei": "eigenschaften-207-rahmen-loeschen-frage.jpg",
+      "text": "Delete frame \"Regie\" AND its contents?\nAll devices in the frame and their cables are deleted as well.\nCancel\nDelete all"
+    },
+    {
+      "nr": 209,
+      "name": "vorlage-name-kategorie",
+      "datei": "eigenschaften-209-vorlage-name-kategorie.jpg",
+      "text": ""
+    },
+    {
+      "nr": 211,
+      "name": "mehrfach-zwei-gewaehlt",
+      "datei": "eigenschaften-211-mehrfach-zwei-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 212,
+      "name": "mehrfach-inspektor",
+      "datei": "eigenschaften-212-mehrfach-inspektor.jpg",
+      "text": ""
+    },
+    {
+      "nr": 213,
+      "name": "mehrfach-datenblatt-dialog",
+      "datei": "eigenschaften-213-mehrfach-datenblatt-dialog.jpg",
+      "text": "Device datasheet — Camera 2\n\nOne A4 page for this device. more\n\nGeneral\nShort name\n—\nCategory\nCameras\nType (as entered)\n—\nLocation\n—\nAsset tag\nA-80a8e363\nSerial no.\n—\nFirmware\n—\nManufacturer page\n—\nNotes\n—\nTechnical data\nDimensions (W × H × D)\n—\nRack units\n—\nWeight\n—\nPower consumption\n—\nVoltage\n—\nCurrent\n—\nPhases\n—\nResolution\n—\nScreen size\n—\nCategory data\nSensor size\n—\nLens mount\n—\nConnection\n—\nBase ISO\n—\nDynamic range\n—\nMax. frame rate\n—\nGenlock input\n—\nOperation\nStatus\n—\nOwnership\n—\nSupplier\n—\nPurchase date\n—\nWarranty until\n—\nMaintenance interval\n—\nWeb interface\n—\nSwitcher input\n—\nTables\nPorts\n1\nNetwork\n—\nStreams\n—\nConnections\n1\nService history\n—\nFilled ones\nAll\nNone\nPrint\nSave PDF"
+    }
+  ],
+  "fehler": [
+    "61 quelle-neue-rolle: locator.selectOption: Error: strict mode violation: locator('aside.border-l').last().locator('label').filter({ hasText: /^\\s*Role/ }).locator('select') resolved to 3 elements:",
+    "62 quelle-name-nummer-umd: locator.fill: Timeout 8000ms exceeded.",
+    "63 quelle-umd-ungueltig: locator.fill: Timeout 8000ms exceeded.",
+    "64 quelle-rolle-entfernt: locator.click: Timeout 8000ms exceeded.",
+    "71 netz-schnittstelle-gefuellt: locator.fill: Timeout 8000ms exceeded.",
+    "154 switch-konfiguration: Abschnitt nicht gefunden: Router config",
+    "155 switch-vlan-hinzu: locator.click: Timeout 8000ms exceeded.",
+    "191 kabel-adapter-vorbereitung-monitor: locator.click: Timeout 8000ms exceeded.",
+    "193 kabel-adapter-eingesetzt: Kein Einsetzen-Knopf",
+    "208 vorlage-bearbeiten: locator.click: Timeout 8000ms exceeded.",
+    "210 vorlage-loeschen-frage: locator.click: Timeout 8000ms exceeded."
+  ]
+}
