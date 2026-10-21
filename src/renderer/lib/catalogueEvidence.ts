@@ -60,6 +60,10 @@ import { LANG_LED_CATALOG } from './langLedCatalog'
 import { EVENT_NACHTRAG_CATALOG } from './eventNachtragCatalog'
 import { SIGNAL_NACHTRAG_CATALOG } from './signalNachtragCatalog'
 import { BROADCAST_NACHTRAG_CATALOG } from './broadcastNachtragCatalog'
+import { PROJEKTION_NACHTRAG_CATALOG } from './projektionNachtragCatalog'
+import { LED_NACHTRAG_CATALOG } from './ledNachtragCatalog'
+import { ROUTING_NACHTRAG_CATALOG } from './routingNachtragCatalog'
+import { BROADCAST_NACHTRAG_B_CATALOG } from './broadcastNachtragBCatalog'
 import { LANG_PROJ_DISPLAY_CATALOG } from './langProjDisplayCatalog'
 import { LANG_BROADCAST_CATALOG } from './langBroadcastCatalog'
 import { CLEARCOM_CATALOG } from './clearcomCatalog'
@@ -129,6 +133,10 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'eventNachtrag', entries: EVENT_NACHTRAG_CATALOG },
   { name: 'signalNachtrag', entries: SIGNAL_NACHTRAG_CATALOG },
   { name: 'broadcastNachtrag', entries: BROADCAST_NACHTRAG_CATALOG },
+  { name: 'projektionNachtrag', entries: PROJEKTION_NACHTRAG_CATALOG },
+  { name: 'ledNachtrag', entries: LED_NACHTRAG_CATALOG },
+  { name: 'routingNachtrag', entries: ROUTING_NACHTRAG_CATALOG },
+  { name: 'broadcastNachtragB', entries: BROADCAST_NACHTRAG_B_CATALOG },
   { name: 'langProjDisplay', entries: LANG_PROJ_DISPLAY_CATALOG },
   { name: 'langBroadcast', entries: LANG_BROADCAST_CATALOG },
   { name: 'clearcom', entries: CLEARCOM_CATALOG },
