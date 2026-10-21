@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { AlertTriangle, Mic, Square } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
@@ -53,7 +54,10 @@ const erkennungsKlasse = (): (new () => Erkennung) | undefined => {
 const geraetName = (p: Readonly<CablePlannerProject>, id?: string) => p.equipment.find((e) => e.id === id)
 
 export const SprachVerkabelungDialog = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
-  open ? <Inhalt onClose={onClose} /> : null
+  // Portal nach body: der Dialog sitzt in der Canvas-Toolbar, deren
+  // backdrop-filter zum Containing Block fuer position:fixed wird — ohne
+  // Portal klebt das Overlay an der Toolbar und der obere Teil ist abgeschnitten.
+  open ? createPortal(<Inhalt onClose={onClose} />, document.body) : null
 
 const Inhalt = ({ onClose }: { onClose: () => void }) => {
   const t = useTranslation()

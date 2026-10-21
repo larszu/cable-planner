@@ -258,7 +258,7 @@ export const LocationProperties = () => {
         className="text-cp-xs italic text-cp-text-muted"
         text={t(
           'location.tip',
-          'Tip: the frame moves independently by default. Enable "Take devices along" to move all contained devices with the frame.',
+          'Tip: when you move the frame, all devices inside it move along.',
         )}
       />
     </div>

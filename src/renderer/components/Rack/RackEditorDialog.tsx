@@ -17,11 +17,11 @@
 // vertically and it snaps to the nearest whole HU; horizontal
 // position is preserved as a free offset for cable management.
 
+import { TranslatedControls } from '../Canvas/TranslatedControls'
 import { useMemo } from 'react'
 import ReactFlow, {
   Background,
   BackgroundVariant,
-  Controls,
   ReactFlowProvider,
   type Node,
   type Edge,
@@ -200,7 +200,7 @@ const RackEditorContent = ({ rackInstanceId }: { rackInstanceId: string }) => {
           maxZoom={1.5}
         >
           <Background variant={BackgroundVariant.Dots} gap={20} color="#1e293b" />
-          <Controls />
+          <TranslatedControls />
         </ReactFlow>
       </div>
     </div>

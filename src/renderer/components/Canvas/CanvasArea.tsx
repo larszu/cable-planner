@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { TranslatedControls } from './TranslatedControls'
 import ReactFlow, {
   Background,
-  Controls,
   MiniMap,
   ReactFlowProvider,
   applyEdgeChanges,
@@ -89,7 +89,8 @@ import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
 import { useVideohubLinkFeed } from '../../hooks/useVideohubLinkFeed'
 import { styleForLayer } from '../../lib/cableLayers'
 import { MONO_TINTE, monochromLabel } from '../../lib/monochromeSheet'
-import { cableLabelName } from '../../lib/lastCableChoice'
+import { cableLabelName, cableLengthSuffix } from '../../lib/lastCableChoice'
+import { addAnnotationAt } from '../../lib/annotationAuthor'
 import { cableCatalog } from '../../types/cableSpec'
 import { DRUCK_MS, LangerDruck } from '../../lib/langerDruck'
 import { ansicht } from '../../lib/ansicht'
@@ -897,7 +898,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                   '',
                 ).trim()
               : fullName
-            const base = `${displayName} (${item.length}m)`
+            const base = `${displayName}${cableLengthSuffix(item.length)}`
             // Auto-Kabelnummerierung: Nummer als [Nr]-Praefix voranstellen.
             const numbered = item.cableNumber ? `[${item.cableNumber}] ${base}` : base
             const fertig = item.needsConverter ? `${numbered} ⚠ converter` : numbered
@@ -2377,7 +2378,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           nodeStrokeColor="transparent"
           maskColor={effectiveCanvasTheme === 'light' ? 'rgba(22,24,29,0.05)' : 'rgba(0,0,0,0.22)'}
         />}
-        <Controls />
+        <TranslatedControls />
         {/* Issue #71: background pattern is user-configurable. When the
             user picked 'none' we omit the component entirely so React
             Flow falls back to its plain coloured canvas. */}
@@ -2582,6 +2583,37 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 </button>
                 <div style={{ height: 1, background: '#334155', margin: '4px 0' }} />
               </>
+            )}
+            {/* Anmerkung ans Geraet — der Leer-Hinweis im Anmerkungs-Panel
+                verweist auf diesen Rechtsklick. */}
+            {!isLocation && mode === 'main' && (
+              <button
+                type="button"
+                onClick={() => {
+                  const deviceId = nodeContextMenu.nodeId
+                  setNodeContextMenu(null)
+                  void addAnnotationAt({ type: 'device', deviceId })
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '6px 10px',
+                  background: 'transparent',
+                  color: 'inherit',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M2.5 3h11v8H6l-3.5 2.5z" />
+                </svg>
+                <span>{t('annotations.addFromMenu', 'Add annotation…')}</span>
+              </button>
             )}
             {/* Nur im Haupt-Plan: der Dialog auf App-Ebene liest den Haupt-Store,
                 nicht das Rack-Innenleben. */}
