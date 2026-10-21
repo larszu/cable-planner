@@ -23,6 +23,7 @@ import type { Floor, LocationFrame } from '../types/location'
 import { locationForEquipment } from './equipmentLocation'
 import { etagenIndex, etageVon } from './etagen'
 import { styleForLayer } from './cableLayers'
+import { istBodentank } from '../types/frontplatte'
 
 export interface Punkt3D {
   x: number
@@ -59,6 +60,10 @@ export interface SzeneGeraet {
   pos: Punkt3D
   /** Hoehe der Kabeltrasse ueber dem Geraet: knapp unter der Decke seines Raums. */
   trasseY: number
+  /** #963 — Fussbodenhoehe des Raums, auf dem das Geraet steht (fuer das Ziehen in 3D). */
+  bodenY: number
+  /** #963 — ein Bodentank: liegt im Boden statt auf Tischhoehe. */
+  bodentank: boolean
 }
 
 export interface SzeneKabel {
@@ -216,7 +221,9 @@ export function gebaeudeSzene(
     const boden = loc ? hoeheVonRahmen(loc) : 0
     // Eine Kamera mit bekannter Hoehe (MultiCam, #910) steht auf ihr; alles
     // andere auf Tischhoehe — sichtbar ueber dem Boden, ohne etwas zu behaupten.
-    const ueberBoden = e.optik?.hoeheM ?? 0.8
+    // Ein Bodentank (#963) liegt buendig im Boden.
+    const bt = istBodentank(e)
+    const ueberBoden = bt ? 0.03 : (e.optik?.hoeheM ?? 0.8)
     geraetById.set(e.id, {
       id: e.id,
       name: e.name,
@@ -227,6 +234,8 @@ export function gebaeudeSzene(
         z: (e.y + (e.height ?? 0) / 2) * m,
       },
       trasseY: boden + raumHoehe(opt.geschosshoeheM) * 0.95,
+      bodenY: boden,
+      bodentank: bt,
     })
   }
 
@@ -329,5 +338,24 @@ export function wegUeberSchacht(
       { x: nach.x, y: nachTrasseY, z: nach.z },
       nach,
     ].filter((p, i, alle) => i === 0 || flach(p, alle[i - 1]) > 1e-6 || Math.abs(p.y - alle[i - 1].y) > 1e-6),
+  }
+}
+
+/**
+ * #963 — die Umkehrung der Geraeteposition: ein in 3D gezogener Punkt
+ * (x/z in Metern) zurueck auf die Canvas-Koordinate des Geraets (linke obere
+ * Ecke in px). Die 3D-Ansicht hat keine eigene Position; wer dort zieht,
+ * verschiebt das Geraet auf dem Canvas — sonst gaebe es zwei Wahrheiten.
+ */
+export function canvasPositionAus3D(
+  geraet: { width?: number; height?: number },
+  xM: number,
+  zM: number,
+  metersPer100px: number,
+): { x: number; y: number } {
+  const m = metersPer100px / 100
+  return {
+    x: Math.round(xM / m - (geraet.width ?? 0) / 2),
+    y: Math.round(zM / m - (geraet.height ?? 0) / 2),
   }
 }

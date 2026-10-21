@@ -167,6 +167,25 @@ const powerlockSatz = (name: string): EquipmentTemplate => {
   }
 }
 
+/**
+ * #963 — ein Bodentank: Einsaetze im Boden, jeder Einsatz eine Buchse oben
+ * (Raumseite) und die Hausstrecke darunter, positionsweise durchverbunden
+ * wie ein Wandfeld. Die Art `bodentank` an der Frontplatte macht ihn zum
+ * Durchleiter (`DURCHLEITENDE_PLATTEN`) und legt ihn in 3D auf den Boden.
+ */
+const bodentank = (
+  name: string,
+  einsaetze: { name: string; n: number; connectorType: ConnectorType }[],
+): EquipmentTemplate => ({
+  name,
+  category: 'Floor boxes',
+  frontplatte: { art: 'bodentank', seite: 'outputs' },
+  width: 200,
+  height: 80,
+  inputs: einsaetze.flatMap((e) => ports(`${e.name} building`, e.n, e.connectorType)),
+  outputs: einsaetze.flatMap((e) => ports(e.name, e.n, e.connectorType)),
+})
+
 export const passiveTemplates: EquipmentTemplate[] = [
   blende('Patch panel 12x BNC', 12, 'BNC'),
   blende('Patch panel 24x BNC', 24, 'BNC'),
@@ -185,6 +204,17 @@ export const passiveTemplates: EquipmentTemplate[] = [
   leiste('Power strip 6-way', 6, 'Schuko 230V', 'Schuko 230V'),
   leiste('Power strip 8-way', 8, 'Schuko 230V', 'Schuko 230V'),
   leiste('IEC strip 8-way', 8, 'IEC 230V', 'IEC 230V'),
+
+  bodentank('Floor box AV (2x Schuko, 2x RJ45, 2x XLR, 2x BNC)', [
+    { name: 'Schuko', n: 2, connectorType: 'Schuko 230V' },
+    { name: 'RJ45', n: 2, connectorType: 'Ethernet/RJ45' },
+    { name: 'XLR', n: 2, connectorType: 'XLR' },
+    { name: 'BNC', n: 2, connectorType: 'BNC' },
+  ]),
+  bodentank('Floor box power/data (2x Schuko, 2x RJ45)', [
+    { name: 'Schuko', n: 2, connectorType: 'Schuko 230V' },
+    { name: 'RJ45', n: 2, connectorType: 'Ethernet/RJ45' },
+  ]),
 
   powerlockSatz('Powerlock set 5x (L1/L2/L3/N/PE)'),
 

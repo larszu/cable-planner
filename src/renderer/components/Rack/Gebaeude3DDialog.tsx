@@ -13,7 +13,8 @@
  * dieselbe Frage liefen auseinander.
  */
 import { useMemo, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, type ThreeEvent } from '@react-three/fiber'
+import { Plane, Vector3 } from 'three'
 import { Edges, Html, Line, OrbitControls } from '@react-three/drei'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
@@ -24,7 +25,7 @@ import { format, useTranslation } from '../../lib/i18n'
 import { ansicht } from '../../lib/ansicht'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { DEFAULT_LENGTH_ESTIMATION } from '../../lib/cableLengthEstimate'
-import { gebaeudeSzene, type GebaeudeSzene } from '../../lib/gebaeudeSzene'
+import { canvasPositionAus3D, gebaeudeSzene, type GebaeudeSzene, type SzeneGeraet } from '../../lib/gebaeudeSzene'
 import { RaumSichtbarkeit } from '../Canvas/RaumSichtbarkeit'
 import type { Floor, LocationFrame } from '../../types/location'
 
@@ -33,8 +34,59 @@ const EMPTY_FLOORS: Floor[] = []
 
 type Modus = 'raeume' | 'kabel'
 
-const Szene = ({ szene, modus, beschriftung, isLight }: { szene: GebaeudeSzene; modus: Modus; beschriftung: boolean; isLight: boolean }) => {
+/** Laufendes Ziehen eines Geraets (#963): wo es gerade liegt und wo es gegriffen wurde. */
+interface Zug {
+  id: string
+  x: number
+  z: number
+  /** Abstand Griffpunkt → Geraetemitte, damit es nicht zum Zeiger springt. */
+  dx: number
+  dz: number
+}
+
+const Szene = ({
+  szene,
+  modus,
+  beschriftung,
+  isLight,
+  gesperrt,
+  onVerschoben,
+}: {
+  szene: GebaeudeSzene
+  modus: Modus
+  beschriftung: boolean
+  isLight: boolean
+  gesperrt: ReadonlySet<string>
+  onVerschoben: (id: string, xM: number, zM: number) => void
+}) => {
   const text = isLight ? '#0f172a' : '#e2e8f0'
+  const [zug, setZug] = useState<Zug | null>(null)
+  // Gezogen wird auf der waagrechten Ebene in Hoehe des Geraets: es bleibt
+  // auf seiner Etage, nur x/z aendern sich — genau die Canvas-Position.
+  const aufEbene = (e: ThreeEvent<PointerEvent>, g: SzeneGeraet): Vector3 | null =>
+    e.ray.intersectPlane(new Plane(new Vector3(0, 1, 0), -g.pos.y), new Vector3())
+  const greifen = (e: ThreeEvent<PointerEvent>, g: SzeneGeraet) => {
+    if (gesperrt.has(g.id)) return
+    const p = aufEbene(e, g)
+    if (!p) return
+    e.stopPropagation()
+    ;(e.target as Element | null)?.setPointerCapture?.(e.pointerId)
+    setZug({ id: g.id, x: g.pos.x, z: g.pos.z, dx: g.pos.x - p.x, dz: g.pos.z - p.z })
+  }
+  const ziehen = (e: ThreeEvent<PointerEvent>, g: SzeneGeraet) => {
+    if (!zug || zug.id !== g.id) return
+    const p = aufEbene(e, g)
+    if (!p) return
+    e.stopPropagation()
+    setZug({ ...zug, x: p.x + zug.dx, z: p.z + zug.dz })
+  }
+  const loslassen = (e: ThreeEvent<PointerEvent>, g: SzeneGeraet) => {
+    if (!zug || zug.id !== g.id) return
+    e.stopPropagation()
+    ;(e.target as Element | null)?.releasePointerCapture?.(e.pointerId)
+    if (Math.hypot(zug.x - g.pos.x, zug.z - g.pos.z) > 0.01) onVerschoben(g.id, zug.x, zug.z)
+    setZug(null)
+  }
   const label = (inhalt: string, farbe = text) => (
     <div style={{ color: farbe, fontSize: 11, whiteSpace: 'nowrap', pointerEvents: 'none', textShadow: isLight ? 'none' : '0 0 3px #000' }}>
       {inhalt}
@@ -80,19 +132,29 @@ const Szene = ({ szene, modus, beschriftung, isLight }: { szene: GebaeudeSzene; 
           </group>
         )
       })}
-      {szene.geraete.map((g) => (
-        <group key={g.id} position={[g.pos.x, g.pos.y, g.pos.z]}>
-          <mesh>
-            <boxGeometry args={[0.35, 0.35, 0.35]} />
-            <meshStandardMaterial color={isLight ? '#334155' : '#cbd5e1'} />
+      {szene.geraete.map((g) => {
+        const aktiv = zug?.id === g.id
+        const x = aktiv ? zug.x : g.pos.x
+        const z = aktiv ? zug.z : g.pos.z
+        return (
+        <group key={g.id} position={[x, g.pos.y, z]}>
+          <mesh
+            onPointerDown={(e) => greifen(e, g)}
+            onPointerMove={(e) => ziehen(e, g)}
+            onPointerUp={(e) => loslassen(e, g)}
+          >
+            {/* Bodentank: flache Platte im Boden; sonst ein Wuerfel auf Tischhoehe. */}
+            <boxGeometry args={g.bodentank ? [0.5, 0.06, 0.5] : [0.35, 0.35, 0.35]} />
+            <meshStandardMaterial color={aktiv ? '#38bdf8' : g.bodentank ? '#f59e0b' : isLight ? '#334155' : '#cbd5e1'} />
           </mesh>
-          {beschriftung && modus === 'kabel' && (
+          {beschriftung && (modus === 'kabel' || g.bodentank) && (
             <Html position={[0, 0.4, 0]} center>
               {label(g.name)}
             </Html>
           )}
         </group>
-      ))}
+        )
+      })}
       {modus === 'kabel' &&
         szene.kabel.map((k) => (
           <Line
@@ -128,7 +190,7 @@ const Szene = ({ szene, modus, beschriftung, isLight }: { szene: GebaeudeSzene; 
             </group>
           )
         })}
-      <OrbitControls target={[szene.mitte.x, szene.mitte.y, szene.mitte.z]} makeDefault />
+      <OrbitControls target={[szene.mitte.x, szene.mitte.y, szene.mitte.z]} makeDefault enabled={!zug} />
     </>
   )
 }
@@ -145,6 +207,7 @@ export const Gebaeude3DDialog = () => {
   const cables = useProjectStore((s) => s.project.cables)
   const locations = useProjectStore((s) => s.project.locations ?? EMPTY_LOCATIONS)
   const floors = useProjectStore((s) => s.project.floors ?? EMPTY_FLOORS)
+  const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const metersPer100px = useProjectStore(
     (s) => s.project.metadata.lengthEstimation?.metersPer100px ?? DEFAULT_LENGTH_ESTIMATION.metersPer100px,
   )
@@ -177,6 +240,13 @@ export const Gebaeude3DDialog = () => {
       },
     )
   }, [equipment, cables, locations, floors, metersPer100px, geschosshoeheM, ausgeblendeteRaeume, ausgeblendeteEtagen, layerVisibility])
+
+  const gesperrt = useMemo(() => new Set(equipment.filter((e) => e.positionLocked).map((e) => e.id)), [equipment])
+  const verschieben = (id: string, xM: number, zM: number) => {
+    const e = equipment.find((x) => x.id === id)
+    if (!e) return
+    updateEquipment(id, canvasPositionAus3D(e, xM, zM, metersPer100px))
+  }
 
   if (!open) return null
   const angenommen = szene.etagen.filter((e) => e.hoeheAngenommen)
@@ -259,13 +329,13 @@ export const Gebaeude3DDialog = () => {
             </p>
           ) : (
             <Canvas camera={{ position: [szene.mitte.x + abstand, szene.mitte.y + abstand * 0.8, szene.mitte.z + abstand], fov: 45, near: 0.1, far: abstand * 20 }}>
-              <Szene szene={szene} modus={modus} beschriftung={beschriftung} isLight={isLight} />
+              <Szene szene={szene} modus={modus} beschriftung={beschriftung} isLight={isLight} gesperrt={gesperrt} onVerschoben={verschieben} />
             </Canvas>
           )}
         </div>
         <footer className="border-t border-cp-border px-4 py-1 text-cp-xs text-cp-text-muted">
           {format(
-            t('gebaeude3d.footer', '{rooms} rooms · {devices} devices · {cables} cables · {links} room connections — drag to orbit, scroll to zoom'),
+            t('gebaeude3d.footer', '{rooms} rooms · {devices} devices · {cables} cables · {links} room connections — drag a device or floor box to move it, drag elsewhere to orbit, scroll to zoom'),
             {
               rooms: szene.raeume.length,
               devices: szene.geraete.length,

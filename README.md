@@ -56,6 +56,10 @@
   A room carries a room number and an address; with an address set, the
   inspector shows an OpenStreetMap map (no API key; offline it falls back to
   a link that opens the map in the browser).
+  Floor boxes come from the library (*Floor boxes*) and connect like a wall
+  panel: socket on top, house run below. In *Building 3D* they lie on the
+  floor, and every device or floor box can be dragged there; the move lands
+  on the canvas.
 - **Every list for the build day.** Pull list, patch list, termination list,
   BOM, patch sheets, faceplates, acceptance record, QR labels — one report
   editor, preview equals export.
