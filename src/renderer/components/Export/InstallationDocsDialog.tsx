@@ -56,6 +56,9 @@ import { bedienUebersichtHtml, bedienUebersichtStandTable } from '../../lib/bedi
 import { anhaengeTable } from '../../lib/anhaenge'
 import { kameraPositionsblattHtml, kameraPositionsblattStandTable } from '../../lib/kameraPositionsblatt'
 import { AnhaengeSection } from './AnhaengeSection'
+import { buildTablePdf, workbookBytes, type DocSheet } from '../../lib/tableDocExport'
+import type { CsvTable } from '../../lib/csv'
+import type { CablePlannerProject } from '../../types/project'
 import { buildHandoverManifest, handoverTable } from '../../lib/handoverPackage'
 import {
   JOB_BASIS_LABEL,
@@ -125,7 +128,7 @@ export const InstallationDocsDialog = () => {
    * Docstring fest, dass der Schluessel derselbe ist, der im Dateinamen
    * steht. Der Guard in tests/documentLog.test.ts prueft das nach.
    */
-  const save = (content: string, suffix: string, ext: string, mime: string) => {
+  const save = (content: string | Blob | ArrayBuffer, suffix: string, ext: string, mime: string) => {
     downloadBlob(buildExportFilenameWithSuffix(baseName, suffix, ext), content, mime)
     void recordEmission(project, suffix, filePath, recipient)
   }
@@ -417,6 +420,53 @@ export const InstallationDocsDialog = () => {
     [project, reserve, t],
   )
 
+  /**
+   * #992 — dieselben Tabellen, aus denen die CSV entsteht, als gestaltetes
+   * PDF und Excel. CSV bleibt das Backup; hier wird nichts neu
+   * zusammengestellt.
+   */
+  const tableSources: Record<string, (p: CablePlannerProject) => CsvTable> = useMemo(
+    () => ({
+      pull: pullListTable,
+      term: terminationListTable,
+      sched: cableScheduleTable,
+      bom: (p) => cableBomTable(p, reserve),
+      asset: assetRegisterTable,
+      maengel: maengelTable,
+      wartung: wartungsplanTable,
+      konfig: konfigVorgabenTable,
+      anhaenge: anhaengeTable,
+      signalwege: signalwegeTable,
+      durchgaenge: durchgaengeTable,
+      hausstrecken: hausStreckenTable,
+    }),
+    [reserve],
+  )
+  const tableRows = exports.filter((r) => tableSources[r.key])
+  const sheetFor = (row: ExportRow): DocSheet => {
+    const fn = tableSources[row.key]
+    return {
+      title: row.label,
+      table: fn(project),
+      stamp: stampLine(stampForRows(project, fn, new Date())),
+    }
+  }
+  const exportPdf = async (rows: ExportRow[], suffix: string) => {
+    const { default: JsPdf } = await import('jspdf')
+    const doc = buildTablePdf(JsPdf, rows.map(sheetFor), {
+      title: project.metadata.name || t('docs.handoverTitle', 'Installation handover'),
+      tocLabel: t('docs.toc', 'Contents'),
+      pageLabel: t('docs.pageOf', 'Page {n} of {total}'),
+      cover: rows.length > 1,
+    })
+    save(doc.output('blob'), suffix, 'pdf', 'application/pdf')
+  }
+  const exportXlsx = async (rows: ExportRow[], suffix: string) => {
+    const XLSX = await import('xlsx-js-style')
+    const bytes = workbookBytes(XLSX, rows.map(sheetFor))
+    save(new Blob([bytes as BlobPart]), suffix, 'xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  }
+
   const onAssignIds = () => {
     const res = assignDocIds()
     setInfo(
@@ -613,24 +663,65 @@ export const InstallationDocsDialog = () => {
               className="w-16 border border-cp-border bg-cp-surface-1 p-1 text-right"
             />
           </label>
+          <div className="mb-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void exportPdf(tableRows, 'uebergabe')}
+              className="rounded-cp-control bg-cp-accent px-3 py-2 font-medium text-white hover:opacity-90"
+            >
+              {t('docs.allPdf', 'All lists as one PDF')}
+            </button>
+            <button
+              type="button"
+              onClick={() => void exportXlsx(tableRows, 'uebergabe')}
+              className="rounded-cp-control border border-cp-border bg-cp-surface-1 px-3 py-2 hover:bg-cp-surface-2"
+            >
+              {t('docs.allXlsx', 'All lists as one Excel workbook')}
+            </button>
+          </div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {exports.map((row) => (
-              <button
-                key={row.key}
-                type="button"
-                onClick={() => {
-                  const r = row.build()
-                  save(r.content, r.suffix, r.ext, r.mime)
-                }}
-                className="flex items-start gap-2 border border-cp-border bg-cp-surface-1 p-2 text-left hover:bg-cp-surface-2"
-              >
-                <Icon icon={Download} size="sm" className="mt-0.5 shrink-0 text-cp-accent" />
-                <span className="min-w-0">
-                  <span className="block font-medium text-cp-text-bright">{row.label}</span>
-                  <span className="block text-cp-xs text-cp-text-muted">{row.hint}</span>
-                </span>
-              </button>
-            ))}
+            {exports.map((row) => {
+              const styled = Boolean(tableSources[row.key])
+              return (
+                <div
+                  key={row.key}
+                  className="flex flex-col gap-1 rounded-cp-control border border-cp-border bg-cp-surface-1 p-2"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const r = row.build()
+                      save(r.content, r.suffix, r.ext, r.mime)
+                    }}
+                    className="flex items-start gap-2 text-left hover:text-cp-accent"
+                  >
+                    <Icon icon={Download} size="sm" className="mt-0.5 shrink-0 text-cp-accent" />
+                    <span className="min-w-0">
+                      <span className="block font-medium text-cp-text-bright">{row.label}</span>
+                      <span className="block text-cp-xs text-cp-text-muted">{row.hint}</span>
+                    </span>
+                  </button>
+                  {styled && (
+                    <span className="flex gap-2 pl-6 text-cp-xs">
+                      <button
+                        type="button"
+                        onClick={() => void exportPdf([row], row.build().suffix)}
+                        className="rounded-cp-s border border-cp-border px-2 py-0.5 hover:bg-cp-surface-2"
+                      >
+                        PDF
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void exportXlsx([row], row.build().suffix)}
+                        className="rounded-cp-s border border-cp-border px-2 py-0.5 hover:bg-cp-surface-2"
+                      >
+                        Excel
+                      </button>
+                    </span>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </section>
 
