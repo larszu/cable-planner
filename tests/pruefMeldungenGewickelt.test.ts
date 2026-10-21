@@ -138,6 +138,22 @@ const GEWICKELT = [
   'types/displayCapability.ts',
 ]
 
+/** Rohe Meldungen in EINER Quelle — dieselbe Zaehlung fuer Repo und Probe. */
+const zaehleIn = (roh: string): number => {
+  const quelle = ohneKommentare(roh)
+  const zeilen = quelle.split('\n')
+  let n = 0
+  for (const m of quelle.matchAll(ROHE_MELDUNG)) {
+    const zeile = quelle.slice(0, m.index).split('\n').length - 1
+    const fenster = zeilen
+      .slice(Math.max(0, zeile - NEBEN_SCHLUESSEL), zeile + NEBEN_SCHLUESSEL)
+      .join('\n')
+    if (/\bschluessel:/.test(fenster)) continue
+    n += 1
+  }
+  return n
+}
+
 const zaehle = (): Map<string, number> => {
   const treffer = new Map<string, number>()
   for (const datei of dateien(WURZEL)) {
@@ -145,17 +161,7 @@ const zaehle = (): Map<string, number> => {
     if (!rel.startsWith('lib/') && !rel.startsWith('types/')) continue
     // Das Woerterbuch IST eine Sammlung von Literalen — das ist sein Zweck.
     if (rel.includes('i18n')) continue
-    const quelle = ohneKommentare(readFileSync(datei, 'utf8'))
-    const zeilen = quelle.split('\n')
-    let n = 0
-    for (const m of quelle.matchAll(ROHE_MELDUNG)) {
-      const zeile = quelle.slice(0, m.index).split('\n').length - 1
-      const fenster = zeilen
-        .slice(Math.max(0, zeile - NEBEN_SCHLUESSEL), zeile + NEBEN_SCHLUESSEL)
-        .join('\n')
-      if (/\bschluessel:/.test(fenster)) continue
-      n += 1
-    }
+    const n = zaehleIn(readFileSync(datei, 'utf8'))
     if (n > 0) treffer.set(rel, n)
   }
   return treffer
@@ -211,8 +217,17 @@ describe('Meldungen aus lib/ und types/ sind gewickelt', () => {
   it('die Pruefung sieht ueberhaupt etwas — Gegenprobe zum Muster', () => {
     // Ohne sie waere ein kaputtes Muster die gefaehrlichste Art gruen: es
     // findet nichts, und Nichts sieht hier aus wie ein Ergebnis.
-    const gesamt = [...zaehle().values()].reduce((a, b) => a + b, 0)
-    // Mit #1142 sank der Bestand von ueber 50 auf 33; die Schwelle folgt.
-    expect(gesamt).toBeGreaterThan(20)
+    // An einer festen Probe statt an einer Mindestzahl im Repo: die Zahl
+    // sinkt genau dann, wenn die Arbeit gelingt, und muesste jedes Mal
+    // nachgezogen werden. Die Probe haelt die Formen fest, auf die es ankommt.
+    const probe = [
+      "push({ message: 'Cable without length' })",
+      'const a = { text:\n  `Port ${n} is free` }',
+      "const b = { schluessel: 'x.y', text: 'Wrapped, carries its key' }",
+      "// text: 'only a comment'",
+      '/* message: "also a comment" */',
+      "const c = { text: tr('k', 'Wrapped by tr') }",
+    ].join('\n\n\n\n\n\n\n\n')
+    expect(zaehleIn(probe)).toBe(2)
   })
 })

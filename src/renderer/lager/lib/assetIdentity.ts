@@ -300,7 +300,7 @@ export function assetIdentityTable(a: AssetIdentityAssessment): CsvTable {
     rows: a.rows.map((r) => [
       r.name,
       r.anchors.map((x) => kanonisch(`asset.anchor.${x}`, IDENTITY_ANCHOR_LABEL[x])).join(', '),
-      r.unitId ?? 'nicht benannt',
+      r.unitId ?? kanonisch('rest.asset.unnamed', 'not named'),
       r.unitSerial ?? '',
       r.plannedSerial ?? '',
       a.findings

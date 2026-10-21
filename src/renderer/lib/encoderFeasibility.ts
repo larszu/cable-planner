@@ -39,6 +39,8 @@
 import type { DeliveryDestination, EncodingProfile } from '../types/delivery'
 import { checkDelivery } from './deliveryParity'
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 
 /** Encoder, über die diese Recherche eine belegte Aussage hat. */
 export type EncoderId = 'vmix' | 'obs-multi-rtmp'
@@ -269,12 +271,16 @@ export function runOfShowSheet(destinations: DeliveryDestination[]): CsvTable {
     ],
     rows: destinations.map((d): CsvCell[] => [
       d.name,
-      d.backupOfId ? `Backup von ${nameById.get(d.backupOfId) ?? d.backupOfId}` : 'Primärweg',
+      d.backupOfId
+        ? satzKanonisch(satz('rest.delivery.backupOf', 'Backup of {name}', { name: nameById.get(d.backupOfId) ?? d.backupOfId }))
+        : kanonisch('rest.delivery.primary', 'Primary path'),
       d.platform,
       d.transport,
       d.ingestUrl ?? '',
       // Der VERWEIS, nicht der Wert.
-      d.hasStreamKey ? `Schlüsselbund: stream-key:${d.id}` : 'nicht hinterlegt',
+      d.hasStreamKey
+        ? satzKanonisch(satz('rest.encoder.keychain', 'Keychain: stream-key:{id}', { id: d.id }))
+        : kanonisch('rest.encoder.notStored', 'not stored'),
       `${d.encoding.width}x${d.encoding.height}p${d.encoding.fps}`,
       `${d.encoding.videoBitrateKbps} kbit/s ${d.encoding.videoCodec}`,
       `${d.encoding.keyframeSec} s`,

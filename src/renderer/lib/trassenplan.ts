@@ -216,8 +216,8 @@ const KANONISCH: Worte = {
   mantelFehlt: (n) => `Mantel/Brandklasse fehlt bei ${n} Kabel${n === 1 ? '' : 'n'}`,
   grund: (g) =>
     g === 'etage'
-      ? 'Etage eines Raums nicht angegeben'
-      : 'Kein Steigschacht im Plan — der Weg zwischen den Etagen ist nicht bekannt',
+      ? kanonisch('rest.route.noFloor', 'Floor of a room not stated')
+      : kanonisch('rest.route.noRiser', 'No riser in the plan — the path between floors is unknown'),
 }
 
 const uebersetzteWorte = (t: Uebersetzen): Worte => ({

@@ -232,8 +232,8 @@ describe('das Register: NICHT reproduzierbar, und das steht da', () => {
   })
 
   it('nennt den Grund und nicht nur die Tatsache', () => {
-    expect(UNJUDGEABLE_DOCUMENTS['job-grundlage']).toMatch(/Revisionsliste/)
-    expect(UNJUDGEABLE_DOCUMENTS['job-grundlage']).toMatch(/als überholt/)
+    expect(UNJUDGEABLE_DOCUMENTS['job-grundlage']).toMatch(/revision list/)
+    expect(UNJUDGEABLE_DOCUMENTS['job-grundlage']).toMatch(/as superseded/)
   })
 })
 

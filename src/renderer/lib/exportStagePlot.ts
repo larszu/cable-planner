@@ -37,6 +37,7 @@
 import type { CablePlannerProject } from '../types/project'
 import { topLayer } from './cableLayers'
 import { buildChannelList, monitorPaths } from './channelList'
+import { satz, satzKanonisch } from './satz'
 
 const esc = (s: string): string =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -139,8 +140,8 @@ export const exportStagePlotSvg = (
   parts.push(
     `<text x="${minX - pad + 8}" y="${minY - pad - titleH + 52}" fill="${c.sub}" font-size="13">${
       audioFound
-        ? `${ordered.length} Audio-Quellen/-Ziele · ${channels.length} Kanäle`
-        : `${ordered.length} Geräte — kein Audio-Kabel im Plan, daher alle`
+        ? satzKanonisch(satz('rest.stage.audio', '{n} audio sources/destinations · {k} channels', { n: ordered.length, k: channels.length }))
+        : satzKanonisch(satz('rest.stage.noAudio', '{n} devices — no audio cable in the plan, so all of them', { n: ordered.length }))
     }</text>`,
   )
 

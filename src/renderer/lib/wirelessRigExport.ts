@@ -8,6 +8,7 @@ import type { WirelessRigPlan } from '../types/wirelessRig'
 import { wirelessById } from './wirelessCatalog'
 import { bandById, bandLabel } from './rfBands'
 import { countryTable, rangeForChannel } from './rfCountryTables'
+import { satz, satzKanonisch } from './satz'
 
 export const RIG_LIST_HEADERS = [
   'Kanal',
@@ -36,8 +37,10 @@ export const channelBandStatus = (
     r === undefined
       ? ''
       : r === null
-        ? `nicht in ${table!.code}-Tabelle`
-        : `${table!.code} ${r.fromMHz}–${r.toMHz} MHz${r.use === 'professional' ? ' (nur prof. Produktion)' : ''}`
+        ? satzKanonisch(satz('rest.rf.notInTable', 'not in {code} table', { code: table!.code }))
+        : r.use === 'professional'
+          ? satzKanonisch(satz('rest.rf.rangePro', '{code} {von}–{bis} MHz (professional production only)', { code: table!.code, von: r.fromMHz, bis: r.toMHz }))
+          : `${table!.code} ${r.fromMHz}–${r.toMHz} MHz`
   return { inBand, allowed: r === undefined ? undefined : r !== null, country }
 }
 

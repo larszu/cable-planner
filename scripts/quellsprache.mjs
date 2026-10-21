@@ -592,6 +592,15 @@ export const messeOhneT = (wurzel, quellsprache) => {
 const BEFUND_FELD = /\b(?:text|reason|detail|message|grund)\s*:\s*((?:(['"`])(?:[^\\]|\\.)*?\2\s*\+?\s*)+)/g
 const LITERAL = /(['"`])((?:[^\\]|\\.)*?)\1/g
 
+// Zwei Formen, die das Feld-Muster nicht sah (#1142, Reste):
+//  - der Rueckfall-Satz hinter `??` oder in einem Ternary-Zweig
+//    (`r.reason ?? 'Ohne Katalog-Typ …'`, `n > 0 ? `Stammt aus …` : ''`) —
+//    gemessen nur in reinen Modulen, nicht in Komponenten;
+//  - Begruendungs-Maps mit Namen `*_DOCUMENTS`, `*_REASONS` oder `*_GRUENDE`
+//    (`UNJUDGEABLE_DOCUMENTS`).
+const RUECKFALL = /(?:\?\?|\?)\s*(?:\n\s*)?((?:(['"`])(?:[^\\\n]|\\.)*?\2\s*\+?\s*)+)/g
+const BEGRUENDUNGS_MAP = /\bconst\s+([A-Z][A-Z0-9_]*_(?:DOCUMENTS|REASONS?|GRUENDE))\b/g
+
 
 export const messeBefundtexte = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'
@@ -601,6 +610,20 @@ export const messeBefundtexte = (wurzel, quellsprache) => {
     if (rel.includes('i18n') || rel.includes('__tests__') || rel.includes('.test.')) continue
     if (rel.startsWith('vendor/') || rel.endsWith('kanonischDe.ts')) continue
     const quelle = ohneKommentare(readFileSync(datei, 'utf8'))
+    const rein = /^(?:lib|types|lager\/lib|lager\/types)\//.test(rel) && !/De\.ts$/.test(rel)
+    if (rein) {
+      for (const m of quelle.matchAll(RUECKFALL)) {
+        const text = [...m[1].matchAll(LITERAL)].map((l) => l[2]).join('').replace(/\$\{[^}]*\}/g, ' ')
+        // Kennungen (`'ohne-kabel'`) sind keine Saetze.
+        if (/^[a-z0-9-]+$/.test(text)) continue
+        if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })
+      }
+    }
+    for (const m of quelle.matchAll(BEGRUENDUNGS_MAP)) {
+      for (const text of mapWerte(quelle, m[1])) {
+        if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })
+      }
+    }
     for (const m of quelle.matchAll(BEFUND_FELD)) {
       const text = [...m[1].matchAll(LITERAL)].map((l) => l[2]).join('').replace(/\$\{[^}]*\}/g, ' ')
       if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })

@@ -32,6 +32,7 @@ import type {
   HausEtage,
 } from '../types/hausAuskunft'
 import { HAUS_ADRESSARTEN } from '../types/hausAuskunft'
+import { kanonisch } from './kanonisch'
 
 export const FACILITY_FORMAT = 'avplan-facility'
 
@@ -195,7 +196,7 @@ export const leseHausDatei = (
   const gg = g as Record<string, unknown>
   const etagen = liste(gg.etagen, leseEtage)
   return {
-    name: text(gg.name) ?? 'Gebäude',
+    name: text(gg.name) ?? kanonisch('rest.house.building', 'Building'),
     gelesenAm: meta.gelesenAm,
     quelle: meta.quelle,
     raeume: liste(gg.raeume, leseRaum(etagen)),

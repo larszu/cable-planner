@@ -28,6 +28,7 @@ import { toCsv, type CsvCell, type CsvTable } from './csv'
 import { buildDocQrPayload } from './qrPayload'
 import { dictionaryBlock } from './dataDictionary'
 import type { CablePlannerProject, ProjectRevision, RevisionSnapshot } from '../types/project'
+import { satz, satzKanonisch } from './satz'
 
 export interface DocumentStamp {
   /** Projektname, wie er im Plan steht. */
@@ -261,7 +262,7 @@ const fmtStampDate = (iso: string): string => {
  */
 export const stampLine = (stamp: DocumentStamp): string => {
   const parts = [stamp.project]
-  if (stamp.revision) parts.push(stamp.drifted ? `${stamp.revision} + Änderungen` : stamp.revision)
+  if (stamp.revision) parts.push(stamp.drifted ? satzKanonisch(satz('rest.stamp.drifted', '{rev} + changes', { rev: stamp.revision })) : stamp.revision)
   parts.push(fmtStampDate(stamp.printedAt))
   parts.push(`#${stamp.fingerprint}`)
   return parts.join('  ·  ')

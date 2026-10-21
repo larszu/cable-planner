@@ -54,7 +54,7 @@
 // nach Dringlichkeit sortiert, der teuerste Fehler ueberhaupt: er verschoebe
 // die echten Ueberfaelligkeiten nach unten.
 // ───────────────────────────────────────────────────────────────────────────
-import { type Satz } from './satz'
+import { type Satz, satz, satzKanonisch } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import type { CheckoutRecord } from '../lager'
 import type { InventoryItem } from '../lager'
@@ -220,8 +220,8 @@ export const actionItems = (input: ActionInput): ActionItem[] => {
       kind: l.status,
       title:
         l.status === 'overdue'
-          ? `${l.model} ist überfällig`
-          : `${l.model} hat kein Rückgabedatum`,
+          ? satzKanonisch(satz('rest.action.overdue', '{model} is overdue', { model: l.model }))
+          : satzKanonisch(satz('rest.action.noReturn', '{model} has no return date', { model: l.model })),
       // Der Zusatz kommt aus `ownershipNote` — derselbe Satz, der auf jedem
       // Blatt neben der Position steht. Ihn hier zweitens zu formulieren
       // hiesse, zwei Fassungen derselben Auskunft zu pflegen.

@@ -25,6 +25,7 @@ import { descendantNodeIds, isContainerKind, nodePathLabel } from './storageTree
 import type { CsvCell, CsvTable } from '../../lib/csv'
 import { ownershipNote } from './ownership'
 import { spalten } from '../../lib/kanonisch'
+import { kanonisch } from '../../lib/kanonisch'
 
 /** Der Bestand, aus dem eine Ausgabe entsteht. */
 export interface InventorySnapshotIn {
@@ -266,7 +267,7 @@ export const checkoutSheet = (record: CheckoutRecord): CsvTable => ({
     // Bedarf 16 — der Code, den der Scanner am Objekt findet. Wo keiner
     // klebt, steht das da: die interne Id einzusetzen ergaebe eine Spalte,
     // die scannbar AUSSIEHT und es nicht ist.
-    l.code ?? 'kein Etikett',
+    l.code ?? kanonisch('rest.label.none', 'no label'),
     // Leer bei eigenem Material: stuende in jeder Zeile „Eigen", ginge der
     // Hinweis, auf den es ankommt, darin unter.
     l.ownership ?? '',
@@ -335,7 +336,9 @@ export const openCheckoutsTable = (
     r.out.at,
     r.out.dueBack ?? '',
     r.contents.length,
-    r.out.dueBack !== undefined && r.out.dueBack < heute ? 'überfällig' : 'offen',
+    r.out.dueBack !== undefined && r.out.dueBack < heute
+        ? kanonisch('rest.checkout.overdue', 'overdue')
+        : kanonisch('rest.checkout.open', 'open'),
   ]),
 })
 

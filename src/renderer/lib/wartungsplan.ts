@@ -36,6 +36,8 @@ import { equipmentAssetTag } from './docIds'
 import { standortText } from './equipmentLocation'
 import { vergleich } from './druckblatt'
 import { spalten } from './kanonisch'
+import { kanonisch } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 
 export type WartungsBasis = 'service' | 'uebergabe'
 
@@ -105,11 +107,11 @@ const BASIS_TEXT: Record<WartungsBasis, string> = { service: 'Letzter Service', 
 
 const befundText = (z: WartungsZeile, uebergabe: string): string =>
   z.befund === 'kein-intervall'
-    ? 'kein Wartungsintervall angegeben'
+    ? kanonisch('rest.maint.noInterval', 'no maintenance interval stated')
     : z.befund === 'keine-basis'
-      ? 'kein Ausgangsdatum: weder Service-Eintrag noch Übergabe-Datum'
+      ? kanonisch('rest.maint.noBasis', 'no start date: neither a service entry nor a handover date')
       : z.befund === 'basis-unlesbar'
-        ? `Ausgangsdatum nicht lesbar: ${z.basis === 'service' ? z.letzterService : uebergabe}`
+        ? satzKanonisch(satz('rest.maint.unreadable', 'start date not readable: {datum}', { datum: (z.basis === 'service' ? z.letzterService : uebergabe) ?? '' }))
         : ''
 
 /** Kanonisch deutsch — gestempelt, der Stand darf nicht an der Sprache hängen. */

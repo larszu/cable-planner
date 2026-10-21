@@ -42,6 +42,8 @@ import type { EquipmentItem } from '../types/equipment'
 import type { DeliveryDestination, DeliveryTransport } from '../types/delivery'
 import { buildGraphContext, isReferencePort, resolveSignalSource } from './labelDerivation'
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 
 export type ChainFindingKind =
   /** Das Ziel benennt kein Geraet — der Plan sagt nicht, was sendet. */
@@ -190,7 +192,9 @@ export const chainFindingText = (f: ChainFinding): string => {
     case 'encoder-gone':
       return 'Benanntes Gerät steht nicht mehr im Plan'
     case 'encoder-unfed':
-      return `${f.values?.[0] ?? 'Der Encoder'} hat an keinem Programm-Eingang ein Kabel`
+      return f.values?.[0]
+        ? satzKanonisch(satz('rest.delivery.noProgramCable', '{name} has no cable on any programme input', { name: f.values[0] }))
+        : kanonisch('rest.delivery.noProgramCableEncoder', 'The encoder has no cable on any programme input')
     case 'feed-ambiguous':
       return `Mehrere verkabelte Programm-Eingänge: ${(f.values ?? []).join(' / ')}`
     case 'backup-shares-encoder':
@@ -224,7 +228,9 @@ export function deliveryPathTable(project: ChainInput): CsvTable {
     ],
     rows: chains.map((c): CsvCell[] => [
       c.destinationName,
-      c.role === 'backup' ? `Backup von ${c.backupOfName ?? '?'}` : 'Primärweg',
+      c.role === 'backup'
+        ? satzKanonisch(satz('rest.delivery.backupOf', 'Backup of {name}', { name: c.backupOfName ?? '?' }))
+        : kanonisch('rest.delivery.primary', 'Primary path'),
       c.source?.name ?? '',
       // Leer statt 0, wenn es keine Quelle gibt: eine 0 laese sich als
       // „direkt verkabelt" lesen, und das waere eine Aussage, die niemand

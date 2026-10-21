@@ -68,6 +68,8 @@
 // ───────────────────────────────────────────────────────────────────────────
 import { downloadBlob } from './downloadBlob'
 import { fingerprint, stampLine, type DocumentStamp } from './documentStamp'
+import { kanonisch } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 
 /** Woher eine Gerätekonfiguration stammt. */
 export interface DeviceConfigOrigin {
@@ -127,7 +129,7 @@ ${zeile('Prüfsumme:', `#${summe}`)}
 Aus dem Plan
 ------------
 ${zeile('Projekt:', origin.stamp.project)}
-${zeile('Stand:', origin.stamp.revision ? (origin.stamp.drifted ? `${origin.stamp.revision} + Änderungen` : origin.stamp.revision) : 'keine Revision festgeschrieben')}
+${zeile('Stand:', origin.stamp.revision ? (origin.stamp.drifted ? satzKanonisch(satz('rest.stamp.drifted', '{rev} + changes', { rev: origin.stamp.revision })) : origin.stamp.revision) : kanonisch('rest.stamp.noRevision', 'no revision recorded'))}
 ${zeile('Stempel:', stampLine(origin.stamp))}
 ${zeile('Anwendung:', origin.app)}
 ${zeile('Erzeugt:', fmtDate(origin.stamp.printedAt))}

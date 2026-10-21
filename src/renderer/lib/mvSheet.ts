@@ -35,6 +35,7 @@ import type { AtemMvDefinition, EquipmentItem } from '../types/equipment'
 import { getMvGridSpec, getMvQuadrants, mvWindowIndex } from './atemMvLayout'
 import type { CsvTable } from './csv'
 import { type Satz, befundAls, satz } from './satz'
+import { kanonisch } from './kanonisch'
 
 /** Was auf dem Blatt steht, wo nichts belegt ist. */
 export const NO_SOURCE = 'nicht belegt'
@@ -124,7 +125,7 @@ export const MV_SHEET_HEADERS = [
   'Rolle',
 ] as const
 
-const groesse = (big: boolean) => (big ? 'groß' : 'klein')
+const groesse = (big: boolean) => (big ? kanonisch('rest.mv.big', 'large') : kanonisch('rest.mv.small', 'small'))
 
 /** Das Blatt: ein Multiviewer, eine Zeile je Fenster. */
 export function mvSheetTable(

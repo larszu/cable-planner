@@ -40,6 +40,8 @@ import { deviceInterfaces } from './networkInterfaces'
 import { buildSwitchPortMaps } from './switchPortMap'
 import { vergleich } from './druckblatt'
 import { spalten } from './kanonisch'
+import { kanonisch } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 
 export interface KonfigZeile {
   geraetId: string
@@ -160,9 +162,9 @@ export function konfigVorgaben(project: CablePlannerProject): KonfigZeile[] {
 
 const befundText = (z: KonfigZeile): string =>
   z.befund === 'widerspruch'
-    ? `Kabel an diesem Port führt zu ${z.widerspruch ?? ''}`
+    ? satzKanonisch(satz('rest.config.cableLeadsTo', 'The cable on this port leads to {ziel}', { ziel: z.widerspruch ?? '' }))
     : z.befund === 'keine-ip'
-      ? 'keine IP-Adresse im Plan'
+      ? kanonisch('rest.config.noIp', 'no IP address in the plan')
       : z.befund === 'keine-maske'
         ? 'Subnetzmaske fehlt'
         : ''
@@ -181,7 +183,11 @@ export const konfigVorgabenTable = (project: CablePlannerProject): CsvTable => (
     z.switchName,
     z.port,
     z.via.join(' → '),
-    z.quelle === 'schnittstelle' ? 'Schnittstelle' : z.quelle === 'kabel' ? 'Kabel' : '',
+    z.quelle === 'schnittstelle'
+      ? kanonisch('rest.source.interface', 'Interface')
+      : z.quelle === 'kabel'
+        ? kanonisch('rest.source.cable', 'Cable')
+        : '',
     z.web,
     befundText(z),
   ]),

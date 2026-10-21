@@ -264,7 +264,7 @@ export const recordNameSheet = (plan: RecordNamePlan): string[][] => [
   spalten(['Role', 'Recorder', 'Channel', 'File name', 'Finding']),
   ...plan.rows.map((r) => [
     r.roleName,
-    r.recorder ?? 'kein Recorder im Plan',
+    r.recorder ?? kanonisch('rest.record.noRecorder', 'no recorder in the plan'),
     r.channel === undefined ? '' : String(r.channel),
     r.name,
     r.findings.map((f) => kanonisch(`recordName.finding.${f.kind}`, RECORD_NAME_FINDING_LABEL[f.kind])).join(' · '),

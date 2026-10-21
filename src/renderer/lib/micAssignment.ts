@@ -110,7 +110,7 @@ export function a2Card(
     role: p.role?.trim() || '',
     photo: p.photoRef?.trim() || NO_PHOTO,
     channelLabel: ch?.label?.trim() || 'Kanal entfernt',
-    frequency: ch?.frequencyMhz === undefined ? 'nicht belegt' : `${ch.frequencyMhz} MHz`,
+    frequency: ch?.frequencyMhz === undefined ? kanonisch('rest.mic.unassigned', 'not assigned') : `${ch.frequencyMhz} MHz`,
     pack: a.packUnitId ? packLabelOf(a.packUnitId) : 'nicht benannt',
     capsule: a.capsuleNote?.trim() || 'wie im Kanalplan',
     battery: batteryText(a, now),

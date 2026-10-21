@@ -44,6 +44,8 @@ import { allDeviceInterfaces } from './networkInterfaces'
 import { detectNetworkDevice } from './deviceKind'
 import { durchBlenden, gegenendenJePort } from './patchPanel'
 import { spalten } from './kanonisch'
+import { kanonisch } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 
 /** Woher die Belegung eines Switch-Ports stammt. */
 export type PortOccupancySource = 'interface' | 'cable'
@@ -213,8 +215,12 @@ export function switchPortTable(map: SwitchPortMap): CsvTable {
       r.nicLabel ?? '',
       r.ipAddress ?? '',
       r.vlanId ?? '',
-      r.source === 'interface' ? 'Schnittstelle' : r.source === 'cable' ? 'Kabel' : '',
-      r.conflict ? `Kabel sagt: ${r.conflict}` : '',
+      r.source === 'interface'
+        ? kanonisch('rest.source.interface', 'Interface')
+        : r.source === 'cable'
+          ? kanonisch('rest.source.cable', 'Cable')
+          : '',
+      r.conflict ? satzKanonisch(satz('rest.switch.cableSays', 'Cable says: {x}', { x: r.conflict })) : '',
     ]),
   }
 }

@@ -11,6 +11,7 @@ import { hexToRgb, drawVectorBackground } from './pdfBackground'
 import { buildExportFilename } from './exportFilename'
 import { translate } from './i18n'
 import { useUiStore } from '../store/uiStore'
+import { satz, satzKanonisch } from './satz'
 
 // Helper: aus composed-Background-Optionen den Grid-Hex extrahieren.
 // composeExportBackground hat keinen public `gridColor` Output (nur
@@ -88,7 +89,7 @@ const drawTitleBlock = (
     // Papier als *dieser Ausdruck ist Rev 2*, und das stimmt dann nicht mehr.
     ...(meta.revision
       ? ([
-          ['Revision', stamp?.drifted ? `${meta.revision} + Änderungen` : meta.revision],
+          ['Revision', stamp?.drifted ? satzKanonisch(satz('rest.stamp.drifted', '{rev} + changes', { rev: meta.revision })) : meta.revision],
         ] as [string, string][])
       : []),
     ...(stamp ? ([['Stand', `#${stamp.fingerprint}`]] as [string, string][]) : []),

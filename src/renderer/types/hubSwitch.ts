@@ -1,3 +1,4 @@
+import { kanonisch } from '../lib/kanonisch'
 /**
  * Was an der Anlage GESCHALTET wurde (B-42, Inkrement 3).
  *
@@ -209,5 +210,8 @@ export const hubSwitchZeilen = (
     // Auf dem BLATT, nicht nur im Datensatz. Ein Eingriffs-Protokoll, das
     // eine Probe am Pruefstand nicht als solche ausweist, ist genau die
     // falsche Auskunft, wegen der jemand an der Anlage sucht.
-    ziel: s.target === 'simulator' ? 'Prüfstand' : 'Anlage',
+    ziel:
+      s.target === 'simulator'
+        ? kanonisch('rest.hub.testBench', 'Test bench')
+        : kanonisch('rest.hub.system', 'System'),
   }))
