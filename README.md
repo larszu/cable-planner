@@ -239,6 +239,7 @@ npm run dev     # Electron with hot reload
 npm test        # vitest + guards
 npm run build   # renderer, main, preload
 npm run dist    # installers for macOS / Windows
+npm run perf:leerlauf  # idle CPU on a 300-device/500-cable plan (CP_URL, CP_CHROME)
 ```
 
 In a worktree, symlinking the main checkout's `node_modules` is enough:

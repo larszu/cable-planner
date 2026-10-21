@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useVisiblePolling } from '../../hooks/useVisiblePolling'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useDraggablePosition } from '../../hooks/useDraggablePosition'
@@ -113,24 +114,24 @@ export const AtemAudioRouterDialog = () => {
   // v7.9.52 — Live-Connection-Status für die OpenSwitcher-style
   // Read/Push-Buttons. Wird beim Dialog-Open + alle 4s gepollt.
   const [atemConnected, setAtemConnected] = useState(false)
+  // Nur bei offenem Dialog und sichtbarem Fenster. Ohne Verbindung wird
+  // die Pause bis 16 s gestreckt; jede Meldung des Mischers (`atem:event`)
+  // fragt sofort nach, damit ein Verbinden nicht auf den Takt wartet.
+  const atemStatus = useCallback(async () => {
+    let verbunden: boolean
+    try {
+      verbunden = !!(await cablePlannerApi.atem.getStatus())?.connected
+    } catch {
+      verbunden = false
+    }
+    setAtemConnected(verbunden)
+    return verbunden
+  }, [])
+  useVisiblePolling(atemStatus, 4000, { enabled: open, maxBackoffMs: 16_000 })
   useEffect(() => {
     if (!open) return
-    let stopped = false
-    const refresh = async () => {
-      try {
-        const st = await cablePlannerApi.atem.getStatus()
-        if (!stopped) setAtemConnected(!!st?.connected)
-      } catch {
-        if (!stopped) setAtemConnected(false)
-      }
-    }
-    void refresh()
-    const id = window.setInterval(refresh, 4000)
-    return () => {
-      stopped = true
-      window.clearInterval(id)
-    }
-  }, [open])
+    return cablePlannerApi.atem.onEvent?.(() => void atemStatus())
+  }, [open, atemStatus])
 
   // Initiative 10 — die Differenz, nicht die Vermischung.
   const comparison: LiveComparison | null = useMemo(

@@ -19,6 +19,7 @@
  *
  * Die Raster-Pipeline bleibt unverändert als Default-Pfad.
  */
+import { mitAllenElementen } from './alleElementeRendern'
 import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { buildExportFilename } from './exportFilename'
@@ -427,7 +428,11 @@ ${appCss}
 </html>`
 }
 
-export const exportCanvasToPdfVector = async (
+// Ausgaben lesen den Plan aus dem DOM: vorher alles zeichnen lassen.
+export const exportCanvasToPdfVector: typeof exportCanvasToPdfVectorAusschnitt = (...args) =>
+  mitAllenElementen(() => exportCanvasToPdfVectorAusschnitt(...args))
+
+const exportCanvasToPdfVectorAusschnitt = async (
   projectName: string,
   metadata?: ProjectMetadata,
   options?: ExportPdfVectorOptions,

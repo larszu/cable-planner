@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useVisiblePolling } from '../../hooks/useVisiblePolling'
+import { useMemo, useState } from 'react'
 import { Check, AlertCircle, AlertTriangle, Bot, CheckCircle2 } from 'lucide-react'
 import { APP_VERSION } from '../../lib/appInfo'
 import { useUiStore } from '../../store/uiStore'
@@ -82,22 +83,21 @@ const McpBadge = () => {
     verbunden: false,
     schreiben: false,
   })
-  useEffect(() => {
-    if (!hasDesktopBridge) return
-    let lebt = true
-    const holen = async () => {
+  // Nur bei sichtbarem Fenster. Laeuft der Dienst nicht, reicht ein Blick
+  // alle 30 s (gestartet wird er in den Einstellungen, und die fragen
+  // selbst). `setStatus` nur bei echter Aenderung.
+  useVisiblePolling(
+    async () => {
       const s = await cablePlannerApi.mcp.status()
-      if (lebt) setStatus({ running: s.running, verbunden: s.verbunden, schreiben: s.schreibenErlaubt })
-    }
-    // Erster Blick im Timeout, nicht direkt im Effekt — siehe `McpTab`.
-    const sofort = window.setTimeout(() => void holen(), 0)
-    const uhr = window.setInterval(() => void holen(), 5000)
-    return () => {
-      lebt = false
-      window.clearTimeout(sofort)
-      window.clearInterval(uhr)
-    }
-  }, [])
+      setStatus((alt) =>
+        alt.running === s.running && alt.verbunden === s.verbunden && alt.schreiben === s.schreibenErlaubt
+          ? alt
+          : { running: s.running, verbunden: s.verbunden, schreiben: s.schreibenErlaubt },
+      )
+    },
+    status.running ? 5000 : 30_000,
+    { enabled: hasDesktopBridge },
+  )
   if (!status.running) return null
   return (
     <button

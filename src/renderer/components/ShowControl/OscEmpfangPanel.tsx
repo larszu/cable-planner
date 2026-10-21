@@ -1,3 +1,4 @@
+import { useVisiblePolling } from '../../hooks/useVisiblePolling'
 import { useCallback, useEffect, useState } from 'react'
 import { Radio } from 'lucide-react'
 import { cablePlannerApi } from '../../lib/bridge'
@@ -63,11 +64,12 @@ export const OscEmpfangPanel = () => {
 
   const bruecke = cablePlannerApi.showControl
 
-  useEffect(() => {
-    if (!open) return
-    const id = setInterval(() => setJetzt(new Date().toISOString()), 1000)
-    return () => clearInterval(id)
-  }, [open])
+  // Nur bei offenem Panel, sichtbarem Fenster und wenn es ueberhaupt ein
+  // Alter anzuzeigen gibt.
+  useVisiblePolling(() => setJetzt(new Date().toISOString()), 1000, {
+    enabled: open && meldungen.length > 0,
+    immediate: false,
+  })
 
   useEffect(() => {
     const ab = bruecke.onUpdate((p) => {

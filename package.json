@@ -68,6 +68,7 @@
     "ui:smoke": "node scripts/ui-smoke.mjs",
     "mobil:check": "npm run build:renderer && node scripts/mobil-grenze-check.mjs",
     "test:drag": "node scripts/drag-test.mjs",
+    "perf:leerlauf": "node scripts/leerlauf-messung.mjs",
     "downloads:zaehlen": "node scripts/release-downloads.mjs",
     "docs:stats": "node scripts/update-doc-stats.mjs",
     "manual:pdf": "node scripts/handbuch/zusammensetzen.mjs && node scripts/manual-pdf.mjs",

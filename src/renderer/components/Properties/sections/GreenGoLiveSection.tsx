@@ -5,6 +5,7 @@
  * Green-GO-Geraet auf gar nichts, und das steht hier, statt dass die Knoepfe
  * stumm bleiben.
  */
+import { useVisiblePolling } from '../../../hooks/useVisiblePolling'
 import { useEffect, useState } from 'react'
 import { Headphones } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
@@ -34,15 +35,17 @@ export const GreenGoLiveSection = ({ equipment }: { equipment: EquipmentItem }) 
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => attach(), [attach])
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 2000)
-    return () => clearInterval(id)
-  }, [])
+  const address = equipment.ipAddress?.trim() ?? ''
+  const mine = connected && host === address
+  // Die Uhr braucht es nur fuer „lebt das Skript noch" — also nur, solange
+  // DIESES Geraet verbunden ist, und nicht im verborgenen Fenster.
+  useVisiblePolling(() => setNow(Date.now()), 2000, {
+    enabled: mine && detectDeviceKind(equipment) === 'greengo',
+    immediate: false,
+  })
 
   if (detectDeviceKind(equipment) !== 'greengo') return null
 
-  const address = equipment.ipAddress?.trim() ?? ''
-  const mine = connected && host === address
   // Das Skript schickt alle 3 s einen Herzschlag; zehn Sekunden Stille heisst: kein Skript oder kein Netz.
   const alive = mine && state.lastHeard > 0 && now - state.lastHeard < 10000
   const level = (v: number) => Math.max(LEVEL_MIN, Math.min(LEVEL_MAX, v))

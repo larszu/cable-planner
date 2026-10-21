@@ -1,10 +1,11 @@
 import { Handle, Position, useUpdateNodeInternals, type NodeProps } from 'reactflow'
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react'
 import { Headphones, Lock, Check } from 'lucide-react'
 import type { EquipmentItem } from '../../types/equipment'
+import type { Cable } from '../../types/cable'
 import { useUiStore } from '../../store/uiStore'
 import { useModule } from '../../store/settingsStore'
-import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
+import { useCanvasProjectStore as useProjectStore, useCanvasProjectStoreInstance } from '../../store/projectStoreContext'
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
@@ -82,7 +83,11 @@ const GeraeteKante = ({ farbe }: { farbe: string }) => (
   />
 )
 
-export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeData>) => {
+const KEINE_KABEL: readonly Cable[] = []
+const KEINE_GERAETE: readonly EquipmentItem[] = []
+
+const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>) => {
+  const projektApi = useCanvasProjectStoreInstance()
   const {
     HEADER_HEIGHT,
     HEADER_HEIGHT_WITH_IP,
@@ -173,10 +178,12 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // node, even when no cable was hovered. We now return a stable
   // string key ("port1|port2" or null) and derive a Set per-render
   // locally — cheap and stable across selector calls.
-  const hoveredCableId = useUiStore((s) => s.hoveredCableId)
-  const hoveredEndpointKey = useProjectStore((s) => {
+  // Aus dem uiStore gewaehlt und als String: beim Ueberfahren eines Kabels
+  // rendern nur die beiden beteiligten Geraete neu, nicht alle dreihundert.
+  const hoveredEndpointKey = useUiStore((s) => {
+    const hoveredCableId = s.hoveredCableId
     if (!hoveredCableId) return null
-    const cable = s.project.cables.find((c) => c.id === hoveredCableId)
+    const cable = projektApi.getState().project.cables.find((c) => c.id === hoveredCableId)
     if (!cable) return null
     const parts: string[] = []
     if (cable.fromEquipmentId === id) parts.push(cable.fromPortId)
@@ -193,8 +200,11 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   // markieren wir Ports die mit anderen Geräten desselben Racks
   // verkabelt sind als "rack-intern verkabelt". Visuell: kleines
   // 🔒-Icon + dim color. Datenmodell-frei — rein render-zeit.
-  const projectCables = useProjectStore((s) => s.project.cables)
-  const projectEquipment = useProjectStore((s) => s.project.equipment)
+  // Nur Rack-Geraete brauchen Kabel und Geraete; alle anderen sollen beim
+  // Bearbeiten eines fremden Kabels nicht mitrendern.
+  const imRack = !!data.rackInstanceId
+  const projectCables = useProjectStore((s) => (imRack ? s.project.cables : KEINE_KABEL))
+  const projectEquipment = useProjectStore((s) => (imRack ? s.project.equipment : KEINE_GERAETE))
   // v7.9.3 — Plugged-Status aus Mobile-Viewer. Wenn ein Port am Handy
   // als "gesteckt" markiert wurde, zeigen wir am Canvas-Port ein
   // kleines Häkchen (User-Request: "wenn ich in der handy zugriff
@@ -312,7 +322,7 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
       target: id,
       targetHandle: portId,
     }
-    const ausrichtung = richteVerbindungAus(projectEquipment, connection)
+    const ausrichtung = richteVerbindungAus(projektApi.getState().project.equipment, connection)
     if (!ausrichtung.ok) {
       rejectPendingCableEnd(ausrichtung.grund)
       return
@@ -1521,3 +1531,4 @@ export const EquipmentNode = ({ id, data, selected }: NodeProps<EquipmentNodeDat
   )
 }
 
+export const EquipmentNode = memo(EquipmentNodeInner)

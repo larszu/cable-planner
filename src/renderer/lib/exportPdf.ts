@@ -1,3 +1,4 @@
+import { mitAllenElementen } from './alleElementeRendern'
 import { toJpeg, toPng } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
@@ -188,7 +189,11 @@ export const exportCanvasToPdfBytes = async (
   return new Uint8Array(buffer)
 }
 
-const buildCanvasPdf = async (
+// Ausgaben lesen den Plan aus dem DOM: vorher alles zeichnen lassen.
+const buildCanvasPdf: typeof buildCanvasPdfAusschnitt = (...args) =>
+  mitAllenElementen(() => buildCanvasPdfAusschnitt(...args))
+
+const buildCanvasPdfAusschnitt = async (
   metadata?: ProjectMetadata,
   quality = 0.85,
   options?: ExportPdfOptions,

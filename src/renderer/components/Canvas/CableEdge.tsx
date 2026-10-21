@@ -1,5 +1,5 @@
 import { endeText, kabelEnden } from '../../lib/kabelOrt'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -21,7 +21,7 @@ import { CableWaypoints } from './CableWaypoints'
 import { computeObstacleAwareWaypoints, pathIsBlocked, type Rect } from '../../lib/cableRouting'
 import { legeAnfahrt, stummel, type Anschlussseite } from '../../lib/cableApproach'
 import { routeCableWithAStar, type HandleSide } from '../../lib/routeCableWithAStar'
-import { computeEquipmentLayout } from '../../lib/equipmentLayout'
+import { equipmentObstacles } from '../../lib/equipmentObstacles'
 import { useRaster } from '../../lib/aktuellesRaster'
 import { isCableVisibleByLayer } from '../../lib/cableLayers'
 import { netKeyOf, netEndpoints } from '../../lib/offPageNet'
@@ -312,7 +312,7 @@ const buildPath = (
   return ausPunkten(gezeichneterWeg)
 }
 
-export const CableEdge = ({
+const CableEdgeInner = ({
   id,
   sourceX,
   sourceY,
@@ -350,7 +350,8 @@ export const CableEdge = ({
   // Issue #68: when hovered, draw the cable thicker + with a sky glow.
   // EquipmentNode reads the same store value to highlight the matching
   // port handles, so the entire connection visually pops at once.
-  const hoveredCableId = useUiStore((s) => s.hoveredCableId)
+  // Boolean statt der ID: sonst rendert beim Ueberfahren JEDE Kante neu.
+  const istGehovert = useUiStore((s) => s.hoveredCableId === id)
   // #914 — liegt dieses Kabel auf dem hervorgehobenen Signalweg?
   const imSignalweg = useUiStore((s) => !s.vollansicht && !!s.signalweg?.kabelIds.includes(id))
   // #915 — fuer die Stummel-Beschriftung: wo das verborgene Ende sitzt.
@@ -376,62 +377,54 @@ export const CableEdge = ({
   // bumpStyle field.
   const globalCableBumps = useUiStore((s) => s.cableBumps)
   const routing = cable?.routing ?? 'orthogonal'
-  const hovered = hoveredCableId === id || imSignalweg
+  const hovered = istGehovert || imSignalweg
   const isLight = (data?.exportThemeOverride ?? canvasTheme) === 'light'
 
-  const { obstacles, obstacleIds } = (() => {
-    const rects: Rect[] = []
-    const ids: string[] = []
-    for (const item of equipment) {
-      // #501-Folgefix — gleiche Geometrie-Quelle wie der Renderer, damit die
-      // Obstacle-Boxen fürs Kabel-Umfahren exakt den gerenderten Geräten
-      // entsprechen (vorher veraltete 62/48/8-Kopie ohne snapUp-Breite).
-      const { width, height } = computeEquipmentLayout(item, intercom, raster)
-      rects.push({ x: item.x, y: item.y, width, height })
-      ids.push(item.id)
-    }
-    return { obstacles: rects, obstacleIds: ids }
-  })()
+  // Einmal je Geraetestand fuer alle Kanten (`equipmentObstacles`), nicht
+  // je Kante und Rendern.
+  const { obstacles, obstacleIds } = equipmentObstacles(equipment, intercom, raster)
 
-  const routingArgs = {
-    sourceX,
-    sourceY,
-    targetX,
-    targetY,
-    sourcePosition,
-    targetPosition,
-  }
-  const orthogonalWaypoints = cable
-    ? resolveOrthogonalWaypoints(cable, routingArgs, obstacles, obstacleIds)
-    : []
+  const routingArgs = useMemo(
+    () => ({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition }),
+    [sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition],
+  )
+  // Routing nur neu, wenn sich Enden, Kabel oder Hindernisse aendern —
+  // nicht bei jedem Hover, jeder Auswahl oder jedem Live-Takt.
+  const orthogonalWaypoints = useMemo(
+    () => (cable ? resolveOrthogonalWaypoints(cable, routingArgs, obstacles, obstacleIds) : []),
+    [cable, routingArgs, obstacles, obstacleIds],
+  )
   // Die beiden beteiligten Geraete — um sie wird eine Bahn herumgelegt, wenn
   // das Kabel rueckwaerts laeuft (Ziel hinter der Quelle, Anschluss vom
   // Partner weg). Ohne sie legte die Bahn sich auf die Hoehe der Buchsen und
   // damit quer durch die Geraetekaesten.
-  const meideRechtecke = cable
-    ? obstacles.filter(
-        (_, i) =>
-          obstacleIds[i] === cable.fromEquipmentId || obstacleIds[i] === cable.toEquipmentId,
-      )
-    : []
+  const fromId = cable?.fromEquipmentId
+  const toId = cable?.toEquipmentId
+  const meideRechtecke = useMemo(
+    () => (fromId === undefined ? [] : obstacles.filter((_, i) => obstacleIds[i] === fromId || obstacleIds[i] === toId)),
+    [obstacles, obstacleIds, fromId, toId],
+  )
   // Nutzer-Meldung 2026-09-08: Striche, die hin und wieder zurueckgehen, und
   // Pfeile, die schraeg in das Geraet stechen. Beides kam daher, dass der
   // gezeichnete Weg an dieser Stelle zusammengesetzt wurde, ohne die
   // Anschlussseite zu beachten. Jetzt liefert `legeAnfahrt` den ganzen
   // Streckenzug — Stummel an beiden Enden, Form gewaehlt statt angenommen.
   // Siehe `src/renderer/lib/cableApproach.ts` fuer die Messung dahinter.
-  const gezeichneterWeg =
-    cable && (cable.routing ?? 'orthogonal') === 'orthogonal'
-      ? legeAnfahrt({
-          quelle: { x: sourceX, y: sourceY },
-          quelleSeite: anschlussseite(sourcePosition),
-          ziel: { x: targetX, y: targetY },
-          zielSeite: anschlussseite(targetPosition),
-          zwischen: orthogonalWaypoints,
-          jitter: collisionShiftOn ? midlineJitter(cable.id) : 0,
-          meide: meideRechtecke,
-        })
-      : []
+  const gezeichneterWeg = useMemo(
+    () =>
+      cable && (cable.routing ?? 'orthogonal') === 'orthogonal'
+        ? legeAnfahrt({
+            quelle: { x: sourceX, y: sourceY },
+            quelleSeite: anschlussseite(sourcePosition),
+            ziel: { x: targetX, y: targetY },
+            zielSeite: anschlussseite(targetPosition),
+            zwischen: orthogonalWaypoints,
+            jitter: collisionShiftOn ? midlineJitter(cable.id) : 0,
+            meide: meideRechtecke,
+          })
+        : [],
+    [cable, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, orthogonalWaypoints, collisionShiftOn, meideRechtecke],
+  )
   // Nutzer-Meldung 2026-09-09: „Das manuelle Kabel verschieben im Cable
   // planner canvas ist schlechter geworden."
   //
@@ -462,16 +455,19 @@ export const CableEdge = ({
   // Rechnen in `cable.waypoints` gespeichert (#206), danach gibt es kein
   // Router-Ergebnis mehr; und ein von Hand gezogener Stuetzpunkt mitten durch
   // ein Geraet ist derselbe Fehler und war ebenso stumm.
-  const wegBlockiert =
-    !!cable &&
-    !cable.offPage &&
-    (cable.routing ?? 'orthogonal') === 'orthogonal' &&
-    pathIsBlocked(
-      gezeichneterWeg,
-      obstacles,
-      new Set([cable.fromEquipmentId, cable.toEquipmentId]),
-      obstacleIds,
-    )
+  const wegBlockiert = useMemo(
+    () =>
+      !!cable &&
+      !cable.offPage &&
+      (cable.routing ?? 'orthogonal') === 'orthogonal' &&
+      pathIsBlocked(
+        gezeichneterWeg,
+        obstacles,
+        new Set([cable.fromEquipmentId, cable.toEquipmentId]),
+        obstacleIds,
+      ),
+    [cable, gezeichneterWeg, obstacles, obstacleIds],
+  )
   // v7.9.84 / #206 — Persist auto-computed Waypoints einmalig nach dem
   // ersten erfolgreichen Compute. Vorher hat resolveOrthogonalWaypoints
   // bei JEDEM Render mit dem CURRENT-obstacle-Set neu berechnet — d.h.
@@ -1308,3 +1304,7 @@ export const CableEdge = ({
     </>
   )
 }
+
+// Ohne `memo` rendert ReactFlow bei jeder Aenderung am Knoten- oder
+// Kantenfeld ALLE Kanten neu, auch die unbeteiligten.
+export const CableEdge = memo(CableEdgeInner)
