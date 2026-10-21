@@ -34,6 +34,7 @@
 // Das ist die ehrliche Loesung; die andere waere, zwei verschiedene Dinge
 // gleich aussehen zu lassen.
 // ───────────────────────────────────────────────────────────────────────────
+import { kanonisch } from './kanonisch'
 import {
   BOOKING_STATE_LABEL,
   type BookingState,
@@ -145,7 +146,7 @@ export const crewCalendar = (plan: CrewPlan, opt: CrewCalendarOptions): string =
     const titel =
       stand === 'confirmed' || stand === 'worked'
         ? `${rate?.activity ?? ''} — ${person}`.trim()
-        : `[${BOOKING_STATE_LABEL[stand]}] ${rate?.activity ?? ''} — ${person}`.trim()
+        : `[${kanonisch(`labour.booking.${stand}`, BOOKING_STATE_LABEL[stand])}] ${rate?.activity ?? ''} — ${person}`.trim()
     zeilen.push(
       'BEGIN:VEVENT',
       falte(`UID:${e.id}@${opt.projectId || 'cable-planner'}`),
