@@ -41,8 +41,10 @@
 
 ## Why LZ Cable Planner
 
-- **Plan in signal flow, not in drawings.** Devices with real ports from 1,800+
-  catalogue entries, each linked to its manufacturer datasheet.
+- **Plan in signal flow, not in drawings.** Devices with real ports from 2,000+
+  catalogue entries, each linked to its manufacturer datasheet — including
+  projectors (Barco, Christie, Panasonic, Epson, Fujifilm), PixelHue and
+  PIXERA media servers, and the rental inventory of LANG AG.
   "Controlled via" in the properties panel lists the documented control
   protocols (serial with pinout, baud and network-bridge setup, or IP with
   port); values the manufacturer does not publish are marked as such.

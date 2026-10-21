@@ -131,7 +131,8 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // unter dem zweiten Namen belegt waren, zaehlen damit mit.
     // 1737 -> 1738 am 2026-10-08: ATEM 2 M/E Constellation HD (#1032), Techspecs W-APS-20.
     // 1738 -> 1743 am 2026-10-20: fuenf Crestron-Geraete (#1067).
-    expect(pairs().length).toBe(1743)
+    // 1743 -> 1968 am 2026-10-21: PixelHue, Barco, PIXERA, Christie, Panasonic, Epson und LANG-AG-Bestand.
+    expect(pairs().length).toBe(1968)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -140,19 +141,27 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'ajaCatalog.ts',
       'audioCatalog.ts',
       'avNetworkCatalog.ts',
+      'barcoCatalog.ts',
       'blackmagicCatalog.ts',
+      'broadcastNachtragCatalog.ts',
       'broadcastToolsCatalog.ts',
       'bromptonCatalog.ts',
       // Uebernahme aus dem multicam-planner (2026-09-24, erzeugt).
       'cameraBodyCatalog.ts',
       'cameraCatalog.ts',
+      'christieLangCatalog.ts',
       'ciscoCatalog.ts',
       'clearcomCatalog.ts',
       'crestronCatalog.ts',
       'decimatorCatalog.ts',
+      'eventNachtragCatalog.ts',
       // Uebernahme aus dem light-planner (2026-09-24, erzeugt).
       'fixtureCatalog.ts',
       'greengoCatalog.ts',
+      'langBroadcastCatalog.ts',
+      'langImageCatalog.ts',
+      'langLedCatalog.ts',
+      'langProjDisplayCatalog.ts',
       'ledProcessorCatalog.ts',
       // Uebernahme aus dem multicam-planner (2026-09-24, erzeugt).
       'lensCatalog.ts',
@@ -164,7 +173,11 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'miscCatalog.ts',
       'monitorCatalog.ts',
       'netgearAvCatalog.ts',
+      'pixelhueCatalog.ts',
+      'pixeraCatalog.ts',
+      'projectorCatalog.ts',
       'rossCatalog.ts',
+      'signalNachtragCatalog.ts',
       'switcherCatalog.ts',
       'ubiquitiCatalog.ts',
       'wirelessAudioCatalog.ts',
@@ -293,6 +306,7 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
   it('prueft alle Belege, nicht nur die mit Feld', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
-    expect(pairs().filter((p) => p.field).length).toBe(1743)
+    // 1743 -> 1968 am 2026-10-21: PixelHue, Barco, PIXERA, Christie, Panasonic, Epson und LANG-AG-Bestand.
+    expect(pairs().filter((p) => p.field).length).toBe(1968)
   })
 })

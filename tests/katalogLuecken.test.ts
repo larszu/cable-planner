@@ -33,7 +33,8 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // 498: +8 Nachzuegler am 2026-09-28.
     // 1837: +1 ATEM 2 M/E Constellation HD (#1032).
     // 1842: +5 Crestron (#1067).
-    expect(b.eintraegeGesamt).toBe(1842)
+    // 1842 -> 2067 am 2026-10-21: Event-/Verleih-Kataloge (PixelHue, Barco, PIXERA, Projektoren, LANG AG).
+    expect(b.eintraegeGesamt).toBe(2067)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
@@ -59,8 +60,9 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // belegte Eintraege da (#878).
     expect(b.leereBereiche).toEqual([])
     // 2026-09-27: vier weitere Brompton (S8, S4, T1, XD) aus #907.
-    expect(stand('led-prozessoren').eintraege).toBe(6)
-    expect(stand('led-prozessoren').belegt).toBe(6)
+    // 6 -> 14 am 2026-10-21: PixelHue, NovaStar.
+    expect(stand('led-prozessoren').eintraege).toBe(14)
+    expect(stand('led-prozessoren').belegt).toBe(14)
   })
 
   it('3. die Ratsche: die Staende von heute', () => {
@@ -68,28 +70,30 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // nach. Ein Ziel, das niemand nachrechnet, ist ein Vorsatz.
     // 385 -> 381 am 2026-09-28: vier erfundene Kameras sind im
     // multicam-planner bei dessen Datenblatt-Verifikation herausgeflogen.
-    expect(stand('kameras').eintraege).toBe(381)
+    // 381 -> 382 am 2026-10-21: Marshall CV355-30X-IP (LANG AG).
+    expect(stand('kameras').eintraege).toBe(382)
     // 2026-09-27 aus #907: +2 Lightware, +1 Decimator (MD-DUCC; MD-QUAD
     // steht unter „Video"), +5 Luminex, +5 NETGEAR, +4 Clear-Com, +4 Brompton.
-    expect(stand('konverter').eintraege).toBe(34) // +AJA FS2
+    expect(stand('konverter').eintraege).toBe(54) // +AJA FS2; +20 Konverter aus PixelHue und LANG AG (2026-10-21)
     // 90 -> 96 am 2026-09-28: drei Cisco-Switches (C9300-24U, C9300X-48HXN,
     // Nexus 93108TC-EX) und drei Crestron-Streamer, die unter „Networking"
     // laufen (DM-NVX-350/-351/-D30).
     // 96 -> 97 am 2026-10-20: Crestron DM-NVX-E30 (#1067).
-    expect(stand('netzwerk').eintraege).toBe(97)
-    expect(stand('intercom').eintraege).toBe(13) // +FreeSpeak II Base
-    expect(stand('led-prozessoren').eintraege).toBe(6)
+    expect(stand('netzwerk').eintraege).toBe(108) // +11 aus LANG AG (2026-10-21)
+    expect(stand('intercom').eintraege).toBe(14) // +FreeSpeak II Base; +Clear-Com Arcadia (2026-10-21)
+    // 6 -> 14 am 2026-10-21: PixelHue, NovaStar.
+    expect(stand('led-prozessoren').eintraege).toBe(14)
     // 528 -> 524: dieselben vier Kameras wie oben.
     // 524 -> 530: die sechs neuen Netzwerk-Eintraege (drei Cisco, drei Crestron).
     // 530 -> 531: DM-NVX-E30 (#1067).
-    expect(katalogLuecken().eintraegeInBereichen).toBe(531)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(572) // +41 aus den Event-/Verleih-Katalogen (2026-10-21)
 
     // Und die Breite, nicht nur die Menge: Kameras hingen und haengen an
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter
     // Bereich, sondern ein bestuecktes Haus.
-    expect(stand('kameras').kataloge).toEqual(['camera', 'cameraBody'])
+    expect(stand('kameras').kataloge).toEqual(['camera', 'cameraBody', 'langBroadcast'])
     // Intercom haengt seit 2026-09-27 an zwei Haeusern (Clear-Com Encore).
-    expect(stand('intercom').kataloge).toEqual(['clearcom', 'greengo'])
+    expect(stand('intercom').kataloge).toEqual(['clearcom', 'greengo', 'langBroadcast'])
     expect(stand('konverter').kataloge.length).toBeGreaterThan(2)
 
     // Was dazukommt, kommt mit Datenblatt (#878: „Lieber

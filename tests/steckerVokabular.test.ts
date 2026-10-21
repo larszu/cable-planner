@@ -87,6 +87,7 @@ describe('das Stecker-Vokabular ist EINES', () => {
     // 58 -> 127 am 2026-09-24: 36 aus dem Auswahl-Katalog nachgezogen, 33
     // Vokabel-Luecken der Installations-AV geschlossen (Schraubklemmen,
     // NEMA-Strom, etherCON, QSFP, DC-Hohlstecker).
-    expect(ALL_CONNECTOR_TYPES.length).toBe(127)
+    // 127 -> 130 am 2026-10-21: SFP28, QSFP-DD, Thunderbolt (Event-/Verleihkatalog).
+    expect(ALL_CONNECTOR_TYPES.length).toBe(130)
   })
 })
