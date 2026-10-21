@@ -87,10 +87,10 @@ export const ACTION_SOURCE_LABEL: Readonly<Record<ActionSource, string>> = {
 export type ActionUrgency = 'overdue' | 'today' | 'ahead' | 'undated'
 
 export const ACTION_URGENCY_LABEL: Readonly<Record<ActionUrgency, string>> = {
-  overdue: 'überfällig',
-  today: 'heute',
-  ahead: 'steht an',
-  undated: 'ohne Termin',
+  overdue: 'overdue',
+  today: 'today',
+  ahead: 'coming up',
+  undated: 'no date',
 }
 
 export interface ActionItem {

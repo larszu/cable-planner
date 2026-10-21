@@ -245,7 +245,7 @@ describe('das Blatt', () => {
   it('nennt die Herkunft des Ist-Werts als eigene Spalte', () => {
     const t = costComparisonTable(projekt(plan([line({ estimate: 1, actual: 2 })])))
     expect(t.headers).toContain('Herkunft (Ist)')
-    expect(t.rows[0].map(String)).toContain(ACTUAL_SOURCE_LABEL['from-erp'])
+    expect(t.rows[0].map(String)).toContain('aus dem ERP')
   })
 
   it('nennt eine fehlende Währung beim Namen statt die Zelle zu leeren', () => {

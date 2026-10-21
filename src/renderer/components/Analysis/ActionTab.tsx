@@ -7,6 +7,8 @@ import {
   ACTION_URGENCY_LABEL,
   actionCounts,
   actionItems,
+  type ActionItem,
+  type ActionSource,
   type ActionUrgency,
 } from '../../lib/actionItems'
 import { useAusgaben, useBestand } from '../../lager'
@@ -31,10 +33,22 @@ const TON: Readonly<Record<ActionUrgency, string>> = {
   undated: 'text-cp-text-muted',
 }
 
+// Der Titel kommt bei Crew, Beleg und Kosten aus einer Befund-Map (englische
+// Quelle); uebersetzt wird er hier ueber die Art des Befunds.
+const TITEL_NS: Partial<Record<ActionSource, string>> = {
+  crew: 'labour.finding',
+  receipt: 'receipt.chain',
+  cost: 'cost.finding',
+}
+
 const heute = (): string => new Date().toISOString().slice(0, 10)
 
 export const ActionTab = () => {
   const t = useTranslation()
+  const titel = (i: ActionItem): string => {
+    const ns = TITEL_NS[i.source]
+    return ns ? t(`${ns}.${i.kind}`, i.title) : i.title
+  }
   const project = useProjectStore((s) => s.project)
   const inventory = useBestand()
   const checkouts = useAusgaben()
@@ -67,7 +81,7 @@ export const ActionTab = () => {
               .filter((u) => zahlen[u] > 0)
               .map((u) => (
                 <span key={u} className={TON[u]}>
-                  {ACTION_URGENCY_LABEL[u]}: <strong>{zahlen[u]}</strong>
+                  {t(`action.urgency.${u}`, ACTION_URGENCY_LABEL[u])}: <strong>{zahlen[u]}</strong>
                 </span>
               ))}
           </div>
@@ -87,11 +101,11 @@ export const ActionTab = () => {
                     {i.when ?? t('analysis.action.noDate', '—')}
                   </td>
                   <td className={`py-1 pr-2 ${TON[i.urgency]}`}>
-                    {ACTION_URGENCY_LABEL[i.urgency]}
+                    {t(`action.urgency.${i.urgency}`, ACTION_URGENCY_LABEL[i.urgency])}
                   </td>
                   <td className="py-1 pr-2 text-cp-text-muted">{ACTION_SOURCE_LABEL[i.source]}</td>
                   <td className="py-1 pr-2">
-                    {i.title}
+                    {titel(i)}
                     {i.detail && <span className="text-cp-text-muted"> — {i.detail}</span>}
                   </td>
                 </tr>

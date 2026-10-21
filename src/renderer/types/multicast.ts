@@ -43,8 +43,8 @@ export type MulticastLeg = 'a' | 'b'
 export const MULTICAST_LEGS: ReadonlyArray<MulticastLeg> = ['a', 'b']
 
 export const MULTICAST_LEG_LABEL: Readonly<Record<MulticastLeg, string>> = {
-  a: 'A (primär)',
-  b: 'B (sekundär)',
+  a: 'A (primary)',
+  b: 'B (secondary)',
 }
 
 /** Eine vergebene Gruppe: ein Bein eines Flusses. */

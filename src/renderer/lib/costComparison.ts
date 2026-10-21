@@ -36,6 +36,7 @@ import {
   type CostPlan,
 } from '../types/costLines'
 import type { CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 
 export type CostFindingKind =
   | 'no-lines'
@@ -48,14 +49,14 @@ export type CostFindingKind =
   | 'over-tolerance'
 
 export const COST_FINDING_LABEL: Readonly<Record<CostFindingKind, string>> = {
-  'no-lines': 'Keine Kostenposition — es gibt nichts zu vergleichen',
-  'estimate-missing': 'Position ohne Schätzung',
-  'actual-missing': 'Position ohne Ist-Wert — die Abweichung ist unbekannt',
-  'actual-unsourced': 'Ist-Wert ohne genannte Herkunft',
-  'anchor-orphan': 'Position hängt an etwas, das es im Plan nicht mehr gibt',
-  'currency-unstated': 'Keine Währung angegeben',
-  'no-tolerance': 'Keine Toleranz gesetzt — es wird nichts als auffällig gemeldet',
-  'over-tolerance': 'Abweichung über der gesetzten Toleranz',
+  'no-lines': 'No cost line: there is nothing to compare',
+  'estimate-missing': 'Line without an estimate',
+  'actual-missing': 'Line without an actual value: the variance is unknown',
+  'actual-unsourced': 'Actual value without a stated source',
+  'anchor-orphan': 'Line is attached to something that no longer exists in the plan',
+  'currency-unstated': 'No currency stated',
+  'no-tolerance': 'No tolerance set: nothing is flagged as notable',
+  'over-tolerance': 'Variance above the set tolerance',
 }
 
 export interface CostFinding {
@@ -253,6 +254,7 @@ export function assessCosts(project: CablePlannerProject): CostAssessment {
 
 const num = (v: number | undefined): string => (isNum(v) ? String(Math.round(v * 100) / 100) : NO_NUMBER)
 
+
 /**
  * Das Blatt: Plan neben Ist, groesste Abweichung oben.
  *
@@ -268,7 +270,7 @@ export function costComparisonTable(project: CablePlannerProject): CsvTable {
     r.anchorLabel,
     num(r.estimate),
     num(r.actual),
-    ACTUAL_SOURCE_LABEL[r.line.actualSource],
+    kanonisch(`cost.actualSource.${r.line.actualSource}`, ACTUAL_SOURCE_LABEL[r.line.actualSource]),
     r.delta === undefined ? UNKNOWN_DELTA : num(r.delta),
     r.deltaPercent === undefined ? UNKNOWN_DELTA : `${r.deltaPercent} %`,
     waehrung,
@@ -286,16 +288,7 @@ export function costComparisonTable(project: CablePlannerProject): CsvTable {
     ])
   }
   return {
-    headers: [
-      'Position',
-      'Bezug im Plan',
-      'Schätzung',
-      'Ist',
-      'Herkunft (Ist)',
-      'Abweichung',
-      'Abweichung %',
-      'Währung',
-    ],
+    headers: spalten(['Line', 'Plan reference', 'Estimate', 'Actual', 'Actual source', 'Variance', 'Variance %', 'Currency']),
     rows,
   }
 }

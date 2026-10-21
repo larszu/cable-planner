@@ -358,7 +358,7 @@ describe('die Befunde — beide unsichtbaren Regeln, benannt', () => {
   })
 
   it('haelt die Etiketten kanonisch deutsch', () => {
-    expect(MULTICAST_FINDING_LABEL['mac-alias']).toBe('Zwei Gruppen auf einer L2-Adresse')
+    expect(MULTICAST_FINDING_LABEL['mac-alias']).toBe('Two groups on one L2 address')
   })
 })
 

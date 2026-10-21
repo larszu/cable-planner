@@ -239,7 +239,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
         <ul className="flex flex-col gap-0.5 border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-100">
           {befunde.map((f, i) => (
             <li key={`${f.kind}-${f.refId}-${i}`}>
-              <strong>{LABOUR_FINDING_LABEL[f.kind]}</strong> — {f.text}
+              <strong>{t(`labour.finding.${f.kind}`, LABOUR_FINDING_LABEL[f.kind])}</strong> — {f.text}
             </li>
           ))}
         </ul>
@@ -446,7 +446,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
               >
                 {(Object.keys(BOOKING_STATE_LABEL) as BookingState[]).map((b) => (
                   <option key={b} value={b}>
-                    {BOOKING_STATE_LABEL[b]}
+                    {t(`labour.booking.${b}`, BOOKING_STATE_LABEL[b])}
                   </option>
                 ))}
               </select>
@@ -507,7 +507,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
         {plan.expenses.map((x) => (
           <div key={x.id} className="flex flex-wrap items-center gap-1.5 text-cp-xs">
             <span className="tabular-nums">{x.date}</span>
-            <span className="min-w-[7rem]">{EXPENSE_KIND_LABEL[x.kind]}</span>
+            <span className="min-w-[7rem]">{t(`labour.expense.${x.kind}`, EXPENSE_KIND_LABEL[x.kind])}</span>
             <span className="tabular-nums">{x.amount.toFixed(2)}</span>
             <span className="text-cp-text-muted">
               {x.receiptRef ?? t('analysis.crew.noReceipt', 'no receipt')}
@@ -602,7 +602,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
               )}
               {r.findings.map((f, i) => (
                 <span key={i} className="text-cp-warn">
-                  {CHAIN_FINDING_LABEL[f.kind]}
+                  {t(`receipt.chain.${f.kind}`, CHAIN_FINDING_LABEL[f.kind])}
                   {f.detail ? ` (${f.detail})` : ''}
                 </span>
               ))}
@@ -936,7 +936,7 @@ const BelegZelle = ({
           const erster = r.results[0]
           if (!erster) return
           if (!erster.ok) {
-            setFehler(ATTACH_REFUSAL_LABEL[erster.reason])
+            setFehler(t(`receipt.refusal.${erster.reason}`, ATTACH_REFUSAL_LABEL[erster.reason]))
             return
           }
           // Das Datum der Aufnahme wird NICHT ueber ein vorhandenes gelegt:
@@ -1008,7 +1008,7 @@ const BelegEinlesen = ({
           </div>
           {vorschlag.findings.map((f, i) => (
             <span key={i} className="text-cp-warn">
-              {RECEIPT_FINDING_LABEL[f.kind]}
+              {t(`receipt.finding.${f.kind}`, RECEIPT_FINDING_LABEL[f.kind])}
               {f.detail ? `: ${f.detail}` : ''}
             </span>
           ))}
@@ -1107,7 +1107,7 @@ const Gelesen = <T,>({
   return (
     <span title={feld.evidence}>
       {label}: <strong>{zeige ? zeige(feld.value) : String(feld.value)}</strong>{' '}
-      <span className="text-cp-text-muted">({READ_SOURCE_LABEL[feld.source]})</span>
+      <span className="text-cp-text-muted">({t(`receipt.readSource.${feld.source}`, READ_SOURCE_LABEL[feld.source])})</span>
     </span>
   )
 }
@@ -1144,7 +1144,7 @@ const NeueAuslage = ({
       >
         {(Object.keys(EXPENSE_KIND_LABEL) as CrewExpense['kind'][]).map((k) => (
           <option key={k} value={k}>
-            {EXPENSE_KIND_LABEL[k]}
+            {t(`labour.expense.${k}`, EXPENSE_KIND_LABEL[k])}
           </option>
         ))}
       </select>

@@ -53,6 +53,7 @@
 
 import type { CablePlannerProject } from '../types/project'
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 import { allDeviceInterfaces } from './networkInterfaces'
 import { buildAddressPlan } from './addressPlan'
 import { buildSwitchPortMaps } from './switchPortMap'
@@ -209,18 +210,19 @@ export function buildCrewSheet(project: CablePlannerProject): CrewSheet {
 }
 
 export const CREW_SECTION_LABEL: Record<CrewSection['key'], string> = {
-  netze: 'Netze',
-  reserviert: 'Reservierte Bereiche',
-  ports: 'Switch-Ports',
-  haus: 'Was das Haus gesagt hat',
-  kontakt: 'Wen du anrufst',
+  netze: 'Networks',
+  reserviert: 'Reserved ranges',
+  ports: 'Switch ports',
+  haus: 'What the venue said',
+  kontakt: 'Who to call',
 }
 
 export const CREW_ORIGIN_LABEL: Record<CrewOrigin, string> = {
-  derived: 'aus dem Plan',
-  ask: 'vor Ort klären',
-  venue: 'Auskunft des Hauses',
+  derived: 'from the plan',
+  ask: 'clarify on site',
+  venue: 'venue information',
 }
+
 
 /**
  * Das Blatt als Tabelle — kanonisches Deutsch, wie jedes Dokument im
@@ -231,10 +233,14 @@ export function crewSheetTable(sheet: CrewSheet): CsvTable {
   const rows: CsvCell[][] = []
   for (const s of sheet.sections) {
     for (const l of s.lines) {
-      rows.push([CREW_SECTION_LABEL[s.key], CREW_ORIGIN_LABEL[l.origin], l.text])
+      rows.push([
+        kanonisch(`crewSheet.section.${s.key}`, CREW_SECTION_LABEL[s.key]),
+        kanonisch(`crewSheet.origin.${l.origin}`, CREW_ORIGIN_LABEL[l.origin]),
+        l.text,
+      ])
     }
   }
-  return { headers: ['Abschnitt', 'Herkunft', 'Was gilt'], rows }
+  return { headers: spalten(['Section', 'Origin', 'What applies']), rows }
 }
 
 /** Fuer das Dokument-Register: das Blatt direkt aus dem Projekt. */

@@ -291,6 +291,8 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Geprüft an': 'Wann diese Position zuletzt geprüft wurde.',
   'Gerät(e)': 'Die Geräte, die dieser Zeile zugeordnet sind.',
   'Geräte': 'Die Geräte, die an diesem Punkt hängen.',
+  Recorder: 'Das Aufnahmegerät, das diese Rolle aufzeichnet. „kein Recorder im Plan“ heißt: die Rolle erreicht keinen.',
+  Dateiname: 'Der Dateiname, den das Schema für diese Aufnahme ergibt.',
   Grundlage:
     'Woraus dieses Blatt spricht: aus dem festgeschriebenen As-Built, aus einem veralteten As-Built oder aus dem Plan (also im Zweifel dem Angebot).',
   Gruppe: 'Die vergebene Multicast-Gruppenadresse.',

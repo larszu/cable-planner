@@ -96,10 +96,10 @@ describe('betroffen ist nur, wo eine NETZ-Identitaet haengt', () => {
     expect(identityAnchors(geraet('x', 'Kiste ohne Netz'))).toEqual([])
   })
 
-  it('haelt die Etiketten kanonisch deutsch', () => {
-    expect(IDENTITY_ANCHOR_LABEL.dante).toBe('Dante-/Geräte-Name')
+  it('haelt die Etiketten in der Quellsprache (en)', () => {
+    expect(IDENTITY_ANCHOR_LABEL.dante).toBe('Dante/device name')
     expect(ASSET_FINDING_LABEL['serial-mismatch']).toBe(
-      'Seriennummer am Platz und an der Einheit gehen auseinander',
+      'Serial number at the slot and on the unit disagree',
     )
   })
 })

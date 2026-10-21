@@ -153,10 +153,10 @@ export interface TimeEntry {
 export type BookingState = 'pencil' | 'hold' | 'confirmed' | 'worked'
 
 export const BOOKING_STATE_LABEL: Readonly<Record<BookingState, string>> = {
-  pencil: 'vorgemerkt',
-  hold: 'reserviert',
-  confirmed: 'bestätigt',
-  worked: 'geleistet',
+  pencil: 'pencilled',
+  hold: 'on hold',
+  confirmed: 'confirmed',
+  worked: 'worked',
 }
 
 /**
@@ -172,11 +172,11 @@ export const BILLABLE_BOOKINGS: readonly BookingState[] = ['confirmed', 'worked'
 export type ExpenseKind = 'travel' | 'accommodation' | 'per-diem' | 'material' | 'other'
 
 export const EXPENSE_KIND_LABEL: Readonly<Record<ExpenseKind, string>> = {
-  travel: 'Fahrt',
-  accommodation: 'Übernachtung',
-  'per-diem': 'Verpflegung',
+  travel: 'Travel',
+  accommodation: 'Accommodation',
+  'per-diem': 'Per diem',
   material: 'Material',
-  other: 'Sonstiges',
+  other: 'Other',
 }
 
 /**

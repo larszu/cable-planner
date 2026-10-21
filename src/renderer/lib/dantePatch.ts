@@ -32,6 +32,7 @@ import type { CablePlannerProject } from '../types/project'
 import type { DantePatch, DanteSubscription } from '../types/dantePatch'
 import { hasDanteInterface } from './namingScheme'
 import type { CsvTable } from './csv'
+import { spalten } from './kanonisch'
 
 /** Spalten-Ueberschriften, die als die vier Felder gelten. Kleingeschrieben
  *  verglichen; Umlaute und Leerzeichen egal. */
@@ -121,11 +122,11 @@ export type DanteFindingKind =
   | 'nothing-subscribed'
 
 export const DANTE_FINDING_LABEL: Readonly<Record<DanteFindingKind, string>> = {
-  'rx-duplicate': 'Ein Empfangskanal steht zweimal',
-  'half-subscription': 'Halbes Abo — Gerät ohne Kanal oder Kanal ohne Gerät',
-  'device-not-in-plan': 'Gerät im Patch, das der Plan nicht kennt',
-  'plan-device-unpatched': 'Dante-Gerät im Plan, das im Patch nicht vorkommt',
-  'nothing-subscribed': 'Kein einziger Empfangskanal ist abonniert',
+  'rx-duplicate': 'A receive channel appears twice',
+  'half-subscription': 'Half subscription: device without channel or channel without device',
+  'device-not-in-plan': 'Device in the patch that the plan does not know',
+  'plan-device-unpatched': 'Dante device in the plan that does not appear in the patch',
+  'nothing-subscribed': 'Not a single receive channel is subscribed',
 }
 
 export interface DanteFinding {
@@ -282,10 +283,11 @@ export function diffDantePatches(vorher: DantePatch, nachher: DantePatch): Dante
 // Kanonisches Deutsch — dieselbe Regel wie bei allen Blaettern.
 const NO_CHANNEL = 'kein Kanal'
 
+
 /** Der Patch als Blatt: eine Zeile je Empfangskanal, Quelle daneben. */
 export function dantePatchTable(patch: DantePatch): CsvTable {
   return {
-    headers: ['Empfänger', 'Empfangskanal', 'Sender', 'Sendekanal'],
+    headers: spalten(['Receiver', 'Receive channel', 'Transmitter', 'Transmit channel']),
     rows: patch.subscriptions.map((s) => [
       s.rxDevice,
       s.rxChannel,
@@ -298,7 +300,7 @@ export function dantePatchTable(patch: DantePatch): CsvTable {
 /** Der Vergleich als Blatt — die Änderungsliste. */
 export function danteDiffTable(rows: readonly DanteDiffRow[]): CsvTable {
   return {
-    headers: ['Empfangskanal', 'Was', 'Vorher', 'Nachher'],
+    headers: spalten(['Receive channel', 'Change', 'Before', 'After']),
     rows: rows.map((r) => [r.rx, DANTE_DIFF_LABEL[r.kind], r.before, r.after]),
   }
 }

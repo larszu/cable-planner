@@ -51,6 +51,7 @@ import type { NetworkInterface, PtpProfile } from '../types/network'
 import { PTP_PROFILE_DEFAULT_DOMAIN } from '../types/network'
 import type { SignalStandard } from '../types/cableSpec'
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 import { allDeviceInterfaces, interfaceLabel } from './networkInterfaces'
 import { AUDIO_MULTICAST, VIDEO_MULTICAST } from './venueNetworkRequest'
 
@@ -80,7 +81,7 @@ export const PROFILE_LABEL: Record<PtpProfile, string> = {
   'st2059-2': 'SMPTE ST 2059-2',
   aes67: 'AES67',
   default: 'IEEE 1588 Default',
-  unspecified: 'nicht angegeben',
+  unspecified: 'not stated',
 }
 
 export type PtpFindingKind =
@@ -277,12 +278,13 @@ export function buildPtpPlan(
 }
 
 export const PTP_FINDING_LABEL: Record<PtpFindingKind, string> = {
-  'domain-clash': 'Zwei Essenz-Familien auf einer Domäne',
-  'profile-clash': 'Zwei Profile auf einer Domäne',
-  'off-default': 'Domäne weicht von der Profil-Vorgabe ab',
-  'no-grandmaster': 'Domäne ohne erklärte Uhr',
-  'two-grandmaster': 'Domäne mit mehreren erklärten Uhren',
+  'domain-clash': 'Two essence families on one domain',
+  'profile-clash': 'Two profiles on one domain',
+  'off-default': 'Domain differs from the profile default',
+  'no-grandmaster': 'Domain without a declared clock',
+  'two-grandmaster': 'Domain with several declared clocks',
 }
+
 
 /**
  * Das Blatt: eine Zeile je Schnittstelle in einer Domaene.
@@ -298,14 +300,14 @@ export function ptpTable(plan: PtpPlan): CsvTable {
       rows.push([
         d.domain,
         m.label,
-        PROFILE_LABEL[m.profile],
+        kanonisch(`ptp.profile.${m.profile}`, PROFILE_LABEL[m.profile]),
         m.role === 'unspecified' ? '' : m.role,
         m.families.map((f) => FAMILY_LABEL[f]).join(' + '),
       ])
     }
   }
   return {
-    headers: ['Domäne', 'Schnittstelle', 'Profil', 'Rolle', 'Essenz'],
+    headers: spalten(['Domain', 'Interface', 'Profile', 'Role', 'Essence']),
     rows,
   }
 }

@@ -63,6 +63,7 @@ import type { EquipmentItem, Port } from '../types/equipment'
 import type { NetworkInterface, NetworkInterfaceRole } from '../types/network'
 import type { NetworkSegment } from '../types/networkSegment'
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 import { detectNetworkDevice } from './deviceKind'
 import { allDeviceInterfaces } from './networkInterfaces'
 import { isPatchPanelDevice, patchPanelCounterpart } from './patchPanel'
@@ -557,20 +558,21 @@ export const traceOneLine = (row: PortTraceRow): string => {
 }
 
 export const TRACE_SOURCE_LABEL: Readonly<Record<TraceSource, string>> = {
-  kabel: 'Kabel',
-  schnittstelle: 'Schnittstelle',
-  beide: 'Kabel + Schnittstelle',
+  kabel: 'Cable',
+  schnittstelle: 'Interface',
+  beide: 'Cable + interface',
 }
 
 export const TRACE_END_LABEL: Readonly<Record<TraceEnd, string>> = {
-  switch: 'am Switch',
-  'nicht-verkabelt': 'Weiterweg nicht verkabelt',
-  'anderes-gerät': 'endet an einem anderen Gerät',
-  mehrdeutig: 'nicht eindeutig',
-  'zu-lang': 'abgeschnitten',
-  schleife: 'Schleife',
-  'ohne-kabel': 'kein Kabel',
+  switch: 'at the switch',
+  'nicht-verkabelt': 'onward path not cabled',
+  'anderes-gerät': 'ends at another device',
+  mehrdeutig: 'ambiguous',
+  'zu-lang': 'cut off',
+  schleife: 'loop',
+  'ohne-kabel': 'no cable',
 }
+
 
 /**
  * Die Anschlussliste als Tabelle.
@@ -587,37 +589,7 @@ export const TRACE_END_LABEL: Readonly<Record<TraceEnd, string>> = {
  */
 export function portTraceTable(rows: PortTraceRow[]): CsvTable {
   return {
-    headers: [
-      'Gerät',
-      'Kategorie',
-      'Rack',
-      'Seriennummer',
-      'Schnittstelle',
-      'Rolle',
-      'IP',
-      'Maske',
-      'Netz (CIDR)',
-      'Gateway',
-      'MAC',
-      'VLAN',
-      'Segment',
-      'Anschluss am Gerät',
-      'Kabel',
-      'Kabeltyp',
-      'Patchfeld',
-      'Patchfeld-Rack',
-      'Port hinten',
-      'Port vorn',
-      'Stationen',
-      'Kabel zum Switch',
-      'Switch',
-      'Switch-Port',
-      'Weg',
-      'Quelle',
-      'Status',
-      'Hinweis',
-      'Widerspruch',
-    ],
+    headers: spalten(['Device', 'Category', 'Rack', 'Serial no.', 'Interface', 'Role', 'IP', 'Mask', 'Network (CIDR)', 'Gateway', 'MAC', 'VLAN', 'Segment', 'Device port', 'Cable', 'Cable type', 'Patch panel', 'Patch panel rack', 'Rear port', 'Front port', 'Hops', 'Cable to switch', 'Switch', 'Switch port', 'Path', 'Evidence', 'Status', 'Remark', 'Conflict']),
     rows: rows.map((r): CsvCell[] => {
       const erste = r.stages[0]
       return [
@@ -646,8 +618,8 @@ export function portTraceTable(rows: PortTraceRow[]): CsvTable {
         r.switchName ?? '',
         r.switchPort ?? '',
         traceOneLine(r),
-        TRACE_SOURCE_LABEL[r.source],
-        TRACE_END_LABEL[r.end],
+        kanonisch(`trace.source.${r.source}`, TRACE_SOURCE_LABEL[r.source]),
+        kanonisch(`trace.end.${r.end}`, TRACE_END_LABEL[r.end]),
         r.endNote,
         r.conflict ?? '',
       ]

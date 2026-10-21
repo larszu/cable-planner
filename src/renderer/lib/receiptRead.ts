@@ -59,10 +59,10 @@ import type { CrewExpense, ExpenseKind } from '../types/labour'
 export type ReadSource = 'text' | 'exif' | 'file-name' | 'file-date'
 
 export const READ_SOURCE_LABEL: Readonly<Record<ReadSource, string>> = {
-  text: 'aus dem Belegtext',
-  exif: 'aus den Bilddaten',
-  'file-name': 'aus dem Dateinamen',
-  'file-date': 'aus dem Dateidatum',
+  text: 'from the receipt text',
+  exif: 'from the image data',
+  'file-name': 'from the file name',
+  'file-date': 'from the file date',
 }
 
 /** Ein gelesener Wert mit seiner Herkunft und der Zeile, aus der er kommt. */
@@ -85,15 +85,15 @@ export type ReceiptFindingKind =
   | 'nothing-readable'
 
 export const RECEIPT_FINDING_LABEL: Readonly<Record<ReceiptFindingKind, string>> = {
-  'no-amount': 'Kein Betrag im Beleg gefunden',
-  'several-totals': 'Mehrere Beträge kommen als Endsumme in Frage',
-  'no-date': 'Kein Datum im Beleg gefunden',
-  'date-from-file': 'Datum stammt aus der Datei, nicht vom Beleg',
-  'several-dates': 'Mehrere Daten im Beleg — das erste übernommen',
-  'currency-unstated': 'Keine Währung angegeben',
-  'vat-unstated': 'Kein Steuersatz angegeben',
-  'no-merchant': 'Kein Aussteller erkennbar',
-  'nothing-readable': 'Nichts Maschinenlesbares am Beleg',
+  'no-amount': 'No amount found on the receipt',
+  'several-totals': 'Several amounts could be the total',
+  'no-date': 'No date found on the receipt',
+  'date-from-file': 'Date comes from the file, not from the receipt',
+  'several-dates': 'Several dates on the receipt: the first one was used',
+  'currency-unstated': 'No currency stated',
+  'vat-unstated': 'No tax rate stated',
+  'no-merchant': 'No issuer recognisable',
+  'nothing-readable': 'Nothing machine-readable on the receipt',
 }
 
 export interface ReceiptFinding {

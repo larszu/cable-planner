@@ -43,12 +43,12 @@ export type ChainFindingKind =
   | 'actual-above-documented'
 
 export const CHAIN_FINDING_LABEL: Readonly<Record<ChainFindingKind, string>> = {
-  'expense-unlinked': 'Auslage zeigt auf keine Kostenzeile',
-  'expense-without-evidence': 'Auslage ohne Beleg — weder Datei noch Belegnummer',
-  'cost-line-missing': 'Auslage zeigt auf eine Kostenzeile, die es nicht mehr gibt',
-  'actual-missing': 'Kostenzeile hat keinen Ist-Wert, obwohl Auslagen belegt sind',
-  'actual-below-documented': 'Ist-Wert liegt unter der belegten Summe',
-  'actual-above-documented': 'Ist-Wert liegt über der belegten Summe',
+  'expense-unlinked': 'Expense points to no cost line',
+  'expense-without-evidence': 'Expense without a receipt: neither file nor receipt number',
+  'cost-line-missing': 'Expense points to a cost line that no longer exists',
+  'actual-missing': 'Cost line has no actual value although expenses are documented',
+  'actual-below-documented': 'Actual value is below the documented total',
+  'actual-above-documented': 'Actual value is above the documented total',
 }
 
 export interface ChainFinding {

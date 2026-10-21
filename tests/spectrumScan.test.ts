@@ -285,14 +285,14 @@ describe('scanFindings', () => {
     const f = scanFindings(s, c).find((x) => x.kind === 'outside-scan')
     expect(f?.text).toContain('500')
     expect(f?.text).toContain('505')
-    expect(f?.text).toContain(VERDICT_LABEL['not-scanned'])
+    expect(f?.text).toContain('nicht gemessen')
   })
 
   it('meldet eine Datei, aus der nichts lesbar war — und nichts sonst', () => {
     const leer = parseScanCsv('Zeit;Temperatur\n10:00;21\n')
     const f = scanFindings(leer, checkCarriers(leer, [entry('a', 500)]))
     expect(f.map((x) => x.kind)).toEqual(['nothing-readable'])
-    expect(f[0].text).toContain(VERDICT_LABEL['not-scanned'])
+    expect(f[0].text).toContain('nicht gemessen')
   })
 
   it('meldet eine halb gelesene Datei', () => {
@@ -325,13 +325,13 @@ describe('die Blaetter', () => {
       'Urteil',
       'Spitzenpegel (dBm)',
     ])
-    expect(t.rows[0][3]).toBe(VERDICT_LABEL.occupied)
+    expect(t.rows[0][3]).toBe('belegt gemessen')
     expect(t.rows[0][4]).toBe(-40)
   })
 
   it('schreibt „nicht gemessen" in die Pegel-Spalte statt einer leeren Zelle', () => {
     const t = carrierCheckTable(checkCarriers(s, [entry('c', 614)]))
-    expect(t.rows[0][4]).toBe(VERDICT_LABEL['not-scanned'])
+    expect(t.rows[0][4]).toBe('nicht gemessen')
   })
 
   it('gibt die Messpunkte selbst aus', () => {

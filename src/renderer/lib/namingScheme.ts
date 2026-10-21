@@ -53,13 +53,13 @@ export type NamingFindingKind =
   | 'scope-empty'
 
 export const NAMING_FINDING_LABEL: Readonly<Record<NamingFindingKind, string>> = {
-  'duplicate-name': 'Zwei Geräte bekämen denselben Namen',
-  'empty-name': 'Die Regel ergibt für dieses Gerät keinen Namen',
-  'too-long-for-dante': 'Länger als ein Dante-Name sein darf',
-  'dante-subscription-risk': 'Umbenennung am Dante-Netz — Subscriptions brechen',
-  'name-in-free-text': 'Der alte Name steht im Klartext im Plan',
-  'no-change': 'Die Regel ändert nichts',
-  'scope-empty': 'Die Regel trifft kein Gerät',
+  'duplicate-name': 'Two devices would get the same name',
+  'empty-name': 'The rule yields no name for this device',
+  'too-long-for-dante': 'Longer than a Dante name may be',
+  'dante-subscription-risk': 'Rename on the Dante network: subscriptions break',
+  'name-in-free-text': 'The old name appears as plain text in the plan',
+  'no-change': 'The rule changes nothing',
+  'scope-empty': 'The rule matches no device',
 }
 
 export interface NamingFinding {

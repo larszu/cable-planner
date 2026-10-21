@@ -41,12 +41,12 @@ export type AttachRefusal =
   | 'outside-project'
 
 export const ATTACH_REFUSAL_LABEL: Readonly<Record<AttachRefusal, string>> = {
-  'no-project-path': 'Das Projekt ist noch nicht gespeichert — es gibt keinen Ort für den Beleg.',
-  'not-a-file': 'Das ist keine Datei.',
-  'too-large': 'Die Datei ist größer als 25 MB.',
-  'unsupported-type': 'Dieser Dateityp wird nicht als Beleg angenommen.',
-  unreadable: 'Die Datei konnte nicht gelesen werden.',
-  'outside-project': 'Der Zielort liegt nicht im Projektverzeichnis.',
+  'no-project-path': 'The project has not been saved yet, so there is nowhere to put the receipt.',
+  'not-a-file': 'That is not a file.',
+  'too-large': 'The file is larger than 25 MB.',
+  'unsupported-type': 'This file type is not accepted as a receipt.',
+  unreadable: 'The file could not be read.',
+  'outside-project': 'The destination is outside the project folder.',
 }
 
 export type AttachResult =
