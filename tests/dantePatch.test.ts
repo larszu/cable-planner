@@ -290,7 +290,7 @@ describe('die Oberfläche', () => {
 
   it('zeigt jeden Befund mit seiner Beschriftung', () => {
     expect(dialogQuelle).toMatch(
-      /befunde\.length > 0 && \([\s\S]*DANTE_FINDING_LABEL\[f\.kind\][\s\S]*f\.text/,
+      /befunde\.length > 0 && \([\s\S]*DANTE_FINDING_LABEL\[f\.kind\][\s\S]*befundText\(f, t\)/,
     )
   })
 })

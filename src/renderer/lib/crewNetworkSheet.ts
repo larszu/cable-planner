@@ -51,6 +51,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import type { CsvCell, CsvTable } from './csv'
 import { kanonisch, spalten } from './kanonisch'
@@ -75,6 +76,7 @@ export interface CrewLine {
   origin: CrewOrigin
   /** Der Inhalt im Klartext. Bei `ask` der Hinweis, wen man fragt. */
   text: string
+  satz?: Satz
 }
 
 export interface CrewSection {
@@ -119,16 +121,22 @@ export function buildCrewSheet(project: CablePlannerProject): CrewSheet {
       origin: 'derived' as const,
       // Bewusst die ANZAHL und drei Beispiele statt aller Namen: das Blatt
       // soll auf eine Seite passen. Wer alle braucht, nimmt die VLAN-Tabelle.
-      text:
-        `VLAN ${id} — ${namen.size} Geräte` +
-        (namen.size ? ` (u. a. ${[...namen].slice(0, 3).join(', ')})` : ''),
+      ...befund(
+        namen.size
+          ? satz('crew.text.vlanWith', 'VLAN {id} — {n} devices (incl. {beispiele})', {
+              id,
+              n: namen.size,
+              beispiele: [...namen].slice(0, 3).join(', '),
+            })
+          : satz('crew.text.vlan', 'VLAN {id} — {n} devices', { id, n: namen.size }),
+      ),
     }))
   netze.push({
     key: 'ssid',
     origin: 'ask',
     // Der Plan hat kein SSID-Feld, und eines zu erfinden hiesse, eine Zeile
     // zu bauen, die immer leer bleibt.
-    text: 'WLAN-Name und Passwort: stehen nicht im Plan — vor Ort erfragen.',
+    ...befund(satz('crew.text.ssid', 'Wi-Fi name and password: not in the plan — ask on site.')),
   })
   sections.push({ key: 'netze', lines: netze })
 
@@ -138,15 +146,22 @@ export function buildCrewSheet(project: CablePlannerProject): CrewSheet {
   const reserviert: CrewLine[] = cidrs.map((c) => ({
     key: `cidr-${c}`,
     origin: 'derived',
-    text: `${c} ist vergeben — nichts eigenes hineinstecken, nichts hineinvergeben.`,
+    ...befund(
+      satz('crew.text.cidr', '{cidr} is taken — do not plug in anything of your own, do not assign anything in it.', {
+        cidr: c,
+      }),
+    ),
   }))
   if (!cidrs.length) {
     reserviert.push({
       key: 'no-cidr',
       origin: 'ask',
-      text:
-        'Der Plan nennt kein Subnetz (es fehlen Adressen oder Masken). Welche Bereiche ' +
-        'belegt sind, muss vor Ort geklärt werden.',
+      ...befund(
+        satz(
+          'crew.text.noCidr',
+          'The plan names no subnet (addresses or masks are missing). Which ranges are taken must be clarified on site.',
+        ),
+      ),
     })
   }
   sections.push({ key: 'reserviert', lines: reserviert })
@@ -158,9 +173,13 @@ export function buildCrewSheet(project: CablePlannerProject): CrewSheet {
   const ports: CrewLine[] = buildSwitchPortMaps([...equipment], [...cables]).map((m) => ({
     key: `switch-${m.switchId}`,
     origin: 'derived',
-    text:
-      `${m.switchName}: ${m.usedCount} von ${m.rows.length} Ports belegt. ` +
-      'Freie Ports sind nicht freigegeben — vor dem Stecken fragen.',
+    ...befund(
+      satz(
+        'crew.text.switch',
+        '{switch}: {belegt} of {n} ports in use. Free ports are not released — ask before plugging in.',
+        { switch: m.switchName, belegt: m.usedCount, n: m.rows.length },
+      ),
+    ),
   }))
   sections.push({ key: 'ports', lines: ports })
 
@@ -178,10 +197,15 @@ export function buildCrewSheet(project: CablePlannerProject): CrewSheet {
     .map((r) => ({
       key: `haus-${r.key}`,
       origin: 'venue' as const,
-      text:
+      ...befund(
         r.state === 'refused'
-          ? `${r.key}: vom Haus abgelehnt${r.note ? ` — ${r.note}` : ''}`
-          : `${r.key}: nur mit Auflage${r.note ? ` — ${r.note}` : ' (Auflage nicht notiert)'}`,
+          ? r.note
+            ? satz('crew.text.refusedNote', '{punkt}: refused by the venue — {notiz}', { punkt: r.key, notiz: r.note })
+            : satz('crew.text.refused', '{punkt}: refused by the venue', { punkt: r.key })
+          : r.note
+            ? satz('crew.text.conditionNote', '{punkt}: only with a condition — {notiz}', { punkt: r.key, notiz: r.note })
+            : satz('crew.text.condition', '{punkt}: only with a condition (condition not noted)', { punkt: r.key }),
+      ),
     }))
   sections.push({ key: 'haus', lines: haus })
 
@@ -197,7 +221,7 @@ export function buildCrewSheet(project: CablePlannerProject): CrewSheet {
     kontakt.push({
       key: 'no-contact',
       origin: 'ask',
-      text: 'Kein Notfall- und kein Dienstleister-Kontakt im Projekt hinterlegt.',
+      ...befund(satz('crew.text.noContact', 'No emergency and no service provider contact stored in the project.')),
     })
   }
   sections.push({ key: 'kontakt', lines: kontakt })

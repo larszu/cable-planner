@@ -8,7 +8,10 @@
 // (`tests/i18nEintrittspunkte.test.ts`).
 // ───────────────────────────────────────────────────────────────────────────
 
+import { BEFUNDE_DE } from './befundeDe'
+
 export const KANONISCH_DE: Readonly<Record<string, string>> = {
+  ...BEFUNDE_DE,
   'lifecycle.status.planned': 'Geplant',
   'lifecycle.status.installed': 'Installiert',
   'lifecycle.status.tested': 'Getestet',

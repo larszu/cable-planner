@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { befundText } from '../../lib/satz'
 import { AlertTriangle, FileDown, FolderOpen, GitCompare, History } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
@@ -278,7 +279,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
                           : t('compare.verdict.unaffected', 'unchanged')}
                     </span>
                     <span>{t(`doc.${d.docId}`, d.label)}</span>
-                    {d.reason && <span className="text-cp-text-muted">— {d.reason}</span>}
+                    {d.reason && <span className="text-cp-text-muted">— {befundText({ text: d.reason, satz: d.satz }, t)}</span>}
                   </li>
                 ))}
               </ul>

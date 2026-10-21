@@ -58,6 +58,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, kommaListe, satz, satzKanonisch, undListe, type Satz } from './satz'
 import type { EquipmentItem, Port } from '../types/equipment'
 import type { Cable } from '../types/cable'
 import type { CablePlannerProject } from '../types/project'
@@ -168,39 +169,59 @@ export const RESERVED_RANGES: ReadonlyArray<{
   cidr: string
   from: number
   to: number
-  reason: string
+  reason: Satz
 }> = [
   {
     cidr: '224.0.0.0/24',
     from: 0xe0000000,
     to: 0xe00000ff,
-    reason: 'Local Network Control Block — TTL 1, wird von keinem Router weitergegeben',
+    reason: satz(
+      'multicast.reserved.localControl',
+      'Local Network Control Block — TTL 1, not forwarded by any router',
+    ),
   },
   {
     cidr: '224.0.1.0/24',
     from: 0xe0000100,
     to: 0xe00001ff,
-    reason: 'Internetwork Control Block — hier liegen NTP und PTP selbst (224.0.1.129 ff.)',
+    reason: satz(
+      'multicast.reserved.internetworkControl',
+      'Internetwork Control Block — NTP and PTP themselves live here (224.0.1.129 ff.)',
+    ),
   },
   {
     cidr: '232.0.0.0/8',
     from: 0xe8000000,
     to: 0xe8ffffff,
-    reason: 'Source-Specific Multicast — verlangt (S,G)-Joins, ein ASM-Plan greift hier ins Leere',
+    reason: satz(
+      'multicast.reserved.ssm',
+      'Source-Specific Multicast — requires (S,G) joins, an ASM plan reaches into nothing here',
+    ),
   },
   {
     cidr: '239.255.255.250/32',
     from: 0xeffffffa,
     to: 0xeffffffa,
-    reason: 'SSDP/UPnP — jede Windows-Maschine im Netz spricht diese Gruppe an',
+    reason: satz(
+      'multicast.reserved.ssdp',
+      'SSDP/UPnP — every Windows machine on the network talks to this group',
+    ),
   },
 ]
 
-export const reservedReason = (addr: string): string | null => {
+/** Warum `addr` gesperrt ist — als Satz (Bildschirm/Blatt), oder `null`. */
+export const reservedReasonSatz = (addr: string): Satz | null => {
   const n = ipToInt(addr)
   if (n === null) return null
-  for (const r of RESERVED_RANGES) if (n >= r.from && n <= r.to) return `${r.cidr}: ${r.reason}`
+  for (const r of RESERVED_RANGES) {
+    if (n >= r.from && n <= r.to) return satz('multicast.reserved.line', '{cidr}: {grund}', { cidr: r.cidr, grund: r.reason })
+  }
   return null
+}
+
+export const reservedReason = (addr: string): string | null => {
+  const s = reservedReasonSatz(addr)
+  return s ? satzKanonisch(s) : null
 }
 
 export interface ParsedPool {
@@ -326,6 +347,7 @@ export const MULTICAST_FINDING_LABEL: Readonly<Record<MulticastFindingKind, stri
 export interface MulticastFinding {
   kind: MulticastFindingKind
   text: string
+  satz?: Satz
   /** Die betroffenen Fluss-Schluessel, fuer den Sprung in den Plan. */
   flowKeys: string[]
 }
@@ -353,7 +375,7 @@ export interface MulticastPlan {
   needsMulticast: boolean
 }
 
-const legLabel = (leg: MulticastLeg) => MULTICAST_LEG_LABEL[leg]
+const legLabel = (leg: MulticastLeg): Satz => satz(`multicast.leg.${leg}`, MULTICAST_LEG_LABEL[leg])
 
 /**
  * Die Pruefung. Sie liest nur — sie repariert nichts und vergibt nichts.
@@ -369,6 +391,8 @@ export function assessMulticast(
 ): { findings: MulticastFinding[]; open: MulticastOpenLeg[]; stale: MulticastAssignment[] } {
   const byKey = new Map(flows.map((f) => [f.key, f]))
   const nameOf = (key: string) => byKey.get(key)?.label ?? key
+  const flussBein = (a: MulticastAssignment): Satz =>
+    satz('multicast.text.flowLeg', '{fluss} (leg {bein})', { fluss: nameOf(a.flowKey), bein: legLabel(a.leg) })
   const findings: MulticastFinding[] = []
 
   const lebendig = assignments.filter((a) => byKey.has(a.flowKey))
@@ -384,9 +408,13 @@ export function assessMulticast(
     if (liste.length < 2) continue
     findings.push({
       kind: 'pair-collision',
-      text: `${k} ist ${liste.length}-mal vergeben: ${liste
-        .map((a) => `${nameOf(a.flowKey)} (Bein ${legLabel(a.leg)})`)
-        .join(', ')}. Adresse und Port zusammen müssen je Sender eindeutig sein.`,
+      ...befund(
+        satz(
+          'multicast.text.pairCollision',
+          '{paar} is assigned {n} times: {liste}. Address and port together must be unique per sender.',
+          { paar: k, n: liste.length, liste: kommaListe(liste.map(flussBein)) },
+        ),
+      ),
       flowKeys: [...new Set(liste.map((a) => a.flowKey))],
     })
   }
@@ -403,11 +431,17 @@ export function assessMulticast(
     if (adressen.length < 2) continue
     findings.push({
       kind: 'mac-alias',
-      text: `${adressen.join(' und ')} tragen dieselbe L2-Adresse ${multicastMac(
-        adressen[0],
-      )} — 32 Gruppen fallen auf eine MAC. Die Karte des Empfängers filtert auf L2 und nimmt beide Ströme an; verworfen wird erst im Betriebssystem, die Last liegt vorher an. Betroffen: ${[
-        ...new Set(liste.map((a) => nameOf(a.flowKey))),
-      ].join(', ')}.`,
+      ...befund(
+        satz(
+          'multicast.text.macAlias',
+          '{adressen} carry the same L2 address {mac} — 32 groups map to one MAC. The receiver card filters on L2 and accepts both streams; they are only dropped in the operating system, the load arrives before that. Affected: {betroffen}.',
+          {
+            adressen: undListe(adressen),
+            mac: String(multicastMac(adressen[0])),
+            betroffen: [...new Set(liste.map((a) => nameOf(a.flowKey)))].join(', '),
+          },
+        ),
+      ),
       flowKeys: [...new Set(liste.map((a) => a.flowKey))],
     })
   }
@@ -421,9 +455,13 @@ export function assessMulticast(
     if (adressen.size > 1) continue
     findings.push({
       kind: 'leg-shared',
-      text: `${nameOf(key)} führt beide Beine auf ${
-        liste[0].address
-      }. Ein 2022-7-Paar auf einer Gruppe überlebt keinen Ausfall des Netzes, in dem die Gruppe liegt — es kostet die doppelte Bandbreite und liefert keine Redundanz.`,
+      ...befund(
+        satz(
+          'multicast.text.legShared',
+          '{fluss} carries both legs on {adresse}. A 2022-7 pair on one group survives no failure of the network the group lives in — it costs double the bandwidth and delivers no redundancy.',
+          { fluss: nameOf(key), adresse: liste[0].address },
+        ),
+      ),
       flowKeys: [key],
     })
   }
@@ -433,18 +471,28 @@ export function assessMulticast(
     if (!isMulticastAddress(a.address)) {
       findings.push({
         kind: 'reserved-range',
-        text: `${nameOf(a.flowKey)} (Bein ${legLabel(a.leg)}) trägt ${
-          a.address
-        } — das ist keine Multicast-Adresse (224.0.0.0/4).`,
+        ...befund(
+          satz(
+            'multicast.text.notMulticast',
+            '{flussBein} carries {adresse} — that is not a multicast address (224.0.0.0/4).',
+            { flussBein: flussBein(a), adresse: a.address },
+          ),
+        ),
         flowKeys: [a.flowKey],
       })
       continue
     }
-    const grund = reservedReason(a.address)
+    const grund = reservedReasonSatz(a.address)
     if (grund) {
       findings.push({
         kind: 'reserved-range',
-        text: `${nameOf(a.flowKey)} (Bein ${legLabel(a.leg)}) trägt ${a.address} aus ${grund}.`,
+        ...befund(
+          satz('multicast.text.reserved', '{flussBein} carries {adresse} from {grund}.', {
+            flussBein: flussBein(a),
+            adresse: a.address,
+            grund,
+          }),
+        ),
         flowKeys: [a.flowKey],
       })
     }
@@ -460,9 +508,13 @@ export function assessMulticast(
     if (draussen.length) {
       findings.push({
         kind: 'outside-pool',
-        text: `${draussen.length} Vergabe(n) liegen außerhalb von ${intToIp(pool.base)}/${
-          pool.prefix
-        }: ${draussen.map((a) => `${nameOf(a.flowKey)} → ${a.address}`).join(', ')}.`,
+        ...befund(
+          satz('multicast.text.outsidePool', '{n} assignment(s) lie outside {pool}: {liste}.', {
+            n: draussen.length,
+            pool: `${intToIp(pool.base)}/${pool.prefix}`,
+            liste: draussen.map((a) => `${nameOf(a.flowKey)} → ${a.address}`).join(', '),
+          }),
+        ),
         flowKeys: [...new Set(draussen.map((a) => a.flowKey))],
       })
     }

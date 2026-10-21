@@ -9,6 +9,7 @@
  *  - Änderungsprotokoll (wer/was/wann) ansehen/leeren
  *  - Bearbeiter-Identität setzen (Autor der Protokoll-/Service-Einträge)
  */
+import { befundText } from '../../lib/satz'
 import { useMemo, useState } from 'react'
 import { recordEmission } from '../../lib/documentLog'
 import jsPDF from 'jspdf'
@@ -609,7 +610,7 @@ export const InstallationDocsDialog = () => {
             <ul className="mt-2 flex flex-col gap-1">
               {job.findings.map((f) => (
                 <li key={f.kind} className="text-cp-xs text-amber-300/90">
-                  <strong>{t(`job.finding.${f.kind}`, JOB_FINDING_LABEL[f.kind])}</strong> — {f.text}
+                  <strong>{t(`job.finding.${f.kind}`, JOB_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
                 </li>
               ))}
             </ul>

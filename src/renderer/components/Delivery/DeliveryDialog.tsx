@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { befundText } from '../../lib/satz'
 import { X, Plus, Trash2, AlertTriangle, Radio, Eye, EyeOff, Download, Cpu, FileText, Route } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
@@ -769,7 +770,7 @@ export const DeliveryDialog = () => {
                 <ul className="flex flex-col gap-1 text-cp-xs">
                   {meta.findings.map((f, i) => (
                     <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                      <strong>{t(`eventMeta.finding.${f.kind}`, EVENT_METADATA_FINDING_LABEL[f.kind])}</strong> — {f.text}
+                      <strong>{t(`eventMeta.finding.${f.kind}`, EVENT_METADATA_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
                     </li>
                   ))}
                 </ul>
@@ -941,7 +942,7 @@ export const DeliveryDialog = () => {
                 <ul className="flex flex-col gap-1 text-cp-xs">
                   {sendung.findings.map((f, i) => (
                     <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                      <strong>{t(`transmission.finding.${f.kind}`, TRANSMISSION_FINDING_LABEL[f.kind])}</strong> — {f.text}
+                      <strong>{t(`transmission.finding.${f.kind}`, TRANSMISSION_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
                     </li>
                   ))}
                 </ul>
@@ -1146,7 +1147,7 @@ export const DeliveryDialog = () => {
                 <ul className="mt-2 flex flex-col gap-1 text-cp-xs">
                   {fallback.findings.map((f, i) => (
                     <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                      <strong>{t(`fallback.finding.${f.kind}`, FALLBACK_FINDING_LABEL[f.kind])}</strong> — {f.text}
+                      <strong>{t(`fallback.finding.${f.kind}`, FALLBACK_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
                     </li>
                   ))}
                 </ul>

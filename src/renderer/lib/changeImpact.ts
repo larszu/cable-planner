@@ -35,6 +35,7 @@
 // niemals einen unbestätigten Wert als Tatsache zeigen.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { satz, satzKanonisch, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import {
   DOCUMENT_LABELS,
@@ -56,6 +57,8 @@ export interface DocumentImpact {
   verdict: ImpactVerdict
   /** Warum nicht beurteilbar. Nur bei `unknown` gesetzt. */
   reason?: string
+  /** Der Grund als Satz — fuer den Bildschirm in der App-Sprache. */
+  satz?: Satz
   /** Stand vor der Änderung. Fehlt bei `unknown`. */
   before?: string
   /** Stand nach der Änderung. Fehlt bei `unknown`. */
@@ -90,6 +93,11 @@ const VERDICT_ORDER: Record<ImpactVerdict, number> = {
  * Asset-Register; welches von beiden, entscheidet die Ableitung und nicht eine
  * Heuristik über die Felder.
  */
+const ABLEITUNG_GESCHEITERT = satz(
+  'impact.derivationFailed',
+  'Deriving this document failed on this plan.',
+)
+
 export const changeImpact = (
   before: CablePlannerProject,
   after: CablePlannerProject,
@@ -112,7 +120,8 @@ export const changeImpact = (
         docId,
         label,
         verdict: 'unknown',
-        reason: 'Die Ableitung dieses Dokuments ist an diesem Plan gescheitert.',
+        satz: ABLEITUNG_GESCHEITERT,
+        reason: satzKanonisch(ABLEITUNG_GESCHEITERT),
       })
       continue
     }

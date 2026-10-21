@@ -45,6 +45,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, undListe, type Satz } from './satz'
 import type { EquipmentItem } from '../types/equipment'
 import type { Cable } from '../types/cable'
 import type { NetworkInterface, PtpProfile } from '../types/network'
@@ -97,6 +98,7 @@ export interface PtpFinding {
   domain: number
   /** Menschenlesbare Begruendung mit den Zahlen, um die es geht. */
   text: string
+  satz?: Satz
   /** Beteiligte Geraete, fuer den Sprung in den Plan. */
   deviceIds: string[]
 }
@@ -215,12 +217,13 @@ export function buildPtpPlan(
       findings.push({
         kind: 'domain-clash',
         domain: d.domain,
-        text:
-          `Domäne ${d.domain} trägt ${d.families.map((f) => FAMILY_LABEL[f]).join(' und ')}. ` +
-          `ST 2059-2 steht per Vorgabe auf 127, AES67 in der Praxis auf 0 — auf einer ` +
-          `gemeinsamen Domäne hängt eine der beiden Familien am falschen Medientakt. ` +
-          `Entweder zwei Domänen mit einer Boundary Clock dazwischen, oder ein ` +
-          `erklärter Grund, warum es hier ohne geht.`,
+        ...befund(
+          satz(
+            'ptp.text.domainClash',
+            'Domain {domain} carries {familien}. ST 2059-2 defaults to 127, AES67 in practice to 0 — on a shared domain one of the two families runs on the wrong media clock. Either two domains with a boundary clock in between, or a stated reason why it works here without.',
+            { domain: d.domain, familien: undListe(d.families.map((f) => FAMILY_LABEL[f])) },
+          ),
+        ),
         deviceIds: ids,
       })
     }
@@ -229,10 +232,13 @@ export function buildPtpPlan(
       findings.push({
         kind: 'profile-clash',
         domain: d.domain,
-        text:
-          `Domäne ${d.domain} trägt zwei Profile: ` +
-          `${d.profiles.map((p) => kanonisch(`ptp.profile.${p}`, PROFILE_LABEL[p])).join(' und ')}. Dieselbe Domäne, ` +
-          `zwei Vorstellungen davon, was darin gilt.`,
+        ...befund(
+          satz(
+            'ptp.text.profileClash',
+            'Domain {domain} carries two profiles: {profile}. The same domain, two ideas of what applies in it.',
+            { domain: d.domain, profile: undListe(d.profiles.map((p) => satz(`ptp.profile.${p}`, PROFILE_LABEL[p]))) },
+          ),
+        ),
         deviceIds: ids,
       })
     }
@@ -243,10 +249,13 @@ export function buildPtpPlan(
         findings.push({
           kind: 'off-default',
           domain: d.domain,
-          text:
-            `${m.label}: Profil ${kanonisch(`ptp.profile.${m.profile}`, PROFILE_LABEL[m.profile])} auf Domäne ${d.domain}. ` +
-            `Die Vorgabe dieses Profils ist ${vorgabe}. Das ist kein Fehler — aber es ` +
-            `ist die Zahl, die man beim Fehlersuchen als Erstes sehen will.`,
+          ...befund(
+            satz(
+              'ptp.text.offDefault',
+              '{geraet}: profile {profil} on domain {domain}. The default of this profile is {vorgabe}. That is not an error — but it is the number you want to see first when troubleshooting.',
+              { geraet: m.label, profil: satz(`ptp.profile.${m.profile}`, PROFILE_LABEL[m.profile]), domain: d.domain, vorgabe },
+            ),
+          ),
           deviceIds: [m.equipmentId],
         })
       }
@@ -256,19 +265,26 @@ export function buildPtpPlan(
       findings.push({
         kind: 'no-grandmaster',
         domain: d.domain,
-        text:
-          `Domäne ${d.domain} nennt keine Uhr. Der Aufbau läuft trotzdem an — das ` +
-          `BMCA wählt ein Gerät aus. Welches, steht dann nirgends.`,
+        ...befund(
+          satz(
+            'ptp.text.noGrandmaster',
+            'Domain {domain} names no clock. The setup still comes up — the BMCA picks a device. Which one is then written nowhere.',
+            { domain: d.domain },
+          ),
+        ),
         deviceIds: ids,
       })
     } else if (d.grandmasters.length > 1) {
       findings.push({
         kind: 'two-grandmaster',
         domain: d.domain,
-        text:
-          `Domäne ${d.domain} nennt ${d.grandmasters.length} Uhren ` +
-          `(${d.grandmasters.join(', ')}). Auch das läuft an, und auch hier wählt das ` +
-          `BMCA — nur hatte diesmal jemand eine Absicht, und der Plan sagt nicht, welche.`,
+        ...befund(
+          satz(
+            'ptp.text.twoGrandmasters',
+            'Domain {domain} names {n} clocks ({uhren}). That comes up too, and here the BMCA chooses as well — only this time someone had an intention, and the plan does not say which.',
+            { domain: d.domain, n: d.grandmasters.length, uhren: d.grandmasters.join(', ') },
+          ),
+        ),
         deviceIds: ids,
       })
     }

@@ -48,6 +48,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { satz, satzKanonisch, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import type { CsvTable } from './csv'
 import {
@@ -138,6 +139,7 @@ export interface HandoverGap {
   roleName: string
   /** Klartext, warum diese Rolle nicht auf dem Blatt steht. */
   reason: string
+  satz?: Satz
 }
 
 export interface HandoverManifest {
@@ -294,6 +296,10 @@ export const buildHandoverManifest = (
 
   const rows: HandoverRow[] = []
   const gaps: HandoverGap[] = []
+  const OHNE_GERAET = satz(
+    'postHandover.gap.noDevice',
+    'No device is assigned to this role — there is nothing being recorded.',
+  )
 
   for (const identity of identities) {
     const devices = project.equipment.filter((e) => e.sourceIdentityId === identity.id)
@@ -301,7 +307,8 @@ export const buildHandoverManifest = (
       gaps.push({
         roleId: identity.id,
         roleName: identity.name,
-        reason: 'Der Rolle ist kein Gerät zugeordnet — es gibt nichts, was aufgezeichnet wird.',
+        satz: OHNE_GERAET,
+        reason: satzKanonisch(OHNE_GERAET),
       })
       continue
     }

@@ -28,6 +28,7 @@
 // REIN: keine Uhr, kein Store, kein IO, kein Netz.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import type { DantePatch, DanteSubscription } from '../types/dantePatch'
 import { hasDanteInterface } from './namingScheme'
@@ -132,6 +133,7 @@ export const DANTE_FINDING_LABEL: Readonly<Record<DanteFindingKind, string>> = {
 export interface DanteFinding {
   kind: DanteFindingKind
   text: string
+  satz?: Satz
 }
 
 /**
@@ -156,7 +158,13 @@ export function assessDantePatch(
     if (n < 2) continue
     out.push({
       kind: 'rx-duplicate',
-      text: `„${k.replace('|', ' / ')}" steht ${n}× in der Liste. Ein Empfangskanal kann nur ein Abo haben — eine der Zeilen ist falsch, und welche, weiss nur der Controller.`,
+      ...befund(
+        satz(
+          'dante.text.rxDuplicate',
+          '"{kanal}" appears {n}× in the list. A receive channel can only have one subscription — one of the lines is wrong, and only the controller knows which.',
+          { kanal: k.replace('|', ' / '), n },
+        ),
+      ),
     })
   }
 
@@ -166,9 +174,18 @@ export function assessDantePatch(
     if (hatGeraet !== hatKanal) {
       out.push({
         kind: 'half-subscription',
-        text: `„${s.rxDevice} / ${s.rxChannel}" trägt ${
-          hatGeraet ? 'ein Sendegerät ohne Kanal' : 'einen Sendekanal ohne Gerät'
-        }. Als Abo ist das unvollständig; als freier Eingang gelesen wäre die halbe Angabe verloren.`,
+        ...befund(
+          satz(
+            'dante.text.half',
+            '"{kanal}" carries {was}. As a subscription that is incomplete; read as a free input, half of the information would be lost.',
+            {
+              kanal: `${s.rxDevice} / ${s.rxChannel}`,
+              was: hatGeraet
+                ? satz('dante.text.half.device', 'a transmit device without a channel')
+                : satz('dante.text.half.channel', 'a transmit channel without a device'),
+            },
+          ),
+        ),
       })
     }
   }
@@ -177,7 +194,13 @@ export function assessDantePatch(
   if (patch.subscriptions.length > 0 && abonniert.length === 0) {
     out.push({
       kind: 'nothing-subscribed',
-      text: `Keiner der ${patch.subscriptions.length} Empfangskanäle ist abonniert. Entweder ist der Patch leer, oder die Sendespalten der Datei wurden nicht gefunden.`,
+      ...befund(
+        satz(
+          'dante.text.nothingSubscribed',
+          'None of the {n} receive channels is subscribed. Either the patch is empty, or the transmit columns of the file were not found.',
+          { n: patch.subscriptions.length },
+        ),
+      ),
     })
   }
 
@@ -205,14 +228,26 @@ export function assessDantePatch(
     if (fremd.length > 0) {
       out.push({
         kind: 'device-not-in-plan',
-        text: `${fremd.length} Gerät(e) im Patch führt der Plan nicht als Dante-Gerät: ${fremd.slice(0, 6).join(', ')}${fremd.length > 6 ? ' …' : ''}. Nach einer Umbenennung steht genau so der alte Name im Patch und der neue im Plan.`,
+        ...befund(
+          satz(
+            'dante.text.deviceNotInPlan',
+            '{n} device(s) in the patch are not Dante devices in the plan: {namen}. After a rename this is exactly how the old name sits in the patch and the new one in the plan.',
+            { n: fremd.length, namen: `${fremd.slice(0, 6).join(', ')}${fremd.length > 6 ? ' …' : ''}` },
+          ),
+        ),
       })
     }
     const fehlend = [...planGeraete].filter(([n]) => !imPatch.has(n)).map(([, name]) => name)
     if (fehlend.length > 0) {
       out.push({
         kind: 'plan-device-unpatched',
-        text: `${fehlend.length} Dante-Gerät(e) aus dem Plan kommen im Patch nicht vor: ${fehlend.slice(0, 6).join(', ')}${fehlend.length > 6 ? ' …' : ''}.`,
+        ...befund(
+          satz(
+            'dante.text.planDeviceUnpatched',
+            '{n} Dante device(s) from the plan do not appear in the patch: {namen}.',
+            { n: fehlend.length, namen: `${fehlend.slice(0, 6).join(', ')}${fehlend.length > 6 ? ' …' : ''}` },
+          ),
+        ),
       })
     }
   }

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { satzText, befundText } from '../../lib/satz'
 import { Download, Plus, Trash2 } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { Icon } from '../shared/Icon'
@@ -239,7 +240,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
         <ul className="flex flex-col gap-0.5 border border-amber-700/60 bg-amber-900/20 p-2 text-cp-xs text-amber-100">
           {befunde.map((f, i) => (
             <li key={`${f.kind}-${f.refId}-${i}`}>
-              <strong>{t(`labour.finding.${f.kind}`, LABOUR_FINDING_LABEL[f.kind])}</strong> — {f.text}
+              <strong>{t(`labour.finding.${f.kind}`, LABOUR_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
             </li>
           ))}
         </ul>
@@ -603,7 +604,7 @@ export const CrewTab = ({ projectName }: { projectName: string }) => {
               {r.findings.map((f, i) => (
                 <span key={i} className="text-cp-warn">
                   {t(`receipt.chain.${f.kind}`, CHAIN_FINDING_LABEL[f.kind])}
-                  {f.detail ? ` (${f.detail})` : ''}
+                  {f.detail ? ` (${f.detailSatz ? satzText(f.detailSatz, t) : f.detail})` : ''}
                 </span>
               ))}
             </div>

@@ -14,6 +14,7 @@
 // Fehler des Belegs. 1440 Schritte je Tag sind billig; eine Schicht ist ein
 // Durchlauf ueber hoechstens ein paar hundert Minuten.
 // ───────────────────────────────────────────────────────────────────────────
+import { befund, satz, type Satz } from './satz'
 import type {
   Approval,
   BookingState,
@@ -301,6 +302,7 @@ export interface LabourFinding {
   /** Der Eintrag, die Auslage oder der Satz, um den es geht. */
   refId: string
   text: string
+  satz?: Satz
 }
 
 /**
@@ -324,7 +326,13 @@ export const labourFindings = (plan: CrewPlan): LabourFinding[] => {
       out.push({
         kind: 'person-missing',
         refId: r.id,
-        text: `Der Satz „${r.activity}" zeigt auf eine Person, die es im Plan nicht gibt.`,
+        ...befund(
+          satz(
+            'labour.text.personMissing',
+            'The rate "{satz}" points to a person who does not exist in the plan.',
+            { satz: r.activity },
+          ),
+        ),
       })
     }
     for (const b of r.bandIds) {
@@ -332,7 +340,13 @@ export const labourFindings = (plan: CrewPlan): LabourFinding[] => {
         out.push({
           kind: 'band-missing',
           refId: r.id,
-          text: `Der Satz „${r.activity}" nennt ein Band, das es nicht gibt (${b}).`,
+          ...befund(
+            satz(
+              'labour.text.bandMissing',
+              'The rate "{satz}" names a band that does not exist ({band}).',
+              { satz: r.activity, band: b },
+            ),
+          ),
         })
       }
     }
@@ -343,14 +357,26 @@ export const labourFindings = (plan: CrewPlan): LabourFinding[] => {
       out.push({
         kind: 'rate-missing',
         refId: e.id,
-        text: `Die Schicht am ${e.date} hat keinen auflösbaren Satz — sie geht in keine Summe ein.`,
+        ...befund(
+          satz(
+            'labour.text.rateMissing',
+            'The shift on {datum} has no resolvable rate — it goes into no total.',
+            { datum: e.date },
+          ),
+        ),
       })
     }
     if (e.endMinute <= e.startMinute) {
       out.push({
         kind: 'zero-length',
         refId: e.id,
-        text: `Die Schicht am ${e.date} endet nicht nach ihrem Beginn.`,
+        ...befund(
+          satz(
+            'labour.text.zeroLength',
+            'The shift on {datum} does not end after it starts.',
+            { datum: e.date },
+          ),
+        ),
       })
     }
   }
@@ -372,7 +398,13 @@ export const labourFindings = (plan: CrewPlan): LabourFinding[] => {
         out.push({
           kind: 'overlap',
           refId: mitAbsolut[i].e.id,
-          text: `${personById.get(personId)?.name ?? personId} hat am ${mitAbsolut[i].e.date} zwei Schichten, die sich überschneiden.`,
+          ...befund(
+            satz(
+              'labour.text.overlap',
+              '{person} has two overlapping shifts on {datum}.',
+              { person: personById.get(personId)?.name ?? personId, datum: mitAbsolut[i].e.date },
+            ),
+          ),
         })
       }
     }
@@ -397,7 +429,13 @@ export const labourFindings = (plan: CrewPlan): LabourFinding[] => {
     out.push({
       kind: 'overtime-unapproved',
       refId: key,
-      text: `${personById.get(personId)?.name ?? personId} hat am ${datum} ${(minuten / 60).toFixed(1)} h Mehrarbeit — dazu liegt keine Zusage im Plan.`,
+      ...befund(
+        satz(
+          'labour.text.overtimeUnapproved',
+          '{person} has {stunden} h of overtime on {datum} — the plan holds no approval for it.',
+          { person: personById.get(personId)?.name ?? personId, datum, stunden: (minuten / 60).toFixed(1) },
+        ),
+      ),
     })
   }
 
@@ -406,7 +444,13 @@ export const labourFindings = (plan: CrewPlan): LabourFinding[] => {
       out.push({
         kind: 'expense-without-receipt',
         refId: a.id,
-        text: `Die weiterberechenbare Auslage vom ${a.date} über ${a.amount.toFixed(2)} nennt keinen Beleg.`,
+        ...befund(
+          satz(
+            'labour.text.expenseWithoutReceipt',
+            'The rechargeable expense of {datum} for {betrag} names no receipt.',
+            { datum: a.date, betrag: a.amount.toFixed(2) },
+          ),
+        ),
       })
     }
   }
