@@ -129,9 +129,13 @@
   separated by a full stop). It is matched offline against the device, port
   and room names in the plan — typos like "Foxer" still find the foyer — and
   shown as a preview first: ambiguous devices and ports are picked from a
-  list, an occupied input is only replaced when ticked, and a connector
-  mismatch is flagged as needing a converter. *Connect* adds all cables as
-  one undo step. In the desktop app, speak through system dictation into the
+  list, an occupied input is only replaced when ticked. When no cable fits both
+  connectors (SDI to HDMI), *Insert converter* is pre-ticked: a matching
+  converter from the library, or a generic one with exactly those two
+  connectors, is placed between the devices and cabled on both sides. A
+  device the plan does not have yet ("the projector") is offered from the
+  library and placed on *Connect*. Devices, converters and cables are one
+  undo step. In the desktop app, speak through system dictation into the
   text field (macOS: press Fn twice, Windows: Win+H); the microphone button
   appears only in browsers whose speech recognition works.
 - **Ask Claude.** A local MCP server answers questions about the open plan.
