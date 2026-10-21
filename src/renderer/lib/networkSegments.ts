@@ -62,11 +62,11 @@ import type { CsvTable } from './csv'
  * gedruckte Exemplar als veraltet (dieselbe Regel wie bei `deliveryIssueText`).
  */
 export const ROLE_TEXT: Readonly<Record<NetworkInterfaceRole, string>> = {
-  'media-primary': 'Medien primär',
-  'media-secondary': 'Medien sekundär',
-  control: 'Steuerung',
+  'media-primary': 'Media primary',
+  'media-secondary': 'Media secondary',
+  control: 'Control',
   management: 'Management',
-  unspecified: 'nicht angegeben',
+  unspecified: 'not specified',
 }
 
 const isMedia = (r: NetworkInterfaceRole): boolean =>

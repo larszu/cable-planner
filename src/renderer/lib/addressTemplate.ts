@@ -517,12 +517,12 @@ export function proposeReaddress(
  * aendert, meldet jedes gedruckte Exemplar als veraltet.
  */
 export const REFUSAL_TEXT: Readonly<Record<ReaddressRefusal, string>> = {
-  'no-address': 'keine Adresse eingetragen',
-  'no-range': 'für diese Rolle ist kein Bereich geplant',
-  'already-inside': 'liegt bereits im geplanten Bereich',
-  'host-does-not-fit': 'der Host-Anteil passt nicht in den Zielbereich',
-  'network-or-broadcast': 'wäre die Netz- oder Broadcast-Adresse des Zielbereichs',
-  'already-taken': 'die vorgeschlagene Adresse trägt bereits ein anderes Gerät',
+  'no-address': 'no address entered',
+  'no-range': 'no range is planned for this role',
+  'already-inside': 'already inside the planned range',
+  'host-does-not-fit': 'the host part does not fit the target range',
+  'network-or-broadcast': 'would be the network or broadcast address of the target range',
+  'already-taken': 'another device already has the proposed address',
 }
 
 export const RANGE_HEADERS = [

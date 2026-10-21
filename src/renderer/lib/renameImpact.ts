@@ -70,12 +70,12 @@ export type RenameRefusal =
   | 'name-taken'
 
 export const RENAME_REFUSAL_LABEL: Readonly<Record<RenameRefusal, string>> = {
-  'unknown-role': 'Diese Rolle gibt es nicht mehr.',
-  'empty-name': 'Ohne Namen lässt sich die Rolle niemandem zuweisen.',
-  'same-name': 'Der Name steht schon so da.',
+  'unknown-role': 'This role no longer exists.',
+  'empty-name': 'Without a name the role cannot be assigned to anyone.',
+  'same-name': 'The name is already exactly that.',
   'name-taken':
-    'Eine andere Rolle heisst bereits so — zwei gleichnamige Rollen sind auf ' +
-    'dem Multiviewer nicht mehr auseinanderzuhalten.',
+    'Another role already has this name; two roles with the same name can no ' +
+    'longer be told apart on the multiviewer.',
 }
 
 /** Ein Ort, an dem der Name des Ziels wirklich ankommt. */

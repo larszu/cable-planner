@@ -283,7 +283,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
             className="mb-2 text-cp-xs text-cp-text-muted"
             text={
               info
-                ? info.hinweis
+                ? t(`switching.hint.${protokoll}`, info.hinweis)
                 : t(
                     'switching.protocolHint',
                     'Without a protocol nothing is sent to this device. Which one a device speaks cannot be read off its name \u2014 a device called \u201cVideohub spare\u201d would otherwise get a Videohub command, and nobody knows what is really listening there.',
