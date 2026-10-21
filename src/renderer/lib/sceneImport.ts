@@ -217,7 +217,11 @@ export function sceneTable(scene: SceneImport): CsvTable {
       c.ch,
       c.name.trim() || NO_NAME,
       c.color ?? NO_COLOR,
-      c.muted === undefined ? 'nicht angegeben' : c.muted ? 'ja' : 'nein',
+      c.muted === undefined
+        ? kanonisch('rest.scene.notStated', 'not stated')
+        : c.muted
+          ? kanonisch('rest.scene.yes', 'yes')
+          : kanonisch('rest.scene.no', 'no'),
     ]),
   }
 }
@@ -297,8 +301,8 @@ export function matchTable(matches: readonly SceneMatch[]): CsvTable {
     rows: matches.map((m) => [
       m.sceneCh,
       m.sceneName || NO_NAME,
-      m.planCh ?? 'nicht zugeordnet',
-      m.planSource ?? 'nicht im Plan',
+      m.planCh ?? kanonisch('rest.scene.unassigned', 'not assigned'),
+      m.planSource ?? kanonisch('rest.scene.notInPlan', 'not in the plan'),
     ]),
   }
 }

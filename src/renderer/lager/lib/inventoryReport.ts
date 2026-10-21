@@ -8,6 +8,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 import type { InventoryItem, StorageNode, InventoryUnit } from '../types/inventory'
 import { rootLocation } from './storageTree'
+import { kanonisch } from '../../lib/kanonisch'
 
 export interface CountValue {
   key: string
@@ -76,7 +77,7 @@ export const buildInventoryReport = (
     else for (const k of it.materialKinds) bump(byMaterial, k, qty)
 
     const root = it.locationId ? rootLocation(nodes, it.locationId) : undefined
-    bump(byLocation, root?.name ?? 'ohne Lagerort', qty)
+    bump(byLocation, root?.name ?? kanonisch('rest.inventory.noLocation', 'no storage location'), qty)
   }
 
   const unitsByCondition = new Map<string, CountValue>()

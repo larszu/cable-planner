@@ -43,7 +43,14 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 import type { CablePlannerProject } from '../types/project'
-import { DOCUMENT_LABELS, UNJUDGEABLE_DOCUMENTS, currentStand, findByStand } from './documentRegistry'
+import {
+  DOCUMENT_LABELS,
+  UNJUDGEABLE_DOCUMENTS,
+  currentStand,
+  findByStand,
+  unjudgeableSatz,
+} from './documentRegistry'
+import { satzKanonisch, type Satz } from './satz'
 import { docStandStatus, parseDocQrPayload, type DocStandStatus } from './qrPayload'
 
 export type SheetLookupKind =
@@ -69,6 +76,8 @@ export interface SheetLookup {
   /** Warum ein Dokument nicht beurteilbar ist. Aus dem Register, nicht neu
    *  formuliert: zwei Formulierungen derselben Regel laufen auseinander. */
   reason?: string
+  /** Dieselbe Begruendung als Satz — fuer den Bildschirm. */
+  satz?: Satz
   /** Revisions-Label vom Blatt, wo der Code eines trug. */
   revision?: string
 }
@@ -102,7 +111,9 @@ export const lookUpSheet = (raw: string, project: CablePlannerProject): SheetLoo
       label: DOCUMENT_LABELS[ref.docId] ?? ref.docId,
       stand,
       status: docStandStatus({ ...ref, stand }, heute),
-      ...(UNJUDGEABLE_DOCUMENTS[ref.docId] ? { reason: UNJUDGEABLE_DOCUMENTS[ref.docId] } : {}),
+      ...(UNJUDGEABLE_DOCUMENTS[ref.docId]
+        ? { satz: unjudgeableSatz(ref.docId)!, reason: satzKanonisch(unjudgeableSatz(ref.docId)!) }
+        : {}),
       ...(ref.revision ? { revision: ref.revision } : {}),
     }
   }

@@ -47,6 +47,8 @@ import { detectDeviceKind } from './deviceKind'
 import { deviceCrosspoints } from './deviceCrosspoints'
 import { isPatchPanelDevice, patchPanelCounterpart } from './patchPanel'
 import { resolvePortLabel } from './portLabel'
+import { kanonisch } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 
 /** Welche Bauform den Weiterweg hergegeben hat. */
 export type PassThroughKind =
@@ -167,8 +169,8 @@ const forwardFrom = (
         cables: [],
         ambiguous:
           device.inputs.length === device.outputs.length
-            ? 'Anschluss gehört nicht zur Durchleitung des Patchfelds'
-            : `Patchfeld ungleich bestückt (${device.inputs.length} hinten, ${device.outputs.length} vorn) — die Position sagt hier nichts`,
+            ? kanonisch('rest.chain.notThrough', 'Port is not part of the patch panel pass-through')
+            : satzKanonisch(satz('rest.chain.uneven', 'Patch panel unevenly fitted ({hinten} rear, {vorn} front) — the position says nothing here', { hinten: device.inputs.length, vorn: device.outputs.length })),
       }
     }
     return { kind: 'patch-panel', cables: cablesFromPort.get(other.id) ?? [] }
@@ -247,8 +249,8 @@ const forwardFrom = (
         kind,
         cables: [],
         ambiguous: liegtAn
-          ? 'Kreuzpunkt gesetzt, aber am geschalteten Ausgang hängt kein Kabel'
-          : 'Die geplante Schaltung legt dieses Signal auf keinen Ausgang',
+          ? kanonisch('rest.chain.noCableOut', 'Crosspoint set, but no cable on the switched output')
+          : kanonisch('rest.chain.noOutput', 'The planned routing puts this signal on no output'),
       }
     }
     return { kind, cables: outs }

@@ -112,7 +112,7 @@ export const anhaengeTable = (project: CablePlannerProject): CsvTable => {
       Math.ceil(a.datei.bytes / 1024),
       a.datei.sha256,
       a.datei.addedAt.slice(0, 10),
-      name === null ? 'Ziel nicht mehr im Plan' : '',
+      name === null ? kanonisch('rest.attach.targetGone', 'target no longer in the plan') : '',
     ]
   })
   const kabel = new Map(project.cables.map((c) => [c.id, c]))

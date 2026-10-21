@@ -60,6 +60,7 @@ import { cableLabelId } from './docIds'
 import { csvFromTable, planFingerprint } from './documentStamp'
 import type { CsvCell, CsvTable } from './csv'
 import { kanonisch } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 
 /**
  * Was eine Feld-Aenderung fuer die Arbeit bedeutet.
@@ -529,7 +530,9 @@ const sectionDetail = (before: unknown, after: unknown): string => {
   if (Array.isArray(before) || Array.isArray(after)) {
     const b = Array.isArray(before) ? before.length : 0
     const a = Array.isArray(after) ? after.length : 0
-    return b === a ? `${a} Einträge, Inhalt geändert` : `${b} -> ${a} Einträge`
+    return b === a
+    ? satzKanonisch(satz('rest.diff.sameCount', '{a} entries, content changed', { a }))
+    : satzKanonisch(satz('rest.diff.count', '{b} -> {a} entries', { a, b }))
   }
   const isObj = (v: unknown): v is Record<string, unknown> =>
     typeof v === 'object' && v !== null

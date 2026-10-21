@@ -55,6 +55,7 @@ import {
   type FittedLabel,
   type LabelTargetId,
 } from './labelTargets'
+import { satz, satzKanonisch } from './satz'
 
 /**
  * Woher der Wunschtext eines Kandidaten stammt.
@@ -536,10 +537,8 @@ export const deriveLabels = ({
       where: source.name,
       sourceIdentityId: identity?.id,
       reason: identity
-        ? `Rolle "${identity.name}" speist ${sink.name} auf Eingang ` +
-          `${inputIdx + 1}, trägt aber keine UMD-Adresse`
-        : `speist ${sink.name} auf Eingang ${inputIdx + 1} — ohne gebundene ` +
-          'Rolle gibt es keinen Ort für die UMD-Adresse',
+        ? satzKanonisch(satz('rest.umd.roleWithout', 'Role "{rolle}" feeds {ziel} on input {n} but carries no UMD address', { rolle: identity.name, ziel: sink.name, n: inputIdx + 1 }))
+        : satzKanonisch(satz('rest.umd.noRole', 'feeds {ziel} on input {n} — without a bound role there is no place for the UMD address', { ziel: sink.name, n: inputIdx + 1 })),
     })
   }
 

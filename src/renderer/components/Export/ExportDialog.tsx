@@ -1936,7 +1936,7 @@ const DeviceBomSection = () => {
                         </select>
                       )}
                     </td>
-                    <td className={`px-2 py-1 ${OUTCOME_STYLE[row.outcome] ?? ''}`} title={row.reason}>
+                    <td className={`px-2 py-1 ${OUTCOME_STYLE[row.outcome] ?? ''}`} title={row.reasonSaetze ? row.reasonSaetze.map((s) => satzText(s, t)).join(' ') : row.reason}>
                       {t(`planBom.outcome.${row.outcome}`, outcomeLabel(row.outcome))}
                       {row.short !== undefined && row.short > 0 && (
                         <span className="ml-1 text-cp-danger">

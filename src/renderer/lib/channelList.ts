@@ -44,6 +44,7 @@ import { portDisplayLabel } from './portLabel'
 import { fitToTarget, LABEL_TARGETS } from './labelTargets'
 import { channelName, venueNumber } from './channelIdentity'
 import { spalten } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 
 /** Eine Zeile der EINEN Kanalliste. Alle fuenf Sichten schneiden hieraus. */
 export interface ChannelRow {
@@ -228,7 +229,7 @@ export function consoleView(rows: ChannelRow[]): CsvTable {
       const fitted = fitToTarget(name, LABEL_TARGETS['dante-device'])
       // `truncated` UND die nicht transportierbaren Zeichen: ein Name, der nur
       // seine Umlaute verliert, ist nicht gekuerzt und trotzdem ein anderer.
-      const hinweis = fitted.truncated || fitted.value !== fitted.raw ? `aus: ${name}` : ''
+      const hinweis = fitted.truncated || fitted.value !== fitted.raw ? satzKanonisch(satz('rest.channel.from', 'from: {name}', { name })) : ''
       return [r.ch, fitted.value, hinweis]
     }),
   }

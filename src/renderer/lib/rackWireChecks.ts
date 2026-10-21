@@ -31,6 +31,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentTemplate } from '../types/equipment'
+import { satz, satzKanonisch } from './satz'
 
 /** Was diese Pruefung von einer Platzierung braucht. */
 export interface WireCheckPlacement {
@@ -140,8 +141,8 @@ export const rackWireFindings = (
         'direction-mismatch',
         index,
         pv.direction === 'out'
-          ? `${kabel}: ${von.name} und ${nach.name} sind beide Ausgänge`
-          : `${kabel}: ${von.name} und ${nach.name} sind beide Eingänge`,
+          ? satzKanonisch(satz('rest.rack.bothOut', '{kabel}: {von} and {nach} are both outputs', { kabel, von: von.name, nach: nach.name }))
+          : satzKanonisch(satz('rest.rack.bothIn', '{kabel}: {von} and {nach} are both inputs', { kabel, von: von.name, nach: nach.name })),
       )
     }
 

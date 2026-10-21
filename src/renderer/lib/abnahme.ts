@@ -33,6 +33,7 @@ import type { CsvCell, CsvTable } from './csv'
 import { druckblatt, esc, fmt, quelle, tabelle, vergleich, type Uebersetzen } from './druckblatt'
 import { installStatusText } from './installStatusText'
 import { spalten } from './kanonisch'
+import { kanonisch } from './kanonisch'
 
 export type MangelArt = 'stoerung' | 'messung' | 'meldung' | 'restpunkt'
 
@@ -121,7 +122,10 @@ interface Worte {
 /** Kanonisch deutsch — fürs gestempelte CSV, dessen Stand nicht von der Sprache abhängen darf. */
 const KANONISCH: Worte = {
   art: { stoerung: 'Störung', messung: 'Messung nicht bestanden', meldung: 'Feld-Meldung', restpunkt: 'Restpunkt' },
-  status: (m) => (m.art === 'stoerung' ? 'Status „Störung"' : 'Status „Geplant" — noch nicht installiert'),
+  status: (m) =>
+    m.art === 'stoerung'
+      ? kanonisch('rest.abnahme.statusFault', 'Status “fault”')
+      : kanonisch('rest.abnahme.statusPlanned', 'Status “planned” — not installed yet'),
   messung: (standard, marge) =>
     ['Messung FAIL', standard, typeof marge === 'number' ? `Marge ${marge} dB` : ''].filter(Boolean).join(' · '),
 }

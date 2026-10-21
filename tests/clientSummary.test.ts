@@ -203,7 +203,7 @@ describe('das Blatt', () => {
     // Sie wegzulassen, um einen Stand zu bekommen, hiesse jede Planzahl wie
     // einen Leistungsnachweis aussehen zu lassen.
     expect(DOCUMENT_STANDS['kunden-uebersicht']).toBeUndefined()
-    expect(UNJUDGEABLE_DOCUMENTS['kunden-uebersicht']).toMatch(/Grundlage|Revisionsliste/)
+    expect(UNJUDGEABLE_DOCUMENTS['kunden-uebersicht']).toMatch(/basis|revision list/)
     expect(DOCUMENT_LABELS['kunden-uebersicht']).toBeTruthy()
   })
 })

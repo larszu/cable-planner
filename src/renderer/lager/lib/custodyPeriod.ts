@@ -44,6 +44,7 @@
 // REIN: keine Uhr, kein Store, kein IO. Der Stichtag kommt von aussen.
 // ───────────────────────────────────────────────────────────────────────────
 import type { CheckoutRecord, CustodyExtension } from '../types/checkout'
+import { satz, satzKanonisch } from '../../lib/satz'
 
 export type CustodyStartRefusal =
   /** Der Zeitpunkt liegt in der Zukunft — das waere eine Reservierung. */
@@ -166,7 +167,12 @@ export const custodyPeriodText = (record: CheckoutRecord, heute: string): string
   const teile = [`ausgegeben ${seit}`]
   if (!bis) teile.push('Rückgabe offen')
   else if (record.in) teile.push(`zurück ${record.in.at.slice(0, 10)}`)
-  else teile.push(bis < heute ? `überfällig seit ${bis}` : `zurück ${bis}`)
+  else
+      teile.push(
+        bis < heute
+          ? satzKanonisch(satz('rest.custody.overdueSince', 'overdue since {bis}', { bis }))
+          : satzKanonisch(satz('rest.custody.backOn', 'back {bis}', { bis })),
+      )
   const n = extensionCount(record)
   if (n > 0) {
     const erst = originalDueBack(record)

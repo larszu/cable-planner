@@ -9,6 +9,155 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 export const BEFUNDE_DE: Readonly<Record<string, string>> = {
+  // Rueckfall-Saetze und Blatt-Zellen (#1142, Reste).
+  'rest.asset.unnamed':
+    'nicht benannt',
+  'rest.label.none':
+    'kein Etikett',
+  'rest.checkout.overdue':
+    'überfällig',
+  'rest.checkout.open':
+    'offen',
+  'rest.custody.overdueSince':
+    'überfällig seit {bis}',
+  'rest.custody.backOn':
+    'zurück {bis}',
+  'rest.inventory.noLocation':
+    'ohne Lagerort',
+  'rest.abnahme.statusFault':
+    'Status „Störung"',
+  'rest.abnahme.statusPlanned':
+    'Status „Geplant" — noch nicht installiert',
+  'rest.action.overdue':
+    '{model} ist überfällig',
+  'rest.action.noReturn':
+    '{model} hat kein Rückgabedatum',
+  'rest.attach.targetGone':
+    'Ziel nicht mehr im Plan',
+  'rest.channel.from':
+    'aus: {name}',
+  'rest.delivery.noProgramCable':
+    '{name} hat an keinem Programm-Eingang ein Kabel',
+  'rest.delivery.noProgramCableEncoder':
+    'Der Encoder hat an keinem Programm-Eingang ein Kabel',
+  'rest.delivery.backupOf':
+    'Backup von {name}',
+  'rest.delivery.primary':
+    'Primärweg',
+  'rest.encoder.keychain':
+    'Schlüsselbund: stream-key:{id}',
+  'rest.encoder.notStored':
+    'nicht hinterlegt',
+  'rest.stamp.drifted':
+    '{rev} + Änderungen',
+  'rest.stamp.noRevision':
+    'keine Revision festgeschrieben',
+  'rest.handover.noStatus':
+    'ohne Status',
+  'rest.stage.audio':
+    '{n} Audio-Quellen/-Ziele · {k} Kanäle',
+  'rest.stage.noAudio':
+    '{n} Geräte — kein Audio-Kabel im Plan, daher alle',
+  'rest.house.building':
+    'Gebäude',
+  'rest.config.cableLeadsTo':
+    'Kabel an diesem Port führt zu {ziel}',
+  'rest.config.noIp':
+    'keine IP-Adresse im Plan',
+  'rest.source.interface':
+    'Schnittstelle',
+  'rest.source.cable':
+    'Kabel',
+  'rest.switch.cableSays':
+    'Kabel sagt: {x}',
+  'rest.umd.roleWithout':
+    'Rolle "{rolle}" speist {ziel} auf Eingang {n}, trägt aber keine UMD-Adresse',
+  'rest.umd.noRole':
+    'speist {ziel} auf Eingang {n} — ohne gebundene Rolle gibt es keinen Ort für die UMD-Adresse',
+  'rest.mic.unassigned':
+    'nicht belegt',
+  'rest.mv.big':
+    'groß',
+  'rest.mv.small':
+    'klein',
+  'rest.diff.sameCount':
+    '{a} Einträge, Inhalt geändert',
+  'rest.diff.count':
+    '{b} -> {a} Einträge',
+  'rest.trace.notThrough':
+    'Patchfeld {name}: der Anschluss gehört nicht zur Durchleitung',
+  'rest.trace.uneven':
+    'Patchfeld {name} ungleich bestückt ({hinten} hinten, {vorn} vorn) — die Position sagt hier nichts',
+  'rest.trace.noCable':
+    'An diesem Anschluss hängt kein Kabel',
+  'rest.trace.notCabled':
+    'Der Weiterweg ist im Plan nicht verkabelt',
+  'rest.trace.manualOnly':
+    'Nur von Hand eingetragen — im Plan liegt kein Kabel dorthin',
+  'rest.trace.noCableIface':
+    'An dieser Schnittstelle hängt kein Kabel',
+  'rest.rack.bothOut':
+    '{kabel}: {von} und {nach} sind beide Ausgänge',
+  'rest.rack.bothIn':
+    '{kabel}: {von} und {nach} sind beide Eingänge',
+  'rest.record.noRecorder':
+    'kein Recorder im Plan',
+  'rest.scene.notStated':
+    'nicht angegeben',
+  'rest.scene.yes':
+    'ja',
+  'rest.scene.no':
+    'nein',
+  'rest.scene.unassigned':
+    'nicht zugeordnet',
+  'rest.scene.notInPlan':
+    'nicht im Plan',
+  'rest.chain.notThrough':
+    'Anschluss gehört nicht zur Durchleitung des Patchfelds',
+  'rest.chain.uneven':
+    'Patchfeld ungleich bestückt ({hinten} hinten, {vorn} vorn) — die Position sagt hier nichts',
+  'rest.chain.noCableOut':
+    'Kreuzpunkt gesetzt, aber am geschalteten Ausgang hängt kein Kabel',
+  'rest.chain.noOutput':
+    'Die geplante Schaltung legt dieses Signal auf keinen Ausgang',
+  'rest.route.noFloor':
+    'Etage eines Raums nicht angegeben',
+  'rest.route.noRiser':
+    'Kein Steigschacht im Plan — der Weg zwischen den Etagen ist nicht bekannt',
+  'rest.maint.noInterval':
+    'kein Wartungsintervall angegeben',
+  'rest.maint.noBasis':
+    'kein Ausgangsdatum: weder Service-Eintrag noch Übergabe-Datum',
+  'rest.maint.unreadable':
+    'Ausgangsdatum nicht lesbar: {datum}',
+  'rest.rf.notInTable':
+    'nicht in {code}-Tabelle',
+  'rest.rf.rangePro':
+    '{code} {von}–{bis} MHz (nur prof. Produktion)',
+  'rest.hub.testBench':
+    'Prüfstand',
+  'rest.hub.system':
+    'Anlage',
+  // Inventar-Stueckliste: Begruendung im Tooltip und in der CSV.
+  'planBom.reason.origin':
+    'Stammt (auch) aus: {liste}.',
+  'planBom.reason.noCatalogType':
+    'Ohne Katalog-Typ — Modellname ist der Gerätename.',
+  // Warum ein Dokument nicht beurteilbar ist (UNJUDGEABLE_DOCUMENTS).
+  'doc.unjudgeable.kabel-bom':
+    'Der Inhalt hängt am Reserve-Aufschlag, den der Nutzer beim Export einstellt; dieser Prozentsatz steht nicht im Stempel.',
+  'doc.unjudgeable.videohub-labels':
+    'Es gibt eine Label-Datei je Videohub; das Register führt einen Stand je Bezeichner. Ein gemeinsamer Stand wäre beim zweiten Gerät falsch.',
+  'doc.unjudgeable.atem-mv-layout':
+    'Es gibt ein Multiviewer-Layout je Mischer, und die Fensterzahl ist eine Einstellung am Gerät, die nicht im Plan steht.',
+  'doc.unjudgeable.switch-port-karte':
+    'Es gibt eine Port-Karte je Switch; dieselbe Begründung wie bei den Videohub-Labels.',
+  'doc.unjudgeable.stueckliste':
+    'Der Inhalt hängt am Lagerbestand, der projektübergreifend lebt und nicht im Plan steht — dieselbe Liste ergibt morgen ein anderes Ergebnis.',
+  'doc.unjudgeable.job-grundlage':
+    'Der Zustand hängt an der Revisionsliste (As-Built). Der Revisions-Vergleich spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt als überholt, obwohl sich nichts geändert hat.',
+  'doc.unjudgeable.kunden-uebersicht':
+    'Jede Zeile nennt ihre Grundlage (Plan, As-Built, gemeldet), und die hängt an der Revisionsliste. Der Revisions-Vergleich spannt Snapshots ohne diese Liste auf — ein Stand daraus meldete jedes Blatt als überholt.',
   'impact.derivationFailed':
     'Die Ableitung dieses Dokuments ist an diesem Plan gescheitert.',
   'postHandover.gap.noDevice':

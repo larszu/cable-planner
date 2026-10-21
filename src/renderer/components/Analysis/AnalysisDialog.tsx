@@ -2153,7 +2153,7 @@ const SheetTab = () => {
           default:
             return format(
               t('analysis.sheet.unknown', '{label}: state {stand} \u2014 not judgeable ({grund})'),
-              { label: docName(r), stand: r.stand ?? '', grund: r.reason ?? '' },
+              { label: docName(r), stand: r.stand ?? '', grund: befundText({ text: r.reason, satz: r.satz }, t) },
             )
         }
       case 'matched-by-stand':

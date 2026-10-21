@@ -43,6 +43,7 @@
 import type { CheckoutRecord } from '../types/checkout'
 import type { CsvCell, CsvTable } from '../../lib/csv'
 import { spalten } from '../../lib/kanonisch'
+import { kanonisch } from '../../lib/kanonisch'
 
 export interface DamageEntry {
   recordId: string
@@ -133,7 +134,7 @@ export const damageTable = (records: CheckoutRecord[]): CsvTable => ({
   rows: damageEntries(records).map((e): CsvCell[] => [
     e.at.slice(0, 10),
     e.label,
-    e.code ?? 'kein Etikett',
+    e.code ?? kanonisch('rest.label.none', 'no label'),
     e.note,
     e.job,
     e.person,

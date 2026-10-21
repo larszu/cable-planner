@@ -27,7 +27,7 @@ import type { ZusatzBedarf } from '../../lib/planDemandExtras'
 import { nodePathLabel } from './storageTree'
 import { toCsv } from '../../lib/csv'
 import { kanonisch } from '../../lib/kanonisch'
-import { satzKanonisch } from '../../lib/satz'
+import { satz, satzKanonisch, type Satz } from '../../lib/satz'
 
 export interface PlanBomRow {
   /** Anzahl im Plan. */
@@ -59,6 +59,8 @@ export interface PlanBomRow {
   locations?: Array<{ location: string; available: number }>
   /** Begründung eines Vorschlags. Bei einer Deckung leer. */
   reason?: string
+  /** Dieselbe Begruendung als Saetze — fuer den Tooltip in der App-Sprache. */
+  reasonSaetze?: Satz[]
   /** true, wenn `model` nur der Instanzname eines Geräts ist. */
   modelIsDeviceName: boolean
   /** Lager-Position, die deckt bzw. vorgeschlagen ist — Ziel der Bestätigung. */
@@ -115,7 +117,9 @@ const rowOf = (
   const planteile = line.demand.fromPlanParts ?? []
   const herkunft = [...racks, ...planteile]
   const rackHinweis =
-    herkunft.length > 0 ? `Stammt (auch) aus: ${herkunft.join(', ')}.` : ''
+    herkunft.length > 0
+      ? satz('planBom.reason.origin', 'Comes (also) from: {liste}.', { liste: herkunft.join(', ') })
+      : undefined
   const orte = (line.sources ?? [])
     .filter((q) => q.locationId)
     .map((q) => ({ location: nodePathLabel(nodes, q.locationId as string), available: q.available }))
@@ -151,7 +155,10 @@ const rowOf = (
     // frei stehendes Geraet — und wer sie im Regal sucht, findet sie nicht,
     // weil sie im Rack schon verbaut ist.
     ...(rackHinweis || line.reason
-      ? { reason: [line.reason ? satzKanonisch(line.reason) : '', rackHinweis].filter(Boolean).join(' ') }
+      ? (() => {
+          const saetze = [line.reason, rackHinweis].filter((x): x is Satz => !!x)
+          return { reasonSaetze: saetze, reason: saetze.map(satzKanonisch).join(' ') }
+        })()
       : {}),
     modelIsDeviceName: line.demand.labelIsDeviceName,
     typeTargetIds: line.demand.typeTargetIds,
@@ -215,7 +222,9 @@ export const planBomCsv = (bom: PlanBom): string =>
       r.commitmentNote ?? '',
       r.short ?? '',
       r.unusable ?? '',
-      r.reason ?? (r.modelIsDeviceName ? 'Ohne Katalog-Typ — Modellname ist der Gerätename.' : ''),
+      r.reason ?? (r.modelIsDeviceName
+          ? kanonisch('planBom.reason.noCatalogType', 'No catalogue type — the model name is the device name.')
+          : ''),
     ]),
   )
 

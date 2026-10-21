@@ -41,6 +41,7 @@ import {
   DOCUMENT_LABELS,
   DOCUMENT_STANDS,
   UNJUDGEABLE_DOCUMENTS,
+  unjudgeableSatz,
 } from './documentRegistry'
 
 export type ImpactVerdict =
@@ -137,13 +138,14 @@ export const changeImpact = (
   // Bekannt, aber nicht beurteilbar — ausdrücklich genannt statt weggelassen.
   // Verschweigen sieht in einer Freigabe-Liste wie „unberührt" aus, und genau
   // das ist der Schaden, gegen den ADR-005 geschrieben ist.
-  for (const [docId, reason] of Object.entries(UNJUDGEABLE_DOCUMENTS)) {
+  for (const docId of Object.keys(UNJUDGEABLE_DOCUMENTS)) {
     if (docId in DOCUMENT_STANDS) continue // reproduzierbar geworden: der Guard meldet es
     documents.push({
       docId,
       label: DOCUMENT_LABELS[docId] ?? docId,
       verdict: 'unknown',
-      reason,
+      satz: unjudgeableSatz(docId)!,
+      reason: satzKanonisch(unjudgeableSatz(docId)!),
     })
   }
 

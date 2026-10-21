@@ -90,7 +90,8 @@ describe('der ganze Code — die beste Eingabe', () => {
     const code = buildDocQrPayload('kabel-bom', 'aaaaaaaa')
     const r = lookUpSheet(code, p)
     expect(r.status).toBe('unknown')
-    expect(r.reason).toBe(UNJUDGEABLE_DOCUMENTS['kabel-bom'])
+    expect(r.reason).toMatch(/Reserve-Aufschlag/)
+    expect(r.satz?.en).toBe(UNJUDGEABLE_DOCUMENTS['kabel-bom'])
   })
 
   it('reicht das Revisions-Label vom Blatt durch', () => {

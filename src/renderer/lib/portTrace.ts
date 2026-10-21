@@ -69,6 +69,7 @@ import { allDeviceInterfaces } from './networkInterfaces'
 import { isPatchPanelDevice, patchPanelCounterpart } from './patchPanel'
 import { portDisplayLabel } from './portLabel'
 import { subnetCidr } from './subnet'
+import { satz, satzKanonisch } from './satz'
 
 /** Welche Bauform eine Zwischenstation hat. */
 export type StageKind = 'patch-panel' | 'converter' | 'adapter'
@@ -246,8 +247,8 @@ const walkFrom = (
       return stop(
         walk.stages.length === 0 ? 'ohne-kabel' : 'nicht-verkabelt',
         walk.stages.length === 0
-          ? 'An diesem Anschluss hängt kein Kabel'
-          : 'Der Weiterweg ist im Plan nicht verkabelt',
+          ? kanonisch('rest.trace.noCable', 'No cable on this port')
+          : kanonisch('rest.trace.notCabled', 'The onward path is not cabled in the plan'),
       )
     }
     if (links.length > 1) {
@@ -286,8 +287,8 @@ const walkFrom = (
         return stop(
           'mehrdeutig',
           device.inputs.length === device.outputs.length
-            ? `Patchfeld ${device.name}: der Anschluss gehört nicht zur Durchleitung`
-            : `Patchfeld ${device.name} ungleich bestückt (${device.inputs.length} hinten, ${device.outputs.length} vorn) — die Position sagt hier nichts`,
+            ? satzKanonisch(satz('rest.trace.notThrough', 'Patch panel {name}: the port is not part of the pass-through', { name: device.name }))
+            : satzKanonisch(satz('rest.trace.uneven', 'Patch panel {name} unevenly fitted ({hinten} rear, {vorn} front) — the position says nothing here', { name: device.name, hinten: device.inputs.length, vorn: device.outputs.length })),
         )
       }
       walk.stages.push({
@@ -448,8 +449,8 @@ export function buildPortTrace(
       const endNote = walk
         ? walk.endNote
         : declaredSwitch
-          ? 'Nur von Hand eingetragen — im Plan liegt kein Kabel dorthin'
-          : 'An dieser Schnittstelle hängt kein Kabel'
+          ? kanonisch('rest.trace.manualOnly', 'Entered by hand only — no cable in the plan goes there')
+          : kanonisch('rest.trace.noCableIface', 'No cable on this interface')
 
       return {
         key: `${device.id}|${nic?.id ?? '-'}|${walk?.startPortId ?? '-'}`,
