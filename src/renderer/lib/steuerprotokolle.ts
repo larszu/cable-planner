@@ -397,6 +397,118 @@ CONTROL_CATALOG.push(
   ),
 );
 
+// #1063 charge 3. Values from the manufacturer spec pages only.
+const URSA_MINI_PRO =
+  "https://www.blackmagicdesign.com/products/blackmagicursaminipro/techspecs/W-CUM-17";
+
+const panaIpOnly = (source: string): ControlInterface => ({
+  protocol: "IP control (TCP/IP, UDP/IP, HTTP)",
+  transport: "ip",
+  connector: "RJ-45 (LAN for IP control)",
+  ip: { layer: "HTTP" },
+  source,
+});
+
+const ursaSdi = (deviceTypeId: string, name: string): ControlEntry => ({
+  deviceTypeId,
+  name,
+  interfaces: [
+    {
+      protocol: "Blackmagic SDI Camera Control Protocol",
+      transport: "sdi",
+      connector: "SDI In (return feed)",
+      source: URSA_MINI_PRO,
+    },
+  ],
+});
+
+const ue20 = panasonicPtz(
+  "5b15ba72-e7bc-55b7-b222-39d2163815b4",
+  "Panasonic AW-UE20",
+  "aw-ue20",
+);
+ue20.interfaces.splice(1, 0, {
+  protocol: "Standard protocol (RS-232C)",
+  transport: "serial",
+  connector: "Mini DIN 8-pin (IN/OUT)",
+  serial: { standard: "RS-232" },
+  bridge: {
+    capable: true,
+    tcpMode: "raw TCP server on an RS-232 device server",
+    port: "site-chosen on the device server",
+    unverified: [
+      "baud rate",
+      "character format",
+      "Mini DIN pinout",
+      "packet framing",
+    ],
+  },
+  source: PANA_SPEC("aw-ue20"),
+});
+
+const ur100 = panasonicPtz(
+  "ff05ec10-bf37-5d89-8d3e-5df9f8cf0aab",
+  "Panasonic AW-UR100",
+  "aw-ur100",
+);
+ur100.interfaces[1] = {
+  ...panaIpOnly(PANA_SPEC("aw-ur100")),
+  protocol: "IP control (TCP/IP, UDP/IP, HTTP); FreeD, TSL 5.0, SNMP",
+};
+
+CONTROL_CATALOG.push(
+  ue20,
+  panasonicPtz(
+    "9711122c-0d40-5f24-bd37-3aac93d35f8f",
+    "Panasonic AW-UE50",
+    "aw-ue50-40",
+  ),
+  panasonicPtz(
+    "5ee79e22-ea14-55eb-87ba-52f13c9c9bcb",
+    "Panasonic AW-UE40",
+    "aw-ue50-40",
+  ),
+  ur100,
+  {
+    deviceTypeId: "953a92b5-8c16-5358-962b-1ac7b2e6710c",
+    name: "Panasonic AW-UE4",
+    interfaces: [panaIpOnly(PANA_SPEC("aw-ue4"))],
+  },
+  ursaSdi(
+    "1b94e2d9-f987-4b76-8827-f555d88a2e10",
+    "Blackmagic URSA Mini Pro 12K",
+  ),
+  ursaSdi(
+    "841e8039-0e83-4734-904f-bf4ffcdb8882",
+    "Blackmagic URSA Mini Pro 4.6K G2",
+  ),
+  kumo(
+    "d435ffb1-c471-4059-89ee-84a490f6025c",
+    "AJA KUMO 3232",
+    "kumo-3232",
+    true,
+  ),
+  kumo(
+    "379c5b0a-a4b5-40d0-a66d-a3fda51b5059",
+    "AJA KUMO 6464",
+    "kumo-6464",
+    true,
+  ),
+  {
+    deviceTypeId: "ecf80e2e-5376-4f86-865f-ce146e90d032",
+    name: "AJA Ki Pro Ultra 12G",
+    interfaces: [
+      {
+        protocol: "REST API, web UI",
+        transport: "ip",
+        connector: "Ethernet (LAN)",
+        ip: { layer: "HTTP" },
+        source: AJA_KUMO("ki-pro-ultra-12g"),
+      },
+    ],
+  },
+);
+
 const BY_ID = new Map(CONTROL_CATALOG.map((e) => [e.deviceTypeId, e]));
 
 /** Control interfaces for a device type, or undefined. */
