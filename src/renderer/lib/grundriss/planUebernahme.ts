@@ -6,9 +6,7 @@
 // Grundriss entsteht, wann vorher gefragt wird und welche Meldung eine
 // abgelehnte Datei bekommt.
 //
-// PDF: cable-planner hat (noch) kein pdf.js. Ohne Renderer lehnt der Lader
-// PDFs mit 'pdf-nicht-verfuegbar' ab; die Meldung sagt, wie man trotzdem
-// zum Plan kommt (Seite als PNG/JPG exportieren), statt still zu scheitern.
+// PDF (#984): gerendert mit dem pdf.js aus `unpdf` (lib/grundriss/pdfRenderer).
 
 import {
   istPdfDatei,
@@ -19,8 +17,8 @@ import {
 } from '../../avplan/floorplan/planDatei'
 import type { Grundriss, PlanPunkt } from '../../types/grundriss'
 
-/** Kann cable-planner PDFs rendern? Solange kein pdf.js im Bundle ist: nein. */
-export const PLAN_PDF = false
+/** cable-planner rendert PDFs (#984). */
+export const PLAN_PDF = true
 /** Laengste Bildkante, die in die Projektdatei geht (wie vor ADR-015). */
 export const PLAN_MAX_KANTE_CABLE = 3000
 export const PLAN_ACCEPT = planAccept({ pdf: PLAN_PDF })
@@ -66,6 +64,8 @@ export const planFehlerText = (code: PlanDateiFehlerCode, t: Uebersetzer): strin
       return t('floorplan.drop.wrongType', 'This file is not a floor plan image. Use PNG, JPG, WebP, GIF, BMP or AVIF.')
     case 'zu-gross':
       return t('floorplan.drop.tooLarge', 'The file is too large for a floor plan (images up to 40 MB).')
+    case 'pdf':
+      return t('floorplan.pdfFailed', 'The PDF could not be rendered.')
     default:
       return t('floorplan.loadFailed', 'The file could not be read as an image.')
   }

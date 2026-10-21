@@ -31,10 +31,10 @@ describe('Hallenplan per Drag & Drop', () => {
     expect(ersetzenBrauchtBestaetigung(mit)).toBe(true)
   })
 
-  it('PDF ohne pdf.js: eigene Meldung mit dem Ausweg PNG/JPG', () => {
-    expect(PLAN_ACCEPT).toBe('image/*')
-    expect(ungeeignetCode([{ name: 'plan.pdf', type: 'application/pdf' }])).toBe('pdf-nicht-verfuegbar')
-    expect(planFehlerText(planFehlerCode(new PlanDateiFehler('pdf-nicht-verfuegbar')), t)).toMatch(/PNG or JPG/)
+  it('PDF wird angenommen (#984), ein Renderfehler hat eine eigene Meldung', () => {
+    expect(PLAN_ACCEPT).toContain('application/pdf')
+    expect(ungeeignetCode([{ name: 'plan.pdf', type: 'application/pdf' }])).toBe('typ')
+    expect(planFehlerText(planFehlerCode(new PlanDateiFehler('pdf')), t)).toMatch(/PDF could not be rendered/)
   })
 
   it('ungeeignete Datei (.docx): klare Meldung statt Stille', () => {

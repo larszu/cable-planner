@@ -3,6 +3,7 @@ import type { Grundriss, PlanKalibrierung } from '../../types/grundriss'
 import type { PlatziertesSymbol, SymbolDef } from '../../types/symbol'
 import { kalibrierungMitfuehren, meterJePixel } from '../../lib/grundriss/massstab'
 import { DEFAULT_LENGTH_ESTIMATION } from '../../lib/cableLengthEstimate'
+import { grundrissVon, mitGrundriss } from '../../lib/grundriss/etagenPlaene'
 import { isProjectLocked, touchProject } from '../projectStoreHelpers'
 import type { ProjectState } from '../projectStore'
 
@@ -19,35 +20,34 @@ export type GrundrissSlice = Pick<
 >
 
 export const createGrundrissSlice: StateCreator<ProjectState, [], [], GrundrissSlice> = (set) => ({
-  setGrundriss: (g) =>
+  setGrundriss: (g, etage = null) =>
     set((state) => {
       if (isProjectLocked(state)) return state
-      const project = { ...state.project }
-      if (g) project.grundriss = g
-      else delete project.grundriss
-      return { project: touchProject(project) }
+      return { project: touchProject(mitGrundriss(state.project, etage, g)) }
     }),
   // Lage oder Groesse aendern fuehrt die Kalibrierung mit: ihre Punkte sind
   // Canvas-Koordinaten und gehoeren zum Bild, nicht zum Canvas.
-  updateGrundriss: (patch) =>
+  updateGrundriss: (patch, etage = null) =>
     set((state) => {
-      const alt = state.project.grundriss
+      const alt = grundrissVon(state.project, etage)
       if (!alt || isProjectLocked(state)) return state
       const neu: Grundriss = { ...alt, ...patch }
       const bewegt = neu.x !== alt.x || neu.y !== alt.y || neu.width !== alt.width || neu.height !== alt.height
       if (bewegt && alt.kalibrierung && patch.kalibrierung === undefined) {
         neu.kalibrierung = kalibrierungMitfuehren(alt.kalibrierung, alt, neu)
       }
-      return { project: touchProject({ ...state.project, grundriss: neu }) }
+      return { project: touchProject(mitGrundriss(state.project, etage, neu)) }
     }),
   // Eine Zwei-Punkt-Kalibrierung ist EIN Massstab, und der gilt dann auch als
   // „Meter pro 100 px" — sonst rechneten Laengen und 3D-Gebaeudeansicht mit
   // zwei verschiedenen Zahlen fuer denselben Canvas.
-  kalibriereGrundriss: (k: PlanKalibrierung) =>
+  // Nur der allgemeine Plan setzt „Meter pro 100 px"; ein Etagenplan
+  // behaelt seinen Massstab fuer sich.
+  kalibriereGrundriss: (k: PlanKalibrierung, etage = null) =>
     set((state) => {
-      const g = state.project.grundriss
+      const g = grundrissVon(state.project, etage)
       if (!g || isProjectLocked(state)) return state
-      const mJePx = meterJePixel(k)
+      const mJePx = etage == null ? meterJePixel(k) : null
       const metadata =
         mJePx == null
           ? state.project.metadata
@@ -60,7 +60,7 @@ export const createGrundrissSlice: StateCreator<ProjectState, [], [], GrundrissS
             }
       // Nach der Kalibrierung ist der Plan eingerichtet: sperren, damit ein
       // versehentliches Ziehen den Massstab nicht vom Bild loest.
-      return { project: touchProject({ ...state.project, metadata, grundriss: { ...g, kalibrierung: k, gesperrt: true } }) }
+      return { project: touchProject(mitGrundriss({ ...state.project, metadata }, etage, { ...g, kalibrierung: k, gesperrt: true })) }
     }),
   addSymbol: (s: PlatziertesSymbol) =>
     set((state) => {

@@ -11,6 +11,11 @@ import { PanelHint } from '../shared/PanelHint'
 import { planAblage } from '../../avplan/floorplan/planDatei'
 import { PLAN_ACCEPT, PLAN_PDF, planFehlerText, ungeeignetCode } from '../../lib/grundriss/planUebernahme'
 import { planUebernehmen } from './planUebernehmen'
+import { GrundrissZuschnitt } from './GrundrissZuschnitt'
+import { grundrissVon } from '../../lib/grundriss/etagenPlaene'
+import type { Floor } from '../../types/location'
+
+const KEINE_ETAGEN: Floor[] = []
 
 const Zahl = ({ wert, setze, einheit }: { wert: number; setze: (n: number) => void; einheit: string }) => (
   <label className="inline-flex items-center gap-1">
@@ -31,10 +36,15 @@ export const GrundrissPanel = () => {
   const offen = useGrundrissUi((s) => s.grundrissPanel)
   const setOffen = useGrundrissUi((s) => s.setGrundrissPanel)
   const starte = useGrundrissUi((s) => s.starteKalibrierung)
-  const g = useProjectStore((s) => s.project.grundriss)
+  const etage = useGrundrissUi((s) => s.planEtage)
+  const setEtage = useGrundrissUi((s) => s.setPlanEtage)
+  const floors = useProjectStore((s) => s.project.floors ?? KEINE_ETAGEN)
+  const g = useProjectStore((s) => grundrissVon(s.project, etage))
   const projektName = useProjectStore((s) => s.project.metadata.name)
-  const setGrundriss = useProjectStore((s) => s.setGrundriss)
-  const updateGrundriss = useProjectStore((s) => s.updateGrundriss)
+  const setGrundrissIn = useProjectStore((s) => s.setGrundriss)
+  const updateGrundrissIn = useProjectStore((s) => s.updateGrundriss)
+  const setGrundriss = (neu: Parameters<typeof setGrundrissIn>[0]) => setGrundrissIn(neu, etage)
+  const updateGrundriss = (patch: Parameters<typeof updateGrundrissIn>[0]) => updateGrundrissIn(patch, etage)
   const estimate = useProjectStore((s) => s.estimateCableLengths)
   const [meter, setMeter] = useState(10)
   const [breite, setBreite] = useState(10)
@@ -43,6 +53,9 @@ export const GrundrissPanel = () => {
   const bildInput = useRef<HTMLInputElement>(null)
   const venueInput = useRef<HTMLInputElement>(null)
   const [ablageAktiv, setAblageAktiv] = useState(false)
+  const [zuschnitt, setZuschnitt] = useState(false)
+  // Das zuletzt geladene PDF, damit eine andere Seite gewaehlt werden kann.
+  const [pdf, setPdf] = useState<{ datei: File; seiten: number; seite: number } | null>(null)
 
   if (!offen) return null
 
@@ -51,16 +64,22 @@ export const GrundrissPanel = () => {
     return { x: Math.round(m.x - 400), y: Math.round(m.y - 300) }
   }
 
-  const bildGewaehlt = async (datei: File | undefined) => {
+  const bildGewaehlt = async (datei: File | undefined, seite?: number) => {
     if (!datei) return
+    const aktuell = grundrissVon(useProjectStore.getState().project, etage)
     const r = await planUebernehmen({
       datei,
-      ursprung: () => ursprung(),
-      aktuell: useProjectStore.getState().project.grundriss,
-      setze: setGrundriss,
+      // Seitenwechsel: an derselben Stelle und mit derselben Deckkraft.
+      ursprung: () => (seite !== undefined && aktuell ? { x: aktuell.x, y: aktuell.y } : ursprung()),
+      aktuell,
+      setze: (neu) => setGrundriss(seite !== undefined && aktuell ? { ...neu, deckkraft: aktuell.deckkraft } : neu),
       t,
+      seite,
+      ohneNachfrage: seite !== undefined,
     })
     if (r.status === 'ok') {
+      setZuschnitt(false)
+      setPdf(r.plan.art === 'pdf' && r.plan.seiten > 1 ? { datei, seiten: r.plan.seiten, seite: r.plan.seite } : null)
       setMeldung(t('floorplan.loaded', 'Floor plan loaded. Set the scale next — until then lengths use “metres per 100 px”.'))
     } else if (r.status === 'fehler') {
       setMeldung(r.text)
@@ -134,15 +153,38 @@ export const GrundrissPanel = () => {
       <div className="flex-1 overflow-y-auto p-3 space-y-4">
         <input ref={bildInput} type="file" accept={PLAN_ACCEPT} hidden onChange={(e) => void bildGewaehlt(e.target.files?.[0])} />
         <input ref={venueInput} type="file" accept=".json,application/json" hidden onChange={(e) => void venueGewaehlt(e.target.files?.[0])} />
+        {floors.length > 0 && (
+          <label className="flex items-center gap-2">
+            <span className="w-24">{t('floorplan.floor', 'Floor')}</span>
+            <select
+              value={etage ?? ''}
+              onChange={(e) => {
+                setEtage(e.target.value || null)
+                setPdf(null)
+                setZuschnitt(false)
+                setMeldung(null)
+              }}
+              className="flex-1 rounded-cp-s border border-cp-border bg-cp-surface-2 px-1 py-0.5 text-cp-text"
+              data-testid="grundriss-etage"
+            >
+              <option value="">{t('floorplan.floorAll', 'All floors')}</option>
+              {floors.map((f) => (
+                <option key={f.name} value={f.name}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <section className="space-y-2">
           <button className="w-full px-2 py-1 border border-cp-border hover:bg-cp-surface-3" onClick={() => bildInput.current?.click()}>
-            {g ? t('floorplan.replaceImage', 'Replace image…') : t('floorplan.loadImage', 'Load floor plan image…')}
+            {g ? t('floorplan.replaceImage', 'Replace image…') : t('floorplan.loadImage', 'Load floor plan image or PDF…')}
           </button>
           <button className="w-full px-2 py-1 border border-cp-border hover:bg-cp-surface-3" onClick={() => venueInput.current?.click()}>
             {t('floorplan.importVenue', 'Import venue from MultiCam / Light Planner…')}
           </button>
           <p className={ablageAktiv ? 'text-cp-accent' : 'text-cp-text-muted'}>
-            {t('floorplan.dropHint', 'Or drop an image file here or onto the canvas.')}
+            {t('floorplan.dropHint', 'Or drop an image or PDF here or onto the canvas.')}
           </p>
         </section>
 
@@ -150,6 +192,31 @@ export const GrundrissPanel = () => {
           <>
             <section className="space-y-2">
               <div className="text-cp-text-secondary">{g.name}</div>
+              {pdf && (
+                <label className="flex items-center gap-2">
+                  <span className="w-24">{t('floorplan.pdfPage', 'PDF page')}</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={pdf.seiten}
+                    value={pdf.seite + 1}
+                    onChange={(e) => {
+                      const n = Math.min(pdf.seiten, Math.max(1, Math.round(Number(e.target.value)))) - 1
+                      if (Number.isFinite(n) && n !== pdf.seite) void bildGewaehlt(pdf.datei, n)
+                    }}
+                    className="w-16 px-1 py-0.5 bg-cp-surface-2 border border-cp-border text-cp-text"
+                    data-testid="grundriss-pdf-seite"
+                  />
+                  <span className="text-cp-text-muted">{format(t('floorplan.pdfPageOf', 'of {n}'), { n: pdf.seiten })}</span>
+                </label>
+              )}
+              {zuschnitt ? (
+                <GrundrissZuschnitt g={g} uebernehmen={updateGrundriss} schliessen={() => setZuschnitt(false)} />
+              ) : (
+                <button className="w-full px-2 py-1 border border-cp-border hover:bg-cp-surface-3" onClick={() => setZuschnitt(true)}>
+                  {t('floorplan.crop.start', 'Crop…')}
+                </button>
+              )}
               <label className="flex items-center gap-2">
                 <span className="w-24">{t('floorplan.opacity', 'Opacity')}</span>
                 <input
@@ -171,6 +238,11 @@ export const GrundrissPanel = () => {
             <section className="space-y-2 border-t border-cp-border pt-3">
               <strong>{t('floorplan.scale.title', 'Scale')}</strong>
               <div className="text-cp-text-secondary">{status}</div>
+              {etage != null && (
+                <p className="text-cp-text-muted">
+                  {t('floorplan.floorScaleNote', 'Cable lengths use the scale of the plan for all floors.')}
+                </p>
+              )}
               <div className="flex flex-wrap items-center gap-2">
                 <Zahl wert={meter} setze={setMeter} einheit="m" />
                 <button

@@ -624,9 +624,10 @@ export interface ProjectState {
   updateAnnotation: (id: string, patch: Partial<import('../types/project').ProjectAnnotation>) => void
   removeAnnotation: (id: string) => void
   /** Hallenplan unter dem Canvas; `null` entfernt ihn. */
-  setGrundriss: (g: import('../types/grundriss').Grundriss | null) => void
-  updateGrundriss: (patch: Partial<import('../types/grundriss').Grundriss>) => void
-  kalibriereGrundriss: (k: import('../types/grundriss').PlanKalibrierung) => void
+  /** `etage`: Etagenname fuer einen Etagenplan (#984), sonst der allgemeine. */
+  setGrundriss: (g: import('../types/grundriss').Grundriss | null, etage?: string | null) => void
+  updateGrundriss: (patch: Partial<import('../types/grundriss').Grundriss>, etage?: string | null) => void
+  kalibriereGrundriss: (k: import('../types/grundriss').PlanKalibrierung, etage?: string | null) => void
   addSymbol: (s: import('../types/symbol').PlatziertesSymbol) => void
   updateSymbol: (id: string, patch: Partial<import('../types/symbol').PlatziertesSymbol>) => void
   removeSymbol: (id: string) => void
