@@ -69,9 +69,7 @@ export const RACK_WIRE_FINDING_LABEL: Readonly<Record<RackWireFindingKind, strin
 }
 
 /** Fehler blockieren, Warnungen fallen auf. */
-export const RACK_WIRE_FINDING_SEVERITY: Readonly<
-  Record<RackWireFindingKind, 'error' | 'warning'>
-> = {
+export const RACK_WIRE_FINDING_SEVERITY: Readonly<Record<RackWireFindingKind, 'error' | 'warning'>> = {
   // Ein Kabel, das auf nichts zeigt, ist eine Linie ohne Verbindung — im
   // Rack sichtbar gezeichnet und trotzdem nicht vorhanden.
   'port-unknown': 'error',
@@ -130,16 +128,36 @@ export const rackWireFindings = (
     const von = byId.get(c.fromPlacementId)
     const nach = byId.get(c.toPlacementId)
     if (!von || !nach) {
-      melde('placement-unknown', index, `${kabel}: ein verbundenes Gerät steht nicht mehr im Rack`)
+      melde(
+        'placement-unknown',
+        index,
+        satz('rest.rack.deviceGone', '{kabel}: a connected device is no longer in the rack', { kabel }),
+      )
       return
     }
     const pv = portOf(von, c.fromPortName)
     const pn = portOf(nach, c.toPortName)
     if (!pv) {
-      melde('port-unknown', index, `${kabel}: „${c.fromPortName}" gibt es an ${von.name} nicht`)
+      melde(
+        'port-unknown',
+        index,
+        satz('rest.rack.noPort', '{kabel}: "{port}" does not exist on {geraet}', {
+          kabel,
+          port: c.fromPortName,
+          geraet: von.name,
+        }),
+      )
     }
     if (!pn) {
-      melde('port-unknown', index, `${kabel}: „${c.toPortName}" gibt es an ${nach.name} nicht`)
+      melde(
+        'port-unknown',
+        index,
+        satz('rest.rack.noPort', '{kabel}: "{port}" does not exist on {geraet}', {
+          kabel,
+          port: c.toPortName,
+          geraet: nach.name,
+        }),
+      )
     }
     if (!pv || !pn) return
 
@@ -148,8 +166,16 @@ export const rackWireFindings = (
         'direction-mismatch',
         index,
         pv.direction === 'out'
-          ? (satz('rest.rack.bothOut', '{kabel}: {von} and {nach} are both outputs', { kabel, von: von.name, nach: nach.name }))
-          : (satz('rest.rack.bothIn', '{kabel}: {von} and {nach} are both inputs', { kabel, von: von.name, nach: nach.name })),
+          ? satz('rest.rack.bothOut', '{kabel}: {von} and {nach} are both outputs', {
+              kabel,
+              von: von.name,
+              nach: nach.name,
+            })
+          : satz('rest.rack.bothIn', '{kabel}: {von} and {nach} are both inputs', {
+              kabel,
+              von: von.name,
+              nach: nach.name,
+            }),
       )
     }
 
@@ -157,11 +183,7 @@ export const rackWireFindings = (
     const b = pn.connectorType
     if (!a || !b || a === 'Custom' || b === 'Custom') return
     if (a !== b) {
-      melde(
-        'connector-mismatch',
-        index,
-        `${kabel}: ${von.name} (${a}) → ${nach.name} (${b})`,
-      )
+      melde('connector-mismatch', index, `${kabel}: ${von.name} (${a}) → ${nach.name} (${b})`)
     }
   })
 

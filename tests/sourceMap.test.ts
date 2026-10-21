@@ -143,7 +143,7 @@ describe('parseSourceMap', () => {
 
   it('weist eine neuere Formatversion ab, statt sie halb zu lesen', () => {
     const text = JSON.stringify({ kind: SOURCE_MAP_KIND, formatVersion: 99, sources: [] })
-    expect(() => parseSourceMap(text)).toThrow(/neuer als unterstützt/)
+    expect(() => parseSourceMap(text)).toThrow(/newer than supported/)
   })
 
   it('hebt unbekannte Felder nach extra, statt sie zu verlieren', () => {

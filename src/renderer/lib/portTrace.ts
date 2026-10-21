@@ -75,10 +75,13 @@ import { satz, satzKanonisch, type Satz } from './satz'
 export type StageKind = 'patch-panel' | 'converter' | 'adapter'
 
 export const STAGE_LABEL: Readonly<Record<StageKind, string>> = {
-  'patch-panel': 'Patchfeld',
-  converter: 'Wandler',
+  'patch-panel': 'Patch panel',
+  converter: 'Converter',
   adapter: 'Adapter',
 }
+
+/** Die Stationsart als Satz: Deutsch in befundeDe.ts. */
+const stageSatz = (kind: StageKind): Satz => satz(`trace.stage.${kind}`, STAGE_LABEL[kind])
 
 /** Eine Zwischenstation auf dem Weg zum Switch. */
 export interface TraceStage {
@@ -176,8 +179,7 @@ export interface PortTraceRow {
 /** Mehr Zwischenstationen hat auch eine grosse Festinstallation nicht. */
 const MAX_STAGES = 12
 
-const cableText = (c: Cable): string =>
-  c.cableNumber?.trim() || c.name?.trim() || c.type || c.id
+const cableText = (c: Cable): string => c.cableNumber?.trim() || c.name?.trim() || c.type || c.id
 
 const portText = (p: Port | undefined, fallback: string): string =>
   p ? portDisplayLabel(p) || p.name || fallback : fallback
@@ -260,7 +262,9 @@ const walkFrom = (
     if (links.length > 1) {
       return stop(
         'mehrdeutig',
-        `${links.length} Kabel an einem Anschluss — welches gilt, sagt der Plan nicht`,
+        satz('rest.trace.manyCables', '{n} cables on one port — the plan does not say which one applies', {
+          n: links.length,
+        }),
       )
     }
 
@@ -270,8 +274,9 @@ const walkFrom = (
     walk.lastCable = cable
 
     const device = byId.get(farEquipmentId)
-    if (!device) return stop('mehrdeutig', 'Das Gerät am anderen Ende steht nicht mehr im Plan')
-    if (besucht.has(device.id)) return stop('schleife', 'Der Weg läuft in sich zurück')
+    if (!device)
+      return stop('mehrdeutig', satz('rest.trace.deviceGone', 'The device at the other end is no longer in the plan'))
+    if (besucht.has(device.id)) return stop('schleife', satz('rest.trace.loop', 'The path loops back on itself'))
 
     const arrival = portById.get(farPortId)
     const arrivalName = portText(arrival, farPortId)
@@ -293,8 +298,18 @@ const walkFrom = (
         return stop(
           'mehrdeutig',
           device.inputs.length === device.outputs.length
-            ? (satz('rest.trace.notThrough', 'Patch panel {name}: the port is not part of the pass-through', { name: device.name }))
-            : (satz('rest.trace.uneven', 'Patch panel {name} unevenly fitted ({hinten} rear, {vorn} front) — the position says nothing here', { name: device.name, hinten: device.inputs.length, vorn: device.outputs.length })),
+            ? satz('rest.trace.notThrough', 'Patch panel {name}: the port is not part of the pass-through', {
+                name: device.name,
+              })
+            : satz(
+                'rest.trace.uneven',
+                'Patch panel {name} unevenly fitted ({hinten} rear, {vorn} front) — the position says nothing here',
+                {
+                  name: device.name,
+                  hinten: device.inputs.length,
+                  vorn: device.outputs.length,
+                },
+              ),
         )
       }
       walk.stages.push({
@@ -316,17 +331,26 @@ const walkFrom = (
       const kind: StageKind = device.adapter ? 'adapter' : 'converter'
       const weiter = (cablesAtEquipment.get(device.id) ?? []).filter((c) => !used.has(c.id))
       if (weiter.length === 0) {
-        return stop('nicht-verkabelt', `${STAGE_LABEL[kind]} ${device.name}: kein weiteres Kabel`)
+        return stop(
+          'nicht-verkabelt',
+          satz('rest.trace.noFurther', '{art} {name}: no further cable', {
+            art: stageSatz(kind),
+            name: device.name,
+          }),
+        )
       }
       if (weiter.length > 1) {
         return stop(
           'mehrdeutig',
-          `${STAGE_LABEL[kind]} ${device.name} mit ${weiter.length} weiteren Kabeln — kein eindeutiger Weiterweg`,
+          satz('rest.trace.manyFurther', '{art} {name} with {n} further cables — no unique onward path', {
+            art: stageSatz(kind),
+            name: device.name,
+            n: weiter.length,
+          }),
         )
       }
       const naechste = weiter[0]
-      const nahPortId =
-        naechste.fromEquipmentId === device.id ? naechste.fromPortId : naechste.toPortId
+      const nahPortId = naechste.fromEquipmentId === device.id ? naechste.fromPortId : naechste.toPortId
       walk.stages.push({
         cableId: cable.id,
         cableLabel: cableText(cable),
@@ -340,7 +364,10 @@ const walkFrom = (
       })
       exitPortId = nahPortId
     } else {
-      return stop('anderes-gerät', `Der Weg endet an ${device.name} — das ist kein Switch`)
+      return stop(
+        'anderes-gerät',
+        satz('rest.trace.notSwitch', 'The path ends at {name} — that is not a switch', { name: device.name }),
+      )
     }
 
     besucht.add(device.id)
@@ -377,7 +404,7 @@ export function buildPortTrace(
 
   const linksByPort = new Map<string, Link[]>()
   const cablesAtEquipment = new Map<string, Cable[]>()
-  const push = <T,>(m: Map<string, T[]>, k: string, v: T) => {
+  const push = <T>(m: Map<string, T[]>, k: string, v: T) => {
     const vorhanden = m.get(k)
     if (vorhanden) vorhanden.push(v)
     else m.set(k, [v])
@@ -423,9 +450,7 @@ export function buildPortTrace(
     // Kabel. Wege, die an einem Nicht-Switch enden, bleiben drin: sie sind die
     // Antwort auf „warum steht diese Kamera in keiner Switch-Liste".
     const wege = allPorts(device)
-      .map((p) =>
-        walkFrom(device.id, p, byId, portById, linksByPort, cablesAtEquipment),
-      )
+      .map((p) => walkFrom(device.id, p, byId, portById, linksByPort, cablesAtEquipment))
       .filter((w) => w.end !== 'ohne-kabel')
 
     const vergeben = new Set<string>()
@@ -439,9 +464,7 @@ export function buildPortTrace(
       let source: TraceSource = gelaufen ? 'kabel' : 'schnittstelle'
       let conflict: string | undefined
       if (gelaufen && declaredSwitch) {
-        const gleich =
-          declaredSwitch.id === gelaufen.id &&
-          (nic?.switchPort ?? '') === (walk?.switchPort ?? '')
+        const gleich = declaredSwitch.id === gelaufen.id && (nic?.switchPort ?? '') === (walk?.switchPort ?? '')
         if (gleich) source = 'beide'
         else conflict = `Schnittstelle sagt: ${declaredSwitch.name} ${nic?.switchPort ?? ''}`.trim()
       }
@@ -535,9 +558,7 @@ export function buildPortTrace(
     }
   }
 
-  const gefiltert = opts.onlySwitchId
-    ? rows.filter((r) => r.switchId === opts.onlySwitchId)
-    : rows
+  const gefiltert = opts.onlySwitchId ? rows.filter((r) => r.switchId === opts.onlySwitchId) : rows
 
   // Sortiert nach Switch, dann Port, dann Geraet — das ist die Reihenfolge, in
   // der jemand vor dem Rack steht. Zeilen ohne Switch stehen hinten: sie sind
@@ -546,7 +567,9 @@ export function buildPortTrace(
     if (!!a.switchName !== !!b.switchName) return a.switchName ? -1 : 1
     const sw = (a.switchName ?? '').localeCompare(b.switchName ?? '', 'de')
     if (sw !== 0) return sw
-    const port = (a.switchPort ?? '').localeCompare(b.switchPort ?? '', 'de', { numeric: true })
+    const port = (a.switchPort ?? '').localeCompare(b.switchPort ?? '', 'de', {
+      numeric: true,
+    })
     if (port !== 0) return port
     return a.deviceName.localeCompare(b.deviceName, 'de')
   })
@@ -582,7 +605,6 @@ export const TRACE_END_LABEL: Readonly<Record<TraceEnd, string>> = {
   'ohne-kabel': 'no cable',
 }
 
-
 /**
  * Die Anschlussliste als Tabelle.
  *
@@ -598,7 +620,37 @@ export const TRACE_END_LABEL: Readonly<Record<TraceEnd, string>> = {
  */
 export function portTraceTable(rows: PortTraceRow[]): CsvTable {
   return {
-    headers: spalten(['Device', 'Category', 'Rack', 'Serial no.', 'Interface', 'Role', 'IP', 'Mask', 'Network (CIDR)', 'Gateway', 'MAC', 'VLAN', 'Segment', 'Device port', 'Cable', 'Cable type', 'Patch panel', 'Patch panel rack', 'Rear port', 'Front port', 'Hops', 'Cable to switch', 'Switch', 'Switch port', 'Path', 'Evidence', 'Status', 'Remark', 'Conflict']),
+    headers: spalten([
+      'Device',
+      'Category',
+      'Rack',
+      'Serial no.',
+      'Interface',
+      'Role',
+      'IP',
+      'Mask',
+      'Network (CIDR)',
+      'Gateway',
+      'MAC',
+      'VLAN',
+      'Segment',
+      'Device port',
+      'Cable',
+      'Cable type',
+      'Patch panel',
+      'Patch panel rack',
+      'Rear port',
+      'Front port',
+      'Hops',
+      'Cable to switch',
+      'Switch',
+      'Switch port',
+      'Path',
+      'Evidence',
+      'Status',
+      'Remark',
+      'Conflict',
+    ]),
     rows: rows.map((r): CsvCell[] => {
       const erste = r.stages[0]
       return [

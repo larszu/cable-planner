@@ -24,6 +24,7 @@ import {
   type PresencePeer,
   type SelfInfo,
 } from './presence'
+import { tr } from '../i18n'
 
 export type CollabMode = 'broadcast' | 'webrtc'
 
@@ -66,7 +67,7 @@ export interface CollabSession {
  */
 export const startCollaboration = async (opts: CollabOptions): Promise<CollabSession> => {
   const room = opts.room.trim()
-  if (!room) throw new Error('Kollaboration: Raumname darf nicht leer sein')
+  if (!room) throw new Error(tr('err.collab.noRoom', 'Collaboration: room name must not be empty'))
 
   const crdt = new ProjectCrdt()
   // Store→Doc seeden: der lokale Stand ist die Ausgangsbasis; eingehende

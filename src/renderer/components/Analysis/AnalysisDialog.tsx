@@ -10,7 +10,7 @@
 // Die 3-Phasen-Last-/Distro-Planung (#345) lebt weiterhin im Strom-Tab der
 // Calculators (dort bereits implementiert) — hier nicht dupliziert.
 
-import { befundText } from '../../lib/satz'
+import { befundText, satzText } from '../../lib/satz'
 import { useMemo, useState } from 'react'
 import { BarChart3, Calculator, Download, FileInput, Plus, Trash2 } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
@@ -744,7 +744,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
           <ul className="list-inside list-disc">
             {danteIssues.map((x) => (
               <li key={x.name}>
-                <span className="font-mono">{x.name || '∅'}</span>: {x.check.issues.join(', ')} →{' '}
+                <span className="font-mono">{x.name || '∅'}</span>: {x.check.issueSaetze.map((s) => satzText(s, t)).join(', ')} →{' '}
                 <span className="font-mono text-amber-100">{x.check.suggestion}</span>
               </li>
             ))}

@@ -1,3 +1,4 @@
+import { format, tr } from './i18n'
 // ───────────────────────────────────────────────────────────────────────────
 // .avplan — gemeinsames, VERLUSTFREIES Gesamtprojektformat fuer alle drei Apps
 //
@@ -97,12 +98,12 @@ export function makeAvPlan(args: {
 export function parseAvPlan(text: string): AvPlan {
   const data = JSON.parse(text) as Partial<AvPlan>
   if (!data || data.kind !== AVPLAN_KIND) {
-    throw new Error('Keine gültige .avplan-Datei (kind != avplan).')
+    throw new Error(tr('err.avplan.invalid', 'Not a valid .avplan file (kind != avplan).'))
   }
   if (data.formatVersion !== AVPLAN_VERSION) {
-    throw new Error(`Nicht unterstützte .avplan-Version: ${data.formatVersion}`)
+    throw new Error(format(tr('err.avplan.version', 'Unsupported .avplan version: {version}'), { version: String(data.formatVersion) }))
   }
-  if (!data.venue || !data.domains) throw new Error('.avplan ohne venue/domains.')
+  if (!data.venue || !data.domains) throw new Error(tr('err.avplan.incomplete', '.avplan without venue/domains.'))
   return data as AvPlan
 }
 

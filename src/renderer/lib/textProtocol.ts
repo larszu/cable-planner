@@ -1,3 +1,4 @@
+import { SatzFehler, satz } from './satz'
 /**
  * Das ERKLÄRTE Text-Protokoll (S-3).
  *
@@ -149,7 +150,7 @@ export const TEXT_VORLAGEN: TextVorlage[] = [
 const zahl = (index: number, config: TextProtocolConfig, declared: number | undefined): number =>
   config.nummern === 'declared' ? (declared ?? 0) : index + config.basis
 
-export class TextVorlagenFehler extends Error {}
+export class TextVorlagenFehler extends SatzFehler {}
 
 /**
  * Prüft die Vorlage, statt eine halbe Zeile zu senden.
@@ -159,23 +160,25 @@ export class TextVorlagenFehler extends Error {}
  * Gerät auf — dann aber auf allen Ausgängen gleichzeitig.
  */
 export const pruefeVorlage = (config: TextProtocolConfig): void => {
-  if (!config.vorlage.trim()) throw new TextVorlagenFehler('Die Befehlszeile ist leer.')
+  if (!config.vorlage.trim()) throw new TextVorlagenFehler(satz('err.textProto.empty', 'The command line is empty.'))
   if (!config.vorlage.includes('{out}')) {
-    throw new TextVorlagenFehler('In der Befehlszeile fehlt der Platzhalter {out}.')
+    throw new TextVorlagenFehler(satz('err.textProto.noOut', 'The command line is missing the placeholder {out}.'))
   }
   if (!config.vorlage.includes('{in}')) {
-    throw new TextVorlagenFehler('In der Befehlszeile fehlt der Platzhalter {in}.')
+    throw new TextVorlagenFehler(satz('err.textProto.noIn', 'The command line is missing the placeholder {in}.'))
   }
   if (config.vorlage.includes('{level}') && !config.level?.trim()) {
-    throw new TextVorlagenFehler(
-      'Die Befehlszeile nennt {level}, aber es ist keine Ebene eingetragen.',
-    )
+    throw new TextVorlagenFehler(satz('err.textProto.noLevel', 'The command line names {level}, but no level is set.'))
   }
   const unbekannt = [...config.vorlage.matchAll(/\{([a-zA-Z]+)\}/g)]
     .map((m) => m[1])
     .filter((n) => n !== 'out' && n !== 'in' && n !== 'level')
   if (unbekannt.length > 0) {
-    throw new TextVorlagenFehler(`Unbekannte Platzhalter: ${[...new Set(unbekannt)].join(', ')}.`)
+    throw new TextVorlagenFehler(
+      satz('err.textProto.unknown', 'Unknown placeholders: {liste}.', {
+        liste: [...new Set(unbekannt)].join(', '),
+      }),
+    )
   }
 }
 
@@ -197,10 +200,7 @@ export interface TextKreuzpunkt {
  * steht, hat der Nutzer erklärt, und was nicht darin steht, hat er nicht
  * gemeint.
  */
-export const renderTextCommand = (
-  config: TextProtocolConfig,
-  punkte: readonly TextKreuzpunkt[],
-): string => {
+export const renderTextCommand = (config: TextProtocolConfig, punkte: readonly TextKreuzpunkt[]): string => {
   pruefeVorlage(config)
   if (punkte.length === 0) return ''
   const anfang = ZEILEN_ANFANG[config.anfang].text

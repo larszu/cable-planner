@@ -28,11 +28,9 @@ export interface Satz {
 
 export type Uebersetzer = (key: string, fallback: string) => string
 
-export const satz = (key: string, en: string, werte?: Satz['werte']): Satz =>
-  werte ? { key, en, werte } : { key, en }
+export const satz = (key: string, en: string, werte?: Satz['werte']): Satz => (werte ? { key, en, werte } : { key, en })
 
-const istSatz = (v: unknown): v is Satz =>
-  typeof v === 'object' && v !== null && 'key' in v && 'en' in v
+const istSatz = (v: unknown): v is Satz => typeof v === 'object' && v !== null && 'key' in v && 'en' in v
 
 /** Der Satz in der Sprache von `tx`. */
 export const satzText = (s: Satz, tx: Uebersetzer): string => {
@@ -56,7 +54,10 @@ export const befundText = (f: { text?: string; satz?: Satz }, tx: Uebersetzer): 
   f.satz ? satzText(f.satz, tx) : (f.text ?? '')
 
 /** `{ satz, text }` fuer einen Befund: der Satz und sein kanonischer Text. */
-export const befund = (s: Satz): { satz: Satz; text: string } => ({ satz: s, text: satzKanonisch(s) })
+export const befund = (s: Satz): { satz: Satz; text: string } => ({
+  satz: s,
+  text: satzKanonisch(s),
+})
 
 /**
  * „a und b und c" als Satz — die Konjunktion gehoert zur Sprache. Gebaut als
@@ -66,14 +67,20 @@ export const befund = (s: Satz): { satz: Satz; text: string } => ({ satz: s, tex
 export const undListe = (teile: ReadonlyArray<string | number | Satz>): Satz => {
   if (teile.length <= 1) return satz('list.one', '{a}', { a: teile[0] ?? '' })
   const [a, ...rest] = teile
-  return satz('list.and', '{a} and {b}', { a, b: rest.length === 1 ? rest[0] : undListe(rest) })
+  return satz('list.and', '{a} and {b}', {
+    a,
+    b: rest.length === 1 ? rest[0] : undListe(rest),
+  })
 }
 
 /** „a, b, c" aus Saetzen — wie `join(', ')`, nur dass jedes Glied in der Sprache des Lesers bleibt. */
 export const kommaListe = (teile: ReadonlyArray<string | number | Satz>): Satz => {
   if (teile.length <= 1) return satz('list.one', '{a}', { a: teile[0] ?? '' })
   const [a, ...rest] = teile
-  return satz('list.comma', '{a}, {b}', { a, b: rest.length === 1 ? rest[0] : kommaListe(rest) })
+  return satz('list.comma', '{a}, {b}', {
+    a,
+    b: rest.length === 1 ? rest[0] : kommaListe(rest),
+  })
 }
 
 /**
@@ -82,3 +89,16 @@ export const kommaListe = (teile: ReadonlyArray<string | number | Satz>): Satz =
  */
 export const befundAls = <F extends string>(feld: F, s: Satz): { satz: Satz } & Record<F, string> =>
   ({ satz: s, [feld]: satzKanonisch(s) }) as { satz: Satz } & Record<F, string>
+
+/**
+ * Ein Fehler, der seinen Satz traegt (#1142). `message` ist die englische
+ * Quelle (stabil fuer Logs und Tests); wer ihn anzeigt, nimmt `satz` —
+ * Bildschirm ueber satzText(t), Blatt ueber satzKanonisch.
+ */
+export class SatzFehler extends Error {
+  readonly satz: Satz
+  constructor(s: Satz) {
+    super(satzQuelle(s))
+    this.satz = s
+  }
+}

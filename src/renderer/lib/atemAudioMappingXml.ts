@@ -6,6 +6,7 @@ import type {
   AtemClassicMixer,
   AtemInputLabel,
 } from '../types/equipment'
+import { format, tr } from './i18n'
 
 /**
  * Parse an ATEM Profile XML into our internal AtemAudioConfig shape.
@@ -97,7 +98,7 @@ export function parseAudioConfigXml(xml: string): AtemAudioConfig {
 
   if (!config.matrix && !config.classicMixer) {
     throw new Error(
-      'Weder <AudioMapping> noch <AudioMixer> im XML gefunden — die Audio-Sektion fehlt oder das XML ist kein ATEM Profile.',
+      tr('err.atemAudio.noSection', 'Neither <AudioMapping> nor <AudioMixer> found in the XML — the audio section is missing or the XML is not an ATEM profile.'),
     )
   }
 
@@ -127,7 +128,7 @@ export function serializeAudioConfigXml(config: AtemAudioConfig): string {
     const parserError = doc.querySelector('parsererror')
     if (parserError) {
       throw new Error(
-        `Original-XML lässt sich nicht mehr parsen: ${parserError.textContent ?? ''}`,
+        format(tr('err.atemAudio.unparsable', 'The original XML can no longer be parsed: {detail}'), { detail: parserError.textContent ?? '' }),
       )
     }
 

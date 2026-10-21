@@ -42,6 +42,7 @@ import type { LabelTargetId } from './labelTargets'
 import { LABEL_TARGETS, fitToTarget } from './labelTargets'
 import { UMD_ADDRESS_MAX, UMD_ADDRESS_MIN, isValidUmdAddress } from './sourceIdentity'
 import { satz, type Satz } from './satz'
+import { format, tr } from './i18n'
 
 export const SOURCE_MAP_KIND = 'av-source-map' as const
 export const SOURCE_MAP_VERSION = 1 as const
@@ -303,12 +304,12 @@ const asProvenance = (value: unknown): ValueProvenance | undefined =>
 export const parseSourceMap = (text: string): SourceMap => {
   const data = asRecord(JSON.parse(text))
   if (!data || data.kind !== SOURCE_MAP_KIND) {
-    throw new Error('Keine gültige .avsourcemap-Datei (kind != av-source-map).')
+    throw new Error(tr('err.sourceMap.invalid', 'Not a valid .avsourcemap file (kind != av-source-map).'))
   }
   const version = data.formatVersion
   if (typeof version !== 'number' || version > SOURCE_MAP_VERSION) {
     throw new Error(
-      `.avsourcemap-Version ${String(version)} ist neuer als unterstützt (${SOURCE_MAP_VERSION}).`,
+      format(tr('err.sourceMap.version', '.avsourcemap version {v} is newer than supported ({max}).'), { v: String(version), max: SOURCE_MAP_VERSION }),
     )
   }
 

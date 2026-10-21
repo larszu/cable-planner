@@ -22,6 +22,7 @@ import type { ConnectorType } from '../types/equipment'
 import { ALL_SIGNAL_STANDARDS } from '../types/cableSpec'
 import type { PortGroupHint } from './portSuggestions'
 import { STORAGE_KEYS } from './storageKeys'
+import { format, tr } from './i18n'
 
 export type AiProvider = 'gemini' | 'claude' | 'openai'
 
@@ -553,7 +554,7 @@ export const completeWithAI = async (
   const key = getApiKey(provider)
   if (!key) {
     throw new Error(
-      `Kein API-Key für ${PROVIDERS[provider].label}. Bitte in den Einstellungen → AI hinterlegen.`,
+      format(tr('err.ai.noKey', 'No API key for {provider}. Please add one under Settings → AI.'), { provider: PROVIDERS[provider].label }),
     )
   }
   switch (provider) {

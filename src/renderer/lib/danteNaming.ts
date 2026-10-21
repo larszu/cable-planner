@@ -1,3 +1,4 @@
+import { satz, satzKanonisch, type Satz } from './satz'
 // #346 — Dante-/AES67-Naming-Helfer.
 //
 // Audinate Dante-Gerätenamen folgen festen Regeln (DNS-SD/mDNS-konform):
@@ -14,6 +15,8 @@ export interface DanteNameCheck {
   valid: boolean
   /** Verstoß-Gründe (leer wenn valid). */
   issues: string[]
+  /** Dieselben Gruende als Saetze — fuer den Bildschirm in der App-Sprache. */
+  issueSaetze: Satz[]
   /** Konformer Vorschlag (kann == input sein wenn schon gültig). */
   suggestion: string
 }
@@ -21,13 +24,20 @@ export interface DanteNameCheck {
 /** Prüft einen Dante-Gerätenamen gegen die Namensregeln. */
 export const checkDanteName = (raw: string): DanteNameCheck => {
   const name = raw ?? ''
-  const issues: string[] = []
-  if (name.length === 0) issues.push('leer')
-  if (name.length > DANTE_MAX_LENGTH) issues.push(`> ${DANTE_MAX_LENGTH} Zeichen`)
-  if (/[^a-zA-Z0-9-]/.test(name)) issues.push('ungültige Zeichen (nur a–z, 0–9, -)')
-  if (/^-/.test(name)) issues.push('führender Bindestrich')
-  if (/-$/.test(name)) issues.push('abschließender Bindestrich')
-  return { valid: issues.length === 0, issues, suggestion: suggestDanteName(name) }
+  const saetze: Satz[] = []
+  if (name.length === 0) saetze.push(satz('dante.issue.empty', 'empty'))
+  if (name.length > DANTE_MAX_LENGTH)
+    saetze.push(satz('dante.issue.tooLong', '> {n} characters', { n: DANTE_MAX_LENGTH }))
+  if (/[^a-zA-Z0-9-]/.test(name)) saetze.push(satz('dante.issue.chars', 'invalid characters (only a–z, 0–9, -)'))
+  if (/^-/.test(name)) saetze.push(satz('dante.issue.leadingDash', 'leading hyphen'))
+  if (/-$/.test(name)) saetze.push(satz('dante.issue.trailingDash', 'trailing hyphen'))
+  const issues = saetze.map(satzKanonisch)
+  return {
+    valid: issues.length === 0,
+    issues,
+    issueSaetze: saetze,
+    suggestion: suggestDanteName(name),
+  }
 }
 
 /** Wandelt einen beliebigen Namen in einen Dante-konformen Vorschlag um. */

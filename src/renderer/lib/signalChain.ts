@@ -47,7 +47,7 @@ import { detectDeviceKind } from './deviceKind'
 import { deviceCrosspoints } from './deviceCrosspoints'
 import { isPatchPanelDevice, patchPanelCounterpart } from './patchPanel'
 import { resolvePortLabel } from './portLabel'
-import { befundAls, satz, type Satz } from './satz'
+import { befundAls, satz, satzKanonisch, type Satz } from './satz'
 
 /** Welche Bauform den Weiterweg hergegeben hat. */
 export type PassThroughKind =
@@ -149,8 +149,7 @@ const MAX_CHAINS = 400
 const portText = (port: Port | undefined, fallback: string): string =>
   port ? resolvePortLabel(port).text || port.name || fallback : fallback
 
-const cableText = (c: Cable): string =>
-  c.cableNumber?.trim() || c.name?.trim() || c.type || c.id
+const cableText = (c: Cable): string => c.cableNumber?.trim() || c.name?.trim() || c.type || c.id
 
 interface Forward {
   kind: PassThroughKind
@@ -184,7 +183,11 @@ const forwardFrom = (
           'ambiguous',
           device.inputs.length === device.outputs.length
             ? satz('rest.chain.notThrough', 'Port is not part of the patch panel pass-through')
-            : satz('rest.chain.uneven', 'Patch panel unevenly fitted ({hinten} rear, {vorn} front) — the position says nothing here', { hinten: device.inputs.length, vorn: device.outputs.length }),
+            : satz(
+                'rest.chain.uneven',
+                'Patch panel unevenly fitted ({hinten} rear, {vorn} front) — the position says nothing here',
+                { hinten: device.inputs.length, vorn: device.outputs.length },
+              ),
         ),
       }
     }
@@ -192,9 +195,7 @@ const forwardFrom = (
   }
 
   if (device.isDistributionAmp) {
-    const outs = (cablesFromEquipment.get(device.id) ?? []).filter(
-      (c) => c.fromPortId !== arrivalPortId,
-    )
+    const outs = (cablesFromEquipment.get(device.id) ?? []).filter((c) => c.fromPortId !== arrivalPortId)
     return { kind: 'distribution-amp', cables: outs }
   }
 
@@ -202,9 +203,7 @@ const forwardFrom = (
   // (ein aktiver Adapter ist ein winziger Wandler) und die genauere Aussage
   // gewinnen muss: „Adapter" sagt mehr als „Wandler", nicht weniger.
   if (device.adapter) {
-    const outs = (cablesFromEquipment.get(device.id) ?? []).filter(
-      (c) => c.fromPortId !== arrivalPortId,
-    )
+    const outs = (cablesFromEquipment.get(device.id) ?? []).filter((c) => c.fromPortId !== arrivalPortId)
     if (outs.length > 1) {
       return {
         kind: 'adapter',
@@ -217,9 +216,7 @@ const forwardFrom = (
 
   if (device.isConverter) {
     // #285 — dieselbe Regel wie in der Patchliste: genau ein Folgekabel.
-    const outs = (cablesFromEquipment.get(device.id) ?? []).filter(
-      (c) => c.fromPortId !== arrivalPortId,
-    )
+    const outs = (cablesFromEquipment.get(device.id) ?? []).filter((c) => c.fromPortId !== arrivalPortId)
     if (outs.length > 1) {
       return {
         kind: 'converter',
@@ -388,7 +385,9 @@ export const signalChains = (
       })
     }
 
-    if (!device) return finish('mehrdeutig', 'Zielgerät steht nicht mehr im Plan')
+    const fertig = (end: ChainEnd, s: Satz) => finish(end, satzKanonisch(s), s)
+
+    if (!device) return fertig('mehrdeutig', satz('rest.chain.targetGone', 'Target device is no longer in the plan'))
 
     const fw = forwardFrom(device, last.toPortId, cablesFromEquipment, cablesFromPort)
     if (!fw) return finish('ziel', '')
@@ -398,25 +397,35 @@ export const signalChains = (
       return finish(
         'mehrdeutig',
         `${PASS_THROUGH_LABEL[fw.kind]}: ${fw.ambiguous}`,
-        fw.ambiguousSatz ? satz('chain.end.ambiguous', '{art}: {grund}', { art, grund: fw.ambiguousSatz }) : undefined,
+        fw.ambiguousSatz
+          ? satz('chain.end.ambiguous', '{art}: {grund}', {
+              art,
+              grund: fw.ambiguousSatz,
+            })
+          : undefined,
       )
     }
     if (fw.cables.length === 0) {
       last.through = null
-      return finish(
+      return fertig(
         'nicht-verkabelt',
-        `${PASS_THROUGH_LABEL[fw.kind]}: der Weiterweg ist im Plan nicht verkabelt`,
+        satz('rest.chain.onwardNotCabled', '{art}: the onward path is not cabled in the plan', {
+          art: satz(`chain.passThrough.${fw.kind}`, PASS_THROUGH_EN[fw.kind]),
+        }),
       )
     }
     if (steps.length > MAX_LEVELS) {
       last.through = fw.kind
-      return finish('zu-lang', `Mehr als ${MAX_LEVELS} Zwischenstationen — hier abgeschnitten`)
+      return fertig(
+        'zu-lang',
+        satz('rest.chain.tooLong', 'More than {n} intermediate stations — cut off here', { n: MAX_LEVELS }),
+      )
     }
 
     last.through = fw.kind
     for (const next of fw.cables) {
       if (seenCables.has(next.id)) {
-        finish('schleife', 'Der Weg läuft in sich zurück')
+        fertig('schleife', satz('rest.trace.loop', 'The path loops back on itself'))
         continue
       }
       walk([...steps.slice(0, -1), { ...last }, stepOf(next)], new Set([...seenCables, next.id]))
