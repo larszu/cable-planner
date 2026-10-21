@@ -182,7 +182,7 @@ jobs:
           pruefe '*.zip'          'macOS-Auto-Update: Squirrel.Mac spielt nur aus einem zip ein'
           pruefe 'latest.yml'     'Update-Manifest Windows'
           pruefe 'latest-mac.yml' 'Update-Manifest macOS'
-          pruefe '*-x64.AppImage'   'Linux x64 (linux-x64-Job)'
+          pruefe '*-x86_64.AppImage' 'Linux x64 (linux-x64-Job)'
           pruefe '*-arm64.AppImage' 'Linux arm64 (linux-arm64-Job)'
           pruefe '*.deb'            'Linux-Paket'
           pruefe 'latest-linux.yml' 'Update-Manifest Linux x64'
