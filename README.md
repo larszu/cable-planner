@@ -164,6 +164,13 @@
 - **Calm by default.** One single-line toolbar over the plan: defaults,
   frame, selection tools and the layer chips; everything else sits under
   *More*. Devices are neutral cards with their colour as a thin edge.
+- **One way in.** The first start asks once what you plan (show, fixed
+  install, rental — optional, it only switches the matching modules on) and
+  offers a new project, the example project or opening a file. A five-step
+  tour follows; it stays under *Help*.
+- **Find any function.** `Ctrl/⌘+K` opens the command palette: every tool and
+  dialog with a one-line description, found by title, description or
+  synonym in English and German (*label* or *Etikett* finds the QR labels).
 - **Shortcuts at a glance.** Press `?` (or *Help → Keyboard shortcuts*) for a
   virtual keyboard — QWERTZ in German, QWERTY otherwise, ⌘/⇧ on a Mac —
   with every assigned key highlighted; hover or click a key to see its
