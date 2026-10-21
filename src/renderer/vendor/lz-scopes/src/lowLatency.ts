@@ -4,6 +4,8 @@
 // single fields. Every measure is optional, because each has a price (fewer sample points,
 // more draw work, no common A/V time base, …).
 
+import { t } from './i18n';
+
 export interface LowLatencyConfig {
   /** analysis width cap in px (0 = native, no cap) */
   width: number;
@@ -17,8 +19,8 @@ export interface LowLatencyConfig {
 
 export const DEFAULT_LOW_LATENCY: LowLatencyConfig = { width: 640, drawOnArrive: true, ownRtp: true, statsMs: 100 };
 
-export const LL_WIDTHS: [string, string][] = [['320', '320 px'], ['480', '480 px'], ['640', '640 px'], ['960', '960 px'], ['0', 'nativ (keine Grenze)']];
-export const LL_STATS: [string, string][] = [['100', 'alle 100 ms'], ['250', 'alle 250 ms'], ['500', 'alle 500 ms'], ['1000', 'jede Sekunde']];
+export const LL_WIDTHS: [string, string][] = [['320', '320 px'], ['480', '480 px'], ['640', '640 px'], ['960', '960 px'], ['0', t('tools.ll.native')]];
+export const LL_STATS: [string, string][] = [['100', t('tools.ll.every100')], ['250', t('tools.ll.every250')], ['500', t('tools.ll.every500')], ['1000', t('tools.ll.everySecond')]];
 
 /** Global settings with a source's own overrides. */
 export function mergeLowLatency(global: Partial<LowLatencyConfig> | undefined, own: Partial<LowLatencyConfig> | undefined): LowLatencyConfig {
@@ -35,9 +37,9 @@ export function effectiveWidth(width: number, low: boolean, cap: number): number
 /** Short description for the source card and the Messwerte panel. */
 export function describeLowLatency(c: LowLatencyConfig): string {
   return [
-    c.width ? `≤ ${c.width} px` : 'Breite frei',
-    c.drawOnArrive ? 'Zeichnen bei Ankunft' : 'Zeichnen im Bildtakt',
-    c.ownRtp ? 'RTP eigen' : 'RTP über ffmpeg',
-    `Statistik ${c.statsMs} ms`,
+    c.width ? `≤ ${c.width} px` : t('tools.ll.widthFree'),
+    c.drawOnArrive ? t('tools.ll.drawOnArrive') : t('tools.ll.drawOnFrame'),
+    c.ownRtp ? t('tools.ll.ownRtp') : t('tools.ll.ffmpegRtp'),
+    t('tools.ll.stats', { ms: c.statsMs }),
   ].join(' · ');
 }

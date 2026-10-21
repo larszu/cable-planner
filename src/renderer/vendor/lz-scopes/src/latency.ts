@@ -14,6 +14,8 @@
 
 import { stampAge } from '../server/stamp.mjs';
 import type { FrameMeta } from './frameLink';
+import { t } from './i18n';
+import { bridgeText } from './i18n/bridgeMessage';
 
 export interface LatencySummary {
   /** stamp → draw submitted (or → next animation frame without draw hook), ms */
@@ -111,13 +113,14 @@ export class LatencyMeter {
 
 /** Lines for the Messwerte panel. `low` = the source runs in low-latency mode. */
 export function latencyLines(s: LatencySummary | null, low = false): string[] {
-  if (!s) return low ? ['', 'Latenz     Low Latency an · keine gestempelten Testbilder, nicht gemessen'] : [];
+  const head = (k: 'tools.lat.label' | 'tools.lat.reception') => t(k).padEnd(11);
+  if (!s) return low ? ['', head('tools.lat.label') + t('tools.lat.notMeasured')] : [];
   const f = (x: Stat | null) => (x ? `${Math.round(x.mean)} ms (${Math.round(x.min)}–${Math.round(x.max)})` : '–');
-  const lines = ['', `Latenz     ${low ? 'Low Latency · ' : ''}Stempel → gezeichnet ${f(s.total)}`];
-  if (s.toBridge) lines.push(`           Quelle → Bridge ${f(s.toBridge)}${s.bridgeToApp ? ` · Bridge → App ${f(s.bridgeToApp)}` : ''}`);
-  if (s.decode) lines.push(`           davon H.264-Dekodierung ${f(s.decode)}`);
-  if (s.wait && s.draw) lines.push(`           Worker → Hauptthread ${f(s.handoff)} · Warten ${f(s.wait)} · Zeichnen ${f(s.draw)}`);
-  lines.push('           (gleiche Uhr vorausgesetzt; ohne Compositor und Monitor)');
+  const lines = ['', `${head('tools.lat.label')}${low ? 'Low Latency · ' : ''}${t('tools.lat.total', { v: f(s.total) })}`];
+  if (s.toBridge) lines.push(`           ${t('tools.lat.toBridge', { v: f(s.toBridge) })}${s.bridgeToApp ? ` · Bridge → App ${f(s.bridgeToApp)}` : ''}`);
+  if (s.decode) lines.push(`           ${t('tools.lat.decode', { v: f(s.decode) })}`);
+  if (s.wait && s.draw) lines.push(`           ${t('tools.lat.split', { handoff: f(s.handoff), wait: f(s.wait), draw: f(s.draw) })}`);
+  lines.push(`           ${t('tools.lat.note')}`);
   return lines;
 }
 
@@ -133,16 +136,17 @@ export function rtpLines(
   st: RtpStats | null | undefined,
 ): string[] {
   if (!info) return [];
-  if (!info.own) return [`Empfang    ${info.note ?? 'ffmpeg-RTSP'}`];
+  const head = t('tools.lat.reception').padEnd(11);
+  if (!info.own) return [`${head}${bridgeText(info, 'note', 'ffmpeg-RTSP')}`];
   const codec = info.codec === 'hevc' ? 'HEVC' : 'H.264';
   const transport = (st?.transport ?? info.transport ?? 'tcp').toUpperCase();
-  const lines = [`Empfang    RTP eigen · ${codec} · ${transport}${st?.udpBuffer ? ` · Puffer ${(st.udpBuffer / 1048576).toFixed(1)} MB` : ''}`];
-  if (st?.switched) lines.push(`           ${st.switched}`);
+  const lines = [`${head}${t('tools.lat.ownRtp')} · ${codec} · ${transport}${st?.udpBuffer ? t('tools.lat.buffer', { mb: (st.udpBuffer / 1048576).toFixed(1) }) : ''}`];
+  if (st?.switched) lines.push(`           ${bridgeText(st, 'switched')}`);
   if (st) {
     const total = st.packets + st.lost;
     const pct = total ? (100 * st.lost) / total : 0;
-    lines.push(`           ${st.packets} Pakete · ${st.lost} verloren (${pct.toFixed(pct < 1 ? 2 : 1)} %) · ${st.reordered} umsortiert · ${st.late ?? 0} zu spät`);
-    lines.push(`           ${st.accessUnits} Bilder · ${st.droppedUnits} verworfen (Lücke, dann bis zum nächsten Keyframe)`);
+    lines.push(`           ${t('tools.lat.packets', { n: st.packets, lost: st.lost, pct: pct.toFixed(pct < 1 ? 2 : 1), re: st.reordered, late: st.late ?? 0 })}`);
+    lines.push(`           ${t('tools.lat.units', { n: st.accessUnits, dropped: st.droppedUnits })}`);
   }
   return lines;
 }

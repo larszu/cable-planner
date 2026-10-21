@@ -10,18 +10,21 @@ import type { Lut } from './lut';
 import type { Source } from './sources';
 import { RGC, RGC_GLSL, rgcScale } from './rgc';
 import { CUBE_GLSL, CUBE_SCALE } from './cube';
+import { t } from './i18n';
 import { R103, R103_GLSL, YUV_FETCH_GLSL, yuvScale } from './ycbcr';
+import { intersect } from './view';
 import { BLUR_FS, CRT_DISPLAY_FS, CRT_FS, CRT_VS_MAIN, PERSIST_FS, PHOSPHORS, beamSigma, persistDecay, type CrtSettings } from './crt';
 
 /** Beam segments per CRT scope and frame (each is a quad, far more fill than a point). */
 const CRT_BUDGET = 150_000;
 
-export type ScatterMode = 'luma' | 'rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'cie' | 'skin' | 'diamond' | 'cube' | 'satlum' | 'chplot';
-const MODE_ID: Record<ScatterMode, number> = { luma: 0, rgb: 1, parade: 2, yrgb: 3, ycbcr: 4, vector: 5, cie: 6, skin: 7, diamond: 8, cube: 9, satlum: 10, chplot: 11 };
-const INSTANCES: Record<ScatterMode, number> = { luma: 1, rgb: 3, parade: 3, yrgb: 4, ycbcr: 3, vector: 1, cie: 1, skin: 1, diamond: 2, cube: 1, satlum: 1, chplot: 1 };
+export type ScatterMode = 'luma' | 'rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'hls' | 'cie' | 'skin' | 'diamond' | 'cube' | 'satlum' | 'chplot';
+const MODE_ID: Record<ScatterMode, number> = { luma: 0, rgb: 1, parade: 2, yrgb: 3, ycbcr: 4, vector: 5, cie: 6, skin: 7, diamond: 8, cube: 9, satlum: 10, chplot: 11, hls: 12 };
+const INSTANCES: Record<ScatterMode, number> = { luma: 1, rgb: 3, parade: 3, yrgb: 4, ycbcr: 3, vector: 1, cie: 1, skin: 1, diamond: 2, cube: 1, satlum: 1, chplot: 1, hls: 1 };
 
-export type PictureMode = 'normal' | 'false' | 'zebra' | 'clip' | 'luma' | 'skin' | 'gamut' | 'r103' | 'neutral';
-const PICTURE_ID: Record<PictureMode, number> = { normal: 0, false: 1, zebra: 2, clip: 3, luma: 4, skin: 5, gamut: 6, r103: 7, neutral: 8 };
+export type PictureMode = 'normal' | 'false' | 'zebra' | 'clip' | 'luma' | 'skin' | 'green' | 'gamut' | 'r103' | 'neutral' | 'peaking';
+// 'green' = the skin overlay with the green qualifier's range (panel.ts passes it as skin)
+const PICTURE_ID: Record<PictureMode, number> = { normal: 0, false: 1, zebra: 2, clip: 3, luma: 4, skin: 5, green: 5, gamut: 6, r103: 7, neutral: 8, peaking: 9 };
 
 /** Region of interest in source pixels [x0, y0, x1, y1) and skin-tone detection window. */
 export type Roi = [number, number, number, number] | null;
@@ -38,12 +41,14 @@ bool inRoi(ivec2 p) {
   }
   return false;
 }`;
-export interface SkinRange { lo: number; hi: number; tol: number }
+/** Qualifier: luma window lo…hi and hue wedge ±tol around `hue` (° on the vectorscope, default skin line 123°). */
+export interface SkinRange { lo: number; hi: number; tol: number; hue?: number }
 
+// hue wedge around centre uSkin.w (skin 123°, green qualifier match/core.ts GREEN_DEFAULT)
 const SKIN_GLSL = `
 bool isSkin(float cb, float cr, float tol) {
-  float ang = degrees(atan(cr, cb));
-  return length(vec2(cb, cr)) > 0.012 && abs(ang - 123.0) <= tol;
+  float d = mod(degrees(atan(cr, cb)) - uSkin.w + 540.0, 360.0) - 180.0;
+  return length(vec2(cb, cr)) > 0.012 && abs(d) <= tol;
 }`;
 
 export interface Rect { x: number; y: number; w: number; h: number }
@@ -87,10 +92,12 @@ uniform int uStep, uCols, uMode, uColorize, uCieUv, uSecN, uPair;
 uniform ivec4 uSec; // section per trace instance (-1 = hidden channel)
 uniform vec2 uK;
 uniform float uZoom, uIntensity, uWMin, uWMax, uPointSize;
+uniform vec3 uPanZoom; // gesture view of 2D scopes (view.ts): pos · z + (x, y)
 uniform mat3 uToXYZ;
 uniform vec4 uCie;
 ${ROI_GLSL}
-uniform vec3 uSkin, uTint;
+uniform vec4 uSkin;
+uniform vec3 uTint;
 out vec3 vColor;
 out float vW;
 ${SKIN_GLSL}
@@ -160,6 +167,15 @@ bool plotSample(ivec2 p, int ch, out vec2 pos, out vec3 col) {
     // 3D colour volume (cube.ts): rotated, orthographic
     pos = (uRot * cubeQ(rgb)).xy * ${CUBE_SCALE.toFixed(4)} * uView.x + uView.yz;
     if (uColorize == 1) col = srcCol;
+  } else if (uMode == 12) {
+    // HLS vectorscope (graticule.ts hsl/hlsPoint): HSL hue as the angle from the matrix's YUV red, HSL saturation as the radius
+    vec3 c = clamp(rgb, 0.0, 1.0);
+    float mx = max(c.r, max(c.g, c.b)), mn = min(c.r, min(c.g, c.b)), d = mx - mn, l = (mx + mn) * 0.5;
+    float s = d <= 1e-6 ? 0.0 : d / (1.0 - abs(2.0 * l - 1.0));
+    float h = d <= 1e-6 ? 0.0 : mx == c.r ? mod((c.g - c.b) / d + 6.0, 6.0) : mx == c.g ? (c.b - c.r) / d + 2.0 : (c.r - c.g) / d + 4.0;
+    float a = atan(0.5, -kr / (2.0 * (1.0 - kb))) + h / 6.0 * 6.28318530718;
+    pos = vec2(cos(a), sin(a)) * s * 0.9 * uZoom;
+    if (uColorize == 1) col = srcCol;
   } else if (uMode == 5) {
     pos = vec2(cb, cr) * 2.0 * 0.9 * uZoom;
     if (uColorize == 1) col = clamp(rgb / max(max(rgb.r, max(rgb.g, rgb.b)), 0.05), 0.0, 1.0);
@@ -172,6 +188,7 @@ bool plotSample(ivec2 p, int ch, out vec2 pos, out vec3 col) {
     pos = vec2((xy.x - uCie.x) / (uCie.y - uCie.x), (xy.y - uCie.z) / (uCie.w - uCie.z)) * 2.0 - 1.0;
     col = uColorize == 1 ? clamp(rgb / max(max(rgb.r, max(rgb.g, rgb.b)), 0.05), 0.0, 1.0) : mono;
   }
+  pos = pos * uPanZoom.x + uPanZoom.yz;
   if (uRoiCount > 0) {
     bool inside = inRoi(p);
     bool colored = uColorize >= 1 || uMode == 1 || uMode == 7;
@@ -211,9 +228,18 @@ void main() {
   vUv = p; gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
 }`;
 
+/** Picture: like QUAD_VS, but showing only the part uUv (offset, size) of the picture (gesture zoom, #89). */
+const PICTURE_VS = `#version 300 es
+uniform vec4 uUv;
+out vec2 vUv;
+void main() {
+  vec2 p = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));
+  vUv = uUv.xy + p * uUv.zw; gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+}`;
+
 const DISPLAY_FS = `#version 300 es
 precision highp float;
-uniform sampler2D uAcc; uniform float uGain; uniform vec3 uTint; uniform int uAvg;
+uniform sampler2D uAcc; uniform float uGain; uniform vec3 uTint; uniform int uAvg, uMono;
 in vec2 vUv; out vec4 o;
 void main() {
   vec4 a = texture(uAcc, vUv);
@@ -227,6 +253,8 @@ void main() {
     float m = max(a.r, max(a.g, a.b));
     c = m > 0.0 ? a.rgb / m * (1.0 - exp(-m * uGain)) : vec3(0.0);
   }
+  // reference trace (ghost.ts): brightness only, in the ghost colour
+  if (uMono == 1) c = vec3(max(c.r, max(c.g, c.b)));
   o = vec4(c * uTint, 1.0);
 }`;
 
@@ -243,9 +271,10 @@ uniform ivec2 uSize; uniform int uMode; uniform vec2 uK;
 uniform vec4 uBand[12]; uniform int uBands;
 uniform float uZebra, uZebraLow;
 uniform vec4 uNeutral;
+uniform vec4 uPeak; // focus peaking (focus.ts): threshold, colour
 uniform int uDisp;
 uniform mat3 uGamut, uWarn, uTo2020, uFrom2020;
-uniform vec3 uSkin;
+uniform vec4 uSkin;
 ${ROI_GLSL}
 in vec2 vUv; out vec4 o;
 ${SKIN_GLSL}
@@ -313,6 +342,15 @@ void main() {
         c = clamp(vec3(R, (yy - kr2 * R - kb2 * B) / (1.0 - kr2 - kb2), B), 0.0, 1.0);
       }
     }
+  } else if (uMode == 9) {
+    // focus peaking (focus.ts sharpness): Sobel gradient of Y′ at source resolution, 1 = full black→white step
+    vec3 kw = vec3(uK.x, 1.0 - uK.x - uK.y, uK.y);
+    ivec2 hi = uSize - 1;
+    #define YQ(dx, dy) dot(fetchRGB(clamp(p + ivec2(dx, dy), ivec2(0), hi)), kw)
+    float a = YQ(-1, -1), b = YQ(0, -1), cc = YQ(1, -1), d = YQ(-1, 0), f = YQ(1, 0), g = YQ(-1, 1), hh = YQ(0, 1), k = YQ(1, 1);
+    float gx = (cc + 2.0 * f + k - a - 2.0 * d - g) / 4.0, gy = (g + 2.0 * hh + k - a - 2.0 * b - cc) / 4.0;
+    c = vec3(dot(c, vec3(0.2126, 0.7152, 0.0722)) * 0.75);
+    if (length(vec2(gx, gy)) > uPeak.x) c = uPeak.yzw;
   } else if (uMode == 6) {
     // gamut warning: distance d = (max - c)/max in the target gamut; d > 1 = a channel is negative
     vec3 t = uWarn * rgcLin(toLinear(rgb));
@@ -354,6 +392,10 @@ export interface ScatterParams {
   persist?: number;
   /** analogue beam look (crt.ts) */
   crt?: CrtSettings;
+  /** 2D scopes: gesture zoom/pan (view.ts) as [z, x, y] in clip units */
+  view?: [number, number, number];
+  /** trace weight factor, so zoomed traces keep their brightness (z² in 2D, z for waveforms) */
+  density?: number;
 }
 /** How the picture view maps the signal to the screen. */
 export interface DisplayParams {
@@ -363,15 +405,22 @@ export interface DisplayParams {
 }
 export interface PictureParams {
   mode: PictureMode; bands: FalseColorBand[]; zebra: number; zebraLow: number; roi: Rois; skin: SkinRange; display: DisplayParams;
+  /** draw flipped left/right (butterfly split of the A/B comparison, match/crop.ts) */
+  mirror?: boolean;
   /** neutral overlay: chroma threshold (|CbCr|/0.5) and Y′ range */
   neutral?: { threshold: number; lo: number; hi: number };
   /** gamut warning: row-major 3×3 source linear → target gamut linear */
   warn?: number[];
+  /** focus peaking: gradient threshold (focus.ts) and colour */
+  peaking?: { threshold: number; colour: readonly [number, number, number] };
   /** ACES 1.3 RGC preview (rgc.ts): row-major source linear → AP1 and back */
   rgc?: { toAp1: number[]; fromAp1: number[] };
 }
 
 const colMajor = (m: number[]) => [m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]];
+
+/** Reference trace drawn over a panel (ghost.ts): its colour and, when frozen, the snapshot to read. */
+export interface GhostDraw { tint: [number, number, number]; snapshot?: string }
 
 export class Renderer {
   readonly gl: WebGL2RenderingContext;
@@ -379,6 +428,8 @@ export class Renderer {
   private uloc = new Map<WebGLProgram, Map<string, WebGLUniformLocation | null>>();
   private vao: WebGLVertexArrayObject;
   private textures = new Map<string, SrcTex>();
+  /** frozen copies of source frames (reference camera, ghost.ts) */
+  private snaps = new Map<string, SrcTex>();
   private accums = new Map<string, Accum>();
   private sigs = new Map<string, string>();
   private lutTex = new Map<string, LutTex & { version: number }>();
@@ -390,11 +441,17 @@ export class Renderer {
   /**
    * `deep`: ask for a RGBA16F drawing buffer (output windows). drawingBufferStorage needs
    * alpha: true (WebGL spec), so endFrame() then sets alpha back to 1 everywhere.
+   * `preserve: false` when every drawn region is copied out in the same task (main view):
+   * a kept drawing buffer costs an extra copy per frame, under ANGLE/D3D11 two
+   * (docs/research/windows-und-ndi.md). Shown or later-read canvases keep it.
    */
-  constructor(readonly canvas: HTMLCanvasElement, private readonly opts: { deep?: boolean } = {}) {
-    const gl = canvas.getContext('webgl2', { antialias: false, alpha: !!opts.deep, preserveDrawingBuffer: true, premultipliedAlpha: false });
-    if (!gl) throw new Error('WebGL2 wird von diesem Browser nicht unterstützt.');
-    if (!gl.getExtension('EXT_color_buffer_float')) throw new Error('EXT_color_buffer_float fehlt – Scopes brauchen Float-Rendertargets.');
+  constructor(readonly canvas: HTMLCanvasElement, private readonly opts: { deep?: boolean; preserve?: boolean } = {}) {
+    const gl = canvas.getContext('webgl2', { antialias: false, alpha: !!opts.deep, preserveDrawingBuffer: opts.preserve ?? true, premultipliedAlpha: false });
+    if (!gl) throw new Error(t('render.noWebgl2'));
+    // The scopes accumulate into RGBA16F (texture below). EXT_color_buffer_float covers that; iOS
+    // GPUs may offer only EXT_color_buffer_half_float, which the WebGL registry allows in WebGL 2
+    // for RGBA16F/RG16F/R16F (KhronosGroup/WebGL#3093, docs/research/ios-app.md).
+    if (!gl.getExtension('EXT_color_buffer_float') && !gl.getExtension('EXT_color_buffer_half_float')) throw new Error(t('render.noFloatTargets'));
     gl.getExtension('EXT_float_blend');
     this.gl = gl;
     this.vao = gl.createVertexArray()!;
@@ -524,12 +581,47 @@ export class Renderer {
   }
 
   dropPanel(key: string) {
-    for (const k of [key, `${key}#p0`, `${key}#p1`, `${key}#g0`, `${key}#g1`, `${key}#da`, `${key}#db`]) {
+    // tile panels (tiles.ts) hold one sub-panel per tile
+    if (!key.includes('#t')) for (let i = 0; i < 8; i++) this.dropPanel(`${key}#t${i}`);
+    for (const k of [key, `${key}#p0`, `${key}#p1`, `${key}#g0`, `${key}#g1`, `${key}#da`, `${key}#db`, `${key}#ref`]) {
       const a = this.accums.get(k);
       if (a) { this.gl.deleteTexture(a.tex); this.gl.deleteFramebuffer(a.fbo); this.accums.delete(k); }
     }
     this.settling.delete(key); this.crtTimes.delete(key);
   }
+  /**
+   * Keep a copy of the source's current frame under `tag` (frozen reference). The copy has the
+   * texture's own format (8-bit, 16-bit or Y′CbCr), so the frozen trace is measured exactly like
+   * the live one. Returns false when the source has no frame yet.
+   */
+  snapshot(src: Source, tag: string): boolean {
+    const t = this.sourceTexture(baseOf(src));
+    if (!t || !t.w) return false;
+    const gl = this.gl;
+    this.dropSnapshot(tag);
+    const tex = gl.createTexture()!;
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    gl.texStorage2D(gl.TEXTURE_2D, 1, t.u16 ? gl.RGBA16UI : gl.RGBA8, t.w, t.h);
+    const rd = gl.createFramebuffer()!, dr = gl.createFramebuffer()!;
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, rd);
+    gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t.tex, 0);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dr);
+    gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    gl.disable(gl.SCISSOR_TEST);
+    gl.blitFramebuffer(0, 0, t.w, t.h, 0, 0, t.w, t.h, gl.COLOR_BUFFER_BIT, gl.NEAREST);
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null); gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+    gl.deleteFramebuffer(rd); gl.deleteFramebuffer(dr);
+    this.snaps.set(tag, { tex, w: t.w, h: t.h, u16: t.u16, seq: ++this.snapSeq });
+    return true;
+  }
+  private snapSeq = 0;
+  dropSnapshot(tag: string) {
+    const s = this.snaps.get(tag);
+    if (s) { this.gl.deleteTexture(s.tex); this.snaps.delete(tag); }
+  }
+  hasSnapshot(tag: string) { return this.snaps.has(tag); }
+
   dropSource(id: string) {
     const t = this.textures.get(id);
     if (t) { this.gl.deleteTexture(t.tex); this.textures.delete(id); }
@@ -592,15 +684,15 @@ export class Renderer {
    * @param overlay add the traces on top of what is already there (scope over picture)
    * @param opacity trace strength when overlaid (0…1)
    */
-  drawScatter(key: string, src: Source, rect: Rect, p: ScatterParams, overlay = false, opacity = 1) {
-    const t = this.sourceTexture(baseOf(src));
+  drawScatter(key: string, src: Source, rect: Rect, p: ScatterParams, overlay = false, opacity = 1, ghost?: GhostDraw) {
+    const t = ghost?.snapshot ? this.snaps.get(ghost.snapshot) ?? null : this.sourceTexture(baseOf(src));
     if (!t) return;
     const gl = this.gl;
     const vp = this.viewport(rect);
     const acc = this.accum(key, vp.w, vp.h);
     const kind = this.texKind(src, t);
     const crt = p.crt?.on ? p.crt : null;
-    const wave = p.mode !== 'vector' && p.mode !== 'cie' && p.mode !== 'diamond' && p.mode !== 'cube' && p.mode !== 'satlum' && p.mode !== 'chplot';
+    const wave = p.mode !== 'vector' && p.mode !== 'hls' && p.mode !== 'cie' && p.mode !== 'diamond' && p.mode !== 'cube' && p.mode !== 'satlum' && p.mode !== 'chplot';
     // Normalise so that the display brightness does not depend on source or panel size.
     const sections = p.mode === 'parade' || p.mode === 'yrgb' ? p.secN ?? (p.mode === 'yrgb' ? 4 : 3) : p.mode === 'ycbcr' ? 3 : 1;
     let stepX: number, stepY: number;
@@ -618,10 +710,10 @@ export class Renderer {
     const area = (vp.w / sections) * vp.h;
     // the 3D volume spreads the points thinly: bigger dots and more weight so colours stay visible
     const dot = !crt && !wave ? Math.max(1, Math.round(this.dpr)) * (p.mode === 'cube' ? 3 : 1) : 1;
-    const intensity = ((wave ? 0.9 : 0.6) * area) / n / (dot * dot) * (p.mode === 'cube' ? 6 : 1);
+    const intensity = ((wave ? 0.9 : 0.6) * area) / n / (dot * dot) * (p.mode === 'cube' ? 6 : 1) * (p.density ?? 1);
 
     // Only re-scatter when the frame or a parameter changed; otherwise reuse the accumulation.
-    const sig = `${src.id}:${src.frameSeq}:${t.w}x${t.h}:${acc.w}x${acc.h}:${src.colorspace}:${src.transfer}:${src.gamut}:${src.hlgLw}:${chainOf(src)?.sig ?? ''}:${JSON.stringify(baseOf(src).yuv)}:${baseOf(src).colorspace}:${this.dpr}:${JSON.stringify(p)}`;
+    const sig = `${ghost?.snapshot ? `snap:${ghost.snapshot}:${t.seq}` : `${src.id}:${src.frameSeq}`}:${t.w}x${t.h}:${acc.w}x${acc.h}:${src.colorspace}:${src.transfer}:${src.gamut}:${src.hlgLw}:${chainOf(src)?.sig ?? ''}:${JSON.stringify(baseOf(src).yuv)}:${baseOf(src).colorspace}:${this.dpr}:${JSON.stringify(p)}`;
     const fresh = this.sigs.get(key) !== sig;
     this.sigs.set(key, sig);
     if (fresh) {
@@ -647,6 +739,7 @@ export class Renderer {
       gl.uniform1i(this.u(prog, 'uColorize'), Number(p.colorize));
       gl.uniform2f(this.u(prog, 'uK'), kr, kb);
       gl.uniform1f(this.u(prog, 'uZoom'), p.zoom);
+      gl.uniform3f(this.u(prog, 'uPanZoom'), ...(p.view ?? [1, 0, 0]));
       gl.uniform1f(this.u(prog, 'uIntensity'), intensity);
       gl.uniform1f(this.u(prog, 'uPointSize'), dot);
       gl.uniform1f(this.u(prog, 'uWMin'), p.range?.[0] ?? WAVE_MIN);
@@ -660,7 +753,7 @@ export class Renderer {
       const cv = p.cieUv ? CIE_VIEW_UV : CIE_VIEW;
       gl.uniform4f(this.u(prog, 'uCie'), cv.x0, cv.x1, cv.y0, cv.y1);
       this.setRois(prog, p.roi);
-      gl.uniform3f(this.u(prog, 'uSkin'), p.skin.lo, p.skin.hi, p.skin.tol);
+      gl.uniform4f(this.u(prog, 'uSkin'), p.skin.lo, p.skin.hi, p.skin.tol, p.skin.hue ?? 123);
       gl.uniform3fv(this.u(prog, 'uTint'), p.tint);
       if (p.cube) {
         gl.uniform1i(this.u(prog, 'uCube'), p.cube.space);
@@ -712,8 +805,9 @@ export class Renderer {
       gl.bindTexture(gl.TEXTURE_2D, shown);
       gl.uniform1i(this.u(dp, 'uAcc'), 0);
       gl.uniform1f(this.u(dp, 'uGain'), p.gain);
-      gl.uniform3f(this.u(dp, 'uTint'), 1, 1, 1);
+      gl.uniform3fv(this.u(dp, 'uTint'), ghost?.tint ?? [1, 1, 1]);
       gl.uniform1i(this.u(dp, 'uAvg'), avg);
+      gl.uniform1i(this.u(dp, 'uMono'), ghost ? 1 : 0);
     }
     if (overlay) {
       gl.enable(gl.BLEND);
@@ -799,21 +893,28 @@ precision highp float; uniform vec4 uColor; out vec4 o; void main() { o = uColor
   }
 
   /**
-   * @param clip  only draw inside this rect (A/B wipe)
+   * @param rect  where the whole picture lies (larger than the panel when zoomed, #89)
+   * @param clip  only draw inside this rect (panel plot area, A/B wipe); the viewport covers just
+   *              the visible part, so a zoomed picture never needs an oversized viewport
    * @param target render into an offscreen buffer instead of the canvas (A/B difference)
    */
   drawPicture(src: Source, rect: Rect, p: PictureParams, clip?: Rect, target?: Accum) {
     const t = this.sourceTexture(baseOf(src));
     if (!t) return false;
     const gl = this.gl;
-    const vp = this.viewport(rect);
+    const vis = clip ? intersect(rect, clip) : rect;
+    if (!vis) return true;
+    const vp = this.viewport(vis);
     gl.bindFramebuffer(gl.FRAMEBUFFER, target?.fbo ?? null);
     if (target) gl.viewport(0, 0, target.w, target.h); else gl.viewport(vp.x, vp.y, vp.w, vp.h);
-    if (clip && !target) { const c = this.viewport(clip); gl.enable(gl.SCISSOR_TEST); gl.scissor(c.x, c.y, c.w, c.h); }
     const kind = this.texKind(src, t);
     const r103 = p.mode === 'r103';
-    const prog = this.program(`picture${kind}${r103 ? 'r103' : ''}`, QUAD_VS, PICTURE_FS(kind, r103));
+    const prog = this.program(`picture${kind}${r103 ? 'r103' : ''}`, PICTURE_VS, PICTURE_FS(kind, r103));
     gl.useProgram(prog);
+    // visible part in picture coordinates (vUv: origin bottom left)
+    const ux = (vis.x - rect.x) / rect.w, uw = vis.w / rect.w;
+    // mirrored (butterfly split): the visible part read right to left
+    gl.uniform4f(this.u(prog, 'uUv'), p.mirror ? 1 - ux : ux, (rect.y + rect.h - vis.y - vis.h) / rect.h, p.mirror ? -uw : uw, vis.h / rect.h);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, t.tex);
     const { kr, kb } = LUMA[src.colorspace];
@@ -823,6 +924,7 @@ precision highp float; uniform vec4 uColor; out vec4 o; void main() { o = uColor
     gl.uniform2f(this.u(prog, 'uK'), kr, kb);
     gl.uniform1f(this.u(prog, 'uZebra'), p.zebra);
     gl.uniform1f(this.u(prog, 'uZebraLow'), p.zebraLow);
+    gl.uniform4f(this.u(prog, 'uPeak'), p.peaking?.threshold ?? 0.12, ...(p.peaking?.colour ?? [1, 0.15, 0.15]));
     gl.uniform4f(this.u(prog, 'uNeutral'), p.neutral?.threshold ?? 0.05, p.neutral?.lo ?? 0.02, p.neutral?.hi ?? 0.98, 0);
     if (r103) gl.uniform4f(this.u(prog, 'uR103'), R103.prefLo - R103.tol, R103.prefHi + R103.tol, R103.totalLo - R103.tol, R103.totalHi + R103.tol);
     this.linearUniforms(prog, src);
@@ -842,7 +944,7 @@ precision highp float; uniform vec4 uColor; out vec4 o; void main() { o = uColor
       gl.uniform3f(this.u(prog, 'uRgcScale'), rgcScale(RGC.limC, RGC.thrC, RGC.power), rgcScale(RGC.limM, RGC.thrM, RGC.power), rgcScale(RGC.limY, RGC.thrY, RGC.power));
       gl.uniform1f(this.u(prog, 'uRgcPow'), RGC.power);
     }
-    gl.uniform3f(this.u(prog, 'uSkin'), p.skin.lo, p.skin.hi, p.skin.tol);
+    gl.uniform4f(this.u(prog, 'uSkin'), p.skin.lo, p.skin.hi, p.skin.tol, p.skin.hue ?? 123);
     this.setRois(prog, p.roi);
     const bands = new Float32Array(48);
     p.bands.slice(0, 12).forEach((b, i) => {
@@ -853,7 +955,6 @@ precision highp float; uniform vec4 uColor; out vec4 o; void main() { o = uColor
     gl.uniform1i(this.u(prog, 'uBands'), Math.min(12, p.bands.length));
     gl.bindVertexArray(this.vao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    gl.disable(gl.SCISSOR_TEST);
     return true;
   }
 
@@ -861,10 +962,12 @@ precision highp float; uniform vec4 uColor; out vec4 o; void main() { o = uColor
    * A/B difference: both pictures rendered offscreen (display-encoded, as shown), then
    * max |A − B| over R, G, B × gain as grey.
    */
-  drawPictureDiff(key: string, a: Source, pa: PictureParams, b: Source, pb: PictureParams, rect: Rect, gain: number) {
-    const gl = this.gl, vp = this.viewport(rect);
+  drawPictureDiff(key: string, a: Source, pa: PictureParams, b: Source, pb: PictureParams, rect: Rect, gain: number, clip?: Rect) {
+    const vis = clip ? intersect(rect, clip) : rect;
+    if (!vis) return true;
+    const gl = this.gl, vp = this.viewport(vis);
     const ta = this.accum(`${key}#da`, vp.w, vp.h), tb = this.accum(`${key}#db`, vp.w, vp.h);
-    if (!this.drawPicture(a, rect, pa, undefined, ta) || !this.drawPicture(b, rect, pb, undefined, tb)) return false;
+    if (!this.drawPicture(a, rect, pa, vis, ta) || !this.drawPicture(b, rect, pb, vis, tb)) return false;
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(vp.x, vp.y, vp.w, vp.h);
     const prog = this.program('abdiff', QUAD_VS, `#version 300 es

@@ -14,6 +14,7 @@
 
 import type { Calibration, Measurement, Model } from './protocol';
 import type { Spectrum } from './spectrum';
+import { t } from '../i18n';
 
 export const LM3_WAVELENGTHS = [450, 500, 550, 570, 600, 650];
 export const LM4_WAVELENGTHS = [415, 445, 480, 515, 555, 590, 630, 680];
@@ -36,7 +37,7 @@ const LM3_MATRICES = [
     [0.58258, 0.11548, 0.21823, -0.00136, -0.10732, -0.00915, 0.0],
   ],
 ];
-export const LM3_MODE_NAMES: Record<number, string> = { 1: 'monochromatisch', 2: 'Glühlampe', 3: 'allgemein' };
+export const LM3_MODE_NAMES: Record<number, string> = { 1: t('opple.lm3.mono'), 2: t('opple.lm3.tungsten'), 3: t('opple.lm3.general') };
 
 const LM4_MATRIX = [
   [-0.873112331303128, 0.805269469275936, -0.14141487926448, 0.0341236934045446, 0.290053924131123, 0.681542877395036, 0.237949611300369, -0.0216220125618065],
@@ -96,7 +97,7 @@ export function duvFromUv(u: number, v: number) {
 }
 
 export interface Reading {
-  model: Model | 'argyll' | 'datei';
+  model: Model | 'argyll' | 'datei'; // lang-ok: driver id
   /** illuminance in lx (Y of the meter's XYZ) */
   lux: number;
   X: number; Y: number; Z: number;
@@ -153,10 +154,11 @@ export function processMeasurement(m: Measurement, cal: Calibration | null, ts =
 /** CSV of a reading history (comma, dot decimals). */
 export function readingsCsv(list: Reading[], note = '') {
   const f = (v: number, d: number) => (Number.isFinite(v) ? v.toFixed(d) : '');
-  const head = ['zeit', 'modell', 'lux', 'x', 'y', 'u', 'v', 'cct_k', 'duv', 'kalibriert', 'temperatur_c', 'kanaele_roh'];
+  // column names: stable English ids, independent of the UI language
+  const head = ['time', 'model', 'lux', 'x', 'y', 'u', 'v', 'cct_k', 'duv', 'calibrated', 'temperature_c', 'channels_raw'];
   return [
-    '# LZ Scopes – Opple Light Master (Werte clientseitig aus Rohkanälen; McCamy-CCT, Ohno-Duv)' + (note ? `,"${note.replace(/"/g, '""')}"` : ''),
+    `# ${t('opple.csv.readingsHead')}` + (note ? `,"${note.replace(/"/g, '""')}"` : ''),
     head.join(','),
-    ...list.map((r) => [new Date(r.ts).toISOString(), r.model, f(r.lux, 2), f(r.x, 5), f(r.y, 5), f(r.u, 5), f(r.v, 5), f(r.cct, 0), f(r.duv, 5), r.calibrated ? 'ja' : 'nein', r.temperature ?? '', `"${r.raw.join(' ')}"`].join(',')),
+    ...list.map((r) => [new Date(r.ts).toISOString(), r.model, f(r.lux, 2), f(r.x, 5), f(r.y, 5), f(r.u, 5), f(r.v, 5), f(r.cct, 0), f(r.duv, 5), r.calibrated ? 'yes' : 'no', r.temperature ?? '', `"${r.raw.join(' ')}"`].join(',')),
   ].join('\n') + '\n';
 }

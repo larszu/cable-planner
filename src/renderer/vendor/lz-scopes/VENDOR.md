@@ -1,6 +1,6 @@
 # LZ Scopes (vendored)
 
-Source: [larszu/lz-scopes](https://github.com/larszu/lz-scopes), commit `1b62536dac6a932ebc71670b718849e7ec9c8caf` on `main` — the pin: `scopes:check` compares against exactly this commit, `scopes:sync` rewrites it.
+Source: [larszu/lz-scopes](https://github.com/larszu/lz-scopes), commit `506aec6d26e13aca9196d7b788f4422440bf66c2` on `main` — the pin: `scopes:check` compares against exactly this commit, `scopes:sync` rewrites it.
 Licence: proprietary, free to use in Lars Zumpe's own projects (see `LICENSE` upstream).
 
 The folder mirrors the upstream repo root (`src/`, `server/`), because the closure leaves `src/`: `src/clock/tai.ts` imports `../../server/leap.mjs` (with `leap.d.mts`). Relative imports stay untouched that way. Hosts import from `vendor/lz-scopes/src`.
@@ -16,7 +16,7 @@ Not vendored: the standalone app (`main.ts`, `dock.ts`, `output*.ts`, `face.ts`,
 
 ## Local rules
 
-- Do not edit these files. German labels of upstream are replaced at runtime (`components/Scopes/ScopeMonitor.tsx`: `SCOPE_LABELS`; `lib/testPatternNames.ts`: pattern names), the 3 px panel radius and the panel chrome are overridden in `index.css`.
+- Do not edit these files. Scope labels are replaced at runtime (`components/Scopes/ScopeMonitor.tsx`: `SCOPE_LABELS`); pattern names and groups come translated from upstream (en + de); the panel chrome is overridden in `index.css`.
 - `eslint.config.js` ignores this folder; `lang:check` does not flag it.
 - Only `components/Scopes/` imports from here, behind `lazy()` (`tests/scopesLazyGrenze.test.ts`).
 
@@ -28,4 +28,4 @@ npm run scopes:check -- --upstream ../lz-scopes   # what CI runs (job `scopes`):
 npx tsc -p tsconfig.app.json --noEmit && npm test && npm run build
 ```
 
-Why a pin and not upstream `main`: upstream gets several PRs a day, and a check against `main` turned every PR here red. Updating is a deliberate PR. The daily workflow `scopes-sync.yml` does the sync on the branch `chore/lz-scopes-sync`, runs the gates there and keeps one open issue „lz-scopes: Vendor nachziehen" with the result and a link that opens the PR; it closes the issue once the copy is current again. If a patch no longer applies, the script says which one — adjust `PATCHES`, do not edit the copy by hand. A new pattern upstream needs an English name in `lib/testPatternNames.ts` (the test says so). Copy the PNGs again if upstream changed them.
+Why a pin and not upstream `main`: upstream gets several PRs a day, and a check against `main` turned every PR here red. Updating is a deliberate PR. The daily workflow `scopes-sync.yml` does the sync on the branch `chore/lz-scopes-sync`, runs the gates there and keeps one open issue „lz-scopes: Vendor nachziehen" with the result and a link that opens the PR; it closes the issue once the copy is current again. If a patch no longer applies, the script says which one — adjust `PATCHES`, do not edit the copy by hand. Copy the PNGs again if upstream changed them.

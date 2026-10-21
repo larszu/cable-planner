@@ -31,6 +31,8 @@
 //            (`0 0 0 Npx`) oder `var(--cp-shadow-N)`, auch kombiniert.
 //   TSX/TS   Stilobjekte (`borderRadius`, `boxShadow`) nach denselben Regeln;
 //            ein Wert aus einer Variablen faellt, weil er nicht pruefbar ist.
+//   TSX/TS   CSS-Text in Zeichenketten (`'border-radius:3px'`, eingespritzte
+//            Stilblaetter wie im lz-scopes-Vendor, #1050) nach den CSS-Regeln.
 //
 // ─── UND WAS AUSDRUECKLICH ERLAUBT IST ────────────────────────────────────
 //
@@ -51,8 +53,7 @@
 // Three.js.
 //
 // Er sieht auch keine Rundung, die zur Laufzeit entsteht — ein Stil aus einer
-// Bibliothek oder ein CSS-Text in einer Zeichenkette (`'border-radius:…'`).
-// Was er zusagt, ist der Quelltext dieses Repos.
+// Bibliothek. Was er zusagt, ist der Quelltext dieses Repos.
 // ───────────────────────────────────────────────────────────────────────────
 import assert from 'node:assert/strict'
 import { readdirSync, statSync, readFileSync } from 'node:fs'
@@ -132,7 +133,7 @@ export function klassenListen(quelle) {
  * tragen und drei von vier Meldungen Fehltreffer waren.
  */
 export const werte = (quelle, eigenschaft) =>
-  [...quelle.matchAll(new RegExp(`${eigenschaft}\\s*:\\s*([^;}]+)`, 'g'))].map((m) =>
+  [...quelle.matchAll(new RegExp(`${eigenschaft}\\s*:\\s*([^;}'"\`]+)`, 'g'))].map((m) =>
     m[1].replace(/!important/g, '').trim(),
   )
 
@@ -182,7 +183,7 @@ export function stilAusdruecke(quelle, eigenschaft) {
 }
 
 /** Ein Rundungswert aus der Token-Schicht: 0, Kreis oder `var(--cp-r-*)`. */
-const RUNDUNG_TEIL = /^(?:0|0px|50%|var\(--(?:cp-r-(?:s|m|l|xl|full)|radius-cp-(?:s|control|card|modal|full))\)|inherit)$/
+const RUNDUNG_TEIL = /^(?:0|0px|50%|var\(--(?:cp-r-(?:s|m|l|xl|full)|radius-cp-(?:s|control|card|modal|full)|lzs-radius)\)|inherit)$/
 export const rundungsWertErlaubt = (w) =>
   w.trim().split(/\s+(?![^(]*\))/).every((t) => RUNDUNG_TEIL.test(t))
 
@@ -234,6 +235,31 @@ export function schattenErlaubt(ausdruck) {
   return literale.filter((l) => /\d/.test(l)).every(schattenWertErlaubt)
 }
 
+/**
+ * Vendorte Fremdquellen tragen ihre EIGENE Token-Schicht (lz-scopes:
+ * `src/ui/tokens.css` mit `--radius`, `--radius-lg`, `--elev-float` …, je
+ * Thema anders belegt). Dort zaehlt ein reiner `var(--name)` ohne Rueckfall als
+ * Token — die rohen Werte stehen einmal in der Token-Datei, nicht verstreut.
+ */
+const VENDOR = /^src\/renderer\/vendor\//
+const nurTokens = (w) => w.trim().split(/\s+(?![^(]*\))/).every((t) => t === '0' || /^var\(--[\w-]+\)$/.test(t))
+/**
+ * Bekannte rohe Werte in vendortem Code, der hier nicht editiert wird. Jeder
+ * Eintrag ist ein offener Fund upstream; faellt er dort weg, meldet der Lauf
+ * den Eintrag als veraltet.
+ */
+const VENDOR_AUSNAHMEN = new Set([
+  // Griff des Bottom-Sheets (36x4 px), lz-scopes src/ui/components.css.
+  'src/renderer/vendor/lz-scopes/src/ui/components.css  border-radius: 2px',
+])
+const ausnahmenGesehen = new Set()
+function melde(kurz, text, wert) {
+  const zeile = `${kurz}  ${text}`
+  if (VENDOR.test(kurz) && nurTokens(wert)) return
+  if (VENDOR_AUSNAHMEN.has(zeile)) return void ausnahmenGesehen.add(zeile)
+  funde.push(zeile)
+}
+
 const funde = []
 let klassenGeprueft = 0
 let cssGeprueft = 0
@@ -245,12 +271,20 @@ for (const f of alle(join(WURZEL, 'src'))) {
   if (f.endsWith('.css')) {
     cssGeprueft += 1
     for (const w of werte(quelle, 'border-radius')) {
-      if (!rundungsWertErlaubt(w)) funde.push(`${kurz}  border-radius: ${w}`)
+      if (!rundungsWertErlaubt(w)) melde(kurz, `border-radius: ${w}`, w)
     }
     for (const w of werte(quelle, 'box-shadow')) {
-      if (!schattenWertErlaubt(w)) funde.push(`${kurz}  box-shadow: ${w}`)
+      if (!schattenWertErlaubt(w)) melde(kurz, `box-shadow: ${w}`, w)
     }
   } else {
+    for (const w of werte(quelle, 'border-radius')) {
+      stileGeprueft += 1
+      if (!rundungsWertErlaubt(w)) melde(kurz, `border-radius: ${w}`, w)
+    }
+    for (const w of werte(quelle, 'box-shadow')) {
+      stileGeprueft += 1
+      if (!schattenWertErlaubt(w)) melde(kurz, `box-shadow: ${w}`, w)
+    }
     for (const a of stilAusdruecke(quelle, 'borderRadius')) {
       stileGeprueft += 1
       if (!rundungErlaubt(a)) funde.push(`${kurz}  borderRadius: ${a}`)
@@ -306,6 +340,16 @@ assert.deepEqual(werte('a { box-shadow: none !important; }', 'box-shadow'), ['no
 assert.deepEqual(werte('a { border-radius: 8px; }', 'border-radius'), ['8px'])
 assert.ok(rundungsWertErlaubt('var(--cp-r-m)') && !rundungsWertErlaubt('8px'), 'CSS-Rundung falsch bewertet')
 assert.ok(schattenWertErlaubt('var(--cp-shadow-3)') && !schattenWertErlaubt('0 4px 16px black'), 'CSS-Schatten falsch bewertet')
+
+for (const a of VENDOR_AUSNAHMEN) {
+  if (!ausnahmenGesehen.has(a)) funde.push(`${a}  (Ausnahme veraltet — aus VENDOR_AUSNAHMEN streichen)`)
+}
+assert.ok(nurTokens('var(--radius) 0 0 var(--radius)') && !nurTokens('var(--radius, 4px)') && !nurTokens('2px'), 'Vendor-Token falsch bewertet')
+
+// 2b. CSS in Zeichenketten (#1050).
+assert.deepEqual(werte("const C = `.a{border:0;border-radius:3px}`", 'border-radius'), ['3px'])
+assert.deepEqual(werte("el.style.cssText = 'box-shadow: 0 2px 4px black'", 'box-shadow'), ['0 2px 4px black'])
+assert.ok(rundungsWertErlaubt('var(--lzs-radius)'), 'der lz-scopes-Token wird abgelehnt')
 
 // 3. Klassenlisten werden gefunden, und NUR sie.
 {
@@ -373,6 +417,5 @@ console.log(
     `${cssGeprueft} Stilblatt-Datei(en) geprueft).`,
 )
 console.log(
-  'NICHT gemessen: Rundungen, die zur Laufzeit entstehen (Bibliotheks-Stile, ' +
-    'CSS-Text in Zeichenketten) — ein Schatten in einer 3D-Szene ist Inhalt, keine Flaeche.',
+  'NICHT gemessen: Rundungen, die zur Laufzeit entstehen (Bibliotheks-Stile) — ein Schatten in einer 3D-Szene ist Inhalt, keine Flaeche.',
 )

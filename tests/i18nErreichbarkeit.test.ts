@@ -29,7 +29,10 @@ import { stripComments } from './support/stripComments'
 // rendert — in `light-planner` bedienten 40 von 42 englischen Schluesseln
 // toten Code. Hier sind es zwei Dateien, und sie werden benannt.
 
-const sources = import.meta.glob('../src/renderer/**/*.{ts,tsx}', {
+// Vendorter Code (lz-scopes) uebersetzt mit eigenem `t()` und eigenem
+// Woerterbuch (`vendor/lz-scopes/src/i18n/de.ts`); seine Schluessel gehoeren
+// nicht in `lib/i18n/de.ts`.
+const sources = import.meta.glob(['../src/renderer/**/*.{ts,tsx}', '!../src/renderer/vendor/**'], {
   eager: true,
   query: '?raw',
   import: 'default',

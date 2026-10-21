@@ -14,6 +14,8 @@
 import type { Colorspace } from './color';
 import { LUMA } from './color';
 import { CodeRaster, level10 } from './patterns16';
+import { t } from './i18n';
+import { bridgeMessage } from './i18n/bridgeMessage';
 
 /** How 10-bit codes become canvas values: levels (0 % → 0, 100 % → 1) or codes 1:1 (code/1023). */
 export type LevelMode = 'full' | 'code';
@@ -35,7 +37,7 @@ const F16 = (globalThis as unknown as { Float16Array?: F16Ctor }).Float16Array;
 
 /** Float16 rounding of a number (round to nearest even, as a Float16Array stores it). */
 export function f16(v: number): number {
-  if (!F16) throw new Error('Float16Array fehlt');
+  if (!F16) throw new Error(t('tools.deep.noF16'));
   const a = new F16(1); a[0] = v; return a[0];
 }
 
@@ -78,9 +80,9 @@ export function ramp10Labels(w: number, h: number): [number, number, string][] {
   const y = (i: number, f: number) => ((i + f) * h) / 4;
   return [
     [w * 0.01, y(0, 0.12), '0 … 1023 (10 bit)'],
-    [w * 0.01, y(1, 0.12), '384 … 639 · 10 bit'], [w * 0.01, y(1, 0.62), '384 … 639 · über 8 bit'],
-    [w * 0.01, y(2, 0.12), '0 … 127 · 10 bit'], [w * 0.01, y(2, 0.62), '0 … 127 · über 8 bit'],
-    [w * 0.01, y(3, 0.12), '504 … 519 je 1 Code · 10 bit'], [w * 0.01, y(3, 0.62), 'dieselben Codes über 8 bit'],
+    [w * 0.01, y(1, 0.12), '384 … 639 · 10 bit'], [w * 0.01, y(1, 0.62), t('tools.deep.above8a')],
+    [w * 0.01, y(2, 0.12), '0 … 127 · 10 bit'], [w * 0.01, y(2, 0.62), t('tools.deep.above8b')],
+    [w * 0.01, y(3, 0.12), t('tools.deep.codes10')], [w * 0.01, y(3, 0.62), t('tools.deep.codes8')],
   ];
 }
 
@@ -164,13 +166,13 @@ export function glDeepBuffer(gl: WebGL2RenderingContext, w: number, h: number): 
 export function screenHint(): string {
   const depth = typeof screen !== 'undefined' ? screen.colorDepth : 0;
   const hdr = typeof matchMedia === 'function' && matchMedia('(dynamic-range: high)').matches;
-  return `Browser meldet ${depth} bit${depth >= 30 ? ` (${depth / 3} je Kanal)` : ''}${hdr ? ', HDR-fähig' : ''}`;
+  return t('tools.deep.screen', { depth }) + (depth >= 30 ? t('tools.deep.perChannel', { n: depth / 3 }) : '') + (hdr ? t('tools.deep.hdr') : '');
 }
 
 /** HUD line: what the pipeline delivers and what is not known. */
 export function pipelineText(kind: string, mode?: LevelMode): string {
-  const lvl = mode === 'code' ? ' · Codes 1:1 (Monitor auf Limited/Video-Range)' : mode === 'full' ? ' · Pegel Full (0–100 %)' : '';
-  return `Pipeline: ${kind}${lvl} · ${screenHint()} · Monitor-Bittiefe unbekannt`;
+  const lvl = mode === 'code' ? t('tools.deep.lvlCode') : mode === 'full' ? t('tools.deep.lvlFull') : '';
+  return `Pipeline: ${kind}${lvl} · ${screenHint()} · ${t('tools.deep.monitorUnknown')}`;
 }
 
 // ---------------------------------------------------------------- 10-bit Y′CbCr frames for the bridge
@@ -187,7 +189,7 @@ export const OUT10_HEADER = 12;
  * (Y′ w·h, Cb w/2·h, Cr w/2·h, uint16 LE, values 0…1023).
  */
 export function frame10Buffer(m: Frame10Meta): { buf: ArrayBuffer; y: Uint16Array; cb: Uint16Array; cr: Uint16Array } {
-  if (m.w % 2) throw new Error('Breite muss gerade sein (4:2:2)');
+  if (m.w % 2) throw new Error(t('tools.deep.evenWidth'));
   const n = m.w * m.h, buf = new ArrayBuffer(OUT10_HEADER + n * 4), dv = new DataView(buf);
   [0x4c, 0x5a, 0x31, 0x30].forEach((b, i) => dv.setUint8(i, b));
   dv.setUint16(4, m.w, true); dv.setUint16(6, m.h, true);
@@ -273,9 +275,9 @@ export function startStream10(bridge: string, name: string, target: string, code
   const q = new URLSearchParams({ name, fps: String(fps), depth: '10', codec, target });
   const ws = new WebSocket(`${bridge}/out?${q}`);
   let stopped = false;
-  ws.onmessage = (e) => { try { const m = JSON.parse(e.data); status(m.message ?? m.type); } catch { /* ignore */ } };
-  ws.onclose = () => { if (!stopped) status('beendet'); };
-  ws.onerror = () => status('Bridge nicht erreichbar');
+  ws.onmessage = (e) => { try { const m = JSON.parse(e.data); status(bridgeMessage(m, m.type)); } catch { /* ignore */ } };
+  ws.onclose = () => { if (!stopped) status(t('tools.deep.ended')); };
+  ws.onerror = () => status(t('tools.deep.bridgeDown'));
   const timer = setInterval(() => {
     if (ws.readyState !== WebSocket.OPEN) { if (ws.readyState > 1) clearInterval(timer); return; }
     if (ws.bufferedAmount > 64_000_000) return;

@@ -6,6 +6,7 @@ import {
   GAMUTS, D65, deltaE2000, deltaEITP, gammaEotf, inv3, mul3, pqDecode, rgb2020ToIctcp, rgbToXyzMatrix, xyToXyz, xyzToLab,
   type GamutId, type XY,
 } from '../color';
+import { t } from '../i18n';
 
 export type XYZ = [number, number, number];
 
@@ -27,7 +28,7 @@ export function bt1886(v: number, lw: number, lb: number, gamma = 2.4) {
 export type SdrTarget = 'bt1886' | 'g22' | 'g24' | 'srgb';
 export type TargetTransfer = SdrTarget | 'pq';
 export const TARGET_LABELS: Record<TargetTransfer, string> = {
-  bt1886: 'BT.1886 (γ 2,4, mit gemessenem Schwarz)', g24: 'Gamma 2,4 (Schwarz-Offset)', g22: 'Gamma 2,2 (Schwarz-Offset)', srgb: 'sRGB', pq: 'PQ ST 2084 (absolut)',
+  bt1886: t('calib.target.bt1886'), g24: t('calib.target.g24'), g22: t('calib.target.g22'), srgb: 'sRGB', pq: t('calib.target.pq'),
 };
 
 export interface Target { transfer: TargetTransfer; gamut: GamutId; white: XY }
@@ -87,9 +88,9 @@ export function stats(values: number[]): Stats {
 
 /** Pass levels: nominal / recommended (DisplayCAL "Default", docs/research/colour-repos.md). */
 export const DE00_LIMITS = { mean: [1.5, 1], max: [4, 3], white: [2, 1] } as const;
-export type Grade = 'gut' | 'ok' | 'aus';
-/** 'gut' = within recommended, 'ok' = within nominal, 'aus' = outside. */
-export const grade = (v: number, [nominal, recommended]: readonly [number, number]): Grade => (v <= recommended ? 'gut' : v <= nominal ? 'ok' : 'aus');
+export type Grade = 'good' | 'ok' | 'fail';
+/** 'good' = within recommended, 'ok' = within nominal, 'fail' = outside. */
+export const grade = (v: number, [nominal, recommended]: readonly [number, number]): Grade => (v <= recommended ? 'good' : v <= nominal ? 'ok' : 'fail');
 
 // ---------------------------------------------------------------- CCT / Duv
 

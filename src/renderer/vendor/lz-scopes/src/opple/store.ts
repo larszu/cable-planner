@@ -14,6 +14,7 @@ import { ArgyllLightMeter, readingFromSpectrum, type LightDevice } from './drive
 import { parseArgyllSp, parseSpectrumCsv, type SpectrumUnit } from './spectrum';
 import type { Reading } from './photometry';
 import { cellKey, type Gel, type GridCell } from './lightScience';
+import { t } from '../i18n';
 
 export interface KnownDevice {
   key: string;
@@ -114,7 +115,7 @@ export class LightStore extends EventTarget {
     this.message = ''; this.picked = '';
     const m = this.freeMeter();
     this.attach(m, '');
-    const tmp = `neu-${Date.now()}`;
+    const tmp = `new-${Date.now()}`;
     this.meters.set(tmp, m); this.changed();
     try {
       await m.connect();
@@ -155,9 +156,9 @@ export class LightStore extends EventTarget {
   /** Spectrum file (Argyll .sp or two-column CSV) → reading in the history and a point. */
   importSpectrum(text: string, name: string, csvUnit: SpectrumUnit = 'relativ') {
     const sp = /\.sp$/i.test(name) || /SPECTRAL_BANDS/.test(text) ? parseArgyllSp(text) : parseSpectrumCsv(text, csvUnit);
-    if (!sp) throw new Error(`${name}: kein Spektrum erkannt (Argyll .sp oder zwei Spalten Wellenlänge, Wert mit gleichem Abstand)`);
-    const r = readingFromSpectrum(sp, 'datei');
-    r.device = `Datei ${name}`;
+    if (!sp) throw new Error(t('opple.store.noSpectrum', { name }));
+    const r = readingFromSpectrum(sp, 'datei'); // lang-ok: driver id
+    r.device = t('opple.store.file', { name });
     this.history.push(r);
     const p: LightPoint = { id: `p${Date.now().toString(36)}`, label: name.replace(/\.[^.]+$/, ''), reading: r };
     this.points.push(p);
@@ -218,7 +219,7 @@ export class LightStore extends EventTarget {
   /** Average `opts.avg` readings of the active meter and keep them as a point (next grid cell). */
   async capture(label: string, toGrid: boolean) {
     const m = this.meters.get(this.active) ?? this.connected[0]?.[1];
-    if (!m || m.state !== 'connected') throw new Error('Erst einen Light Master verbinden.');
+    if (!m || m.state !== 'connected') throw new Error(t('opple.store.connectFirst'));
     const r = await m.measureAveraged(this.opts.avg);
     r.device = [...this.meters].find(([, x]) => x === m)?.[0];
     const cell: [number, number] | undefined = toGrid ? [...this.opts.cursor] as [number, number] : undefined;

@@ -15,6 +15,7 @@
 // listed in the Nobe OmniScope docs ("3D Color Cube", "HectorScope"); own implementation.
 
 import { GAMUTS, LUMA, gamutConvert, mul3, rgb2020ToIctcp, rgbToXyzMatrix, signalToLinear, xyzToLab, type Colorspace, type GamutId, type Transfer } from './color';
+import { t } from './i18n';
 
 /** Y′, Cb, Cr of a signal R′G′B′ (Cb/Cr −0.5…0.5). */
 export function yccOf(c: number[], k: { kr: number; kb: number }): [number, number, number] {
@@ -25,7 +26,7 @@ export function yccOf(c: number[], k: { kr: number; kb: number }): [number, numb
 export type CubeSpace = 'rgb' | 'lab' | 'ictcp' | 'ycbcr' | 'xyz' | 'chl' | 'hsv';
 export const CUBE_SPACE_ID: Record<CubeSpace, number> = { rgb: 0, lab: 1, ictcp: 2, ycbcr: 3, xyz: 4, chl: 5, hsv: 6 };
 export const CUBE_SPACE_LABELS: Record<CubeSpace, string> = {
-  rgb: 'R′G′B′-Würfel', ycbcr: 'Y′CbCr (3D-Waveform)', hsv: 'HSV-Zylinder', xyz: 'CIE XYZ', lab: 'CIELAB', chl: 'CIE LCh (abgerollt)', ictcp: 'ICtCp',
+  rgb: t('tools.cube.rgb'), ycbcr: t('tools.cube.ycbcr'), hsv: t('tools.cube.hsv'), xyz: 'CIE XYZ', lab: 'CIELAB', chl: t('tools.cube.lch'), ictcp: 'ICtCp',
 };
 /** spaces built from the signal (wire frame = 0–100 % signal cube) vs. from linear light (wire frame = target gamut) */
 export const SIGNAL_SPACES: CubeSpace[] = ['rgb', 'ycbcr', 'hsv'];

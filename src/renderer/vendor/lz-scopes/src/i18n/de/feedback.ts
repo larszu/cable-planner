@@ -1,0 +1,41 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
+// Deutsche Übersetzung zu en/feedback.ts.
+import type en from '../en/feedback';
+import type { Translation } from '../types';
+
+export default {
+  'feedback.menu': 'Feedback senden …',
+  'feedback.title': 'Feedback senden',
+  'feedback.intro': 'Kurz beschreiben, was passiert ist. Der Bericht unten ist genau das, was gesendet wird – erst ein Klick auf einen Senden-Knopf schickt etwas ab.',
+  'feedback.description': 'Was ist passiert?',
+  'feedback.placeholder': 'z. B. NDI-Kamera zeigt nur 2 fps; Fehlermeldung „…“',
+  'feedback.include': 'Mitsenden',
+  'feedback.section.system': 'System',
+  'feedback.section.systemHint': 'Betriebssystem und Version, Prozessor, Arbeitsspeicher, App-Laufzeit',
+  'feedback.section.display': 'Grafik und Bildschirme',
+  'feedback.section.displayHint': 'Grafikkarte und Treiber, GPU-Beschleunigung, Auflösung und Bildwiederholrate der Bildschirme',
+  'feedback.section.performance': 'Leistung',
+  'feedback.section.performanceHint': 'Anzeige-fps, offene Scopes, je Quelle: Art, Auflösung, fps, verworfene Bilder, Rechenzeit',
+  'feedback.section.log': 'Protokoll',
+  'feedback.section.logHint': 'die letzten Warnungen und Fehler dieser Sitzung',
+  'feedback.never': 'Nie enthalten: Bilder, Quellennamen und -adressen, Dateipfade, Benutzer- und Rechnernamen. Adressen, IPs und E-Mail-Adressen in Meldungen werden durch Platzhalter ersetzt.',
+  'feedback.preview': 'Bericht',
+  'feedback.collecting': 'wird gesammelt …',
+  'feedback.mail': 'Per E-Mail senden',
+  'feedback.mailTitle': 'Öffnet das Mailprogramm mit dem Bericht an {to}',
+  'feedback.github': 'Als GitHub-Issue öffnen',
+  'feedback.githubTitle': 'Öffentlich: für alle sichtbar, braucht ein GitHub-Konto',
+  'feedback.githubWarn': 'GitHub-Issues sind öffentlich. Für einen privaten Bericht die E-Mail nehmen.',
+  'feedback.copy': 'Kopieren',
+  'feedback.save': 'Als Datei speichern',
+  'feedback.copied': 'Bericht kopiert.',
+  'feedback.sentHint': 'Der vollständige Bericht liegt auch in der Zwischenablage – einfügen, falls das Mailprogramm ihn kürzt.',
+  'feedback.cut': '[Bericht gekürzt – vollständiger Text in der Zwischenablage]',
+  'feedback.subject': 'LZ Scopes Feedback',
+  'feedback.gpu.chip': 'Langsame Grafik',
+  'feedback.gpu.title': 'Grafik bremst die Scopes',
+  'feedback.gpu.integrated': 'LZ Scopes zeichnet auf der Grafik im Prozessor ({active}), obwohl eine {other}-Grafikkarte vorhanden ist. Das kann die Bildrate halbieren.',
+  'feedback.gpu.integratedFix': 'Windows-Einstellungen → System → Anzeige → Grafik → LZ Scopes → Optionen → „Hohe Leistung“, danach die App neu starten. Bei NVIDIA auch: NVIDIA-Systemsteuerung → 3D-Einstellungen verwalten → Programmeinstellungen.',
+  'feedback.gpu.software': 'LZ Scopes zeichnet ohne Grafikbeschleunigung (Software-Rendering). Die Scopes laufen dann deutlich langsamer.',
+  'feedback.gpu.softwareFix': 'Grafiktreiber aktualisieren und die App neu starten. Unter Hilfe → Feedback senden stehen bei „Grafik und Bildschirme“ die betroffenen Funktionen.',
+} satisfies Translation<typeof en>;

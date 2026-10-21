@@ -52,6 +52,9 @@ const nativeCalls = (): string[] => {
   const hits: string[] = []
   for (const [path, src] of Object.entries(sources)) {
     if (ERSATZ.test(path)) continue
+    // Vendorter Code wird hier nicht editiert (scripts/lz-scopes-vendor.mjs);
+    // ein Fund dort gehoert upstream.
+    if (path.includes('/vendor/')) continue
     const code = stripComments(src)
     for (const m of code.matchAll(NATIVE_CALL)) {
       const line = code.slice(0, m.index).split('\n').length

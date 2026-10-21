@@ -9,6 +9,7 @@
 
 import { LUMA, type Colorspace } from './color';
 import type { Decode } from './ycbcr';
+import { t } from './i18n';
 
 export interface LineExtremes { min: Float32Array; max: Float32Array; rows: number }
 
@@ -65,7 +66,7 @@ export function castName(deg: number, cs: Colorspace): string {
     const y = kr * rgb[0] + (1 - kr - kb) * rgb[1] + kb * rgb[2];
     return ((Math.atan2((rgb[0] - y) / (2 * (1 - kr)), (rgb[2] - y) / (2 * (1 - kb))) * 180) / Math.PI + 360) % 360;
   };
-  const names: [string, number[]][] = [['Rot', [1, 0, 0]], ['Gelb', [1, 1, 0]], ['Grün', [0, 1, 0]], ['Cyan', [0, 1, 1]], ['Blau', [0, 0, 1]], ['Magenta', [1, 0, 1]]];
+  const names: [string, number[]][] = [[t('tools.col.red'), [1, 0, 0]], [t('tools.col.yellow'), [1, 1, 0]], [t('tools.col.green'), [0, 1, 0]], [t('tools.col.cyan'), [0, 1, 1]], [t('tools.col.blue'), [0, 0, 1]], [t('tools.col.magenta'), [1, 0, 1]]];
   let best = names[0][0], bd = 999;
   for (const [n, c] of names) { const d = Math.abs(((angle(c) - deg + 540) % 360) - 180); if (d < bd) { bd = d; best = n; } }
   return best;
@@ -89,9 +90,9 @@ export function drawMinMax(ctx: CanvasRenderingContext2D, r: { x: number; y: num
   }
   const vline = (v: number, style: string, dash: number[]) => { const x = Math.round(X(v)) + 0.5; ctx.strokeStyle = style; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(x, r.y); ctx.lineTo(x, r.y + r.h); ctx.stroke(); ctx.setLineDash([]); };
   vline(opts.lo, 'rgba(255,90,90,0.8)', [4, 3]); vline(opts.hi, 'rgba(255,90,90,0.8)', [4, 3]);
-  for (const t of opts.targets) vline(t, 'rgba(0,220,255,0.7)', [2, 3]);
-  ctx.fillStyle = LABEL; ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillText('Zeile 1', r.x - 4, r.y);
-  ctx.textBaseline = 'bottom'; ctx.fillText('letzte', r.x - 4, r.y + r.h);
+  for (const v of opts.targets) vline(v, 'rgba(0,220,255,0.7)', [2, 3]);
+  ctx.fillStyle = LABEL; ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillText(t('tools.mm.line1'), r.x - 4, r.y);
+  ctx.textBaseline = 'bottom'; ctx.fillText(t('tools.mm.last'), r.x - 4, r.y + r.h);
   if (!e) { ctx.restore(); return; }
   const Y = (i: number) => r.y + ((i + 0.5) / e.rows) * r.h;
   const trace = (vals: Float32Array, ok: string) => {
@@ -107,6 +108,6 @@ export function drawMinMax(ctx: CanvasRenderingContext2D, r: { x: number; y: num
   let mn = Infinity, mx = -Infinity;
   for (let i = 0; i < e.rows; i++) { mn = Math.min(mn, e.min[i]); mx = Math.max(mx, e.max[i]); }
   ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = LABEL;
-  ctx.fillText(`Min ${(mn * 100).toFixed(1)} %  ·  Max ${(mx * 100).toFixed(1)} %  ·  Grenzen ${(opts.lo * 100).toFixed(0)}/${(opts.hi * 100).toFixed(0)} %`, r.x + 4, r.y + 4);
+  ctx.fillText(t('tools.mm.summary', { min: (mn * 100).toFixed(1), max: (mx * 100).toFixed(1), lo: (opts.lo * 100).toFixed(0), hi: (opts.hi * 100).toFixed(0) }), r.x + 4, r.y + 4);
   ctx.restore();
 }

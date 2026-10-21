@@ -10,11 +10,15 @@ import { avCalibration } from './audio/avcal';
 import { CodeRaster, NOTE_16, PATTERNS_16, PLUGE_16, drawRaster, plugeBoxes, plugeRaster, toFrame16, type Frame16 } from './patterns16';
 import { smpteLzRaster } from './egg';
 import { ramp10Labels, ramp10Raster } from './deep';
+import { lang, t, type Key } from './i18n';
 
 export interface PatternDef {
   id: string;
   name: string;
+  /** group label shown in the pattern menus (language-dependent) */
   group: string;
+  /** stable group key for comparisons; labels change with the UI language */
+  groupId?: string;
   animated?: boolean;
   /** Suggested transfer for the scopes (HDR patterns). */
   transfer?: 'pq' | 'hlg';
@@ -166,7 +170,30 @@ const MACBETH: RGB[] = [
   [243, 243, 242], [200, 200, 200], [160, 160, 160], [122, 122, 121], [85, 85, 85], [52, 52, 52],
 ];
 
-function testCard(ctx: CanvasRenderingContext2D, w: number, h: number, t: number) {
+/** Uploaded logo for the logo patterns (#52, src/userPatterns.ts); null = none. */
+export const userLogo: { image: HTMLImageElement | null; name: string } = { image: null, name: '' };
+
+/** Draw the logo fitted into a box (aspect kept), centred. */
+function drawLogo(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, w: number, h: number) {
+  const s = Math.min(w / img.naturalWidth, h / img.naturalHeight);
+  const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(img, Math.round(x + (w - dw) / 2), Math.round(y + (h - dh) / 2), Math.round(dw), Math.round(dh));
+}
+
+/** Logo alone: centred on black, inside the EBU R 95 graphics safe area (90 %), at most half the height. */
+export function logoCard(ctx: CanvasRenderingContext2D, w: number, h: number, bg: RGB = [0, 0, 0]) {
+  fill(ctx, bg, 0, 0, w, h);
+  const img = userLogo.image;
+  if (!img) { text(ctx, t('pattern.noLogo'), w / 2, h / 2, h * 0.04, '#888'); return; }
+  drawLogo(ctx, img, w * 0.25, h * 0.25, w * 0.5, h * 0.5);
+}
+
+export function testCardLogo(ctx: CanvasRenderingContext2D, w: number, h: number, t: number) {
+  testCard(ctx, w, h, t, userLogo.image);
+}
+
+function testCard(ctx: CanvasRenderingContext2D, w: number, h: number, t: number, logo: HTMLImageElement | null = null) {
   fill(ctx, gray(0.35), 0, 0, w, h);
   const cell = h / 14;
   ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(1, Math.round(h / 540));
@@ -195,7 +222,14 @@ function testCard(ctx: CanvasRenderingContext2D, w: number, h: number, t: number
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(cx - R * 0.08, cy); ctx.lineTo(cx + R * 0.08, cy); ctx.moveTo(cx, cy - R * 0.08); ctx.lineTo(cx, cy + R * 0.08); ctx.stroke();
   void t;
-  text(ctx, new Date().toLocaleTimeString('de-DE'), cx, cy + R * 0.72, R * 0.16, '#fff');
+  if (logo) {
+    // logo in the black lower segment, the clock moves below it (smaller)
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
+    drawLogo(ctx, logo, cx - R * 0.6, cy + R * 0.58, R * 1.2, R * 0.2);
+    ctx.restore();
+    text(ctx, new Date().toLocaleTimeString(lang() === 'de' ? 'de-DE' : 'en-GB'), cx, cy + R * 0.88, R * 0.1, '#fff');
+  } else text(ctx, new Date().toLocaleTimeString(lang() === 'de' ? 'de-DE' : 'en-GB'), cx, cy + R * 0.72, R * 0.16, '#fff');
   arrows(ctx, w, h, '#fff');
 }
 
@@ -219,7 +253,7 @@ function safeAreas(c: CanvasRenderingContext2D, w: number, h: number) {
     if (label) text(c, label, w / 2, r.y + h * 0.025, h * 0.022, color);
   };
   frame({ x: 0, y: 0, w, h }, '#fff', '');
-  frame(action, '#ffd400', `Action safe 3,5 % (${action.w}×${action.h})`);
+  frame(action, '#ffd400', t('pattern.safe.action', { w: action.w, h: action.h }));
   frame(graphics, '#00dcff', `Graphics safe 5 % (${graphics.w}×${graphics.h})`);
   c.strokeStyle = '#ff4d4d'; c.lineWidth = lw; c.setLineDash([8, 6]);
   c.beginPath();
@@ -251,40 +285,40 @@ function avSync(ctx: CanvasRenderingContext2D, w: number, h: number) {
     ctx.fillRect(Math.round(x) - 1, Math.round(y - (big ? h * 0.05 : h * 0.025)), 2, Math.round(big ? h * 0.1 : h * 0.05));
   }
   text(ctx, '−500 ms', x0, y + h * 0.09, h * 0.03, css(gray(0.6)));
-  text(ctx, 'Blitz', (x0 + x1) / 2, y + h * 0.09, h * 0.03, css(gray(0.6)));
+  text(ctx, t('pattern.av.flash'), (x0 + x1) / 2, y + h * 0.09, h * 0.03, css(gray(0.6)));
   text(ctx, '+500 ms', x1, y + h * 0.09, h * 0.03, css(gray(0.6)));
   // marker: position relative to the nearest flash
   const rel = ph > 500 ? ph - 1000 : ph;
   const mx = x0 + ((rel + 500) / 1000) * (x1 - x0);
   ctx.fillStyle = css(gray(1));
   ctx.fillRect(Math.round(mx) - 3, Math.round(y - h * 0.08), 6, Math.round(h * 0.16));
-  text(ctx, 'A/V-Sync', w / 2, h * 0.22, h * 0.09);
-  text(ctx, 'Blitz und Piep (Tongenerator „A/V-Sync-Piep“) zu jeder vollen Sekunde', w / 2, h * 0.34, h * 0.03, css(gray(0.75)));
+  text(ctx, t('pattern.av.title'), w / 2, h * 0.22, h * 0.09);
+  text(ctx, t('pattern.av.hint'), w / 2, h * 0.34, h * 0.03, css(gray(0.75)));
   const cal = avCalibration();
-  text(ctx, cal.note ? `Bild-Vorlauf ${Math.round(cal.videoLeadMs)} ms (${cal.note})` : 'Bildausgabe unkalibriert', w / 2, h * 0.4, h * 0.022, css(gray(0.55)));
+  text(ctx, cal.note ? t('pattern.av.lead', { ms: Math.round(cal.videoLeadMs), note: cal.note }) : t('pattern.av.uncalibrated'), w / 2, h * 0.4, h * 0.022, css(gray(0.55)));
 }
 
 export const PATTERNS: PatternDef[] = [
   // Vollfelder
-  { id: 'red', name: 'Rot', group: 'Vollfeld', draw: (c, w, h) => fill(c, [255, 0, 0], 0, 0, w, h) },
-  { id: 'green', name: 'Grün', group: 'Vollfeld', draw: (c, w, h) => fill(c, [0, 255, 0], 0, 0, w, h) },
-  { id: 'blue', name: 'Blau', group: 'Vollfeld', draw: (c, w, h) => fill(c, [0, 0, 255], 0, 0, w, h) },
-  { id: 'white', name: 'Weiß 100 %', group: 'Vollfeld', draw: (c, w, h) => fill(c, gray(1), 0, 0, w, h) },
-  { id: 'gray50', name: 'Grau 50 %', group: 'Vollfeld', draw: (c, w, h) => fill(c, gray(0.5), 0, 0, w, h) },
+  { id: 'red', name: t('pattern.red'), group: t('pattern.group.full'), draw: (c, w, h) => fill(c, [255, 0, 0], 0, 0, w, h) },
+  { id: 'green', name: t('pattern.green'), group: t('pattern.group.full'), draw: (c, w, h) => fill(c, [0, 255, 0], 0, 0, w, h) },
+  { id: 'blue', name: t('pattern.blue'), group: t('pattern.group.full'), draw: (c, w, h) => fill(c, [0, 0, 255], 0, 0, w, h) },
+  { id: 'white', name: t('pattern.white100'), group: t('pattern.group.full'), draw: (c, w, h) => fill(c, gray(1), 0, 0, w, h) },
+  { id: 'gray50', name: t('pattern.grey50'), group: t('pattern.group.full'), draw: (c, w, h) => fill(c, gray(0.5), 0, 0, w, h) },
   // 18 % reflectance through the BT.709 OETF = 40.9 % (BT.709-6 p5; 46 % would be the sRGB curve)
-  { id: 'gray18', name: 'Grau 18 % Reflexion (BT.709, 40,9 %)', group: 'Vollfeld', draw: (c, w, h) => fill(c, gray(bt709Oetf(0.18)), 0, 0, w, h) },
-  { id: 'black', name: 'Schwarz', group: 'Vollfeld', draw: (c, w, h) => fill(c, gray(0), 0, 0, w, h) },
+  { id: 'gray18', name: t('pattern.grey18'), group: t('pattern.group.full'), draw: (c, w, h) => fill(c, gray(bt709Oetf(0.18)), 0, 0, w, h) },
+  { id: 'black', name: t('pattern.black'), group: t('pattern.group.full'), draw: (c, w, h) => fill(c, gray(0), 0, 0, w, h) },
 
   // Grau
-  { id: 'ramp', name: 'Grauverlauf 0–100 %', group: 'Grau', draw: (c, w, h) => hramp(c, 0, 0, w, h, gray) },
+  { id: 'ramp', name: t('pattern.ramp'), group: t('pattern.group.grey'), draw: (c, w, h) => hramp(c, 0, 0, w, h, gray) },
   {
-    id: 'rgbramp', name: 'Verläufe W R G B', group: 'Grau',
+    id: 'rgbramp', name: t('pattern.rgbramp'), group: t('pattern.group.grey'),
     draw: (c, w, h) => (['w', 'r', 'g', 'b'] as const).forEach((k, i) =>
       hramp(c, 0, (i * h) / 4, w, h / 4, (f) => (k === 'w' ? gray(f) : k === 'r' ? [lv(f), 0, 0] : k === 'g' ? [0, lv(f), 0] : [0, 0, lv(f)]))),
   },
-  { id: 'steps11', name: 'Graustufen 11 (0–100 %)', group: 'Grau', draw: (c, w, h) => { for (let i = 0; i < 11; i++) fill(c, gray(i / 10), (i * w) / 11, 0, w / 11, h); } },
+  { id: 'steps11', name: t('pattern.steps11'), group: t('pattern.group.grey'), draw: (c, w, h) => { for (let i = 0; i < 11; i++) fill(c, gray(i / 10), (i * w) / 11, 0, w / 11, h); } },
   {
-    id: 'te165', name: 'Graukeil 11 Stufen, TE-165-Anordnung', group: 'Grau',
+    id: 'te165', name: t('pattern.te165'), group: t('pattern.group.grey'),
     draw: (c, w, h) => {
       fill(c, [118, 118, 118], 0, 0, w, h);
       const x0 = w * 0.0825, sw = (w * 0.835) / 11;
@@ -300,18 +334,18 @@ export const PATTERNS: PatternDef[] = [
     },
   },
   {
-    id: 'sweep', name: 'Grauverlauf wandernd', group: 'Grau', animated: true,
+    id: 'sweep', name: t('pattern.sweep'), group: t('pattern.group.grey'), animated: true,
     draw: (c, w, h, t) => hramp(c, 0, 0, w, h, (f) => gray((f + t * 0.1) % 1)),
   },
-  { id: 'pluge', name: 'PLUGE BT.814-4 (SDR)', group: 'Grau', draw: (c, w, h) => plugeBT814(c, w, h, 940) },
+  { id: 'pluge', name: 'PLUGE BT.814-4 (SDR)', group: t('pattern.group.grey'), draw: (c, w, h) => plugeBT814(c, w, h, 940) },
 
   // Geometrie
   {
-    id: 'checker', name: 'Schachbrett', group: 'Geometrie',
+    id: 'checker', name: t('pattern.checker'), group: t('pattern.group.geometry'),
     draw: (c, w, h) => { const s = h / 9; for (let y = 0; y * s < h; y++) for (let x = 0; x * s < w; x++) fill(c, gray((x + y) % 2), x * s, y * s, s, s); },
   },
   {
-    id: 'convergence', name: 'Konvergenzgitter', group: 'Geometrie',
+    id: 'convergence', name: t('pattern.convergence'), group: t('pattern.group.geometry'),
     draw: (c, w, h) => {
       fill(c, gray(0), 0, 0, w, h);
       const n = 16, sx = w / n, sy = h / 9;
@@ -322,7 +356,7 @@ export const PATTERNS: PatternDef[] = [
     },
   },
   {
-    id: 'crosshair', name: 'Fadenkreuz', group: 'Geometrie',
+    id: 'crosshair', name: t('pattern.crosshair'), group: t('pattern.group.geometry'),
     draw: (c, w, h) => {
       fill(c, gray(0), 0, 0, w, h);
       c.fillStyle = '#fff';
@@ -332,7 +366,7 @@ export const PATTERNS: PatternDef[] = [
     },
   },
   {
-    id: 'circles', name: 'Kreisraster', group: 'Geometrie',
+    id: 'circles', name: t('pattern.circles'), group: t('pattern.group.geometry'),
     draw: (c, w, h) => {
       fill(c, gray(0), 0, 0, w, h);
       const s = h / 8;
@@ -345,31 +379,31 @@ export const PATTERNS: PatternDef[] = [
       for (const [fx, fy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) { c.beginPath(); c.arc(fx * w + (fx ? -1 : 1) * h / 8, fy * h + (fy ? -1 : 1) * h / 8, h / 8 - 2, 0, Math.PI * 2); c.stroke(); }
     },
   },
-  { id: 'zoneplate', name: 'Zonenplatte', group: 'Geometrie', draw: (c, w, h) => zonePlate(c, w, h, 0) },
-  { id: 'zoneplate-anim', name: 'Zonenplatte bewegt', group: 'Geometrie', animated: true, draw: zonePlate },
-  { id: 'safe', name: 'Sichere Bereiche (EBU R 95)', group: 'Geometrie', draw: safeAreas },
+  { id: 'zoneplate', name: t('pattern.zoneplate'), group: t('pattern.group.geometry'), draw: (c, w, h) => zonePlate(c, w, h, 0) },
+  { id: 'zoneplate-anim', name: t('pattern.zoneplateAnim'), group: t('pattern.group.geometry'), animated: true, draw: zonePlate },
+  { id: 'safe', name: t('pattern.safe'), group: t('pattern.group.geometry'), draw: safeAreas },
 
   // Farbe
-  { id: 'smpte75', name: 'SMPTE 75 % Balken + PLUGE', group: 'Farbe', draw: (c, w, h) => smpteBars(c, w, h, 0.75) },
-  { id: 'smpte100', name: 'SMPTE 100 % Balken + PLUGE', group: 'Farbe', draw: (c, w, h) => smpteBars(c, w, h, 1) },
+  { id: 'smpte75', name: t('pattern.smpte75'), group: t('pattern.group.colour'), draw: (c, w, h) => smpteBars(c, w, h, 0.75) },
+  { id: 'smpte100', name: t('pattern.smpte100'), group: t('pattern.group.colour'), draw: (c, w, h) => smpteBars(c, w, h, 1) },
   {
-    id: 'ebu75', name: 'EBU-Balken 100/0/75/0', group: 'Farbe',
+    id: 'ebu75', name: t('pattern.ebu75'), group: t('pattern.group.colour'),
     draw: (c, w, h) => [gray(1), ...BARS(0.75).slice(1), [0, 0, 0] as RGB].forEach((col, i) => fill(c, col, (i * w) / 8, 0, w / 8, h)),
   },
   {
-    id: 'ebu100', name: 'EBU-Balken 100/0/100/0', group: 'Farbe',
+    id: 'ebu100', name: t('pattern.ebu100'), group: t('pattern.group.colour'),
     draw: (c, w, h) => [...BARS(1), [0, 0, 0] as RGB].forEach((col, i) => fill(c, col, (i * w) / 8, 0, w / 8, h)),
   },
   {
-    id: 'gradbars', name: 'Sättigungsverläufe', group: 'Farbe',
+    id: 'gradbars', name: t('pattern.gradbars'), group: t('pattern.group.colour'),
     draw: (c, w, h) => {
       const cols: RGB[] = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 0], [1, 1, 1]].map((v) => v as RGB);
       cols.forEach((col, i) => hramp(c, 0, (i * h) / 7, w, h / 7, (f) => col.map((v) => lv(v * f)) as RGB));
     },
   },
-  { id: 'hue', name: 'Farbkreis-Verlauf', group: 'Farbe', draw: (c, w, h) => hramp(c, 0, 0, w, h, (f) => hsv(f)) },
+  { id: 'hue', name: t('pattern.hue'), group: t('pattern.group.colour'), draw: (c, w, h) => hramp(c, 0, 0, w, h, (f) => hsv(f)) },
   {
-    id: 'macbeth', name: 'ColorChecker (Näherung)', group: 'Farbe',
+    id: 'macbeth', name: t('pattern.macbeth'), group: t('pattern.group.colour'),
     draw: (c, w, h) => {
       fill(c, gray(0.1), 0, 0, w, h);
       const pw = w / 6.6, ph = h / 4.4, g = pw * 0.1;
@@ -378,32 +412,32 @@ export const PATTERNS: PatternDef[] = [
   },
 
   // Animiert
-  { id: 'cycle', name: 'Farbwechsel', group: 'Animiert', animated: true, draw: (c, w, h, t) => fill(c, hsv(t * 0.1), 0, 0, w, h) },
-  { id: 'cyclegrad', name: 'Farbwechsel-Verlauf', group: 'Animiert', animated: true, draw: (c, w, h, t) => hramp(c, 0, 0, w, h, (f) => hsv(f + t * 0.1)) },
+  { id: 'cycle', name: t('pattern.cycle'), group: t('pattern.group.animated'), animated: true, draw: (c, w, h, t) => fill(c, hsv(t * 0.1), 0, 0, w, h) },
+  { id: 'cyclegrad', name: t('pattern.cyclegrad'), group: t('pattern.group.animated'), animated: true, draw: (c, w, h, t) => hramp(c, 0, 0, w, h, (f) => hsv(f + t * 0.1)) },
   {
-    id: 'tribar', name: 'Farbwechsel dreigeteilt', group: 'Animiert', animated: true,
+    id: 'tribar', name: t('pattern.tribar'), group: t('pattern.group.animated'), animated: true,
     draw: (c, w, h, t) => [0, 1, 2].forEach((i) => fill(c, hsv(t * 0.1 + i / 3), (i * w) / 3, 0, w / 3, h)),
   },
   {
-    id: 'diagonal', name: 'Bewegte Diagonalen', group: 'Animiert', animated: true,
+    id: 'diagonal', name: t('pattern.diagonal'), group: t('pattern.group.animated'), animated: true,
     draw: (c, w, h, t) => { const p = h / 8, o = (t * p) % (2 * p); pixels(c, 0, 0, w, h, (x, y) => gray(Math.floor((x + y + o) / p) % 2)); },
   },
   {
-    id: 'rainbow', name: 'Regenbogenfluss', group: 'Animiert', animated: true,
+    id: 'rainbow', name: t('pattern.rainbow'), group: t('pattern.group.animated'), animated: true,
     draw: (c, w, h, t) => pixels(c, 0, 0, w, h, (x, y) => hsv((x + y) / (w + h) * 2 - t * 0.2)),
   },
   {
-    id: 'chromacrawl', name: 'Chroma-Crawl', group: 'Animiert', animated: true,
+    id: 'chromacrawl', name: t('pattern.chromacrawl'), group: t('pattern.group.animated'), animated: true,
     draw: (c, w, h, t) => { const ph = Math.floor(t * 25) % 2; pixels(c, 0, 0, w, h, (x, y) => ((x + y + ph) % 2 ? [255, 0, 255] : [0, 255, 0])); },
   },
 
   // Testbild
-  { id: 'testcard', name: 'Testbild mit Kreis und Uhr', group: 'Testbild', animated: true, draw: testCard },
-  { id: 'avsync', name: 'A/V-Sync (Blitz zum Piep)', group: 'Testbild', animated: true, draw: avSync },
+  { id: 'testcard', name: t('pattern.testcard'), group: t('pattern.group.testcard'), animated: true, draw: testCard },
+  { id: 'avsync', name: t('pattern.avsync'), group: t('pattern.group.testcard'), animated: true, draw: avSync },
 
   // HDR
   {
-    id: 'pq-steps', name: 'PQ-Graukeil 0–10 000 cd/m²', group: 'HDR', transfer: 'pq',
+    id: 'pq-steps', name: t('pattern.pqSteps'), group: 'HDR', transfer: 'pq',
     draw: (c, w, h) => {
       const nits = [0, 0.1, 1, 10, 50, 100, 203, 400, 1000, 2000, 4000, 10000];
       nits.forEach((n, i) => {
@@ -414,7 +448,7 @@ export const PATTERNS: PatternDef[] = [
     },
   },
   {
-    id: 'hlg-steps', name: 'HLG-Graukeil (1000-cd/m²-Display)', group: 'HDR', transfer: 'hlg',
+    id: 'hlg-steps', name: t('pattern.hlgSteps'), group: 'HDR', transfer: 'hlg',
     draw: (c, w, h) => {
       const nits = [0, 1, 10, 50, 100, 203, 400, 600, 1000];
       nits.forEach((n, i) => {
@@ -428,14 +462,14 @@ export const PATTERNS: PatternDef[] = [
   { id: 'pluge-hlg', name: 'PLUGE BT.814-4 HDR (HLG)', group: 'HDR', transfer: 'hlg', draw: (c, w, h) => plugeBT814(c, w, h, 399) },
   { id: 'pluge-pq', name: 'PLUGE BT.814-4 HDR (PQ)', group: 'HDR', transfer: 'pq', draw: (c, w, h) => plugeBT814(c, w, h, 399) },
   // BT.2408-8 Tab. 1 (p9): 18 % grey card at 38 % for HLG and PQ
-  { id: 'gray18-hlg', name: 'Graukarte 18 % HDR (38 %, HLG)', group: 'HDR', transfer: 'hlg', draw: (c, w, h) => fill(c, gray(0.38), 0, 0, w, h) },
-  { id: 'gray18-pq', name: 'Graukarte 18 % HDR (38 %, PQ)', group: 'HDR', transfer: 'pq', draw: (c, w, h) => fill(c, gray(0.38), 0, 0, w, h) },
+  { id: 'gray18-hlg', name: t('pattern.grey18Hlg'), group: 'HDR', transfer: 'hlg', draw: (c, w, h) => fill(c, gray(0.38), 0, 0, w, h) },
+  { id: 'gray18-pq', name: t('pattern.grey18Pq'), group: 'HDR', transfer: 'pq', draw: (c, w, h) => fill(c, gray(0.38), 0, 0, w, h) },
   {
-    id: 'pq-ramp', name: 'PQ-Verlauf mit Referenzweiß 203', group: 'HDR', transfer: 'pq',
+    id: 'pq-ramp', name: t('pattern.pqRamp'), group: 'HDR', transfer: 'pq',
     draw: (c, w, h) => {
       hramp(c, 0, 0, w, h * 0.7, gray);
       fill(c, gray(pqEncode(203)), 0, h * 0.7, w, h * 0.3);
-      text(c, '203 cd/m² (BT.2408 Referenzweiß)', w / 2, h * 0.85, h * 0.04, '#222');
+      text(c, t('pattern.pqRampLabel'), w / 2, h * 0.85, h * 0.04, '#222');
     },
   },
 ];
@@ -444,23 +478,21 @@ export const PATTERNS: PatternDef[] = [
 PATTERNS.push(...LED_PATTERNS);
 
 // LZ display test set (Lars Zumpe Medienproduktion, bundled 1920×1080)
+// [number, file slug]; the slug is part of the bundled file name, the caption comes from pattern.lz.<n>
 const LZ = [
-  ['01', 'schwarzwert-pluge', 'Schwarzwert & PLUGE'], ['02', 'weissclipping', 'Weißclipping'], ['03', 'gamma', 'Gamma'],
-  ['04', 'ansi-kontrast', 'ANSI-Kontrast'], ['05', 'ausleuchtung', 'Ausleuchtung'], ['06', 'schwarzbild', 'Schwarzbild'],
-  ['07', 'geometrie', 'Geometrie'], ['08', 'overscan', 'Overscan'], ['09', 'schaerfe-1zu1', 'Schärfe & 1:1'],
-  ['10', 'konvergenz', 'Konvergenz'], ['11', 'farbbalken', 'Farbbalken'], ['12', 'verlaeufe', 'Verläufe'],
-  ['13', 'messfelder', 'Messfelder'], ['14', 'text-schaerfung', 'Text & Schärfung'], ['15', 'vollfeld-weiss', 'Vollfeld Weiß'],
-  ['16', 'vollfeld-grau50', 'Vollfeld Grau 50'], ['17', 'vollfeld-grau25', 'Vollfeld Grau 25'], ['18', 'vollfeld-rot', 'Vollfeld Rot'],
-  ['19', 'vollfeld-gruen', 'Vollfeld Grün'], ['20', 'vollfeld-blau', 'Vollfeld Blau'],
+  ['01', 'schwarzwert-pluge'], ['02', 'weissclipping'], ['03', 'gamma'], ['04', 'ansi-kontrast'], ['05', 'ausleuchtung'],
+  ['06', 'schwarzbild'], ['07', 'geometrie'], ['08', 'overscan'], ['09', 'schaerfe-1zu1'], ['10', 'konvergenz'],
+  ['11', 'farbbalken'], ['12', 'verlaeufe'], ['13', 'messfelder'], ['14', 'text-schaerfung'], ['15', 'vollfeld-weiss'],
+  ['16', 'vollfeld-grau50'], ['17', 'vollfeld-grau25'], ['18', 'vollfeld-rot'], ['19', 'vollfeld-gruen'], ['20', 'vollfeld-blau'],  // lang-ok: file slugs of the bundled images
 ] as const;
-for (const [n, slug, name] of LZ) {
-  PATTERNS.push({ id: `lz-${n}`, name: `${n} ${name}`, group: 'LZ Displaytest', src: `patterns/lz-display/lz_${n}_${slug}_1920x1080.png` });
+for (const [n, slug] of LZ) {
+  PATTERNS.push({ id: `lz-${n}`, name: `${n} ${t(`pattern.lz.${n}` as Key)}`, group: t('pattern.group.lz'), groupId: 'lz', src: `patterns/lz-display/lz_${n}_${slug}_1920x1080.png` });
 }
 
 // start pattern: SMPTE 75 % with the hidden signature in the waveform (egg.ts), right after the original
 PATTERNS.splice(PATTERNS.findIndex((p) => p.id === 'smpte75') + 1, 0, {
-  id: 'smpte75-lz', name: 'SMPTE 75 % Balken + PLUGE (LZ)', group: 'Farbe',
-  note: 'Wie SMPTE 75 %, aber im Schwarzfeld steht zwischen 0,8 und 3,8 % eine Signatur – in der Waveform lesbar (am besten mit der Schwarz-Lupe). Balken und PLUGE unverändert; Scopes bekommen exakte 10-bit-Codes.',
+  id: 'smpte75-lz', name: t('pattern.smpte75lz'), group: t('pattern.group.colour'),
+  note: t('pattern.smpte75lzNote'),
   draw: (c, w, h) => drawRaster(c, smpteLzRaster(w, h), false), frame16: (w, h) => toFrame16(smpteLzRaster(w, h), false, h > 576 ? '709' : '601'),
 });
 
@@ -483,8 +515,8 @@ for (const p of PATTERNS) {
 }
 // 10-bit banding test for the output window (src/deep.ts)
 PATTERNS.push({
-  id: 'ramp10', name: '10-bit-Rampe (Banding-Test)', group: '10 bit', colorspace: '709',
-  note: 'Obere Hälften 10 bit, untere dieselben Codes über 8 bit. Sehen beide gleich aus, kommen nur 8 bit an.',
+  id: 'ramp10', name: t('pattern.ramp10'), group: '10 bit', colorspace: '709',
+  note: t('pattern.ramp10Note'),
   draw: (c, w, h) => drawRaster(c, ramp10Raster(w, h), true), frame16: (w, h) => toFrame16(ramp10Raster(w, h), true, '709'),
   raster: ramp10Raster, rasterFull: true, labels: ramp10Labels,
 });
@@ -495,20 +527,12 @@ export function patternById(id: string) {
   return PATTERNS.find((p) => p.id === id) ?? PATTERNS.find((p) => p.id === 'smpte75')!;
 }
 
-/** Register user images for this session as extra patterns. */
-export function addImagePatterns(files: File[]): PatternDef[] {
-  const added = files.filter((f) => f.type.startsWith('image/')).map((f, i) => ({
-    id: `user-${Date.now()}-${i}`, name: f.name, group: 'Eigene Bilder', src: URL.createObjectURL(f),
-  }));
-  PATTERNS.push(...added);
-  return added;
-}
 
 const imageCache = new Map<string, Promise<HTMLImageElement>>();
 function loadImage(src: string) {
   let p = imageCache.get(src);
   if (!p) {
-    p = new Promise((ok, fail) => { const img = new Image(); img.onload = () => ok(img); img.onerror = () => fail(new Error(`Bild nicht ladbar: ${src}`)); img.src = src; });
+    p = new Promise((ok, fail) => { const img = new Image(); img.onload = () => ok(img); img.onerror = () => fail(new Error(t('pattern.err.imageLoad', { src }))); img.src = src; });
     imageCache.set(src, p);
   }
   return p;

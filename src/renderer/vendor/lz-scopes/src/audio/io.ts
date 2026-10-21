@@ -7,6 +7,7 @@ import generatorUrl from './worklet/generator.worklet.ts?worker&url';
 import playbackUrl from './worklet/playback.worklet.ts?worker&url';
 import { DEFAULT_GEN, type GenConfig } from './dsp/signals';
 import type { DriftStats } from './dsp/driftbuffer';
+import { t } from '../i18n';
 
 type SinkCtx = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 
@@ -109,7 +110,7 @@ export class GeneratorEngine {
     if (!this.ctx) await ctx.audioWorklet.addModule(generatorUrl);
     this.ctx = ctx;
     const max = ctx.destination.maxChannelCount;
-    if (want > max) throw new Error(`Ausgang meldet nur ${max} Kanäle (destination.maxChannelCount) – ${want} Kanäle nicht möglich`);
+    if (want > max) throw new Error(t('audio.io.tooManyChannels', { max, want }));
     ctx.destination.channelCount = want;
     ctx.destination.channelCountMode = 'explicit';
     ctx.destination.channelInterpretation = 'discrete';
@@ -146,7 +147,7 @@ export class GeneratorEngine {
     this.sinkId = id;
     const ctx = this.ctx as SinkCtx | null;
     if (!ctx) return;
-    if (!ctx.setSinkId) { this.error = 'Ausgabegerät wählen kann dieser Browser nicht (AudioContext.setSinkId)'; this.onState(); return; }
+    if (!ctx.setSinkId) { this.error = t('audio.io.noSinkId'); this.onState(); return; }
     try { await ctx.setSinkId(id); this.error = ''; } catch (e) { this.error = (e as Error).message; }
     this.onState();
   }
@@ -229,7 +230,7 @@ export class StreamMonitor {
 
   async setSink(id: string) {
     const ctx = this.ctx as SinkCtx;
-    if (!ctx.setSinkId) { this.error = 'Ausgabegerät wählen kann dieser Browser nicht (AudioContext.setSinkId)'; return; }
+    if (!ctx.setSinkId) { this.error = t('audio.io.noSinkId'); return; }
     try { await ctx.setSinkId(id); this.error = ''; } catch (e) { this.error = (e as Error).message; }
   }
 

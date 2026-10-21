@@ -72,8 +72,10 @@ export function huelle(lies) {
     if (!/\.(ts|mts)$/.test(rel)) continue
     for (const m of text.matchAll(IMPORT)) {
       let ziel = (m[1] ?? m[2] ?? m[3]).split('?')[0]
-      if (!/\.(ts|mts|mjs|js)$/.test(ziel)) ziel += '.ts'
-      offen.push(posix.normalize(posix.join(posix.dirname(rel), ziel)))
+      let pfad = posix.normalize(posix.join(posix.dirname(rel), ziel))
+      // `./i18n` kann `i18n.ts` oder `i18n/index.ts` sein (upstream seit 10/2026 ein Ordner).
+      if (!/\.(ts|mts|mjs|js|css)$/.test(ziel)) pfad = lies(`${pfad}.ts`) === null && lies(`${pfad}/index.ts`) !== null ? `${pfad}/index.ts` : `${pfad}.ts`
+      offen.push(pfad)
     }
   }
   return new Map([...gesehen].sort(([x], [y]) => x.localeCompare(y)))

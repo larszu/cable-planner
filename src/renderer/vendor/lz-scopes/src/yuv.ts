@@ -47,3 +47,13 @@ export function yuv420ToRgba(p: YuvPlanes, w: number, h: number, matrix: string,
   }
   return out;
 }
+
+/**
+ * Range of the decoded planes. The decoder may hand them over in another range than the stream
+ * is tagged with: WebKit (iOS simulator, #90) delivers narrow-range H.264 as full range – the
+ * frame's own colorSpace says so. Without that information the stream's tag counts.
+ */
+export function decodedFullRange(frame: { colorSpace?: { fullRange?: boolean | null } | null }, range: string | undefined): boolean {
+  const f = frame.colorSpace?.fullRange;
+  return typeof f === 'boolean' ? f : range === 'pc';
+}
