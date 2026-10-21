@@ -4,8 +4,9 @@ import { format, useTranslation } from '../../lib/i18n'
 import { markTourSeen } from './onboardingState'
 
 /**
- * One-time onboarding tour shown on first launch (and re-openable from the
- * Help menu). Renders as a centered modal with sequential slides. We avoid
+ * Short tour (five steps) shown once after the start dialog (#1025) and
+ * re-openable from the Help menu. The last step hands over to the command
+ * palette, the way to every function the tour does not mention. Renders as a centered modal with sequential slides. We avoid
  * real DOM spotlights on purpose — they are fragile across panel resizes and
  * platform-specific scrollbars, and the slides describe relocations more
  * concisely as plain text.
@@ -17,49 +18,16 @@ import { markTourSeen } from './onboardingState'
 interface TourStep {
   title: string
   body: string
-  hint?: string
 }
 
 const stepsForLang = (
   t: (key: string, fallback?: string) => string,
 ): TourStep[] => [
   {
-    title: t('onboarding.steps.welcome.title', 'Welcome to LZ Cable Planner'),
-    body: t(
-      'onboarding.steps.welcome.body',
-      'A short tour shows where the main features live. You can re-open it any time from the Help menu in the top right.',
-    ),
-  },
-  {
-    title: t('onboarding.steps.file.title', 'File menu (top left)'),
-    body: t(
-      'onboarding.steps.file.body',
-      'Use "File" to create projects, open saved files and persist changes. Project metadata is editable from "Project properties" there.',
-    ),
-  },
-  {
-    title: t('onboarding.steps.export.title', 'Export menu'),
-    body: t(
-      'onboarding.steps.export.body',
-      'The "Export" menu hosts PDF plan export, the cable BOM and two Rentman actions: attach PDF to Rentman and send cables to Rentman.',
-    ),
-    hint: t(
-      'onboarding.steps.export.hint',
-      'The Rentman entries are only active if a Rentman project is linked.',
-    ),
-  },
-  {
-    title: t('onboarding.steps.settings.title', 'Settings → Rentman'),
-    body: t(
-      'onboarding.steps.settings.body',
-      'Save the token, test the connection and link/switch Rentman projects from the "Rentman API" tab in Settings.',
-    ),
-  },
-  {
     title: t('onboarding.steps.library.title', 'Library on the left'),
     body: t(
-      'onboarding.steps.library.body',
-      'The left column holds equipment, cable library and groups. In the Equipment tab you can switch between local and Rentman-imported devices.',
+      'onboarding.steps.library.body2',
+      'Drag devices and cables from the left column onto the canvas. Drag from one port to another to draw a cable.',
     ),
   },
   {
@@ -70,10 +38,24 @@ const stepsForLang = (
     ),
   },
   {
-    title: t('onboarding.steps.cablePlan.title', 'Cable plan & warnings'),
+    title: t('onboarding.steps.planCheck.title', 'Plan check'),
     body: t(
-      'onboarding.steps.cablePlan.body',
-      'If you import cable quantities from Rentman, LZ Cable Planner warns when you wire more cables than available. "Send cables to Rentman" syncs back the assembled totals.',
+      'onboarding.steps.planCheck.body',
+      'Tools → Plan check finds gaps and contradictions. Nothing is mandatory: plan first, the check points out what is missing.',
+    ),
+  },
+  {
+    title: t('onboarding.steps.export.title', 'Export menu'),
+    body: t(
+      'onboarding.steps.export.body2',
+      'File → Export & Print produces the PDF plan, the cable list and the patch list.',
+    ),
+  },
+  {
+    title: t('onboarding.steps.palette.title', 'Find any function'),
+    body: t(
+      'onboarding.steps.palette.body',
+      'Press Ctrl/Cmd+K and type what you need — for example "label", "power" or "rack". The command palette finds every tool and dialog. This tour stays available under Help.',
     ),
   },
 ]
@@ -131,9 +113,9 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
                   key={index}
                   className={`h-1.5 w-4 ${
                     index === step
-                      ? 'bg-orange-500'
+                      ? 'bg-cp-accent'
                       : index < step
-                        ? 'bg-orange-700/60'
+                        ? 'bg-cp-accent-soft'
                         : 'bg-cp-surface-4'
                   }`}
                 />
@@ -150,16 +132,19 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
             {isLast ? (
               <button
                 type="button"
-                onClick={finish}
-                className="bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500"
+                onClick={() => {
+                  finish()
+                  window.dispatchEvent(new CustomEvent('cp:open-command-palette'))
+                }}
+                className="rounded-cp-control bg-cp-accent px-3 py-1 text-cp-xs font-semibold text-cp-bg hover:brightness-110"
               >
-                {t('onboarding.start', "Let's go")}
+                {t('onboarding.openPalette', 'Open command palette')}
               </button>
             ) : (
               <button
                 type="button"
                 onClick={() => setStep((index) => Math.min(STEPS.length - 1, index + 1))}
-                className="bg-orange-600 px-3 py-1 text-cp-xs font-semibold text-white hover:bg-orange-500"
+                className="rounded-cp-control bg-cp-accent px-3 py-1 text-cp-xs font-semibold text-cp-bg hover:brightness-110"
               >
                 {t('onboarding.next', 'Next')}
               </button>
@@ -171,11 +156,6 @@ export const OnboardingTour = ({ open, onClose }: OnboardingTourProps) => {
       <div className="space-y-3">
         <h2 className="text-cp-xl font-semibold text-cp-text">{current.title}</h2>
         <p className="text-cp-base leading-relaxed text-cp-text-secondary">{current.body}</p>
-        {current.hint && (
-          <div className="border border-cp-border-muted bg-cp-surface-3/40 px-2 py-1 text-cp-xs text-cp-text-muted">
-            {t('onboarding.tip', 'Tip:')} {current.hint}
-          </div>
-        )}
       </div>
     </ModalShell>
   )

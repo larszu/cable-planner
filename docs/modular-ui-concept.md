@@ -97,7 +97,7 @@ Modul-Flag.
   `setOnboardingDone`), persistiert wie die übrigen Settings.
 - `useModule(id)` — Hook für konditionales Rendern von Menüeinträgen,
   Panels und Dialogen.
-- `ModuleOnboardingDialog` — überspringbarer Erststart-Dialog (Presets).
+- `StartDialog` (`components/Onboarding/`) — der eine Erststart-Dialog: optionale Presets plus Neues Projekt / Beispielprojekt / Öffnen (#1025).
 - Settings-Tab **„Module"** — Dauer-Schaltplatz.
 
 ### Umsetzungs-Reihenfolge

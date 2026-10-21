@@ -77,7 +77,6 @@ import { AboutDialog } from './components/About/AboutDialog'
 import { PatchListDialog } from './components/Patch/PatchListDialog'
 import { GeraeteDatenblattHost } from './components/Properties/GeraeteDatenblattDialog'
 import { InstallationDocsDialog } from './components/Export/InstallationDocsDialog'
-import { ModuleOnboardingDialog } from './components/Onboarding/ModuleOnboardingDialog'
 import { BandwidthCalculatorDialog, PowerCalculatorDialog } from './components/Calculators/CalculatorsDialog'
 import { RecordingStorageCalculatorDialog } from './components/Calculators/RecordingStorageCalculatorDialog'
 import { ProjectionCalculatorDialog } from './components/Calculators/ProjectionCalculatorDialog'
@@ -103,7 +102,7 @@ import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
 import { PlanCompareDialog } from './components/Project/PlanCompareDialog'
 import { DocumentLogDialog } from './components/Project/DocumentLogDialog'
-import { WelcomeDialog } from './components/Project/WelcomeDialog'
+import { StartDialog } from './components/Onboarding/StartDialog'
 import { Splitter } from './components/Layout/Splitter'
 import { useProject } from './hooks/useProject'
 import { useRentman } from './hooks/useRentman'
@@ -118,7 +117,7 @@ import { exportProjectToDxf } from './lib/exportDxf'
 import { downloadBlob } from './lib/downloadBlob'
 import { buildExportFilename } from './lib/exportFilename'
 import { connectorToCableType } from './lib/cableInheritance'
-import { routeCable, triggerCanvasSelectAll } from './lib/canvasViewport'
+import { routeCable, triggerCanvasFitView, triggerCanvasSelectAll } from './lib/canvasViewport'
 import { useProjectStore } from './store/projectStore'
 import {
   scanLibraryFolder,
@@ -255,13 +254,6 @@ export default function App() {
   const portConflict = useProjectStore((state) => state.portConflict)
   const resolvePortConflictByReplace = useProjectStore((state) => state.resolvePortConflictByReplace)
   const cancelPortConflict = useProjectStore((state) => state.cancelPortConflict)
-  /**
-   * Ist die Modul-Frage schon beantwortet? (#864)
-   *
-   * Sie steht hier, weil die ERSTSTART-DIALOGE EINE REIHENFOLGE BRAUCHEN und
-   * nicht drei gleichzeitige Schleier. Siehe unten bei `OnboardingTour`.
-   */
-  const onboardingDone = useSettingsStore((state) => state.onboardingDone)
   const hasToken = useSettingsStore((state) => state.hasToken)
   const setHasToken = useSettingsStore((state) => state.setHasToken)
   const propertiesCollapsed = useUiStore((state) => state.propertiesCollapsed)
@@ -659,10 +651,14 @@ export default function App() {
 
   useEffect(() => {
     // Auto-open onboarding tour on first launch only. Subsequent runs leave
-    // the tour closed; the user can re-open it from the Help menu.
-    if (!hasSeenTour()) {
-      const timer = window.setTimeout(() => setTourOpen(true), 400)
-      return () => window.clearTimeout(timer)
+    // the tour closed; the user can re-open it from the Help menu or the
+    // command palette (event 'cp:open-tour').
+    const onOpenTour = () => setTourOpen(true)
+    window.addEventListener('cp:open-tour', onOpenTour)
+    const timer = hasSeenTour() ? undefined : window.setTimeout(() => setTourOpen(true), 400)
+    return () => {
+      window.removeEventListener('cp:open-tour', onOpenTour)
+      if (timer !== undefined) window.clearTimeout(timer)
     }
   }, [])
 
@@ -1527,27 +1523,17 @@ export default function App() {
         open={rentmanCableExport.open}
         onClose={closeRentmanCableExport}
       />
-      {/* DREI ERSTSTART-DIALOGE, EINE REIHENFOLGE (#864).
-          Beim ersten Start oeffneten sich bis hierher alle drei gleichzeitig:
-          die Tour nach 400 ms, der Willkommens-Dialog und die Modul-Frage.
-          Gemessen mit `bedienbar:check` (1440 px): zwei `.avob-overlay`
-          uebereinander, der Schliessen-Knopf des unteren nicht anklickbar
-          (Zeitueberschreitung, „intercepts pointer events"), 61 Bedienpunkte
-          unter einem anderen Element.
-
-          Die Reihenfolge ergibt sich aus dem, was sie verlangen: der
-          Willkommens-Dialog fragt „welches Projekt?" und blockiert die
-          Arbeit; die Modul-Frage ist eine Umfrage; die Tour zeigt, wo was
-          liegt, und ist das am wenigsten Dringende. Also: Willkommen →
-          Umfrage → Tour, jede wartet auf die vorige. */}
-      <OnboardingTour
-        open={tourOpen && !welcomeOpen && onboardingDone}
-        onClose={() => setTourOpen(false)}
-      />
-      <WelcomeDialog
+      {/* EIN Einstieg (#1025): erst der Start-Dialog, danach die Tour.
+          Nie zwei Schleier uebereinander (#864) — die Tour wartet. */}
+      <OnboardingTour open={tourOpen && !welcomeOpen} onClose={() => setTourOpen(false)} />
+      <StartDialog
         open={welcomeOpen}
         onNew={() => setMetaDialog({ mode: 'new' })}
         onOpen={() => void openProject()}
+        onDemo={() => {
+          useProjectStore.getState().loadDemoProject()
+          window.setTimeout(() => triggerCanvasFitView(), 80)
+        }}
         onClose={dismissWelcome}
       />
       {videohubExport.open && (
@@ -1595,17 +1581,6 @@ export default function App() {
       <PatchListDialog />
       <GeraeteDatenblattHost />
       <InstallationDocsDialog />
-      {/* NACH dem Willkommens-Dialog, nicht daneben (#864).
-          Gemessen bei 390 px: beide standen gleichzeitig offen, sichtbar
-          uebereinander, und der Schleier der Modul-Frage nahm die Klicks
-          entgegen, die dem Schliessen-Knopf des Willkommens-Dialogs galten —
-          `bedienbar:check` in der Suite kam an der App gar nicht mehr vorbei.
-
-          Die Reihenfolge ist keine Geschmacksfrage: der Willkommens-Dialog
-          fragt „welches Projekt?" und blockiert die Arbeit, die Modul-Frage
-          fragt „wofuer nutzt du die App?" und ist eine Umfrage. Die Umfrage
-          wartet. */}
-      {!welcomeOpen && <ModuleOnboardingDialog />}
       <BandwidthCalculatorDialog />
       <PowerCalculatorDialog />
       <RecordingStorageCalculatorDialog />
