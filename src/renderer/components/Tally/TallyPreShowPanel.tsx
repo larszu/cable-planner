@@ -21,6 +21,7 @@ import {
   type TallyTransport,
 } from '../../types/tallyPosition'
 import { PanelHint } from '../shared/PanelHint'
+import { satzText } from '../../lib/satz'
 
 /**
  * BEDARF 105 — die Vor-Show-Liste fuer das Tally.
@@ -254,7 +255,7 @@ export const TallyPreShowPanel = () => {
               }`}
             >
               <Icon icon={AlertTriangle} size="xs" />
-              <span>{b.message}</span>
+              <span>{satzText(b.satz, t)}</span>
             </li>
           ))}
         </ul>

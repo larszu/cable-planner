@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import {
   HOUSE_REF_NOTE,
@@ -217,7 +218,7 @@ describe('identityFindings', () => {
     const dopp = f.filter((x) => x.kind === 'serial-duplicate')
     expect(dopp).toHaveLength(1)
     expect(dopp[0].unitIds).toEqual(['a', 'b'])
-    expect(dopp[0].text).toContain('Inventur')
+    expect(deutsch(dopp[0].text)).toContain('Inventur')
   })
 
   it('zaehlt „av-0421" und „AV0421" als dieselbe Nummer', () => {
@@ -259,7 +260,7 @@ describe('identityFindings', () => {
     const ohne = f.filter((x) => x.kind === 'no-identity')
     expect(ohne).toHaveLength(1)
     expect(ohne[0].unitIds).toEqual(['a', 'b'])
-    expect(ohne[0].text).toContain(NO_IDENTITY)
+    expect(deutsch(ohne[0].text)).toContain(NO_IDENTITY)
   })
 
   it('haelt fuer jede Befundart eine lesbare Ueberschrift bereit', () => {

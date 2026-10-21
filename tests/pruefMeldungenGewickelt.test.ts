@@ -107,19 +107,10 @@ const BESTAND: Record<string, number> = {
   // Feldnamen (`text`). `lib/mcpSchreiben.ts` steht seit #1052 auf 0: die
   // Antworten laufen durch `ja()`/`nein()`.
   'types/mcpLog.ts': 1,
-  'lib/circuitSuggest.ts': 11,
-  'lib/bridge.ts': 9,
-  'lib/tallyPosition.ts': 8,
-  'lib/tallyMap.ts': 6,
+  'lib/bridge.ts': 2,
   'lib/graphml/parser.ts': 6,
-  'lib/addressTemplate.ts': 6,
   'lib/textProtocol.ts': 5,
-  'lib/networkSegments.ts': 5,
-  'lib/channelIdentity.ts': 4,
-  'lib/salvoSheet.ts': 3,
   'lib/rfCoordination.ts': 3,
-  'lib/mvSheet.ts': 3,
-  'lib/templateScope.ts': 2,
   'lib/exportPdf.ts': 2,
   'lib/receiptRead.ts': 1,
   'lib/portLabel.ts': 1,
@@ -221,6 +212,7 @@ describe('Meldungen aus lib/ und types/ sind gewickelt', () => {
     // Ohne sie waere ein kaputtes Muster die gefaehrlichste Art gruen: es
     // findet nichts, und Nichts sieht hier aus wie ein Ergebnis.
     const gesamt = [...zaehle().values()].reduce((a, b) => a + b, 0)
-    expect(gesamt).toBeGreaterThan(50)
+    // Mit #1142 sank der Bestand von ueber 50 auf 33; die Schwelle folgt.
+    expect(gesamt).toBeGreaterThan(20)
   })
 })

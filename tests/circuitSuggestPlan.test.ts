@@ -7,6 +7,7 @@
 // richtige Antwort, das zu SAGEN — ein verschluckter Vorschlag liest sich wie
 // „alles in Ordnung".
 // ───────────────────────────────────────────────────────────────────────────
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import { planVorschlaege } from '../src/renderer/lib/circuitSuggestPlan'
 import type { CablePlannerProject } from '../src/renderer/types/project'
@@ -112,7 +113,7 @@ describe('der anwendbare Vorschlag', () => {
     expect(zwei.length).toBeGreaterThan(0)
     for (const v of zwei) {
       const anschluesse = v.kanten.flatMap((k) => [k.fromPortId, k.toPortId])
-      expect(new Set(anschluesse).size, v.text).toBe(anschluesse.length)
+      expect(new Set(anschluesse).size, deutsch(v.text)).toBe(anschluesse.length)
     }
   })
 
@@ -121,8 +122,8 @@ describe('der anwendbare Vorschlag', () => {
     const belegt = new Set(['f0', 'a0', 'a1', 'b1', 'b0', 'l0'])
     for (const v of r.vorschlaege) {
       for (const k of v.kanten) {
-        expect(belegt.has(k.fromPortId), v.text).toBe(false)
-        expect(belegt.has(k.toPortId), v.text).toBe(false)
+        expect(belegt.has(k.fromPortId), deutsch(v.text)).toBe(false)
+        expect(belegt.has(k.toPortId), deutsch(v.text)).toBe(false)
       }
     }
   })
@@ -156,12 +157,12 @@ describe('der Vorschlag, der sich nicht eintragen lässt', () => {
       [kabel('k1', ['feed', 'f0'], ['W1', 'a0']), kabel('k4', ['W2', 'b0'], ['L', 'l0'])],
     )
     const r = planVorschlaege(p)
-    const zweiAdrig = r.vorschlaege.filter((v) => v.text.startsWith('Zwei Adern'))
+    const zweiAdrig = r.vorschlaege.filter((v) => v.text.startsWith('Lay two wires'))
     expect(zweiAdrig.length).toBeGreaterThan(0)
     for (const v of zweiAdrig) {
       // Entweder ganz eintragbar oder gar nicht — nie zur Haelfte.
-      expect(v.kanten.length === 2 || v.kanten.length === 0, v.text).toBe(true)
-      if (v.kanten.length === 0) expect(v.hindernis, v.text).toBeDefined()
+      expect(v.kanten.length === 2 || v.kanten.length === 0, deutsch(v.text)).toBe(true)
+      if (v.kanten.length === 0) expect(v.hindernis, deutsch(v.text)).toBeDefined()
     }
     expect(zweiAdrig.some((v) => v.hindernis !== undefined)).toBe(true)
   })
@@ -223,7 +224,7 @@ describe('Befunde und Annahmen gehen unverändert durch', () => {
   it('reicht Befunde, Annahmen und die Vollständigkeit weiter', () => {
     const r = planVorschlaege(halbeWechselschaltung())
     expect(r.befunde.map((b) => b.art)).toContain('schalter-ohne-wirkung')
-    expect(r.annahmen).toContain('Alle Einspeisungen führen Spannung.')
+    expect(r.annahmen).toContain('All feeds carry voltage.')
     expect(r.vollstaendig).toBe(true)
   })
 

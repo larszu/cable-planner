@@ -43,6 +43,7 @@ import type { InventoryUnit, InventoryItem } from '../types/inventory'
 import type { CheckoutRecord } from '../types/checkout'
 import type { CsvTable } from '../../lib/csv'
 import { kanonisch, spalten } from '../../lib/kanonisch'
+import { type Satz, befund, satz, undListe } from '../../lib/satz'
 import { deviceInterfaces } from '../../lib/networkInterfaces'
 
 /**
@@ -99,6 +100,7 @@ export const ASSET_FINDING_LABEL: Readonly<Record<AssetFindingKind, string>> = {
 export interface AssetFinding {
   kind: AssetFindingKind
   text: string
+  satz: Satz
   /** Der betroffene Plan-Platz, fuer den Sprung. */
   equipmentId: string
   /** Die betroffene Einheit, wenn eine benannt ist. */
@@ -174,9 +176,17 @@ export function assessAssetIdentity(input: AssetIdentityInput): AssetIdentityAss
       kind: 'unit-double',
       equipmentId: plaetze[0].id,
       unitId: uid,
-      text: `${u?.serial ? `Einheit ${u.serial}` : 'Eine Einheit'} steht in ${plaetze.length} Plätzen: ${plaetze
-        .map((p) => p.name)
-        .join(', ')}. Eine Kiste steht an einem Ort — einer der Plätze führt einen Rest von gestern.`,
+      ...befund(u?.serial
+        ? satz(
+            'asset.text.twiceSerial',
+            'Unit {serial} sits in {n} slots: {slots}. A case is in one place — one of the slots carries a leftover from yesterday.',
+            { serial: u.serial, n: plaetze.length, slots: plaetze.map((p) => p.name).join(', ') },
+          )
+        : satz(
+            'asset.text.twice',
+            'A unit sits in {n} slots: {slots}. A case is in one place — one of the slots carries a leftover from yesterday.',
+            { n: plaetze.length, slots: plaetze.map((p) => p.name).join(', ') },
+          )),
     })
   }
 
@@ -198,9 +208,14 @@ export function assessAssetIdentity(input: AssetIdentityInput): AssetIdentityAss
       findings.push({
         kind: 'unit-unnamed',
         equipmentId: e.id,
-        text: `${e.name} trägt ${anchors
-          .map((a) => IDENTITY_ANCHOR_LABEL[a])
-          .join(' und ')}, aber es steht nicht, WELCHE Kiste das ist. Wird sie am Ladetag gegen eine baugleiche getauscht, wandert der eingebrannte Geräte-Name mit — und die Abonnements zeigen ins Leere, ohne dass etwas rot wird.`,
+        ...befund(satz(
+          'asset.text.anchorWithoutUnit',
+          '{device} carries {anchors}, but it does not say WHICH case it is. If it is swapped for an identical one on load-in day, the burned-in device name travels along — and the subscriptions point into nothing without anything turning red.',
+          {
+            device: e.name,
+            anchors: undListe(anchors.map((a) => satz(`asset.anchor.${a}`, IDENTITY_ANCHOR_LABEL[a]))),
+          },
+        )),
       })
       continue
     }
@@ -212,7 +227,11 @@ export function assessAssetIdentity(input: AssetIdentityInput): AssetIdentityAss
         kind: 'unit-missing',
         equipmentId: e.id,
         unitId: uid,
-        text: `${e.name} nennt eine Einheit, die im Bestand nicht steht. Entweder ist sie gelöscht worden, oder der Plan kommt aus einer anderen Lagerdatenbank.`,
+        ...befund(satz(
+          'asset.text.unitMissing',
+          '{device} names a unit that is not in stock. Either it was deleted, or the plan comes from another inventory database.',
+          { device: e.name },
+        )),
       })
       continue
     }
@@ -222,7 +241,11 @@ export function assessAssetIdentity(input: AssetIdentityInput): AssetIdentityAss
         kind: 'serial-mismatch',
         equipmentId: e.id,
         unitId: uid,
-        text: `${e.name}: am Platz steht Seriennummer ${plannedSerial}, die zugeordnete Einheit trägt ${unit.serial}. Zwei Aufzeichnungen über dieselbe Kiste widersprechen sich — welche stimmt, sagt der Plan nicht, aber eine von beiden ist von einem Tausch übrig.`,
+        ...befund(satz(
+          'asset.text.serialMismatch',
+          '{device}: the slot says serial {planned}, the assigned unit carries {actual}. Two records of the same case contradict each other — the plan does not say which is right, but one of them is left over from a swap.',
+          { device: e.name, planned: plannedSerial, actual: unit.serial },
+        )),
       })
     }
 
@@ -232,9 +255,15 @@ export function assessAssetIdentity(input: AssetIdentityInput): AssetIdentityAss
         kind: 'unit-blocked',
         equipmentId: e.id,
         unitId: uid,
-        text: `${e.name} ist mit ${modell ? `${modell} ` : ''}${
-          unit.serial ?? uid
-        } belegt, und die Einheit steht auf „${unit.condition}". Sie geht so nicht raus.`,
+        ...befund(satz(
+          'asset.text.unitBlocked',
+          '{device} is assigned {unit}, and the unit is set to “{condition}”. It does not go out like this.',
+          {
+            device: e.name,
+            unit: `${modell ? `${modell} ` : ''}${unit.serial ?? uid}`,
+            condition: satz(`inventory.history.cond.${unit.condition}`, unit.condition),
+          },
+        )),
       })
     }
 
@@ -245,9 +274,11 @@ export function assessAssetIdentity(input: AssetIdentityInput): AssetIdentityAss
         kind: 'unit-not-issued',
         equipmentId: e.id,
         unitId: uid,
-        text: `${e.name} nennt Einheit ${
-          unit.serial ?? uid
-        }, die auf keinem offenen Ausgabeschein steht. Entweder fährt eine andere Kiste mit, oder der Schein ist unvollständig.`,
+        ...befund(satz(
+          'asset.text.unitNotIssued',
+          '{device} names unit {unit}, which is on no open issue slip. Either another case is travelling, or the slip is incomplete.',
+          { device: e.name, unit: unit.serial ?? uid },
+        )),
       })
     }
   }

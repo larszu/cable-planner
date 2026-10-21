@@ -9,6 +9,7 @@
 // (`{"id":"r1","name":"Kamera 1","input":7}` statt Eingang 1 am ATEM), ohne
 // einen Befund zu erzeugen.
 // ───────────────────────────────────────────────────────────────────────────
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import { buildTallyMap, toTallyPiDevices } from '../src/renderer/lib/tallyMap'
 import { buildSourceMap } from '../src/renderer/lib/sourceMap'
@@ -143,9 +144,9 @@ describe('Kreuzpunkt fehlt: keine Zahl, sondern ein Befund', () => {
   it('der Befund nennt Router, Eingang und den naechsten Schritt', () => {
     const issue = buildTallyMap(plan).issues.find((i) => i.kind === 'router-not-resolved')
     expect(issue).toBeDefined()
-    expect(issue?.message).toContain('Smart Videohub 20x20')
-    expect(issue?.message).toContain('Eingang 7')
-    expect(issue?.message).toContain('Kreuzpunkt')
+    expect(deutsch(issue?.message)).toContain('Smart Videohub 20x20')
+    expect(deutsch(issue?.message)).toContain('Eingang 7')
+    expect(deutsch(issue?.message)).toContain('Kreuzpunkt')
   })
 
   it('er fordert NICHT dazu auf, dem Router eine Rolle zu geben', () => {

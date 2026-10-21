@@ -1,5 +1,6 @@
 import { useTranslation } from '../../lib/i18n'
 import { provenanceReason, type Provenance } from '../../types/provenance'
+import { satzText } from '../../lib/satz'
 
 /**
  * ADR-003 Inkrement 2 — das geteilte Element, das an einem Wert sagt, woher er
@@ -41,7 +42,8 @@ export const ProvenanceBadge = ({ provenance, field, title }: ProvenanceBadgePro
         ? t('prov.commanded', 'sent')
         : t('prov.confirmed', 'confirmed')
 
-  const reason = title ?? (field ? provenanceReason(field) : undefined)
+  const grund = field ? provenanceReason(field) : undefined
+  const reason = title ?? (grund ? satzText(grund, t) : undefined)
 
   return (
     <span

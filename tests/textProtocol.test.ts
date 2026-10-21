@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import {
   LEERE_TEXT_KONFIG,
@@ -234,14 +235,14 @@ describe('Der Weg durch eine erklaerte Kreuzschiene', () => {
     const p = anlage({ controlText: undefined })
     const plan = controlActions(p, wegVon(p).kreuzpunkte)
     expect(plan.actions).toEqual([])
-    expect(plan.hindernisse[0].grund).toMatch(/Handbuch/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/Handbuch/)
   })
 
   it('ohne Port ebenso', () => {
     const p = anlage({ controlPort: undefined })
     const plan = controlActions(p, wegVon(p).kreuzpunkte)
     expect(plan.actions).toEqual([])
-    expect(plan.hindernisse[0].grund).toMatch(/Port/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/Port/)
   })
 
   it('mit „je Anschluss eingetragen" und fehlender Nummer wird NICHT gesendet', () => {
@@ -250,14 +251,14 @@ describe('Der Weg durch eine erklaerte Kreuzschiene', () => {
     const p = anlage({ controlText: konfig({ nummern: 'declared' }) })
     const plan = controlActions(p, wegVon(p).kreuzpunkte)
     expect(plan.actions).toEqual([])
-    expect(plan.hindernisse[0].grund).toMatch(/Nummer am Gerät/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/Nummer am Gerät/)
   })
 
   it('eine kaputte Vorlage wird zum benannten Hindernis, nicht zu einer Ausnahme', () => {
     const p = anlage({ controlText: konfig({ vorlage: '.S{out}' }) })
     const plan = controlActions(p, wegVon(p).kreuzpunkte)
     expect(plan.actions).toEqual([])
-    expect(plan.hindernisse[0].grund).toMatch(/\{in\}/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/\{in\}/)
   })
 
   it('der Klartext nennt die ANSCHLUESSE und deutet die Zeile nicht', () => {

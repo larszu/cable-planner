@@ -17,6 +17,7 @@ import {
 } from '../../lib/networkSegments'
 import { NETWORK_INTERFACE_ROLES, type NetworkInterfaceRole } from '../../types/network'
 import type { NetworkSegment } from '../../types/networkSegment'
+import { satzText } from '../../lib/satz'
 
 /**
  * BEDARF 116 — die Segmente als Gegenstand des Plans.
@@ -231,7 +232,7 @@ export const SegmentsPanel = ({ projectName }: { projectName: string }) => {
               }`}
             >
               <Icon icon={AlertTriangle} size="xs" />
-              <span>{f.message}</span>
+              <span>{satzText(f.satz, t)}</span>
             </li>
           ))}
         </ul>

@@ -55,6 +55,7 @@
 
 import type { CablePlannerProject } from '../types/project'
 import { sameVenue } from './venueAnswers'
+import { type Satz, befund, satz } from './satz'
 
 export type TemplateScope = 'venue' | 'neutral'
 
@@ -146,6 +147,7 @@ export interface CarryReport {
   /** Wie viele Antworten betroffen sind. */
   answers: number
   text: string
+  satz: Satz
 }
 
 /**
@@ -174,7 +176,7 @@ export function templateCarryReport(
       ...(from ? { from } : {}),
       ...(to ? { to } : {}),
       answers,
-      text: 'Die Vorlage bringt keine Antworten eines Hauses mit — nur die Form.',
+      ...befund(satz('templateScope.none', 'The template brings no answers from a venue — only the form.')),
     }
   }
   if (to && sameVenue(from, to)) {
@@ -183,7 +185,7 @@ export function templateCarryReport(
       from,
       to,
       answers,
-      text: `${answers} Antwort(en) aus „${from}" gelten hier weiter — dasselbe Haus.`,
+      ...befund(satz('templateScope.carries', '{n} answer(s) from “{from}” still apply here — same venue.', { n: answers, from })),
     }
   }
   return {
@@ -191,8 +193,16 @@ export function templateCarryReport(
     from,
     ...(to ? { to } : {}),
     answers,
-    text: to
-      ? `${answers} Antwort(en) stammen aus „${from}", das Projekt steht in „${to}". Sie werden als „aus einem anderen Haus" geführt und gelten hier nicht.`
-      : `${answers} Antwort(en) stammen aus „${from}". Solange das Projekt keinen Ort nennt, bleibt offen, ob sie hier gelten.`,
+    ...befund(to
+      ? satz(
+          'templateScope.elsewhere',
+          '{n} answer(s) come from “{from}”, the project is in “{to}”. They are listed as “from another venue” and do not apply here.',
+          { n: answers, from, to },
+        )
+      : satz(
+          'templateScope.unknownVenue',
+          '{n} answer(s) come from “{from}”. As long as the project names no venue, it stays open whether they apply here.',
+          { n: answers, from },
+        )),
   }
 }

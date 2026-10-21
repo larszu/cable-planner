@@ -34,6 +34,7 @@
 import type { AtemMvDefinition, EquipmentItem } from '../types/equipment'
 import { getMvGridSpec, getMvQuadrants, mvWindowIndex } from './atemMvLayout'
 import type { CsvTable } from './csv'
+import { type Satz, befundAls, satz } from './satz'
 
 /** Was auf dem Blatt steht, wo nichts belegt ist. */
 export const NO_SOURCE = 'nicht belegt'
@@ -161,6 +162,7 @@ export interface MvFinding {
   /** Multiviewer-Index (0-basiert) als Sortierschlüssel. */
   mvIndex: number
   message: string
+  satz: Satz
 }
 
 /**
@@ -188,7 +190,7 @@ export function mvFindings(
           kind: 'empty-window',
           severity: 'warning',
           mvIndex: mv.index,
-          message: `MV ${mv.index + 1}: Fenster ${w.position} ist ${NO_SOURCE}.`,
+          ...befundAls('message', satz('mv.finding.empty', 'MV {mv}: window {window} has no source.', { mv: mv.index + 1, window: w.position })),
         })
         continue
       }
@@ -198,22 +200,26 @@ export function mvFindings(
           kind: 'unknown-source',
           severity: 'warning',
           mvIndex: mv.index,
-          message:
-            `MV ${mv.index + 1}: Fenster ${w.position} zeigt Quelle ${w.sourceId}, ` +
-            `zu der der Plan keine Rolle kennt.`,
+          ...befundAls('message', satz(
+            'mv.finding.unknownSource',
+            'MV {mv}: window {window} shows source {source}, for which the plan knows no role.',
+            { mv: mv.index + 1, window: w.position, source: w.sourceId },
+          )),
         })
       }
     }
     for (const [sourceId, ws] of nachQuelle) {
       if (ws.length < 2) continue
-      const name = names.get(sourceId) ?? `Quelle ${sourceId}`
+      const name = names.get(sourceId) ?? satz('mv.finding.sourceN', 'Source {n}', { n: sourceId })
       out.push({
         kind: 'duplicate-source',
         severity: 'error',
         mvIndex: mv.index,
-        message:
-          `MV ${mv.index + 1}: ${ws.length} Fenster zeigen "${name}" ` +
-          `(${ws.map((w) => w.position).join(', ')}). Dann fehlt eine andere Quelle im Bild.`,
+        ...befundAls('message', satz(
+          'mv.finding.duplicate',
+          'MV {mv}: {n} windows show "{name}" ({windows}). Then another source is missing from the picture.',
+          { mv: mv.index + 1, n: ws.length, name, windows: ws.map((w) => w.position).join(', ') },
+        )),
       })
     }
   }

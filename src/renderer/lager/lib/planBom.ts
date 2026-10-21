@@ -27,6 +27,7 @@ import type { ZusatzBedarf } from '../../lib/planDemandExtras'
 import { nodePathLabel } from './storageTree'
 import { toCsv } from '../../lib/csv'
 import { kanonisch } from '../../lib/kanonisch'
+import { satzKanonisch } from '../../lib/satz'
 
 export interface PlanBomRow {
   /** Anzahl im Plan. */
@@ -150,7 +151,7 @@ const rowOf = (
     // frei stehendes Geraet — und wer sie im Regal sucht, findet sie nicht,
     // weil sie im Rack schon verbaut ist.
     ...(rackHinweis || line.reason
-      ? { reason: [line.reason, rackHinweis].filter(Boolean).join(' ') }
+      ? { reason: [line.reason ? satzKanonisch(line.reason) : '', rackHinweis].filter(Boolean).join(' ') }
       : {}),
     modelIsDeviceName: line.demand.labelIsDeviceName,
     typeTargetIds: line.demand.typeTargetIds,

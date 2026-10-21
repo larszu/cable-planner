@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it, beforeEach } from 'vitest'
 import {
   CARRY_LABEL,
@@ -193,7 +194,7 @@ describe('was beim Verwenden mit den Antworten passiert', () => {
   it('nennt dasselbe Haus als geltend', () => {
     const r = templateCarryReport('Halle A', 2, 'halle a')
     expect(r.state).toBe('carries')
-    expect(r.text).toContain('dasselbe Haus')
+    expect(deutsch(r.text)).toContain('dasselbe Haus')
   })
 
   it('BENUTZT DIESELBE STRENGE als das Blatt', () => {
@@ -208,15 +209,15 @@ describe('was beim Verwenden mit den Antworten passiert', () => {
   it('nennt beide Haeuser im Text', () => {
     const r = templateCarryReport('Halle A', 3, 'Kongresszentrum')
     expect(r.state).toBe('elsewhere')
-    expect(r.text).toContain('Halle A')
-    expect(r.text).toContain('Kongresszentrum')
+    expect(deutsch(r.text)).toContain('Halle A')
+    expect(deutsch(r.text)).toContain('Kongresszentrum')
     expect(r.answers).toBe(3)
   })
 
   it('laesst offen statt zu behaupten, wenn das Ziel keinen Ort nennt', () => {
     const r = templateCarryReport('Halle A', 2, undefined)
     expect(r.state).toBe('elsewhere')
-    expect(r.text).toMatch(/bleibt offen/)
+    expect(deutsch(r.text)).toMatch(/bleibt offen/)
   })
 
   it('meldet „keine Antworten dabei" als eigenen Zustand, nicht als Fehler', () => {
@@ -255,7 +256,7 @@ describe('Erreichbarkeit', () => {
   it('warnt VOR dem Laden, wenn die Antworten aus einem anderen Haus kommen', () => {
     // Danach stehen sie im Blatt und sehen aus wie Auskunft.
     expect(dialogQuelle).toMatch(/if \(bericht\.state === 'elsewhere'\) \{/)
-    expect(dialogQuelle).toContain('body: bericht.text')
+    expect(dialogQuelle).toContain('body: satzText(bericht.satz, t)')
     expect(dialogQuelle).toMatch(/if \(!weiter\) return/)
   })
 

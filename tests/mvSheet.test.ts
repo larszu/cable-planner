@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import {
   MV_SHEET_HEADERS,
@@ -161,8 +162,8 @@ describe('mvFindings', () => {
     )
     const doppelt = f.find((x) => x.kind === 'duplicate-source')
     expect(doppelt?.severity).toBe('error')
-    expect(doppelt?.message).toContain('Kamera 1')
-    expect(doppelt?.message).toContain('fehlt')
+    expect(deutsch(doppelt?.message)).toContain('Kamera 1')
+    expect(deutsch(doppelt?.message)).toContain('fehlt')
   })
 
   it('nennt in der Doppelbelegung BEIDE Positionen', () => {
@@ -174,7 +175,7 @@ describe('mvFindings', () => {
       ])],
       namen,
     )
-    const m = f.find((x) => x.kind === 'duplicate-source')?.message ?? ''
+    const m = deutsch(f.find((x) => x.kind === 'duplicate-source')?.message)
     expect(m).toContain('Zelle 1')
     expect(m).toContain('Zelle 2')
   })
@@ -197,7 +198,7 @@ describe('mvFindings', () => {
 
   it('meldet die Quelle ohne Rolle', () => {
     const f = mvFindings([standard([{ windowIndex: 0, sourceId: 99 }])], namen)
-    expect(f.find((x) => x.kind === 'unknown-source')?.message).toContain('99')
+    expect(deutsch(f.find((x) => x.kind === 'unknown-source')?.message)).toContain('99')
   })
 
   it('meldet nichts bei einem sauber belegten Bild', () => {

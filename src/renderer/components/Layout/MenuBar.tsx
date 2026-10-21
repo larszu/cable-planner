@@ -100,6 +100,7 @@ import { hasDesktopBridge, cablePlannerApi } from '../../lib/bridge'
 import { infoDialog } from '../../lib/infoDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { LzmLogo } from '../Brand/LzmLogo'
+import { satzText } from '../../lib/satz'
 
 interface MenuBarProps {
   onNewProject: () => void
@@ -445,7 +446,7 @@ export const MenuBar = ({
               name: r.name,
               field: r.field,
               value: r.value,
-              reason: r.reason,
+              reason: satzText(r.reason, t),
             }),
           )
         }

@@ -51,6 +51,7 @@ import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
 import { PanelHint } from '../shared/PanelHint'
 import { buildLabelCsv, type LabelCsvFormat, type LabelRow } from '../../lib/labelPrinterCsv'
+import { satzText } from '../../lib/satz'
 
 type SortKey = 'number' | 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
 
@@ -711,7 +712,7 @@ export const PatchListDialog = () => {
           <ul className="mb-2 flex flex-col gap-1 text-cp-xs">
             {identitaetsBefunde.map((f, i) => (
               <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                <strong>{t(`channelIdentity.finding.${f.kind}`, CHANNEL_IDENTITY_LABEL[f.kind])}</strong> — {f.text}
+                <strong>{t(`channelIdentity.finding.${f.kind}`, CHANNEL_IDENTITY_LABEL[f.kind])}</strong> — {satzText(f.satz, t)}
                 {f.channels.length > 0 && (
                   <span className="text-cp-text-muted"> (Ch {f.channels.join(', ')})</span>
                 )}

@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import {
   CHANNEL_IDENTITY_LABEL,
@@ -224,7 +225,7 @@ describe('channelIdentityFindings', () => {
     const p = f.filter((x) => x.kind === 'no-port')
     expect(p).toHaveLength(1)
     expect(p[0].channels).toEqual([2])
-    expect(p[0].text).toContain(NO_PORT_NOTE)
+    expect(deutsch(p[0].text)).toContain(NO_PORT_NOTE)
   })
 
   it('meldet die Nummer, die als Name auftritt', () => {

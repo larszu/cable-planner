@@ -1,3 +1,4 @@
+import { deutsch, quelle } from './support/deutsch'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   PRE_SHOW_HEADERS,
@@ -189,8 +190,8 @@ describe('tallyPositionFindings', () => {
     const f = tallyPositionFindings([rollen[0]], [pos({ transport: 'ndi', endpoint: 'CAM1 (OBS)' })])
     const ndi = f.find((x) => x.kind === 'ndi-preview-warning')
     expect(ndi).toBeDefined()
-    expect(ndi?.message).toContain('DistroAV#318')
-    expect(ndi?.message).toContain('Vorschau')
+    expect(deutsch(ndi?.message)).toContain('DistroAV#318')
+    expect(deutsch(ndi?.message)).toContain('Vorschau')
   })
 
   it('unterscheidet „nie geprueft" von „nur halb geprueft"', () => {
@@ -207,8 +208,8 @@ describe('tallyPositionFindings', () => {
     )
     const befund = halb.find((x) => x.kind === 'half-checked')
     expect(befund).toBeDefined()
-    expect(befund?.message).toContain('Vorschau')
-    expect(befund?.message).toContain('DistroAV#318')
+    expect(deutsch(befund?.message)).toContain('Vorschau')
+    expect(deutsch(befund?.message)).toContain('DistroAV#318')
     expect(halb.some((x) => x.kind === 'unchecked')).toBe(false)
   })
 
@@ -217,7 +218,7 @@ describe('tallyPositionFindings', () => {
       [rollen[0]],
       [pos({ endpoint: '5', checks: [check('not-checked', 'green')] })],
     ).find((x) => x.kind === 'half-checked')
-    expect(befund?.message).toContain('Programm')
+    expect(deutsch(befund?.message)).toContain('Programm')
   })
 
   it('macht aus der Luege einen FEHLER und aus dem Ungeprueften einen Hinweis', () => {
@@ -237,7 +238,7 @@ describe('tallyPositionFindings', () => {
       [rollen[0]],
       [pos({ endpoint: '5', checks: [check('blinking', 'off')] })],
     )
-    expect(f.find((x) => x.kind === 'lying')?.message).toContain(
+    expect(quelle(f.find((x) => x.kind === 'lying')?.satz)).toContain(
       TALLY_OBSERVATION_LABEL.blinking,
     )
   })

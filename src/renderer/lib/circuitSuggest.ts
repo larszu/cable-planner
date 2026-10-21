@@ -76,6 +76,7 @@ import {
   type CircuitNode,
 } from './circuitSolver'
 import { CIRCUIT_KIND_INFO } from '../types/circuit'
+import { type Satz, befund, satz } from './satz'
 
 /**
  * Bauarten, die ein Mensch im Betrieb bedient — und deren Wirkung deshalb
@@ -154,6 +155,7 @@ export interface Befund {
   /** Betroffener Schalter, bei `schalter-ohne-wirkung`. */
   knotenId?: string
   text: string
+  satz: Satz
 }
 
 /** Eine Ader, die der Vorschlag legen würde. */
@@ -174,6 +176,7 @@ export interface TafelZeile {
 export interface Vorschlag {
   kanten: VorschlagsKante[]
   text: string
+  satz: Satz
   /** Der Beleg. Ohne ihn wäre der Vorschlag ein Ratschlag. */
   wahrheitstafel: TafelZeile[]
 }
@@ -184,9 +187,9 @@ export interface VorschlagsErgebnis {
   /** War die Suche erschöpfend? */
   vollstaendig: boolean
   /** Warum nicht, falls nicht. */
-  grund?: string
+  grund?: Satz
   /** Annahmen, unter denen gerechnet wurde — immer sichtbar, nie stillschweigend. */
-  annahmen: string[]
+  annahmen: Satz[]
 }
 
 const schluessel = (node: string, terminal: number) => `${node}#${terminal}`
@@ -340,10 +343,13 @@ const zielErfuellt = (tafel: readonly TafelZeile[], schalterIds: readonly string
     ? tafel.some((z) => z.an)
     : schalterOhneWirkung(tafel, schalterIds).length === 0
 
-const kantenText = (kanten: readonly VorschlagsKante[]): string =>
-  kanten
-    .map((k) => `${k.fromNode} Klemme ${k.fromTerminal} → ${k.toNode} Klemme ${k.toTerminal}`)
-    .join(' und ')
+const kantenSatz = (k: VorschlagsKante): Satz =>
+  satz('circuit.edge', '{from} terminal {fromT} → {to} terminal {toT}', {
+    from: k.fromNode,
+    fromT: k.fromTerminal,
+    to: k.toNode,
+    toT: k.toTerminal,
+  })
 
 let laufendeNummer = 0
 /** Kanten-Id fuer die Probe. Nur intern; der Vorschlag traegt keine. */
@@ -370,8 +376,8 @@ export const schaltungsVorschlaege = (
   lampeId?: string,
 ): VorschlagsErgebnis => {
   const befunde: Befund[] = []
-  const annahmen: string[] = []
-  const fertig = (vorschlaege: Vorschlag[], grund?: string): VorschlagsErgebnis => ({
+  const annahmen: Satz[] = []
+  const fertig = (vorschlaege: Vorschlag[], grund?: Satz): VorschlagsErgebnis => ({
     befunde,
     vorschlaege,
     vollstaendig: grund === undefined,
@@ -381,19 +387,19 @@ export const schaltungsVorschlaege = (
 
   const leuchten = nodes.filter((n) => n.kind === 'lamp')
   if (leuchten.length === 0) {
-    befunde.push({ art: 'keine-leuchte', text: 'Der Stromkreis enthält keine Leuchte.' })
+    befunde.push({ art: 'keine-leuchte', ...befund(satz('circuit.noLamp', 'The circuit contains no lamp.'))})
     return fertig([])
   }
   const ziel = lampeId ?? (leuchten.length === 1 ? leuchten[0].id : undefined)
   if (ziel === undefined) {
     befunde.push({
       art: 'mehrere-leuchten',
-      text: `Der Stromkreis hat ${leuchten.length} Leuchten — welche geprüft werden soll, muss benannt werden.`,
+      ...befund(satz('circuit.manyLamps', 'The circuit has {n} lamps — the one to check must be named.', { n: leuchten.length })),
     })
     return fertig([])
   }
   if (!leuchten.some((l) => l.id === ziel)) {
-    befunde.push({ art: 'keine-leuchte', text: `Es gibt keine Leuchte „${ziel}".` })
+    befunde.push({ art: 'keine-leuchte', ...befund(satz('circuit.lampMissing', 'There is no lamp “{lamp}”.', { lamp: ziel }))})
     return fertig([])
   }
 
@@ -401,29 +407,29 @@ export const schaltungsVorschlaege = (
   if (einspeisungen.length === 0) {
     befunde.push({
       art: 'keine-einspeisung',
-      text: 'Der Stromkreis hat keine Einspeisung — ohne sie brennt keine Leuchte, gleich wie verdrahtet wird.',
+      ...befund(satz('circuit.noFeed', 'The circuit has no feed — without one no lamp lights, however it is wired.')),
     })
     return fertig([])
   }
   if (!einspeisungen.some((n) => n.position === 1)) {
     befunde.push({
       art: 'keine-spannung',
-      text: 'Keine Einspeisung steht auf „an". Für die Prüfung wird angenommen, dass Spannung anliegt.',
+      ...befund(satz('circuit.feedOff', 'No feed is set to “on”. The check assumes that voltage is present.')),
     })
   }
   // Immer angenommen und immer genannt: die Verdrahtungsfrage ist von der Frage
   // „ist eingeschaltet" unabhaengig, und beide zu vermischen hiesse, einen
   // ausgeschalteten Kreis als Verdrahtungsfehler zu melden.
-  annahmen.push('Alle Einspeisungen führen Spannung.')
+  annahmen.push(satz('circuit.assume.feeds', 'All feeds carry voltage.'))
   if (nodes.some((n) => BETRIEBSMITTEL.has(n.kind))) {
-    annahmen.push('FI, LS, Not-Aus, Schütz und Relais sind leitend angenommen.')
+    annahmen.push(satz('circuit.assume.protection', 'RCDs, breakers, emergency stops, contactors and relays are assumed to conduct.'))
   }
 
   if (!belegteKlemmen(edges).has(schluessel(ziel, 0))) {
     befunde.push({
       art: 'leuchte-ohne-anschluss',
       lampeId: ziel,
-      text: 'An der Leuchte hängt keine Ader.',
+      ...befund(satz('circuit.lampUnwired', 'No wire is connected to the lamp.')),
     })
   }
 
@@ -432,9 +438,10 @@ export const schaltungsVorschlaege = (
   if (schalterIds.length === 0) {
     befunde.push({
       art: 'ohne-schalter',
-      text:
-        'Der Stromkreis hat keinen Bedienschalter — eine Leuchte darin ist immer an oder ' +
-        'immer aus. Geprüft wird deshalb nur, ob sie überhaupt brennt.',
+      ...befund(satz(
+        'circuit.noSwitch',
+        'The circuit has no operating switch — a lamp in it is always on or always off. The check therefore only asks whether it lights at all.',
+      )),
     })
   }
 
@@ -442,7 +449,7 @@ export const schaltungsVorschlaege = (
   if (gekappt) {
     return fertig(
       [],
-      `Mehr als ${GRENZEN.stellungen} Stellungs-Kombinationen — die Tafel wäre nicht mehr durchzurechnen.`,
+      satz('circuit.limit.positions', 'More than {n} switch-position combinations — the table could no longer be computed.', { n: GRENZEN.stellungen }),
     )
   }
 
@@ -460,10 +467,10 @@ export const schaltungsVorschlaege = (
     befunde.push({
       art: 'immer-an',
       lampeId: ziel,
-      text:
-        'Die Leuchte brennt in jeder Stellung — der Schalter liegt nicht im Weg. Das lässt ' +
-        'sich nur durch Umlegen oder Entfernen einer Ader beheben, nicht durch eine ' +
-        'zusätzliche; deshalb steht hier kein Vorschlag.',
+      ...befund(satz(
+        'circuit.alwaysOn',
+        'The lamp lights in every position — the switch is not in the path. That can only be fixed by moving or removing a wire, not by adding one; so there is no suggestion here.',
+      )),
     })
     return fertig([])
   }
@@ -472,10 +479,9 @@ export const schaltungsVorschlaege = (
     befunde.push({
       art: 'nie-an',
       lampeId: ziel,
-      text:
-        schalterIds.length === 0
-          ? 'Die Leuchte brennt nicht.'
-          : 'Die Leuchte brennt in keiner Stellung.',
+      ...befund(schalterIds.length === 0
+          ? satz('circuit.neverOn', 'The lamp does not light.')
+          : satz('circuit.neverOnAny', 'The lamp lights in no position.')),
     })
   } else {
     for (const id of schalterOhneWirkung(tafelJetzt, schalterIds)) {
@@ -483,7 +489,7 @@ export const schaltungsVorschlaege = (
         art: 'schalter-ohne-wirkung',
         lampeId: ziel,
         knotenId: id,
-        text: `„${id}" schaltet die Leuchte nicht in jeder Stellung der anderen Schalter — im Flur heisst das: er wirkt manchmal nicht.`,
+        ...befund(satz('circuit.switchNoEffect', '“{switch}” does not switch the lamp in every position of the other switches — in a corridor that means it sometimes does nothing.', { switch: id })),
       })
     }
   }
@@ -492,7 +498,7 @@ export const schaltungsVorschlaege = (
   if (frei.length > GRENZEN.klemmen) {
     return fertig(
       [],
-      `${frei.length} freie Klemmen — mehr als die ${GRENZEN.klemmen}, die durchprobiert werden.`,
+      satz('circuit.limit.terminals', '{n} free terminals — more than the {max} that are tried.', { n: frei.length, max: GRENZEN.klemmen }),
     )
   }
 
@@ -518,7 +524,7 @@ export const schaltungsVorschlaege = (
     if (zielErfuellt(tafel, schalterIds)) {
       einzeln.push({
         kanten: [k],
-        text: `Eine Ader legen: ${kantenText([k])}.`,
+        ...befund(satz('circuit.layOne', 'Lay one wire: {a}.', { a: kantenSatz(k) })),
         wahrheitstafel: tafel,
       })
     }
@@ -530,7 +536,7 @@ export const schaltungsVorschlaege = (
   if (paare > GRENZEN.paare) {
     return fertig(
       [],
-      `Keine einzelne Ader genügt, und ${paare} Zweier-Kombinationen sind mehr als die ${GRENZEN.paare}, die geprüft werden.`,
+      satz('circuit.limit.pairs', 'No single wire is enough, and {n} pair combinations are more than the {max} that are checked.', { n: paare, max: GRENZEN.paare }),
     )
   }
   const doppelt: Vorschlag[] = []
@@ -556,7 +562,7 @@ export const schaltungsVorschlaege = (
       if (zielErfuellt(tafel, schalterIds)) {
         doppelt.push({
           kanten: [a, b],
-          text: `Zwei Adern legen: ${kantenText([a, b])}.`,
+          ...befund(satz('circuit.layTwo', 'Lay two wires: {a} and {b}.', { a: kantenSatz(a), b: kantenSatz(b) })),
           wahrheitstafel: tafel,
         })
       }

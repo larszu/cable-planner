@@ -9,6 +9,7 @@ import { useTranslation, format } from '../../lib/i18n'
 import { buildNetboxImportPlan, type NetboxImportPlan } from '../../lib/netboxMapping'
 import type { NetboxRack, NetboxSite, NetboxSnapshot } from '../../types/netbox'
 import { PanelHint } from '../shared/PanelHint'
+import { satzText } from '../../lib/satz'
 
 /**
  * #597 — NetBox-Import.
@@ -433,8 +434,8 @@ export const NetboxImportDialog = ({ open, onClose }: { open: boolean; onClose: 
               </summary>
               <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto text-cp-xs text-cp-text-muted">
                 {plan.skipped.slice(0, 100).map((skip) => (
-                  <li key={`${skip.kind}-${skip.netboxId}-${skip.reason}`}>
-                    <span className="font-mono">#{skip.netboxId}</span> {skip.label} — {skip.reason}
+                  <li key={`${skip.kind}-${skip.netboxId}-${skip.satz.key}`}>
+                    <span className="font-mono">#{skip.netboxId}</span> {skip.label} — {satzText(skip.satz, t)}
                   </li>
                 ))}
               </ul>

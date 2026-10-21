@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import {
   CompanionFehler,
@@ -213,7 +214,7 @@ describe('Der Weg ueber Companion', () => {
     const p = anlage({ controlCompanion: undefined })
     const plan = controlActions(p, wegVon(p).kreuzpunkte)
     expect(plan.actions).toEqual([])
-    expect(plan.hindernisse[0].grund).toMatch(/Companion-Schaltfläche/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/Companion-Schaltfläche/)
   })
 
   it('ohne Adresse ebenso, und der Satz nennt Companion', () => {
@@ -222,21 +223,21 @@ describe('Der Weg ueber Companion', () => {
     const p = anlage({ ipAddress: '' })
     const plan = controlActions(p, wegVon(p).kreuzpunkte)
     expect(plan.actions).toEqual([])
-    expect(plan.hindernisse[0].grund).toMatch(/Companion-Adresse/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/Companion-Adresse/)
   })
 
   it('eine kaputte Konfiguration wird zum benannten Hindernis', () => {
     const p = anlage({ controlCompanion: konfig({ varIn: '' }) })
     const plan = controlActions(p, wegVon(p).kreuzpunkte)
     expect(plan.actions).toEqual([])
-    expect(plan.hindernisse[0].grund).toMatch(/Variable für den Eingang/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/Variable für den Eingang/)
   })
 
   it('mit „je Anschluss eingetragen" und fehlender Nummer wird NICHT gesendet', () => {
     const p = anlage({ controlCompanion: konfig({ nummern: 'declared' }) })
     const plan = controlActions(p, wegVon(p).kreuzpunkte)
     expect(plan.actions).toEqual([])
-    expect(plan.hindernisse[0].grund).toMatch(/Nummer am Gerät/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/Nummer am Gerät/)
   })
 
   it('das Protokoll steht in der Tabelle und hat einen Treiber', () => {

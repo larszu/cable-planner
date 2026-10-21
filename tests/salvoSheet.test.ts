@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import {
   CHANGEOVER_HEADERS,
@@ -178,7 +179,7 @@ describe('salvoFindings', () => {
     ])
     const luecke = f.find((x) => x.kind === 'partial-coverage')
     expect(luecke).toBeDefined()
-    expect(luecke?.message).toContain(NOT_SET)
+    expect(deutsch(luecke?.message)).toContain(NOT_SET)
   })
 
   it('meldet dieselbe Luecke nur EINMAL je Paar', () => {

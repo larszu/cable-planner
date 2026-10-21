@@ -62,6 +62,7 @@
 import type { ChannelRow } from './channelList'
 import type { CsvCell, CsvTable } from './csv'
 import { spalten } from './kanonisch'
+import { type Satz, befund, satz } from './satz'
 
 // ── Bedarf 110 — wem gehört welche Spalte ──────────────────────────────────
 
@@ -218,6 +219,7 @@ export const CHANNEL_IDENTITY_LABEL: Readonly<Record<ChannelIdentityKind, string
 export interface ChannelIdentityFinding {
   kind: ChannelIdentityKind
   text: string
+  satz: Satz
   channels: number[]
 }
 
@@ -235,7 +237,11 @@ export function channelIdentityFindings(rows: readonly ChannelRow[]): ChannelIde
     out.push({
       kind: 'no-port',
       channels: ohnePort.map((r) => r.ch),
-      text: `${ohnePort.length} Kanal/Kanäle haben keinen Haus-Port. Auf dem Blatt für den Haustechniker steht dort die interne Nummer mit dem Zusatz „${NO_PORT_NOTE}" — die einzige Nummer, die draußen etwas bedeutet, fehlt also und wird nicht erfunden.`,
+      ...befund(satz(
+        'channelIdentity.noPort',
+        '{n} channel(s) have no house port. The sheet for the house technician shows the internal number there with the note “{note}” — the only number that means anything outside is missing and is not invented.',
+        { n: ohnePort.length, note: NO_PORT_NOTE },
+      )),
     })
   }
 
@@ -244,7 +250,11 @@ export function channelIdentityFindings(rows: readonly ChannelRow[]): ChannelIde
     out.push({
       kind: 'bare-name',
       channels: nurNummer.map((r) => r.ch),
-      text: `${nurNummer.length} Kanal/Kanäle tragen als Quelle nur eine Nummer. Eine Nummer an der Stelle eines Namens sagt weder am Pult noch im Multitrack noch auf dem Etikett etwas — genau der Zustand, in dem Dante Controller grüne Haken zeigt und trotzdem niemand weiß, welcher Kanal gemeint ist.`,
+      ...befund(satz(
+        'channelIdentity.bareName',
+        '{n} channel(s) have only a number as their source. A number in place of a name says nothing on the desk, in the multitrack or on the label — exactly the state in which Dante Controller shows green ticks and still nobody knows which channel is meant.',
+        { n: nurNummer.length },
+      )),
     })
   }
 
@@ -253,7 +263,11 @@ export function channelIdentityFindings(rows: readonly ChannelRow[]): ChannelIde
     out.push({
       kind: 'no-name',
       channels: ohneName.map((r) => r.ch),
-      text: `${ohneName.length} Kanal/Kanäle haben gar keinen Namen. Sie erscheinen überall als „${NO_NAME}"; unterscheidbar sind sie dann nur über ihren Port.`,
+      ...befund(satz(
+        'channelIdentity.noName',
+        '{n} channel(s) have no name at all. They appear everywhere as “{placeholder}”; they can then only be told apart by their port.',
+        { n: ohneName.length, placeholder: NO_NAME },
+      )),
     })
   }
 
@@ -268,7 +282,11 @@ export function channelIdentityFindings(rows: readonly ChannelRow[]): ChannelIde
     out.push({
       kind: 'port-duplicate',
       channels: gruppe.map((r) => r.ch),
-      text: `${gruppe.length} Kanäle liegen auf „${gruppe[0].destination} ${gruppe[0].destinationPort}". Ein Eingang nimmt ein Signal; einer der beiden ist beim Abstecken übrig, und welcher, entscheidet sich erst im Saal.`,
+      ...befund(satz(
+        'channelIdentity.portDuplicate',
+        '{n} channels sit on “{port}”. An input takes one signal; one of them is left over when patching, and which one is only decided in the hall.',
+        { n: gruppe.length, port: `${gruppe[0].destination} ${gruppe[0].destinationPort}` },
+      )),
     })
   }
 

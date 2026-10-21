@@ -97,7 +97,7 @@ export function wandSumme(panel: LedPanelType, columns: number, rows: number): W
 
 /** Trägt die Ausspielung die Wand? */
 export type PortUrteil =
-  | { bekannt: false; grund: 'keine-angabe' }
+  | { bekannt: false; grund: 'not-stated' }
   | {
       bekannt: true
       /** Wie viele Ports rechnerisch gebraucht werden. */
@@ -116,12 +116,12 @@ export type PortUrteil =
  * welchem Port hängt, entscheidet der Aufbau. Was hier herauskommt, ist die
  * Frage davor — „reicht die Karte überhaupt".
  *
- * Ohne Angabe am Plan kommt `keine-angabe` und keine Entwarnung: eine Karte,
+ * Ohne Angabe am Plan kommt `not-stated` und keine Entwarnung: eine Karte,
  * über die niemand etwas gesagt hat, trägt nicht unbegrenzt viel.
  */
 export function portUrteil(summe: WandSumme, wand: LedWall): PortUrteil {
   const a = wand.ausspielung
-  if (!a || !(a.ports > 0) || !(a.pixelProPort > 0)) return { bekannt: false, grund: 'keine-angabe' }
+  if (!a || !(a.ports > 0) || !(a.pixelProPort > 0)) return { bekannt: false, grund: 'not-stated' }
   const gebraucht = Math.ceil(summe.pixelGesamt / a.pixelProPort)
   return {
     bekannt: true,

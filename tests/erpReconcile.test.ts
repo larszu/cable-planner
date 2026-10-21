@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import { erpReconcileTable, reconcileErp, type ErpLine } from '../src/renderer/lager/lib/erpReconcile'
 import type { DemandLine } from '../src/renderer/lager/lib/inventoryCoverage'
@@ -50,7 +51,9 @@ describe('die Zeilen, die nicht zaehlen', () => {
     // Abgleich falsch.
     const r = reconcileErp([], [], [erp({ kind: 'comment', name: 'Aufbau ab 8 Uhr' })])
     expect(r.rows).toEqual([])
-    expect(r.ignored).toEqual([{ label: 'Aufbau ab 8 Uhr', reason: 'Kommentarzeile, kein Gerät' }])
+    expect(r.ignored.map((i) => ({ label: i.label, reason: deutsch(i.reason) }))).toEqual([
+      { label: 'Aufbau ab 8 Uhr', reason: 'Kommentarzeile, kein Gerät' },
+    ])
   })
 
   it('ignoriert den Inhalt einer Kombination', () => {
@@ -58,13 +61,13 @@ describe('die Zeilen, die nicht zaehlen', () => {
     // halbe Projekt.
     const r = reconcileErp([], [], [erp({ isSetChild: true })])
     expect(r.rows).toEqual([])
-    expect(r.ignored[0].reason).toContain('Kombination')
+    expect(deutsch(r.ignored[0].reason)).toContain('Kombination')
   })
 
   it('ignoriert eine gestrichene Zeile (Menge 0)', () => {
     const r = reconcileErp([], [], [erp({ qty: 0 })])
     expect(r.rows).toEqual([])
-    expect(r.ignored[0].reason).toContain('Menge 0')
+    expect(deutsch(r.ignored[0].reason)).toContain('Menge 0')
   })
 
   it('liefert die Begruendung MIT, statt still wegzulassen', () => {
@@ -72,7 +75,7 @@ describe('die Zeilen, die nicht zaehlen', () => {
     // fehlen, laesst niemanden nachvollziehen, warum die Summe nicht stimmt.
     const r = reconcileErp([], [], [erp({ kind: 'comment' }), erp({ isSetChild: true }), erp({ qty: 0 })])
     expect(r.ignored).toHaveLength(3)
-    expect(r.ignored.every((i) => i.reason.length > 10)).toBe(true)
+    expect(r.ignored.every((i) => deutsch(i.reason).length > 10)).toBe(true)
   })
 })
 

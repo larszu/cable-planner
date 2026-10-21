@@ -123,6 +123,7 @@ import { renderBarcodeDataUrl } from '../../lib/barcode'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
 import { PanelHint } from '../../components/shared/PanelHint'
+import { satzText } from '../../lib/satz'
 
 /**
  * Lager-Modul — projektübergreifender Bestand (docs/inventory-rental-readiness.md).
@@ -1796,7 +1797,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
         <ul className="mb-2 flex flex-col gap-1 text-cp-xs">
           {identitaetsBefunde.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{t(`inventory.identityFinding.${f.kind}`, IDENTITY_FINDING_LABEL[f.kind])}</strong> — {f.text}
+              <strong>{t(`inventory.identityFinding.${f.kind}`, IDENTITY_FINDING_LABEL[f.kind])}</strong> — {satzText(f.satz, t)}
             </li>
           ))}
         </ul>
@@ -1905,7 +1906,7 @@ const UnitsTab = ({ codeCell }: UnitsTabProps) => {
                             : t('inventory.faultOpen', 'Fault')}
                         </span>
                       )}
-                      <span>{e.detail}</span>
+                      <span>{e.satz ? satzText(e.satz, t) : e.detail}</span>
                       {e.kind === 'fault' && (e.services ?? []).length > 0 && (
                         <span className="text-cp-text-faint">
                           ({(e.services ?? []).map((x) => t(`fault.service.${x}`, FAULT_SERVICE_LABEL[x])).join(', ')})

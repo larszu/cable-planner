@@ -12,6 +12,7 @@
  * Projekte hinweg denselben Artikel meint (touring-tauglich).
  */
 import type { TransportSpec } from './transport'
+import type { Satz } from '../../lib/satz'
 
 /** Eigentumsverhältnis — gleiche Werte wie `EquipmentItem.ownership`. */
 export type InventoryOwnership = 'owned' | 'rented' | 'subhire'
@@ -519,6 +520,12 @@ export interface UnitEvent {
   kind: UnitEventKind
   /** Menschlich lesbare Beschreibung (z. B. „nach Case 2", „defekt → Reparatur"). */
   detail: string
+  /**
+   * Vom System geschriebener Eintrag als Satz (Schluessel, englische Quelle,
+   * Werte); die Anzeige uebersetzt ihn. `detail` traegt dann die Quelle.
+   * Aeltere Eintraege und Freitext haben nur `detail`.
+   */
+  satz?: Satz
   /** Nur bei `kind === 'fault'`: welche Dienste ausgefallen sind. */
   services?: FaultService[]
   /**

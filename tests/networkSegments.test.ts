@@ -1,3 +1,4 @@
+import { deutsch, quelle } from './support/deutsch'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   REACH_HEADERS,
@@ -176,7 +177,7 @@ describe('segmentFindings', () => {
     const f = segmentFindings(welt, [seg({ vlanId: 10, name: 'Dante Prim' })])
     const gemischt = f.find((x) => x.kind === 'mixed-segment')
     expect(gemischt?.severity).toBe('error')
-    expect(gemischt?.message).toContain('PTP')
+    expect(deutsch(gemischt?.message)).toContain('PTP')
   })
 
   it('meldet die Schnittstelle im falschen Segment und NENNT beide Seiten', () => {
@@ -188,9 +189,9 @@ describe('segmentFindings', () => {
     ])
     const treffer = f.find((x) => x.kind === 'role-mismatch')
     expect(treffer?.severity).toBe('error')
-    expect(treffer?.message).toContain('Endstufe')
-    expect(treffer?.message).toContain(ROLE_TEXT.control)
-    expect(treffer?.message).toContain(ROLE_TEXT['media-primary'])
+    expect(deutsch(treffer?.message)).toContain('Endstufe')
+    expect(quelle(treffer?.satz)).toContain(ROLE_TEXT.control)
+    expect(quelle(treffer?.satz)).toContain(ROLE_TEXT['media-primary'])
   })
 
   it('meldet den Widerspruch zwischen geplanter und eingetragener PTP-Domaene', () => {
@@ -206,8 +207,8 @@ describe('segmentFindings', () => {
     ])
     const treffer = f.find((x) => x.kind === 'ptp-mismatch')
     expect(treffer?.severity).toBe('error')
-    expect(treffer?.message).toContain('0')
-    expect(treffer?.message).toContain('127')
+    expect(deutsch(treffer?.message)).toContain('0')
+    expect(deutsch(treffer?.message)).toContain('127')
   })
 
   it('meldet KEINEN PTP-Widerspruch, wo das Geraet nichts sagt', () => {

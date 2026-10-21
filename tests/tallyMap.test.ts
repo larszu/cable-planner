@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import { buildTallyMap, tallyMapCsv, toTallyPiDevices } from '../src/renderer/lib/tallyMap'
 import type { Cable } from '../src/renderer/types/cable'
@@ -115,8 +116,8 @@ describe('buildTallyMap', () => {
     s.sourceIdentities[1].umdAddress = 1
     const issue = buildTallyMap(s).issues.find((i) => i.kind === 'duplicate-address')
     expect(issue?.severity).toBe('error')
-    expect(issue?.message).toContain('"Kamera 1"')
-    expect(issue?.message).toContain('"Kamera 2"')
+    expect(deutsch(issue?.message)).toContain('"Kamera 1"')
+    expect(deutsch(issue?.message)).toContain('"Kamera 2"')
   })
 
   it('meldet eine Quelle am Mischer, die keine Rolle trägt', () => {
@@ -125,7 +126,7 @@ describe('buildTallyMap', () => {
     s.sourceIdentities = [s.sourceIdentities[0]]
     const issue = buildTallyMap(s).issues.find((i) => i.kind === 'source-without-role')
     expect(issue?.subject).toBe('cam2')
-    expect(issue?.message).toContain('Eingang 2')
+    expect(deutsch(issue?.message)).toContain('Eingang 2')
   })
 
   it('meldet dieselbe rollenlose Quelle nur einmal, auch bei Doppelspeisung', () => {
