@@ -86,7 +86,7 @@ export default {
       { target: 'dmg', arch: 'universal' },
       { target: 'zip', arch: 'universal' },
     ],
-    artifactName: '${productName}-${version}-${arch}.${ext}',
+    artifactName: 'LZ-Cable-Planner-${version}-${arch}.${ext}',
     // OHNE DIESE ZEILE GIBT ES KEIN macOS-ARTEFAKT. Gemessen an v8.3.3
     // (Lauf 30617724085, 2026-07-31): der Universal-Build bricht ab mit
     //   Detected file ".../@julusian/freetype2/prebuilds/
@@ -166,7 +166,7 @@ export default {
       { target: 'nsis', arch: 'x64' },
       { target: 'portable', arch: 'x64' },
     ],
-    artifactName: '${productName}-${version}-${arch}.${ext}',
+    artifactName: 'LZ-Cable-Planner-${version}-${arch}.${ext}',
     icon: 'build/icon.ico',
     // No code-signing: electron-builder skips signtool when CSC_LINK is unset.
     // SmartScreen will show "Unknown publisher" until a CA-issued cert is
@@ -184,6 +184,6 @@ export default {
     createStartMenuShortcut: true,
   },
   portable: {
-    artifactName: '${productName}-${version}-portable.${ext}',
+    artifactName: 'LZ-Cable-Planner-${version}-portable.${ext}',
   },
 }
