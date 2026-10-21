@@ -101,6 +101,7 @@ writeFileSync(hausDatei, JSON.stringify(HAUS))
 // ── App und Werkzeuge ───────────────────────────────────────────────────────
 const a = await starte({ sprache, breite: 1500, hoehe: 1300 })
 const win = a.win
+win.setDefaultTimeout(8000)
 const f = a.folge('eigenschaften')
 const texte = {}
 const auswahl = {}
@@ -191,8 +192,8 @@ const waehleKnoten = async (n) => {
   await pause(700)
 }
 const titelIns = async () => (await insp().locator('h2').first().innerText()).trim()
-const alleAuf = () => insp().getByRole('button', { name: T('props.filter.expand'), exact: true }).click()
-const alleZu = () => insp().getByRole('button', { name: T('props.filter.collapse'), exact: true }).click()
+const alleAuf = () => insp().getByRole('button', { name: T('props.filter.expand'), exact: true }).first().click()
+const alleZu = () => insp().getByRole('button', { name: T('props.filter.collapse'), exact: true }).first().click()
 const knopf = (key, opt = {}) => insp().getByRole('button', { name: a.muster(key), ...opt }).first()
 const ziehen = async (von, nach, dy = 0) => {
   const b1 = await von.boundingBox()
@@ -222,6 +223,9 @@ const abbrechen = async () => {
     const k = a.dialog().getByRole('button', { name: new RegExp(`^(${esc(T('common.cancel'))}|Cancel|Abbrechen)$`, 'i') }).first()
     if (await k.count()) await k.click()
     await pause(400)
+    const ok = a.dialog().getByRole('button', { name: /^OK$/ }).first()
+    if (await ok.count()) await ok.click()
+    await pause(300)
   })
   await a.zu()
 }
