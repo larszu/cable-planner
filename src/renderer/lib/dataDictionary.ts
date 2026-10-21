@@ -297,6 +297,10 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
     'Wie lange der Akku schon eingelegt ist. Keine Restlaufzeit — die hängt an Typ, Alter, Sendeleistung und Temperatur und steht nirgends im Plan.',
   Frequenz: 'Die Sendefrequenz des Kanals, aus dem Funkstrecken-Plan.',
   Funktion: 'Die Rolle der Person („Moderation“, „Pfarrer“). Steht auch da, wo kein Klarname gepflegt ist.',
+  Band: 'Das Hersteller-Frequenzband des Senders mit seinen Grenzen laut Datenblatt. „AUSSERHALB“ heißt: die eingetragene Frequenz samt Bandbreite liegt nicht ganz im Band.',
+  'Bandbreite (kHz)': 'Die belegte Bandbreite des Senders laut Datenblatt. Leer heißt: nicht eingetragen, geprüft wird dann nur die Mittenfrequenz.',
+  Zulassung:
+    'Der Bereich der Länder-Frequenztabelle (amtliche Quelle), in dem der Kanal liegt. „nicht in …-Tabelle“ heißt: dort nicht zugeteilt. Leer heißt: kein Land oder keine Frequenz gewählt.',
   Kanal: 'Der Kanal aus dem Funkstrecken-Plan. „Kanal entfernt“ heißt: der Plan führt ihn nicht mehr.',
   Kapsel:
     'Abweichende Kapsel oder Headset für diese Session. „wie im Kanalplan“ heißt: keine Abweichung eingetragen.',

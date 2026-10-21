@@ -72,6 +72,12 @@
   cameras, an optional live waveform under the device (off by default). Test
   patterns borderless on a screen of this computer, from the display in the
   plan. Desktop app with [ffmpeg](https://ffmpeg.org/) installed.
+- **Wireless channels.** Per channel: transmitter, capsule, manufacturer band
+  (Sennheiser ew G4 and EW-D, ranges from the spec sheets), frequency and
+  occupied bandwidth; the carrier-spacing check takes the bandwidth into
+  account. Pick a country to open its frequency table (Germany: BNetzA
+  Vfg. 37/2026 and SRD) and see which channels fall outside it. Export the
+  list as CSV or print it / save as PDF.
 - **On site.** Phones join by QR code, tick off work and send photos back into
   the plan. Photos attach to a single device or to its device type (shown on
   every device of that type); adding one to a device asks whether it also
