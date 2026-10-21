@@ -70,7 +70,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   // #879 — die Frontplatten-Liste (`lib/frontplattenListe.ts`). Sie geht an
   // den, der bohrt, und der hat den Plan nicht auf dem Schirm.
   Plate: 'Das Gerät, das diese Frontplatte IST — so benannt, wie es im Plan heißt.',
-  Kind: 'Was für eine Platte es ist: Wandanschlussfeld, Stagebox, Rack-Blende oder sonstige.',
+  Kind: 'Was für eine Platte es ist: Wandanschlussfeld, Stagebox, Rack-Blende oder sonstige — im Nachweis-Deckblatt die Art des Nachweises (Qualifikation, Versicherung, Unterweisung, Ausweis, Sonstiges).',
   'Width (mm)': 'Breite der Platte in Millimetern. Leer heißt: am Gerät ist kein Maß eingetragen.',
   'Height (mm)': 'Höhe der Platte in Millimetern. Leer heißt: am Gerät ist kein Maß eingetragen.',
   Connector: 'Der Stecker, wie er im Plan heißt — er IST ein Port des Geräts und keine Zeichnung daneben.',
@@ -345,6 +345,14 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   // Anhänge-Verzeichnis.
   Datei:
     'Der Dateiname des Scans, der beiliegen soll (steht dort „keine Datei benannt", ist nichts beigelegt) — im Anhänge-Verzeichnis der Ort der Datei relativ zum Projektordner (`Anhaenge/…`), leer in einer Zeile, die ein fehlendes Protokoll meldet.',
+  // Nachweis-Deckblatt in der Quellsprache (en); auf Deutsch heissen die
+  // Spalten Art/Bezeichnung/Aussteller/Nummer/Gültig bis/Lage/Datei.
+  Title: 'Wie der Nachweis heisst („Sachkundenachweis PSAgA").',
+  Issuer: 'Wer den Nachweis ausgestellt hat — Kammer, Versicherer, Schulungsbetrieb.',
+  Number: 'Nummer oder Zeichen auf dem Nachweis.',
+  'Valid until':
+    'Bis wann der Nachweis gilt. Fehlt die Angabe, heisst das NICHT „unbefristet", sondern „keine Frist angegeben" — die Spalte „Status" sagt es.',
+  File: 'Der Dateiname des Scans, der beiliegen soll (steht dort „no file named", ist nichts beigelegt).',
   'Im Plan': 'Was der Plan an dieser Stelle vorsieht — die Soll-Seite des Abgleichs.',
   'Ingest-URL': 'Die Adresse, an die gesendet wird. Ohne Stream-Key — der steht nie in einer Datei.',
   IP: 'Die IP-Adresse der Schnittstelle.',

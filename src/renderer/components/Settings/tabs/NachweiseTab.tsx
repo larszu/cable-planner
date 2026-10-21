@@ -81,8 +81,8 @@ export const NachweiseTab = () => {
 
   const packen = () => {
     const paket = nachweisPaket(nachweise, heute)
-    const tabelle = nachweisDeckblatt(paket)
-    downloadBlob('nachweise-deckblatt.csv', toCsv(tabelle.headers, tabelle.rows), 'text/csv')
+    const tabelle = nachweisDeckblatt(paket, t)
+    downloadBlob('credentials-cover-sheet.csv', toCsv(tabelle.headers, tabelle.rows), 'text/csv')
   }
 
   return (
@@ -143,7 +143,7 @@ export const NachweiseTab = () => {
                 >
                   {NACHWEIS_ARTEN.map((a) => (
                     <option key={a} value={a}>
-                      {NACHWEIS_ART_LABEL[a]}
+                      {t(`nachweis.kind.${a}`, NACHWEIS_ART_LABEL[a])}
                     </option>
                   ))}
                 </select>
@@ -244,11 +244,11 @@ export const NachweiseTab = () => {
                   className="flex items-center gap-2 border border-cp-border-muted bg-cp-surface-2 px-2 py-1 text-cp-xs"
                 >
                   <span className={` px-1.5 py-0.5 ${LAGE_TON[lage]}`}>
-                    {NACHWEIS_LAGE_LABEL[lage]}
+                    {t(`nachweis.state.${lage}`, NACHWEIS_LAGE_LABEL[lage])}
                   </span>
                   <span className="min-w-0 flex-1 truncate">
                     <strong>{n.bezeichnung}</strong>
-                    <span className="text-cp-text-muted"> · {NACHWEIS_ART_LABEL[n.art]}</span>
+                    <span className="text-cp-text-muted"> · {t(`nachweis.kind.${n.art}`, NACHWEIS_ART_LABEL[n.art])}</span>
                     {n.gueltigBis && (
                       <span className="text-cp-text-muted">
                         {' '}

@@ -166,7 +166,7 @@ export const AppearanceTab = () => {
         title={t('settings.appearance.language', 'Language')}
         description={t(
           'settings.appearance.languageDesc',
-          'UI language. Switching is instant. Some deeply nested dialogs are still German-only — see the i18n coverage note.',
+          'UI language. Switching takes effect immediately.',
         )}
       >
         <div className="flex gap-1">
@@ -194,7 +194,7 @@ export const AppearanceTab = () => {
           className="mt-2 text-cp-xs text-cp-text-muted"
           text={t(
             'settings.appearance.coverage',
-            'Translation coverage: comprehensive (1650+ keys). All menus, toolbars, properties panels (incl. PortList, all 17 sub-sections), library, all dialogs (Cable, ATEM ×3, Videohub, GreenGo, Rentman ×5, Rack builder + sub-dialogs, Print, Export, Mobile share, GraphML import, Onboarding tour, About) and shared widgets are language-aware. Strings not yet translated fall through to the German source.',
+            'The app is written in English; German is a full translation. A text that has no translation yet appears in English.',
           )}
         />
       </SettingsCard>

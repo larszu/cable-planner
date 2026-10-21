@@ -174,10 +174,17 @@ export const McpTab = () => {
     <div className="space-y-3 text-cp-xs">
       <PanelHint
         className="text-cp-text-muted"
-        text={t(
-          'mcp.hint',
-          'Lets Claude ask this plan: devices, ports, signal paths, cables and what the plan check says. It only READS - nothing in the plan can be changed through it. The server listens on 127.0.0.1 only and needs the pairing token below.',
-        )}
+        text={
+          status.schreibenErlaubt
+            ? t(
+                'mcp.hintWrite',
+                'Lets Claude ask and change this plan: devices, ports, signal paths, cables and what the plan check says. Changes go through the same actions as the canvas and can be undone. The server listens on 127.0.0.1 only and needs the pairing token below.',
+              )
+            : t(
+                'mcp.hint',
+                'Lets Claude ask this plan: devices, ports, signal paths, cables and what the plan check says. It only READS - nothing in the plan can be changed through it. The server listens on 127.0.0.1 only and needs the pairing token below.',
+              )
+        }
       />
 
       {!hasDesktopBridge && (

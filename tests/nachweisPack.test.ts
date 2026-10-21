@@ -66,7 +66,7 @@ describe('Ohne Frist ist nicht gueltig', () => {
 
   it('hat die fristlose Lage eine eigene Beschriftung', () => {
     // Sie darf nicht „gueltig" heissen und auch nicht leer sein.
-    expect(NACHWEIS_LAGE_LABEL['ohne-frist']).toBe('keine Frist angegeben')
+    expect(NACHWEIS_LAGE_LABEL['ohne-frist']).toBe('no expiry date given')
     expect(NACHWEIS_LAGE_LABEL['ohne-frist']).not.toBe(NACHWEIS_LAGE_LABEL['in-frist'])
   })
 
@@ -144,9 +144,9 @@ describe('Das Paket laesst nichts weg', () => {
     const text = nachweisDeckblatt(nachweisPaket(auswahl, HEUTE))
       .rows.map((r) => String(r[0]))
       .join('\n')
-    expect(text).toContain('1 abgelaufen')
-    expect(text).toContain('1 ohne angegebene Frist')
-    expect(text).toContain('1 ohne benannte Datei')
+    expect(text).toContain('1 expired')
+    expect(text).toContain('1 without a stated expiry date')
+    expect(text).toContain('1 without a named file')
   })
 
   it('sagt auch die Nullfaelle', () => {
@@ -154,8 +154,8 @@ describe('Das Paket laesst nichts weg', () => {
     const text = nachweisDeckblatt(nachweisPaket([auswahl[0]], HEUTE))
       .rows.map((r) => String(r[0]))
       .join('\n')
-    expect(text).toContain('0 abgelaufen')
-    expect(text).toContain('0 ohne angegebene Frist')
+    expect(text).toContain('0 expired')
+    expect(text).toContain('0 without a stated expiry date')
   })
 })
 
@@ -195,7 +195,7 @@ describe('Der Weg ist verdrahtet', () => {
   })
 
   it('gibt es das Deckblatt zum Herunterladen', () => {
-    expect(tabQuelle).toContain("'nachweise-deckblatt.csv'")
+    expect(tabQuelle).toContain("'credentials-cover-sheet.csv'")
     expect(tabQuelle).toContain('nachweisDeckblatt(')
   })
 

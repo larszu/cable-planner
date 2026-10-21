@@ -57,11 +57,11 @@ export type NachweisArt =
   | 'sonstiges'
 
 export const NACHWEIS_ART_LABEL = {
-  qualifikation: 'Qualifikation',
-  versicherung: 'Versicherung',
-  unterweisung: 'Unterweisung',
-  ausweis: 'Ausweis',
-  sonstiges: 'Sonstiges',
+  qualifikation: 'Qualification',
+  versicherung: 'Insurance',
+  unterweisung: 'Safety briefing',
+  ausweis: 'ID / licence',
+  sonstiges: 'Other',
 } satisfies Record<NachweisArt, string>
 
 export const NACHWEIS_ARTEN = Object.keys(NACHWEIS_ART_LABEL) as NachweisArt[]
@@ -112,7 +112,7 @@ export type NachweisLage =
   | 'ohne-frist'
 
 export const NACHWEIS_LAGE_LABEL = {
-  'in-frist': 'gültig',
-  abgelaufen: 'abgelaufen',
-  'ohne-frist': 'keine Frist angegeben',
+  'in-frist': 'valid',
+  abgelaufen: 'expired',
+  'ohne-frist': 'no expiry date given',
 } satisfies Record<NachweisLage, string>

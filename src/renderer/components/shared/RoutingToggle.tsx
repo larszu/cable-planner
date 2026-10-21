@@ -3,9 +3,9 @@ import { useTranslation } from '../../lib/i18n'
 
 /** Default labels — fallback for `t()` and the source list rendered below. */
 const ROUTING_OPTIONS: { value: EdgeRouting; label: string; hint: string }[] = [
-  { value: 'orthogonal', label: 'Ortho', hint: 'Rechtwinkliges Routing (draw.io Standard)' },
-  { value: 'straight', label: 'Linie', hint: 'Gerade Linie' },
-  { value: 'curved', label: 'Kurve', hint: 'Bézier-Kurve' },
+  { value: 'orthogonal', label: 'Ortho', hint: 'Right-angle routing (draw.io default)' },
+  { value: 'straight', label: 'Line', hint: 'Straight line' },
+  { value: 'curved', label: 'Curve', hint: 'Bézier curve' },
 ]
 
 interface RoutingToggleProps {
@@ -19,7 +19,7 @@ interface RoutingToggleProps {
 }
 
 /**
- * Three-button group "Ortho / Linie / Kurve". Single source of truth for the
+ * Three-button group "Ortho / Line / Curve". Single source of truth for the
  * cable-routing chooser — replaces three hand-rolled copies in CanvasToolbar,
  * CableProperties and SettingsDialog.
  */
