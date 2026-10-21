@@ -65,6 +65,7 @@ import type { SignalStandard } from '../types/cableSpec'
 import type { MulticastAssignment, MulticastConfig, MulticastLeg } from '../types/multicast'
 import { MULTICAST_LEG_LABEL } from '../types/multicast'
 import type { CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 import { deviceInterfaces } from './networkInterfaces'
 import { portDisplayLabel } from './portLabel'
 
@@ -315,11 +316,11 @@ export type MulticastFindingKind =
   | 'outside-pool'
 
 export const MULTICAST_FINDING_LABEL: Readonly<Record<MulticastFindingKind, string>> = {
-  'pair-collision': 'Adresse und Port doppelt vergeben',
-  'mac-alias': 'Zwei Gruppen auf einer L2-Adresse',
-  'leg-shared': 'Beide Beine auf derselben Gruppe',
-  'reserved-range': 'Adresse aus einem gesperrten Bereich',
-  'outside-pool': 'Vergabe außerhalb des Pools',
+  'pair-collision': 'Address and port assigned twice',
+  'mac-alias': 'Two groups on one L2 address',
+  'leg-shared': 'Both legs on the same group',
+  'reserved-range': 'Address from a blocked range',
+  'outside-pool': 'Assignment outside the pool',
 }
 
 export interface MulticastFinding {
@@ -583,6 +584,7 @@ export function buildMulticastPlan(project: {
   }
 }
 
+
 /**
  * Das Blatt. Die MAC-Spalte steht mit Absicht drauf: die Regel, gegen die man
  * blind verstoesst, wird erst sichtbar, wenn zwei Zeilen dieselbe MAC tragen.
@@ -597,7 +599,7 @@ export function multicastTable(plan: MulticastPlan): CsvTable {
         f.label,
         MULTICAST_ESSENCE_LABEL[f.essence],
         f.standard,
-        MULTICAST_LEG_LABEL[leg],
+        kanonisch(`multicast.leg.${leg}`, MULTICAST_LEG_LABEL[leg]),
         a?.address ?? 'offen',
         a ? a.port : '',
         a ? (multicastMac(a.address) ?? '') : '',
@@ -610,7 +612,7 @@ export function multicastTable(plan: MulticastPlan): CsvTable {
       byKey.get(s.flowKey)?.label ?? s.flowKey,
       'verwaist',
       '',
-      MULTICAST_LEG_LABEL[s.leg],
+      kanonisch(`multicast.leg.${s.leg}`, MULTICAST_LEG_LABEL[s.leg]),
       s.address,
       s.port,
       multicastMac(s.address) ?? '',
@@ -618,16 +620,7 @@ export function multicastTable(plan: MulticastPlan): CsvTable {
     ])
   }
   return {
-    headers: [
-      'Fluss',
-      'Essenz',
-      'Standard',
-      'Bein',
-      'Gruppe',
-      'UDP-Port',
-      'L2-MAC',
-      'Empfänger',
-    ],
+    headers: spalten(['Flow', 'Essence', 'Standard', 'Leg', 'Group', 'UDP port', 'L2 MAC', 'Receivers']),
     rows,
   }
 }

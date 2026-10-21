@@ -73,8 +73,8 @@ describe('der Buchungsstand kommt beim Leser an', () => {
   })
 
   it('unterscheidet die beiden trotzdem — im Titel und in einer eigenen Eigenschaft', () => {
-    expect(mit('pencil')).toContain('SUMMARY:[vorgemerkt]')
-    expect(mit('hold')).toContain('SUMMARY:[reserviert]')
+    expect(mit('pencil')).toContain('SUMMARY:[pencilled]')
+    expect(mit('hold')).toContain('SUMMARY:[on hold]')
     expect(mit('pencil')).toContain('X-CP-BOOKING:pencil')
     expect(mit('hold')).toContain('X-CP-BOOKING:hold')
   })

@@ -273,7 +273,7 @@ describe('Bedarf 85 — das Blatt, das mitfaehrt', () => {
     const tab = venueAnswerTable(rows, (k) => k)
     expect(tab.headers).toContain('Haus')
     expect(tab.rows[0]).toContain('Halle A')
-    expect(tab.rows[0]).toContain(ANSWER_STATE_LABEL.granted)
+    expect(tab.rows[0]).toContain('genehmigt')
   })
 
   it('schreibt keinen Platzhalter, wo nichts steht', () => {

@@ -41,6 +41,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 import type { VenueAnswer, VenueAnswerStatus } from '../types/venueAnswer'
 import type { RequestItem, VenueNetworkRequest } from './venueNetworkRequest'
 
@@ -158,12 +159,12 @@ export function mergeVenueAnswers(input: MergeInput): AnswerRow[] {
 
 /** Deutsche Beschriftung je Zustand. Quell-Sprache, wie ueberall. */
 export const ANSWER_STATE_LABEL: Record<AnswerRowState, string> = {
-  granted: 'genehmigt',
-  partial: 'mit Auflage',
-  refused: 'abgelehnt',
-  pending: 'keine Antwort',
-  elsewhere: 'Antwort aus einem anderen Haus',
-  stale: 'Antwort ohne Frage im Plan',
+  granted: 'granted',
+  partial: 'with conditions',
+  refused: 'refused',
+  pending: 'no answer',
+  elsewhere: 'answer from another venue',
+  stale: 'answer without a question in the plan',
 }
 
 /**
@@ -183,6 +184,7 @@ export function openQuestions(rows: readonly AnswerRow[]): AnswerRow[] {
   })
 }
 
+
 /**
  * Das Blatt, das mitfaehrt: die Frage aus dem Plan, die Antwort des Hauses,
  * und woher die Antwort kommt. Fuenf Spalten, weil die fuenfte („Haus") der
@@ -193,11 +195,11 @@ export function venueAnswerTable(
   label: (key: string) => string,
 ): CsvTable {
   return {
-    headers: ['Punkt', 'Aus dem Plan', 'Antwort', 'Auflage / Umweg', 'Haus', 'Wer', 'Wann'],
+    headers: spalten(['Point', 'From the plan', 'Answer', 'Condition / workaround', 'Venue', 'Who', 'When']),
     rows: rows.map((r): CsvCell[] => [
       label(r.key),
       r.planValue ?? '',
-      ANSWER_STATE_LABEL[r.state],
+      kanonisch(`venue.answerState.${r.state}`, ANSWER_STATE_LABEL[r.state]),
       r.note ?? '',
       r.venue ?? '',
       r.by ?? '',

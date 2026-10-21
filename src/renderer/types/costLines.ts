@@ -69,10 +69,10 @@ export type CostAnchor =
 export type ActualSource = 'from-erp' | 'from-invoice' | 'estimated-by-hand' | 'unstated'
 
 export const ACTUAL_SOURCE_LABEL: Readonly<Record<ActualSource, string>> = {
-  'from-erp': 'aus dem ERP',
-  'from-invoice': 'von der Rechnung',
-  'estimated-by-hand': 'von Hand geschätzt',
-  unstated: 'Herkunft nicht angegeben',
+  'from-erp': 'from the ERP',
+  'from-invoice': 'from the invoice',
+  'estimated-by-hand': 'estimated by hand',
+  unstated: 'source not stated',
 }
 
 export interface CostLine {

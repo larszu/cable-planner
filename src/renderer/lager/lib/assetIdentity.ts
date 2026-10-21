@@ -42,6 +42,7 @@ import type { EquipmentItem } from '../../types/equipment'
 import type { InventoryUnit, InventoryItem } from '../types/inventory'
 import type { CheckoutRecord } from '../types/checkout'
 import type { CsvTable } from '../../lib/csv'
+import { kanonisch, spalten } from '../../lib/kanonisch'
 import { deviceInterfaces } from '../../lib/networkInterfaces'
 
 /**
@@ -54,10 +55,10 @@ import { deviceInterfaces } from '../../lib/networkInterfaces'
 export type IdentityAnchor = 'ip' | 'mac' | 'dante' | 'ptp'
 
 export const IDENTITY_ANCHOR_LABEL: Readonly<Record<IdentityAnchor, string>> = {
-  ip: 'IP-Adresse',
-  mac: 'MAC-Adresse',
-  dante: 'Dante-/Geräte-Name',
-  ptp: 'PTP-Domäne',
+  ip: 'IP address',
+  mac: 'MAC address',
+  dante: 'Dante/device name',
+  ptp: 'PTP domain',
 }
 
 /**
@@ -87,12 +88,12 @@ export type AssetFindingKind =
   | 'unit-blocked'
 
 export const ASSET_FINDING_LABEL: Readonly<Record<AssetFindingKind, string>> = {
-  'unit-unnamed': 'Platz mit Netz-Identität, aber ohne benannte Einheit',
-  'unit-double': 'Eine Einheit steht in zwei Plätzen',
-  'unit-missing': 'Benannte Einheit steht nicht im Bestand',
-  'serial-mismatch': 'Seriennummer am Platz und an der Einheit gehen auseinander',
-  'unit-not-issued': 'Benannte Einheit steht auf keinem offenen Ausgabeschein',
-  'unit-blocked': 'Benannte Einheit ist nicht einsatzbereit',
+  'unit-unnamed': 'Slot with a network identity but no named unit',
+  'unit-double': 'One unit sits in two slots',
+  'unit-missing': 'Named unit is not in the inventory',
+  'serial-mismatch': 'Serial number at the slot and on the unit disagree',
+  'unit-not-issued': 'Named unit is on no open issue slip',
+  'unit-blocked': 'Named unit is not ready for use',
 }
 
 export interface AssetFinding {
@@ -254,6 +255,7 @@ export function assessAssetIdentity(input: AssetIdentityInput): AssetIdentityAss
   return { rows, findings, hasAnchored: anchored.length > 0 }
 }
 
+
 /**
  * Das Blatt: welcher Platz von welcher Kiste gefuellt wird.
  *
@@ -263,16 +265,16 @@ export function assessAssetIdentity(input: AssetIdentityInput): AssetIdentityAss
  */
 export function assetIdentityTable(a: AssetIdentityAssessment): CsvTable {
   return {
-    headers: ['Platz', 'Anker', 'Einheit', 'Serie (Einheit)', 'Serie (Platz)', 'Befund'],
+    headers: spalten(['Slot', 'Anchor', 'Unit', 'Serial (unit)', 'Serial (slot)', 'Finding']),
     rows: a.rows.map((r) => [
       r.name,
-      r.anchors.map((x) => IDENTITY_ANCHOR_LABEL[x]).join(', '),
+      r.anchors.map((x) => kanonisch(`asset.anchor.${x}`, IDENTITY_ANCHOR_LABEL[x])).join(', '),
       r.unitId ?? 'nicht benannt',
       r.unitSerial ?? '',
       r.plannedSerial ?? '',
       a.findings
         .filter((f) => f.equipmentId === r.equipmentId)
-        .map((f) => ASSET_FINDING_LABEL[f.kind])
+        .map((f) => kanonisch(`asset.finding.${f.kind}`, ASSET_FINDING_LABEL[f.kind]))
         .join('; '),
     ]),
   }

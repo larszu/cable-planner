@@ -232,10 +232,10 @@ export const PatchTab = ({ projectName }: { projectName: string }) => {
                         {r.switchPort ? (
                           <span className="font-medium text-cp-text">{r.switchPort}</span>
                         ) : (
-                          <span className={ENDE_TON[r.end]}>{TRACE_END_LABEL[r.end]}</span>
+                          <span className={ENDE_TON[r.end]}>{t(`trace.end.${r.end}`, TRACE_END_LABEL[r.end])}</span>
                         )}
                       </td>
-                      <td className="py-1 text-cp-text-faint">{TRACE_SOURCE_LABEL[r.source]}</td>
+                      <td className="py-1 text-cp-text-faint">{t(`trace.source.${r.source}`, TRACE_SOURCE_LABEL[r.source])}</td>
                     </tr>
                   ))}
                 </tbody>

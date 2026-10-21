@@ -35,6 +35,7 @@
 // bekommt zweimal eine Anfahrtspauschale.
 // ───────────────────────────────────────────────────────────────────────────
 import { toCsv, type CsvCell, type CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 import { expenseTotals, formatHours, labourCosts, labourFindings } from './labourCost'
 import { EXPENSE_KIND_LABEL, type CrewExpense, type CrewPlan } from '../types/labour'
 
@@ -152,6 +153,7 @@ export const crewBilling = (plan: CrewPlan, period: BillingPeriod): CrewBilling 
   }
 }
 
+
 /**
  * Das Blatt.
  *
@@ -180,7 +182,7 @@ export const crewBillingTable = (b: CrewBilling): CsvTable => {
       'Auslage',
       personName ?? '',
       '',
-      EXPENSE_KIND_LABEL[e.kind],
+      kanonisch(`labour.expense.${e.kind}`, EXPENSE_KIND_LABEL[e.kind]),
       '',
       '',
       '',
@@ -189,17 +191,7 @@ export const crewBillingTable = (b: CrewBilling): CsvTable => {
     ])
   }
   return {
-    headers: [
-      'Art',
-      'Person',
-      'Firma',
-      'Tätigkeit',
-      'Stunden',
-      'davon Mehrarbeit',
-      'Arbeitsbetrag',
-      'Pauschale / Beleg',
-      'Summe',
-    ],
+    headers: spalten(['Entry', 'Person', 'Company', 'Activity', 'Hours', 'of which overtime', 'Labour amount', 'Callout / receipt', 'Total']),
     rows,
   }
 }
@@ -264,7 +256,7 @@ export const crewBillingHandoff = (b: CrewBilling): BillingHandoffLine[] => {
   for (const { expense: e } of b.expenses) {
     if (!e.billable) continue
     out.push({
-      name: `${EXPENSE_KIND_LABEL[e.kind]}${e.note ? ` — ${e.note}` : ''}`,
+      name: `${kanonisch(`labour.expense.${e.kind}`, EXPENSE_KIND_LABEL[e.kind])}${e.note ? ` — ${e.note}` : ''}`,
       description: e.receiptRef ? `Beleg ${e.receiptRef}` : 'ohne Beleg',
       quantity: 1,
       unit: 'Beleg',

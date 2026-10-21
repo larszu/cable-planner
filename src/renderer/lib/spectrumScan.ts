@@ -18,6 +18,7 @@ import { DEFAULT_OCCUPIED_DBM, VERDICT_LABEL } from '../types/spectrumScan'
 import type { SpectrumEntry } from './spectrumPlan'
 import { SPECTRUM_SOURCE_LABEL } from './spectrumPlan'
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 
 // Klammern gehören mit weg: Analyser schreiben ihre Einheit als „Frequency
 // (Hz)", und eine Normalisierung, die die Klammern stehen lässt, findet die
@@ -229,10 +230,10 @@ export function checkCarriers(
 export type ScanFindingKind = 'carrier-occupied' | 'outside-scan' | 'nothing-readable' | 'partial-read'
 
 export const SCAN_FINDING_LABEL: Readonly<Record<ScanFindingKind, string>> = {
-  'carrier-occupied': 'Geplanter Träger sitzt auf gemessener Energie',
-  'outside-scan': 'Träger ausserhalb des gemessenen Bereichs',
-  'nothing-readable': 'Keine Zeile der Datei war lesbar',
-  'partial-read': 'Ein Teil der Datei war nicht lesbar',
+  'carrier-occupied': 'Planned carrier sits on measured energy',
+  'outside-scan': 'Carrier outside the measured range',
+  'nothing-readable': 'No line of the file was readable',
+  'partial-read': 'Part of the file was not readable',
 }
 
 export interface ScanFinding {
@@ -252,7 +253,7 @@ export function scanFindings(
     out.push({
       kind: 'nothing-readable',
       entryIds: [],
-      text: `Aus dieser Datei liess sich kein Messpunkt lesen (${scan.unreadable} Zeile(n) verworfen). Ohne Messung steht bei jedem Träger „${VERDICT_LABEL['not-scanned']}" — und das ist die ehrliche Antwort, nicht „frei".`,
+      text: `Aus dieser Datei liess sich kein Messpunkt lesen (${scan.unreadable} Zeile(n) verworfen). Ohne Messung steht bei jedem Träger „nicht gemessen" — und das ist die ehrliche Antwort, nicht „frei".`,
     })
     return out
   }
@@ -280,7 +281,7 @@ export function scanFindings(
     out.push({
       kind: 'outside-scan',
       entryIds: draussen.map((c) => c.entry.id),
-      text: `${draussen.length} Träger liegen ausserhalb des gemessenen Bereichs${spanne ? ` (${spanne.fromMhz}–${spanne.toMhz} MHz)` : ''}. Für sie sagt dieser Scan nichts — „${VERDICT_LABEL['not-scanned']}" ist kein „frei".`,
+      text: `${draussen.length} Träger liegen ausserhalb des gemessenen Bereichs${spanne ? ` (${spanne.fromMhz}–${spanne.toMhz} MHz)` : ''}. Für sie sagt dieser Scan nichts — „nicht gemessen" ist kein „frei".`,
     })
   }
 
@@ -288,6 +289,7 @@ export function scanFindings(
 }
 
 // ── Blätter ────────────────────────────────────────────────────────────────
+
 
 /**
  * Der Abgleich als Tabelle.
@@ -298,13 +300,13 @@ export function scanFindings(
  */
 export function carrierCheckTable(checks: readonly CarrierCheck[]): CsvTable {
   return {
-    headers: ['Was funkt', 'Quelle', 'Frequenz (MHz)', 'Urteil', 'Spitzenpegel (dBm)'],
+    headers: spalten(['What transmits', 'Carrier source', 'Frequency (MHz)', 'Verdict', 'Peak level (dBm)']),
     rows: checks.map((c): CsvCell[] => [
       c.entry.label,
       SPECTRUM_SOURCE_LABEL[c.entry.source],
       c.entry.mhz,
-      VERDICT_LABEL[c.verdict],
-      c.peakDbm === undefined ? VERDICT_LABEL['not-scanned'] : c.peakDbm,
+      kanonisch(`scan.verdictLabel.${c.verdict}`, VERDICT_LABEL[c.verdict]),
+      c.peakDbm === undefined ? kanonisch('scan.verdictLabel.not-scanned', VERDICT_LABEL['not-scanned']) : c.peakDbm,
     ]),
   }
 }
@@ -312,7 +314,7 @@ export function carrierCheckTable(checks: readonly CarrierCheck[]): CsvTable {
 /** Die Messpunkte selbst — für das Archiv und für fremde Werkzeuge. */
 export function scanTable(scan: SpectrumScan): CsvTable {
   return {
-    headers: ['Frequenz (MHz)', 'Pegel (dBm)'],
+    headers: spalten(['Frequency (MHz)', 'Level (dBm)']),
     rows: scan.points.map((p): CsvCell[] => [p.mhz, p.dbm]),
   }
 }

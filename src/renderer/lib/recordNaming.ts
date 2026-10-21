@@ -53,6 +53,7 @@ import {
   type RecordNameSegment,
   type RecordNamingScheme,
 } from '../types/recordNaming'
+import { kanonisch, spalten } from './kanonisch'
 
 export { DEFAULT_RECORD_SCHEME }
 export type { RecordNamePart, RecordNameSegment, RecordNamingScheme } from '../types/recordNaming'
@@ -92,13 +93,13 @@ export type RecordNameFindingKind =
   | 'source-unnamed'
 
 export const RECORD_NAME_FINDING_LABEL: Readonly<Record<RecordNameFindingKind, string>> = {
-  'take-missing': 'Das Schema nennt eine Take-Nummer, das Projekt trägt keine',
-  'no-recorder': 'Diese Rolle erreicht keinen Recorder — es entsteht keine Aufzeichnung',
-  'duplicate-name': 'Zwei Aufzeichnungen bekämen denselben Namen',
-  'illegal-character': 'Der Name trägt ein Zeichen, das ein Datenträger ablehnt',
-  'too-long': 'Der Name ist länger, als ein Deck sicher annimmt',
-  'empty-name': 'Aus dem Schema entsteht für diese Zeile kein Name',
-  'source-unnamed': 'Die Rolle hat keinen Namen — der Dateiname trägt dann eine Lücke',
+  'take-missing': 'The scheme names a take number, the project has none',
+  'no-recorder': 'This role reaches no recorder: no recording is made',
+  'duplicate-name': 'Two recordings would get the same name',
+  'illegal-character': 'The name contains a character a storage medium rejects',
+  'too-long': 'The name is longer than a deck reliably accepts',
+  'empty-name': 'The scheme yields no name for this row',
+  'source-unnamed': 'The role has no name: the file name will have a gap',
 }
 
 export interface RecordNameFinding {
@@ -250,6 +251,7 @@ export const recordNamePlan = (
   return { rows, findings }
 }
 
+
 /**
  * Der Zettel fuers Deck: je Aufzeichnung eine Zeile zum Nachsehen am Geraet.
  *
@@ -259,13 +261,13 @@ export const recordNamePlan = (
  * und es behauptet nicht, den Zustand des Geraets zu kennen.
  */
 export const recordNameSheet = (plan: RecordNamePlan): string[][] => [
-  ['Rolle', 'Recorder', 'Kanal', 'Dateiname', 'Befund'],
+  spalten(['Role', 'Recorder', 'Channel', 'File name', 'Finding']),
   ...plan.rows.map((r) => [
     r.roleName,
     r.recorder ?? 'kein Recorder im Plan',
     r.channel === undefined ? '' : String(r.channel),
     r.name,
-    r.findings.map((f) => RECORD_NAME_FINDING_LABEL[f.kind]).join(' · '),
+    r.findings.map((f) => kanonisch(`recordName.finding.${f.kind}`, RECORD_NAME_FINDING_LABEL[f.kind])).join(' · '),
   ]),
 ]
 

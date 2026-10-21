@@ -631,7 +631,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
       pending: t('analysis.venue.a.pending', 'no answer yet'),
       elsewhere: t('analysis.venue.a.elsewhere', 'answer from a different venue'),
       stale: t('analysis.venue.a.stale', 'answer to a point the plan no longer raises'),
-    })[st] ?? ANSWER_STATE_LABEL[st]
+    })[st] ?? t(`venue.answerState.${st}`, ANSWER_STATE_LABEL[st])
 
   const setzeAntwort = (key: string, status: VenueAnswerStatus) => {
     const vorher = (venueAnswers ?? []).find((a) => a.key === key)
@@ -1131,7 +1131,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                         : 'text-amber-300/90'
                     }
                   >
-                    <strong>{PTP_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                    <strong>{t(`ptp.finding.${f.kind}`, PTP_FINDING_LABEL[f.kind])}</strong> — {f.text}
                   </span>
                 </li>
               ))}
@@ -1169,7 +1169,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
               <li key={r.equipmentId} className="flex flex-wrap items-baseline gap-2">
                 <span className="flex-1 text-[var(--cp-text)]">{r.name}</span>
                 <span className="w-48 shrink-0 text-[var(--cp-text-faint)]">
-                  {r.anchors.map((x) => IDENTITY_ANCHOR_LABEL[x]).join(', ')}
+                  {r.anchors.map((x) => t(`asset.anchor.${x}`, IDENTITY_ANCHOR_LABEL[x])).join(', ')}
                 </span>
                 <span
                   className={`w-40 shrink-0 font-mono ${
@@ -1185,7 +1185,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
             <ul className="mt-2 flex flex-col gap-1">
               {asset.findings.map((f, i) => (
                 <li key={`${f.kind}-${f.equipmentId}-${i}`} className="text-cp-xs text-amber-300/90">
-                  <strong>{ASSET_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                  <strong>{t(`asset.finding.${f.kind}`, ASSET_FINDING_LABEL[f.kind])}</strong> — {f.text}
                 </li>
               ))}
             </ul>
@@ -1268,7 +1268,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                       {MULTICAST_ESSENCE_LABEL[f.essence]}
                     </span>
                     <span className="w-24 shrink-0 text-[var(--cp-text-faint)]">
-                      {MULTICAST_LEG_LABEL[leg]}
+                      {t(`multicast.leg.${leg}`, MULTICAST_LEG_LABEL[leg])}
                     </span>
                     <span
                       className={`w-32 shrink-0 font-mono ${
@@ -1321,7 +1321,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                         : 'text-amber-300/90'
                     }
                   >
-                    <strong>{MULTICAST_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                    <strong>{t(`multicast.finding.${f.kind}`, MULTICAST_FINDING_LABEL[f.kind])}</strong> — {f.text}
                   </span>
                 </li>
               ))}
@@ -1353,7 +1353,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
             .map((sec) => (
               <div key={sec.key}>
                 <div className="text-cp-xs font-semibold text-[var(--cp-text-muted)]">
-                  {CREW_SECTION_LABEL[sec.key]}
+                  {t(`crewSheet.section.${sec.key}`, CREW_SECTION_LABEL[sec.key])}
                 </div>
                 <ul className="flex flex-col gap-0.5">
                   {sec.lines.map((l) => (
@@ -1949,7 +1949,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           <ul className="flex flex-col gap-1 text-cp-xs">
             {scanBefunde.map((f, i) => (
               <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                <strong>{SCAN_FINDING_LABEL[f.kind]}</strong> — {f.text}
+                <strong>{t(`scan.finding.${f.kind}`, SCAN_FINDING_LABEL[f.kind])}</strong> — {f.text}
               </li>
             ))}
           </ul>
@@ -1972,10 +1972,10 @@ const RfTab = ({ projectName }: { projectName: string }) => {
                   <td
                     className={`px-2 py-1 ${c.verdict === 'occupied' ? 'text-cp-danger' : c.verdict === 'not-scanned' ? 'text-[var(--cp-text-muted)]' : ''}`}
                   >
-                    {VERDICT_LABEL[c.verdict]}
+                    {t(`scan.verdictLabel.${c.verdict}`, VERDICT_LABEL[c.verdict])}
                   </td>
                   <td className="px-2 py-1">
-                    {c.peakDbm === undefined ? VERDICT_LABEL['not-scanned'] : c.peakDbm}
+                    {c.peakDbm === undefined ? t('scan.verdictLabel.not-scanned', VERDICT_LABEL['not-scanned']) : c.peakDbm}
                   </td>
                 </tr>
               ))}
@@ -2269,7 +2269,7 @@ const ClientTab = ({ projectName }: { projectName: string }) => {
               <td>{r.kennzahl}</td>
               <td className="tabular-nums">{r.wert}</td>
               <td className="tabular-nums">{r.anteil}</td>
-              <td className="text-[var(--cp-text-muted)]">{SUMMARY_BASIS_LABEL[r.basis]}</td>
+              <td className="text-[var(--cp-text-muted)]">{t(`summary.basis.${r.basis}`, SUMMARY_BASIS_LABEL[r.basis])}</td>
             </tr>
           ))}
         </tbody>
@@ -2278,7 +2278,7 @@ const ClientTab = ({ projectName }: { projectName: string }) => {
         <ul className="flex flex-col gap-1 text-cp-xs">
           {summary.findings.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{CLIENT_SUMMARY_FINDING_LABEL[f.kind]}</strong> — {f.text}
+              <strong>{t(`summary.finding.${f.kind}`, CLIENT_SUMMARY_FINDING_LABEL[f.kind])}</strong> — {f.text}
             </li>
           ))}
         </ul>
@@ -2427,7 +2427,7 @@ const CostTab = ({ projectName }: { projectName: string }) => {
               >
                 {Object.keys(ACTUAL_SOURCE_LABEL).map((k) => (
                   <option key={k} value={k}>
-                    {ACTUAL_SOURCE_LABEL[k as ActualSource]}
+                    {t(`cost.actualSource.${k as ActualSource}`, ACTUAL_SOURCE_LABEL[k as ActualSource])}
                   </option>
                 ))}
               </select>
@@ -2465,7 +2465,7 @@ const CostTab = ({ projectName }: { projectName: string }) => {
         <ul className="flex flex-col gap-1 text-cp-xs">
           {kosten.findings.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{COST_FINDING_LABEL[f.kind]}</strong> — {f.text}
+              <strong>{t(`cost.finding.${f.kind}`, COST_FINDING_LABEL[f.kind])}</strong> — {f.text}
             </li>
           ))}
         </ul>
@@ -2600,7 +2600,7 @@ const AufnahmeNamen = ({ projectName }: { projectName: string }) => {
                   <span className="font-mono">{r.name}</span>
                   {r.findings.map((f, i) => (
                     <span key={i} className="ml-2 text-amber-300/90">
-                      {RECORD_NAME_FINDING_LABEL[f.kind]}
+                      {t(`recordName.finding.${f.kind}`, RECORD_NAME_FINDING_LABEL[f.kind])}
                       {f.detail ? ` (${f.detail})` : ''}
                     </span>
                   ))}
@@ -2732,7 +2732,7 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
         <ul className="flex flex-col gap-1 text-cp-xs">
           {bewertung.findings.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{NAMING_FINDING_LABEL[f.kind]}</strong> — {f.text}
+              <strong>{t(`naming.finding.${f.kind}`, NAMING_FINDING_LABEL[f.kind])}</strong> — {f.text}
             </li>
           ))}
         </ul>
@@ -2861,7 +2861,7 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
         <ul className="flex flex-col gap-1 text-cp-xs">
           {befunde.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{DANTE_FINDING_LABEL[f.kind]}</strong> — {f.text}
+              <strong>{t(`dante.finding.${f.kind}`, DANTE_FINDING_LABEL[f.kind])}</strong> — {f.text}
             </li>
           ))}
         </ul>

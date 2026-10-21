@@ -79,7 +79,7 @@ export type CarrierVerdict =
   | 'not-scanned'
 
 export const VERDICT_LABEL: Readonly<Record<CarrierVerdict, string>> = {
-  clear: 'frei gemessen',
-  occupied: 'belegt gemessen',
-  'not-scanned': 'nicht gemessen',
+  clear: 'measured clear',
+  occupied: 'measured occupied',
+  'not-scanned': 'not measured',
 }

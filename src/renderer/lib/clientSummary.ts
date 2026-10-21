@@ -42,6 +42,7 @@
 import type { CablePlannerProject } from '../types/project'
 import { assessJobHandover, JOB_BASIS_LABEL, type JobBasis } from './jobHandover'
 import type { CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 
 /** Woher die Zahl einer Zeile kommt. */
 export type SummaryBasis =
@@ -55,10 +56,10 @@ export type SummaryBasis =
   | 'unreported'
 
 export const SUMMARY_BASIS_LABEL: Readonly<Record<SummaryBasis, string>> = {
-  plan: 'aus dem Plan',
-  'as-built': 'aus dem As-Built',
-  reported: 'aus dem Feld gemeldet',
-  unreported: 'nicht gemeldet',
+  plan: 'from the plan',
+  'as-built': 'from the as-built',
+  reported: 'reported from the field',
+  unreported: 'not reported',
 }
 
 /** Was in der Anteils-Spalte steht, wenn niemand etwas gemeldet hat. */
@@ -80,9 +81,9 @@ export type ClientSummaryFindingKind = 'empty-plan' | 'progress-unreported' | 'n
 export const CLIENT_SUMMARY_FINDING_LABEL: Readonly<
   Record<ClientSummaryFindingKind, string>
 > = {
-  'empty-plan': 'Nichts zu berichten — der Plan ist leer',
-  'progress-unreported': 'Kein Aufbau-Fortschritt gemeldet',
-  'no-as-built': 'Kein As-Built: jede Zahl ist eine Planzahl',
+  'empty-plan': 'Nothing to report: the plan is empty',
+  'progress-unreported': 'No build progress reported',
+  'no-as-built': 'No as-built: every number is a plan figure',
 }
 
 export interface ClientSummaryFinding {
@@ -280,6 +281,7 @@ export function clientSummary(project: CablePlannerProject): ClientSummary {
   return { rows, basis, findings }
 }
 
+
 /**
  * Die Übersicht als Blatt.
  *
@@ -289,13 +291,13 @@ export function clientSummary(project: CablePlannerProject): ClientSummary {
 export function clientSummaryTable(project: CablePlannerProject): CsvTable {
   const s = clientSummary(project)
   return {
-    headers: ['Bereich', 'Kennzahl', 'Wert', 'Anteil', 'Grundlage'],
+    headers: spalten(['Area', 'Metric', 'Value', 'Share', 'Based on']),
     rows: s.rows.map((r) => [
       r.gruppe,
       r.kennzahl,
       r.wert,
       r.anteil,
-      SUMMARY_BASIS_LABEL[r.basis],
+      kanonisch(`summary.basis.${r.basis}`, SUMMARY_BASIS_LABEL[r.basis]),
     ]),
   }
 }

@@ -287,13 +287,13 @@ export type LabourFindingKind =
   | 'expense-without-receipt'
 
 export const LABOUR_FINDING_LABEL: Readonly<Record<LabourFindingKind, string>> = {
-  'rate-missing': 'Satz fehlt',
-  'person-missing': 'Person fehlt',
-  'band-missing': 'Band fehlt',
-  overlap: 'Zeiten überlappen',
-  'zero-length': 'Schicht ohne Dauer',
-  'overtime-unapproved': 'Mehrarbeit ohne Zusage',
-  'expense-without-receipt': 'Auslage ohne Beleg',
+  'rate-missing': 'Rate missing',
+  'person-missing': 'Person missing',
+  'band-missing': 'Band missing',
+  overlap: 'Times overlap',
+  'zero-length': 'Shift without duration',
+  'overtime-unapproved': 'Overtime without approval',
+  'expense-without-receipt': 'Expense without receipt',
 }
 
 export interface LabourFinding {

@@ -230,8 +230,8 @@ describe('Bedarf 77 — es ist ein Dokument und keine Nachricht', () => {
     // anderen Stand.
     const tab = crewSheetTable(buildCrewSheet(projekt()))
     expect(tab.headers).toEqual(['Abschnitt', 'Herkunft', 'Was gilt'])
-    expect(tab.rows.some((r) => r[0] === CREW_SECTION_LABEL.netze)).toBe(true)
-    expect(tab.rows.some((r) => r[1] === CREW_ORIGIN_LABEL.ask)).toBe(true)
+    expect(tab.rows.some((r) => r[0] === 'Netze')).toBe(true)
+    expect(tab.rows.some((r) => r[1] === 'vor Ort klären')).toBe(true)
   })
 })
 

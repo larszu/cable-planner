@@ -174,7 +174,7 @@ describe('das Blatt', () => {
   it('traegt die Grundlage als eigene Spalte', () => {
     const t = clientSummaryTable(projekt({ equipment: [eq('a', 'Video')] }))
     expect(t.headers).toEqual(['Bereich', 'Kennzahl', 'Wert', 'Anteil', 'Grundlage'])
-    expect(t.rows[0].map(String)).toContain(SUMMARY_BASIS_LABEL.plan)
+    expect(t.rows[0].map(String)).toContain('aus dem Plan')
   })
 
   it('haelt die Reihenfolge stabil — sonst springt das Blatt zwischen Exporten', () => {
