@@ -552,12 +552,10 @@ export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
  * MAP_ALS_FALLBACK nur Maps INNERHALB eines t().
  *
  * Zwei Formen: jede indizierte Map mit Namen `*_LABEL(S)` und jede
- * `headers: [...]`-Liste. Die erste Messung fand Hunderte Altfaelle
- * (Analyse-Befunde, Dokument-Exporte) — deshalb eine eigene Grenze, die nur
- * sinken darf, statt die Grenze 0 der Daten-Messung zu reissen.
+ * `headers: [...]`/`spalten([...])`-Liste. Die erste Messung fand 419
+ * Altfaelle; sie liefen ueber eine sinkende Grenze ab (#1128) und sind
+ * abgebaut. Seitdem gilt dasselbe wie bei der Daten-Messung: null.
  */
-export const OHNE_T_GRENZE = { 'src/renderer': 0, 'src/mobile': 0, 'src/viewer': 0 }
-
 export const messeOhneT = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'
   const funde = []
@@ -691,15 +689,10 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
   }
 
   const ohneT = messeOhneT(wurzel, sprache)
-  const ohneTGrenze = OHNE_T_GRENZE[wurzel.replace(/\/+$/, '')] ?? 0
-  console.log(`Ohne t(): ${ohneT.length} Beschriftung(en) in der anderen Sprache (Grenze ${ohneTGrenze}).`)
-  if (ohneT.length !== ohneTGrenze) {
-    if (ohneT.length > ohneTGrenze) for (const f of ohneT) console.error(`  ${f.datei}: ${f.text}`)
-    console.error(
-      ohneT.length > ohneTGrenze
-        ? `\n${ohneT.length - ohneTGrenze} mehr als erlaubt: Map-Werte/Kopfzeilen englisch schreiben und ueber t()/tr() uebersetzen.`
-        : `\nOHNE_T_GRENZE fuer ${wurzel} auf ${ohneT.length} senken.`,
-    )
+  console.log(`Ohne t(): ${ohneT.length} Beschriftung(en) in der anderen Sprache.`)
+  if (ohneT.length > 0) {
+    for (const f of ohneT) console.error(`  ${f.datei}: ${f.text}`)
+    console.error('\nMap-Werte/Kopfzeilen englisch schreiben; UI ueber t()/tr(), Blaetter ueber kanonisch()/spalten().')
     process.exit(1)
   }
 
