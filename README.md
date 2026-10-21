@@ -61,7 +61,10 @@
   a link that opens the map in the browser).
 - **Every list for the build day.** Pull list, patch list, termination list,
   BOM, patch sheets, faceplates, acceptance record, QR labels — one report
-  editor, preview equals export.
+  editor, preview equals export. The installation handover hands every
+  list out three ways from the same table: CSV as backup, a laid-out PDF
+  with bookmarks and a linked table of contents, and an Excel workbook with
+  styled header, column widths, frozen header row and filters.
 - **Patch panel labels.** The network analysis prints label strips for every
   patch panel at 1:1 (RJ45 24-port, blocks of 12, D-series 16) showing the
   device behind each port, exports them for Brother P-touch or Dymo, and
