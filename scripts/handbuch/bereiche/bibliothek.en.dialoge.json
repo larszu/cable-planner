@@ -1,0 +1,66 @@
+[
+  {
+    "name": "kategorie-umbenennen",
+    "text": "Rename category\nFill in both languages — when switching the UI language the matching label is shown. Leaving one empty is fine; the display falls back to the other language then.\nEnglish\nGerman\nCancel\nOK"
+  },
+  {
+    "name": "neues-geraet",
+    "text": "Create your own device\nName\nCategory\nAudio\nCables\nCameras\nControl\nConverter\nFloor boxes\nIntercom\nIP/NDI\nIT/Server\nLED Processing\nLenses\nLighting\nMedia Server\nMicrophones\nMixing console\nMonitors\nMultiviewer\nNetworking\nOther\nPatch panels\nPC\nPower\nPower distribution\nProjectors\nRigging\nSync/Reference\nTripods\nVideo\nVideo Converter\nVideo Mixer\nVideo Router\nWireless\n+ New category…\n19\" rack device\nIs a rack device\nRecognise ports from a photo: add an AI provider under Settings → Integrations → AI. Open settings\nGuess the ports from the device name\nAdd API key (AI)\nFill in\nDatasheet…\nfrom a web search — no API key needed\nPort groups\n+ Input group\n+ Output group\nNo ports yet — that is fine. Add them now or later; a cable dropped onto the device adds one.\nCancel\nSave to library\nPlace in project only\nSave + place"
+  },
+  {
+    "name": "import-geraet",
+    "text": "Device imported\n\"Demo Encoder E1\" was added to the library.\nOK"
+  },
+  {
+    "name": "import-gleicher-name",
+    "text": "A device named \"Demo Encoder E1\" already exists. Overwrite?\nCancel\nOverwrite"
+  },
+  {
+    "name": "import-unbekannt",
+    "text": "File not recognised\nThis file is not a valid .cpdevice or .cpgroup export.\nOK"
+  },
+  {
+    "name": "vorlagen-einreichen",
+    "text": "Submit templates\n\n3 of 3 templates can be submitted.\n\nThe device library lists manufacturer and model separately. Check the split suggested from the template name.\n\nRosendahl nanosyncs DDS\nDatasheet: https://www.rosendahl-studiotechnik.com/nanosyncs.html\nPower draw not stated. That is allowed — it stays \"not stated\" in the catalogue instead of a 0 that looks measured.\nRosendahl nanosyncs HD\nDatasheet: https://www.rosendahl-studiotechnik.com/nanosyncs.html\nPower draw not stated. That is allowed — it stays \"not stated\" in the catalogue instead of a 0 that looks measured.\nDemo Encoder E1\nDatasheet: https://example.com/datasheets/encoder-e1.pdf\nPower draw not stated. That is allowed — it stays \"not stated\" in the catalogue instead of a 0 that looks measured.\nTo send templates to the device library, sign in first. Saving a submission file works without an account. Sign in…\nClose\nSave submission file\nSend 3 to device library"
+  },
+  {
+    "name": "eintrag-entfernen",
+    "text": "Remove \"Demo Encoder E1\" from the library?\nCancel\nOK"
+  },
+  {
+    "name": "kabeltyp-editor",
+    "text": "Edit cable type\nName\nConnector type\n+\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3K.93C (SMPTE 304M)\nNeutrik Dragonfly (SMPTE 304M)\nNeutrik opticalCON DUO\nNeutrik opticalCON QUAD\nF-Connector\nDB9\nDB25\nWireless/RF\nDMX 5-pol (XLR)\nDMX 3-pol (XLR)\nCinch/RCA\nSCART\nS-Video\nTT/Bantam\nMini-BNC\nMicro-BNC\nIEC 230V\nPowerCON\nSchuko 230V\nC7 Eurostecker\nCEE16\nCEE32\nCEE63\nPowerlock\nSocapex\nHarting\nKleeblatt\nXLR 3 Male\nXLR 3 Female\nCombo XLR/Jack\nspeakON 2 Pole\nspeakON 4 Pole\nBinding Post\nXLR 4 Male\nXLR 4 Female\nXLR 5 Male\nXLR 5 Female\nXLR 6 Male\nXLR 6 Female\nXLR 7 Male\nXLR 7 Female\nMIDI\nS-VHS\nUSB Type A\nUSB Type B\nUSB 3 Type A\nUSB 3 Type B\nFireWire 400\nFireWire 800\nPS/2\nFiber Optic LC\nFiber Optic SC\nFiber Optic ST\nToslink\nopticalCON DUO\nopticalCON QUAD\npowerCON Input\npowerCON Output\nLemo\nTourine 25\nTourine 37\nGeneric\nBlanking Panel\nPhoenix/Euroblock\nTerminal Block\nBare Wire\netherCON\nRJ11\nQSFP\nQSFP28\nSFP28\nQSFP-DD\nThunderbolt\nUSB Mini-B\nUSB Micro-B\nDB15\nDB37\nMini-DIN 4\nMini-DIN 7\nMini-DIN 8\nDIN 5-pol\nMini-DisplayPort\nMPO\nNEMA 5-15 (Edison)\nNEMA L5-20\nNEMA L6-20\nNEMA L6-30\nNEMA L21-30\nIEC C15\nIEC C20\npowerCON TRUE1\nCam-Lok\nDC Barrel\nPCIe 6-pin\nV-Mount\nD-Tap\nSMA\nRP-TNC\nMultipin\nCustom\nCable colour\nAlso compatible with (optional)\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3K.93C (SMPTE 304M)\nNeutrik Dragonfly (SMPTE 304M)\nNeutrik opticalCON DUO\nNeutrik opticalCON QUAD\nF-Connector\nDB9\nDB25\nWireless/RF\nDMX 5-pol (XLR)\nDMX 3-pol (XLR)\nCinch/RCA\nSCART\nS-Video\nTT/Bantam\nMini-BNC\nMicro-BNC\nIEC 230V\nPowerCON\nSchuko 230V\nC7 Eurostecker\nCEE16\nCEE32\nCEE63\nPowerlock\nSocapex\nHarting\nKleeblatt\nXLR 3 Male\nXLR 3 Female\nCombo XLR/Jack\nspeakON 2 Pole\nspeakON 4 Pole\nBinding Post\nXLR 4 Male\nXLR 4 Female\nXLR 5 Male\nXLR 5 Female\nXLR 6 Male\nXLR 6 Female\nXLR 7 Male\nXLR 7 Female\nMIDI\nS-VHS\nUSB Type A\nUSB Type B\nUSB 3 Type A\nUSB 3 Type B\nFireWire 400\nFireWire 800\nPS/2\nFiber Optic LC\nFiber Optic SC\nFiber Optic ST\nToslink\nopticalCON DUO\nopticalCON QUAD\npowerCON Input\npowerCON Output\nLemo\nTourine 25\nTourine 37\nGeneric\nBlanking Panel\nPhoenix/Euroblock\nTerminal Block\nBare Wire\netherCON\nRJ11\nQSFP\nQSFP28\nSFP28\nQSFP-DD\nThunderbolt\nUSB Mini-B\nUSB Micro-B\nDB15\nDB37\nMini-DIN 4\nMini-DIN 7\nMini-DIN 8\nDIN 5-pol\nMini-DisplayPort\nMPO\nNEMA 5-15 (Edison)\nNEMA L5-20\nNEMA L6-20\nNEMA L6-30\nNEMA L21-30\nIEC C15\nIEC C20\npowerCON TRUE1\nCam-Lok\nDC Barrel\nPCIe 6-pin\nV-Mount\nD-Tap\nSMA\nRP-TNC\nMultipin\nSignal standards\n+ Standard\nSDI-SD\nSDI-HD\nSDI-3G\nSDI-6G\nSDI-12G\nHDMI-1.4\nHDMI-2.0\nHDMI-2.1\nDP-1.2\nDP-1.4\nDP-2.0\nEth-100\nEth-1G\nEth-10G\nAnalog-Audio\nAES3\nAES3id\nUSB-2.0\nUSB-3.x\nThunderbolt-3\nThunderbolt-4\nMADI\nDVB-ASI\nSMPTE-297\nSMPTE-304M\nSMPTE-311M\nNDI\nNDI-HX\nDante\nAES67\nST2110-20\nST2110-30\nST2110-40\nSRT\nRTMP\nHLS\nBlackburst\nTri-Level\nWord-Clock\nPTP\nLTC\nRF-UHF\nRF-VHF\nRF-2.4G\nRF-5G\nRS-232\nRS-422\nRS-485\nDMX512\nRDM\nArt-Net\nsACN\nCVBS\nY/C\nYPbPr\nRGBHV\nMTC\nTally\nGPI/GPO\nHDBaseT\nPower-230V\nFiber-SM\nFiber-MM\nGeneric\nMax. length (m) — optional\nNote (optional)\nCancel\nSave"
+  },
+  {
+    "name": "kabel-eigener-typ-loeschen",
+    "text": "Delete cable type \"Demo cable XLR 10 m\"?\nInstalled cables are not affected.\nCancel\nDelete"
+  },
+  {
+    "name": "gruppe-umbenennen",
+    "text": "New template name:\nCancel\nOK"
+  },
+  {
+    "name": "gruppe-loeschen",
+    "text": "Delete group \"Camera and mixer\"?\nCancel\nDelete"
+  },
+  {
+    "name": "rack-builder-neu",
+    "text": "New rack\nNew\n\n2D rack builder · Add devices from the library, drag for U position, internal cablingEsc close\n\nExport\nRack name *\nHeight (HE)\nDepth (mm)\nLibrary\n33 / 1859\n+ Patch panel\n+ Rack shelf\nInclude non-rack devices\nCrestron Avia DSP-1283\nAudio\n+ Into rack\n1 HE · 20 In · 8 Out\nCamera 2\nCameras\n+ Into rack\n1 HE · 0 In · 1 Out\nCrestron CP3\nControl\n+ Into rack\n1 HE · 4 In · 9 Out\nClear-Com CS-702\nIntercom\n+ Into rack\n1 HE · 4 In · 8 Out\nClear-Com MS-702\nIntercom\n+ Into rack\n1 HE · 5 In · 8 Out\nClear-Com SB-704\nIntercom\n+ Into rack\n1 HE · 6 In · 16 Out\nSonnet xMac mini Server Thunderbolt 3 (XMAC-MS-A-TB3)\nIT/Server\n+ Into rack\n1 HE · 2 In · 4 Out\nBrompton Tessera S4\nLED Processing\n+ Into rack\n1 HE · 5 In · 6 Out\nBrompton Tessera S8\nLED Processing\n+ Into rack\n2 HE · 9 In · 12 Out\nBrompton Tessera T1\nLED Processing\n+ Into rack\n1 HE · 6 In · 4 Out\nBrompton Tessera XD 10G\nLED Processing\n+ Into rack\n1 HE · 2 In · 11 Out\nVision mixer\nMixer\n+ Into rack\n1 HE · 4 In · 2 Out\nCisco Catalyst 9300 24-Port UPOE (C9300-24U)\nNetworking\n+ Into rack\n1 HE · 7 In · 27 Out\nCisco Catalyst 9300X 48-Port UPOE+ (C9300X-48HXN)\nNetworking\n+ Into rack\n1 HE · 7 In · 51 Out\nCisco Nexus 93108TC-EX\nNetworking\n+ Into rack\n1 HE · 6 In · 54 Out\nLuminex GigaCore 12\nNetworking\n+ Into rack\n1 HE · 2 In · 15 Out\nLuminex GigaCore 14R\nNetworking\n+ Into rack\n1 HE · 4 In · 16 Out\nLuminex GigaCore 16i\nNetworking\n+ Into rack\n1 HE · 1 In · 16 Out\nLuminex GigaCore 16RFO\nNetworking\n+ Into rack\n1 HE · 2 In · 21 Out\nLuminex GigaCore 16t\nNetworking\n+ Into rack\n1 HE · 1 In · 16 Out\nNETGEAR M4250-10G2XF-PoE+ (GSM4212PX)\nNetworking\n+ Into rack\n1 HE · 3 In · 12 Out\nNETGEAR M4250-26G4XF-PoE+ (GSM4230PX)\nNetworking\n+ Into rack\n1 HE · 3 In · 30 Out\nNETGEAR M4250-40G8XF-PoE+ (GSM4248PX)\nNetworking\n+ Into rack\n1 HE · 3 In · 48 Out\nBlackmagic Hyperdeck Studio HD Plus\nVideo\n+ Into rack\n1 HE · 6 In · 9 Out\nBlackmagic ATEM 2 M/E Constellation 4K\nVideo Mixer\n+ Into rack\n1 HE · 25 In · 16 Out\nBlackmagic ATEM 2 M/E Constellation HD\nVideo Mixer\n+ Into rack\n1 HE · 25 In · 16 Out\nBlackmagic ATEM Constellation 8K\nVideo Mixer\n+ Into rack\n2 HE · 44 In · 28 Out\nBlackmagic Smart Videohub 12x12\nVideo Router\n+ Into rack\n1 HE · 14 In · 12 Out\nBlackmagic Smart Videohub 20x20\nVideo Router\n+ Into rack\n1 HE · 22 In · 20 Out\nBlackmagic Smart Videohub 40x40\nVideo Router\n+ Into rack\n2 HE · 42 In · 41 Out\nBlackmagic Smart Videohub 40x40 12G\nVideo Router\n+ Into rack\n2 HE · 42 In · 41 Out\nBlackmagic Universal Videohub 288\nVideo Router\n+ Into rack\n18 HE · 289 In · 288 Out\nBlackmagic Universal Videohub 72\nVideo Router\n+ Into rack\n5 HE · 73 In · 72 Out\nRack layout\n2D\n3D\n100%\nDrag & Drop\nRack is empty\nAdd devices from the library on the left (button \"+ Rack\").\nTip: \"Include non-rack devices\" enable when the desired device is missing.\nFront\nRear\nBoth\nSide\nShow connector symbols\nFront\nU1\nU2\nU3\nU4\nU5\nU6\nU7\nU8\nU9\nU10\nU11\nU12\nU13\nU14\nU15\nU16\nU17\nU18\nU19\nU20\nU21\nU22\nU23\nU24\nU25\nU26\nU27\nU28\nU29\nU30\nU31\nU32\nU33\nU34\nU35\nU36\nU37\nU38\nU39\nU40\nU41\nU42\nLive-Preview\nNo devices in rack — preview appears once the first device is assigned.\nDouble-click a device in the rack → opens the properties popup (height, start RU, panel images, remove).\nDevices:\n0\nU occupied:\n0\n/ 42\nSaved\nWire internally\nCancel\nSave rack"
+  },
+  {
+    "name": "rack-loeschen",
+    "text": "Delete rack \"Example rack: small OB van\"?\nCancel\nDelete"
+  },
+  {
+    "name": "rentman-verknuepfen",
+    "text": "Import from Rentman\nClose\nLoad projects\n2 / 2 projects\nSort:\n# ↓\n# ↑\nDate ↓\nDate ↑\n#2602 Demo Concert Hall\nConcept\n#2601 Demo Fair Stand\nConfirmed"
+  },
+  {
+    "name": "rentman-aktualisieren",
+    "text": "Import from Rentman\nClose\nLoad projects\nRefresh Rentman\n2 / 2 projects\nSort:\n# ↓\n# ↑\nDate ↓\nDate ↑\n#2602 Demo Concert Hall\nConcept\n#2601 Demo Fair Stand\nConfirmed\nLinked to this plan\nNo equipment found in this project."
+  },
+  {
+    "name": "rentman-katalog-zum-projekt",
+    "text": "Add \"Demo Wireless G\" to Rentman?\nThis changes your Demo Fair Stand and is not automatically reversible.\nCancel\nAdd"
+  }
+]
