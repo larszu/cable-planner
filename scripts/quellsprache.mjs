@@ -601,6 +601,47 @@ const LITERAL = /(['"`])((?:[^\\]|\\.)*?)\1/g
 const RUECKFALL = /(?:\?\?|\?)\s*(?:\n\s*)?((?:(['"`])(?:[^\\\n]|\\.)*?\2\s*\+?\s*)+)/g
 const BEGRUENDUNGS_MAP = /\bconst\s+([A-Z][A-Z0-9_]*_(?:DOCUMENTS|REASONS?|GRUENDE))\b/g
 
+// Dritte Form (#1142, letzte Runde): der Satz direkt als ARGUMENT eines
+// Aufrufs — `ende('Der Weg läuft in sich zurück')`, `befundVon(x, 'Gerät
+// steht nicht mehr im Rack')`. Weder Feld noch Rueckfall, also unsichtbar.
+// Schmal gehalten, damit Katalog- und Lexikon-Daten (Objekt-Literale, keine
+// Argumente) nicht mitzaehlen: nur reine Module, nur ein Literal direkt
+// hinter `(` oder `,` und direkt vor `,`/`)`, nur Saetze (mindestens drei
+// Woerter). Die Rueckfall-Stelle der Uebersetzer (`t('k', 'Text')`) ist die
+// erlaubte Form und zaehlt nicht.
+const UEBERSETZER = new Set(['t', 'tr', 'translate', 'kanonisch', 'satz'])
+const EIN_LITERAL = /(['"`])((?:[^\\\n]|\\.)*?)\1/g
+
+/** Satz-Literale, die direkt als Argument eines Aufrufs stehen. */
+export const aufrufSaetze = (quelle) => {
+  const funde = []
+  for (const m of quelle.matchAll(EIN_LITERAL)) {
+    const vor = quelle.slice(0, m.index).trimEnd()
+    const nach = quelle.slice(m.index + m[0].length).trimStart()
+    if (!/[(,]$/.test(vor) || !/^[,)]/.test(nach)) continue
+    // Die oeffnende Klammer des Aufrufs suchen und den Namen davor lesen.
+    let tiefe = 0
+    let i = vor.length - 1
+    for (; i >= 0; i -= 1) {
+      const c = vor[i]
+      if (c === ')' || c === ']' || c === '}') tiefe += 1
+      else if (c === '(' || c === '[' || c === '{') {
+        if (tiefe === 0) break
+        tiefe -= 1
+      }
+    }
+    if (i < 0 || vor[i] !== '(') continue
+    const name = /([A-Za-z_$][\w$]*)\s*$/.exec(vor.slice(0, i))?.[1]
+    if (!name || UEBERSETZER.has(name)) continue
+    // Konsole: Entwickler-Ausgabe, keine Oberflaeche.
+    if (/console\.\s*$/.test(vor.slice(0, i - name.length))) continue
+    const text = m[2].replace(/\$\{[^}]*\}/g, ' ')
+    if (text.trim().split(/\s+/).length < 3) continue
+    funde.push(text)
+  }
+  return funde
+}
+
 
 export const messeBefundtexte = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'
@@ -617,6 +658,12 @@ export const messeBefundtexte = (wurzel, quellsprache) => {
         // Kennungen (`'ohne-kabel'`) sind keine Saetze.
         if (/^[a-z0-9-]+$/.test(text)) continue
         if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })
+      }
+      // Kataloge und Kategorie-Schemata sind Geraete-DATEN (Portnamen wie
+      // „Port 9 (1G, ohne PoE)") mit eigenem Waechter, keine Saetze.
+      const daten = /Catalog\.ts$|categorySchemas\.ts$/.test(rel)
+      for (const text of daten ? [] : aufrufSaetze(quelle)) {
+        if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: `(Aufruf) ${text.slice(0, 90)}` })
       }
     }
     for (const m of quelle.matchAll(BEGRUENDUNGS_MAP)) {

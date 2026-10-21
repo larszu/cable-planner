@@ -283,7 +283,7 @@ const textAction = (
       equipmentId: device.id,
       equipmentName: device.name,
       ...befundAls('grund', e instanceof TextVorlagenFehler
-          ? satz('control.deviceError', '“{device}”: {error}', { device: device.name, error: e.message })
+          ? satz('control.deviceError', '“{device}”: {error}', { device: device.name, error: e.satz })
           : satz('control.text.cannotBuild', '“{device}”: the command line cannot be built.', { device: device.name })),
     }
   }
@@ -365,7 +365,7 @@ const companionAction = (
       equipmentId: device.id,
       equipmentName: device.name,
       ...befundAls('grund', e instanceof CompanionFehler
-          ? satz('control.deviceError', '“{device}”: {error}', { device: device.name, error: e.message })
+          ? satz('control.deviceError', '“{device}”: {error}', { device: device.name, error: e.satz })
           : satz('control.companion.cannotBuild', '“{device}”: the Companion calls cannot be built.', { device: device.name })),
     }
   }

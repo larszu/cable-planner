@@ -1,3 +1,4 @@
+import { SatzFehler, satz } from './satz'
 /**
  * Einzelne Kreuzpunkte an eine Kreuzschiene schicken — und NUR diese.
  *
@@ -45,7 +46,7 @@ export interface Kreuzpunkt {
   input: number
 }
 
-export class KreuzpunktFehler extends Error {}
+export class KreuzpunktFehler extends SatzFehler {}
 
 /**
  * Prüft die Liste und wirft, statt etwas Halbes zu senden.
@@ -60,15 +61,27 @@ export const pruefeKreuzpunkte = (punkte: readonly Kreuzpunkt[]): void => {
   const gesehen = new Map<number, number>()
   for (const p of punkte) {
     if (!Number.isInteger(p.output) || p.output < 0) {
-      throw new KreuzpunktFehler(`Ausgangsnummer ist keine Zahl ab 0: ${String(p.output)}`)
+      throw new KreuzpunktFehler(
+        satz('err.xpt.output', 'Output number is not a number from 0: {n}', {
+          n: String(p.output),
+        }),
+      )
     }
     if (!Number.isInteger(p.input) || p.input < 0) {
-      throw new KreuzpunktFehler(`Eingangsnummer ist keine Zahl ab 0: ${String(p.input)}`)
+      throw new KreuzpunktFehler(
+        satz('err.xpt.input', 'Input number is not a number from 0: {n}', {
+          n: String(p.input),
+        }),
+      )
     }
     const vorher = gesehen.get(p.output)
     if (vorher !== undefined && vorher !== p.input) {
       throw new KreuzpunktFehler(
-        `Ausgang ${p.output} soll gleichzeitig auf Eingang ${vorher} und ${p.input}`,
+        satz('err.xpt.conflict', 'Output {out} is set to input {a} and {b} at the same time', {
+          out: p.output,
+          a: vorher,
+          b: p.input,
+        }),
       )
     }
     gesehen.set(p.output, p.input)
@@ -125,8 +138,6 @@ export const kreuzpunktKlartext = (zeile: {
   const eingang = zeile.inputName.trim()
     ? `Eingang ${zeile.input + 1} (${zeile.inputName.trim()})`
     : `Eingang ${zeile.input + 1}`
-  const von = zeile.vonName?.trim()
-    ? `von ${zeile.vonName.trim()}`
-    : 'vom aktuellen Stand (ungelesen)'
+  const von = zeile.vonName?.trim() ? `von ${zeile.vonName.trim()}` : 'vom aktuellen Stand (ungelesen)'
   return `${ausgang} ${von} auf ${eingang}`
 }

@@ -441,7 +441,7 @@ const exportCanvasToPdfVectorAusschnitt = async (
   const handler = w.cablePlanner?.print?.canvasPdfVector
   if (!handler) {
     throw new Error(
-      'Vektor-PDF braucht den Electron-Hauptprozess. In Browser-/Mobile-Build nicht verfügbar.',
+      tr('err.pdfVector.noMain', 'Vector PDF needs the Electron main process. Not available in the browser/mobile build.'),
     )
   }
   const onProgress = options?.onProgress ?? (() => {})
@@ -575,7 +575,7 @@ const exportCanvasToPdfVectorAusschnitt = async (
   onProgress('save', tr('export.pdf.saving', 'Saving the file…'))
   if (!bytes || bytes.byteLength < 1000) {
     throw new Error(
-      `printToPDF lieferte verdächtig wenig zurück (${bytes?.byteLength ?? 0} bytes).`,
+      format(tr('err.pdfVector.tooSmall', 'printToPDF returned suspiciously little ({n} bytes).'), { n: bytes?.byteLength ?? 0 }),
     )
   }
   const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' })

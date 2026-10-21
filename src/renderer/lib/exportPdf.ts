@@ -9,7 +9,7 @@ import { composeExportBackground, type ExportBgVariant } from './exportBackgroun
 import { pdfText } from './pdfHelpers'
 import { hexToRgb, drawVectorBackground } from './pdfBackground'
 import { buildExportFilename } from './exportFilename'
-import { translate } from './i18n'
+import { format, tr, translate } from './i18n'
 import { useUiStore } from '../store/uiStore'
 import { satz, satzKanonisch } from './satz'
 
@@ -386,7 +386,7 @@ const buildCanvasPdfAusschnitt = async (
 
   onProgress(
     'capture',
-    `Canvas ${contentW}×${contentH}px bei ratio=${singleShotRatio.toFixed(2)} (${useJpeg ? 'JPEG' : 'PNG'})…`,
+    format(tr('export.pdf.captureSize', 'Canvas {w}×{h}px at ratio={ratio} ({fmt})…'), { w: contentW, h: contentH, ratio: singleShotRatio.toFixed(2), fmt: useJpeg ? 'JPEG' : 'PNG' }),
   )
   try {
     const singleShotOpts = {

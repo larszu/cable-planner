@@ -133,10 +133,7 @@ const commissioningTable = (project: CablePlannerProject): CsvTable => {
   return { headers: ['Kennzahl', 'Wert'], rows }
 }
 
-export const buildHandoverManifest = (
-  project: CablePlannerProject,
-  stamp?: DocumentStamp,
-): string => {
+export const buildHandoverManifest = (project: CablePlannerProject, stamp?: DocumentStamp): string => {
   const m = project.metadata
   const assets = buildAssetRows(project)
   const bom = buildCableBomRows(project)
@@ -147,35 +144,109 @@ export const buildHandoverManifest = (
   const asBuilt = (project.revisions ?? []).filter((r) => r.asBuilt)
 
   const lines: string[] = []
-  lines.push(`# Übergabe-Dokumentation — ${m.name || 'Anlage'}`)
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.title', '# Handover documentation — {name}', {
+        name: m.name || kanonisch('handover.md.system', 'System'),
+      }),
+    ),
+  )
   lines.push('')
-  lines.push(`Erstellt: ${fmtDate(new Date().toISOString())}`)
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.created', 'Created: {datum}', {
+        datum: fmtDate(new Date().toISOString()),
+      }),
+    ),
+  )
   lines.push('')
-  lines.push('## 1 · Projekt / Anlage')
+  lines.push(kanonisch('handover.md.s1', '## 1 · Project / system'))
   lines.push('')
-  lines.push(`- **Anlage:** ${m.name || '—'}`)
-  lines.push(`- **Standort:** ${m.siteAddress || '—'}`)
-  lines.push(`- **Kunde:** ${m.client || '—'}`)
-  lines.push(`- **Errichter:** ${m.contractor || m.author || '—'}`)
-  lines.push(`- **Projekt-Nr.:** ${m.projectNumber || '—'}`)
-  lines.push(`- **Übergabe-Datum:** ${fmtDate(m.handoverDate)}`)
-  lines.push(`- **Wartender Dienstleister:** ${m.serviceProvider || '—'}`)
-  lines.push(`- **Notfall-/Servicekontakt:** ${m.emergencyContact || '—'}`)
+  lines.push(satzKanonisch(satz('handover.md.systemLine', '- **System:** {v}', { v: m.name || '—' })))
+  lines.push(satzKanonisch(satz('handover.md.site', '- **Site:** {v}', { v: m.siteAddress || '—' })))
+  lines.push(satzKanonisch(satz('handover.md.client', '- **Client:** {v}', { v: m.client || '—' })))
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.contractor', '- **Installer:** {v}', {
+        v: m.contractor || m.author || '—',
+      }),
+    ),
+  )
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.projectNo', '- **Project no.:** {v}', {
+        v: m.projectNumber || '—',
+      }),
+    ),
+  )
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.handoverDate', '- **Handover date:** {v}', {
+        v: fmtDate(m.handoverDate),
+      }),
+    ),
+  )
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.service', '- **Maintenance provider:** {v}', {
+        v: m.serviceProvider || '—',
+      }),
+    ),
+  )
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.emergency', '- **Emergency/service contact:** {v}', {
+        v: m.emergencyContact || '—',
+      }),
+    ),
+  )
   // Initiative 4 — „Rev 2" alleine behauptet, dieses Dokument sei Rev 2. Der
   // Stempel wird beim Festschreiben gesetzt und bleibt stehen, waehrend der
   // Plan weiterlaeuft.
   lines.push(
     `- **Aktuelle Revision:** ${
-      m.revision ? (stamp?.drifted ? satzKanonisch(satz('rest.stamp.drifted', '{rev} + changes', { rev: m.revision })) : m.revision) : '—'
+      m.revision
+        ? stamp?.drifted
+          ? satzKanonisch(
+              satz('rest.stamp.drifted', '{rev} + changes', {
+                rev: m.revision,
+              }),
+            )
+          : m.revision
+        : '—'
     }`,
   )
   lines.push('')
-  lines.push('## 2 · Umfang (Überblick)')
+  lines.push(kanonisch('handover.md.s2', '## 2 · Scope (overview)'))
   lines.push('')
-  lines.push(`- Geräte: **${project.equipment.length}**`)
-  lines.push(`- Kabel/Verbindungen: **${project.cables.length}**`)
-  lines.push(`- Gesamt-Kabellänge: **${totalLength.toFixed(1)} m**`)
-  lines.push(`- Räume/Bereiche: **${(project.locations ?? []).length}**`)
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.devices', '- Devices: **{n}**', {
+        n: project.equipment.length,
+      }),
+    ),
+  )
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.cables', '- Cables/connections: **{n}**', {
+        n: project.cables.length,
+      }),
+    ),
+  )
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.length', '- Total cable length: **{n} m**', {
+        n: totalLength.toFixed(1),
+      }),
+    ),
+  )
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.rooms', '- Rooms/areas: **{n}**', {
+        n: (project.locations ?? []).length,
+      }),
+    ),
+  )
   lines.push('')
   lines.push('## 3 · Commissioning / Status')
   lines.push('')
@@ -183,47 +254,61 @@ export const buildHandoverManifest = (
     const label =
       key === 'unset'
         ? kanonisch('rest.handover.noStatus', 'no status')
-        : kanonisch(`lifecycle.status.${key as InstallStatus}`, INSTALL_STATUS_LABEL[key as InstallStatus]) ?? key
+        : (kanonisch(`lifecycle.status.${key as InstallStatus}`, INSTALL_STATUS_LABEL[key as InstallStatus]) ?? key)
     lines.push(`- ${label}: ${statusCounts[key]}`)
   }
-  lines.push(`- Kabel getestet: **${tested}** (davon PASS: **${passed}**)`)
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.tested', '- Cables tested: **{n}** (of which PASS: **{pass}**)', { n: tested, pass: passed }),
+    ),
+  )
   if (asBuilt.length > 0) {
     lines.push('')
-    lines.push('### As-Built-Revisionen')
+    lines.push(kanonisch('handover.md.asBuilt', '### As-built revisions'))
     for (const r of asBuilt) {
       lines.push(`- ${r.label} — ${fmtDate(r.createdAt)}${r.note ? ` — ${r.note}` : ''}`)
     }
   }
   lines.push('')
-  lines.push('## 4 · Kabel-Stückliste (mit 10% Reserve)')
+  lines.push(kanonisch('handover.md.s4', '## 4 · Cable bill of materials (with 10% reserve)'))
   lines.push('')
-  lines.push('| Typ | Länge (m) | Menge | inkl. Reserve |')
+  lines.push(kanonisch('handover.md.bomHead', '| Type | Length (m) | Qty | incl. reserve |'))
   lines.push('|---|---|---|---|')
   for (const r of bom) {
     lines.push(`| ${r.type} | ${r.lengthM} | ${r.qty} | ${r.qtyWithReserve} |`)
   }
   lines.push('')
-  lines.push('## 5 · Asset-Register (Auszug)')
+  lines.push(kanonisch('handover.md.s5', '## 5 · Asset register (excerpt)'))
   lines.push('')
-  lines.push('| Asset-Tag | Gerät | Standort | Serien-Nr. | Garantie bis |')
+  lines.push(kanonisch('handover.md.assetHead', '| Asset tag | Device | Location | Serial no. | Warranty until |'))
   lines.push('|---|---|---|---|---|')
   for (const a of assets) {
     lines.push(`| ${a.assetTag} | ${a.name} | ${a.location || '—'} | ${a.serial || '—'} | ${a.warrantyUntil || '—'} |`)
   }
   lines.push('')
-  lines.push('## 6 · Enthaltene Dateien')
+  lines.push(kanonisch('handover.md.s6', '## 6 · Included files'))
   lines.push('')
-  lines.push('- `pull-liste.csv` — Pull-/Verlege-Liste je Kabel')
-  lines.push('- `termination-liste.csv` — Terminierung je Kabelende')
-  lines.push('- `kabel-schedule.csv` — Kabel-Register')
-  lines.push('- `kabel-bom.csv` — Stückliste inkl. Reserve')
-  lines.push('- `asset-register.csv` — Geräte-/Asset-Register')
-  lines.push('- Plan-PDF / As-built-Schema (separat aus dem Export-Dialog)')
+  lines.push(kanonisch('handover.md.fPull', '- `pull-liste.csv` — pull list per cable'))
+  lines.push(kanonisch('handover.md.fTerm', '- `termination-liste.csv` — termination per cable end'))
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.fSchedule', '- `{datei}` — cable register', {
+        datei: 'kabel-schedule.csv',
+      }),
+    ),
+  )
+  lines.push(
+    satzKanonisch(
+      satz('handover.md.fBom', '- `{datei}` — bill of materials incl. reserve', { datei: 'kabel-bom.csv' }),
+    ),
+  )
+  lines.push(kanonisch('handover.md.fAsset', '- `asset-register.csv` — device/asset register'))
+  lines.push(kanonisch('handover.md.fPdf', '- Plan PDF / as-built diagram (separately from the export dialog)'))
   lines.push('')
   lines.push('---')
   lines.push('')
-  lines.push('_Erzeugt mit LZ Cable Planner. Diese Doku ist vendor-neutral —')
-  lines.push('jeder qualifizierte Dienstleister kann die Anlage übernehmen._')
+  lines.push(kanonisch('handover.md.footer1', '_Created with LZ Cable Planner. This documentation is vendor-neutral —'))
+  lines.push(kanonisch('handover.md.footer2', 'any qualified service provider can take over the system._'))
   if (stamp) {
     lines.push('')
     lines.push(`_${stampLine(stamp)}_`)

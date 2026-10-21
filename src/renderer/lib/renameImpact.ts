@@ -50,13 +50,10 @@ import type { Cable } from '../types/cable'
 import type { EquipmentItem } from '../types/equipment'
 import type { SourceIdentity } from '../types/sourceIdentity'
 import { deriveLabels, type LabelCandidate } from './labelDerivation'
-import {
-  LABEL_TARGETS,
-  fitToTarget,
-  type FittedLabel,
-  type LabelTargetId,
-} from './labelTargets'
+import { LABEL_TARGETS, fitToTarget, type FittedLabel, type LabelTargetId } from './labelTargets'
 import type { CsvTable } from './csv'
+import { kanonisch } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 
 /** Warum eine Umbenennung nicht ausgeführt wird. */
 export type RenameRefusal =
@@ -183,11 +180,7 @@ const containsWord = (haystack: string, needle: string): boolean => {
  * das ganze Projekt meldete jede Zufalls-Übereinstimmung und wäre nach dem
  * dritten Fehlalarm abgeschaltet.
  */
-const stragglersIn = (
-  { equipment, cables }: RenameInput,
-  oldName: string,
-  identityId: string,
-): RenameStraggler[] => {
+const stragglersIn = ({ equipment, cables }: RenameInput, oldName: string, identityId: string): RenameStraggler[] => {
   const out: RenameStraggler[] = []
   const treffer = (where: string, field: string, text: string | undefined) => {
     if (text && containsWord(text, oldName)) out.push({ where, field, text })
@@ -219,19 +212,19 @@ const stragglersIn = (
 
   // Geräte, die die Rolle TRAGEN, tragen ihren Namen oft doppelt — einmal als
   // Bindung, einmal abgetippt. Das ist kein zweiter Befund, sondern derselbe.
-  const gebunden = new Set(
-    equipment.filter((e) => e.sourceIdentityId === identityId).map((e) => e.name),
-  )
+  const gebunden = new Set(equipment.filter((e) => e.sourceIdentityId === identityId).map((e) => e.name))
   return out.filter((s) => !(s.field === 'Gerätename' && gebunden.has(s.text)))
 }
 
-const targetLabel = (id: LabelTargetId): string =>
-  `${LABEL_TARGETS[id].system} · ${LABEL_TARGETS[id].field}`
+const targetLabel = (id: LabelTargetId): string => `${LABEL_TARGETS[id].system} · ${LABEL_TARGETS[id].field}`
 
 const fittedByKey = (candidates: LabelCandidate[]): Map<string, FittedLabel & { where: string }> => {
   const out = new Map<string, FittedLabel & { where: string }>()
   for (const c of candidates) {
-    out.set(c.key, { ...fitToTarget(c.raw, LABEL_TARGETS[c.targetId], c.sourceText), where: c.where })
+    out.set(c.key, {
+      ...fitToTarget(c.raw, LABEL_TARGETS[c.targetId], c.sourceText),
+      where: c.where,
+    })
   }
   return out
 }
@@ -262,9 +255,7 @@ export function renameImpact(input: RenameInput, id: string, newName: string): R
     deriveLabels({
       equipment: input.equipment,
       cables: input.cables,
-      sourceIdentities: input.sourceIdentities.map((s) =>
-        s.id === id ? { ...s, name: next } : s,
-      ),
+      sourceIdentities: input.sourceIdentities.map((s) => (s.id === id ? { ...s, name: next } : s)),
     }).candidates,
   )
 
@@ -305,9 +296,16 @@ export const RENAME_TABLE_HEADERS = ['Zielsystem', 'Ort', 'Vorher', 'Nachher', '
 
 const hinweis = (l: RenameLanding): string => {
   const teile: string[] = []
-  if (l.unchangedAtTarget) teile.push('kommt hier NICHT an (Budget)')
-  else if (l.truncated) teile.push('gekürzt')
-  if (l.invalidChars.length) teile.push(`nicht darstellbar: ${l.invalidChars.join(' ')}`)
+  if (l.unchangedAtTarget) teile.push(kanonisch('rename.hint.swallowed', 'does NOT arrive here (budget)'))
+  else if (l.truncated) teile.push(kanonisch('rename.hint.truncated', 'truncated'))
+  if (l.invalidChars.length)
+    teile.push(
+      satzKanonisch(
+        satz('rename.hint.invalid', 'cannot be shown: {zeichen}', {
+          zeichen: l.invalidChars.join(' '),
+        }),
+      ),
+    )
   return teile.join('; ')
 }
 

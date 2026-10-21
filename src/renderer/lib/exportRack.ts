@@ -152,7 +152,7 @@ export const exportRack3DPerspective = async (
   camera.updateProjectionMatrix()
   gl.render(scene, camera)
 
-  if (!blob) throw new Error('Canvas-Capture lieferte kein Bild')
+  if (!blob) throw new Error(tr('err.export.noRackImage', 'Canvas capture returned no image'))
   return blob
 }
 
@@ -194,3 +194,4 @@ export const exportRackAsStl = (
 //  Wrapper-Struktur baut — damit das exportierte File auf einem anderen
 //  Rechner via parseLibraryItemFile wieder importiert werden kann.)
 export { exportPresetToFile as exportRackAsCpgroup } from './itemExport'
+import { tr } from './i18n'

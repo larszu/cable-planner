@@ -9,6 +9,144 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 export const BEFUNDE_DE: Readonly<Record<string, string>> = {
+  // Aufruf-Muster (#1142): Uebergabe-Dokumentation, Umbenennungssatz, Port-Trace,
+  // Signalkette, Rack-Verdrahtung, Dante-Namen, Fehler der Steuerwege.
+  'err.textProto.unknown':
+    'Unbekannte Platzhalter: {liste}.',
+  'err.companion.noVarOut':
+    'Die Variable für den Ausgang fehlt.',
+  'err.companion.noVarIn':
+    'Die Variable für den Eingang fehlt.',
+  'err.companion.sameVar':
+    'Ausgang und Eingang zeigen auf dieselbe Variable.',
+  'err.companion.button':
+    'Die Schaltflächen-Angabe „{feld}" ist keine Zahl ab 0.',
+  'err.companion.page':
+    'Companion zählt Seiten ab 1.',
+  'err.companion.varName':
+    '„{name}" ist kein gültiger Variablenname (Buchstaben, Ziffern, _ und -).',
+  'err.textProto.empty':
+    'Die Befehlszeile ist leer.',
+  'err.textProto.noOut':
+    'In der Befehlszeile fehlt der Platzhalter {out}.',
+  'err.textProto.noIn':
+    'In der Befehlszeile fehlt der Platzhalter {in}.',
+  'err.textProto.noLevel':
+    'Die Befehlszeile nennt {level}, aber es ist keine Ebene eingetragen.',
+  'err.xpt.output':
+    'Ausgangsnummer ist keine Zahl ab 0: {n}',
+  'err.xpt.input':
+    'Eingangsnummer ist keine Zahl ab 0: {n}',
+  'err.xpt.conflict':
+    'Ausgang {out} soll gleichzeitig auf Eingang {a} und {b}',
+  'dante.issue.empty':
+    'leer',
+  'dante.issue.tooLong':
+    '> {n} Zeichen',
+  'dante.issue.chars':
+    'ungültige Zeichen (nur a–z, 0–9, -)',
+  'dante.issue.leadingDash':
+    'führender Bindestrich',
+  'dante.issue.trailingDash':
+    'abschließender Bindestrich',
+  'handover.md.title':
+    '# Übergabe-Dokumentation — {name}',
+  'handover.md.created':
+    'Erstellt: {datum}',
+  'handover.md.s1':
+    '## 1 · Projekt / Anlage',
+  'handover.md.systemLine':
+    '- **Anlage:** {v}',
+  'handover.md.site':
+    '- **Standort:** {v}',
+  'handover.md.client':
+    '- **Kunde:** {v}',
+  'handover.md.contractor':
+    '- **Errichter:** {v}',
+  'handover.md.projectNo':
+    '- **Projekt-Nr.:** {v}',
+  'handover.md.handoverDate':
+    '- **Übergabe-Datum:** {v}',
+  'handover.md.service':
+    '- **Wartender Dienstleister:** {v}',
+  'handover.md.emergency':
+    '- **Notfall-/Servicekontakt:** {v}',
+  'handover.md.s2':
+    '## 2 · Umfang (Überblick)',
+  'handover.md.devices':
+    '- Geräte: **{n}**',
+  'handover.md.cables':
+    '- Kabel/Verbindungen: **{n}**',
+  'handover.md.length':
+    '- Gesamt-Kabellänge: **{n} m**',
+  'handover.md.rooms':
+    '- Räume/Bereiche: **{n}**',
+  'handover.md.tested':
+    '- Kabel getestet: **{n}** (davon PASS: **{pass}**)',
+  'handover.md.asBuilt':
+    '### As-Built-Revisionen',
+  'handover.md.s4':
+    '## 4 · Kabel-Stückliste (mit 10% Reserve)',
+  'handover.md.bomHead':
+    '| Typ | Länge (m) | Menge | inkl. Reserve |',
+  'handover.md.s5':
+    '## 5 · Asset-Register (Auszug)',
+  'handover.md.assetHead':
+    '| Asset-Tag | Gerät | Standort | Serien-Nr. | Garantie bis |',
+  'handover.md.s6':
+    '## 6 · Enthaltene Dateien',
+  'handover.md.fPull':
+    '- `pull-liste.csv` — Pull-/Verlege-Liste je Kabel',
+  'handover.md.fTerm':
+    '- `termination-liste.csv` — Terminierung je Kabelende',
+  'handover.md.fSchedule':
+    '- `{datei}` — Kabel-Register',
+  'handover.md.fBom':
+    '- `{datei}` — Stückliste inkl. Reserve',
+  'handover.md.fAsset':
+    '- `asset-register.csv` — Geräte-/Asset-Register',
+  'handover.md.fPdf':
+    '- Plan-PDF / As-built-Schema (separat aus dem Export-Dialog)',
+  'handover.md.footer1':
+    '_Erzeugt mit LZ Cable Planner. Diese Doku ist vendor-neutral —',
+  'handover.md.footer2':
+    'jeder qualifizierte Dienstleister kann die Anlage übernehmen._',
+  'handover.md.system':
+    'Anlage',
+  'rename.hint.swallowed':
+    'kommt hier NICHT an (Budget)',
+  'rename.hint.truncated':
+    'gekürzt',
+  'rename.hint.invalid':
+    'nicht darstellbar: {zeichen}',
+  'trace.stage.patch-panel':
+    'Patchfeld',
+  'trace.stage.converter':
+    'Wandler',
+  'trace.stage.adapter':
+    'Adapter',
+  'rest.trace.manyCables':
+    '{n} Kabel an einem Anschluss — welches gilt, sagt der Plan nicht',
+  'rest.trace.deviceGone':
+    'Das Gerät am anderen Ende steht nicht mehr im Plan',
+  'rest.trace.loop':
+    'Der Weg läuft in sich zurück',
+  'rest.trace.noFurther':
+    '{art} {name}: kein weiteres Kabel',
+  'rest.trace.manyFurther':
+    '{art} {name} mit {n} weiteren Kabeln — kein eindeutiger Weiterweg',
+  'rest.trace.notSwitch':
+    'Der Weg endet an {name} — das ist kein Switch',
+  'rest.chain.targetGone':
+    'Zielgerät steht nicht mehr im Plan',
+  'rest.chain.onwardNotCabled':
+    '{art}: der Weiterweg ist im Plan nicht verkabelt',
+  'rest.chain.tooLong':
+    'Mehr als {n} Zwischenstationen — hier abgeschnitten',
+  'rest.rack.deviceGone':
+    '{kabel}: ein verbundenes Gerät steht nicht mehr im Rack',
+  'rest.rack.noPort':
+    '{kabel}: „{port}" gibt es an {geraet} nicht',
   // Signalkette: Ende an einer Durchleitung (signalChain.ts).
   'chain.end.ambiguous':
     '{art}: {grund}',

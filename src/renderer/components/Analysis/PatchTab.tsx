@@ -42,29 +42,36 @@ const ENDE_TON: Readonly<Record<PortTraceRow['end'], string>> = {
 
 /** Der Weg als Kette von Kaestchen — dieselbe Leseform wie im Reiter
  *  „Signalwege", damit niemand zwei Darstellungen derselben Sache lernt. */
-const Weg = ({ row }: { row: PortTraceRow }) => (
-  <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
-    <span className="text-cp-text-muted">{row.devicePort ?? '—'}</span>
-    {row.stages.map((s) => (
-      <span key={s.cableId} className="flex items-baseline gap-1">
-        <span className="text-cp-text-faint">&ndash;[{s.cableLabel}]&rarr;</span>
-        <span className="text-cp-text-secondary">{s.deviceName}</span>
-        <span className="text-cp-text-muted">
-          {s.inPort}/{s.outPort}
+const Weg = ({ row }: { row: PortTraceRow }) => {
+  const t = useTranslation()
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
+      <span className="text-cp-text-muted">{row.devicePort ?? '—'}</span>
+      {row.stages.map((s) => (
+        <span key={s.cableId} className="flex items-baseline gap-1">
+          <span className="text-cp-text-faint">&ndash;[{s.cableLabel}]&rarr;</span>
+          <span className="text-cp-text-secondary">{s.deviceName}</span>
+          <span className="text-cp-text-muted">
+            {s.inPort}/{s.outPort}
+          </span>
+          <span className="bg-cp-surface-3 px-1 text-cp-text-faint">
+            {t(`trace.stage.${s.kind}`, STAGE_LABEL[s.kind])}
+          </span>
         </span>
-        <span className="bg-cp-surface-3 px-1 text-cp-text-faint">{STAGE_LABEL[s.kind]}</span>
-      </span>
-    ))}
-    {row.switchPort && (
-      <span className="flex items-baseline gap-1">
-        <span className="text-cp-text-faint">
-          &ndash;[{(row.stages.length > 0 ? row.lastCableLabel : row.firstCableLabel) ?? '?'}]&rarr;
+      ))}
+      {row.switchPort && (
+        <span className="flex items-baseline gap-1">
+          <span className="text-cp-text-faint">
+            &ndash;[
+            {(row.stages.length > 0 ? row.lastCableLabel : row.firstCableLabel) ?? '?'}
+            ]&rarr;
+          </span>
+          <span className="font-medium text-cp-text">{row.switchPort}</span>
         </span>
-        <span className="font-medium text-cp-text">{row.switchPort}</span>
-      </span>
-    )}
-  </div>
-)
+      )}
+    </div>
+  )
+}
 
 export const PatchTab = ({ projectName }: { projectName: string }) => {
   const t = useTranslation()
@@ -75,10 +82,7 @@ export const PatchTab = ({ projectName }: { projectName: string }) => {
   const [suche, setSuche] = useState('')
   const [nurOffene, setNurOffene] = useState(false)
 
-  const alle = useMemo(
-    () => buildPortTrace(equipment, cables, segments ?? []),
-    [equipment, cables, segments],
-  )
+  const alle = useMemo(() => buildPortTrace(equipment, cables, segments ?? []), [equipment, cables, segments])
 
   const gezeigt = useMemo(() => {
     const q = suche.trim().toLowerCase()
@@ -151,11 +155,7 @@ export const PatchTab = ({ projectName }: { projectName: string }) => {
               className="min-w-48 flex-1 border border-cp-border bg-cp-surface-2 px-2 py-1 text-cp-xs text-cp-text"
             />
             <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary">
-              <input
-                type="checkbox"
-                checked={nurOffene}
-                onChange={(e) => setNurOffene(e.target.checked)}
-              />
+              <input type="checkbox" checked={nurOffene} onChange={(e) => setNurOffene(e.target.checked)} />
               {t('analysis.patch.onlyOpen', 'Only open ones')}
             </label>
             <button
@@ -206,26 +206,20 @@ export const PatchTab = ({ projectName }: { projectName: string }) => {
                     <tr key={r.key} className="border-b border-[var(--cp-border-muted)] align-top">
                       <td className="py-1 pr-2">
                         <span className="text-cp-text">{r.deviceName}</span>
-                        {r.rack && (
-                          <span className="ml-1 text-cp-text-faint">{r.rack}</span>
-                        )}
+                        {r.rack && <span className="ml-1 text-cp-text-faint">{r.rack}</span>}
                       </td>
-                      <td className="py-1 pr-2 text-cp-text-secondary">
-                        {r.nicLabel ?? (r.nicId ? r.role : '—')}
-                      </td>
-                      <td className="py-1 pr-2 text-cp-text-secondary">
-                        {r.cidr ?? r.ipAddress ?? '—'}
-                      </td>
+                      <td className="py-1 pr-2 text-cp-text-secondary">{r.nicLabel ?? (r.nicId ? r.role : '—')}</td>
+                      <td className="py-1 pr-2 text-cp-text-secondary">{r.cidr ?? r.ipAddress ?? '—'}</td>
                       <td className="py-1 pr-2 text-cp-text-secondary">
                         {r.vlanId ?? '—'}
-                        {r.segmentName && (
-                          <span className="ml-1 text-cp-text-faint">{r.segmentName}</span>
-                        )}
+                        {r.segmentName && <span className="ml-1 text-cp-text-faint">{r.segmentName}</span>}
                       </td>
                       <td className="py-1 pr-2">
                         <Weg row={r} />
                         {r.end !== 'switch' && (
-                          <div className={`mt-0.5 ${ENDE_TON[r.end]}`}>{r.endSatz ? satzText(r.endSatz, t) : r.endNote}</div>
+                          <div className={`mt-0.5 ${ENDE_TON[r.end]}`}>
+                            {r.endSatz ? satzText(r.endSatz, t) : r.endNote}
+                          </div>
                         )}
                         {r.conflict && <div className="mt-0.5 text-cp-warn">{r.conflict}</div>}
                       </td>
@@ -236,7 +230,9 @@ export const PatchTab = ({ projectName }: { projectName: string }) => {
                           <span className={ENDE_TON[r.end]}>{t(`trace.end.${r.end}`, TRACE_END_LABEL[r.end])}</span>
                         )}
                       </td>
-                      <td className="py-1 text-cp-text-faint">{t(`trace.source.${r.source}`, TRACE_SOURCE_LABEL[r.source])}</td>
+                      <td className="py-1 text-cp-text-faint">
+                        {t(`trace.source.${r.source}`, TRACE_SOURCE_LABEL[r.source])}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

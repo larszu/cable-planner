@@ -12,6 +12,7 @@ import { toJpeg, toPng, toSvg } from 'html-to-image'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { buildExportFilename } from './exportFilename'
 import type { ProjectMetadata } from '../types/project'
+import { tr } from './i18n'
 
 export type ImageExportFormat = 'png' | 'jpeg' | 'svg'
 
@@ -100,7 +101,7 @@ const computeContentBox = (viewportEl: HTMLElement): ContentBox => {
   }
 
   if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
-    throw new Error('Konnte den Inhalt des Canvas nicht vermessen')
+    throw new Error(tr('export.errMeasureCanvas', 'The canvas content could not be measured'))
   }
 
   // v7.7.1 — generous padding so the exported image shows plenty of
@@ -180,7 +181,7 @@ const captureViewportAusschnitt = async (
 ): Promise<string> => {
   const viewportEl =
     (document.querySelector('.react-flow__viewport') as HTMLElement | null) ?? null
-  if (!viewportEl) throw new Error('React Flow viewport nicht gefunden')
+  if (!viewportEl) throw new Error(tr('err.export.noViewport', 'React Flow viewport not found'))
 
   const box = computeContentBox(viewportEl)
   const { contentX, contentY, contentW } = box

@@ -15,6 +15,7 @@ import { completeWithAI } from './aiSuggestions'
 import { ALL_CONNECTOR_TYPES } from '../types/equipment'
 import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
 import type { Cable, CableType } from '../types/cable'
+import { format, tr } from './i18n'
 
 interface RawDevice {
   name?: unknown
@@ -29,6 +30,9 @@ interface RawConnection {
   toPort?: unknown
   connector?: unknown
 }
+
+/** Platzhalter fuer einen fehlenden Geraetenamen in der Warnung. */
+const UNBEKANNT = '?'
 
 export interface GeneratedPlan {
   equipment: EquipmentItem[]
@@ -66,7 +70,7 @@ const extractJson = (text: string): unknown => {
   const start = body.indexOf('{')
   const end = body.lastIndexOf('}')
   if (start === -1 || end === -1 || end < start) {
-    throw new Error('Keine JSON-Antwort vom Modell erhalten.')
+    throw new Error(tr('err.planGen.noJson', 'No JSON answer received from the model.'))
   }
   return JSON.parse(body.slice(start, end + 1))
 }
@@ -86,8 +90,7 @@ const coerceConnector = (v: unknown): ConnectorType => {
  * Der Beleg, den ein generiertes Geraet traegt. Wortlaut bewusst nah an dem
  * des Port-Vorschlags: der Nutzer soll beide als dieselbe Sorte Angabe lesen.
  */
-const AI_PLAN_SOURCE =
-  'AI-Plangenerierung aus einer Beschreibung — nicht aus einem Datenblatt'
+const AI_PLAN_SOURCE = 'AI-Plangenerierung aus einer Beschreibung — nicht aus einem Datenblatt'
 
 const makePort = (name: string, connector: ConnectorType): Port => ({
   id: uuid(),
@@ -103,7 +106,10 @@ const makePort = (name: string, connector: ConnectorType): Port => ({
  */
 export const generatePlanFromPrompt = async (description: string): Promise<GeneratedPlan> => {
   const text = await completeWithAI(PROMPT(description))
-  const parsed = extractJson(text) as { devices?: unknown; connections?: unknown }
+  const parsed = extractJson(text) as {
+    devices?: unknown
+    connections?: unknown
+  }
   const rawDevices = Array.isArray(parsed.devices) ? (parsed.devices as RawDevice[]) : []
   const rawConns = Array.isArray(parsed.connections) ? (parsed.connections as RawConnection[]) : []
   const warnings: string[] = []
@@ -145,10 +151,20 @@ export const generatePlanFromPrompt = async (description: string): Promise<Gener
         ? {
             specSource: {
               ...(inputs.length > 0
-                ? { inputs: { value: `${inputs.length} In`, source: AI_PLAN_SOURCE } }
+                ? {
+                    inputs: {
+                      value: `${inputs.length} In`,
+                      source: AI_PLAN_SOURCE,
+                    },
+                  }
                 : {}),
               ...(outputs.length > 0
-                ? { outputs: { value: `${outputs.length} Out`, source: AI_PLAN_SOURCE } }
+                ? {
+                    outputs: {
+                      value: `${outputs.length} Out`,
+                      source: AI_PLAN_SOURCE,
+                    },
+                  }
                 : {}),
             },
           }
@@ -167,9 +183,7 @@ export const generatePlanFromPrompt = async (description: string): Promise<Gener
     side: 'inputs' | 'outputs',
     connector: ConnectorType,
   ): Port => {
-    const existing = [...item.inputs, ...item.outputs].find(
-      (p) => p.name.toLowerCase() === portName.toLowerCase(),
-    )
+    const existing = [...item.inputs, ...item.outputs].find((p) => p.name.toLowerCase() === portName.toLowerCase())
     if (existing) return existing
     const port = makePort(portName, connector)
     item[side].push(port)
@@ -182,7 +196,12 @@ export const generatePlanFromPrompt = async (description: string): Promise<Gener
     const fromEq = byName.get(fromName)
     const toEq = byName.get(toName)
     if (!fromEq || !toEq) {
-      warnings.push(`Verbindung ${fromName || '?'} → ${toName || '?'} übersprungen (Gerät unbekannt).`)
+      warnings.push(
+        format(tr('warn.planGen.skipped', 'Connection {von} → {nach} skipped (unknown device).'), {
+          von: fromName || UNBEKANNT,
+          nach: toName || UNBEKANNT,
+        }),
+      )
       continue
     }
     const connector = coerceConnector(c.connector)
@@ -200,9 +219,7 @@ export const generatePlanFromPrompt = async (description: string): Promise<Gener
     )
     // CableType schließt DIN/DisplayPort/USB aus → auf 'Custom' abbilden.
     const cableType: CableType =
-      connector === 'DIN' || connector === 'DisplayPort' || connector === 'USB'
-        ? 'Custom'
-        : connector
+      connector === 'DIN' || connector === 'DisplayPort' || connector === 'USB' ? 'Custom' : connector
     cables.push({
       id: uuid(),
       name: `${fromEq.name} → ${toEq.name}`,
@@ -210,7 +227,10 @@ export const generatePlanFromPrompt = async (description: string): Promise<Gener
       // `connection` und nicht etwa `length`: geraten ist hier, DASS es diese
       // Strecke gibt, nicht wie lang sie ist.
       specSource: {
-        connection: { value: `${fromEq.name} → ${toEq.name}`, source: AI_PLAN_SOURCE },
+        connection: {
+          value: `${fromEq.name} → ${toEq.name}`,
+          source: AI_PLAN_SOURCE,
+        },
       },
       type: cableType,
       length: 0,

@@ -1,3 +1,4 @@
+import { SatzFehler, satz } from './satz'
 /**
  * Bitfocus Companion als Treiber für ALLE Hersteller (S-4).
  *
@@ -109,7 +110,7 @@ export interface CompanionSchritt {
   abbruchBeiFehler: true
 }
 
-export class CompanionFehler extends Error {}
+export class CompanionFehler extends SatzFehler {}
 
 /**
  * Prüft die Konfiguration, statt eine halbe Folge zu senden.
@@ -119,26 +120,30 @@ export class CompanionFehler extends Error {}
  * Nutzer einen Netzfehler statt der fehlenden Angabe.
  */
 export const pruefeCompanion = (config: CompanionConfig): void => {
-  if (!config.varOut.trim()) throw new CompanionFehler('Die Variable für den Ausgang fehlt.')
-  if (!config.varIn.trim()) throw new CompanionFehler('Die Variable für den Eingang fehlt.')
+  if (!config.varOut.trim())
+    throw new CompanionFehler(satz('err.companion.noVarOut', 'The variable for the output is missing.'))
+  if (!config.varIn.trim())
+    throw new CompanionFehler(satz('err.companion.noVarIn', 'The variable for the input is missing.'))
   if (config.varOut.trim() === config.varIn.trim()) {
     // Beide auf dieselbe Variable zu legen heisst, dass der zweite Wert den
     // ersten ueberschreibt — die Schaltflaeche bekaeme zweimal denselben.
-    throw new CompanionFehler('Ausgang und Eingang zeigen auf dieselbe Variable.')
+    throw new CompanionFehler(satz('err.companion.sameVar', 'Output and input point to the same variable.'))
   }
   for (const [feld, wert] of Object.entries(config.knopf)) {
     if (!Number.isInteger(wert) || wert < 0) {
-      throw new CompanionFehler(`Die Schaltflächen-Angabe „${feld}" ist keine Zahl ab 0.`)
+      throw new CompanionFehler(
+        satz('err.companion.button', 'The button setting "{feld}" is not a number from 0.', { feld }),
+      )
     }
   }
   if (config.knopf.page < 1) {
-    throw new CompanionFehler('Companion zählt Seiten ab 1.')
+    throw new CompanionFehler(satz('err.companion.page', 'Companion counts pages from 1.'))
   }
   const erlaubt = /^[A-Za-z0-9_-]+$/
   for (const name of [config.varOut.trim(), config.varIn.trim()]) {
     if (!erlaubt.test(name)) {
       throw new CompanionFehler(
-        `„${name}" ist kein gültiger Variablenname (Buchstaben, Ziffern, _ und -).`,
+        satz('err.companion.varName', '"{name}" is not a valid variable name (letters, digits, _ and -).', { name }),
       )
     }
   }
@@ -151,11 +156,8 @@ export interface CompanionKreuzpunkt {
   inputAddress?: number
 }
 
-const zahl = (
-  index: number,
-  config: CompanionConfig,
-  declared: number | undefined,
-): number => (config.nummern === 'declared' ? (declared ?? 0) : index + config.basis)
+const zahl = (index: number, config: CompanionConfig, declared: number | undefined): number =>
+  config.nummern === 'declared' ? (declared ?? 0) : index + config.basis
 
 /**
  * Die Schrittfolge für EINEN Kreuzpunkt.

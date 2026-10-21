@@ -12,6 +12,7 @@ import type { CablePlannerProject } from '../types/project'
 import type { LocationFrame } from '../types/location'
 import { stripForTemplate, projectVenue, type TemplateScope } from './templateScope'
 import { assessJobHandover, latestAsBuilt, type JobBasis } from './jobHandover'
+import { tr } from './i18n'
 
 export interface ProjectTemplate {
   id: string
@@ -98,7 +99,7 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       descKey: 'templates.builtin.obVan.desc',
       name: 'OB van',
       description: 'OB van with stage and FOH — separate location frames.',
-      project: base('Ü-Wagen / OB-Van', 'Übertragungswagen-Setup', [
+      project: base(tr('templates.builtin.obVan.projectName', 'OB van'), tr('templates.builtin.obVan.projectDesc', 'Outside broadcast setup'), [
         frame('Ü-Wagen', 40, 40, 520, 360, '#38bdf8'),
         frame('Bühne', 620, 40, 520, 360, '#34d399'),
       ]),

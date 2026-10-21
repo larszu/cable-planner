@@ -125,17 +125,17 @@ describe('Eine unbrauchbare Angabe faellt auf, bevor etwas rausgeht', () => {
   it('beide Variablen gleich wirft', () => {
     // Der zweite Wert ueberschriebe den ersten — die Schaltflaeche bekaeme
     // zweimal denselben.
-    expect(() => pruefeCompanion(konfig({ varOut: 'x', varIn: 'x' }))).toThrow(/dieselbe Variable/)
+    expect(() => pruefeCompanion(konfig({ varOut: 'x', varIn: 'x' }))).toThrow(/same variable/)
   })
 
   it('ein Variablenname mit Sonderzeichen wirft', () => {
-    expect(() => pruefeCompanion(konfig({ varOut: 'cp out' }))).toThrow(/gültiger Variablenname/)
-    expect(() => pruefeCompanion(konfig({ varIn: 'a&b' }))).toThrow(/gültiger Variablenname/)
+    expect(() => pruefeCompanion(konfig({ varOut: 'cp out' }))).toThrow(/valid variable name/)
+    expect(() => pruefeCompanion(konfig({ varIn: 'a&b' }))).toThrow(/valid variable name/)
   })
 
   it('Companion zaehlt Seiten ab 1', () => {
     expect(() => pruefeCompanion(konfig({ knopf: { page: 0, row: 0, column: 0 } }))).toThrow(
-      /ab 1/,
+      /from 1/,
     )
   })
 
