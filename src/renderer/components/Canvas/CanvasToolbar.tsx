@@ -18,7 +18,8 @@ import { confirmDialog } from '../../lib/confirmDialog'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { useRaster } from '../../lib/aktuellesRaster'
 import { computeAlignedPositions, type AlignMode, type AlignItem } from '../../lib/alignEquipment'
-import { Check, X, ChevronUp, ChevronDown} from 'lucide-react'
+import { Check, X, ChevronUp, ChevronDown, Mic } from 'lucide-react'
+import { SprachVerkabelungDialog } from './SprachVerkabelungDialog'
 import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { Tooltip } from '../shared/Tooltip'
@@ -437,6 +438,7 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const hasSelection = selectedEquipmentIds.length >= 1
+  const [sprachOffen, setSprachOffen] = useState(false)
   const selectionContainsRack = selectionHasRack(selectedEquipmentIds, equipmentList)
   // v7.9.28 — Align-Buttons schon ab 1 Selection (richtet am Viewport
   // aus, Figma-Pattern). Distribute braucht 3+ Items.
@@ -506,6 +508,15 @@ export const CanvasToolbar = ({ mode = 'main' }: { mode?: CanvasToolbarMode } = 
               <rect x="2" y="3" width="12" height="10" rx="0.5" strokeDasharray="2 1.5" />
             </svg>
           </IconButton>
+          {/* #1056 — Kabel per Sprache: ein Knopf, Vorschau im Dialog. */}
+          <IconButton T={T}
+            label={t('toolbar.voiceCabling.label', 'Voice')}
+            title={t('toolbar.voiceCabling.title', 'Create cables from a spoken or typed sentence')}
+            onClick={() => setSprachOffen(true)}
+          >
+            <Icon icon={Mic} size="sm" />
+          </IconButton>
+          <SprachVerkabelungDialog open={sprachOffen} onClose={() => setSprachOffen(false)} />
           {/* GENAU ZWEI markiert: Mehrfach-Verkabelung, mit beiden Geraeten
               schon eingesetzt (2026-09-07).
 

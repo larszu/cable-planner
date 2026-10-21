@@ -123,6 +123,17 @@
   applies to the type.
 - **Together.** Live co-editing over WebRTC, optional cloud copy with revisions,
   a shared device library across the planner suite.
+- **Cable by voice.** The *Voice* button in the canvas toolbar takes a
+  sentence such as "SDI 1 from the ATEM to the NEC in the foyer" or
+  „Kamera 2 auf den Mischer, Eingang 2" (German and English, several cables
+  separated by a full stop). It is matched offline against the device, port
+  and room names in the plan — typos like "Foxer" still find the foyer — and
+  shown as a preview first: ambiguous devices and ports are picked from a
+  list, an occupied input is only replaced when ticked, and a connector
+  mismatch is flagged as needing a converter. *Connect* adds all cables as
+  one undo step. In the desktop app, speak through system dictation into the
+  text field (macOS: press Fn twice, Windows: Win+H); the microphone button
+  appears only in browsers whose speech recognition works.
 - **Ask Claude.** A local MCP server answers questions about the open plan.
   With write access switched on, Claude can build a system without touching
   the UI: library devices (`search_library`, `add_device`), custom devices
