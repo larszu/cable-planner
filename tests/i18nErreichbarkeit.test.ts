@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import deSrc from '../src/renderer/lib/i18n/de.ts?raw'
+// Teil des deutschen Woerterbuchs, den `de.ts` ausbreitet (#1128).
+import kanonischSrc from '../src/renderer/lib/kanonischDe.ts?raw'
 import { stripComments } from './support/stripComments'
 
 // WAS HIER GEFUNDEN WURDE (2026-09-04).
@@ -94,7 +96,7 @@ const keysOf = (teil: string): Set<string> =>
     ...[...teil.matchAll(/^\s*"((?:[^"\\]|\\.)+)":/gm)].map((m) => m[1]),
   ])
 
-const deutsch = keysOf(deSrc)
+const deutsch = keysOf(deSrc + kanonischSrc)
 
 const erreichbar = new Set<string>()
 const totUebersetzt: Array<[string, number]> = []

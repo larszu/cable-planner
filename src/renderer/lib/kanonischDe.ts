@@ -1,0 +1,66 @@
+// ───────────────────────────────────────────────────────────────────────────
+// Deutsch fuer gestempelte Blaetter (#1128) — Teil des deutschen Woerterbuchs.
+//
+// `de.ts` breitet diese Eintraege aus; sie stehen hier getrennt, weil
+// `kanonisch()` sie OHNE das ganze Desktop-Woerterbuch braucht: das
+// Dokument-Register (und mit ihm jede Blatt-Ableitung) laeuft auch in der
+// Mobile-Ansicht, und die darf `lib/i18n` nicht laden
+// (`tests/i18nEintrittspunkte.test.ts`).
+// ───────────────────────────────────────────────────────────────────────────
+
+export const KANONISCH_DE: Readonly<Record<string, string>> = {
+  'lifecycle.status.planned': 'Geplant',
+  'lifecycle.status.installed': 'Installiert',
+  'lifecycle.status.tested': 'Getestet',
+  'lifecycle.status.operational': 'In Betrieb',
+  'lifecycle.status.fault': 'Störung',
+  'lifecycle.status.retired': 'Außer Betrieb',
+  'scene.diff.added': 'neu beschriftet',
+  'scene.diff.removed': 'Beschriftung entfernt',
+  'scene.diff.renamed': 'umbenannt',
+  'scene.diff.recolored': 'Farbe geändert',
+  'handover.leg.out': 'Ausgabe',
+  'handover.leg.in': 'Rückgabe',
+  'inventory.auditOutcome.expected-here': 'Am erwarteten Ort',
+  'inventory.auditOutcome.wrong-place': 'Am falschen Ort',
+  'inventory.auditOutcome.no-location': 'Ohne Lagerort im Datensatz',
+  'inventory.auditOutcome.not-in-inventory': 'Nicht im Bestand',
+  'inventory.auditOutcome.is-a-location': 'Das ist ein Lagerort, kein Objekt',
+  'inventory.auditVia.scan': 'gescannt',
+  'inventory.auditVia.pick': 'aus der Liste',
+  'fault.service.returnVideo': 'Rückvideo',
+  'fault.service.control': 'Steuerung',
+  'fault.service.power': 'Strom',
+  'planBom.outcome.matched-by-type': 'gedeckt',
+  'planBom.outcome.proposed-by-name': 'VORSCHLAG',
+  'planBom.outcome.unmatched': 'nicht im Lager',
+  'asBuilt.verdict.match': 'stimmt überein',
+  'asBuilt.verdict.differs': 'weicht ab',
+  'asBuilt.verdict.missing': 'im Plan, nicht vorgefunden',
+  'asBuilt.verdict.unexpected': 'vorgefunden, nicht im Plan',
+  'asBuilt.verdict.not-verified': 'nicht nachgesehen',
+  'asBuilt.source.network-scan': 'Netz-Scan',
+  'asBuilt.source.atem': 'Mischer',
+  'asBuilt.source.erp': 'Vermietung',
+  'asBuilt.source.field-check': 'Aufbau vor Ort',
+  'asBuilt.source.manual': 'von Hand',
+  'asBuilt.source.companion': 'Companion-Variable',
+  'planDiff.change.removed': 'entfällt',
+  'planDiff.change.added': 'neu',
+  'planDiff.change.modified': 'geändert',
+  'planDiff.class.identity': 'Identität',
+  'planDiff.class.substantive': 'inhaltlich',
+  'planDiff.class.cosmetic': 'Darstellung',
+  'planDiff.class.bookkeeping': 'Herkunft',
+  'planDiff.class.sensitive': 'Zugangsdaten',
+  'planDiff.kind.equipment': 'Gerät',
+  'planDiff.kind.cable': 'Kabel',
+  'anhang.kind.messprotokoll': 'Messprotokoll',
+  'anhang.kind.herstellerunterlage': 'Herstellerunterlage',
+  'anhang.kind.konfig-backup': 'Konfigurations-Sicherung',
+  'anhang.kind.sonstiges': 'Sonstiges',
+  'trassen.kind.raumgrenze': 'Raumgrenze',
+  'trassen.kind.schachtzugang': 'Schachtzugang',
+  'trassen.kind.geschossdecke': 'Geschossdecke im Schacht',
+  'trassen.kind.ohne-weg': 'Etagenwechsel ohne Schacht',
+}

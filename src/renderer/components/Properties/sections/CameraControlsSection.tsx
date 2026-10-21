@@ -60,10 +60,10 @@ export const CameraControlsSection = ({ equipment }: { equipment: EquipmentItem 
             {zeilen.map((z) => (
               <tr key={z.control} className="border-b border-cp-border-muted">
                 <td className={`py-0.5 pr-2 ${TON[z.support]}`}>
-                  {CAMERA_CONTROL_LABEL[z.control]}
+                  {t(`camera.control.${z.control}`, CAMERA_CONTROL_LABEL[z.control])}
                 </td>
                 <td className={`py-0.5 text-right ${TON[z.support]}`}>
-                  {CONTROL_SUPPORT_LABEL[z.support]}
+                  {t(`camera.support.${z.support}`, CONTROL_SUPPORT_LABEL[z.support])}
                 </td>
               </tr>
             ))}

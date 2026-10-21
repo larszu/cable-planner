@@ -192,8 +192,8 @@ describe('handoverSignatureTable', () => {
     // und dann unterschreibt wieder niemand.
     const rows = handoverSignatureTable(beleg()).rows
     expect(rows).toHaveLength(2)
-    expect(rows[0][1]).toBe(LEG_LABEL.out)
-    expect(rows[1][1]).toBe(LEG_LABEL.in)
+    expect(rows[0][1]).toBe('Ausgabe') // kanonisch deutsch
+    expect(rows[1][1]).toBe('Rückgabe')
   })
 
   it('setzt die STRICHLINIE, wo niemand unterschrieben hat', () => {

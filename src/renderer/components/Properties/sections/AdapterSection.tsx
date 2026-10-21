@@ -132,7 +132,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
             >
               {ADAPTER_RICHTUNGEN.map((r) => (
                 <option key={r} value={r}>
-                  {ADAPTER_RICHTUNG_LABEL[r]}
+                  {t(`adapter.direction.${r}`, ADAPTER_RICHTUNG_LABEL[r])}
                 </option>
               ))}
             </select>
@@ -153,7 +153,7 @@ export const AdapterSection = ({ equipment }: { equipment: EquipmentItem }) => {
             >
               {ADAPTER_SPEISUNGEN.map((s) => (
                 <option key={s} value={s}>
-                  {ADAPTER_SPEISUNG_LABEL[s]}
+                  {t(`adapter.powering.${s}`, ADAPTER_SPEISUNG_LABEL[s])}
                 </option>
               ))}
             </select>

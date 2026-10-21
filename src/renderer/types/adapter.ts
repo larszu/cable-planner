@@ -67,9 +67,9 @@ export type AdapterRichtung =
   | 'unbekannt'
 
 export const ADAPTER_RICHTUNG_LABEL = {
-  einweg: 'nur in eine Richtung',
-  beidseitig: 'in beide Richtungen',
-  unbekannt: 'nicht erklärt',
+  einweg: 'one direction only',
+  beidseitig: 'both directions',
+  unbekannt: 'not stated',
 } satisfies Record<AdapterRichtung, string>
 
 export const ADAPTER_RICHTUNG_HINWEIS = {
@@ -95,10 +95,10 @@ export type AdapterSpeisung =
   | 'unbekannt'
 
 export const ADAPTER_SPEISUNG_LABEL = {
-  passiv: 'passiv (kein Strom)',
-  'aktiv-extern': 'aktiv, eigene Einspeisung',
-  'aktiv-aus-quelle': 'aktiv, Strom aus der Quelle',
-  unbekannt: 'nicht erklärt',
+  passiv: 'passive (no power)',
+  'aktiv-extern': 'active, own power supply',
+  'aktiv-aus-quelle': 'active, powered by the source',
+  unbekannt: 'not stated',
 } satisfies Record<AdapterSpeisung, string>
 
 export const ADAPTER_SPEISUNG_HINWEIS = {

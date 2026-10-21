@@ -32,10 +32,10 @@ export const ANHANG_ARTEN: readonly AnhangArt[] = ['messprotokoll', 'herstelleru
 
 /** Kanonisch deutsch — für die gestempelte Liste. Die Oberfläche übersetzt selbst. */
 export const ANHANG_ART_LABEL: Readonly<Record<AnhangArt, string>> = {
-  messprotokoll: 'Messprotokoll',
-  herstellerunterlage: 'Herstellerunterlage',
-  'konfig-backup': 'Konfigurations-Sicherung',
-  sonstiges: 'Sonstiges',
+  messprotokoll: 'Test report',
+  herstellerunterlage: 'Manufacturer document',
+  'konfig-backup': 'Configuration backup',
+  sonstiges: 'Other',
 }
 
 export interface ProjektAnhang {

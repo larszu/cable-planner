@@ -115,7 +115,7 @@ export const OscEmpfangPanel = () => {
         }`}
       >
         <div className="font-semibold">
-          {t('osc.state', 'Listener')}: {LAUSCHER_LAGE_LABEL[zustand.lage]}
+          {t('osc.state', 'Listener')}: {t(`osc.listenerState.${zustand.lage}`, LAUSCHER_LAGE_LABEL[zustand.lage])}
           {zustand.adresse ? ` — ${zustand.adresse}:${zustand.port ?? ''}` : ''}
         </div>
         {zustand.grund && <div className="mt-0.5">{zustand.grund}</div>}

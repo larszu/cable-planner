@@ -74,6 +74,7 @@ import { salvoChanges } from './salvoSheet'
 import type { EquipmentItem, VideohubCrosspoints } from '../types/equipment'
 import type { Cable } from '../types/cable'
 import type { CsvTable } from './csv'
+import { kanonisch } from './kanonisch'
 
 /** Woher eine Ablesung stammt. */
 export type ReadingSource =
@@ -100,13 +101,13 @@ export type ReadingSource =
   | 'companion'
 
 export const READING_SOURCE_LABEL: Readonly<Record<ReadingSource, string>> = {
-  'network-scan': 'Netz-Scan',
-  atem: 'Mischer',
+  'network-scan': 'Network scan',
+  atem: 'Switcher',
   videohub: 'Router',
-  erp: 'Vermietung',
-  'field-check': 'Aufbau vor Ort',
-  manual: 'von Hand',
-  companion: 'Companion-Variable',
+  erp: 'Rental',
+  'field-check': 'On-site check',
+  manual: 'by hand',
+  companion: 'Companion variable',
 }
 
 /** Das Urteil einer Zeile. */
@@ -123,11 +124,11 @@ export type AsBuiltVerdict =
   | 'not-verified'
 
 export const AS_BUILT_VERDICT_LABEL: Readonly<Record<AsBuiltVerdict, string>> = {
-  match: 'stimmt überein',
-  differs: 'weicht ab',
-  missing: 'im Plan, nicht vorgefunden',
-  unexpected: 'vorgefunden, nicht im Plan',
-  'not-verified': 'nicht nachgesehen',
+  match: 'matches',
+  differs: 'differs',
+  missing: 'in the plan, not found',
+  unexpected: 'found, not in the plan',
+  'not-verified': 'not checked',
 }
 
 /** Was auf dem Blatt steht, wo eine Seite nichts sagt. */
@@ -193,8 +194,8 @@ export function asBuiltTable(entries: readonly AsBuiltEntry[]): CsvTable {
       e.field,
       e.planned?.trim() || NOT_STATED,
       e.actual?.trim() || NOT_STATED,
-      AS_BUILT_VERDICT_LABEL[asBuiltVerdict(e)],
-      READING_SOURCE_LABEL[e.source],
+      kanonisch(`asBuilt.verdict.${asBuiltVerdict(e)}`, AS_BUILT_VERDICT_LABEL[asBuiltVerdict(e)]),
+      kanonisch(`asBuilt.source.${e.source}`, READING_SOURCE_LABEL[e.source]),
       datum(e.at),
     ])
   return { headers: [...AS_BUILT_HEADERS], rows }

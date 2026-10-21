@@ -13,6 +13,7 @@ import { standortText } from './equipmentLocation'
 import type { CsvCell, CsvTable } from './csv'
 import { csvFromTable, type DocumentStamp } from './documentStamp'
 import { primaryVlanId } from './vlanAnzeige'
+import { kanonisch } from './kanonisch'
 
 export interface AssetRow {
   assetTag: string
@@ -51,7 +52,7 @@ export const buildAssetRows = (project: CablePlannerProject): AssetRow[] =>
       ip: e.ipAddress ?? '',
       vlan: primaryVlanId(e) ?? '',
       firmware: e.firmware ?? '',
-      status: e.installStatus ? INSTALL_STATUS_LABEL[e.installStatus] : '',
+      status: e.installStatus ? kanonisch(`lifecycle.status.${e.installStatus}`, INSTALL_STATUS_LABEL[e.installStatus]) : '',
       ownership: e.ownership ? EQUIPMENT_OWNERSHIP_LABEL[e.ownership] : '',
       stockLocation: e.stockLocation ?? '',
       supplier: e.supplier ?? '',

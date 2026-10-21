@@ -8,9 +8,9 @@
 // Schlüssel, ein zusammengesetzter fiel ihm nicht auf. Jetzt steht jeder
 // einzeln da, mit englischer Quelle.
 //
-// `INSTALL_STATUS_LABEL` bleibt, was es ist: die kanonische deutsche Form
-// für gestempelte Tabellen, deren Fingerabdruck nicht von der Sprache
-// abhängen darf.
+// `INSTALL_STATUS_LABEL` trägt seit #1128 die englische Quelle; gestempelte
+// Tabellen, deren Fingerabdruck nicht von der Sprache abhängen darf, holen
+// die deutsche Form über `kanonisch()` (lib/kanonisch.ts).
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { InstallStatus } from '../types/lifecycle'

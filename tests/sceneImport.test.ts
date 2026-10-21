@@ -62,7 +62,7 @@ describe('parseSceneFile — das Format aus dem Beleg', () => {
     // „nicht erkannt": jemand suchte den Fehler beim falschen Pult.
     const s = parseSceneFile('irgendwas\n')
     expect(s.format).toBe('unknown')
-    expect(SCENE_FORMAT_LABEL.unknown).toBe('nicht erkannt')
+    expect(SCENE_FORMAT_LABEL.unknown).toBe('not recognised')
   })
 
   it('zählt unlesbare Kanalzeilen, statt sie still zu schlucken', () => {

@@ -268,7 +268,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                 >
                   {CONTROL_TARGETS.map((k) => (
                     <option key={k} value={k}>
-                      {CONTROL_TARGET_LABEL[k]}
+                      {t(`switching.targetKind.${k}`, CONTROL_TARGET_LABEL[k])}
                     </option>
                   ))}
                 </select>

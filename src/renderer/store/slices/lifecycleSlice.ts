@@ -14,6 +14,7 @@ import { sourceDestLabel } from '../../lib/cableLabel'
 import { touchProject } from '../projectStoreHelpers'
 import { useSettingsStore } from '../settingsStore'
 import type { ProjectState } from '../projectStore'
+import { kanonisch } from '../../lib/kanonisch'
 
 /**
  * Festinstallation — Lebenszyklus-Slice (mitwachsende Doku).
@@ -90,7 +91,7 @@ export const createLifecycleSlice: StateCreator<ProjectState, [], [], LifecycleS
           c.id === id ? { ...c, installStatus: status } : c,
         ),
       }
-      const label = status ? INSTALL_STATUS_LABEL[status] : 'kein Status'
+      const label = status ? kanonisch(`lifecycle.status.${status}`, INSTALL_STATUS_LABEL[status]) : 'kein Status'
       return {
         project: touchProject(
           appendLog(next, 'status', `Kabel „${cableLabelId(cable)}" → ${label}`, {
@@ -112,7 +113,7 @@ export const createLifecycleSlice: StateCreator<ProjectState, [], [], LifecycleS
           e.id === id ? { ...e, installStatus: status } : e,
         ),
       }
-      const label = status ? INSTALL_STATUS_LABEL[status] : 'kein Status'
+      const label = status ? kanonisch(`lifecycle.status.${status}`, INSTALL_STATUS_LABEL[status]) : 'kein Status'
       return {
         project: touchProject(
           appendLog(next, 'status', `Gerät „${eq.name}" → ${label}`, {

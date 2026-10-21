@@ -127,8 +127,8 @@ describe('abhaken statt scannen — der Weg ohne Code', () => {
     expect(einheit, 'die Fixture-Einheit fehlt in der Liste').toBeTruthy()
     expect(auditPick(einheit!, 'a3', lager()).via).toBe('pick')
     expect(auditPick(einheit!, 'a3', lager()).unitId).toBe('u1')
-    expect(AUDIT_VIA_LABEL.scan).toBe('gescannt')
-    expect(AUDIT_VIA_LABEL.pick).toBe('aus der Liste')
+    expect(AUDIT_VIA_LABEL.scan).toBe('scanned')
+    expect(AUDIT_VIA_LABEL.pick).toBe('from the list')
   })
 
   it('erfindet kein Objekt, wenn der Eintrag im Bestand fehlt', () => {

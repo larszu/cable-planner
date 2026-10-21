@@ -59,6 +59,7 @@ import type { EquipmentItem } from '../types/equipment'
 import { cableLabelId } from './docIds'
 import { csvFromTable, planFingerprint } from './documentStamp'
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch } from './kanonisch'
 
 /**
  * Was eine Feld-Aenderung fuer die Arbeit bedeutet.
@@ -705,22 +706,22 @@ export const planDiffSummary = (diff: PlanDiff): string => {
 }
 
 const CHANGE_LABEL: Record<EntityChange['change'], string> = {
-  removed: 'entfällt',
-  added: 'neu',
-  modified: 'geändert',
+  removed: 'removed',
+  added: 'new',
+  modified: 'changed',
 }
 
 const KIND_LABEL: Record<EntityChange['kind'], string> = {
-  equipment: 'Gerät',
-  cable: 'Kabel',
+  equipment: 'Device',
+  cable: 'Cable',
 }
 
 const CLASS_LABEL: Record<FieldClass, string> = {
-  identity: 'Identität',
-  substantive: 'inhaltlich',
-  cosmetic: 'Darstellung',
-  bookkeeping: 'Herkunft',
-  sensitive: 'Zugangsdaten',
+  identity: 'Identity',
+  substantive: 'content',
+  cosmetic: 'appearance',
+  bookkeeping: 'origin',
+  sensitive: 'credentials',
 }
 
 /**
@@ -754,8 +755,8 @@ export const planDiffTable = (
   for (const entity of diff.entities) {
     if (entity.fields.length === 0) {
       rows.push([
-        CHANGE_LABEL[entity.change],
-        KIND_LABEL[entity.kind],
+        kanonisch(`planDiff.change.${entity.change}`, CHANGE_LABEL[entity.change]),
+        kanonisch(`planDiff.kind.${entity.kind}`, KIND_LABEL[entity.kind]),
         entity.label,
         '',
         '',
@@ -766,11 +767,11 @@ export const planDiffTable = (
     }
     for (const field of entity.fields) {
       rows.push([
-        CHANGE_LABEL[entity.change],
-        KIND_LABEL[entity.kind],
+        kanonisch(`planDiff.change.${entity.change}`, CHANGE_LABEL[entity.change]),
+        kanonisch(`planDiff.kind.${entity.kind}`, KIND_LABEL[entity.kind]),
         entity.label,
         field.field,
-        CLASS_LABEL[field.klass],
+        kanonisch(`planDiff.class.${field.klass}`, CLASS_LABEL[field.klass]),
         field.before ?? '',
         field.after ?? '',
       ])

@@ -711,7 +711,7 @@ export const PatchListDialog = () => {
           <ul className="mb-2 flex flex-col gap-1 text-cp-xs">
             {identitaetsBefunde.map((f, i) => (
               <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                <strong>{CHANNEL_IDENTITY_LABEL[f.kind]}</strong> — {f.text}
+                <strong>{t(`channelIdentity.finding.${f.kind}`, CHANNEL_IDENTITY_LABEL[f.kind])}</strong> — {f.text}
                 {f.channels.length > 0 && (
                   <span className="text-cp-text-muted"> (Ch {f.channels.join(', ')})</span>
                 )}
@@ -731,7 +731,7 @@ export const PatchListDialog = () => {
                 {t('scene.title', 'Console scene file')}
               </span>
               <span className="text-cp-text-secondary">
-                {SCENE_FORMAT_LABEL[szeneAktuell.format]} ·{' '}
+                {t(`scene.format.${szeneAktuell.format}`, SCENE_FORMAT_LABEL[szeneAktuell.format])} ·{' '}
                 {t('scene.channelCount', '{n} channels').replace(
                   '{n}',
                   String(szeneAktuell.channels.length),
@@ -816,7 +816,7 @@ export const PatchListDialog = () => {
                 {szeneDiff.map((d) => (
                   <li key={`${d.ch}-${d.kind}`}>
                     <span className="tabular-nums text-cp-text-faint">Ch {d.ch}</span>{' '}
-                    <span className="text-amber-300/90">{SCENE_DIFF_LABEL[d.kind]}</span>{' '}
+                    <span className="text-amber-300/90">{t(`scene.diff.${d.kind}`, SCENE_DIFF_LABEL[d.kind])}</span>{' '}
                     {d.kind === 'recolored'
                       ? `${d.beforeColor ?? '—'} → ${d.afterColor ?? '—'}`
                       : `${d.before || '—'} → ${d.after || '—'}`}

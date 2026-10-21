@@ -30,12 +30,12 @@ export const INSTALL_STATUSES: InstallStatus[] = [
 
 /** Deutsche Default-Labels (UI heilt EN über i18n nach). */
 export const INSTALL_STATUS_LABEL: Record<InstallStatus, string> = {
-  planned: 'Geplant',
-  installed: 'Installiert',
-  tested: 'Getestet',
-  operational: 'In Betrieb',
-  fault: 'Störung',
-  retired: 'Außer Betrieb',
+  planned: 'Planned',
+  installed: 'Installed',
+  tested: 'Tested',
+  operational: 'Operational',
+  fault: 'Fault',
+  retired: 'Retired',
 }
 
 /**

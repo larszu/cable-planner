@@ -44,6 +44,7 @@ import { unitLabel } from './unitIdentity'
 import { resolveInventoryCode, type ScanSources } from './inventoryScan'
 import { descendantNodeIds, nodePathLabel } from './storageTree'
 import type { CsvCell, CsvTable } from '../../lib/csv'
+import { kanonisch } from '../../lib/kanonisch'
 
 export type AuditOutcome =
   /** Der Datensatz sagt: liegt hier (oder in einem Behaelter hier drin). */
@@ -74,8 +75,8 @@ export type AuditOutcome =
 export type AuditVia = 'scan' | 'pick'
 
 export const AUDIT_VIA_LABEL: Record<AuditVia, string> = {
-  scan: 'gescannt',
-  pick: 'aus der Liste',
+  scan: 'scanned',
+  pick: 'from the list',
 }
 
 /** Was in der Code-Spalte steht, wo es keinen Code gab. */
@@ -340,8 +341,8 @@ export function auditTable(
     headers: ['Ergebnis', 'Wie erfasst', 'Code', 'Objekt', 'Modell', 'Erwartet in', 'Geprüft an'],
     rows: [
       ...hits.map((h): CsvCell[] => [
-        AUDIT_LABEL[h.outcome],
-        AUDIT_VIA_LABEL[h.via],
+        kanonisch(`inventory.auditOutcome.${h.outcome}`, AUDIT_LABEL[h.outcome]),
+        kanonisch(`inventory.auditVia.${h.via}`, AUDIT_VIA_LABEL[h.via]),
         // Ein Listen-Haken hat keinen Code. Die Zelle bleibt nicht leer: eine
         // leere Zelle liest sich, als sei der Code vergessen worden.
         h.via === 'pick' ? NO_CODE : h.code,
@@ -369,11 +370,11 @@ export function auditTable(
 
 /** Kanonisches Deutsch fuer das Blatt — der Stand haengt am Inhalt. */
 export const AUDIT_LABEL: Record<AuditOutcome, string> = {
-  'expected-here': 'Am erwarteten Ort',
-  'wrong-place': 'Am falschen Ort',
-  'no-location': 'Ohne Lagerort im Datensatz',
-  'not-in-inventory': 'Nicht im Bestand',
-  'is-a-location': 'Das ist ein Lagerort, kein Objekt',
+  'expected-here': 'At the expected place',
+  'wrong-place': 'At the wrong place',
+  'no-location': 'No storage location in the record',
+  'not-in-inventory': 'Not in stock',
+  'is-a-location': 'That is a storage location, not an item',
 }
 
 /**

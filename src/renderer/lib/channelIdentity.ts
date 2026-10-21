@@ -208,10 +208,10 @@ export function venueNumber(row: ChannelRow): string {
 export type ChannelIdentityKind = 'no-port' | 'bare-name' | 'port-duplicate' | 'no-name'
 
 export const CHANNEL_IDENTITY_LABEL: Readonly<Record<ChannelIdentityKind, string>> = {
-  'no-port': 'Kanal ohne Haus-Port',
-  'bare-name': 'Nummer statt Name',
-  'port-duplicate': 'Zwei Kanäle auf demselben Port',
-  'no-name': 'Kanal ganz ohne Namen',
+  'no-port': 'Channel without a house port',
+  'bare-name': 'Number instead of a name',
+  'port-duplicate': 'Two channels on the same port',
+  'no-name': 'Channel without any name',
 }
 
 export interface ChannelIdentityFinding {

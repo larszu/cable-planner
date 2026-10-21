@@ -38,6 +38,7 @@ import {
   type UnitEvent,
 } from '../types/inventory'
 import type { CsvTable } from '../../lib/csv'
+import { kanonisch } from '../../lib/kanonisch'
 
 /** Die Fehler-Ereignisse einer Einheit, juengste zuerst. */
 export const faultsOf = (unit: InventoryUnit): UnitEvent[] =>
@@ -125,7 +126,7 @@ export function faultTable(
       s.open,
       s.total,
       s.services.length > 0
-        ? s.services.map((x) => FAULT_SERVICE_LABEL[x]).join(', ')
+        ? s.services.map((x) => kanonisch(`fault.service.${x}`, FAULT_SERVICE_LABEL[x])).join(', ')
         : NO_SERVICE,
       s.lastAt || NO_DATE,
     ]),

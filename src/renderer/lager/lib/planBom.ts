@@ -26,6 +26,7 @@ import type { CheckoutRecord } from '../types/checkout'
 import type { ZusatzBedarf } from '../../lib/planDemandExtras'
 import { nodePathLabel } from './storageTree'
 import { toCsv } from '../../lib/csv'
+import { kanonisch } from '../../lib/kanonisch'
 
 export interface PlanBomRow {
   /** Anzahl im Plan. */
@@ -91,9 +92,9 @@ export interface PlanBom {
 }
 
 const OUTCOME_LABEL: Record<CoverageOutcome, string> = {
-  'matched-by-type': 'gedeckt',
-  'proposed-by-name': 'VORSCHLAG',
-  unmatched: 'nicht im Lager',
+  'matched-by-type': 'covered',
+  'proposed-by-name': 'PROPOSAL',
+  unmatched: 'not in stock',
 }
 
 /** Klartext für Papier und CSV — die drei Zustände bleiben unterscheidbar. */
@@ -207,7 +208,7 @@ export const planBomCsv = (bom: PlanBom): string =>
       r.quantity,
       r.model,
       r.category ?? '',
-      outcomeLabel(r.outcome),
+      kanonisch(`planBom.outcome.${r.outcome}`, outcomeLabel(r.outcome)),
       r.stock ?? '',
       r.available ?? '',
       r.commitmentNote ?? '',

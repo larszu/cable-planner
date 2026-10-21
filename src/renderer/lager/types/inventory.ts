@@ -499,11 +499,11 @@ export type FaultService = 'video' | 'returnVideo' | 'comms' | 'tally' | 'contro
 
 export const FAULT_SERVICE_LABEL: Readonly<Record<FaultService, string>> = {
   video: 'Video',
-  returnVideo: 'Rückvideo',
+  returnVideo: 'Return video',
   comms: 'Comms',
   tally: 'Tally',
-  control: 'Steuerung',
-  power: 'Strom',
+  control: 'Control',
+  power: 'Power',
 }
 
 /**

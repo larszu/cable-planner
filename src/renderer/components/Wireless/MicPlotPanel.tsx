@@ -176,7 +176,7 @@ export const MicPlotPanel = () => {
         <ul className="mb-2 flex flex-col gap-1 text-cp-xs">
           {befunde.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{MIC_FINDING_LABEL[f.kind]}</strong> — {f.text}
+              <strong>{t(`mic.finding.${f.kind}`, MIC_FINDING_LABEL[f.kind])}</strong> — {f.text}
             </li>
           ))}
         </ul>

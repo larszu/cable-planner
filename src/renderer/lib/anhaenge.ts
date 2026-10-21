@@ -23,6 +23,7 @@ import type { CablePlannerProject } from '../types/project'
 import { ANHANG_ARTEN, ANHANG_ART_LABEL, type AnhangArt, type AnhangDatei, type ProjektAnhang } from '../types/anhang'
 import type { CsvCell, CsvTable } from './csv'
 import { vergleich } from './druckblatt'
+import { kanonisch } from './kanonisch'
 
 const text = (v: unknown): v is string => typeof v === 'string' && v.trim() !== ''
 
@@ -104,7 +105,7 @@ export const anhaengeTable = (project: CablePlannerProject): CsvTable => {
   const zeilen: CsvCell[][] = (project.anhaenge ?? []).map((a) => {
     const name = zielName(project, a.ziel)
     return [
-      ANHANG_ART_LABEL[a.art],
+      kanonisch(`anhang.kind.${a.art}`, ANHANG_ART_LABEL[a.art]),
       a.titel || a.datei.fileName,
       name ?? '',
       a.datei.storedAs,
@@ -117,7 +118,7 @@ export const anhaengeTable = (project: CablePlannerProject): CsvTable => {
   const kabel = new Map(project.cables.map((c) => [c.id, c]))
   for (const id of messungenOhneProtokoll(project)) {
     const c = kabel.get(id)!
-    zeilen.push([ANHANG_ART_LABEL.messprotokoll, '', c.cableNumber || c.name || c.id, '', '', '', '', 'Messung eingetragen, Protokoll fehlt'])
+    zeilen.push([kanonisch('anhang.kind.messprotokoll', ANHANG_ART_LABEL.messprotokoll), '', c.cableNumber || c.name || c.id, '', '', '', '', 'Messung eingetragen, Protokoll fehlt'])
   }
   zeilen.sort(
     (a, b) =>
