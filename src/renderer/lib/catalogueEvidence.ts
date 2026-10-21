@@ -50,6 +50,18 @@ import { RIG_CATALOG } from './rigCatalog'
 import { FIXTURE_CATALOG } from './fixtureCatalog'
 import { DECIMATOR_CATALOG } from './decimatorCatalog'
 import { BROMPTON_CATALOG } from './bromptonCatalog'
+import { PIXELHUE_CATALOG } from './pixelhueCatalog'
+import { BARCO_CATALOG } from './barcoCatalog'
+import { PIXERA_CATALOG } from './pixeraCatalog'
+import { CHRISTIE_LANG_CATALOG } from './christieLangCatalog'
+import { PROJECTOR_CATALOG } from './projectorCatalog'
+import { LANG_IMAGE_CATALOG } from './langImageCatalog'
+import { LANG_LED_CATALOG } from './langLedCatalog'
+import { EVENT_NACHTRAG_CATALOG } from './eventNachtragCatalog'
+import { SIGNAL_NACHTRAG_CATALOG } from './signalNachtragCatalog'
+import { BROADCAST_NACHTRAG_CATALOG } from './broadcastNachtragCatalog'
+import { LANG_PROJ_DISPLAY_CATALOG } from './langProjDisplayCatalog'
+import { LANG_BROADCAST_CATALOG } from './langBroadcastCatalog'
 import { CLEARCOM_CATALOG } from './clearcomCatalog'
 import { LUMINEX_CATALOG } from './luminexCatalog'
 import { NETGEAR_AV_CATALOG } from './netgearAvCatalog'
@@ -107,6 +119,18 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'lens', entries: LENS_CATALOG },
   { name: 'rig', entries: RIG_CATALOG },
   { name: 'brompton', entries: BROMPTON_CATALOG },
+  { name: 'pixelhue', entries: PIXELHUE_CATALOG },
+  { name: 'barco', entries: BARCO_CATALOG },
+  { name: 'pixera', entries: PIXERA_CATALOG },
+  { name: 'christieLang', entries: CHRISTIE_LANG_CATALOG },
+  { name: 'projector', entries: PROJECTOR_CATALOG },
+  { name: 'langImage', entries: LANG_IMAGE_CATALOG },
+  { name: 'langLed', entries: LANG_LED_CATALOG },
+  { name: 'eventNachtrag', entries: EVENT_NACHTRAG_CATALOG },
+  { name: 'signalNachtrag', entries: SIGNAL_NACHTRAG_CATALOG },
+  { name: 'broadcastNachtrag', entries: BROADCAST_NACHTRAG_CATALOG },
+  { name: 'langProjDisplay', entries: LANG_PROJ_DISPLAY_CATALOG },
+  { name: 'langBroadcast', entries: LANG_BROADCAST_CATALOG },
   { name: 'clearcom', entries: CLEARCOM_CATALOG },
   { name: 'lightware', entries: LIGHTWARE_CATALOG },
   { name: 'luminex', entries: LUMINEX_CATALOG },

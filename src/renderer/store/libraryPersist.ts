@@ -45,6 +45,8 @@ export const DEFAULT_CATEGORIES = [
   // #878 nennt den Bereich, der bei null stand. `ledProcessorCatalog` hat
   // ihn eroeffnet, `bromptonCatalog` fuehrt ihn fort.
   'LED Processing',
+  'Projectors',
+  'Media Server',
   'Multiviewer',
   'Power',
   'Rigging',

@@ -19,6 +19,18 @@ import { RIG_CATALOG } from './rigCatalog'
 import { FIXTURE_CATALOG } from './fixtureCatalog'
 import { DECIMATOR_CATALOG } from './decimatorCatalog'
 import { BROMPTON_CATALOG } from './bromptonCatalog'
+import { PIXELHUE_CATALOG } from './pixelhueCatalog'
+import { BARCO_CATALOG } from './barcoCatalog'
+import { PIXERA_CATALOG } from './pixeraCatalog'
+import { CHRISTIE_LANG_CATALOG } from './christieLangCatalog'
+import { PROJECTOR_CATALOG } from './projectorCatalog'
+import { LANG_IMAGE_CATALOG } from './langImageCatalog'
+import { LANG_LED_CATALOG } from './langLedCatalog'
+import { EVENT_NACHTRAG_CATALOG } from './eventNachtragCatalog'
+import { SIGNAL_NACHTRAG_CATALOG } from './signalNachtragCatalog'
+import { BROADCAST_NACHTRAG_CATALOG } from './broadcastNachtragCatalog'
+import { LANG_PROJ_DISPLAY_CATALOG } from './langProjDisplayCatalog'
+import { LANG_BROADCAST_CATALOG } from './langBroadcastCatalog'
 import { CLEARCOM_CATALOG } from './clearcomCatalog'
 import { LUMINEX_CATALOG } from './luminexCatalog'
 import { NETGEAR_AV_CATALOG } from './netgearAvCatalog'
@@ -100,6 +112,24 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
   }
   for (const e of BROMPTON_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const c of [
+    PIXELHUE_CATALOG,
+    BARCO_CATALOG,
+    PIXERA_CATALOG,
+    CHRISTIE_LANG_CATALOG,
+    PROJECTOR_CATALOG,
+    LANG_IMAGE_CATALOG,
+    LANG_LED_CATALOG,
+    EVENT_NACHTRAG_CATALOG,
+    SIGNAL_NACHTRAG_CATALOG,
+    BROADCAST_NACHTRAG_CATALOG,
+    LANG_PROJ_DISPLAY_CATALOG,
+    LANG_BROADCAST_CATALOG,
+  ]) {
+    for (const e of c) {
+      put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+    }
   }
   for (const e of CLEARCOM_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId }, kind: undefined })
@@ -216,6 +246,24 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
   }
   for (const e of BROMPTON_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+  }
+  for (const c of [
+    PIXELHUE_CATALOG,
+    BARCO_CATALOG,
+    PIXERA_CATALOG,
+    CHRISTIE_LANG_CATALOG,
+    PROJECTOR_CATALOG,
+    LANG_IMAGE_CATALOG,
+    LANG_LED_CATALOG,
+    EVENT_NACHTRAG_CATALOG,
+    SIGNAL_NACHTRAG_CATALOG,
+    BROADCAST_NACHTRAG_CATALOG,
+    LANG_PROJ_DISPLAY_CATALOG,
+    LANG_BROADCAST_CATALOG,
+  ]) {
+    for (const e of c) {
+      put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })
+    }
   }
   for (const e of CLEARCOM_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })

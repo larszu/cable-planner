@@ -77,6 +77,8 @@ const BUILTIN_EN_TO_DE: Record<string, string> = {
   Networking: 'Netzwerk',
   Cables: 'Kabel',
   'Patch panels': 'Patchfelder',
+  Projectors: 'Projektoren',
+  'Media Server': 'Medienserver',
   'Patch panels (adapter)': 'Patchfelder (Adapter)',
   Power: 'Strom',
   Rigging: 'Rigging',

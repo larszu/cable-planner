@@ -212,6 +212,11 @@ export type ConnectorType =
   | 'RJ11'
   | 'QSFP'
   | 'QSFP28'
+  // 25GbE (PIXERA four RS), 400G-Uplinks und Thunderbolt-Capture: im
+  // Event-/Verleihkatalog 2026-10-21 als eigene Bauform gebraucht.
+  | 'SFP28'
+  | 'QSFP-DD'
+  | 'Thunderbolt'
   | 'USB Mini-B'
   | 'USB Micro-B'
   | 'DB15'
@@ -270,7 +275,7 @@ export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt',
   // 2026-09-24 — Gleichstand mit `connectorCatalog.ts` (36) und die
   // Vokabel-Luecken aus der Installations-AV (33). Siehe Kopf der Union.
-  'XLR 3 Male', 'XLR 3 Female', 'Combo XLR/Jack', 'speakON 2 Pole', 'speakON 4 Pole', 'Binding Post', 'XLR 4 Male', 'XLR 4 Female', 'XLR 5 Male', 'XLR 5 Female', 'XLR 6 Male', 'XLR 6 Female', 'XLR 7 Male', 'XLR 7 Female', 'MIDI', 'S-VHS', 'USB Type A', 'USB Type B', 'USB 3 Type A', 'USB 3 Type B', 'FireWire 400', 'FireWire 800', 'PS/2', 'Fiber Optic LC', 'Fiber Optic SC', 'Fiber Optic ST', 'Toslink', 'opticalCON DUO', 'opticalCON QUAD', 'powerCON Input', 'powerCON Output', 'Lemo', 'Tourine 25', 'Tourine 37', 'Generic', 'Blanking Panel', 'Phoenix/Euroblock', 'Terminal Block', 'Bare Wire', 'etherCON', 'RJ11', 'QSFP', 'QSFP28', 'USB Mini-B', 'USB Micro-B', 'DB15', 'DB37', 'Mini-DIN 4', 'Mini-DIN 7', 'Mini-DIN 8', 'DIN 5-pol', 'Mini-DisplayPort', 'MPO', 'NEMA 5-15 (Edison)', 'NEMA L5-20', 'NEMA L6-20', 'NEMA L6-30', 'NEMA L21-30', 'IEC C15', 'IEC C20', 'powerCON TRUE1', 'Cam-Lok', 'DC Barrel', 'PCIe 6-pin', 'V-Mount', 'D-Tap', 'SMA', 'RP-TNC', 'Multipin',
+  'XLR 3 Male', 'XLR 3 Female', 'Combo XLR/Jack', 'speakON 2 Pole', 'speakON 4 Pole', 'Binding Post', 'XLR 4 Male', 'XLR 4 Female', 'XLR 5 Male', 'XLR 5 Female', 'XLR 6 Male', 'XLR 6 Female', 'XLR 7 Male', 'XLR 7 Female', 'MIDI', 'S-VHS', 'USB Type A', 'USB Type B', 'USB 3 Type A', 'USB 3 Type B', 'FireWire 400', 'FireWire 800', 'PS/2', 'Fiber Optic LC', 'Fiber Optic SC', 'Fiber Optic ST', 'Toslink', 'opticalCON DUO', 'opticalCON QUAD', 'powerCON Input', 'powerCON Output', 'Lemo', 'Tourine 25', 'Tourine 37', 'Generic', 'Blanking Panel', 'Phoenix/Euroblock', 'Terminal Block', 'Bare Wire', 'etherCON', 'RJ11', 'QSFP', 'QSFP28', 'SFP28', 'QSFP-DD', 'Thunderbolt', 'USB Mini-B', 'USB Micro-B', 'DB15', 'DB37', 'Mini-DIN 4', 'Mini-DIN 7', 'Mini-DIN 8', 'DIN 5-pol', 'Mini-DisplayPort', 'MPO', 'NEMA 5-15 (Edison)', 'NEMA L5-20', 'NEMA L6-20', 'NEMA L6-30', 'NEMA L21-30', 'IEC C15', 'IEC C20', 'powerCON TRUE1', 'Cam-Lok', 'DC Barrel', 'PCIe 6-pin', 'V-Mount', 'D-Tap', 'SMA', 'RP-TNC', 'Multipin',
   'Custom',
 ]
 
