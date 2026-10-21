@@ -62,6 +62,11 @@
 - **Every list for the build day.** Pull list, patch list, termination list,
   BOM, patch sheets, faceplates, acceptance record, QR labels — one report
   editor, preview equals export.
+- **Patch panel labels.** The network analysis prints label strips for every
+  patch panel at 1:1 (RJ45 24-port, blocks of 12, D-series 16) showing the
+  device behind each port, exports them for Brother P-touch or Dymo, and
+  checks panels against the rack builder: panel not in a rack, empty panel,
+  uneven front/rear, cable on a blank, switch port bypassing the panel.
 - **Drum micing in a few clicks.** Pick a technique preset (minimal, Glyn
   Johns, Recorderman, full close-mic) and a subsnake size: channels are
   patched to the subsnake in order, with patch list and cable-end labels

@@ -50,10 +50,9 @@ import { SCENE_FORMAT_LABEL, type SceneImport } from '../../types/sceneImport'
 import type { Cable } from '../../types/cable'
 import type { EquipmentItem, Port } from '../../types/equipment'
 import { PanelHint } from '../shared/PanelHint'
+import { buildLabelCsv, type LabelCsvFormat, type LabelRow } from '../../lib/labelPrinterCsv'
 
 type SortKey = 'number' | 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
-/** #349 — Spalten-/Trenner-Profil fuer gaengige Etiketten-Drucker-Software. */
-type LabelCsvFormat = 'generic' | 'brother' | 'dymo'
 
 interface PatchRow {
   cableId: string
@@ -509,20 +508,8 @@ export const PatchListDialog = () => {
   // ASCII-sicher via sanitizeForPdf, weil viele Drucker-Tools UTF-8 nur
   // halbherzig importieren. Trenner/Spalten je Ziel-Format.
   const exportLabelCsv = (format: LabelCsvFormat) => {
-    const ascii = (v: unknown) => sanitizeForPdf(String(v ?? ''))
-    // Brother P-touch Editor erwartet historisch TAB-getrennt; Dymo + der
-    // generische Fall nutzen Komma. Excel-Kompat ist hier zweitrangig — die
-    // Datei geht in die Drucker-Software, nicht in Excel.
-    const sep = format === 'brother' ? '\t' : ','
-    const escape = (v: unknown) => {
-      const s = ascii(v)
-      // Bei Komma-Trennung quoten wenn noetig; TAB-Felder nie quoten.
-      if (sep === '\t') return s.replace(/\t/g, ' ')
-      return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
-    }
     // Ein "Etikett" = ein Kabelende. label1 = grosse Zeile (Nummer/Typ),
     // label2 = Strecke aus Sicht dieses Endes, meta = Laenge.
-    type LabelRow = { label1: string; label2: string; meta: string; color: string }
     // #410 — Geschlecht ASCII-tauglich (♂/♀ wuerde sanitizeForPdf strippen).
     const g = (sym: string) => (sym === '♂' ? ' (M)' : sym === '♀' ? ' (F)' : '')
     const labelRows: LabelRow[] = filtered.flatMap((r) => {
@@ -535,18 +522,11 @@ export const PatchListDialog = () => {
         { label1: num, label2: `${toEnd} -> ${fromEnd}`, meta, color: r.color },
       ]
     })
-    const header = ['Label1', 'Label2', 'Length', 'Color']
-    const lines = [
-      header.join(sep),
-      ...labelRows.map((l) => [l.label1, l.label2, l.meta, l.color].map(escape).join(sep)),
-    ]
-    // Brother bekommt eine .txt (TAB), sonst .csv. Komma-Variante mit BOM.
-    const ext = format === 'brother' ? 'txt' : 'csv'
-    const body = sep === ',' ? '﻿' + lines.join('\r\n') : lines.join('\r\n')
+    const file = buildLabelCsv(labelRows, format)
     downloadBlob(
-      buildExportFilenameWithSuffix(projectName || 'cable-planner', `etiketten-${format}`, ext),
-      body,
-      ext === 'txt' ? 'text/plain;charset=utf-8' : 'text/csv;charset=utf-8',
+      buildExportFilenameWithSuffix(projectName || 'cable-planner', `etiketten-${format}`, file.ext),
+      file.body,
+      file.mime,
     )
   }
 
