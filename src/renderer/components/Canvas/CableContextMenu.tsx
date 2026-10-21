@@ -22,7 +22,7 @@
 //   • Kabel löschen
 
 import { useEffect, useRef, useState } from 'react'
-import { Pencil, Pin, X, Plus, Minus, RotateCcw, Navigation, CornerDownRight, Check, Milestone, ChevronDown, ChevronRight, Activity } from 'lucide-react'
+import { Pencil, Pin, X, Plus, Minus, RotateCcw, Navigation, CornerDownRight, Check, Milestone, ChevronDown, ChevronRight, Activity, MessageSquare } from 'lucide-react'
 import { hasDesktopBridge } from '../../lib/bridge'
 import { messpunkt } from '../../lib/scopes'
 import { useScopeStore } from '../../store/scopeStore'
@@ -32,6 +32,7 @@ import { useCanvasProjectStore as useProjectStore } from '../../store/projectSto
 import { routeCable } from '../../lib/canvasViewport'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { promptDialog } from '../../lib/promptDialog'
+import { addAnnotationAt } from '../../lib/annotationAuthor'
 // v7.9.115: infoDialog wird nicht mehr genutzt seit der A*-Fail nicht
 // mehr modal blockt — Fallback auf Standard-Routing ist still.
 import type { Cable, CableRouting } from '../../types/cable'
@@ -180,6 +181,11 @@ export const CableContextMenu = () => {
     }
   }
 
+  const annotate = async () => {
+    close()
+    await addAnnotationAt({ type: 'cable', cableId: cable.id })
+  }
+
   const addWaypointHere = () => {
     const next = insertWaypointAt(cable, menu.flowX, menu.flowY)
     doUpdate({ waypoints: next })
@@ -296,6 +302,9 @@ export const CableContextMenu = () => {
       </div>
       <Item onClick={renameLabel} icon={<Icon icon={Pencil} size="xs" />}>
         {t('canvas.cableMenu.rename', 'Change label…')}
+      </Item>
+      <Item onClick={annotate} icon={<Icon icon={MessageSquare} size="xs" />}>
+        {t('annotations.addFromMenu', 'Add annotation…')}
       </Item>
       {/* Issue #238 — Handy-Vorschlag-Kabel in Plan uebernehmen.
           Nur sichtbar bei Kabeln die aus dem Mobile-Viewer kamen

@@ -44,6 +44,14 @@ export const cableLabelName = (
   (cable.cableSpecId ? specs.find((s) => s.id === cable.cableSpecId)?.name : undefined) ||
   cable.type
 
+/**
+ * Canvas label for a cable: name plus " (Nm)". Length is optional since
+ * #1081 — without one the suffix is left out instead of printing
+ * "(undefinedm)".
+ */
+export const cableLengthSuffix = (length: number | null | undefined): string =>
+  typeof length === 'number' && Number.isFinite(length) && length > 0 ? ` (${length}m)` : ''
+
 /** Catalogue ranked for one plug pair: fitting cables first, mismatches last. */
 export const rankCablesForPorts = <S extends CableSpec>(
   catalog: readonly S[],

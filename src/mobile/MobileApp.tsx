@@ -947,7 +947,7 @@ const PortList = ({
                     </span>
                     {cable && (
                       <span className="text-cp-xs text-cp-text-muted">
-                        {cable.type} · {cable.length} m
+                        {cable.type}{cable.length ? ` · ${cable.length} m` : ''}
                       </span>
                     )}
                   </span>

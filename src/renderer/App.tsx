@@ -1354,7 +1354,7 @@ export default function App() {
       )
       if (conflicts.length > 0) {
         const list = conflicts
-          .map((c) => `• ${c.name || `${c.type} ${c.length} m`}`)
+          .map((c) => `• ${c.name || (c.length ? `${c.type} ${c.length} m` : c.type)}`)
           .join('\n')
         const replace = await confirmDialog(t('app.portConflict.title', 'Port already in use'), {
           body:

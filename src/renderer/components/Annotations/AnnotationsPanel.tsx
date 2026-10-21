@@ -16,7 +16,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { useUiStore } from '../../store/uiStore'
 import { Icon } from '../shared/Icon'
 import { Tooltip } from '../shared/Tooltip'
-import { promptDialog } from '../../lib/promptDialog'
+import { ensureAnnotationAuthor } from '../../lib/annotationAuthor'
 import { format, useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { readableTextColor } from '../../lib/contrast'
@@ -28,26 +28,6 @@ import { PanelWindowMenu } from '../shared/PanelWindowMenu'
 
 // Source-of-Truth für Canvas-Drag-MIMEs ist lib/dragDropMimes.ts.
 import { MIME_ANNOTATION as ANNOTATION_DRAG_MIME } from '../../lib/dragDropMimes'
-
-/** v7.9.5 — Liefert den effektiven Author-Namen für neue Annotations.
- *  Promptet den User wenn noch keiner gesetzt ist (kein 'Anonym'!).
- *  Returns null wenn der User den Prompt cancelt. */
-const ensureAnnotationAuthor = async (): Promise<string | null> => {
-  const uiState = useUiStore.getState()
-  const projState = useProjectStore.getState()
-  const fromViewer = projState.project.viewerSession?.author?.trim()
-  if (fromViewer) return fromViewer
-  const fromStore = uiState.annotationAuthor?.trim()
-  if (fromStore) return fromStore
-  const name = (await promptDialog(
-    'Bitte gib deinen Namen ein.\n\n' +
-      'Er wird allen Anmerkungen angeheftet die du jetzt und in Zukunft erstellst.',
-    '',
-  ))?.trim()
-  if (!name) return null
-  uiState.setAnnotationAuthor(name)
-  return name
-}
 
 const STATUS_LABEL: Record<ProjectAnnotation['status'], string> = {
   open: 'open',

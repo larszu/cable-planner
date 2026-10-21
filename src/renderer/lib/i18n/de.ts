@@ -3638,8 +3638,16 @@ export const de: Dict = {
   'location.map.title': 'Karte zur Adresse',
   'location.map.open': 'In OpenStreetMap öffnen',
   'location.field.width': 'Breite (m)',
+  'annotations.authorPrompt':
+    'Bitte gib deinen Namen ein. Er wird allen Anmerkungen angeheftet, die du ab jetzt erstellst.',
+  'annotations.textPrompt': 'Anmerkung',
+  'annotations.addFromMenu': 'Anmerkung hinzufügen…',
+  'canvas.controls.zoomIn': 'Vergrößern',
+  'canvas.controls.zoomOut': 'Verkleinern',
+  'canvas.controls.fitView': 'Alles einpassen',
+  'canvas.controls.toggleInteractivity': 'Bearbeiten sperren/entsperren',
   'location.tip':
-    'Tipp: Der Rahmen bewegt sich standardmäßig unabhängig. Aktiviere „Geräte mitnehmen", wenn alle enthaltenen Geräte beim Verschieben des Rahmens mitwandern sollen.',
+    'Tipp: Wenn du den Rahmen verschiebst, wandern alle enthaltenen Geräte mit.',
   'location.title': 'Location',
   'locationFrame.lock':
     'Location sperren (kein Verschieben/Resizen, aber Settings noch erreichbar)',
