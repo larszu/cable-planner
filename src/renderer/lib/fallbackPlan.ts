@@ -49,6 +49,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import type { DeliveryDestination } from '../types/delivery'
 import type { FallbackPlan, FallbackRule } from '../types/fallback'
@@ -75,6 +76,7 @@ export const FALLBACK_FINDING_LABEL: Readonly<Record<FallbackFindingKind, string
 export interface FallbackFinding {
   kind: FallbackFindingKind
   text: string
+  satz?: Satz
   /** Die betroffene Regel, fuer den Sprung. Leer bei planweiten Befunden. */
   ruleId?: string
 }
@@ -127,7 +129,12 @@ export function assessFallback(project: CablePlannerProject): FallbackAssessment
   if (plan.rules.length > 0 && scenes.length === 0) {
     findings.push({
       kind: 'scenes-unknown',
-      text: 'Es sind Regeln hinterlegt, aber keine Szene des Encoders steht im Plan. Der Namensabgleich — die billigste Prüfung von allen — läuft damit nicht, und das Ergebnis „keine Beanstandung" wäre keins.',
+      ...befund(
+        satz(
+          'fallback.text.scenesUnknown',
+          'Rules are set, but no scene of the encoder is in the plan. The name check — the cheapest check of all — therefore does not run, and a result of "no objection" would be none.',
+        ),
+      ),
     })
   }
 
@@ -137,16 +144,22 @@ export function assessFallback(project: CablePlannerProject): FallbackAssessment
     // 2) Der Namensabgleich. Der Kern des Bedarfs.
     if (scenes.length > 0) {
       for (const [feld, name] of [
-        ['Normalbetrieb', r.sceneNormal],
-        ['niedrige Bitrate', r.sceneLow],
-        ['offline', r.sceneOffline],
+        [satz('fallback.field.normal', 'normal operation'), r.sceneNormal],
+        [satz('fallback.field.low', 'low bitrate'), r.sceneLow],
+        [satz('fallback.field.offline', 'offline'), r.sceneOffline],
       ] as const) {
         const wert = name?.trim()
         if (!wert || bekannt.has(wert)) continue
         findings.push({
           kind: 'scene-unknown',
           ruleId: r.id,
-          text: `${named(r.destinationId)}, ${feld}: „${wert}" steht in keiner Szene des Encoders. Der Wächter schaltet auf einen Namen, den es nicht gibt — die Show bleibt stehen, wo sie gerade war, und niemand sieht einen Fehler.`,
+          ...befund(
+            satz(
+              'fallback.text.sceneUnknown',
+              '{ziel}, {feld}: "{szene}" is in no scene of the encoder. The watcher switches to a name that does not exist — the show stays where it was, and nobody sees an error.',
+              { ziel: named(r.destinationId), feld, szene: wert },
+            ),
+          ),
         })
       }
     }
@@ -156,7 +169,13 @@ export function assessFallback(project: CablePlannerProject): FallbackAssessment
       findings.push({
         kind: 'no-return-path',
         ruleId: r.id,
-        text: `${named(r.destinationId)}: eine Ausweichszene ist benannt, eine für den Normalbetrieb nicht. Wer einmal umschaltet, schaltet nie zurück — die Show läuft auf der Tafel weiter, während die Strecke längst wieder steht.`,
+        ...befund(
+          satz(
+            'fallback.text.noReturnPath',
+            '{ziel}: a fallback scene is named, one for normal operation is not. Whoever switches once never switches back — the show keeps running on the slate while the link has long been back up.',
+            { ziel: named(r.destinationId) },
+          ),
+        ),
       })
     }
 
@@ -169,7 +188,13 @@ export function assessFallback(project: CablePlannerProject): FallbackAssessment
       findings.push({
         kind: 'threshold-order',
         ruleId: r.id,
-        text: `${named(r.destinationId)}: „offline" liegt bei ${r.offlineKbps} kbit/s und „niedrig" bei ${r.lowKbps} kbit/s. Offline muss UNTER niedrig liegen, sonst ist der Zwischenzustand nicht erreichbar und es gibt nur an oder aus.`,
+        ...befund(
+          satz(
+            'fallback.text.thresholdOrder',
+            '{ziel}: "offline" is at {offline} kbit/s and "low" at {low} kbit/s. Offline must be BELOW low, otherwise the in-between state is unreachable and there is only on or off.',
+            { ziel: named(r.destinationId), offline: r.offlineKbps, low: r.lowKbps },
+          ),
+        ),
       })
     }
 
@@ -180,7 +205,19 @@ export function assessFallback(project: CablePlannerProject): FallbackAssessment
         findings.push({
           kind: 'threshold-above-bitrate',
           ruleId: r.id,
-          text: `${named(r.destinationId)}: die Schwelle „niedrig" liegt bei ${r.lowKbps} kbit/s, geplant sind ${geplant} kbit/s (Video ${ziel.encoding.videoBitrateKbps} + Audio ${ziel.encoding.audioBitrateKbps}). Der Zustand liegt damit vom ersten Moment an vor und geht nie weg.`,
+          ...befund(
+            satz(
+              'fallback.text.thresholdAboveBitrate',
+              '{ziel}: the "low" threshold is at {low} kbit/s, {geplant} kbit/s are planned (video {video} + audio {audio}). The state is therefore present from the first moment and never goes away.',
+              {
+              ziel: named(r.destinationId),
+              low: r.lowKbps,
+              geplant,
+              video: ziel.encoding.videoBitrateKbps,
+              audio: ziel.encoding.audioBitrateKbps,
+            },
+            ),
+          ),
         })
       }
     }
@@ -199,11 +236,25 @@ export function assessFallback(project: CablePlannerProject): FallbackAssessment
     const fremde = waechter ? encoderNamen.filter((n) => n !== waechter) : []
     findings.push({
       kind: 'stats-loopback',
-      text: waechter
-        ? fremde.length
-          ? `Die Statistik-Quelle ist „${plan.statsUrl}". Der Wächter läuft auf ${waechter}, die Statistik kommt aber von ${fremde.join(', ')} — localhost zeigt dann auf ${waechter} und nicht dorthin. Genau das schaltet dauerhaft auf die Offline-Szene, während die Strecke läuft (NOALBS #178).`
-          : `Die Statistik-Quelle ist „${plan.statsUrl}". Wächter und Encoder stehen im Plan auf ${waechter} — das passt, solange es dabei bleibt. Ob die URL dort antwortet, sagt der Plan nicht; das ist eine Messung an der Maschine.`
-        : `Die Statistik-Quelle ist „${plan.statsUrl}". „localhost" heißt „dieselbe Maschine" — welche das ist, steht nicht im Plan. Im Beleg antwortete dieselbe URL im Browser und nicht im Wächter, und die Show lief auf der Offline-Szene weiter (NOALBS #178).`,
+      ...befund(
+        waechter
+          ? fremde.length
+            ? satz(
+                'fallback.text.loopbackElsewhere',
+                'The stats source is "{url}". The watcher runs on {waechter}, but the stats come from {fremde} — localhost then points to {waechter} and not there. Exactly that switches permanently to the offline scene while the link is running (NOALBS #178).',
+                { url: String(plan.statsUrl), waechter, fremde: fremde.join(', ') },
+              )
+            : satz(
+                'fallback.text.loopbackSame',
+                'The stats source is "{url}". Watcher and encoder are on {waechter} in the plan — that fits as long as it stays that way. Whether the URL answers there, the plan does not say; that is a measurement on the machine.',
+                { url: String(plan.statsUrl), waechter },
+              )
+          : satz(
+              'fallback.text.loopbackUnknown',
+              'The stats source is "{url}". "localhost" means "the same machine" — which one that is, is not in the plan. In the reported case the same URL answered in the browser and not in the watcher, and the show kept running on the offline scene (NOALBS #178).',
+              { url: String(plan.statsUrl) },
+            ),
+      ),
     })
   }
 

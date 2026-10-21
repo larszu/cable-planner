@@ -479,7 +479,7 @@ describe('der Dialog', () => {
 
   it('zeigt jeden Befund mit seiner Beschriftung', () => {
     expect(renderAbschnitt()).toMatch(
-      /sendung\.findings\.length > 0 &&[\s\S]*TRANSMISSION_FINDING_LABEL\[f\.kind\][\s\S]*f\.text/,
+      /sendung\.findings\.length > 0 &&[\s\S]*TRANSMISSION_FINDING_LABEL\[f\.kind\][\s\S]*befundText\(f, t\)/,
     )
   })
 

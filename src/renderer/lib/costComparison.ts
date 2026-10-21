@@ -27,6 +27,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import {
   ACTUAL_SOURCE_LABEL,
@@ -62,6 +63,7 @@ export const COST_FINDING_LABEL: Readonly<Record<CostFindingKind, string>> = {
 export interface CostFinding {
   kind: CostFindingKind
   text: string
+  satz?: Satz
   /** Die betroffene Position, fuer den Sprung. Leer bei planweiten Befunden. */
   lineId?: string
 }
@@ -189,7 +191,12 @@ export function assessCosts(project: CablePlannerProject): CostAssessment {
   if (plan.lines.length === 0) {
     findings.push({
       kind: 'no-lines',
-      text: 'Es steht keine Kostenposition im Projekt. Der Vergleich Plan gegen Ist findet dann wieder in einer Tabellenkalkulation statt — genau der Umweg, gegen den dieser Vergleich gebaut ist.',
+      ...befund(
+        satz(
+          'cost.text.noLines',
+          'There is no cost line in the project. Plan versus actual then happens in a spreadsheet again — exactly the detour this comparison is built against.',
+        ),
+      ),
     })
     return { plan, rows, totals, findings }
   }
@@ -197,7 +204,12 @@ export function assessCosts(project: CablePlannerProject): CostAssessment {
   if (!(plan.currency ?? '').trim()) {
     findings.push({
       kind: 'currency-unstated',
-      text: 'Es ist keine Währung angegeben. Geraten wird keine — auch nicht „EUR": eine Summe, deren Einheit die Anwendung sich ausgesucht hat, wird in der falschen Währung abgerechnet und niemand sieht es.',
+      ...befund(
+        satz(
+          'cost.text.noCurrency',
+          'No currency is given. None is guessed — not even "EUR": a total whose unit the application picked gets invoiced in the wrong currency and nobody notices.',
+        ),
+      ),
     })
   }
 
@@ -205,27 +217,51 @@ export function assessCosts(project: CablePlannerProject): CostAssessment {
     if (r.estimate === undefined) {
       findings.push({
         kind: 'estimate-missing',
-        text: `„${r.line.label}" hat keine Schätzung. Die Position zählt deshalb nicht zur Projektschätzung — statt mit einer Null hineinzuzählen, die dort niemand wiederfindet.`,
+        ...befund(
+          satz(
+            'cost.text.noEstimate',
+            '"{position}" has no estimate. The line therefore does not count towards the project estimate — instead of counting in as a zero that nobody finds there again.',
+            { position: r.line.label },
+          ),
+        ),
         lineId: r.line.id,
       })
     }
     if (r.actual === undefined) {
       findings.push({
         kind: 'actual-missing',
-        text: `„${r.line.label}" hat keinen Ist-Wert. Die Abweichung ist damit unbekannt und nicht null — eine Null in dieser Spalte liest sich als „im Rahmen".`,
+        ...befund(
+          satz(
+            'cost.text.noActual',
+            '"{position}" has no actual value. The variance is therefore unknown, not zero — a zero in this column reads as "within range".',
+            { position: r.line.label },
+          ),
+        ),
         lineId: r.line.id,
       })
     } else if (r.line.actualSource === 'unstated') {
       findings.push({
         kind: 'actual-unsourced',
-        text: `Beim Ist-Wert von „${r.line.label}" steht nicht, woher er kommt. Eine Zahl aus dem ERP und eine aus dem Bauch sehen in dieser Spalte gleich aus.`,
+        ...befund(
+          satz(
+            'cost.text.actualUnsourced',
+            'The actual value of "{position}" does not say where it comes from. A figure from the ERP and one from gut feeling look the same in this column.',
+            { position: r.line.label },
+          ),
+        ),
         lineId: r.line.id,
       })
     }
     if (r.anchorState === 'gone') {
       findings.push({
         kind: 'anchor-orphan',
-        text: `„${r.line.label}" hängt an etwas, das es im Plan nicht mehr gibt. Die Position wird nicht still auf „ohne Bezug" gesetzt: das wäre dieselbe Zeile wie eine Fahrtkostenposition, und sie ist etwas anderes.`,
+        ...befund(
+          satz(
+            'cost.text.anchorGone',
+            '"{position}" hangs on something that no longer exists in the plan. The line is not silently set to "unanchored": that would be the same line as a travel cost item, and it is something else.',
+            { position: r.line.label },
+          ),
+        ),
         lineId: r.line.id,
       })
     }
@@ -235,7 +271,12 @@ export function assessCosts(project: CablePlannerProject): CostAssessment {
   if (!isNum(tol) || tol <= 0) {
     findings.push({
       kind: 'no-tolerance',
-      text: 'Es ist keine Toleranz gesetzt, also wird keine Abweichung als auffällig gemeldet. Ein voreingestellter Wert wäre eine Meinung darüber, was in diesem Geschäft normal ist — diese Anwendung hat dazu keine.',
+      ...befund(
+        satz(
+          'cost.text.noTolerance',
+          'No tolerance is set, so no variance is reported as conspicuous. A preset value would be an opinion on what is normal in this business — this application has none.',
+        ),
+      ),
     })
   } else {
     for (const r of rows) {
@@ -243,7 +284,13 @@ export function assessCosts(project: CablePlannerProject): CostAssessment {
       if (Math.abs(r.deltaPercent) < tol) continue
       findings.push({
         kind: 'over-tolerance',
-        text: `„${r.line.label}" weicht um ${r.deltaPercent} % ab (Toleranz ${tol} %).`,
+        ...befund(
+          satz(
+            'cost.text.overTolerance',
+            '"{position}" deviates by {prozent} % (tolerance {toleranz} %).',
+            { position: r.line.label, prozent: r.deltaPercent, toleranz: tol },
+          ),
+        ),
         lineId: r.line.id,
       })
     }

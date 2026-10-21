@@ -13,6 +13,7 @@
 // „ich habe nicht nachgesehen".
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, type Satz } from './satz'
 import type { CarrierVerdict, ScanPoint, SpectrumScan } from '../types/spectrumScan'
 import { DEFAULT_OCCUPIED_DBM, VERDICT_LABEL } from '../types/spectrumScan'
 import type { SpectrumEntry } from './spectrumPlan'
@@ -239,6 +240,7 @@ export const SCAN_FINDING_LABEL: Readonly<Record<ScanFindingKind, string>> = {
 export interface ScanFinding {
   kind: ScanFindingKind
   text: string
+  satz?: Satz
   entryIds: string[]
 }
 
@@ -253,7 +255,13 @@ export function scanFindings(
     out.push({
       kind: 'nothing-readable',
       entryIds: [],
-      text: `Aus dieser Datei liess sich kein Messpunkt lesen (${scan.unreadable} Zeile(n) verworfen). Ohne Messung steht bei jedem Träger „nicht gemessen" — und das ist die ehrliche Antwort, nicht „frei".`,
+      ...befund(
+        satz(
+          'scan.text.noPoints',
+          'No measurement point could be read from this file ({n} line(s) discarded). Without a measurement every carrier shows "not measured" — and that is the honest answer, not "free".',
+          { n: scan.unreadable },
+        ),
+      ),
     })
     return out
   }
@@ -262,7 +270,13 @@ export function scanFindings(
     out.push({
       kind: 'partial-read',
       entryIds: [],
-      text: `${scan.unreadable} Zeile(n) der Datei waren nicht lesbar. Die Messung ist damit lückenhaft; eine Lücke sieht im Verlauf aus wie ein freies Band.`,
+      ...befund(
+        satz(
+          'scan.text.partlyUnreadable',
+          '{n} line(s) of the file were unreadable. The measurement has gaps; in the trace a gap looks like a free band.',
+          { n: scan.unreadable },
+        ),
+      ),
     })
   }
 
@@ -271,7 +285,17 @@ export function scanFindings(
     out.push({
       kind: 'carrier-occupied',
       entryIds: belegt.map((c) => c.entry.id),
-      text: `${belegt.length} geplante(r) Träger liegen auf gemessener Energie über ${occupiedDbm} dBm: ${belegt.map((c) => `${c.entry.label} (${c.entry.mhz} MHz)`).join(', ')}. Was dort sitzt, sagt die Messung nicht — nur, dass etwas sitzt.`,
+      ...befund(
+        satz(
+          'scan.text.occupied',
+          '{n} planned carrier(s) sit on measured energy above {dbm} dBm: {liste}. The measurement does not say what is there — only that something is.',
+          {
+            n: belegt.length,
+            dbm: occupiedDbm,
+            liste: belegt.map((c) => `${c.entry.label} (${c.entry.mhz} MHz)`).join(', '),
+          },
+        ),
+      ),
     })
   }
 
@@ -281,7 +305,19 @@ export function scanFindings(
     out.push({
       kind: 'outside-scan',
       entryIds: draussen.map((c) => c.entry.id),
-      text: `${draussen.length} Träger liegen ausserhalb des gemessenen Bereichs${spanne ? ` (${spanne.fromMhz}–${spanne.toMhz} MHz)` : ''}. Für sie sagt dieser Scan nichts — „nicht gemessen" ist kein „frei".`,
+      ...befund(
+        spanne
+          ? satz(
+              'scan.text.outsideRange',
+              '{n} carrier(s) lie outside the measured range ({von}–{bis} MHz). This scan says nothing about them — "not measured" is not "free".',
+              { n: draussen.length, von: spanne.fromMhz, bis: spanne.toMhz },
+            )
+          : satz(
+              'scan.text.outside',
+              '{n} carrier(s) lie outside the measured range. This scan says nothing about them — "not measured" is not "free".',
+              { n: draussen.length },
+            ),
+      ),
     })
   }
 

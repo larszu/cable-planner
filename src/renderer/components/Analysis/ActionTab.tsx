@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { satzText } from '../../lib/satz'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { PanelHint } from '../shared/PanelHint'
@@ -106,7 +107,7 @@ export const ActionTab = () => {
                   <td className="py-1 pr-2 text-cp-text-muted">{ACTION_SOURCE_LABEL[i.source]}</td>
                   <td className="py-1 pr-2">
                     {titel(i)}
-                    {i.detail && <span className="text-cp-text-muted"> — {i.detail}</span>}
+                    {i.detail && <span className="text-cp-text-muted"> — {i.detailSatz ? satzText(i.detailSatz, t) : i.detail}</span>}
                   </td>
                 </tr>
               ))}

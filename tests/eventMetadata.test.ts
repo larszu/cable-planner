@@ -411,7 +411,7 @@ describe('der Dialog', () => {
   it('zeigt jeden Befund mit seiner Beschriftung an, nicht nur den Text', () => {
     const abschnitt = renderAbschnitt()
     expect(abschnitt).toMatch(
-      /meta\.findings\.length > 0 &&[\s\S]*EVENT_METADATA_FINDING_LABEL\[f\.kind\][\s\S]*f\.text/,
+      /meta\.findings\.length > 0 &&[\s\S]*EVENT_METADATA_FINDING_LABEL\[f\.kind\][\s\S]*befundText\(f, t\)/,
     )
   })
 

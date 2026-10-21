@@ -46,3 +46,32 @@ export const satzKanonisch = (s: Satz): string => satzText(s, kanonisch)
 
 /** Die englische Quelle, fertig eingesetzt (Logs, Tests, Vergleiche). */
 export const satzQuelle = (s: Satz): string => satzText(s, (_k, en) => en)
+
+/**
+ * Der Text eines Befunds fuer den Bildschirm. Befunde tragen `text`
+ * kanonisch deutsch (Blatt, Stand, Tests) und daneben den `satz`; der
+ * Bildschirm nimmt den Satz in der App-Sprache, sonst den Text.
+ */
+export const befundText = (f: { text?: string; satz?: Satz }, tx: Uebersetzer): string =>
+  f.satz ? satzText(f.satz, tx) : (f.text ?? '')
+
+/** `{ satz, text }` fuer einen Befund: der Satz und sein kanonischer Text. */
+export const befund = (s: Satz): { satz: Satz; text: string } => ({ satz: s, text: satzKanonisch(s) })
+
+/**
+ * „a und b und c" als Satz — die Konjunktion gehoert zur Sprache. Gebaut als
+ * Kette (a und (b und c)), damit das kanonische Deutsch genau dem frueheren
+ * `join(' und ')` entspricht.
+ */
+export const undListe = (teile: ReadonlyArray<string | number | Satz>): Satz => {
+  if (teile.length <= 1) return satz('list.one', '{a}', { a: teile[0] ?? '' })
+  const [a, ...rest] = teile
+  return satz('list.and', '{a} and {b}', { a, b: rest.length === 1 ? rest[0] : undListe(rest) })
+}
+
+/** „a, b, c" aus Saetzen — wie `join(', ')`, nur dass jedes Glied in der Sprache des Lesers bleibt. */
+export const kommaListe = (teile: ReadonlyArray<string | number | Satz>): Satz => {
+  if (teile.length <= 1) return satz('list.one', '{a}', { a: teile[0] ?? '' })
+  const [a, ...rest] = teile
+  return satz('list.comma', '{a}, {b}', { a, b: rest.length === 1 ? rest[0] : kommaListe(rest) })
+}

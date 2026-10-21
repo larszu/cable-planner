@@ -22,6 +22,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, undListe, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import type { DeliveryDestination } from '../types/delivery'
 import {
@@ -67,6 +68,7 @@ export const EVENT_METADATA_FINDING_LABEL: Readonly<
 export interface EventMetadataFinding {
   kind: EventMetadataFindingKind
   text: string
+  satz?: Satz
   /** Das betroffene Ziel, fuer den Sprung. Leer bei planweiten Befunden. */
   destinationId?: string
 }
@@ -187,13 +189,24 @@ export function assessEventMetadata(project: CablePlannerProject): EventMetadata
     if (dests.length > 0) {
       findings.push({
         kind: 'no-metadata',
-        text: `${dests.length} Ausspielziel(e) stehen im Plan, aber keine Angaben zur Veranstaltung. Titel, Beginn und Sichtbarkeit werden dann am Showtag aus Mails zusammengesucht und je Plattform neu getippt.`,
+        ...befund(
+          satz(
+            'event.text.noMetadata',
+            '{n} delivery destination(s) are in the plan, but no event details. Title, start and visibility are then pieced together from e-mails on show day and retyped per platform.',
+            { n: dests.length },
+          ),
+        ),
       })
     }
   } else if (dests.length === 0) {
     findings.push({
       kind: 'no-destinations',
-      text: 'Angaben zur Veranstaltung stehen, aber kein Ausspielziel. Das Blatt hat keine Spalte, in die jemand sie eintragen könnte.',
+      ...befund(
+        satz(
+          'event.text.noDestinations',
+          'Event details are set, but no delivery destination. The sheet has no column anyone could enter them in.',
+        ),
+      ),
     })
   }
 
@@ -201,18 +214,35 @@ export function assessEventMetadata(project: CablePlannerProject): EventMetadata
     if (dests.length > 0 && !eventIsEmpty) {
       findings.push({
         kind: 'start-missing',
-        text: 'Kein geplanter Beginn hinterlegt. Jede Plattform verlangt einen, und ohne gemeinsame Angabe steht auf jeder eine andere Uhrzeit.',
+        ...befund(
+          satz(
+            'event.text.startMissing',
+            'No planned start is stored. Every platform requires one, and without a shared value each shows a different time.',
+          ),
+        ),
       })
     }
   } else if (!hasTimePart(start)) {
     findings.push({
       kind: 'start-timeless',
-      text: `Der Beginn ist nur als Datum angegeben („${start}"). Die Uhrzeit bleibt damit im Kopf dessen, der die Plattform-Formulare ausfüllt.`,
+      ...befund(
+        satz(
+          'event.text.startTimeless',
+          'The start is given only as a date ("{beginn}"). The time therefore stays in the head of whoever fills in the platform forms.',
+          { beginn: start },
+        ),
+      ),
     })
   } else if (!hasOffset(start)) {
     findings.push({
       kind: 'start-unzoned',
-      text: `Der Beginn „${start}" trägt keine Zeitzone. In YouTube Studio gilt die Zeitzone des Kanals, im CMS die des Servers, im Marketing-Kalender die des Verfassers — der Plan kann das nicht auflösen und rät hier bewusst nicht.`,
+      ...befund(
+        satz(
+          'event.text.startUnzoned',
+          'The start "{beginn}" carries no time zone. In YouTube Studio the time zone of the channel applies, in the CMS that of the server, in the marketing calendar that of the author — the plan cannot resolve that and deliberately does not guess.',
+          { beginn: start },
+        ),
+      ),
     })
   }
 
@@ -220,14 +250,26 @@ export function assessEventMetadata(project: CablePlannerProject): EventMetadata
     if (!r.title) {
       findings.push({
         kind: 'title-missing',
-        text: `„${r.destinationName}" hat keinen Titel — weder am Projekt noch als Abweichung.`,
+        ...befund(
+          satz(
+            'event.text.titleMissing',
+            '"{ziel}" has no title — neither on the project nor as an override.',
+            { ziel: r.destinationName },
+          ),
+        ),
         destinationId: r.destinationId,
       })
     }
     if (r.privacy === 'not-stated') {
       findings.push({
         kind: 'privacy-not-stated',
-        text: `Die Sichtbarkeit von „${r.destinationName}" ist nicht angegeben. Ein Vorgabewert wird hier bewusst nicht gesetzt: „öffentlich" zu raten schaltet im Zweifel die Generalprobe ins Netz.`,
+        ...befund(
+          satz(
+            'event.text.privacyNotStated',
+            'The visibility of "{ziel}" is not stated. No default is set here on purpose: guessing "public" can put the dress rehearsal online.',
+            { ziel: r.destinationName },
+          ),
+        ),
         destinationId: r.destinationId,
       })
     }
@@ -238,7 +280,13 @@ export function assessEventMetadata(project: CablePlannerProject): EventMetadata
     if (!r) {
       findings.push({
         kind: 'override-orphan',
-        text: `Eine Abweichung verweist auf ein Ziel, das es im Plan nicht (mehr) gibt (${o.destinationId}). Sie wird nicht still entfernt — ein kommentarlos verschwundener abweichender Titel ist schlimmer als eine Zeile, die ihn benennt.`,
+        ...befund(
+          satz(
+            'event.text.overrideOrphan',
+            'An override refers to a destination that does not exist in the plan (any more) ({id}). It is not silently removed — an override title that vanished without comment is worse than a line that names it.',
+            { id: o.destinationId },
+          ),
+        ),
         destinationId: o.destinationId,
       })
       continue
@@ -246,7 +294,13 @@ export function assessEventMetadata(project: CablePlannerProject): EventMetadata
     if (!overrideChangesSomething(r)) {
       findings.push({
         kind: 'override-inert',
-        text: `„${r.destinationName}" trägt eine Abweichung, die nichts abweicht — alle Felder sind leer oder gleich dem Projektwert. Auf dem Blatt sieht das aus wie eine bewusste Sonderbehandlung.`,
+        ...befund(
+          satz(
+            'event.text.overrideInert',
+            '"{ziel}" carries an override that overrides nothing — all fields are empty or equal to the project value. On the sheet it looks like a deliberate special case.',
+            { ziel: r.destinationName },
+          ),
+        ),
         destinationId: r.destinationId,
       })
       continue
@@ -254,7 +308,13 @@ export function assessEventMetadata(project: CablePlannerProject): EventMetadata
     if (!r.reason) {
       findings.push({
         kind: 'override-unexplained',
-        text: `„${r.destinationName}" weicht vom Projektwert ab, ohne Begründung. Ohne sie kann niemand später entscheiden, ob das Absicht war oder ein Tippfehler.`,
+        ...befund(
+          satz(
+            'event.text.overrideUnexplained',
+            '"{ziel}" deviates from the project value without a reason. Without one, nobody can later decide whether it was intended or a typo.',
+            { ziel: r.destinationName },
+          ),
+        ),
         destinationId: r.destinationId,
       })
     }
@@ -269,13 +329,19 @@ export function assessEventMetadata(project: CablePlannerProject): EventMetadata
     const rb = byDest.get(d.id)
     const rp = primary ? byDest.get(primary.id) : undefined
     if (!primary || !rb || !rp) continue
-    const differs: string[] = []
-    if (rb.title !== rp.title) differs.push('Titel')
-    if (rb.privacy !== rp.privacy) differs.push('Sichtbarkeit')
+    const differs: Satz[] = []
+    if (rb.title !== rp.title) differs.push(satz('event.field.title', 'title'))
+    if (rb.privacy !== rp.privacy) differs.push(satz('event.field.privacy', 'visibility'))
     if (differs.length === 0) continue
     findings.push({
       kind: 'backup-differs',
-      text: `„${d.name}" ist der Ausweichweg für „${primary.name}", trägt aber ${differs.join(' und ')} anders. Wo der Ausweichweg derselben Veranstaltung gilt (YouTube-Backup-Ingest), heißt das, dass zwei Veranstaltungen entstanden sind statt einer.`,
+      ...befund(
+        satz(
+          'event.text.backupDiffers',
+          '"{ziel}" is the fallback path for "{primaer}", but carries a different {felder}. Where the fallback path belongs to the same event (YouTube backup ingest), this means two events were created instead of one.',
+          { ziel: d.name, primaer: primary.name, felder: undListe(differs) },
+        ),
+      ),
       destinationId: d.id,
     })
   }

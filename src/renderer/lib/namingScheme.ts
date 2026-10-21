@@ -31,6 +31,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import type { EquipmentItem } from '../types/equipment'
 import {
@@ -65,6 +66,7 @@ export const NAMING_FINDING_LABEL: Readonly<Record<NamingFindingKind, string>> =
 export interface NamingFinding {
   kind: NamingFindingKind
   text: string
+  satz?: Satz
   /** Das betroffene Geraet, fuer den Sprung. Leer bei regelweiten Befunden. */
   equipmentId?: string
 }
@@ -169,9 +171,18 @@ export function assessNaming(
   if (scope.length === 0) {
     findings.push({
       kind: 'scope-empty',
-      text: `Die Regel trifft kein Gerät${
-        (scheme.categoryFilter ?? '').trim() ? ` der Kategorie „${scheme.categoryFilter}"` : ''
-      }. Sie anzuwenden täte nichts — das steht hier, damit niemand auf ein stilles Nichts wartet.`,
+      ...befund(
+        (scheme.categoryFilter ?? '').trim()
+          ? satz(
+              'naming.text.scopeEmptyCategory',
+              'The rule matches no device of category "{kategorie}". Applying it would do nothing — this is stated here so that nobody waits for a silent nothing.',
+              { kategorie: scheme.categoryFilter ?? '' },
+            )
+          : satz(
+              'naming.text.scopeEmpty',
+              'The rule matches no device. Applying it would do nothing — this is stated here so that nobody waits for a silent nothing.',
+            ),
+      ),
     })
     return { proposals: [], inScope: 0, findings, applicable: false }
   }
@@ -193,7 +204,13 @@ export function assessNaming(
     if (!neu) {
       findings.push({
         kind: 'empty-name',
-        text: `Für „${item.name}" ergibt die Regel keinen Namen — alle Teile sind leer. Ein leerer Name wird nicht gesetzt.`,
+        ...befund(
+          satz(
+            'naming.text.emptyName',
+            'For "{geraet}" the rule yields no name — all parts are empty. An empty name is not set.',
+            { geraet: item.name },
+          ),
+        ),
         equipmentId: item.id,
       })
       return
@@ -208,7 +225,13 @@ export function assessNaming(
     if (traeger.length < 2) continue
     findings.push({
       kind: 'duplicate-name',
-      text: `„${name}" bekämen ${traeger.length} Geräte (${traeger.join(', ')}). Die Regel wird nicht angewandt: ein doppelter Name im Netz ist kein Schönheitsfehler, sondern zwei Geräte, die sich gegenseitig verdrängen.`,
+      ...befund(
+        satz(
+          'naming.text.duplicate',
+          '{n} devices would get "{name}" ({geraete}). The rule is not applied: a duplicate name on the network is not a cosmetic flaw but two devices pushing each other out.',
+          { name, n: traeger.length, geraete: traeger.join(', ') },
+        ),
+      ),
     })
   }
 
@@ -219,13 +242,25 @@ export function assessNaming(
       if (p.after.length > DANTE_NAME_LIMIT) {
         findings.push({
           kind: 'too-long-for-dante',
-          text: `„${p.after}" hat ${p.after.length} Zeichen; ein Dante-Name trägt höchstens ${DANTE_NAME_LIMIT} (Quelle: ${DANTE_NAME_LIMIT_SOURCE}). Gekürzt wird hier nichts — eine automatisch gekürzte Kennung ist am Showtag nicht mehr die, die auf dem Blatt steht.`,
+          ...befund(
+            satz(
+              'naming.text.danteTooLong',
+              '"{name}" has {n} characters; a Dante name holds at most {grenze} (source: {quelle}). Nothing is truncated here — an automatically shortened identifier on show day is no longer the one on the sheet.',
+              { name: p.after, n: p.after.length, grenze: DANTE_NAME_LIMIT, quelle: DANTE_NAME_LIMIT_SOURCE },
+            ),
+          ),
           equipmentId: p.equipmentId,
         })
       }
       findings.push({
         kind: 'dante-subscription-risk',
-        text: `„${p.before}" hängt am Dante-Netz. Ab Firmware 4.3 bricht das Umbenennen eines Sendekanals bestehende Subscriptions — dieser Plan kennt den Subscription-Satz nicht und kann nicht sagen, welche; er sagt nur, dass es welche geben wird.`,
+        ...befund(
+          satz(
+            'naming.text.danteSubscriptionRisk',
+            '"{name}" is on the Dante network. From firmware 4.3, renaming a transmit channel breaks existing subscriptions — this plan does not know the subscription set and cannot say which; it only says that there will be some.',
+            { name: p.before },
+          ),
+        ),
         equipmentId: p.equipmentId,
       })
     }
@@ -233,7 +268,13 @@ export function assessNaming(
     if (treffer > 0) {
       findings.push({
         kind: 'name-in-free-text',
-        text: `„${p.before}" steht ${treffer}× im Klartext in Notizen oder Antworten. Nach dem Umbenennen stimmt dort der Name nicht mehr, und nichts bricht dabei — deshalb fällt es niemandem auf.`,
+        ...befund(
+          satz(
+            'naming.text.nameInFreeText',
+            '"{name}" appears {n}× as plain text in notes or answers. After the rename the name there is no longer right, and nothing breaks — which is why nobody notices.',
+            { name: p.before, n: treffer },
+          ),
+        ),
         equipmentId: p.equipmentId,
       })
     }
@@ -242,7 +283,13 @@ export function assessNaming(
   if (proposals.length === 0) {
     findings.push({
       kind: 'no-change',
-      text: `Die Regel ergibt für alle ${scope.length} getroffenen Geräte den Namen, den sie schon tragen. Es gibt nichts anzuwenden.`,
+      ...befund(
+        satz(
+          'naming.text.nothingChanges',
+          'For all {n} matched devices the rule yields the name they already have. There is nothing to apply.',
+          { n: scope.length },
+        ),
+      ),
     })
   }
 

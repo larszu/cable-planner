@@ -44,6 +44,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, type Satz } from './satz'
 import type { CablePlannerProject, ProjectRevision } from '../types/project'
 import type { CsvTable } from './csv'
 import { planDiff } from './planDiff'
@@ -75,6 +76,7 @@ export const JOB_FINDING_LABEL: Readonly<Record<JobHandoverFindingKind, string>>
 export interface JobHandoverFinding {
   kind: JobHandoverFindingKind
   text: string
+  satz?: Satz
 }
 
 export interface JobHandover {
@@ -122,12 +124,23 @@ export function assessJobHandover(project: CablePlannerProject): JobHandover {
   if (!asBuilt) {
     findings.push({
       kind: 'no-as-built',
-      text: 'Es ist nichts als „wie gebaut" festgeschrieben. Wer diese Datei nächstes Jahr öffnet, plant aus dem Stand, der vor dem Aufbau da war — also aus dem Angebot, und jede Änderung vor Ort wird ein zweites Mal gefunden.',
+      ...befund(
+        satz(
+          'job.text.noAsBuilt',
+          'Nothing has been frozen as "as built". Whoever opens this file next year plans from the state before the build — that is, from the quote, and every on-site change gets found a second time.',
+        ),
+      ),
     })
   } else if (changedSince > 0) {
     findings.push({
       kind: 'as-built-stale',
-      text: `Seit „${asBuilt.label}" haben sich ${changedSince} Dinge substantiell geändert. Das Blatt trägt das Wort „As-Built" und stimmt nicht mehr — das ist teurer als gar keines, weil niemand nachfragt.`,
+      ...befund(
+        satz(
+          'job.text.asBuiltStale',
+          'Since "{revision}", {n} things have changed substantially. The sheet carries the word "as-built" and is no longer right — that is costlier than none at all, because nobody asks.',
+          { revision: asBuilt.label, n: changedSince },
+        ),
+      ),
     })
   }
 
@@ -135,7 +148,13 @@ export function assessJobHandover(project: CablePlannerProject): JobHandover {
   if (offen.length > 0) {
     findings.push({
       kind: 'open-questions',
-      text: `${offen.length} Frage(n) ans Haus sind ohne Antwort geblieben. Genau die werden nächstes Jahr ein zweites Mal gestellt — an dieselbe IT-Abteilung.`,
+      ...befund(
+        satz(
+          'job.text.openQuestions',
+          '{n} question(s) to the venue remained unanswered. Exactly those will be asked a second time next year — to the same IT department.',
+          { n: offen.length },
+        ),
+      ),
     })
   }
 
@@ -143,14 +162,25 @@ export function assessJobHandover(project: CablePlannerProject): JobHandover {
   if (notizen.length > 0) {
     findings.push({
       kind: 'unbuilt-notes',
-      text: `${notizen.length} Anmerkung(en) stehen noch auf „offen". Solange sie das tun, ist unklar, ob der Punkt gebaut, verworfen oder vergessen wurde.`,
+      ...befund(
+        satz(
+          'job.text.unbuiltNotes',
+          '{n} annotation(s) are still "open". As long as they are, it is unclear whether the point was built, dropped or forgotten.',
+          { n: notizen.length },
+        ),
+      ),
     })
   }
 
   if (!project.metadata?.siteAddress?.trim()) {
     findings.push({
       kind: 'no-venue',
-      text: 'Der Plan nennt keinen Ort. Ohne ihn lässt sich diese Datei nächstes Jahr nicht dem Haus zuordnen, und die Antworten der Haus-IT gelten nirgends (Bedarf 85, 91).',
+      ...befund(
+        satz(
+          'job.text.noVenue',
+          'The plan names no venue. Without it this file cannot be matched to the venue next year, and the answers of the house IT apply nowhere (needs 85, 91).',
+        ),
+      ),
     })
   }
 

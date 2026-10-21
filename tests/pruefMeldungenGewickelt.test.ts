@@ -107,32 +107,18 @@ const BESTAND: Record<string, number> = {
   // Feldnamen (`text`). `lib/mcpSchreiben.ts` steht seit #1052 auf 0: die
   // Antworten laufen durch `ja()`/`nein()`.
   'types/mcpLog.ts': 1,
-  'lib/eventMetadata.ts': 11,
   'lib/circuitSuggest.ts': 11,
-  'lib/transmissionRecord.ts': 10,
   'lib/bridge.ts': 9,
   'lib/tallyPosition.ts': 8,
-  'lib/costComparison.ts': 8,
-  'lib/namingScheme.ts': 7,
-  'lib/labourCost.ts': 7,
   'lib/tallyMap.ts': 6,
-  'lib/multicastPlan.ts': 6,
-  'lib/micAssignment.ts': 6,
   'lib/graphml/parser.ts': 6,
-  'lib/crewNetworkSheet.ts': 6,
   'lib/addressTemplate.ts': 6,
   'lib/textProtocol.ts': 5,
-  'lib/ptpPlan.ts': 5,
   'lib/networkSegments.ts': 5,
-  'lib/jobHandover.ts': 5,
-  'lib/fallbackPlan.ts': 5,
-  'lib/dantePatch.ts': 5,
-  'lib/spectrumScan.ts': 4,
   'lib/channelIdentity.ts': 4,
   'lib/salvoSheet.ts': 3,
   'lib/rfCoordination.ts': 3,
   'lib/mvSheet.ts': 3,
-  'lib/clientSummary.ts': 3,
   'lib/templateScope.ts': 2,
   'lib/exportPdf.ts': 2,
   'lib/receiptRead.ts': 1,
@@ -235,6 +221,6 @@ describe('Meldungen aus lib/ und types/ sind gewickelt', () => {
     // Ohne sie waere ein kaputtes Muster die gefaehrlichste Art gruen: es
     // findet nichts, und Nichts sieht hier aus wie ein Ergebnis.
     const gesamt = [...zaehle().values()].reduce((a, b) => a + b, 0)
-    expect(gesamt).toBeGreaterThan(100)
+    expect(gesamt).toBeGreaterThan(50)
   })
 })

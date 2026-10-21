@@ -39,6 +39,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import { assessJobHandover, JOB_BASIS_LABEL, type JobBasis } from './jobHandover'
 import type { CsvTable } from './csv'
@@ -89,6 +90,7 @@ export const CLIENT_SUMMARY_FINDING_LABEL: Readonly<
 export interface ClientSummaryFinding {
   kind: ClientSummaryFindingKind
   text: string
+  satz?: Satz
 }
 
 export interface ClientSummary {
@@ -138,7 +140,12 @@ export function clientSummary(project: CablePlannerProject): ClientSummary {
   if (equip.length === 0 && cables.length === 0 && dests.length === 0) {
     findings.push({
       kind: 'empty-plan',
-      text: 'Der Plan trägt weder Geräte noch Kabel noch Ausspielziele. Eine Übersicht darüber wäre ein leeres Blatt mit einer Überschrift.',
+      ...befund(
+        satz(
+          'clientSummary.text.emptyPlan',
+          'The plan holds no devices, no cables and no delivery destinations. A summary of it would be an empty sheet with a heading.',
+        ),
+      ),
     })
   }
 
@@ -251,7 +258,12 @@ export function clientSummary(project: CablePlannerProject): ClientSummary {
     if (cables.length > 0) {
       findings.push({
         kind: 'progress-unreported',
-        text: 'Aus dem Feld ist kein Aufbau-Fortschritt gemeldet. Das Blatt sagt deshalb „nicht gemeldet" und nicht „0 %" — der Unterschied entscheidet, wie ein Kunde die Zeile liest.',
+        ...befund(
+          satz(
+            'clientSummary.text.progressUnreported',
+            'No build progress has been reported from the field. The sheet therefore says "not reported" and not "0 %" — the difference decides how a client reads the line.',
+          ),
+        ),
       })
     }
   } else {
@@ -274,7 +286,13 @@ export function clientSummary(project: CablePlannerProject): ClientSummary {
   if (basis !== 'as-built') {
     findings.push({
       kind: 'no-as-built',
-      text: `Grundlage dieses Blatts: ${kanonisch(`job.basis.${basis}`, JOB_BASIS_LABEL[basis])}. Jede Bestandszahl darauf ist damit eine Planzahl und kein Leistungsnachweis — genau so steht es auch in der Spalte „Grundlage".`,
+      ...befund(
+        satz(
+          'clientSummary.text.noAsBuilt',
+          'Basis of this sheet: {basis}. Every quantity on it is therefore a planned figure and not proof of work — exactly as the "Based on" column says.',
+          { basis: satz(`job.basis.${basis}`, JOB_BASIS_LABEL[basis]) },
+        ),
+      ),
     })
   }
 

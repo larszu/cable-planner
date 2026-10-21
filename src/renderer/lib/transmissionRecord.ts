@@ -35,6 +35,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, kommaListe, satz, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import {
   TRANSMISSION_EVENT_LABEL,
@@ -95,6 +96,7 @@ export const TRANSMISSION_FINDING_LABEL: Readonly<Record<TransmissionFindingKind
 export interface TransmissionFinding {
   kind: TransmissionFindingKind
   text: string
+  satz?: Satz
   /** Der betroffene Eintrag, fuer den Sprung. Leer bei berichtsweiten Befunden. */
   eventId?: string
 }
@@ -171,7 +173,12 @@ export function assessTransmission(project: CablePlannerProject): TransmissionAs
     if (dests.length > 0) {
       findings.push({
         kind: 'no-events',
-        text: 'Es steht kein Eintrag im Sendebericht. Nach der Show wird der Verlauf dann aus OBS-Logs, einer Plattform-Kurve und Erinnerung rekonstruiert — genau der Zustand, gegen den dieser Bericht geschrieben ist.',
+        ...befund(
+          satz(
+            'transmission.text.noEvents',
+            'There is no entry in the transmission report. After the show the course is then reconstructed from OBS logs, a platform graph and memory — exactly the state this report is written against.',
+          ),
+        ),
       })
     }
   }
@@ -179,7 +186,12 @@ export function assessTransmission(project: CablePlannerProject): TransmissionAs
   if (!asBuilt && events.length > 0) {
     findings.push({
       kind: 'no-as-built',
-      text: 'Kein As-Built festgeschrieben. Der Bericht kann sagen, was beobachtet wurde, aber nicht, wovon die Ausspielung abgewichen ist — es gibt keinen Bauzustand, gegen den verglichen würde.',
+      ...befund(
+        satz(
+          'transmission.text.noAsBuilt',
+          'No as-built has been frozen. The report can say what was observed, but not what the delivery deviated from — there is no built state to compare against.',
+        ),
+      ),
     })
   }
 
@@ -190,21 +202,39 @@ export function assessTransmission(project: CablePlannerProject): TransmissionAs
     if (e.destinationId && !byId.has(e.destinationId)) {
       findings.push({
         kind: 'event-orphan',
-        text: `Ein Eintrag bezieht sich auf ein Ziel, das es im Plan nicht (mehr) gibt (${e.destinationId}). Er wird nicht still entfernt: ein verschwundener Eintrag über einen Abriss ist die teuerste Lücke in einem Sendebericht.`,
+        ...befund(
+          satz(
+            'transmission.text.eventOrphan',
+            'An entry refers to a destination that does not exist in the plan (any more) ({id}). It is not silently removed: a vanished entry about a dropout is the costliest gap in a transmission report.',
+            { id: String(e.destinationId) },
+          ),
+        ),
         eventId: e.id,
       })
     }
     if (!hasOffset(e.at)) {
       findings.push({
         kind: 'event-unzoned',
-        text: `Der Zeitpunkt „${e.at}" trägt keine Zeitzone. Gegen ein OBS-Log und eine Plattform-Kurve lässt sich damit nichts abgleichen, und die Reihenfolge im Bericht ist dann die der geschriebenen Zeichenketten, nicht die der Zeitpunkte.`,
+        ...befund(
+          satz(
+            'transmission.text.eventUnzoned',
+            'The time "{zeit}" carries no time zone. It cannot be matched against an OBS log or a platform graph, and the order in the report is then that of the written strings, not of the points in time.',
+            { zeit: e.at },
+          ),
+        ),
         eventId: e.id,
       })
     }
     if (e.source === 'unstated') {
       findings.push({
         kind: 'event-unsourced',
-        text: `Bei „${e.text}" steht nicht, woher die Angabe stammt. Ein Bericht, der zum Kunden geht, wird wie ein Messprotokoll gelesen — dieser Planer misst nichts, und das muss an jeder Zeile stehen.`,
+        ...befund(
+          satz(
+            'transmission.text.eventUnsourced',
+            'For "{eintrag}" it is not stated where the information comes from. A report that goes to the client is read like a measurement log — this planner measures nothing, and that must be on every line.',
+            { eintrag: e.text },
+          ),
+        ),
         eventId: e.id,
       })
     }
@@ -212,7 +242,13 @@ export function assessTransmission(project: CablePlannerProject): TransmissionAs
     if (tag && ((start && tag < dayOf(start)) || (end && tag > dayOf(end)))) {
       findings.push({
         kind: 'event-outside-window',
-        text: `Der Eintrag vom ${tag} liegt außerhalb des Einsatzzeitraums (${dayOf(start) || '?'} bis ${dayOf(end) || '?'}). Entweder stimmt der Zeitraum nicht oder der Eintrag gehört zu einer anderen Show.`,
+        ...befund(
+          satz(
+            'transmission.text.eventOutsideWindow',
+            'The entry of {tag} lies outside the engagement period ({von} to {bis}). Either the period is wrong or the entry belongs to another show.',
+            { tag, von: dayOf(start) || '?', bis: dayOf(end) || '?' },
+          ),
+        ),
         eventId: e.id,
       })
     }
@@ -235,7 +271,16 @@ export function assessTransmission(project: CablePlannerProject): TransmissionAs
     if (spaeter.length > 0) continue
     findings.push({
       kind: 'dropout-without-end',
-      text: `Auf „${kanonisch(`transmission.event.${e.kind}`, TRANSMISSION_EVENT_LABEL[e.kind])}" um ${e.at} folgt weder eine Wiederkehr noch ein Sendeende. So gelesen ist die Sendung nicht zurückgekommen.`,
+      ...befund(
+        satz(
+          'transmission.text.dropoutWithoutEnd',
+          '"{ereignis}" at {zeit} is followed by neither a recovery nor an end of transmission. Read that way, the transmission did not come back.',
+          {
+          ereignis: satz(`transmission.event.${e.kind}`, TRANSMISSION_EVENT_LABEL[e.kind]),
+          zeit: e.at,
+        },
+        ),
+      ),
       eventId: e.id,
     })
   }
@@ -251,7 +296,13 @@ export function assessTransmission(project: CablePlannerProject): TransmissionAs
     const name = byId.get(e.destinationId)?.name ?? e.destinationId
     findings.push({
       kind: 'switch-without-plan',
-      text: `Für „${name}" ist eine Umschaltung eingetragen, aber der Plan kennt für dieses Ziel weder eine Ausweich-Regel noch ein Backup-Ziel. Nächstes Jahr steht im Plan also nicht, worauf man damals ausgewichen ist.`,
+      ...befund(
+        satz(
+          'transmission.text.switchWithoutPlan',
+          'A switch is recorded for "{ziel}", but the plan knows neither a fallback rule nor a backup destination for it. So next year the plan will not say what was fallen back to.',
+          { ziel: name },
+        ),
+      ),
       eventId: e.id,
     })
   }
@@ -259,16 +310,28 @@ export function assessTransmission(project: CablePlannerProject): TransmissionAs
   if (deviations.length > 0 && !events.some((e) => e.kind === 'config-change')) {
     findings.push({
       kind: 'deviations-unrecorded',
-      text: `Die Ausspielung weicht in ${deviations.length} Bereich(en) vom As-Built ab (${deviations
-        .map((d) => d.label)
-        .join(', ')}), aber kein Eintrag nennt eine Änderung während der Sendung. Entweder wurde vorher geändert — dann gehört das As-Built nachgezogen — oder der Eintrag fehlt.`,
+      ...befund(
+        satz(
+          'transmission.text.deviationsUnrecorded',
+          'The delivery deviates from the as-built in {n} area(s) ({bereiche}), but no entry names a change during the transmission. Either it was changed beforehand — then the as-built needs updating — or the entry is missing.',
+          {
+          n: deviations.length,
+          bereiche: kommaListe(deviations.map((d) => satz(`transmission.section.${d.section}`, d.label))),
+        },
+        ),
+      ),
     })
   }
 
   if (events.length > 0 && !(record.summary ?? '').trim()) {
     findings.push({
       kind: 'no-summary',
-      text: 'Der Bericht trägt keine Zusammenfassung. Sie wird bewusst nicht erzeugt: aus acht Zeilen eine Bewertung der Sendung abzuleiten wäre eine Aussage, die dem Menschen gehört, der sie verantwortet.',
+      ...befund(
+        satz(
+          'transmission.text.noSummary',
+          'The report carries no summary. It is deliberately not generated: deriving an assessment of the transmission from eight lines would be a statement that belongs to the person responsible for it.',
+        ),
+      ),
     })
   }
 

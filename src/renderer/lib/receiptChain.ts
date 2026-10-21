@@ -31,8 +31,18 @@
 // und schreibt den Originalbetrag in die Notiz — genau das macht auch
 // `expenseFromProposal`.
 // ───────────────────────────────────────────────────────────────────────────
+import { satz, satzKanonisch, type Satz } from './satz'
 import type { CostLine, CostPlan } from '../types/costLines'
 import type { CrewExpense, CrewPlan } from '../types/labour'
+
+/** „Ist gegen Beleg" — kanonisch im `detail`, als Satz fuer den Bildschirm. */
+const gegen = (ist: number, belegt: number): { detail: string; detailSatz: Satz } => {
+  const s = satz('receipt.chain.versus', '{ist} vs. {belegt}', {
+    ist: ist.toFixed(2),
+    belegt: belegt.toFixed(2),
+  })
+  return { detail: satzKanonisch(s), detailSatz: s }
+}
 
 export type ChainFindingKind =
   | 'expense-unlinked'
@@ -58,6 +68,8 @@ export interface ChainFinding {
   /** Die betroffene Kostenzeile, wenn der Befund an einer haengt. */
   costLineId?: string
   detail?: string
+  /** `detail` als Satz — fuer den Bildschirm in der App-Sprache. */
+  detailSatz?: Satz
 }
 
 export interface ReceiptCoverageRow {
@@ -142,13 +154,13 @@ export const receiptChain = (costPlan: CostPlan | undefined, crew: CrewPlan | un
           zeile.push({
             kind: 'actual-below-documented',
             costLineId: line.id,
-            detail: `${line.actual.toFixed(2)} gegen ${documented.toFixed(2)}`,
+            ...gegen(line.actual, documented),
           })
         } else if (abw > 0 && auffaellig) {
           zeile.push({
             kind: 'actual-above-documented',
             costLineId: line.id,
-            detail: `${line.actual.toFixed(2)} gegen ${documented.toFixed(2)}`,
+            ...gegen(line.actual, documented),
           })
         }
       }

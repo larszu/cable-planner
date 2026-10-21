@@ -54,6 +54,7 @@
 // nach Dringlichkeit sortiert, der teuerste Fehler ueberhaupt: er verschoebe
 // die echten Ueberfaelligkeiten nach unten.
 // ───────────────────────────────────────────────────────────────────────────
+import { type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import type { CheckoutRecord } from '../lager'
 import type { InventoryItem } from '../lager'
@@ -101,6 +102,8 @@ export interface ActionItem {
   /** Der Text der Quelle. Wird hier NIE umformuliert. */
   title: string
   detail?: string
+  /** `detail` als Satz — fuer den Bildschirm in der App-Sprache. */
+  detailSatz?: Satz
   /** ISO-Datum, nur wenn die Quelle eines hatte. */
   when?: string
   urgency: ActionUrgency
@@ -256,6 +259,7 @@ export const actionItems = (input: ActionInput): ActionItem[] => {
       kind: f.kind,
       title: LABOUR_FINDING_LABEL[f.kind],
       detail: f.text,
+      ...(f.satz ? { detailSatz: f.satz } : {}),
       ...(datum ? { when: datum } : {}),
       urgency: urgencyOf(datum, today),
     })
@@ -271,6 +275,7 @@ export const actionItems = (input: ActionInput): ActionItem[] => {
       kind: f.kind,
       title: CHAIN_FINDING_LABEL[f.kind],
       ...(f.detail ? { detail: f.detail } : {}),
+      ...(f.detailSatz ? { detailSatz: f.detailSatz } : {}),
       ...(datum ? { when: datum } : {}),
       urgency: urgencyOf(datum, today),
     })
@@ -286,6 +291,7 @@ export const actionItems = (input: ActionInput): ActionItem[] => {
         kind: f.kind,
         title: COST_FINDING_LABEL[f.kind],
         detail: f.text,
+        ...(f.satz ? { detailSatz: f.satz } : {}),
         urgency: 'undated',
       })
     }

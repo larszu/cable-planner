@@ -10,6 +10,7 @@
 // Die 3-Phasen-Last-/Distro-Planung (#345) lebt weiterhin im Strom-Tab der
 // Calculators (dort bereits implementiert) — hier nicht dupliziert.
 
+import { befundText } from '../../lib/satz'
 import { useMemo, useState } from 'react'
 import { BarChart3, Calculator, Download, FileInput, Plus, Trash2 } from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
@@ -1131,7 +1132,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                         : 'text-amber-300/90'
                     }
                   >
-                    <strong>{t(`ptp.finding.${f.kind}`, PTP_FINDING_LABEL[f.kind])}</strong> — {f.text}
+                    <strong>{t(`ptp.finding.${f.kind}`, PTP_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
                   </span>
                 </li>
               ))}
@@ -1185,7 +1186,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
             <ul className="mt-2 flex flex-col gap-1">
               {asset.findings.map((f, i) => (
                 <li key={`${f.kind}-${f.equipmentId}-${i}`} className="text-cp-xs text-amber-300/90">
-                  <strong>{t(`asset.finding.${f.kind}`, ASSET_FINDING_LABEL[f.kind])}</strong> — {f.text}
+                  <strong>{t(`asset.finding.${f.kind}`, ASSET_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
                 </li>
               ))}
             </ul>
@@ -1321,7 +1322,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                         : 'text-amber-300/90'
                     }
                   >
-                    <strong>{t(`multicast.finding.${f.kind}`, MULTICAST_FINDING_LABEL[f.kind])}</strong> — {f.text}
+                    <strong>{t(`multicast.finding.${f.kind}`, MULTICAST_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
                   </span>
                 </li>
               ))}
@@ -1363,7 +1364,7 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
                         l.origin === 'ask' ? 'text-amber-300/90' : 'text-[var(--cp-text)]'
                       }`}
                     >
-                      {l.text}
+                      {befundText(l, t)}
                     </li>
                   ))}
                 </ul>
@@ -1949,7 +1950,7 @@ const RfTab = ({ projectName }: { projectName: string }) => {
           <ul className="flex flex-col gap-1 text-cp-xs">
             {scanBefunde.map((f, i) => (
               <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-                <strong>{t(`scan.finding.${f.kind}`, SCAN_FINDING_LABEL[f.kind])}</strong> — {f.text}
+                <strong>{t(`scan.finding.${f.kind}`, SCAN_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
               </li>
             ))}
           </ul>
@@ -2278,7 +2279,7 @@ const ClientTab = ({ projectName }: { projectName: string }) => {
         <ul className="flex flex-col gap-1 text-cp-xs">
           {summary.findings.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{t(`summary.finding.${f.kind}`, CLIENT_SUMMARY_FINDING_LABEL[f.kind])}</strong> — {f.text}
+              <strong>{t(`summary.finding.${f.kind}`, CLIENT_SUMMARY_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
             </li>
           ))}
         </ul>
@@ -2465,7 +2466,7 @@ const CostTab = ({ projectName }: { projectName: string }) => {
         <ul className="flex flex-col gap-1 text-cp-xs">
           {kosten.findings.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{t(`cost.finding.${f.kind}`, COST_FINDING_LABEL[f.kind])}</strong> — {f.text}
+              <strong>{t(`cost.finding.${f.kind}`, COST_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
             </li>
           ))}
         </ul>
@@ -2732,7 +2733,7 @@ const NamingTab = ({ projectName }: { projectName: string }) => {
         <ul className="flex flex-col gap-1 text-cp-xs">
           {bewertung.findings.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{t(`naming.finding.${f.kind}`, NAMING_FINDING_LABEL[f.kind])}</strong> — {f.text}
+              <strong>{t(`naming.finding.${f.kind}`, NAMING_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
             </li>
           ))}
         </ul>
@@ -2861,7 +2862,7 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
         <ul className="flex flex-col gap-1 text-cp-xs">
           {befunde.map((f, i) => (
             <li key={`${f.kind}-${i}`} className="text-amber-300/90">
-              <strong>{t(`dante.finding.${f.kind}`, DANTE_FINDING_LABEL[f.kind])}</strong> — {f.text}
+              <strong>{t(`dante.finding.${f.kind}`, DANTE_FINDING_LABEL[f.kind])}</strong> — {befundText(f, t)}
             </li>
           ))}
         </ul>

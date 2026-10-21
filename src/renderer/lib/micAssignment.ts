@@ -20,6 +20,7 @@
 //     ist ein Klick, kein Nebeneffekt des Öffnens.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befund, satz, type Satz } from './satz'
 import type { MicAssignment, MicPlot, MicSession, Performer } from '../types/micAssignment'
 import { NO_BATTERY_TIME, NO_PERFORMER_NAME, NO_PHOTO, ORIGIN_LABEL } from '../types/micAssignment'
 import type { WirelessChannel, WirelessRigPlan } from '../types/wirelessRig'
@@ -170,6 +171,7 @@ export const MIC_FINDING_LABEL: Readonly<Record<MicFindingKind, string>> = {
 export interface MicFinding {
   kind: MicFindingKind
   text: string
+  satz?: Satz
   performerIds: string[]
 }
 
@@ -206,7 +208,13 @@ export function micFindings(
     out.push({
       kind: 'channel-double-booked',
       performerIds: gruppe.map((a) => a.performerId),
-      text: `${gruppe.map((a) => name(a.performerId)).join(', ')} stehen auf „${kanal?.label ?? ch}". Zwei Sender auf derselben Frequenz löschen einander aus — das fällt auf, wenn jemand spricht.`,
+      ...befund(
+        satz(
+          'mic.text.channelDoubleBooked',
+          '{namen} are on "{kanal}". Two transmitters on the same frequency cancel each other out — you notice when someone speaks.',
+          { namen: gruppe.map((a) => name(a.performerId)).join(', '), kanal: kanal?.label ?? ch },
+        ),
+      ),
     })
   }
 
@@ -215,7 +223,13 @@ export function micFindings(
     out.push({
       kind: 'pack-double-booked',
       performerIds: gruppe.map((a) => a.performerId),
-      text: `Sender ${pack} ist ${gruppe.length} Personen zugeordnet. Ein Sender hängt an einem Körper; einer der beiden steht ohne da.`,
+      ...befund(
+        satz(
+          'mic.text.packDoubleBooked',
+          'Transmitter {pack} is assigned to {n} people. A transmitter hangs on one body; one of them is left without.',
+          { pack, n: gruppe.length },
+        ),
+      ),
     })
   }
 
@@ -224,7 +238,13 @@ export function micFindings(
     out.push({
       kind: 'performer-twice',
       performerIds: [pid],
-      text: `${name(pid)} trägt ${gruppe.length} Strecken. Das kann stimmen (Headset und Handsender), ist aber öfter ein Rest aus der vorigen Session.`,
+      ...befund(
+        satz(
+          'mic.text.performerTwice',
+          '{name} carries {n} links. That can be right (headset and handheld), but more often it is a leftover from the previous session.',
+          { name: name(pid), n: gruppe.length },
+        ),
+      ),
     })
   }
 
@@ -233,7 +253,13 @@ export function micFindings(
     out.push({
       kind: 'channel-missing',
       performerIds: fehlend.map((a) => a.performerId),
-      text: `${fehlend.length} Zuordnung(en) zeigen auf einen Kanal, den der Rig-Plan nicht mehr führt. Auf der Karte steht dann „Kanal entfernt" statt einer Frequenz.`,
+      ...befund(
+        satz(
+          'mic.text.channelMissing',
+          '{n} assignment(s) point to a channel the rig plan no longer has. The card then shows "channel removed" instead of a frequency.',
+          { n: fehlend.length },
+        ),
+      ),
     })
   }
 
@@ -242,7 +268,13 @@ export function micFindings(
     out.push({
       kind: 'battery-unrecorded',
       performerIds: ohneAkku.map((a) => a.performerId),
-      text: `Bei ${ohneAkku.length} Strecke(n) steht nicht, wann der Akku eingelegt wurde. Die Karte sagt „${NO_BATTERY_TIME}" — sie behauptet keine Restlaufzeit, die niemand kennt.`,
+      ...befund(
+        satz(
+          'mic.text.batteryUnrecorded',
+          'For {n} link(s) it is not recorded when the battery was fitted. The card says "{karte}" — it claims no remaining runtime that nobody knows.',
+          { n: ohneAkku.length, karte: NO_BATTERY_TIME },
+        ),
+      ),
     })
   }
 
@@ -251,7 +283,13 @@ export function micFindings(
     out.push({
       kind: 'carried-unconfirmed',
       performerIds: uebernommen.map((a) => a.performerId),
-      text: `${uebernommen.length} Zuordnung(en) stammen aus der vorigen Session und sind für heute nicht bestätigt. Sie sparen das Neuschreiben; eine Vermutung über heute bleiben sie trotzdem.`,
+      ...befund(
+        satz(
+          'mic.text.carriedUnconfirmed',
+          '{n} assignment(s) come from the previous session and are not confirmed for today. They save rewriting; they remain a guess about today all the same.',
+          { n: uebernommen.length },
+        ),
+      ),
     })
   }
 
