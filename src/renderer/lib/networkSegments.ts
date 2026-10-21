@@ -52,6 +52,7 @@ import {
   type NetworkSegment,
 } from '../types/networkSegment'
 import { allDeviceInterfaces, interfaceLabel } from './networkInterfaces'
+import { type Satz, befundAls, satz } from './satz'
 import type { CsvTable } from './csv'
 
 /**
@@ -171,6 +172,7 @@ export interface SegmentFinding {
   /** VLAN-Id als Klick-/Sortierschlüssel. */
   vlanId: number
   message: string
+  satz: Satz
 }
 
 const segmentName = (v: SegmentView): string =>
@@ -192,9 +194,11 @@ export function segmentFindings(
           kind: 'unnamed-segment',
           severity: 'warning',
           vlanId: v.vlanId,
-          message:
-            `VLAN ${v.vlanId} trägt ${v.members.length} Schnittstelle(n), aber keinen Namen — ` +
-            'eine Zahl allein sagt niemandem, ob Dante dort hin darf.',
+          ...befundAls('message', satz(
+            'segment.unnamed',
+            'VLAN {vlan} carries {n} interface(s) but has no name — a number alone tells nobody whether Dante may go there.',
+            { vlan: v.vlanId, n: v.members.length },
+          )),
         })
       } else if (v.segment) {
         // Ein Datensatz ohne Namen UND ohne Mitglieder ist ein Rest.
@@ -202,7 +206,7 @@ export function segmentFindings(
           kind: 'orphan-segment',
           severity: 'warning',
           vlanId: v.vlanId,
-          message: `VLAN ${v.vlanId} ist hinterlegt, aber weder benannt noch benutzt.`,
+          ...befundAls('message', satz('segment.orphan', 'VLAN {vlan} is on file but neither named nor used.', { vlan: v.vlanId })),
         })
       }
     }
@@ -215,9 +219,11 @@ export function segmentFindings(
         kind: 'mixed-segment',
         severity: 'error',
         vlanId: v.vlanId,
-        message:
-          `${name} führt Medien UND Steuerung. Der Beleg verlangt getrennte Segmente: ` +
-          'Steuerverkehr im Medien-VLAN sitzt auf demselben PTP wie die Audio-Uhr.',
+        ...befundAls('message', satz(
+          'segment.mixed',
+          '{name} carries media AND control. The evidence calls for separate segments: control traffic in the media VLAN sits on the same PTP as the audio clock.',
+          { name },
+        )),
       })
     }
 
@@ -229,9 +235,12 @@ export function segmentFindings(
         kind: 'role-mismatch',
         severity: 'error',
         vlanId: v.vlanId,
-        message:
-          `${m.where} ist "${ROLE_TEXT[m.role]}", liegt aber in ${name} ` +
-          `("${ROLE_TEXT[zweck]}").`,
+        ...befundAls('message', satz('segment.roleMismatch', '{where} is "{role}" but lies in {name} ("{purpose}").', {
+          where: m.where,
+          role: satz(`nic.role.${m.role}`, ROLE_TEXT[m.role]),
+          name,
+          purpose: satz(`nic.role.${zweck}`, ROLE_TEXT[zweck]),
+        })),
       })
     }
 
@@ -244,9 +253,12 @@ export function segmentFindings(
           kind: 'ptp-mismatch',
           severity: 'error',
           vlanId: v.vlanId,
-          message:
-            `${name} ist auf PTP-Domäne ${geplant} geplant, ${m.where} steht auf ` +
-            `${m.ptpDomain}.`,
+          ...befundAls('message', satz('segment.ptpMismatch', '{name} is planned on PTP domain {planned}, {where} is on {actual}.', {
+            name,
+            planned: geplant,
+            where: m.where,
+            actual: m.ptpDomain,
+          })),
         })
       }
     }

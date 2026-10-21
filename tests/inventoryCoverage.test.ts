@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import {
   deriveDemand,
@@ -112,7 +113,7 @@ describe('resolveCoverage — proposed-by-name', () => {
       [item({ id: 'inv1', model: F55_MODEL, quantity: 4 })],
     )
     expect(res.lines[0]).toMatchObject({ outcome: 'proposed-by-name', itemId: 'inv1' })
-    expect(res.lines[0].reason).toContain('keine Typ-Identität')
+    expect(deutsch(res.lines[0].reason)).toContain('keine Typ-Identität')
     expect(res.proposed).toBe(1)
   })
 
@@ -122,7 +123,7 @@ describe('resolveCoverage — proposed-by-name', () => {
       [item({ id: 'inv1', model: 'Sony PMW-F56', quantity: 1 })],
     )
     expect(res.lines[0].outcome).toBe('proposed-by-name')
-    expect(res.lines[0].reason).toContain('weicht um')
+    expect(deutsch(res.lines[0].reason)).toContain('weicht um')
   })
 
   it('befördert einen Vorschlag NIE zur Deckung', () => {

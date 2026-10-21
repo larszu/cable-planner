@@ -41,6 +41,7 @@ import {
 import type { LabelTargetId } from './labelTargets'
 import { LABEL_TARGETS, fitToTarget } from './labelTargets'
 import { UMD_ADDRESS_MAX, UMD_ADDRESS_MIN, isValidUmdAddress } from './sourceIdentity'
+import { satz, type Satz } from './satz'
 
 export const SOURCE_MAP_KIND = 'av-source-map' as const
 export const SOURCE_MAP_VERSION = 1 as const
@@ -369,7 +370,7 @@ export interface SourceMapRejection {
   name: string
   field: string
   value: string
-  reason: string
+  reason: Satz
 }
 
 export interface SourceMapMergeResult {
@@ -421,7 +422,7 @@ export const mergeSourceMap = (
       name: entry.name,
       field: 'umdAddress',
       value: String(entry.umdAddress),
-      reason: `TSL UMD v3.1 kennt nur ganze Adressen ${UMD_ADDRESS_MIN}–${UMD_ADDRESS_MAX}`,
+      reason: satz('sourceMap.umdRange', 'TSL UMD v3.1 only knows whole addresses {min}–{max}', { min: UMD_ADDRESS_MIN, max: UMD_ADDRESS_MAX }),
     })
     return undefined
   }

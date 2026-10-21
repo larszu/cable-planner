@@ -46,6 +46,7 @@ import type { DemandLine } from './inventoryCoverage'
 import { normaliseName } from './inventoryCoverage'
 import type { EquipmentItem } from '../../types/equipment'
 import type { CsvCell, CsvTable } from '../../lib/csv'
+import { satz, type Satz } from '../../lib/satz'
 
 /**
  * Was dieser Abgleich von einer ERP-Zeile braucht.
@@ -99,7 +100,7 @@ export interface ErpReport {
   onlyInErp: number
   differing: number
   /** Zeilen der Reservierung, die bewusst nicht gezaehlt wurden, mit Grund. */
-  ignored: { label: string; reason: string }[]
+  ignored: { label: string; reason: Satz }[]
 }
 
 /**
@@ -114,15 +115,15 @@ const teilen = (erp: ErpLine[]): { geraete: ErpLine[]; ignored: ErpReport['ignor
   const ignored: ErpReport['ignored'] = []
   for (const l of erp) {
     if (l.kind === 'comment') {
-      ignored.push({ label: l.name, reason: 'Kommentarzeile, kein Gerät' })
+      ignored.push({ label: l.name, reason: satz('erp.ignored.comment', 'Comment line, not a device') })
       continue
     }
     if (l.isSetChild) {
-      ignored.push({ label: l.name, reason: 'Inhalt einer Kombination, im Elternteil gezählt' })
+      ignored.push({ label: l.name, reason: satz('erp.ignored.setChild', 'Content of a combination, counted in the parent') })
       continue
     }
     if (!(l.qty > 0)) {
-      ignored.push({ label: l.name, reason: 'Menge 0 — gestrichene Zeile' })
+      ignored.push({ label: l.name, reason: satz('erp.ignored.zero', 'Quantity 0 — cancelled line') })
       continue
     }
     geraete.push(l)

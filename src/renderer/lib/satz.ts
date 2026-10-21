@@ -75,3 +75,10 @@ export const kommaListe = (teile: ReadonlyArray<string | number | Satz>): Satz =
   const [a, ...rest] = teile
   return satz('list.comma', '{a}, {b}', { a, b: rest.length === 1 ? rest[0] : kommaListe(rest) })
 }
+
+/**
+ * Wie `befund`, fuer Befunde, deren Textfeld anders heisst (`message`,
+ * `grund`, `reason`): `{ satz, [feld]: kanonischer Text }`.
+ */
+export const befundAls = <F extends string>(feld: F, s: Satz): { satz: Satz } & Record<F, string> =>
+  ({ satz: s, [feld]: satzKanonisch(s) }) as { satz: Satz } & Record<F, string>

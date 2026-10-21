@@ -30,6 +30,7 @@ import { detectDeviceKind } from './deviceKind'
 import { umdAddressClashes } from './sourceIdentity'
 import { toCsv, type CsvTable } from './csv'
 import { spalten } from './kanonisch'
+import { type Satz, befundAls, satz } from './satz'
 
 export interface TallyMapDevice {
   id: string
@@ -69,6 +70,7 @@ export interface TallyIssue {
   /** Rolle oder Geraet, um das es geht — als Klick-/Sortierschluessel. */
   subject: string
   message: string
+  satz: Satz
 }
 
 export interface TallyMap {
@@ -129,7 +131,7 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
         kind: 'no-device',
         severity: 'warning',
         subject: identity.id,
-        message: `Rolle "${identity.name}" ist an kein Gerät gebunden — es gibt nichts, dessen Tally geschaltet würde.`,
+        ...befundAls('message', satz('tallyMap.noDevice', 'Role "{role}" is bound to no device — there is nothing whose tally would be switched.', { role: identity.name })),
       })
     } else if (!row.switcher) {
       // Ein Kabel zum Router IST ein Unterschied zu gar keinem Kabel. Ohne
@@ -143,18 +145,18 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
           kind: 'router-not-resolved',
           severity: 'warning',
           subject: identity.id,
-          message:
-            `Rolle "${identity.name}" erreicht ${routerName} auf Eingang ` +
-            `${ueberRouter.inputIndex}, aber der Kreuzpunkt zum Mischer ist nicht ` +
-            'geplant — welchen Mischer-Eingang das Tally schaltet, ist damit offen. ' +
-            'Kreuzpunkt im Videohub-Export setzen.',
+          ...befundAls('message', satz(
+            'tallyMap.routerNotResolved',
+            'Role "{role}" reaches {router} on input {input}, but the crosspoint to the switcher is not planned — which switcher input the tally switches is therefore open. Set the crosspoint in the Videohub export.',
+            { role: identity.name, router: routerName, input: ueberRouter.inputIndex },
+          )),
         })
       } else {
         issues.push({
           kind: 'no-switcher-input',
           severity: 'warning',
           subject: identity.id,
-          message: `Rolle "${identity.name}" erreicht keinen Mischer-Eingang — ohne Eingang gibt es kein Tally-Signal.`,
+          ...befundAls('message', satz('tallyMap.noSwitcherInput', 'Role "{role}" reaches no switcher input — without an input there is no tally signal.', { role: identity.name })),
         })
       }
     }
@@ -163,7 +165,7 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
         kind: 'no-umd-address',
         severity: 'warning',
         subject: identity.id,
-        message: `Rolle "${identity.name}" hat keine UMD-Adresse — das Display bleibt leer.`,
+        ...befundAls('message', satz('tallyMap.noUmd', 'Role "{role}" has no UMD address — the display stays blank.', { role: identity.name })),
       })
     }
   }
@@ -173,9 +175,10 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
       kind: 'duplicate-address',
       severity: 'error',
       subject: String(clash.address),
-      message: `UMD-Adresse ${clash.address} ist doppelt vergeben: ${clash.identities
-        .map((i) => `"${i.name}"`)
-        .join(', ')}. Beide Displays zeigen denselben Text.`,
+      ...befundAls('message', satz('tallyMap.duplicateUmd', 'UMD address {address} is assigned twice: {roles}. Both displays show the same text.', {
+        address: clash.address,
+        roles: clash.identities.map((i) => `"${i.name}"`).join(', '),
+      })),
     })
   }
 
@@ -203,7 +206,7 @@ export const buildTallyMap = (project: TallyProject): TallyMap => {
       kind: 'source-without-role',
       severity: 'warning',
       subject: source.id,
-      message: `"${source.name}" speist ${sink.name} auf Eingang ${link.inputIndex}, trägt aber keine Rolle — ohne Rolle kein Tally-Eintrag.`,
+      ...befundAls('message', satz('tallyMap.sourceWithoutRole', '"{source}" feeds {sink} on input {input} but has no role — no role, no tally entry.', { source: source.name, sink: sink.name, input: link.inputIndex })),
     })
   }
 

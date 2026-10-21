@@ -4,6 +4,7 @@ import type { ConnectorType, EquipmentItem, Port } from '../types/equipment'
 import type { LocationFrame } from '../types/location'
 import { bitsToMask, maskToBits } from './subnet'
 import { mitKatalogTyp } from './deviceTypeMatch'
+import { type Satz, befundAls, satz } from './satz'
 import type {
   NetboxCable,
   NetboxComponent,
@@ -138,6 +139,7 @@ export interface NetboxSkip {
   netboxId: number
   label: string
   reason: string
+  satz: Satz
 }
 
 export interface NetboxImportPlan {
@@ -652,7 +654,7 @@ export const buildNetboxImportPlan = (
           kind: 'cable',
           netboxId,
           label,
-          reason: 'Kabel hat in NetBox nur ein belegtes Ende.',
+          ...befundAls('reason', satz('netbox.skip.oneEnd', 'The cable has only one connected end in NetBox.')),
         })
         continue
       }
@@ -661,8 +663,7 @@ export const buildNetboxImportPlan = (
           kind: 'cable',
           netboxId,
           label,
-          reason:
-            'Mehrfach-Terminierung: nur das jeweils erste Ende wurde übernommen.',
+          ...befundAls('reason', satz('netbox.skip.multiTermination', 'Multiple terminations: only the first end on each side was taken over.')),
         })
       }
 
@@ -673,7 +674,7 @@ export const buildNetboxImportPlan = (
           kind: 'cable',
           netboxId,
           label,
-          reason: 'Mindestens ein Kabelende liegt außerhalb des importierten Bereichs.',
+          ...befundAls('reason', satz('netbox.skip.outside', 'At least one cable end lies outside the imported scope.')),
         })
         continue
       }
@@ -691,8 +692,10 @@ export const buildNetboxImportPlan = (
             kind: 'cable',
             netboxId,
             label,
-            reason:
-              'Keine gültige Ausgang→Eingang-Richtung: beide Enden sind gleichgerichtet (z. B. zwei Strom-Eingänge).',
+            ...befundAls('reason', satz(
+              'netbox.skip.direction',
+              'No valid output→input direction: both ends point the same way (e.g. two power inputs).',
+            )),
           })
           continue
         }

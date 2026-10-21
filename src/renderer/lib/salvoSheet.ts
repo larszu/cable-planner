@@ -43,6 +43,7 @@ import type { EquipmentItem, VideohubCrosspoints, VideohubSalvo } from '../types
 import { routingDifferences } from './videohubRouting'
 import { portDisplayLabel } from './portLabel'
 import type { CsvTable } from './csv'
+import { type Satz, befundAls, satz } from './satz'
 
 /** Was auf dem Blatt steht, wo keine Beschriftung hinterlegt ist. */
 export const NO_PORT_LABEL = 'ohne Beschriftung'
@@ -204,6 +205,7 @@ export interface SalvoFinding {
   severity: 'error' | 'warning'
   subject: string
   message: string
+  satz: Satz
 }
 
 /**
@@ -225,7 +227,7 @@ export function salvoFindings(salvos: ReadonlyArray<VideohubSalvo>): SalvoFindin
         kind: 'empty-salvo',
         severity: 'warning',
         subject: s.name,
-        message: `"${s.name}" sagt zu keinem Ausgang etwas — er stellt beim Aufruf nichts um.`,
+        ...befundAls('message', satz('salvo.empty', '"{name}" says nothing about any output — recalling it changes nothing.', { name: s.name })),
       })
     }
   }
@@ -236,9 +238,11 @@ export function salvoFindings(salvos: ReadonlyArray<VideohubSalvo>): SalvoFindin
       kind: 'duplicate-name',
       severity: 'error',
       subject: name,
-      message:
-        `${anzahl} Sätze heissen "${name}". Wer am Telefon „fahr Satz X" sagt, meint dann zwei ` +
-        'verschiedene Zustände.',
+      ...befundAls('message', satz(
+        'salvo.duplicateName',
+        '{n} salvos are called "{name}". Whoever says “run salvo X” on the phone then means two different states.',
+        { n: anzahl, name },
+      )),
     })
   }
   // Deckungslücken paarweise, aber nur EINMAL je Paar.
@@ -253,10 +257,11 @@ export function salvoFindings(salvos: ReadonlyArray<VideohubSalvo>): SalvoFindin
         kind: 'partial-coverage',
         severity: 'warning',
         subject: `${a.name} / ${b.name}`,
-        message:
-          `"${a.name}" und "${b.name}" decken verschiedene Ausgänge ab ` +
-          `(${nurA.length} nur hier, ${nurB.length} nur dort). Auf dem Umbau-Zettel steht dort ` +
-          `"${NOT_SET}", und davor steht beim Umbau jemand ratlos.`,
+        ...befundAls('message', satz(
+          'salvo.partialCoverage',
+          '"{a}" and "{b}" cover different outputs ({onlyA} only here, {onlyB} only there). The changeover sheet says "{notSet}" there, and someone stands in front of it puzzled during the changeover.',
+          { a: a.name, b: b.name, onlyA: nurA.length, onlyB: nurB.length, notSet: NOT_SET },
+        )),
       })
     }
   }

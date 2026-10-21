@@ -152,12 +152,15 @@ export type HandoverFindingKind =
   /** Container ist zurück und niemand hat die Rückgabe gegengezeichnet. */
   | 'unsigned-in'
 
+import { type Satz, befundAls, satz } from '../../lib/satz'
+
 export interface HandoverFinding {
   kind: HandoverFindingKind
   severity: 'error' | 'warning'
   /** Vorgangs-Id als Klick-/Sortierschlüssel. */
   recordId: string
   message: string
+  satz: Satz
 }
 
 /**
@@ -177,7 +180,7 @@ export function handoverFindings(records: readonly CheckoutRecord[]): HandoverFi
         kind: 'unsigned-out',
         severity: 'warning',
         recordId: r.id,
-        message: `"${r.nodeLabel}" ist ausgegeben, aber die Ausgabe ist nicht quittiert.`,
+        ...befundAls('message', satz('handover.finding.unsignedOut', '"{container}" is issued, but the issue is not signed for.', { container: r.nodeLabel })),
       })
     }
     if (r.in && !r.in.signature) {
@@ -185,9 +188,11 @@ export function handoverFindings(records: readonly CheckoutRecord[]): HandoverFi
         kind: 'unsigned-in',
         severity: 'error',
         recordId: r.id,
-        message:
-          `"${r.nodeLabel}" ist zurück, aber die Rückgabe ist NICHT gegengezeichnet. ` +
-          'Bei einer Nachfrage in drei Wochen steht Aussage gegen Aussage.',
+        ...befundAls('message', satz(
+          'handover.finding.unsignedIn',
+          '"{container}" is back, but the return is NOT countersigned. If anyone asks in three weeks, it is word against word.',
+          { container: r.nodeLabel },
+        )),
       })
     }
   }

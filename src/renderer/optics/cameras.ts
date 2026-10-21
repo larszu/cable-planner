@@ -1,4 +1,5 @@
 import type { Camera, SensorSize, AdapterInfo, Lens } from './types';
+import { satz, type Satz } from '../lib/satz';
 
 // ── Standard sensor sizes ──
 export const SENSORS: Record<string, SensorSize> = {
@@ -745,7 +746,7 @@ export type CoverageStatus = 'ok' | 'marginal' | 'vignette';
 export interface CoverageResult {
   status: CoverageStatus;
   ratio: number;
-  message?: string;
+  message?: Satz;
 }
 
 /**
@@ -776,9 +777,9 @@ export function getCoverageStatus(camera: Camera, lens: Lens, useSpeedbooster = 
   const ratio = circle / sensorDiag;
   if (ratio >= 1.0) return { status: 'ok', ratio };
   if (ratio >= 0.9) {
-    return { status: 'marginal', ratio, message: `Bildkreis knapp (${(ratio * 100).toFixed(0)} %) — Ecken können abdunkeln.` };
+    return { status: 'marginal', ratio, message: satz('optics.coverage.marginal', 'Image circle is tight ({pct} %) — corners may darken.', { pct: (ratio * 100).toFixed(0) }) };
   }
-  return { status: 'vignette', ratio, message: `Objektiv deckt den Sensor nicht (${(ratio * 100).toFixed(0)} %) — starke Vignettierung, Crop nötig.` };
+  return { status: 'vignette', ratio, message: satz('optics.coverage.vignette', 'The lens does not cover the sensor ({pct} %) — heavy vignetting, crop needed.', { pct: (ratio * 100).toFixed(0) }) };
 }
 
 export const CAMERA_COLORS = [

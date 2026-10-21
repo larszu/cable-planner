@@ -11,7 +11,30 @@
 import { BEFUNDE_DE } from './befundeDe'
 
 export const KANONISCH_DE: Readonly<Record<string, string>> = {
+  // Labels, die als verschachtelter Satz in Befunden stehen (#1142).
+  'nic.role.control': 'Steuerung',
+  'nic.role.management': 'Management',
+  'nic.role.mediaPrimary': 'Medien primär',
+  'nic.role.mediaSecondary': 'Medien sekundär',
+  'nic.role.unspecified': 'nicht angegeben',
+  'nic.role.media-primary': 'Medien primär',
+  'nic.role.media-secondary': 'Medien sekundär',
+  'tallyPos.obs.blinking': 'blinkt',
+  'tallyPos.obs.green': 'grün',
+  'tallyPos.obs.off': 'aus',
+  'tallyPos.obs.red': 'rot',
+  'tallyPos.obs.wrong-colour': 'falsche Farbe',
+  'tallyPos.obs.wrong-position': 'falsche Position',
+  'tallyPos.transport.gpio': 'GPIO / Kontakt',
+  'tallyPos.transport.ndi': 'NDI-Metadaten',
+  'tallyPos.transport.switcher-native': 'Mischer selbst',
+  'tallyPos.transport.unknown': 'nicht festgelegt',
+  'inventory.history.cond.ok': 'OK',
+  'inventory.history.cond.defect': 'defekt',
+  'inventory.history.cond.inRepair': 'in Reparatur',
+  'inventory.history.cond.retired': 'ausgemustert',
   ...BEFUNDE_DE,
+  // Lager-Vorschlag: Begruendung steht im Stueckliste-Blatt und am Bildschirm.
   'lifecycle.status.planned': 'Geplant',
   'lifecycle.status.installed': 'Installiert',
   'lifecycle.status.tested': 'Getestet',

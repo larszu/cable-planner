@@ -79,9 +79,12 @@ export const IDENTITY_FINDING_LABEL: Readonly<Record<IdentityFindingKind, string
   'no-identity': 'Unit without any number',
 }
 
+import { type Satz, befund, satz } from '../../lib/satz'
+
 export interface IdentityFinding {
   kind: IdentityFindingKind
   text: string
+  satz: Satz
   unitIds: string[]
 }
 
@@ -117,7 +120,11 @@ export function identityFindings(units: readonly InventoryUnit[]): IdentityFindi
     out.push({
       kind: 'serial-duplicate',
       unitIds: gruppe.map((u) => u.id),
-      text: `${gruppe.length} Einheiten tragen die Herstellernummer „${k}". Eine Seriennummer gibt es genau einmal — entweder ist eine falsch getippt, oder dieselbe Kiste steht zweimal im Bestand und die Inventur zählt eine zu viel.`,
+      ...befund(satz(
+        'unitIdentity.serialTwice',
+        '{n} units carry the manufacturer serial “{value}”. A serial exists exactly once — either one is mistyped, or the same case is in stock twice and the stocktake counts one too many.',
+        { n: gruppe.length, value: k },
+      )),
     })
   }
   for (const [k, gruppe] of gruppiere(units, (u) => u.houseRef)) {
@@ -125,7 +132,11 @@ export function identityFindings(units: readonly InventoryUnit[]): IdentityFindi
     out.push({
       kind: 'houseref-duplicate',
       unitIds: gruppe.map((u) => u.id),
-      text: `${gruppe.length} Einheiten tragen die Hausreferenz „${k}". Im eigenen Haus ist das die Nummer, die der Lagerist ruft — sie zweimal zu vergeben heißt, dass er die falsche Kiste holt.`,
+      ...befund(satz(
+        'unitIdentity.houseRefTwice',
+        '{n} units carry the house reference “{value}”. In-house that is the number the storekeeper calls out — giving it twice means he fetches the wrong case.',
+        { n: gruppe.length, value: k },
+      )),
     })
   }
   const ohne = units.filter(
@@ -135,7 +146,11 @@ export function identityFindings(units: readonly InventoryUnit[]): IdentityFindi
     out.push({
       kind: 'no-identity',
       unitIds: ohne.map((u) => u.id),
-      text: `${ohne.length} Einheit(en) tragen weder Herstellernummer noch Hausreferenz noch Etiketten-Code. Auf jedem Blatt stehen sie als „${NO_IDENTITY}" — unterscheidbar sind sie dann nur über ihren Platz im Regal.`,
+      ...befund(satz(
+        'unitIdentity.none',
+        '{n} unit(s) carry neither a manufacturer serial nor a house reference nor a label code. Every sheet lists them as “{placeholder}” — they can then only be told apart by their place on the shelf.',
+        { n: ohne.length, placeholder: NO_IDENTITY },
+      )),
     })
   }
   return out

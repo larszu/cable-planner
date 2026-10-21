@@ -592,7 +592,7 @@ export const messeOhneT = (wurzel, quellsprache) => {
 const BEFUND_FELD = /\b(?:text|reason|detail|message|grund)\s*:\s*((?:(['"`])(?:[^\\]|\\.)*?\2\s*\+?\s*)+)/g
 const LITERAL = /(['"`])((?:[^\\]|\\.)*?)\1/g
 
-export const BEFUND_GRENZE = { 'src/renderer': 98, 'src/mobile': 0, 'src/viewer': 0 }
+export const BEFUND_GRENZE = { 'src/renderer': 0, 'src/mobile': 0, 'src/viewer': 0 }
 
 export const messeBefundtexte = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'

@@ -46,6 +46,7 @@ import {
 } from '../types/switcherControl'
 import type { HubKreuzpunkt } from './patternRouting'
 import { buildCrosspointCommand, kreuzpunktKlartext } from './videohubCrosspoint'
+import { type Satz, befundAls, satz } from './satz'
 import {
   TextVorlagenFehler,
   lesbar,
@@ -62,8 +63,10 @@ import {
 export interface ControlHindernis {
   equipmentId: string
   equipmentName: string
-  /** Der Satz, den die Oberfläche zeigt. Sagt, was zu tun ist. */
+  /** Der Satz, den die Oberfläche zeigt (über `satzText`). Sagt, was zu tun ist. */
   grund: string
+  /** Derselbe Satz fuer den Bildschirm (App-Sprache, `satzText`). */
+  satz: Satz
 }
 
 export interface ControlPlan {
@@ -103,7 +106,7 @@ const videohubAction = (
     return {
       equipmentId: device.id,
       equipmentName: device.name,
-      grund: `Für „${device.name}" ist keine IP-Adresse hinterlegt (Eigenschaften des Geräts).`,
+      ...befundAls('grund', satz('control.noIp', 'No IP address is set for “{device}” (device properties).', { device: device.name })),
     }
   }
   const paare: { output: number; input: number }[] = []
@@ -114,7 +117,7 @@ const videohubAction = (
       return {
         equipmentId: device.id,
         equipmentName: device.name,
-        grund: `„${device.name}": der Anschluss „${output < 0 ? k.outputName : k.inputName}" gehört nicht mehr zum Gerät.`,
+        ...befundAls('grund', satz('control.portGone', '“{device}”: the port “{port}” no longer belongs to the device.', { device: device.name, port: output < 0 ? k.outputName : k.inputName })),
       }
     }
     paare.push({ output, input })
@@ -153,7 +156,7 @@ const atemAction = (
     return {
       equipmentId: device.id,
       equipmentName: device.name,
-      grund: `Für „${device.name}" ist keine IP-Adresse hinterlegt (Eigenschaften des Geräts).`,
+      ...befundAls('grund', satz('control.noIp', 'No IP address is set for “{device}” (device properties).', { device: device.name })),
     }
   }
   const befehle: AtemBefehl[] = []
@@ -166,14 +169,14 @@ const atemAction = (
       return {
         equipmentId: device.id,
         equipmentName: device.name,
-        grund: `„${device.name}": dem Eingang „${k.inputName}" fehlt die Quellen-Nummer des Mischers (Anschlüsse → Steuerung).`,
+        ...befundAls('grund', satz('control.atem.noSource', '“{device}”: the input “{port}” has no switcher source number (Ports → Control).', { device: device.name, port: k.inputName })),
       }
     }
     if (!outCtl) {
       return {
         equipmentId: device.id,
         equipmentName: device.name,
-        grund: `„${device.name}": beim Ausgang „${k.outputName}" ist nicht eingetragen, ob er Programm, Vorschau oder ein Aux ist (Anschlüsse → Steuerung).`,
+        ...befundAls('grund', satz('control.atem.noRole', '“{device}”: the output “{port}” does not say whether it is program, preview or an aux (Ports → Control).', { device: device.name, port: k.outputName })),
       }
     }
     if (outCtl.role === 'program') befehle.push({ kind: 'program', me: outCtl.address, source: inCtl.address })
@@ -183,7 +186,7 @@ const atemAction = (
       return {
         equipmentId: device.id,
         equipmentName: device.name,
-        grund: `„${device.name}": der Ausgang „${k.outputName}" ist als „${outCtl.role}" eingetragen — das kennt der ATEM nicht.`,
+        ...befundAls('grund', satz('control.atem.badRole', '“{device}”: the output “{port}” is set as “{role}” — the ATEM does not know that.', { device: device.name, port: k.outputName, role: String(outCtl.role) })),
       }
     }
   }
@@ -227,7 +230,7 @@ const textAction = (
     return {
       equipmentId: device.id,
       equipmentName: device.name,
-      grund: `Für „${device.name}" ist keine IP-Adresse hinterlegt (Eigenschaften des Geräts).`,
+      ...befundAls('grund', satz('control.noIp', 'No IP address is set for “{device}” (device properties).', { device: device.name })),
     }
   }
   const config = device.controlText
@@ -235,14 +238,14 @@ const textAction = (
     return {
       equipmentId: device.id,
       equipmentName: device.name,
-      grund: `Für „${device.name}" ist keine Befehlszeile eingetragen (Eigenschaften → Schaltung). Sie steht im Handbuch des Geräts — geraten wird sie nicht.`,
+      ...befundAls('grund', satz('control.text.noTemplate', 'No command line is set for “{device}” (Properties → Switching). It is in the device manual — it is never guessed.', { device: device.name })),
     }
   }
   if (!device.controlPort) {
     return {
       equipmentId: device.id,
       equipmentName: device.name,
-      grund: `Für „${device.name}" ist kein Port eingetragen. Welchen das Gerät benutzt, steht im Handbuch.`,
+      ...befundAls('grund', satz('control.text.noPort', 'No port is set for “{device}”. The manual says which one the device uses.', { device: device.name })),
     }
   }
   const kreuz: TextKreuzpunkt[] = []
@@ -253,7 +256,7 @@ const textAction = (
       return {
         equipmentId: device.id,
         equipmentName: device.name,
-        grund: `„${device.name}": der Anschluss „${outputIndex < 0 ? k.outputName : k.inputName}" gehört nicht mehr zum Gerät.`,
+        ...befundAls('grund', satz('control.portGone', '“{device}”: the port “{port}” no longer belongs to the device.', { device: device.name, port: outputIndex < 0 ? k.outputName : k.inputName })),
       }
     }
     const outAddr = device.outputs[outputIndex].control?.address
@@ -262,7 +265,7 @@ const textAction = (
       return {
         equipmentId: device.id,
         equipmentName: device.name,
-        grund: `„${device.name}": dem Anschluss „${outAddr === undefined ? k.outputName : k.inputName}" fehlt die Nummer am Gerät (Anschlüsse → Steuerung).`,
+        ...befundAls('grund', satz('control.noPortNumber', '“{device}”: the port “{port}” has no number on the device (Ports → Control).', { device: device.name, port: outAddr === undefined ? k.outputName : k.inputName })),
       }
     }
     kreuz.push({
@@ -279,10 +282,9 @@ const textAction = (
     return {
       equipmentId: device.id,
       equipmentName: device.name,
-      grund:
-        e instanceof TextVorlagenFehler
-          ? `„${device.name}": ${e.message}`
-          : `„${device.name}": die Befehlszeile lässt sich nicht bilden.`,
+      ...befundAls('grund', e instanceof TextVorlagenFehler
+          ? satz('control.deviceError', '“{device}”: {error}', { device: device.name, error: e.message })
+          : satz('control.text.cannotBuild', '“{device}”: the command line cannot be built.', { device: device.name })),
     }
   }
   return {
@@ -317,7 +319,7 @@ const companionAction = (
     return {
       equipmentId: device.id,
       equipmentName: device.name,
-      grund: `Für „${device.name}" ist keine Companion-Adresse hinterlegt (Eigenschaften des Geräts, Feld IP-Adresse).`,
+      ...befundAls('grund', satz('control.companion.noAddress', 'No Companion address is set for “{device}” (device properties, IP address field).', { device: device.name })),
     }
   }
   const config = device.controlCompanion
@@ -325,7 +327,7 @@ const companionAction = (
     return {
       equipmentId: device.id,
       equipmentName: device.name,
-      grund: `Für „${device.name}" ist keine Companion-Schaltfläche eingetragen (Eigenschaften → Schaltung).`,
+      ...befundAls('grund', satz('control.companion.noButton', 'No Companion button is set for “{device}” (Properties → Switching).', { device: device.name })),
     }
   }
   const kreuz: CompanionKreuzpunkt[] = []
@@ -336,7 +338,7 @@ const companionAction = (
       return {
         equipmentId: device.id,
         equipmentName: device.name,
-        grund: `„${device.name}": der Anschluss „${outputIndex < 0 ? k.outputName : k.inputName}" gehört nicht mehr zum Gerät.`,
+        ...befundAls('grund', satz('control.portGone', '“{device}”: the port “{port}” no longer belongs to the device.', { device: device.name, port: outputIndex < 0 ? k.outputName : k.inputName })),
       }
     }
     const outAddr = device.outputs[outputIndex].control?.address
@@ -345,7 +347,7 @@ const companionAction = (
       return {
         equipmentId: device.id,
         equipmentName: device.name,
-        grund: `„${device.name}": dem Anschluss „${outAddr === undefined ? k.outputName : k.inputName}" fehlt die Nummer am Gerät (Anschlüsse → Steuerung).`,
+        ...befundAls('grund', satz('control.noPortNumber', '“{device}”: the port “{port}” has no number on the device (Ports → Control).', { device: device.name, port: outAddr === undefined ? k.outputName : k.inputName })),
       }
     }
     kreuz.push({
@@ -362,10 +364,9 @@ const companionAction = (
     return {
       equipmentId: device.id,
       equipmentName: device.name,
-      grund:
-        e instanceof CompanionFehler
-          ? `„${device.name}": ${e.message}`
-          : `„${device.name}": die Companion-Aufrufe lassen sich nicht bilden.`,
+      ...befundAls('grund', e instanceof CompanionFehler
+          ? satz('control.deviceError', '“{device}”: {error}', { device: device.name, error: e.message })
+          : satz('control.companion.cannotBuild', '“{device}”: the Companion calls cannot be built.', { device: device.name })),
     }
   }
   return {
@@ -405,7 +406,7 @@ export const controlActions = (
       hindernisse.push({
         equipmentId: id,
         equipmentName: punkte[0].equipmentName,
-        grund: `„${punkte[0].equipmentName}" steht nicht mehr im Plan.`,
+        ...befundAls('grund', satz('control.deviceGone', '“{device}” is no longer in the plan.', { device: punkte[0].equipmentName })),
       })
       continue
     }
@@ -414,7 +415,7 @@ export const controlActions = (
       hindernisse.push({
         equipmentId: id,
         equipmentName: device.name,
-        grund: `Für „${device.name}" ist kein Steuer-Protokoll erklärt (Eigenschaften → Steuerung). Ohne Erklärung wird nichts gesendet — welches Protokoll ein Gerät spricht, lässt sich nicht am Namen ablesen.`,
+        ...befundAls('grund', satz('control.noProtocol', 'No control protocol is declared for “{device}” (Properties → Control). Without it nothing is sent — which protocol a device speaks cannot be read from its name.', { device: device.name })),
       })
       continue
     }

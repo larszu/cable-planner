@@ -13,6 +13,7 @@ import {
   sendebereit,
 } from '../../lib/controlActions'
 import { useTranslation } from '../../lib/i18n'
+import { satzText } from '../../lib/satz'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 /**
@@ -243,7 +244,7 @@ export function HubSwitchDialog({ onClose }: { onClose: () => void }) {
 
                 {plan.hindernisse.map((h) => (
                   <div key={h.equipmentId} className="text-[12px] text-cp-warn">
-                    {h.grund}
+                    {satzText(h.satz, t)}
                   </div>
                 ))}
 

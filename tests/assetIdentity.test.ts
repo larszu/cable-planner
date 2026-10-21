@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import {
   ASSET_FINDING_LABEL,
@@ -118,8 +119,8 @@ describe('der Fall aus dem Bedarf: niemand weiss, WELCHE Kiste', () => {
     // die Abonnements zeigen ins Leere" schon.
     const a = assessAssetIdentity(eingabe({ equipment: [netz('e1', 'Stagebox 1')] }))
     const f = a.findings.find((x) => x.kind === 'unit-unnamed')!
-    expect(f.text).toMatch(/eingebrannte/)
-    expect(f.text).toMatch(/Abonnements/)
+    expect(deutsch(f.text)).toMatch(/eingebrannte/)
+    expect(deutsch(f.text)).toMatch(/Abonnements/)
   })
 
   it('schweigt, sobald eine Einheit benannt ist', () => {
@@ -147,8 +148,8 @@ describe('wo zwei Aufzeichnungen einander widersprechen', () => {
     )
     const f = a.findings.find((x) => x.kind === 'serial-mismatch')!
     expect(f).toBeDefined()
-    expect(f.text).toContain('SN-1')
-    expect(f.text).toContain('SN-2')
+    expect(deutsch(f.text)).toContain('SN-1')
+    expect(deutsch(f.text)).toContain('SN-2')
   })
 
   it('BEHAUPTET NICHT, welche der beiden stimmt', () => {
@@ -162,7 +163,7 @@ describe('wo zwei Aufzeichnungen einander widersprechen', () => {
       }),
     )
     const f = a.findings.find((x) => x.kind === 'serial-mismatch')!
-    expect(f.text).toMatch(/welche stimmt, sagt der Plan nicht/)
+    expect(deutsch(f.text)).toMatch(/welche stimmt, sagt der Plan nicht/)
   })
 
   it('vergleicht Seriennummern, wie ein Mensch sie tippt', () => {
@@ -199,8 +200,8 @@ describe('wo zwei Aufzeichnungen einander widersprechen', () => {
     )
     const doppelt = a.findings.filter((f) => f.kind === 'unit-double')
     expect(doppelt).toHaveLength(1)
-    expect(doppelt[0].text).toContain('Stagebox 1')
-    expect(doppelt[0].text).toContain('Stagebox 2')
+    expect(deutsch(doppelt[0].text)).toContain('Stagebox 1')
+    expect(deutsch(doppelt[0].text)).toContain('Stagebox 2')
   })
 
   it('leert einen Zeiger ins Nichts NICHT still, sondern meldet ihn', () => {
@@ -209,7 +210,7 @@ describe('wo zwei Aufzeichnungen einander widersprechen', () => {
     )
     const f = a.findings.find((x) => x.kind === 'unit-missing')!
     expect(f).toBeDefined()
-    expect(f.text).toMatch(/anderen Lagerdatenbank/)
+    expect(deutsch(f.text)).toMatch(/anderen Lagerdatenbank/)
     // Und die Zeile traegt die Einheit weiter — sie ist eine Auskunft.
     expect(a.rows[0].unitId).toBe('weg')
   })
@@ -227,8 +228,8 @@ describe('was das Lager dazu sagt', () => {
     )
     const f = a.findings.find((x) => x.kind === 'unit-blocked')!
     expect(f).toBeDefined()
-    expect(f.text).toContain('Stagebox 32')
-    expect(f.text).toContain('inRepair')
+    expect(deutsch(f.text)).toContain('Stagebox 32')
+    expect(deutsch(f.text)).toContain('in Reparatur')
   })
 
   it('meldet eine Einheit, die auf keinem offenen Schein steht', () => {

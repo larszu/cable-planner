@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import { buildPlanBom, outcomeLabel, pickListCsv, planBomCsv } from '../src/renderer/lager/lib/planBom'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
@@ -84,7 +85,7 @@ describe('buildPlanBom', () => {
     )
     expect(bom.rows[0].outcome).toBe('proposed-by-name')
     expect(bom.rows[0].location).toBe('')
-    expect(bom.rows[0].reason).toBeTruthy()
+    expect(deutsch(bom.rows[0].reason)).toBeTruthy()
   })
 
   it('zählt einen Vorschlag NICHT als gedeckt', () => {

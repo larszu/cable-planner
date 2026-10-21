@@ -980,7 +980,7 @@ const webFallbackApi: CablePlannerApi = {
   showControl: {
     start: async () => ({
       lage: 'nicht-gebunden' as const,
-      grund: 'Im Browser gibt es keinen Port zum Lauschen — dafür braucht es die Desktop-App.',
+      grund: tr('bridge.showControl.desktopOnly', 'A browser has no port to listen on — that needs the desktop app.'),
     }),
     stop: async () => ({ lage: 'aus' as const }),
     state: async () => ({ zustand: { lage: 'aus' as const }, meldungen: [] }),
@@ -998,11 +998,11 @@ const webFallbackApi: CablePlannerApi = {
   tally: {
     read: async () => ({
       ok: false,
-      error: 'Der Weg zum Tally-Pi braucht die Desktop-App — im Browser lässt der Pi keine Anfrage zu.',
+      error: tr('bridge.tallyPi.desktopOnly', 'Reaching the Tally Pi needs the desktop app — the Pi accepts no request from a browser.'),
     }),
     write: async () => ({
       ok: false,
-      error: 'Der Weg zum Tally-Pi braucht die Desktop-App — im Browser lässt der Pi keine Anfrage zu.',
+      error: tr('bridge.tallyPi.desktopOnly', 'Reaching the Tally Pi needs the desktop app — the Pi accepts no request from a browser.'),
     }),
   },
   streamKey: {
@@ -1120,7 +1120,7 @@ const webFallbackApi: CablePlannerApi = {
      *  Mehrwert ohne Token-Management via Electron-Credentials-Store. */
     exportToCablePlannerGroup: async () => {
       throw new Error(
-        'Rentman-Export ist nur in der Electron-Desktop-App verfügbar, nicht im Web-/Mobile-Build.',
+        tr('bridge.rentman.desktopOnly', 'Rentman export is only available in the desktop app, not in the web/mobile build.'),
       )
     },
     addProjectFile: async (
@@ -1272,26 +1272,26 @@ const webFallbackApi: CablePlannerApi = {
     // dem Browser scheitert unabhängig vom Token. Der Import braucht daher
     // den Main-Prozess.
     saveToken: async () => {
-      throw new Error('NetBox-Integration erfordert die Desktop-App.')
+      throw new Error(tr('bridge.netbox.desktopOnly', 'NetBox integration needs the desktop app.'))
     },
     hasToken: async () => false,
     deleteToken: async () => false,
     normalizeUrl: async () => ({
       ok: false as const,
-      message: 'NetBox-Integration erfordert die Desktop-App.',
+      message: tr('bridge.netbox.desktopOnly', 'NetBox integration needs the desktop app.'),
     }),
     testConnection: async () => ({
       ok: false,
-      message: 'NetBox-Integration erfordert die Desktop-App.',
+      message: tr('bridge.netbox.desktopOnly', 'NetBox integration needs the desktop app.'),
     }),
     getSites: async () => {
-      throw new Error('NetBox-Integration erfordert die Desktop-App.')
+      throw new Error(tr('bridge.netbox.desktopOnly', 'NetBox integration needs the desktop app.'))
     },
     getRacks: async () => {
-      throw new Error('NetBox-Integration erfordert die Desktop-App.')
+      throw new Error(tr('bridge.netbox.desktopOnly', 'NetBox integration needs the desktop app.'))
     },
     fetchSnapshot: async () => {
-      throw new Error('NetBox-Integration erfordert die Desktop-App.')
+      throw new Error(tr('bridge.netbox.desktopOnly', 'NetBox integration needs the desktop app.'))
     },
   },
   graphml: {
@@ -1349,11 +1349,11 @@ const webFallbackApi: CablePlannerApi = {
     // schlimmer als ein lauter.
     send: async () => ({
       ok: false,
-      message: 'Schalten erfordert die Desktop-App.',
+      message: tr('bridge.switch.desktopOnly', 'Switching needs the desktop app.'),
     }),
     companionConnections: async () => ({
       ok: false,
-      message: 'Companion abfragen erfordert die Desktop-App.',
+      message: tr('bridge.companion.desktopOnly', 'Querying Companion needs the desktop app.'),
       connections: [],
     }),
   },
@@ -1368,11 +1368,11 @@ const webFallbackApi: CablePlannerApi = {
   videohub: {
     sendRouting: async () => ({
       ok: false,
-      message: 'TCP-Übertragung erfordert die Desktop-App.',
+      message: tr('bridge.tcpSend.desktopOnly', 'TCP transmission needs the desktop app.'),
     }),
     readState: async () => ({
       ok: false,
-      message: 'TCP-Lese-Zugriff erfordert die Desktop-App.',
+      message: tr('bridge.tcpRead.desktopOnly', 'TCP read access needs the desktop app.'),
       state: null,
     }),
     discover: async () => [],
@@ -1386,7 +1386,7 @@ const webFallbackApi: CablePlannerApi = {
   signaling: {
     // Web-Fallback: ein Signaling-Server braucht den Main-Prozess (TCP-Listen).
     start: async () => {
-      throw new Error('Lokaler Signaling-Server erfordert die Desktop-App.')
+      throw new Error(tr('bridge.signaling.desktopOnly', 'The local signaling server needs the desktop app.'))
     },
     stop: async () => ({ ok: true }),
   },
@@ -1394,16 +1394,16 @@ const webFallbackApi: CablePlannerApi = {
     rendererError: () => {},
   },
   updater: {
-    check: async () => ({ ok: false, current: '', message: 'Updates erfordern die Desktop-App.' }),
+    check: async () => ({ ok: false, current: '', message: tr('bridge.updates.desktopOnly', 'Updates need the desktop app.') }),
     quitAndInstall: async () => false,
     onStatus: () => () => {},
   },
   sync: {
     readFile: async () => {
-      throw new Error('Netzwerk-Sync erfordert die Desktop-App.')
+      throw new Error(tr('bridge.netSync.desktopOnly', 'Network sync needs the desktop app.'))
     },
     writeFile: async () => {
-      throw new Error('Netzwerk-Sync erfordert die Desktop-App.')
+      throw new Error(tr('bridge.netSync.desktopOnly', 'Network sync needs the desktop app.'))
     },
     exists: async () => false,
     acquireLock: async () => ({ ok: false, lockedBy: undefined }),
@@ -1457,7 +1457,7 @@ const webFallbackApi: CablePlannerApi = {
     // Im Browser gibt es keinen lokalen Server — und keine Behauptung, es
     // gaebe einen.
     start: async () => {
-      throw new Error('Der MCP-Server erfordert die Desktop-App.')
+      throw new Error(tr('bridge.mcp.desktopOnly', 'The MCP server needs the desktop app.'))
     },
     stop: async () => ({ ok: false }),
     status: async () => ({
@@ -1485,7 +1485,7 @@ const webFallbackApi: CablePlannerApi = {
   },
   mobileShare: {
     start: async () => {
-      throw new Error('Handy-Zugriff erfordert die Desktop-App.')
+      throw new Error(tr('bridge.mobile.desktopOnly', 'Phone access needs the desktop app.'))
     },
     stop: async () => ({ ok: true }),
     status: async () => ({ running: false, port: 0, urls: [], hasProject: false, withheld: [] }),
@@ -1501,7 +1501,7 @@ const webFallbackApi: CablePlannerApi = {
     setPincodes: async () => ({ ok: false, on: false, count: 0 }),
     pincodeStatus: async () => ({ on: false, count: 0 }),
     setAllowBeyondLan: async () => {
-      throw new Error('Handy-Zugriff erfordert die Desktop-App.')
+      throw new Error(tr('bridge.mobile.desktopOnly', 'Phone access needs the desktop app.'))
     },
     onChecksUpdate: () => () => {},
     onPatternCheck: () => () => {},

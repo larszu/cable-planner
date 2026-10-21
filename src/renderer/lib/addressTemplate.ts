@@ -104,6 +104,7 @@ import {
 import { allDeviceInterfaces, interfaceLabel } from './networkInterfaces'
 import { ROLE_TEXT } from './networkSegments'
 import type { CsvTable } from './csv'
+import { type Satz, befundAls, satz } from './satz'
 
 /**
  * Ein Bereich, so wie er nach der Ueberlagerung GILT.
@@ -191,6 +192,7 @@ export interface AddressTemplateFinding {
   /** Schluessel des betroffenen Bereichs — Sortier- und Klickschluessel. */
   key: string
   message: string
+  satz: Satz
 }
 
 const rangeName = (r: AddressRange): string => r.name.trim() || r.key.trim() || NO_RANGE_NAME
@@ -232,10 +234,11 @@ export function addressTemplateFindings(
           kind: 'key-twice',
           severity: 'error',
           key,
-          message:
-            `Ebene "${layer.name.trim() || NO_RANGE_NAME}" führt den Schlüssel "${key}" zweimal ` +
-            `(${rangeName(vorher)} ${vorher.cidr} und ${rangeName(r)} ${r.cidr}). ` +
-            'Dann ist nicht entscheidbar, welchen der beiden eine Haus-Ebene ersetzt.',
+          ...befundAls('message', satz(
+            'addressTemplate.keyTwice',
+            'Layer "{layer}" has the key "{key}" twice ({a} {aCidr} and {b} {bCidr}). Then it cannot be decided which of the two a venue layer replaces.',
+            { layer: layer.name.trim() || NO_RANGE_NAME, key, a: rangeName(vorher), aCidr: vorher.cidr, b: rangeName(r), bCidr: r.cidr },
+          )),
         })
       } else {
         gesehen.set(key, r)
@@ -264,12 +267,18 @@ export function addressTemplateFindings(
         kind: 'overlap',
         severity: 'error',
         key: a.key.trim() || b.key.trim(),
-        message:
-          `${rangeName(a)} (${a.cidr}, ${a.layerName.trim() || NO_RANGE_NAME}) und ` +
-          `${rangeName(b)} (${b.cidr}, ${b.layerName.trim() || NO_RANGE_NAME}) ` +
-          'liegen auf denselben Adressen, und der äußere der beiden ist keine ' +
-          'Klammer. Zwei Zwecke auf denselben Adressen erzeugen die doppelte IP, ' +
-          'die einen Teil des Netzes stehen lässt.',
+        ...befundAls('message', satz(
+          'addressTemplate.overlap',
+          '{a} ({aCidr}, {aLayer}) and {b} ({bCidr}, {bLayer}) sit on the same addresses, and the outer one is not a container. Two purposes on the same addresses produce the duplicate IP that brings part of the network down.',
+          {
+            a: rangeName(a),
+            aCidr: a.cidr,
+            aLayer: a.layerName.trim() || NO_RANGE_NAME,
+            b: rangeName(b),
+            bCidr: b.cidr,
+            bLayer: b.layerName.trim() || NO_RANGE_NAME,
+          },
+        )),
       })
     }
   }
@@ -298,12 +307,11 @@ export function addressTemplateFindings(
         kind: 'venue-orphan',
         severity: 'error',
         key,
-        message:
-          `${rangeName(r)} (${r.cidr}) trägt den Schlüssel "${key}", den der stehende Plan ` +
-          `nicht kennt — ersetzt also nichts — und überschneidet sich mit ` +
-          `${rangeName(kollision.r)} (${kollision.r.cidr}). Entweder ist der Schlüssel ` +
-          'vertippt und die gemeinte Ersetzung findet nicht statt, oder beide Bereiche ' +
-          'gelten nebeneinander auf denselben Adressen.',
+        ...befundAls('message', satz(
+          'addressTemplate.venueOrphan',
+          '{range} ({cidr}) has the key "{key}", which the standing plan does not know — so it replaces nothing — and overlaps {other} ({otherCidr}). Either the key is mistyped and the intended replacement does not happen, or both ranges apply side by side on the same addresses.',
+          { range: rangeName(r), cidr: r.cidr, key, other: rangeName(kollision.r), otherCidr: kollision.r.cidr },
+        )),
       })
     }
   }
@@ -325,10 +333,11 @@ export function addressTemplateFindings(
         kind: 'container-holds-device',
         severity: 'warning',
         key: innerster.key,
-        message:
-          `${wo} steht auf ${nic.ipAddress} — das liegt in der Klammer ` +
-          `${rangeName(innerster)} (${innerster.cidr}), aber in keinem ihrer ` +
-          'Unterbereiche. Der Unterbereich, in den das Gerät gehört, fehlt im Plan.',
+        ...befundAls('message', satz(
+          'addressTemplate.containerHoldsDevice',
+          '{where} is on {ip} — inside the container {range} ({cidr}), but in none of its sub-ranges. The sub-range the device belongs in is missing from the plan.',
+          { where: wo, ip: nic.ipAddress, range: rangeName(innerster), cidr: innerster.cidr },
+        )),
       })
     }
 
@@ -340,10 +349,16 @@ export function addressTemplateFindings(
         kind: 'device-outside',
         severity: 'error',
         key: fuerRolle[0].key,
-        message:
-          `${wo} ist "${ROLE_TEXT[nic.role]}" und steht auf ${nic.ipAddress}. Geplant ist ` +
-          `dafür ${fuerRolle.map((r) => `${rangeName(r)} (${r.cidr})`).join(', ')}. ` +
-          'Die Adresse liegt in keinem davon.',
+        ...befundAls('message', satz(
+          'addressTemplate.deviceOutside',
+          '{where} is "{role}" and is on {ip}. Planned for it: {ranges}. The address is in none of them.',
+          {
+            where: wo,
+            role: satz(`nic.role.${nic.role}`, ROLE_TEXT[nic.role]),
+            ip: nic.ipAddress,
+            ranges: fuerRolle.map((r) => `${rangeName(r)} (${r.cidr})`).join(', '),
+          },
+        )),
       })
     }
 
@@ -358,10 +373,11 @@ export function addressTemplateFindings(
         kind: 'vlan-mismatch',
         severity: 'error',
         key: innerster.key,
-        message:
-          `${wo} steht in VLAN ${nic.vlanId}, ihre Adresse ${nic.ipAddress} liegt aber in ` +
-          `${rangeName(innerster)} (${innerster.cidr}), geplant für VLAN ` +
-          `${innerster.vlanId}.`,
+        ...befundAls('message', satz(
+          'addressTemplate.vlanMismatch',
+          '{where} is in VLAN {vlan}, but its address {ip} lies in {range} ({cidr}), planned for VLAN {planned}.',
+          { where: wo, vlan: nic.vlanId, ip: nic.ipAddress, range: rangeName(innerster), cidr: innerster.cidr, planned: innerster.vlanId },
+        )),
       })
     }
   }

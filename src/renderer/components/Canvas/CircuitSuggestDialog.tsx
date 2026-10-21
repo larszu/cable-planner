@@ -26,6 +26,7 @@ import { useCircuitStore } from '../../store/circuitStore'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
 import { useTranslation } from '../../lib/i18n'
+import { satzText } from '../../lib/satz'
 import { PanelHint } from '../shared/PanelHint'
 import { planVorschlaege, type PlanVorschlag } from '../../lib/circuitSuggestPlan'
 import type { TafelZeile } from '../../lib/circuitSuggest'
@@ -171,7 +172,7 @@ export function CircuitSuggestDialog({ open, onClose }: Props) {
               {befunde.map((b, i) => (
                 <li key={i} className="border border-cp-warn/40 bg-cp-surface-2 px-3 py-2">
                   <span className="text-cp-warn">{b.art}</span>
-                  <span className="text-cp-text-secondary"> — {b.text}</span>
+                  <span className="text-cp-text-secondary"> — {satzText(b.satz, t)}</span>
                 </li>
               ))}
             </ul>

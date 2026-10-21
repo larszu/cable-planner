@@ -34,6 +34,7 @@ import { commitmentNote, committedByItem } from './inventoryCommitment'
 import type { ZusatzBedarf } from '../../lib/planDemandExtras'
 import { resolveDeviceType } from '../../lib/deviceTypeRegistry'
 import { isWithinDistance } from '../../lib/levenshtein'
+import { satz, type Satz } from '../../lib/satz'
 
 export type CoverageOutcome = 'matched-by-type' | 'proposed-by-name' | 'unmatched'
 
@@ -89,7 +90,7 @@ export interface CoverageLine {
    *  bei einem Vorschlag ist noch gar nicht sicher, dass es die Position ist. */
   short?: number
   /** Warum der Vorschlag zustande kam — damit ein Mensch ihn pruefen kann. */
-  reason?: string
+  reason?: Satz
   /**
    * ALLE deckenden Positionen, nicht nur die erste.
    *
@@ -464,7 +465,11 @@ export const resolveCoverage = (
         itemModel: exactName[0].model,
         ...mengen(exactName),
         sources: exactName,
-        reason: `Modellname stimmt überein ("${exactName[0].model}"), aber die Lager-Position trägt keine Typ-Identität.`,
+        reason: satz(
+          'coverage.reason.sameName',
+          'Model name matches ("{model}"), but the stock item has no type identity.',
+          { model: exactName[0].model },
+        ),
       }
     }
 
@@ -487,7 +492,11 @@ export const resolveCoverage = (
           itemModel: gleiche[0].model,
           ...mengen(gleiche),
           sources: gleiche,
-          reason: `Modellname weicht um höchstens ${MAX_EDIT_DISTANCE} Zeichen ab ("${near.model}") — bitte prüfen.`,
+          reason: satz(
+            'coverage.reason.nearName',
+            'Model name differs by at most {n} characters ("{model}") — please check.',
+            { n: MAX_EDIT_DISTANCE, model: near.model },
+          ),
         }
       }
     }

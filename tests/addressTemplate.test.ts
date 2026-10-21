@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   RANGE_HEADERS,
@@ -290,7 +291,7 @@ describe('addressTemplateFindings — Bereiche gegeneinander', () => {
     })
     const f = addressTemplateFindings([l])
     expect(f.filter((x) => x.kind === 'key-twice')).toHaveLength(1)
-    expect(f[0].message).toContain('nicht entscheidbar')
+    expect(deutsch(f[0].message)).toContain('nicht entscheidbar')
   })
 
   it('meldet denselben Schluessel UEBER Ebenen hinweg nicht — das ist der Zweck', () => {
@@ -308,7 +309,7 @@ describe('addressTemplateFindings — Bereiche gegeneinander', () => {
     })
     const f = addressTemplateFindings([stehend, vertippt])
     expect(kinds(f)).toContain('venue-orphan')
-    expect(f.find((x) => x.kind === 'venue-orphan')!.message).toContain('vertippt')
+    expect(deutsch(f.find((x) => x.kind === 'venue-orphan')!.message)).toContain('vertippt')
   })
 
   it('meldet einen Haus-Bereich in freiem Raum NICHT', () => {
@@ -330,7 +331,7 @@ describe('addressTemplateFindings — Geraete gegen die Bereiche', () => {
     ]
     const f = addressTemplateFindings([stehend], geraete)
     expect(kinds(f)).toEqual(['device-outside'])
-    expect(f[0].message).toContain('Steuerung')
+    expect(deutsch(f[0].message)).toContain('Steuerung')
   })
 
   it('schweigt, wenn es fuer die Rolle gar keinen Bereich gibt', () => {
@@ -376,7 +377,7 @@ describe('addressTemplateFindings — Geraete gegen die Bereiche', () => {
     ]
     const f = addressTemplateFindings([l], geraete)
     expect(kinds(f)).toEqual(['container-holds-device'])
-    expect(f[0].message).toContain('Unterbereich')
+    expect(deutsch(f[0].message)).toContain('Unterbereich')
   })
 
   it('meldet den Widerspruch zwischen VLAN an der Schnittstelle und am Bereich', () => {
@@ -391,8 +392,8 @@ describe('addressTemplateFindings — Geraete gegen die Bereiche', () => {
     ]
     const f = addressTemplateFindings([l], geraete)
     expect(kinds(f)).toEqual(['vlan-mismatch'])
-    expect(f[0].message).toContain('VLAN 30')
-    expect(f[0].message).toContain('VLAN 20')
+    expect(deutsch(f[0].message)).toContain('VLAN 30')
+    expect(deutsch(f[0].message)).toContain('VLAN 20')
   })
 
   it('schweigt, wenn die Schnittstelle gar keine VLAN nennt', () => {

@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import {
   HANDOVER_SIGNATURE_HEADERS,
@@ -153,7 +154,7 @@ describe('handoverFindings', () => {
     const f = handoverFindings([zurueck()])
     const offen = f.find((x) => x.kind === 'unsigned-in')
     expect(offen?.severity).toBe('error')
-    expect(offen?.message).toContain('Aussage gegen Aussage')
+    expect(deutsch(offen?.message)).toContain('Aussage gegen Aussage')
   })
 
   it('macht aus der fehlenden Ausgabe-Quittung nur einen Hinweis', () => {

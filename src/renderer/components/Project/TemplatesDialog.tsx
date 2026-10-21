@@ -35,6 +35,7 @@ import {
 import { venueScopeDialog } from '../../lib/venueScopeDialog'
 import { JOB_BASIS_LABEL, latestAsBuilt } from '../../lib/jobHandover'
 import { PanelHint } from '../shared/PanelHint'
+import { satzText } from '../../lib/satz'
 
 export const TemplatesDialog = () => {
   const t = useTranslation()
@@ -86,7 +87,7 @@ export const TemplatesDialog = () => {
     )
     if (bericht.state === 'elsewhere') {
       const weiter = await confirmDialog(t('templates.carryTitle', 'Answers from a different venue'), {
-        body: bericht.text,
+        body: satzText(bericht.satz, t),
         okLabel: t('templates.carryOk', 'Load anyway'),
       })
       if (!weiter) return

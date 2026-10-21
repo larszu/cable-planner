@@ -3,6 +3,7 @@ import { PanelHint } from '../shared/PanelHint'
 import { AlertTriangle, Download, Layers, Plus, Trash2 } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
+import { satzText } from '../../lib/satz'
 import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { toCsv } from '../../lib/csv'
@@ -360,7 +361,7 @@ export const AddressTemplatePanel = ({ projectName }: { projectName: string }) =
               }`}
             >
               <Icon icon={AlertTriangle} size="xs" />
-              <span>{f.message}</span>
+              <span>{satzText(f.satz, t)}</span>
             </li>
           ))}
         </ul>

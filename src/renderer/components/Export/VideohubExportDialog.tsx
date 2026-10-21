@@ -45,6 +45,7 @@ import {
 import { toCsv } from '../../lib/csv'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
 import { NumberInput } from '../shared/NumberInput'
+import { satzText } from '../../lib/satz'
 
 // #237 — Stop-Words die im Smart-Routing nicht zum Score beitragen.
 // "out"/"in" matched sonst auf praktisch jeden Port-Namen weil beide
@@ -210,7 +211,7 @@ const ChangeoverSheet = ({
               key={`${b.kind}:${b.subject}:${idx}`}
               className={b.severity === 'error' ? 'text-red-400' : 'text-amber-300/90'}
             >
-              {b.message}
+              {satzText(b.satz, t)}
             </li>
           ))}
         </ul>

@@ -49,6 +49,7 @@ import {
   type TallyTransport,
 } from '../types/tallyPosition'
 import type { CsvTable } from './csv'
+import { type Satz, befundAls, satz } from './satz'
 
 /** Das Urteil über EINE Position. */
 export type TallyVerdict =
@@ -140,6 +141,7 @@ export interface TallyPositionFinding {
   /** Rolle, um die es geht — als Klick-/Sortierschlüssel. */
   subject: string
   message: string
+  satz: Satz
 }
 
 const positionByIdentity = (
@@ -168,7 +170,7 @@ export function tallyPositionFindings(
         kind: 'no-position',
         severity: 'warning',
         subject: role.name,
-        message: `Für "${role.name}" ist kein Tally-Weg hinterlegt.`,
+        ...befundAls('message', satz('tallyPos.finding.noPosition', 'No tally path is set for "{role}".', { role: role.name })),
       })
       continue
     }
@@ -178,16 +180,18 @@ export function tallyPositionFindings(
         kind: 'no-transport',
         severity: 'warning',
         subject: role.name,
-        message: `"${role.name}": Tally-Weg nicht festgelegt.`,
+        ...befundAls('message', satz('tallyPos.finding.noTransport', '"{role}": tally path not decided.', { role: role.name })),
       })
     } else if (!pos.endpoint?.trim()) {
       out.push({
         kind: 'no-endpoint',
         severity: 'warning',
         subject: role.name,
-        message:
-          `"${role.name}": ${TALLY_TRANSPORT_LABEL[pos.transport]} ohne Adresse — ` +
-          'auf dem Blatt steht dann kein Wert, den jemand am Gerät nachsehen kann.',
+        ...befundAls('message', satz(
+          'tallyPos.finding.noEndpoint',
+          '"{role}": {transport} without an address — the sheet then shows no value anyone can look up on the device.',
+          { role: role.name, transport: satz(`tallyPos.transport.${pos.transport}`, TALLY_TRANSPORT_LABEL[pos.transport]) },
+        )),
       })
     }
 
@@ -200,9 +204,11 @@ export function tallyPositionFindings(
         kind: 'ndi-preview-warning',
         severity: 'warning',
         subject: role.name,
-        message:
-          `"${role.name}" hängt am NDI-Tally: dort kann schon ein Multiview ein ` +
-          'Vorschau-Tally auslösen (DistroAV#318). Vorschau getrennt prüfen.',
+        ...befundAls('message', satz(
+          'tallyPos.finding.ndiPreview',
+          '"{role}" is on NDI tally: there a multiview alone can trigger a preview tally (DistroAV#318). Check preview separately.',
+          { role: role.name },
+        )),
       })
     }
 
@@ -213,25 +219,30 @@ export function tallyPositionFindings(
         kind: 'lying',
         severity: 'error',
         subject: role.name,
-        message:
-          `"${role.name}" zeigte bei der letzten Prüfung etwas Falsches ` +
-          `(Programm: ${TALLY_OBSERVATION_LABEL[c?.onProgram ?? 'not-checked']}, ` +
-          `Vorschau: ${TALLY_OBSERVATION_LABEL[c?.onPreview ?? 'not-checked']}).`,
+        ...befundAls('message', satz(
+          'tallyPos.finding.lying',
+          '"{role}" showed something wrong at the last check (program: {program}, preview: {preview}).',
+          {
+            role: role.name,
+            program: satz(`tallyPos.obs.${c?.onProgram ?? 'not-checked'}`, TALLY_OBSERVATION_LABEL[c?.onProgram ?? 'not-checked']),
+            preview: satz(`tallyPos.obs.${c?.onPreview ?? 'not-checked'}`, TALLY_OBSERVATION_LABEL[c?.onPreview ?? 'not-checked']),
+          },
+        )),
       })
     } else if (verdict === 'dark') {
       out.push({
         kind: 'dark',
         severity: 'error',
         subject: role.name,
-        message: `"${role.name}" blieb bei der letzten Prüfung dunkel.`,
+        ...befundAls('message', satz('tallyPos.finding.dark', '"{role}" stayed dark at the last check.', { role: role.name })),
       })
     } else if (verdict === 'unchecked') {
       const c = lastCheck(pos)
       const halb =
         c && (c.onProgram !== 'not-checked' || c.onPreview !== 'not-checked')
           ? c.onPreview === 'not-checked'
-            ? 'Vorschau'
-            : 'Programm'
+            ? 'preview'
+            : 'program'
           : undefined
       out.push(
         halb
@@ -239,17 +250,23 @@ export function tallyPositionFindings(
               kind: 'half-checked',
               severity: 'warning',
               subject: role.name,
-              message:
-                `"${role.name}": nur halb geprüft — die ${halb} fehlt. ` +
-                (halb === 'Vorschau'
-                  ? 'Genau dort sitzt der Fehler aus DistroAV#318: rot, obwohl nie auf Sendung.'
-                  : 'Ohne das Programm-Tally ist die Hauptrichtung ungeprüft.'),
+              ...befundAls('message', halb === 'preview'
+                  ? satz(
+                      'tallyPos.finding.halfPreview',
+                      '"{role}": only half checked — preview is missing. That is exactly where the DistroAV#318 fault sits: red although never on air.',
+                      { role: role.name },
+                    )
+                  : satz(
+                      'tallyPos.finding.halfProgram',
+                      '"{role}": only half checked — program is missing. Without the program tally the main direction is unchecked.',
+                      { role: role.name },
+                    )),
             }
           : {
               kind: 'unchecked',
               severity: 'warning',
               subject: role.name,
-              message: `"${role.name}": ${NOT_CHECKED}.`,
+              ...befundAls('message', satz('tallyPos.finding.unchecked', '"{role}": {state}.', { role: role.name, state: satz('tallyPos.obs.not-checked', NOT_CHECKED) })),
             },
       )
     }

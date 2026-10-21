@@ -73,6 +73,7 @@ import {
   useLagerorte,
   useTypBestaetigen,
 } from '../../lager'
+import { satzText } from '../../lib/satz'
 
 export type ExportFormat = 'pdf' | 'png' | 'jpeg' | 'svg' | 'dxf'
 type Section = 'plan' | 'patch' | 'bom' | 'devicebom' | 'rack' | 'tally' | 'packet'
@@ -1518,7 +1519,7 @@ const MvSheetPanel = ({ map }: { map: ReturnType<typeof buildTallyMap> }) => {
               key={`${b.kind}:${b.mvIndex}:${idx}`}
               className={b.severity === 'error' ? 'text-cp-danger' : 'text-cp-warn'}
             >
-              {b.message}
+              {satzText(b.satz, t)}
             </li>
           ))}
         </ul>
@@ -1675,7 +1676,7 @@ const TallySection = () => {
                 key={`${issue.kind}:${issue.subject}:${idx}`}
                 className={issue.severity === 'error' ? 'text-cp-danger' : 'text-cp-warn'}
               >
-                {issue.message}
+                {satzText(issue.satz, t)}
               </li>
             ))}
           </ul>

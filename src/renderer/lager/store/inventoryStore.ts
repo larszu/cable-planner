@@ -30,6 +30,21 @@ import type { CastorKind, CaseOrientation, TransportSpec } from '../types/transp
 import { normaliseFaultEvent } from '../lib/faultHistory'
 import { deriveDemand } from '../lib/inventoryCoverage'
 import type { EquipmentItem } from '../../types/equipment'
+import { satz, satzQuelle, type Satz } from '../../lib/satz'
+
+/** Systemeintrag der Historie: Quelle in `detail`, uebersetzbar ueber `satz`. */
+/** Ein gespeicherter Satz ist nur gueltig mit Schluessel und Quelle. */
+const istSatz = (v: unknown): v is Satz =>
+  !!v && typeof v === 'object' && typeof (v as Satz).key === 'string' && typeof (v as Satz).en === 'string'
+
+const ereignis = (s: Satz) => ({ detail: satzQuelle(s), satz: s })
+
+const ZUSTAND_EN: Readonly<Record<UnitCondition, string>> = {
+  ok: 'OK',
+  defect: 'defective',
+  inRepair: 'in repair',
+  retired: 'retired',
+}
 
 /**
  * Phase 2 — Zentraler Bestand (docs/inventory-rental-readiness.md).
@@ -489,6 +504,7 @@ const healUnit = (raw: unknown): InventoryUnit | null => {
             at: ev.at,
             kind,
             detail: ev.detail,
+            ...(istSatz(ev.satz) ? { satz: ev.satz } : {}),
             ...(kind === 'fault' ? normaliseFaultEvent(ev) : {}),
           }
         })
@@ -933,7 +949,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
           ? {
               ...u,
               locationId: undefined,
-              history: [...u.history, { at: nowIso, kind: 'moved' as const, detail: 'Lagerort gelöscht' }],
+              history: [...u.history, { at: nowIso, kind: 'moved' as const, ...ereignis(satz('inventory.history.locationDeleted', 'Storage location deleted')) }],
               updatedAt: nowIso,
             }
           : u,
@@ -970,7 +986,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     const unit: InventoryUnit = {
       ...input,
       id: uuidv4(),
-      history: [{ at: now, kind: 'created', detail: 'angelegt' }],
+      history: [{ at: now, kind: 'created', ...ereignis(satz('inventory.history.created', 'created')) }],
       createdAt: now,
       updatedAt: now,
     }
@@ -1004,7 +1020,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
           ? {
               ...u,
               locationId: nodeId,
-              history: [...u.history, { at: now, kind: 'moved' as const, detail: nodeId ? `nach ${locationLabel}` : 'aus Lagerort entfernt' }],
+              history: [...u.history, { at: now, kind: 'moved' as const, ...ereignis(nodeId ? satz('inventory.history.movedTo', 'to {location}', { location: locationLabel ?? '' }) : satz('inventory.history.removed', 'removed from storage location')) }],
               updatedAt: now,
             }
           : u,
@@ -1027,7 +1043,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
           ? {
               ...u,
               condition,
-              history: [...u.history, { at: now, kind: 'condition' as const, detail: `Zustand → ${condition}` }],
+              history: [...u.history, { at: now, kind: 'condition' as const, ...ereignis(satz('inventory.history.condition', 'Condition → {condition}', { condition: satz(`inventory.history.cond.${condition}`, ZUSTAND_EN[condition]) })) }],
               updatedAt: now,
             }
           : u,

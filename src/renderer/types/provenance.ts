@@ -70,29 +70,32 @@ export const PROVENANCE_ORDER: Record<Provenance, number> = {
  * Guard in tests/provenance.test.ts prueft, dass jeder Eintrag ein Feld
  * benennt, das es wirklich gibt.
  */
+import { satz, type Satz } from '../lib/satz'
+
 export interface ProvenanceDeclaration {
   /** Wo der Wert lebt, als lesbarer Pfad. */
   field: string
   provenance: Provenance
   /** Warum — steht im Tooltip und muss den Nutzer ueberzeugen, nicht den Autor. */
-  reason: string
+  reason: Satz
 }
 
 export const DECLARED_PROVENANCE: ProvenanceDeclaration[] = [
   {
     field: 'metadata.rentmanCableMap.lastSentQty',
     provenance: 'commanded',
-    reason:
-      'Diese Menge wurde an Rentman geschickt. Rentman meldet nicht zurück, ' +
-      'ob sie dort angekommen ist — ein Rücklesen kostete einen zweiten ' +
-      'API-Aufruf je Position gegen ein Rate-Limit.',
+    reason: satz(
+      'provenance.rentmanSent',
+      'This quantity was sent to Rentman. Rentman does not report back whether it arrived — reading it back would cost a second API call per item against a rate limit.',
+    ),
   },
   {
     field: 'equipment.portsUnknown',
     provenance: 'unknown',
-    reason:
-      'Beim Import gab es keinen Datenblatt-Treffer. Die Ports sind leer, ' +
-      'weil keine erfunden wurden — nicht, weil das Gerät keine hätte.',
+    reason: satz(
+      'provenance.portsUnknown',
+      'The import found no datasheet match. The ports are empty because none were invented — not because the device has none.',
+    ),
   },
 ]
 
@@ -101,5 +104,5 @@ export const provenanceOf = (field: string): Provenance =>
   DECLARED_PROVENANCE.find((d) => d.field === field)?.provenance ?? 'planned'
 
 /** Die Begruendung zu einem Feld, falls es eine gibt. */
-export const provenanceReason = (field: string): string | undefined =>
+export const provenanceReason = (field: string): Satz | undefined =>
   DECLARED_PROVENANCE.find((d) => d.field === field)?.reason

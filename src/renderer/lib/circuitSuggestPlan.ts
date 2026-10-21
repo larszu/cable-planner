@@ -31,6 +31,7 @@ import { circuitFromProject, istStromKabel, LEERE_SIM, type CircuitSim } from '.
 import { schaltungsVorschlaege, type Befund, type TafelZeile } from './circuitSuggest'
 import { CIRCUIT_KIND_INFO } from '../types/circuit'
 import { format, tr } from './i18n'
+import { satzText } from './satz'
 
 /** Eine Ader, die sich so in den Plan eintragen lässt. */
 export interface PlanKante {
@@ -177,7 +178,7 @@ export const planVorschlaege = (
     }
 
     return {
-      text: v.text,
+      text: satzText(v.satz, tr),
       wahrheitstafel: v.wahrheitstafel,
       kanten: hindernis === undefined ? kanten : [],
       ...(hindernis === undefined ? {} : { hindernis }),
@@ -188,7 +189,7 @@ export const planVorschlaege = (
     befunde: roh.befunde,
     vorschlaege,
     vollstaendig: roh.vollstaendig,
-    ...(roh.grund === undefined ? {} : { grund: roh.grund }),
-    annahmen: roh.annahmen,
+    ...(roh.grund === undefined ? {} : { grund: satzText(roh.grund, tr) }),
+    annahmen: roh.annahmen.map((a) => satzText(a, tr)),
   }
 }

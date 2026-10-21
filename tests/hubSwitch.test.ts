@@ -1,3 +1,4 @@
+import { deutsch } from './support/deutsch'
 import { describe, expect, it } from 'vitest'
 import {
   KreuzpunktFehler,
@@ -389,7 +390,7 @@ describe('Ein Auftrag je Kreuzschiene', () => {
     const p = mitProtokoll()
     p.equipment.find((e) => e.id === 'hubA')!.ipAddress = ''
     const plan = controlActions(p, weg.kreuzpunkte)
-    expect(plan.hindernisse[0].grund).toMatch(/IP-Adresse/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/IP-Adresse/)
   })
 
   it('ein Geraet ohne erklaertes Protokoll bekommt keinen Befehl, sondern einen Satz', () => {
@@ -398,7 +399,7 @@ describe('Ein Auftrag je Kreuzschiene', () => {
     const plan = controlActions(anlage(), weg.kreuzpunkte)
     expect(plan.actions).toEqual([])
     expect(plan.hindernisse).toHaveLength(2)
-    expect(plan.hindernisse[0].grund).toMatch(/Steuer-Protokoll/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/Steuer-Protokoll/)
   })
 })
 
@@ -424,7 +425,7 @@ describe('Der ATEM spricht seine eigenen Nummern', () => {
     const weg = routing.ziele.find((z) => z.equipmentId === 'mon1')!
     const plan = controlActions(p, weg.kreuzpunkte)
     expect(plan.actions).toEqual([])
-    expect(plan.hindernisse[0].grund).toMatch(/Quellen-Nummer/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/Quellen-Nummer/)
   })
 
   it('fehlt nur die Ausgangs-Rolle, sagt der Grund genau das', () => {
@@ -437,7 +438,7 @@ describe('Der ATEM spricht seine eigenen Nummern', () => {
     const weg = routing.ziele.find((z) => z.equipmentId === 'mon1')!
     const plan = controlActions(p, weg.kreuzpunkte)
     expect(plan.actions).toEqual([])
-    expect(plan.hindernisse[0].grund).toMatch(/Programm, Vorschau oder ein Aux/)
+    expect(deutsch(plan.hindernisse[0].grund)).toMatch(/Programm, Vorschau oder ein Aux/)
   })
 
   it('die Vorschau nennt AUFRUFE und behauptet keinen gesendeten Text', () => {

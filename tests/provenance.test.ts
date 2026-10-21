@@ -48,7 +48,7 @@ describe('das Vokabular', () => {
     // Eine Kennzeichnung ohne Grund ist im Tooltip wertlos — und der Grund
     // muss den Nutzer ueberzeugen, nicht den Autor.
     for (const d of DECLARED_PROVENANCE) {
-      expect(d.reason.length, d.field).toBeGreaterThan(40)
+      expect(d.reason.en.length, d.field).toBeGreaterThan(40)
       expect(provenanceReason(d.field)).toBe(d.reason)
     }
   })

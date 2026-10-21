@@ -9,6 +9,7 @@
 //      an dem sich das entscheidet.
 //   3. Keine stillen Grenzen und keine stillen Annahmen.
 // ───────────────────────────────────────────────────────────────────────────
+import { deutsch } from './support/deutsch'
 import { describe, it, expect } from 'vitest'
 import { solveCircuit, type CircuitEdge, type CircuitNode } from '../src/renderer/lib/circuitSolver'
 import { schaltungsVorschlaege, GRENZEN } from '../src/renderer/lib/circuitSuggest'
@@ -45,7 +46,7 @@ describe('richtige Wechselschaltung', () => {
 
   it('nennt die Annahme, unter der gerechnet wurde', () => {
     const r = schaltungsVorschlaege(wechselKnoten, wechselKanten)
-    expect(r.annahmen).toContain('Alle Einspeisungen führen Spannung.')
+    expect(r.annahmen.map(deutsch)).toContain('Alle Einspeisungen führen Spannung.')
   })
 })
 
@@ -106,7 +107,7 @@ describe('Wechselschaltung mit fehlender Korrespondierender', () => {
         ),
       )
       // Unabhaengig heisst hier: genau zwei der vier Stellungen brennen.
-      expect(an.filter(Boolean), v.text).toHaveLength(2)
+      expect(an.filter(Boolean), deutsch(v.text)).toHaveLength(2)
     }
   })
 
@@ -178,8 +179,8 @@ describe('Leuchte ohne Ader', () => {
     const belegt = new Set(['F#0', 'S#1', 'S#2', 'J#0'])
     for (const v of r.vorschlaege) {
       for (const k of v.kanten) {
-        expect(belegt.has(`${k.fromNode}#${k.fromTerminal}`), v.text).toBe(false)
-        expect(belegt.has(`${k.toNode}#${k.toTerminal}`), v.text).toBe(false)
+        expect(belegt.has(`${k.fromNode}#${k.fromTerminal}`), deutsch(v.text)).toBe(false)
+        expect(belegt.has(`${k.toNode}#${k.toTerminal}`), deutsch(v.text)).toBe(false)
       }
     }
     // Und ueber die Dose wird die Leuchte trotzdem erreicht.
@@ -207,7 +208,7 @@ describe('was sich nicht durch Hinzufügen beheben lässt', () => {
     const r = schaltungsVorschlaege(knoten, kanten)
     const immer = r.befunde.find((b) => b.art === 'immer-an')
     expect(immer).toBeDefined()
-    expect(immer?.text).toContain('Entfernen')
+    expect(deutsch(immer?.text)).toContain('Entfernen')
     expect(r.vorschlaege).toEqual([])
     // Und ausdruecklich NICHT als gekappte Suche ausgewiesen.
     expect(r.vollstaendig).toBe(true)
@@ -255,12 +256,12 @@ describe('Betriebsmittel sind kein Verdrahtungsfehler', () => {
     const r = schaltungsVorschlaege(knoten, kanten)
     expect(r.befunde).toEqual([])
     expect(r.vorschlaege).toEqual([])
-    expect(r.annahmen).toContain('FI, LS, Not-Aus, Schütz und Relais sind leitend angenommen.')
+    expect(r.annahmen.map(deutsch)).toContain('FI, LS, Not-Aus, Schütz und Relais sind leitend angenommen.')
   })
 
   it('ohne Betriebsmittel steht die Annahme auch nicht da', () => {
     const r = schaltungsVorschlaege(wechselKnoten, wechselKanten)
-    expect(r.annahmen).toEqual(['Alle Einspeisungen führen Spannung.'])
+    expect(r.annahmen.map(deutsch)).toEqual(['Alle Einspeisungen führen Spannung.'])
   })
 })
 
@@ -320,7 +321,7 @@ describe('keine stillen Grenzen', () => {
     ]
     const r = schaltungsVorschlaege(knoten, [])
     expect(r.vollstaendig).toBe(false)
-    expect(r.grund).toContain(String(GRENZEN.stellungen))
+    expect(deutsch(r.grund)).toContain(String(GRENZEN.stellungen))
     expect(r.vorschlaege).toEqual([])
   })
 
@@ -334,7 +335,7 @@ describe('keine stillen Grenzen', () => {
     ]
     const r = schaltungsVorschlaege(knoten, [])
     expect(r.vollstaendig).toBe(false)
-    expect(r.grund).toContain(String(GRENZEN.klemmen))
+    expect(deutsch(r.grund)).toContain(String(GRENZEN.klemmen))
   })
 })
 
