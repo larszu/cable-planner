@@ -43,6 +43,9 @@
 
 - **Plan in signal flow, not in drawings.** Devices with real ports from 1,800+
   catalogue entries, each linked to its manufacturer datasheet.
+  "Controlled via" in the properties panel lists the documented control
+  protocols (serial with pinout, baud and network-bridge setup, or IP with
+  port); values the manufacturer does not publish are marked as such.
   A new cable starts with the type and length of the last cable drawn
   between the same connectors; its name stays empty and the label shows the
   type. A cable runs from an output to an input, whichever end you start at;
