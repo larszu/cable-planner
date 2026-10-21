@@ -163,11 +163,11 @@ export function plugeRaster(w: number, h: number, higher: number) {
 }
 
 /** Note shown for patterns whose exact codes only reach the scopes. */
-export const NOTE_16 = t('pattern.note16');
+export const note16 = () => t('pattern.note16');
 
 export interface Pattern16 { id: string; name: string; transfer?: 'pq' | 'hlg'; colorspace: Colorspace; full: boolean; raster: (w: number, h: number) => CodeRaster }
 
-export const PATTERNS_16: Pattern16[] = [
+export const patterns16 = (): Pattern16[] => [
   { id: 'bt2111-hlg', name: t('pattern.bt2111Hlg'), transfer: 'hlg', colorspace: '2020', full: false, raster: (w, h) => bt2111Raster('hlg', w, h) },
   { id: 'bt2111-pq', name: t('pattern.bt2111Pq'), transfer: 'pq', colorspace: '2020', full: false, raster: (w, h) => bt2111Raster('pq', w, h) },
   { id: 'bt2111-pqfull', name: t('pattern.bt2111PqFull'), transfer: 'pq', colorspace: '2020', full: true, raster: (w, h) => bt2111Raster('pqfull', w, h) },

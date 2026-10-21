@@ -118,7 +118,7 @@ table.num-table td:first-child, table.num-table th:first-child { text-align: lef
   border-width: 1px 0 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding-bottom: env(safe-area-inset-bottom);
 }
-.popover.sheet .popover-head::before { content: ''; display: block; width: 36px; height: 4px; margin: 0 auto 8px; background: var(--line-3); border-radius: 2px; }
+.popover.sheet .popover-head::before { content: ''; display: block; width: 36px; height: 4px; margin: 0 auto 8px; background: var(--line-3); border-radius: var(--radius); }
 @media (prefers-reduced-motion: no-preference) {
   .popover:popover-open { transition: opacity var(--dur-2) var(--ease), translate var(--dur-2) var(--ease); }
   @starting-style { .popover:popover-open { opacity: 0; translate: 0 4px; } }

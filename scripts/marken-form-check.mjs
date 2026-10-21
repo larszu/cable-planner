@@ -248,10 +248,7 @@ const nurTokens = (w) => w.trim().split(/\s+(?![^(]*\))/).every((t) => t === '0'
  * Eintrag ist ein offener Fund upstream; faellt er dort weg, meldet der Lauf
  * den Eintrag als veraltet.
  */
-const VENDOR_AUSNAHMEN = new Set([
-  // Griff des Bottom-Sheets (36x4 px), lz-scopes src/ui/components.css.
-  'src/renderer/vendor/lz-scopes/src/ui/components.css  border-radius: 2px',
-])
+const VENDOR_AUSNAHMEN = new Set([])
 const ausnahmenGesehen = new Set()
 function melde(kurz, text, wert) {
   const zeile = `${kurz}  ${text}`

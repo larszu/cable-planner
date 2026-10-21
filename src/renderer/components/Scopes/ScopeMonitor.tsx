@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { SCOPE_LABELS, ScopeView, Source, type ScopeType } from '../../vendor/lz-scopes/src'
+import { SCOPE_LABELS, ScopeView, Source, setScopesLang, type ScopeType } from '../../vendor/lz-scopes/src'
+import { useUiStore } from '../../store/uiStore'
 import { oeffneScopeFeed, scopeZustandText, type ScopeFeedZustand } from '../../lib/scopeFeed'
 import { format, useTranslation } from '../../lib/i18n'
 import type { StreamEndpoint } from '../../types/stream'
@@ -43,22 +44,25 @@ export default function ScopeMonitor({
   style?: CSSProperties
 }) {
   const t = useTranslation()
+  const sprache = useUiStore((s) => s.language)
   const host = useRef<HTMLDivElement>(null)
   const [zustand, setZustand] = useState<ScopeFeedZustand>({ phase: 'start' })
   const [ohneWebgl, setOhneWebgl] = useState(false)
   const [fps, setFps] = useState(0)
   // Anfangswerte: die Scope-Wahl lebt danach in den Panel-Kopfzeilen, und ein
   // neues Array vom Aufrufer darf den Strom nicht abreissen.
-  const anfang = useRef({ stream, name, scopes, selectors, t })
+  const anfang = useRef({ stream, name, scopes, selectors, t, sprache })
 
   useEffect(() => {
     const el = host.current
     if (!el) return
     const a = anfang.current
+    // Sprache der App statt System/lz-scopes-Einstellung; danach die eigenen Namen darueber
+    setScopesLang(a.sprache)
     Object.assign(SCOPE_LABELS, scopeLabels(a.t))
     let view: ScopeView
     try {
-      view = new ScopeView(el, { scopes: a.scopes, selectors: a.selectors, emptyText: a.t('scopes.noSignal', 'No signal') })
+      view = new ScopeView(el, { lang: a.sprache, scopes: a.scopes, selectors: a.selectors, emptyText: a.t('scopes.noSignal', 'No signal') })
     } catch {
       el.replaceChildren()
       // eslint-disable-next-line react-hooks/set-state-in-effect -- WebGL2 zeigt sich erst beim Anlegen des Kontexts; vorher gibt es nichts zu fragen

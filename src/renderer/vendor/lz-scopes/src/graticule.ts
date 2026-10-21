@@ -11,7 +11,7 @@ import { CIE_VIEW, CIE_VIEW_UV, WAVE_MAX, WAVE_MIN, type Rect } from './renderer
 import { latencyLines, rtpLines } from './latency';
 import type { Source } from './sources';
 import { CUBE_SPACE_LABELS, SIGNAL_SPACES, cubeProject, cubeRotation, cubeWireframe, qFromChl, qFromHsv, qFromIctcp, qFromLab, qFromRgb, qFromXyz, qFromYcc, type CubeSettings } from './cube';
-import { t, type Key } from './i18n';
+import { onLangChange, t, type Key } from './i18n';
 import { bridgeText } from './i18n/bridgeMessage';
 import { stopLabel, stopTicks, stopsOf } from './stops';
 
@@ -27,7 +27,8 @@ const SCOPE_IDS: ScopeType[] = [
   'light-cie', 'light-vector', 'light-bands', 'light-trend', 'light-map', 'light-spectrum', 'light-swatch',
 ];
 /** Panel names in the UI language (keys scope.name.<id>); the order is the order of the menus. */
-export const SCOPE_LABELS = Object.fromEntries(SCOPE_IDS.map((s) => [s, t(`scope.name.${s}` as Key)])) as Record<ScopeType, string>;
+const scopeLabels = () => Object.fromEntries(SCOPE_IDS.map((s) => [s, t(`scope.name.${s}` as Key)])) as Record<ScopeType, string>;
+export const SCOPE_LABELS = scopeLabels();
 
 export const isAudio = (s: ScopeType) => s.startsWith('audio-');
 
@@ -78,7 +79,10 @@ export function plotRect(scope: ScopeType, w: number, h: number, aspect = 16 / 9
 export type WaveRange = [number, number];
 export type WaveZoom = 'full' | 'black' | 'white';
 export const WAVE_ZOOMS: Record<WaveZoom, WaveRange> = { full: [WAVE_MIN, WAVE_MAX], black: [-0.05, 0.15], white: [0.85, 1.1] };
-export const WAVE_ZOOM_LABELS: Record<WaveZoom, string> = { full: t('scope.zoom.full'), black: t('scope.zoom.black'), white: t('scope.zoom.white') };
+const waveZoomLabels = (): Record<WaveZoom, string> => ({ full: t('scope.zoom.full'), black: t('scope.zoom.black'), white: t('scope.zoom.white') });
+export const WAVE_ZOOM_LABELS = waveZoomLabels();
+// embedded hosts switch the language at run time (useLang): relabel in place
+onLangChange(() => { Object.assign(SCOPE_LABELS, scopeLabels()); Object.assign(WAVE_ZOOM_LABELS, waveZoomLabels()); });
 
 /** Channels of the multi-trace waveforms, with the instance index the renderer uses. */
 export interface WaveChannels { y?: boolean; r?: boolean; g?: boolean; b?: boolean }
