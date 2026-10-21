@@ -48,6 +48,7 @@ import { ModesSection } from './sections/ModesSection'
 import { RackInstanceCard } from './sections/RackInstanceCard'
 import { ReplaceDeviceSection } from './sections/ReplaceDeviceSection'
 import { LifecycleSection } from './sections/LifecycleSection'
+import { ControlInterfacesSection } from './sections/ControlInterfacesSection'
 import { CameraControlsSection } from './sections/CameraControlsSection'
 import { PtzControlSection } from './sections/PtzControlSection'
 import { GreenGoLiveSection } from './sections/GreenGoLiveSection'
@@ -181,6 +182,7 @@ export const EquipmentProperties = () => {
       <StreamsSection equipment={equipment} />
 
       <LifecycleSection equipment={equipment} />
+      <ControlInterfacesSection equipment={equipment} />
       {/* BEDARF 103 — Faehigkeiten je Modell. Rendert sich an Nicht-Kameras
           selbst weg; ein aufklappbares Feld an jedem Stativ waere Laerm. */}
       <OptikSection equipment={equipment} />

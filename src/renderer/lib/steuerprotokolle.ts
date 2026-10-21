@@ -68,6 +68,8 @@ const SONY_H800_VISCA =
 const SONY_FR7_VISCA =
   'https://www.sony.jp/ls-camera/download/pdf/FR7/ILME-FR7_VISCA_command_list.pdf'
 const PANA_UE150 = 'https://pro-av.panasonic.net/en/products/aw-ue150/spec.html'
+const BMD_HYPERDECK = 'https://documents.blackmagicdesign.com/UserManuals/HyperDeckManual.pdf'
+const AJA_KUMO_3232_12G = 'https://www.aja.com/products/kumo-3232-12g'
 
 const VISCA_PACKETS = 'VISCA packets end with terminator 0xFF; forward each packet whole'
 
@@ -135,6 +137,66 @@ export const CONTROL_CATALOG: ControlEntry[] = [
         connector: 'RJ-45 (LAN, 100BASE-TX/1000BASE-T)',
         ip: { layer: 'HTTP' },
         source: PANA_UE150,
+      },
+    ],
+  },
+  {
+    deviceTypeId: 'e6699d97-5974-430e-981d-2a6bad93e116',
+    name: 'Blackmagic Hyperdeck Studio HD Plus',
+    interfaces: [
+      {
+        protocol: 'HyperDeck Serial RS-422 Protocol (based on Sony 9-pin)',
+        transport: 'serial',
+        connector: 'REMOTE RS-422 In/Out (9-pin)',
+        serial: {
+          standard: 'RS-422',
+          baud: [38400],
+          format: '8O1',
+          pinout: 'Rx- 2, Rx+ 7, Tx- 8, Tx+ 3, GND 1/4/6/9',
+        },
+        bridge: {
+          capable: true,
+          tcpMode: 'raw TCP server on an RS-422 device server',
+          port: 'site-chosen on the device server',
+          unverified: ['packet framing'],
+        },
+        source: BMD_HYPERDECK,
+      },
+      {
+        protocol: 'Blackmagic HyperDeck Ethernet Protocol',
+        transport: 'ip',
+        connector: 'Ethernet (1 Gb/s)',
+        ip: { layer: 'TCP', port: 9993 },
+        source: BMD_HYPERDECK,
+      },
+    ],
+  },
+  {
+    deviceTypeId: '2a3eed49-cc33-45be-ae0f-c5e6c89e818d',
+    name: 'AJA KUMO 3232-12G',
+    interfaces: [
+      {
+        protocol: 'Grass Valley Native Protocol (basic support)',
+        transport: 'serial',
+        connector: 'DB-9 female (RS-422)',
+        serial: {
+          standard: 'RS-422',
+          pinout: 'Tx- 2, Rx+ 3, Tx+ 7, Rx- 8, GND 1/4/6/9/shell, 5 n.c.',
+        },
+        bridge: {
+          capable: true,
+          tcpMode: 'raw TCP server on an RS-422 device server',
+          port: 'site-chosen on the device server',
+          unverified: ['baud rate', 'character format', 'packet framing'],
+        },
+        source: AJA_KUMO_3232_12G,
+      },
+      {
+        protocol: 'Grass Valley Native Protocol (basic support), KUMO control panels, web server',
+        transport: 'ip',
+        connector: 'RJ-45 (10/100/1000 Ethernet)',
+        ip: { layer: 'HTTP' },
+        source: AJA_KUMO_3232_12G,
       },
     ],
   },
