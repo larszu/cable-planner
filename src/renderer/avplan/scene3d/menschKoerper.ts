@@ -307,8 +307,13 @@ class Rumpf {
   private qb: THREE.Quaternion
   private proben: { c: THREE.Vector3; u: number }[] = []
   readonly laenge: number
+  private sk: Skelett
+  private g: VolleGestalt
 
-  constructor(private sk: Skelett, private g: VolleGestalt) {
+  // Keine Parameter-Properties: die Planer bauen mit erasableSyntaxOnly.
+  constructor(sk: Skelett, g: VolleGestalt) {
+    this.sk = sk
+    this.g = g
     const unten = new THREE.Vector3(0, -0.09, 0).applyQuaternion(sk.qBecken).add(sk.becken)
     const knick = new THREE.Vector3(0, 0.22, 0).applyQuaternion(sk.qBecken).add(sk.becken)
     this.bez = [unten, knick, sk.hals.clone()]
