@@ -75,6 +75,7 @@
     "test:signaling": "npm run build:main && node scripts/signaling-relay-check.mjs",
     "relay": "node scripts/signaling-server.mjs",
     "dist": "npm run build && electron-builder",
+    "dist:linux": "npm run build && electron-builder --config electron-builder.js --linux --publish never",
     "notices": "node scripts/generate-notices.mjs",
     "actions:check": "node scripts/actions-node-runtime.mjs",
     "library:publish": "node scripts/library-publish.mjs",

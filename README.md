@@ -14,7 +14,7 @@
 
 <p align="center">
   <a href="https://github.com/larszu/cable-planner/releases/latest">
-    <img src="https://img.shields.io/badge/Download-macOS%20%26%20Windows-1D324F?style=for-the-badge&logo=github&logoColor=white" alt="Download LZ Cable Planner for macOS and Windows" height="40" />
+    <img src="https://img.shields.io/badge/Download-macOS%20%7C%20Windows%20%7C%20Linux-1D324F?style=for-the-badge&logo=github&logoColor=white" alt="Download LZ Cable Planner for macOS, Windows and Linux" height="40" />
   </a>
   &nbsp;
   <a href="https://larszu.github.io/cable-planner/">
