@@ -164,6 +164,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const project = useProjectStore((state) => state.project)
   const projectVersion = useProjectStore((state) => state.projectVersion)
   const updateEquipment = useProjectStore((state) => state.updateEquipment)
+  const setEquipmentSizes = useProjectStore((state) => state.setEquipmentSizes)
   const addEquipment = useProjectStore((state) => state.addEquipment)
   // #ux — das Beispiel bringt seine Rack-Vorlage mit; sonst steht die
   // Rack-Karte einer frischen Installation leer (siehe `lib/demoRack.ts`).
@@ -1141,6 +1142,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     // landen. Sonst hatte ein Multi-Select-Drag von 5 Geräten mit 3
     // mitgezogenen Cable-Waypoints am Ende 8 Undo-Schritte erzeugt.
     const isDragEndBatch = endedDragIds.size > 0
+    const equipmentSizes = new Map<string, { width: number; height: number }>()
     if (isDragEndBatch) projectHistory.beginTransaction()
 
     // Persist to store ONLY on a real drag-end. `change.dragging === false`
@@ -1292,7 +1294,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           // (mind. 2 px), um Re-Render-Loop durch Mini-Float-Schwankungen zu
           // vermeiden.
           if (eq && (Math.abs((eq.width ?? 0) - newW) > 2 || Math.abs((eq.height ?? 0) - newH) > 2)) {
-            updateEquipment(change.id, { width: newW, height: newH })
+            equipmentSizes.set(change.id, { width: newW, height: newH })
           }
         }
       }
@@ -1322,6 +1324,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         }
       }
     })
+
+    setEquipmentSizes(equipmentSizes)
 
     // v7.9.69 / #184 — Cable-Waypoints mit-verschieben bei Multi-Select-Drag.
     // Konsistent zu moveLocationWithContents (Location-Group-Drag): wenn

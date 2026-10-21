@@ -49,6 +49,7 @@ export type EquipmentSlice = Pick<
   | 'insertGeneratedPlan'
   | 'applyPlanErgaenzung'
   | 'updateEquipment'
+  | 'setEquipmentSizes'
   | 'deleteEquipment'
   | 'setActiveDeviceMode'
   | 'addOpenEndStub'
@@ -203,6 +204,19 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
             }),
             ...erg.neueRaeume,
           ],
+        }),
+      }
+    }),
+  setEquipmentSizes: (sizes) =>
+    set((state) => {
+      if (sizes.size === 0 || isProjectLocked(state)) return state
+      return {
+        project: touchProject({
+          ...state.project,
+          equipment: state.project.equipment.map((item) => {
+            const s = sizes.get(item.id)
+            return s ? { ...item, width: s.width, height: s.height } : item
+          }),
         }),
       }
     }),
