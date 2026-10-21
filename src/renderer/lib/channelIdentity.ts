@@ -61,6 +61,7 @@
 
 import type { ChannelRow } from './channelList'
 import type { CsvCell, CsvTable } from './csv'
+import { spalten } from './kanonisch'
 
 // ── Bedarf 110 — wem gehört welche Spalte ──────────────────────────────────
 
@@ -289,7 +290,7 @@ export const OWNER_LABEL: Readonly<Record<ColumnOwner, string>> = {
 
 export function channelOwnerTable(rows: readonly ChannelRow[]): CsvTable {
   return {
-    headers: ['Port (Haus)', 'Name (Band)', 'Abnahme (Band)', 'Stecker (Band)', 'Ch (bandintern)'],
+    headers: spalten(['Port (house)', 'Name (band)', 'Pickup (band)', 'Connector (band)', 'Ch (band-internal)']),
     rows: rows.map((r): CsvCell[] => [
       venueNumber(r),
       channelName(r),

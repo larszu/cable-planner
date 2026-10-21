@@ -26,6 +26,7 @@ import { durchBlenden, gegenendenJePort } from './patchPanel'
 import { konfigVorgaben, type KonfigZeile } from './konfigVorgaben'
 import { installStatusText } from './installStatusText'
 import { druckblatt, esc, fmt, quelle, tabelle, vergleich, type Uebersetzen } from './druckblatt'
+import { spalten } from './kanonisch'
 
 export interface SteckbriefVerbindung {
   port: string
@@ -175,7 +176,7 @@ export const steckbriefStandTable = (project: CablePlannerProject): CsvTable => 
     }
     for (const r of s.service) feld('Service', `${r.date} | ${r.kind} | ${r.summary} | ${r.author}`)
   }
-  return { headers: ['Gerät', 'Feld', 'Wert'], rows }
+  return { headers: spalten(['Device', 'Field', 'Value']), rows }
 }
 
 // ─── DAS BLATT ─────────────────────────────────────────────────────────────

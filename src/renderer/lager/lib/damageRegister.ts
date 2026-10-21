@@ -42,6 +42,7 @@
 
 import type { CheckoutRecord } from '../types/checkout'
 import type { CsvCell, CsvTable } from '../../lib/csv'
+import { spalten } from '../../lib/kanonisch'
 
 export interface DamageEntry {
   recordId: string
@@ -128,7 +129,7 @@ export const damageTally = (
  * wann. Kanonisches Deutsch, weil das Blatt einen Stand traegt.
  */
 export const damageTable = (records: CheckoutRecord[]): CsvTable => ({
-  headers: ['Zurück am', 'Objekt', 'Etiketten-Code', 'Schaden', 'Show', 'Ausgegeben an', 'Container'],
+  headers: spalten(['Returned on', 'Item', 'Label code', 'Damage', 'Show', 'Issued to', 'Container']),
   rows: damageEntries(records).map((e): CsvCell[] => [
     e.at.slice(0, 10),
     e.label,

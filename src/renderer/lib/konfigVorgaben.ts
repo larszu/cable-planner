@@ -39,6 +39,7 @@ import type { CsvCell, CsvTable } from './csv'
 import { deviceInterfaces } from './networkInterfaces'
 import { buildSwitchPortMaps } from './switchPortMap'
 import { vergleich } from './druckblatt'
+import { spalten } from './kanonisch'
 
 export interface KonfigZeile {
   geraetId: string
@@ -168,7 +169,7 @@ const befundText = (z: KonfigZeile): string =>
 
 /** Kanonisch deutsch — gestempelt, der Stand darf nicht an der Sprache hängen. */
 export const konfigVorgabenTable = (project: CablePlannerProject): CsvTable => ({
-  headers: ['Gerät', 'Schnittstelle', 'IP', 'Maske', 'Gateway', 'VLAN', 'MAC', 'Switch', 'Port', 'Über', 'Quelle', 'Web-Oberfläche', 'Befund'],
+  headers: spalten(['Device', 'Interface', 'IP', 'Mask', 'Gateway', 'VLAN', 'MAC', 'Switch', 'Port', 'Via', 'Source', 'Web interface', 'Finding']),
   rows: konfigVorgaben(project).map((z): CsvCell[] => [
     z.geraet,
     z.schnittstelle,

@@ -23,7 +23,7 @@ import type { CablePlannerProject } from '../types/project'
 import { ANHANG_ARTEN, ANHANG_ART_LABEL, type AnhangArt, type AnhangDatei, type ProjektAnhang } from '../types/anhang'
 import type { CsvCell, CsvTable } from './csv'
 import { vergleich } from './druckblatt'
-import { kanonisch } from './kanonisch'
+import { kanonisch, spalten } from './kanonisch'
 
 const text = (v: unknown): v is string => typeof v === 'string' && v.trim() !== ''
 
@@ -128,7 +128,7 @@ export const anhaengeTable = (project: CablePlannerProject): CsvTable => {
       vergleich(String(a[5]), String(b[5])),
   )
   return {
-    headers: ['Art', 'Titel', 'Betrifft', 'Datei', 'Größe (KB)', 'SHA-256', 'Angehängt', 'Befund'],
+    headers: spalten(['Kind', 'Title', 'Concerns', 'File', 'Size (KB)', 'SHA-256', 'Attached', 'Finding']),
     rows: zeilen,
   }
 }

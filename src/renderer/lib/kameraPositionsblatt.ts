@@ -30,6 +30,7 @@ import { deriveLabels } from './labelDerivation'
 import { standortText } from './equipmentLocation'
 import { objektivName, zoombereich } from './kameraOptik'
 import { druckblatt, esc, fmt, quelle, tabelle, vergleich, type Uebersetzen } from './druckblatt'
+import { spalten } from './kanonisch'
 
 export interface KameraPosition {
   id: string
@@ -110,7 +111,7 @@ export const kameraPositionsblattStandTable = (project: CablePlannerProject): Cs
       )
     }
   }
-  return { headers: ['Gerät', 'Feld', 'Wert'], rows }
+  return { headers: spalten(['Device', 'Field', 'Value']), rows }
 }
 
 // ─── DAS BLATT ─────────────────────────────────────────────────────────────
