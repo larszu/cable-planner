@@ -91,6 +91,13 @@
   cameras, an optional live waveform under the device (off by default). Test
   patterns borderless on a screen of this computer, from the display in the
   plan. Desktop app with [ffmpeg](https://ffmpeg.org/) installed.
+- **Live view at the device.** *Live view* next to a stream in the
+  properties, and *Live* in the preview tile under the device on the canvas,
+  play the stream while they are open and show whether the device answers
+  (connecting, live with size and frame rate, or why not). Desktop app:
+  RTSP, RTMP, SRT, HLS and MJPEG in the local network, through ffmpeg.
+  Browser: HLS where the browser plays it natively, MJPEG and WebRTC (WHEP);
+  an https page cannot load an http stream, and the view says so.
 - **Wireless channels.** Per channel: transmitter, capsule, manufacturer band
   (Sennheiser ew G4 and EW-D, ranges from the spec sheets), frequency and
   occupied bandwidth; the carrier-spacing check takes the bandwidth into

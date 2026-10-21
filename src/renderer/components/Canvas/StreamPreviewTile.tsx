@@ -4,6 +4,7 @@ import { format, useTranslation } from '../../lib/i18n'
 import { protokollName, vorschauQuelle, vorschauStream, zugangsSchluessel } from '../../lib/streamEndpoints'
 import { useStreamPreviewStore } from '../../store/streamPreviewStore'
 import type { StreamEndpoint } from '../../types/stream'
+import { StreamLiveView } from '../Streams/StreamLiveView'
 
 /** So oft wird das Standbild neu geholt, solange der Knoten sichtbar ist. */
 export const STREAM_PREVIEW_INTERVAL_MS = 10_000
@@ -36,10 +37,12 @@ export const StreamPreviewTile = ({ streams, isLight }: { streams: StreamEndpoin
   // Das Ergebnis traegt seine Adresse: nach einem Wechsel der Adresse zaehlt
   // das alte Bild nicht mehr, auch bevor das neue da ist.
   const [abruf, setAbruf] = useState<{ url: string; r: StreamSnapshotResult } | null>(null)
+  // #959 — Live statt Standbild, nur in dieser Sitzung und nur solange an.
+  const [live, setLive] = useState(false)
   const stand = abruf && abruf.url === url ? abruf.r : null
 
   useEffect(() => {
-    if (!url || !freigegeben || !weg || !protocol) return
+    if (!url || !freigegeben || !weg || !protocol || live) return
     let aktiv = true
     const holen = async () => {
       if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
@@ -58,7 +61,7 @@ export const StreamPreviewTile = ({ streams, isLight }: { streams: StreamEndpoin
       aktiv = false
       clearInterval(uhr)
     }
-  }, [url, freigegeben, credentialId, weg, protocol])
+  }, [url, freigegeben, credentialId, weg, protocol, live])
 
   if (!stream || !url) return null
   if (!freigegeben) {
@@ -98,6 +101,39 @@ export const StreamPreviewTile = ({ streams, isLight }: { streams: StreamEndpoin
   const farbe = isLight ? '#0369a1' : '#38bdf8'
   const name = [protokollName(stream.protocol), stream.label].filter(Boolean).join(' ')
   const fehler = stand && !stand.ok ? fehlerText(stand.code, stand.status, t) : null
+  const liveSchalter = stream.url && stream.direction !== 'receive' && (
+    <button
+      type="button"
+      className="nodrag"
+      aria-pressed={live}
+      onClick={(e) => {
+        e.stopPropagation()
+        setLive((l) => !l)
+      }}
+      title={t('canvas.stream.liveTitle', 'Plays the stream live under the device while this is on.')}
+      style={{
+        pointerEvents: 'auto',
+        fontSize: 9,
+        lineHeight: '12px',
+        padding: '0 4px',
+        marginTop: 2,
+        border: `1px solid ${farbe}`,
+        color: farbe,
+        background: live ? (isLight ? '#e0f2fe' : '#0c4a6e') : 'transparent',
+        cursor: 'pointer',
+      }}
+    >
+      {live ? t('canvas.stream.liveStop', 'Stop live') : t('canvas.stream.live', 'Live')}
+    </button>
+  )
+  if (live) {
+    return (
+      <div style={{ width: '100%' }} className="nodrag">
+        <StreamLiveView key={`${stream.id}|${stream.url ?? ''}|${stream.protocol}`} stream={stream} compact />
+        {liveSchalter}
+      </div>
+    )
+  }
 
   return (
     <div
@@ -135,6 +171,7 @@ export const StreamPreviewTile = ({ streams, isLight }: { streams: StreamEndpoin
           {fehler ?? t('canvas.stream.loading', 'Fetching still image …')}
         </div>
       )}
+      {liveSchalter}
     </div>
   )
 }

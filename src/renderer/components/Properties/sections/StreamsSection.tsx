@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Activity, KeyRound, Maximize2, Plus, Trash2 } from 'lucide-react'
+import { Activity, KeyRound, Maximize2, Play, Plus, Trash2 } from 'lucide-react'
+import { StreamLiveView } from '../../Streams/StreamLiveView'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { useTranslation } from '../../../lib/i18n'
 import { cablePlannerApi, hasDesktopBridge } from '../../../lib/bridge'
@@ -44,6 +45,8 @@ export const StreamsSection = ({ equipment }: { equipment: EquipmentItem }) => {
   // larszu/lz-scopes#15 — welche Scope-Panels hier offen sind. Sitzung, nicht
   // Plan: ein offenes Panel ist ein laufender Strom.
   const [scopeOffen, setScopeOffen] = useState<Record<string, boolean>>({})
+  // #959 — offene Live-Bilder. Sitzung, nicht Plan: ein offenes Bild ist ein laufender Strom.
+  const [liveOffen, setLiveOffen] = useState<Record<string, boolean>>({})
   const oeffneScopes = useScopeStore((s) => s.oeffne)
   const scopeFreigeben = useScopeStore((s) => s.freigeben)
   const scopeSperren = useScopeStore((s) => s.sperren)
@@ -263,6 +266,25 @@ export const StreamsSection = ({ equipment }: { equipment: EquipmentItem }) => {
                 />
                 {t('streams.showPreview', 'Show a still image under the device on the canvas')}
               </label>
+              {/* #959 — Live-Bild am Geraet, solange der Schalter an ist. */}
+              {s.url && s.direction !== 'receive' && (
+                <>
+                  <button
+                    type="button"
+                    aria-pressed={!!liveOffen[s.id]}
+                    onClick={() => setLiveOffen((o) => ({ ...o, [s.id]: !o[s.id] }))}
+                    title={t('streams.liveTitle', 'Plays the stream from the device in the local network while this is open.')}
+                    className={`mt-1 flex items-center gap-1 border px-2 py-0.5 text-cp-xs ${liveOffen[s.id] ? 'border-cp-accent text-cp-text' : 'border-cp-border text-cp-text-secondary hover:text-cp-text'}`}
+                  >
+                    <Icon icon={Play} size="xs" /> {t('streams.live', 'Live view')}
+                  </button>
+                  {liveOffen[s.id] && (
+                    <div className="mt-1">
+                      <StreamLiveView key={`${s.id}|${s.url}|${s.protocol}`} stream={s} />
+                    </div>
+                  )}
+                </>
+              )}
               {/* larszu/lz-scopes#15 — Scopes neben der Vorschau. Nur in der
                   Desktop-App (ffmpeg) und nur an einem Strom, den das Geraet
                   sendet; die Plakette am Canvas ist AUS als Vorgabe. */}
