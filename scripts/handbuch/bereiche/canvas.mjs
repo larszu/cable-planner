@@ -578,7 +578,7 @@ abschnitt('auswahl', async () => {
     )
     await rueckgaengig().catch(() => {})
   }
-  await f.schritt('zwei-geraete', async () => kopfKlick('Vision mixer', 'Shift'), { ziel: R_FLAECHE })
+  await f.schritt('zwei-geraete', async () => { await kopfKlick('Camera 2'); await kopfKlick('Vision mixer', 'Shift') }, { ziel: R_FLAECHE })
   await f.schritt('drei-geraete', async () => kopfKlick('Multiviewer', 'Shift'), { ziel: R_FLAECHE })
   await f.schritt(
     'auswahl-aufgehoben',
@@ -683,7 +683,6 @@ abschnitt('auswahl', async () => {
     { ziel: R_FENSTER },
   )
   await a.zu()
-  await w.getByRole('button', { name: M('common.close') }).last().click({ timeout: 2000 }).catch(() => {})
   await a.zu()
 
   // Kabel verbinden (genau zwei Geräte)
@@ -1066,8 +1065,8 @@ abschnitt('raeume', async () => {
       }
       const n = await felder.count()
       if (n >= 2) {
-        await felder.nth(0).fill('0')
-        await felder.nth(1).fill('4')
+        await felder.nth(0).fill('4')
+        await felder.nth(1).fill('0')
       }
       await pause(400)
       extra.texte['etagen-inspector'] = await w.locator('text=' + T('floors.hint').slice(0, 20)).first().innerText().catch(() => '')
@@ -1286,6 +1285,9 @@ abschnitt('signalweg', async () => {
   await f.schritt(
     'signalweg-chip-klick',
     async () => {
+      const p = await kabelPunkt(0, 0.35)
+      await w.mouse.click(p.x, p.y)
+      await pause(500)
       await klickMitte(w.getByRole('button', { name: M('signalweg.show') }))
       await pause(500)
       await klickMitte(leiste().locator('button').filter({ hasText: M('canvas.signalweg.chip') }))
@@ -1359,7 +1361,7 @@ abschnitt('modi', async () => {
   await f.schritt(
     'pruefbild-falsches-bild',
     async () => {
-      const k = knoten('Control room monitor')
+      const k = knoten('Vision mixer')
       await k.getByRole('button', { name: M('canvas.pattern.check.wrong') }).first().click({ timeout: 6000 })
       await pause(400)
     },
@@ -1368,55 +1370,12 @@ abschnitt('modi', async () => {
   await f.schritt(
     'pruefbild-vertauscht',
     async () => {
-      const k = knoten('Control room monitor')
+      const k = knoten('Vision mixer')
       await k.locator('input').first().fill('Camera 2')
       await k.getByRole('button', { name: M('canvas.pattern.check.save') }).first().click()
       await pause(500)
     },
     { ziel: R_FLAECHE },
-  )
-  await f.schritt(
-    'pruefbild-stimmt',
-    async () => {
-      const k = knoten('Multiviewer')
-      await k.getByRole('button', { name: M('canvas.pattern.check.ok') }).first().click({ timeout: 6000 })
-      await pause(500)
-    },
-    { ziel: R_FLAECHE },
-  )
-  await f.schritt(
-    'weg-schalten-dialog',
-    async () => {
-      const b = leiste().getByRole('button', { name: M('canvas.pattern.switch') })
-      if (!(await b.count())) throw new Error('Weg schalten: Schaltfläche nicht vorhanden')
-      await klickMitte(b)
-      await pause(600)
-      extra.texte['weg-schalten-leer'] = await a.dialogText()
-    },
-    { ziel: R_DIALOG },
-  )
-  await f.schritt(
-    'weg-schalten-wahl',
-    async () => {
-      const d = R_DIALOG()
-      const s = d.locator('select').first()
-      const opts = await s.locator('option').allInnerTexts()
-      extra.listen['weg-schalten-ziele'] = opts
-      if (opts.length > 1) await s.selectOption({ index: 1 })
-      await pause(700)
-      extra.texte['weg-schalten-plan'] = await a.dialogText()
-    },
-    { ziel: R_DIALOG },
-  )
-  await f.schritt(
-    'weg-schalten-bestaetigung',
-    async () => {
-      const d = R_DIALOG()
-      await d.getByRole('checkbox').first().check()
-      await pause(500)
-      extra.tooltips['weg-schalten-knopf-aktiv'] = String(await d.getByRole('button', { name: M('canvas.hubSwitch.send') }).first().isEnabled())
-    },
-    { ziel: R_DIALOG },
   )
   await a.zu()
   await w.getByRole('button', { name: M('canvas.hubSwitch.close') }).first().click({ timeout: 2000 }).catch(() => {})
@@ -1598,7 +1557,7 @@ abschnitt('abschliessen', async () => {
       await projektLaden(p, 'betrachter.json')
       extra.tooltips['betrachter-knopf'] = await w.getByRole('button', { name: /^(Viewer|Betrachter)/ }).first().getAttribute('title').catch(() => '')
     },
-    { ziel: ausschnitt(R_LEISTE, R_FLAECHE) },
+    { ziel: R_FLAECHE },
   )
 })
 
@@ -1643,18 +1602,29 @@ abschnitt('anmerkungen', async () => {
     { ziel: R_FENSTER },
   )
   await f.schritt(
+    'name-frage',
+    async () => {
+      await w.getByRole('button', { name: new RegExp('^' + T('annotations.add') + '$') }).first().click()
+      await pause(700)
+      extra.texte['anmerkung-name-frage'] = await a.dialogText()
+    },
+    { ziel: R_DIALOG },
+  )
+  await f.schritt(
     'hinzugefuegt',
     async () => {
-      await klickMitte(w.getByRole('button', { name: M('annotations.add') }).first())
-      await pause(600)
+      const d = R_DIALOG()
+      await d.locator('input').first().fill('Lars')
+      await d.getByRole('button', { name: OK() }).click()
+      await pause(800)
     },
     { ziel: R_FENSTER },
   )
   // zwei weitere
   for (const text of [zw('Kamera 2 braucht Stativ', 'Camera 2 needs a tripod'), zw('Mischer im Rack', 'Mixer goes in the rack')]) {
-    await klickMitte(w.getByRole('button', { name: M('annotations.new') }).first())
+    await w.getByRole('button', { name: M('annotations.new') }).first().click(); await pause(400)
     await w.getByRole('textbox').last().fill(text)
-    await klickMitte(w.getByRole('button', { name: M('annotations.add') }).first())
+    await w.getByRole('button', { name: new RegExp('^' + T('annotations.add') + '$') }).first().click(); await pause(500)
   }
   await f.schritt(
     'status-gebaut',
@@ -1802,12 +1772,38 @@ async function dateiWaehlen(knopfLoc, feldLoc, pfad) {
   await pause(900)
 }
 
+
+/** Kleines gültiges PDF mit n Seiten (Rahmen + Kreuz), ohne Abhängigkeit. */
+function minimalPdf(n) {
+  const objs = []
+  objs[1] = '<< /Type /Catalog /Pages 2 0 R >>'
+  const kids = []
+  for (let i = 0; i < n; i += 1) kids.push(`${3 + i * 2} 0 R`)
+  objs[2] = `<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${n} >>`
+  for (let i = 0; i < n; i += 1) {
+    const c = `1 w 40 40 520 340 re S 40 40 m 560 380 l S 560 40 m 40 380 l S ${i === 0 ? '100 100 120 80 re S' : '300 200 200 120 re S'}`
+    objs[3 + i * 2] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 600 420] /Contents ${4 + i * 2} 0 R >>`
+    objs[4 + i * 2] = `<< /Length ${c.length} >>\nstream\n${c}\nendstream`
+  }
+  let out = '%PDF-1.4\n'
+  const off = []
+  for (let i = 1; i < objs.length; i += 1) {
+    off[i] = out.length
+    out += `${i} 0 obj\n${objs[i]}\nendobj\n`
+  }
+  const x = out.length
+  out += `xref\n0 ${objs.length}\n0000000000 65535 f \n`
+  for (let i = 1; i < objs.length; i += 1) out += `${String(off[i]).padStart(10, '0')} 00000 n \n`
+  out += `trailer\n<< /Size ${objs.length} /Root 1 0 R >>\nstartxref\n${x}\n%%EOF\n`
+  return out
+}
+
 abschnitt('hallenplan', async () => {
   const f = neueFolge('hallenplan')
   const png = join(TMP, 'hallenplan.png')
   const dataUrl = await planBild(png)
   const feld = () => R_GRUNDRISS().locator('input[type="file"]')
-  const ladeKnopf = () => R_GRUNDRISS().getByRole('button', { name: /Load floor plan image|Replace image|Hallenplan-Bild laden|Bild ersetzen/i }).first()
+  const ladeKnopf = () => R_GRUNDRISS().getByRole('button', { name: /Load floor plan image|Replace image|Hallenplan als Bild|Bild ersetzen/i }).first()
   const panelUndFlaeche = ausschnitt(flaecheOben, R_PANEL)
   await f.schritt('knopf', async () => merkeTitel('hallenplan-knopf', leiste().getByRole('button', { name: M('toolbar.floorplan.label') })), { ziel: R_LEISTE })
   await f.schritt(
@@ -1860,6 +1856,12 @@ abschnitt('hallenplan', async () => {
     },
     { ziel: panelUndFlaeche },
   )
+  // Plan verkleinern, damit seine rechte Kante nicht unter dem Panel liegt.
+  await w.mouse.move(600, 500)
+  await w.keyboard.down('Control')
+  await w.mouse.wheel(0, 40)
+  await w.keyboard.up('Control')
+  await pause(700)
   // Zwei-Punkt-Kalibrierung
   await f.schritt(
     'zwei-punkte-start',
@@ -1966,7 +1968,7 @@ abschnitt('hallenplan', async () => {
   await f.schritt(
     'ersetzt',
     async () => {
-      await bestaetige(M('floorplan.replace'))
+      await w.getByRole('button', { name: M('floorplan.replace') }).last().click({ timeout: 8000 })
       await pause(600)
     },
     { ziel: panelUndFlaeche },
@@ -1981,15 +1983,52 @@ abschnitt('hallenplan', async () => {
     },
     { ziel: R_PANEL },
   )
+  const pdfDatei = join(TMP, 'plan.pdf')
+  writeFileSync(pdfDatei, minimalPdf(2))
   await f.schritt(
-    'pdf-nicht-moeglich',
+    'pdf-geladen',
     async () => {
-      const pdf = join(TMP, 'plan.pdf')
-      writeFileSync(pdf, '%PDF-1.4\n%%EOF\n')
-      await feld().first().setInputFiles(pdf)
-      await pause(800)
+      await dateiWaehlen(ladeKnopf(), feld().first(), pdfDatei)
+      const e = w.getByRole('button', { name: M('floorplan.replace') })
+      if (await e.count()) await e.last().click()
+      await pause(2000)
     },
-    { ziel: R_PANEL },
+    { ziel: panelUndFlaeche },
+  )
+  await f.schritt(
+    'pdf-seite',
+    async () => {
+      const n = R_GRUNDRISS().locator('input[type="number"]').first()
+      await n.fill('2')
+      await n.blur()
+      await pause(1500)
+    },
+    { ziel: panelUndFlaeche },
+  )
+  await f.schritt(
+    'zuschnitt-start',
+    async () => {
+      await klickMitte(R_GRUNDRISS().getByRole('button', { name: M('floorplan.crop.start') }), { force: true })
+      await pause(500)
+    },
+    { ziel: panelUndFlaeche },
+  )
+  await f.schritt(
+    'zuschnitt-rahmen',
+    async () => {
+      const b = await w.locator('[data-testid="grundriss-zuschnitt"] img').boundingBox()
+      await ziehe({ x: b.x + b.width * 0.1, y: b.y + b.height * 0.1 }, { x: b.x + b.width * 0.7, y: b.y + b.height * 0.8 })
+      await pause(500)
+    },
+    { ziel: panelUndFlaeche },
+  )
+  await f.schritt(
+    'zugeschnitten',
+    async () => {
+      await klickMitte(R_GRUNDRISS().getByRole('button', { name: M('floorplan.crop.apply') }), { force: true })
+      await pause(1000)
+    },
+    { ziel: panelUndFlaeche },
   )
   // Venue-Austausch
   const venue = (extraDef = {}) => ({
@@ -2542,6 +2581,55 @@ abschnitt('zoom', async () => {
   )
 })
 
+abschnitt('sprache', async () => {
+  const f = neueFolge('sprache')
+  await f.schritt(
+    'dialog',
+    async () => {
+      await klickMitte(leiste().getByRole('button', { name: M('toolbar.voiceCabling.title') }))
+      await pause(600)
+      extra.texte['sprache-dialog'] = await a.dialogText()
+    },
+    { ziel: R_FENSTER },
+  )
+  await f.schritt(
+    'satz',
+    async () => {
+      await R_DIALOG().getByRole('textbox').first().fill(zw('SDI 1 von Camera 1 nach Vision mixer In 3', 'SDI 1 from Camera 1 to Vision mixer In 3'))
+      await pause(300)
+    },
+    { ziel: R_FENSTER },
+  )
+  await f.schritt(
+    'vorschau',
+    async () => {
+      await R_DIALOG().getByRole('button', { name: M('voiceCabling.understand') }).first().click()
+      await pause(900)
+      extra.texte['sprache-vorschau'] = await a.dialogText()
+    },
+    { ziel: R_FENSTER },
+  )
+  await f.schritt(
+    'zwei-saetze',
+    async () => {
+      await R_DIALOG().getByRole('textbox').first().fill(zw('SDI 1 von Camera 1 nach Vision mixer In 3. Camera 2 nach Vision mixer In 4. Blabla nach Nirgendwo', 'SDI 1 from Camera 1 to Vision mixer In 3. Camera 2 to Vision mixer In 4. Blah to nowhere'))
+      await R_DIALOG().getByRole('textbox').first().press('Enter')
+      await pause(900)
+      extra.texte['sprache-mehrere'] = await a.dialogText()
+    },
+    { ziel: R_FENSTER },
+  )
+  await f.schritt(
+    'angelegt',
+    async () => {
+      const b = R_DIALOG().getByRole('button', { name: M('voiceCabling.apply') }).first()
+      await b.click()
+      await pause(900)
+    },
+    { ziel: R_FLAECHE },
+  )
+})
+
 // ═══════════════════════════════════════════════════════════════════════════
 // KABEL — Kabel ziehen, Klick-Verbindung, offenes Ende, Kabel am Körper
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2569,6 +2657,14 @@ async function kabelAnlegen({ name, laenge = 5, typIndex = 1 } = {}) {
 
 abschnitt('kabel', async () => {
   const f = neueFolge('kabel')
+  // Camera 2 hat schon ein Kabel; ein Ausgang nimmt nur eines. Erst loeschen.
+  {
+    const p = await kabelPunkt(1, 0.35)
+    await w.mouse.click(p.x, p.y)
+    await pause(300)
+    await w.keyboard.press('Delete')
+    await pause(500)
+  }
   await f.schritt(
     'ziehen',
     async () => {
@@ -2613,14 +2709,16 @@ abschnitt('kabel', async () => {
       await kabelHalten('Camera 1', 0, ziel)
       await w.mouse.up()
       await pause(800)
-      extra.texte['kabel-besetzt'] = await a.dialogText()
+      // Der Konflikt wird erst nach Erstellen gemeldet.
+      await w.getByRole('button', { name: /^(Erstellen|Create)$/ }).last().click({ timeout: 6000 })
+      await pause(800)
     },
-    { ziel: R_DIALOG },
+    { ziel: R_FENSTER },
   )
   await f.schritt(
     'besetzt-abbruch',
     async () => {
-      await R_DIALOG().getByRole('button', { name: ABBRUCH() }).first().click()
+      await a.zu()
       await pause(500)
     },
     { ziel: R_FLAECHE },
@@ -2825,17 +2923,9 @@ abschnitt('kabeleditor', async () => {
       const ecken = w.locator('.cp-kabelgriff circle[fill="#38bdf8"]')
       const n = await ecken.count()
       extra.texte['ecken'] = String(n)
-      const p = await mitte(ecken.first())
+      // Index 0 und der letzte sind die Enden (Umstecken); Ecken liegen dazwischen.
+      const p = await mitte(ecken.nth(n > 2 ? 1 : 0))
       await ziehe(p, { x: p.x - 40, y: p.y + 60 })
-    },
-    { ziel: R_FLAECHE },
-  )
-  await f.schritt(
-    'ecke-alt-klick',
-    async () => {
-      const ecken = w.locator('.cp-kabelgriff circle[fill="#38bdf8"]')
-      await ecken.first().click({ modifiers: ['Alt'], force: true })
-      await pause(500)
     },
     { ziel: R_FLAECHE },
   )
