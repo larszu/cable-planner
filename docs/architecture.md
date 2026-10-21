@@ -761,6 +761,9 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
    Eintritte (`RackBuilderDialog`, `RackEditorDialog`) sind deshalb `lazy` und
    werden nur gemountet, wenn sie offen sind; gemessen 4.193 → 2.938 kB (gzip
    1.165 → 822). `tests/threeBundleGrenze.test.ts` hält das fest.
+   Die Kopie `avplan/scene3d/` (Suite-Paket, ADR-015) importiert Three
+   ebenfalls; erreicht wird sie nur aus `Rack/ProjektionVorschau3D`, das der
+   Projektionsrechner lazy lädt (#997).
 8. **Connection-Locks bei externen Services** (ATEM `connectInFlight`).
 9. **Patch-Versionen bevorzugt** — keine großen Sprünge (Standing User Directive).
 10. **Keine Emojis im Code** außer auf expliziten Wunsch.

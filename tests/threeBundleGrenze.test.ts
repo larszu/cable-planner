@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import appSrc from '../src/renderer/App.tsx?raw'
 import libSrc from '../src/renderer/components/Library/LibraryPanel.tsx?raw'
+import projSrc from '../src/renderer/components/Calculators/ProjectionCalculatorDialog.tsx?raw'
 import { stripComments } from './support/stripComments'
 
 // Die Architektur-Invariante in CLAUDE.md lautete: "Three.js nur in
@@ -34,6 +35,11 @@ describe('Three.js bleibt hinter der Lazy-Grenze', () => {
     const c = code(appSrc)
     expect(c).toMatch(/lazy\(\(\) =>\s*import\('\.\/components\/Rack\/Gebaeude3DDialog'\)/)
     expect(c).toContain('gebaeude3dOpen && (')
+  })
+
+  it('Projektionsrechner laedt die 3D-Vorschau lazy (#997)', () => {
+    const c = code(projSrc)
+    expect(c).toMatch(/lazy\(\(\) => import\('\.\.\/Rack\/ProjektionVorschau3D'\)/)
   })
 
   it('LibraryPanel laedt den Rack-Builder lazy', () => {

@@ -1,0 +1,29 @@
+{
+  "paket": "@avplan/scene3d",
+  "version": "1.0.0",
+  "quelle": "av-planner-suite/packages/scene3d/src",
+  "hinweis": "Kopie eines Suite-Pakets (ADR-015). Nicht hier aendern: in av-planner-suite/packages aendern und mit `npm run pakete:verteilen` neu kopieren.",
+  "dateien": {
+    "dunst.ts": "4b5b3ad8468e2701fb74ff1605c4c1414b61b0ac82c803928054eabe621a86c8",
+    "himmel.ts": "e88ea60e725b4ed93eb817e9d0cd7af96397f06d308aff716003779ecfae39cd",
+    "index.ts": "2f945c24233bf817f84d27c8f671b3934a3ec0f8f8c8ed20bd364c8774563175",
+    "kameraBau.ts": "a98c91f1ba7442db713c22ab217bb9a07b28b91592f59044223de8f3cef78bac",
+    "kameraHalterung.ts": "6238dbb11c7ee82caabe4d1d653ab0073e3c912127b14d7aa24631da3e345ee1",
+    "kameraKoerper.ts": "c0ba7516717656bdebc8e98eaddf7b9b493388af7c6e7f1d313502c88b330b80",
+    "kameraObjektiv.ts": "a2bc92c72805fad6896af1694d2fe52c2ef067f760483dd57eaf228a666c0d3c",
+    "kameraRig.ts": "31c4802be10f73ffc8fe3108855f7066b46edb2d1e45a10364db30875fcf8d5f",
+    "ledwand.ts": "99a42bf3f358dc31697e2ab71118aac772102289ca7acb8e2a767282f57db664",
+    "mensch.ts": "54892fc5097903e6c67c85fe8ec1155a6420b9e783bb5032f668aba68a8a919a",
+    "menschKoerper.ts": "a4d155741da04485ae995d0dbcb9a1bc468fcc0faf11560f57d215f2d76a30ac",
+    "menschMaterial.ts": "aa422e15f12a6bab8f2f84cf75672feefebecc9c8d007297b957a7c7239d32a3",
+    "menschSkelett.ts": "d29646295fd290b1f11f430bb69ce1a0a4bf9f8f0e3a96b759b6e5a2a0e177f5",
+    "oberflaechen.ts": "5a6b02afc33d1d2283199e350a6d6cae645ce0196811fc4dd9e0eb464363d115",
+    "personModell.ts": "cd36866527b825b49e68a2597d1385f11016cb44d8d2000c47403824b63a99a8",
+    "pipeline.ts": "dd07f1cde52d38423c0451fa83f15f7a60c69afcab1051a5e597645354d3e8e5",
+    "publikum.ts": "1fb270eb0593f0733a6c87370ce3b0e146eabbf4e78e43f758574648b061249d",
+    "qualitaet.ts": "2e6d3199ec4b9c387c3cb5e1f71f9c46875fa391333bd7c13b8c3959a56e2fff",
+    "scheinwerfer.ts": "5b8e7f36403c47dda56b2b6576467c7a6a3157504116c11215ef4144ae37fa67",
+    "sonne.ts": "ebe107f464c8fc786098b7df9cfe8168e6c9bc263263ad7f214688d0d6364bf0",
+    "umgebung.ts": "3be95d94a190dfc9c4835b9c70c18d2e943a47bffceb269e66aa8e13c96c3c56"
+  }
+}

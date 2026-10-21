@@ -93,7 +93,10 @@ describe('Invariante 7 sagt, was gilt', () => {
   it('die genannte Ausnahme ist noch die richtige', () => {
     // `lib/exportRack.ts` ist der einzige Three-Import ausserhalb von `Rack/`.
     // Kaeme ein zweiter dazu, waere die Erklaerung in der Invariante unvollstaendig.
-    const aussen = dreiImporte().filter((p) => !p.startsWith(join('components', 'Rack')))
+    // `avplan/scene3d/` ist die Suite-Kopie (ADR-015), nur aus Rack/ erreichbar (#997).
+    const aussen = dreiImporte().filter(
+      (p) => !p.startsWith(join('components', 'Rack')) && !p.startsWith(join('avplan', 'scene3d')),
+    )
     expect(aussen).toEqual([join('lib', 'exportRack.ts')])
   })
 })

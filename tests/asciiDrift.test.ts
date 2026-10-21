@@ -28,7 +28,9 @@ const roh = {
   // Ohne `vendor/`: lz-scopes ist eine Kopie fremden Codes mit eigener
   // Rechtschreibung (`VENDOR.md`), Treffer dort waeren nicht hier zu beheben —
   // und „Bluetooth" ist kein Umlaut-Ersatz.
-  ...(import.meta.glob(['../src/renderer/**/*.ts', '!../src/renderer/vendor/**'], {
+  // Ebenso ohne `avplan/scene3d/` (#997): byte-genaue Suite-Kopie (ADR-015),
+  // Korrekturen gehoeren in die Suite.
+  ...(import.meta.glob(['../src/renderer/**/*.ts', '!../src/renderer/vendor/**', '!../src/renderer/avplan/scene3d/**'], {
     query: '?raw',
     import: 'default',
     eager: true,

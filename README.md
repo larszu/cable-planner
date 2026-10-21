@@ -63,6 +63,11 @@
   Johns, Recorderman, full close-mic) and a subsnake size: channels are
   patched to the subsnake in order, with patch list and cable-end labels
   (P-touch/Dymo CSV) ready to export.
+- **Projection & display calculator.** Screen size from diagonal and aspect,
+  mounting height, throw distance from throw ratio, lens shift (datasheet
+  convention, ±50 % = lens at the image edge) and viewing distances (THX 36°,
+  SMPTE 30°, 6 × image height) — with a dimensioned 2D side/front plan and a
+  3D view. LED-wall resolution from pixel pitch in the same dialog.
 - **Control at the device.** ATEM multiviewer and audio, Videohub routing,
   PTZ cameras through the LZ Camera Bridge (joystick, presets, the shots
   planned in MultiCam driven and stored in the head, one offset on site, live
