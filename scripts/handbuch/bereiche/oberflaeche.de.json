@@ -49,6 +49,12 @@
       "text": ""
     },
     {
+      "nr": 9,
+      "name": "geraet-gewaehlt",
+      "datei": "oberflaeche-09-geraet-gewaehlt.jpg",
+      "text": ""
+    },
+    {
       "nr": 10,
       "name": "projektname-klick",
       "datei": "oberflaeche-10-projektname-klick.jpg",
@@ -181,6 +187,12 @@
       "text": ""
     },
     {
+      "nr": 32,
+      "name": "bearbeiten-geraet-anklicken",
+      "datei": "oberflaeche-32-bearbeiten-geraet-anklicken.jpg",
+      "text": ""
+    },
+    {
       "nr": 33,
       "name": "bearbeiten-auswahl-loeschen",
       "datei": "oberflaeche-33-bearbeiten-auswahl-loeschen.jpg",
@@ -302,412 +314,428 @@
     },
     {
       "nr": 53,
-      "name": "ansicht-suche-aus",
-      "datei": "oberflaeche-53-ansicht-suche-aus.jpg",
+      "name": "ansicht-farbe-laenge-regel",
+      "datei": "oberflaeche-53-ansicht-farbe-laenge-regel.jpg",
       "text": ""
     },
     {
       "nr": 54,
-      "name": "ansicht-suche-an",
-      "datei": "oberflaeche-54-ansicht-suche-an.jpg",
+      "name": "ansicht-farbe-gewerk-vergleich",
+      "datei": "oberflaeche-54-ansicht-farbe-gewerk-vergleich.jpg",
       "text": ""
     },
     {
       "nr": 55,
-      "name": "ansicht-suche-strg-f",
-      "datei": "oberflaeche-55-ansicht-suche-strg-f.jpg",
+      "name": "ansicht-suche-aus",
+      "datei": "oberflaeche-55-ansicht-suche-aus.jpg",
       "text": ""
     },
     {
       "nr": 56,
-      "name": "ansicht-werkzeugleiste-aus",
-      "datei": "oberflaeche-56-ansicht-werkzeugleiste-aus.jpg",
+      "name": "ansicht-suche-an",
+      "datei": "oberflaeche-56-ansicht-suche-an.jpg",
       "text": ""
     },
     {
       "nr": 57,
-      "name": "ansicht-werkzeugleiste-an",
-      "datei": "oberflaeche-57-ansicht-werkzeugleiste-an.jpg",
+      "name": "ansicht-suche-strg-f",
+      "datei": "oberflaeche-57-ansicht-suche-strg-f.jpg",
       "text": ""
     },
     {
       "nr": 58,
-      "name": "ansicht-anmerkungen-an",
-      "datei": "oberflaeche-58-ansicht-anmerkungen-an.jpg",
+      "name": "ansicht-werkzeugleiste-aus",
+      "datei": "oberflaeche-58-ansicht-werkzeugleiste-aus.jpg",
       "text": ""
     },
     {
       "nr": 59,
-      "name": "ansicht-menue-anmerkungen",
-      "datei": "oberflaeche-59-ansicht-menue-anmerkungen.jpg",
+      "name": "ansicht-werkzeugleiste-an",
+      "datei": "oberflaeche-59-ansicht-werkzeugleiste-an.jpg",
       "text": ""
     },
     {
       "nr": 60,
-      "name": "anmerkungen-fenster-menue",
-      "datei": "oberflaeche-60-anmerkungen-fenster-menue.jpg",
+      "name": "ansicht-anmerkungen-an",
+      "datei": "oberflaeche-60-ansicht-anmerkungen-an.jpg",
       "text": ""
     },
     {
       "nr": 61,
-      "name": "anmerkungen-schliessen",
-      "datei": "oberflaeche-61-anmerkungen-schliessen.jpg",
+      "name": "ansicht-menue-anmerkungen",
+      "datei": "oberflaeche-61-ansicht-menue-anmerkungen.jpg",
       "text": ""
     },
     {
       "nr": 62,
-      "name": "status-grundzustand",
-      "datei": "oberflaeche-62-status-grundzustand.jpg",
+      "name": "anmerkungen-fenster-menue",
+      "datei": "oberflaeche-62-anmerkungen-fenster-menue.jpg",
       "text": ""
     },
     {
       "nr": 63,
-      "name": "status-zoom",
-      "datei": "oberflaeche-63-status-zoom.jpg",
+      "name": "anmerkungen-schliessen",
+      "datei": "oberflaeche-63-anmerkungen-schliessen.jpg",
       "text": ""
     },
     {
       "nr": 64,
-      "name": "status-komplexitaet-neu",
-      "datei": "oberflaeche-64-status-komplexitaet-neu.jpg",
+      "name": "status-grundzustand",
+      "datei": "oberflaeche-64-status-grundzustand.jpg",
       "text": ""
     },
     {
       "nr": 65,
-      "name": "status-komplexitaet-klein",
-      "datei": "oberflaeche-65-status-komplexitaet-klein.jpg",
+      "name": "status-zoom",
+      "datei": "oberflaeche-65-status-zoom.jpg",
       "text": ""
     },
     {
       "nr": 66,
-      "name": "status-komplexitaet-mittel",
-      "datei": "oberflaeche-66-status-komplexitaet-mittel.jpg",
+      "name": "status-komplexitaet-neu",
+      "datei": "oberflaeche-66-status-komplexitaet-neu.jpg",
       "text": ""
     },
     {
       "nr": 67,
-      "name": "status-komplexitaet-gross",
-      "datei": "oberflaeche-67-status-komplexitaet-gross.jpg",
+      "name": "status-komplexitaet-klein",
+      "datei": "oberflaeche-67-status-komplexitaet-klein.jpg",
       "text": ""
     },
     {
       "nr": 68,
-      "name": "status-komplexitaet-xl",
-      "datei": "oberflaeche-68-status-komplexitaet-xl.jpg",
+      "name": "status-komplexitaet-mittel",
+      "datei": "oberflaeche-68-status-komplexitaet-mittel.jpg",
       "text": ""
     },
     {
       "nr": 69,
-      "name": "status-plancheck-warnung",
-      "datei": "oberflaeche-69-status-plancheck-warnung.jpg",
+      "name": "status-komplexitaet-gross",
+      "datei": "oberflaeche-69-status-komplexitaet-gross.jpg",
       "text": ""
     },
     {
       "nr": 70,
-      "name": "status-plancheck-klick",
-      "datei": "oberflaeche-70-status-plancheck-klick.jpg",
-      "text": "Plan-Check\n0\n1\n1\n2 Hinweise\nStecker-Mismatch:Camera 1 (HDMI) → Vision mixer (BNC)\nOffene Ports:Vision mixer: 2 unverbundene Ports (In 3, In 4)\n\nLive-Validierung des Plans. Klick auf einen Hinweis selektiert das betroffene Element."
+      "name": "status-komplexitaet-xl",
+      "datei": "oberflaeche-70-status-komplexitaet-xl.jpg",
+      "text": ""
     },
     {
       "nr": 71,
-      "name": "status-plancheck-fehler",
-      "datei": "oberflaeche-71-status-plancheck-fehler.jpg",
+      "name": "status-plancheck-warnung",
+      "datei": "oberflaeche-71-status-plancheck-warnung.jpg",
       "text": ""
     },
     {
       "nr": 72,
-      "name": "status-netz-befunde",
-      "datei": "oberflaeche-72-status-netz-befunde.jpg",
-      "text": ""
+      "name": "status-plancheck-klick",
+      "datei": "oberflaeche-72-status-plancheck-klick.jpg",
+      "text": "Plan-Check\n0\n1\n1\n2 Hinweise\nStecker-Mismatch:Camera 1 (HDMI) → Vision mixer (BNC)\nOffene Ports:Vision mixer: 2 unverbundene Ports (In 3, In 4)\n\nLive-Validierung des Plans. Klick auf einen Hinweis selektiert das betroffene Element."
     },
     {
       "nr": 73,
-      "name": "status-gepackt-teilweise",
-      "datei": "oberflaeche-73-status-gepackt-teilweise.jpg",
+      "name": "status-plancheck-fehler",
+      "datei": "oberflaeche-73-status-plancheck-fehler.jpg",
       "text": ""
     },
     {
       "nr": 74,
-      "name": "status-gepackt-alle",
-      "datei": "oberflaeche-74-status-gepackt-alle.jpg",
+      "name": "status-netz-befunde",
+      "datei": "oberflaeche-74-status-netz-befunde.jpg",
       "text": ""
     },
     {
       "nr": 75,
-      "name": "status-fotos",
-      "datei": "oberflaeche-75-status-fotos.jpg",
+      "name": "status-gepackt-teilweise",
+      "datei": "oberflaeche-75-status-gepackt-teilweise.jpg",
       "text": ""
     },
     {
       "nr": 76,
-      "name": "status-rentman-projekt",
-      "datei": "oberflaeche-76-status-rentman-projekt.jpg",
+      "name": "status-gepackt-alle",
+      "datei": "oberflaeche-76-status-gepackt-alle.jpg",
       "text": ""
     },
     {
       "nr": 77,
-      "name": "status-keine-sicherungskopie",
-      "datei": "oberflaeche-77-status-keine-sicherungskopie.jpg",
+      "name": "status-fotos",
+      "datei": "oberflaeche-77-status-fotos.jpg",
       "text": ""
     },
     {
       "nr": 78,
-      "name": "status-version-klick",
-      "datei": "oberflaeche-78-status-version-klick.jpg",
-      "text": "Über LZ Cable Planner\nLZ Cable Planner\nv9.1.0-10-gfa0733b6-dirty\nLars Zumpe Medienproduktion\nVersion\n9.1.0-10-gfa0733b6-dirty\nBuild\n28.9.2026, 22:32:37\nAutor\nLars Zumpe\nRepository\ngithub.com/larszu/cable-planner\nPlattform\nElectron + React + ReactFlow + Vite + Tailwind\nIssues + Feature-Wünsche bitte direkt auf GitHub melden."
+      "name": "status-rentman-projekt",
+      "datei": "oberflaeche-78-status-rentman-projekt.jpg",
+      "text": ""
     },
     {
       "nr": 79,
-      "name": "schmal-kopfleiste",
-      "datei": "oberflaeche-79-schmal-kopfleiste.jpg",
+      "name": "status-keine-sicherungskopie",
+      "datei": "oberflaeche-79-status-keine-sicherungskopie.jpg",
       "text": ""
     },
     {
       "nr": 80,
-      "name": "schmal-statusleiste",
-      "datei": "oberflaeche-80-schmal-statusleiste.jpg",
-      "text": ""
+      "name": "status-version-klick",
+      "datei": "oberflaeche-80-status-version-klick.jpg",
+      "text": "Über LZ Cable Planner\nLZ Cable Planner\nv9.8.0-37-gb150bebf\nLars Zumpe Medienproduktion\nVersion\n9.8.0-37-gb150bebf\nBuild\n21.10.2026, 08:36:05\nAutor\nLars Zumpe\nRepository\ngithub.com/larszu/cable-planner\nPlattform\nElectron + React + ReactFlow + Vite + Tailwind\nIssues + Feature-Wünsche bitte direkt auf GitHub melden."
     },
     {
       "nr": 81,
-      "name": "hilfe-menue",
-      "datei": "oberflaeche-81-hilfe-menue.jpg",
+      "name": "schmal-kopfleiste",
+      "datei": "oberflaeche-81-schmal-kopfleiste.jpg",
       "text": ""
     },
     {
       "nr": 82,
-      "name": "hilfe-befehlspalette",
-      "datei": "oberflaeche-82-hilfe-befehlspalette.jpg",
-      "text": "⌘+K\nRückgängig\nBearbeiten\nWiederherstellen\nBearbeiten\nDuplizieren\nBearbeiten\nAlles auswählen\nBearbeiten\nEinpassen\nAnsicht\nVergrößern\nAnsicht\nVerkleinern\nAnsicht\nZoom zurücksetzen (100%)\nAnsicht\nPlan-Check…\nWerkzeuge\nPatch-Liste…\nWerkzeuge\nAnalysen…\nWerkzeuge\nMehrere Kabel verbinden…\nWerkzeuge\nRevisionen & Snapshots…\nWerkzeuge\nKI-Plan generieren…\nWerkzeuge\nEquipment aus CSV importieren…\nWerkzeuge\nBandbreite berechnen…\nWerkzeuge\nStromverbrauch berechnen…\nWerkzeuge\nRecording-Speicherplatz berechnen…\nWerkzeuge\nProjektion & Display…\nWerkzeuge\nFestinstallation: Doku & Übergabe…\nWerkzeuge\nDMX-Adressen vergeben…\nWerkzeuge\nBeispielprojekt laden\nWerkzeuge\nEinstellungen…\nHilfe\nTastaturkürzel…\nHilfe\nÜber LZ Cable Planner…\nHilfe"
+      "name": "schmal-statusleiste",
+      "datei": "oberflaeche-82-schmal-statusleiste.jpg",
+      "text": ""
     },
     {
       "nr": 83,
-      "name": "palette-mitte",
-      "datei": "oberflaeche-83-palette-mitte.jpg",
-      "text": "⌘+K\nRückgängig\nBearbeiten\nWiederherstellen\nBearbeiten\nDuplizieren\nBearbeiten\nAlles auswählen\nBearbeiten\nEinpassen\nAnsicht\nVergrößern\nAnsicht\nVerkleinern\nAnsicht\nZoom zurücksetzen (100%)\nAnsicht\nPlan-Check…\nWerkzeuge\nPatch-Liste…\nWerkzeuge\nAnalysen…\nWerkzeuge\nMehrere Kabel verbinden…\nWerkzeuge\nRevisionen & Snapshots…\nWerkzeuge\nKI-Plan generieren…\nWerkzeuge\nEquipment aus CSV importieren…\nWerkzeuge\nBandbreite berechnen…\nWerkzeuge\nStromverbrauch berechnen…\nWerkzeuge\nRecording-Speicherplatz berechnen…\nWerkzeuge\nProjektion & Display…\nWerkzeuge\nFestinstallation: Doku & Übergabe…\nWerkzeuge\nDMX-Adressen vergeben…\nWerkzeuge\nBeispielprojekt laden\nWerkzeuge\nEinstellungen…\nHilfe\nTastaturkürzel…\nHilfe\nÜber LZ Cable Planner…\nHilfe"
+      "name": "hilfe-menue",
+      "datei": "oberflaeche-83-hilfe-menue.jpg",
+      "text": ""
     },
     {
       "nr": 84,
-      "name": "palette-ende",
-      "datei": "oberflaeche-84-palette-ende.jpg",
+      "name": "hilfe-befehlspalette",
+      "datei": "oberflaeche-84-hilfe-befehlspalette.jpg",
       "text": "⌘+K\nRückgängig\nBearbeiten\nWiederherstellen\nBearbeiten\nDuplizieren\nBearbeiten\nAlles auswählen\nBearbeiten\nEinpassen\nAnsicht\nVergrößern\nAnsicht\nVerkleinern\nAnsicht\nZoom zurücksetzen (100%)\nAnsicht\nPlan-Check…\nWerkzeuge\nPatch-Liste…\nWerkzeuge\nAnalysen…\nWerkzeuge\nMehrere Kabel verbinden…\nWerkzeuge\nRevisionen & Snapshots…\nWerkzeuge\nKI-Plan generieren…\nWerkzeuge\nEquipment aus CSV importieren…\nWerkzeuge\nBandbreite berechnen…\nWerkzeuge\nStromverbrauch berechnen…\nWerkzeuge\nRecording-Speicherplatz berechnen…\nWerkzeuge\nProjektion & Display…\nWerkzeuge\nFestinstallation: Doku & Übergabe…\nWerkzeuge\nDMX-Adressen vergeben…\nWerkzeuge\nBeispielprojekt laden\nWerkzeuge\nEinstellungen…\nHilfe\nTastaturkürzel…\nHilfe\nÜber LZ Cable Planner…\nHilfe"
     },
     {
       "nr": 85,
-      "name": "palette-suche-zoom",
-      "datei": "oberflaeche-85-palette-suche-zoom.jpg",
-      "text": "⌘+K\nZoom zurücksetzen (100%)\nAnsicht"
+      "name": "palette-mitte",
+      "datei": "oberflaeche-85-palette-mitte.jpg",
+      "text": "⌘+K\nRückgängig\nBearbeiten\nWiederherstellen\nBearbeiten\nDuplizieren\nBearbeiten\nAlles auswählen\nBearbeiten\nEinpassen\nAnsicht\nVergrößern\nAnsicht\nVerkleinern\nAnsicht\nZoom zurücksetzen (100%)\nAnsicht\nPlan-Check…\nWerkzeuge\nPatch-Liste…\nWerkzeuge\nAnalysen…\nWerkzeuge\nMehrere Kabel verbinden…\nWerkzeuge\nRevisionen & Snapshots…\nWerkzeuge\nKI-Plan generieren…\nWerkzeuge\nEquipment aus CSV importieren…\nWerkzeuge\nBandbreite berechnen…\nWerkzeuge\nStromverbrauch berechnen…\nWerkzeuge\nRecording-Speicherplatz berechnen…\nWerkzeuge\nProjektion & Display…\nWerkzeuge\nFestinstallation: Doku & Übergabe…\nWerkzeuge\nDMX-Adressen vergeben…\nWerkzeuge\nBeispielprojekt laden\nWerkzeuge\nEinstellungen…\nHilfe\nTastaturkürzel…\nHilfe\nÜber LZ Cable Planner…\nHilfe"
     },
     {
       "nr": 86,
-      "name": "palette-suche-gruppe",
-      "datei": "oberflaeche-86-palette-suche-gruppe.jpg",
-      "text": "⌘+K\nKeine Befehle gefunden"
+      "name": "palette-ende",
+      "datei": "oberflaeche-86-palette-ende.jpg",
+      "text": "⌘+K\nRückgängig\nBearbeiten\nWiederherstellen\nBearbeiten\nDuplizieren\nBearbeiten\nAlles auswählen\nBearbeiten\nEinpassen\nAnsicht\nVergrößern\nAnsicht\nVerkleinern\nAnsicht\nZoom zurücksetzen (100%)\nAnsicht\nPlan-Check…\nWerkzeuge\nPatch-Liste…\nWerkzeuge\nAnalysen…\nWerkzeuge\nMehrere Kabel verbinden…\nWerkzeuge\nRevisionen & Snapshots…\nWerkzeuge\nKI-Plan generieren…\nWerkzeuge\nEquipment aus CSV importieren…\nWerkzeuge\nBandbreite berechnen…\nWerkzeuge\nStromverbrauch berechnen…\nWerkzeuge\nRecording-Speicherplatz berechnen…\nWerkzeuge\nProjektion & Display…\nWerkzeuge\nFestinstallation: Doku & Übergabe…\nWerkzeuge\nDMX-Adressen vergeben…\nWerkzeuge\nBeispielprojekt laden\nWerkzeuge\nEinstellungen…\nHilfe\nTastaturkürzel…\nHilfe\nÜber LZ Cable Planner…\nHilfe"
     },
     {
       "nr": 87,
-      "name": "palette-keine-treffer",
-      "datei": "oberflaeche-87-palette-keine-treffer.jpg",
-      "text": "⌘+K\nKeine Befehle gefunden"
+      "name": "palette-suche-zoom",
+      "datei": "oberflaeche-87-palette-suche-zoom.jpg",
+      "text": "⌘+K\nZoom zurücksetzen (100%)\nAnsicht"
     },
     {
       "nr": 88,
-      "name": "palette-pfeiltasten",
-      "datei": "oberflaeche-88-palette-pfeiltasten.jpg",
+      "name": "palette-suche-gruppe",
+      "datei": "oberflaeche-88-palette-suche-gruppe.jpg",
       "text": "⌘+K\nKeine Befehle gefunden"
     },
     {
       "nr": 89,
-      "name": "palette-befehl-ausfuehren",
-      "datei": "oberflaeche-89-palette-befehl-ausfuehren.jpg",
+      "name": "palette-keine-treffer",
+      "datei": "oberflaeche-89-palette-keine-treffer.jpg",
       "text": "⌘+K\nKeine Befehle gefunden"
     },
     {
       "nr": 90,
-      "name": "palette-strg-k",
-      "datei": "oberflaeche-90-palette-strg-k.jpg",
-      "text": ""
+      "name": "palette-pfeiltasten",
+      "datei": "oberflaeche-90-palette-pfeiltasten.jpg",
+      "text": "⌘+K\nKeine Befehle gefunden"
     },
     {
       "nr": 91,
-      "name": "palette-dmx-befehl",
-      "datei": "oberflaeche-91-palette-dmx-befehl.jpg",
-      "text": ""
+      "name": "palette-befehl-ausfuehren",
+      "datei": "oberflaeche-91-palette-befehl-ausfuehren.jpg",
+      "text": "⌘+K\nKeine Befehle gefunden"
     },
     {
       "nr": 92,
-      "name": "hilfe-tastenkuerzel",
-      "datei": "oberflaeche-92-hilfe-tastenkuerzel.jpg",
-      "text": "Tastaturkürzel\nDatei\nNeues Projekt\n⌘+N\nProjekt öffnen\n⌘+O\nSpeichern\n⌘+S\nSpeichern unter\n⌘+⇧+S\nBearbeiten\nRückgängig\n⌘+Z\nWiederholen\n⌘+Y\nKopieren\n⌘+C\nEinfügen\n⌘+V\nDuplizieren\n⌘+D\nAlles auswählen\n⌘+A\nAuswahl löschen\nEntf\nAbwählen / Abbrechen\nEsc\nCanvas & Navigation\nBefehlspalette\n⌘+K\nGerät suchen\n⌘+F\nNeues Gerät an Mausposition\n⌘++\nGerät verschieben (Umsch = große Schritte)\n↑ ↓ ← →\nDiese Übersicht anzeigen\n?\nPanels & Ansicht\nLibrary ein-/ausblenden\n⌘+B\nEigenschaften ein-/ausblenden\n⌘+I\nPatch-Liste öffnen\nP\nPfeil-Anzeige umschalten\nA"
+      "name": "palette-strg-k",
+      "datei": "oberflaeche-92-palette-strg-k.jpg",
+      "text": ""
     },
     {
       "nr": 93,
-      "name": "tastenkuerzel-fragezeichen",
-      "datei": "oberflaeche-93-tastenkuerzel-fragezeichen.jpg",
-      "text": "Tastaturkürzel\nDatei\nNeues Projekt\n⌘+N\nProjekt öffnen\n⌘+O\nSpeichern\n⌘+S\nSpeichern unter\n⌘+⇧+S\nBearbeiten\nRückgängig\n⌘+Z\nWiederholen\n⌘+Y\nKopieren\n⌘+C\nEinfügen\n⌘+V\nDuplizieren\n⌘+D\nAlles auswählen\n⌘+A\nAuswahl löschen\nEntf\nAbwählen / Abbrechen\nEsc\nCanvas & Navigation\nBefehlspalette\n⌘+K\nGerät suchen\n⌘+F\nNeues Gerät an Mausposition\n⌘++\nGerät verschieben (Umsch = große Schritte)\n↑ ↓ ← →\nDiese Übersicht anzeigen\n?\nPanels & Ansicht\nLibrary ein-/ausblenden\n⌘+B\nEigenschaften ein-/ausblenden\n⌘+I\nPatch-Liste öffnen\nP\nPfeil-Anzeige umschalten\nA"
+      "name": "palette-dmx-befehl",
+      "datei": "oberflaeche-93-palette-dmx-befehl.jpg",
+      "text": ""
     },
     {
       "nr": 94,
-      "name": "hilfe-tour-1",
-      "datei": "oberflaeche-94-hilfe-tour-1.jpg",
-      "text": "ERSTE-SCHRITTE-TOUR · SCHRITT 1 / 7\nWillkommen im LZ Cable Planner\n\nEine kurze Tour zeigt dir, wo du die wichtigsten Funktionen findest. Du kannst sie jederzeit über das Hilfe-Menü oben rechts wieder öffnen.\n\nTour beenden\nZurück\nWeiter"
+      "name": "hilfe-tastenkuerzel",
+      "datei": "oberflaeche-94-hilfe-tastenkuerzel.jpg",
+      "text": "Tastaturkürzel\nTastatur\nListe\nEsc\n1\n2\n3\n4\n5\n6\n7\n8\n9\n0\nß ?\nEntf\nQ\nW\nE\nR\nT\nZ\nU\nI\nO\nP\nÜ\n+ *\nA\nS\nD\nF\nG\nH\nJ\nK\nL\nÖ\nÄ\n#\n⇧\nY\nX\nC\nV\nB\nN\nM\n,\n.\n-\n⌘\n⌥\n←\n↑\n↓\n→\n\nMarkierte Tasten haben Aktionen. Taste überfahren oder anklicken, um sie zu sehen."
     },
     {
       "nr": 95,
-      "name": "tour-2",
-      "datei": "oberflaeche-95-tour-2.jpg",
-      "text": "ERSTE-SCHRITTE-TOUR · SCHRITT 2 / 7\nDatei-Menü oben links\n\nÜber „Datei\" legst du Projekte an, öffnest gespeicherte Dateien und sicherst Änderungen. Die Projekt-Metadaten bearbeitest du dort über „Projekt-Eigenschaften\".\n\nTour beenden\nZurück\nWeiter"
+      "name": "tastenkuerzel-fragezeichen",
+      "datei": "oberflaeche-95-tastenkuerzel-fragezeichen.jpg",
+      "text": "Tastaturkürzel\nTastatur\nListe\nEsc\n1\n2\n3\n4\n5\n6\n7\n8\n9\n0\nß ?\nEntf\nQ\nW\nE\nR\nT\nZ\nU\nI\nO\nP\nÜ\n+ *\nA\nS\nD\nF\nG\nH\nJ\nK\nL\nÖ\nÄ\n#\n⇧\nY\nX\nC\nV\nB\nN\nM\n,\n.\n-\n⌘\n⌥\n←\n↑\n↓\n→\n\nMarkierte Tasten haben Aktionen. Taste überfahren oder anklicken, um sie zu sehen."
     },
     {
       "nr": 96,
-      "name": "tour-3",
-      "datei": "oberflaeche-96-tour-3.jpg",
-      "text": "ERSTE-SCHRITTE-TOUR · SCHRITT 3 / 7\nExport-Menü\n\nIm „Export\"-Menü findest du den PDF-Plan-Export, die Kabel-Stückliste sowie zwei Rentman-Aktionen: PDF an Rentman anhängen und Kabel an Rentman senden.\n\nTipp: Die Rentman-Einträge sind nur aktiv, wenn ein Rentman-Projekt verknüpft ist.\nTour beenden\nZurück\nWeiter"
+      "name": "hilfe-tour-1",
+      "datei": "oberflaeche-96-hilfe-tour-1.jpg",
+      "text": "Erste-Schritte-Tour · Schritt 1 / 7\nWillkommen im LZ Cable Planner\n\nEine kurze Tour zeigt dir, wo du die wichtigsten Funktionen findest. Du kannst sie jederzeit über das Hilfe-Menü oben rechts wieder öffnen.\n\nTour beenden\nZurück\nWeiter"
     },
     {
       "nr": 97,
-      "name": "tour-4",
-      "datei": "oberflaeche-97-tour-4.jpg",
-      "text": "ERSTE-SCHRITTE-TOUR · SCHRITT 4 / 7\nEinstellungen → Rentman\n\nToken speichern, Verbindung testen und Rentman-Projekt verknüpfen oder wechseln machst du in den Einstellungen im Tab „Rentman API\".\n\nTour beenden\nZurück\nWeiter"
+      "name": "tour-2",
+      "datei": "oberflaeche-97-tour-2.jpg",
+      "text": "Erste-Schritte-Tour · Schritt 2 / 7\nDatei-Menü oben links\n\nÜber „Datei\" legst du Projekte an, öffnest gespeicherte Dateien und sicherst Änderungen. Die Projekt-Metadaten bearbeitest du dort über „Projekt-Eigenschaften\".\n\nTour beenden\nZurück\nWeiter"
     },
     {
       "nr": 98,
-      "name": "tour-5",
-      "datei": "oberflaeche-98-tour-5.jpg",
-      "text": "ERSTE-SCHRITTE-TOUR · SCHRITT 5 / 7\nBibliothek links\n\nDie linke Spalte enthält Equipment, Kabel-Library und Gruppen. Im Equipment-Tab kannst du zwischen lokalen und aus Rentman importierten Geräten umschalten.\n\nTour beenden\nZurück\nWeiter"
+      "name": "tour-3",
+      "datei": "oberflaeche-98-tour-3.jpg",
+      "text": "Erste-Schritte-Tour · Schritt 3 / 7\nExport-Menü\n\nIm „Export\"-Menü findest du den PDF-Plan-Export, die Kabel-Stückliste sowie zwei Rentman-Aktionen: PDF an Rentman anhängen und Kabel an Rentman senden.\n\nTipp: Die Rentman-Einträge sind nur aktiv, wenn ein Rentman-Projekt verknüpft ist.\nTour beenden\nZurück\nWeiter"
     },
     {
       "nr": 99,
-      "name": "tour-6",
-      "datei": "oberflaeche-99-tour-6.jpg",
-      "text": "ERSTE-SCHRITTE-TOUR · SCHRITT 6 / 7\nEigenschaften rechts\n\nWenn du ein Element auf der Canvas auswählst, erscheinen rechts die Details und Werkzeuge zur Bearbeitung.\n\nTour beenden\nZurück\nWeiter"
+      "name": "tour-4",
+      "datei": "oberflaeche-99-tour-4.jpg",
+      "text": "Erste-Schritte-Tour · Schritt 4 / 7\nEinstellungen → Rentman\n\nToken speichern, Verbindung testen und Rentman-Projekt verknüpfen oder wechseln machst du in den Einstellungen im Tab „Rentman API\".\n\nTour beenden\nZurück\nWeiter"
     },
     {
       "nr": 100,
-      "name": "tour-7",
-      "datei": "oberflaeche-100-tour-7.jpg",
-      "text": "ERSTE-SCHRITTE-TOUR · SCHRITT 7 / 7\nKabel-Plan & Warnung\n\nImportierst du Kabelmengen aus Rentman, warnt der LZ Cable Planner beim Verkabeln, sobald du mehr Kabel verbaust als vorhanden sind. Über „Kabel an Rentman senden\" gleichst du fertige Mengen zurück.\n\nTour beenden\nZurück\nLos geht's"
+      "name": "tour-5",
+      "datei": "oberflaeche-100-tour-5.jpg",
+      "text": "Erste-Schritte-Tour · Schritt 5 / 7\nBibliothek links\n\nDie linke Spalte enthält Equipment, Kabel-Library und Gruppen. Im Equipment-Tab kannst du zwischen lokalen und aus Rentman importierten Geräten umschalten.\n\nTour beenden\nZurück\nWeiter"
     },
     {
       "nr": 101,
-      "name": "tour-ende",
-      "datei": "oberflaeche-101-tour-ende.jpg",
-      "text": ""
+      "name": "tour-6",
+      "datei": "oberflaeche-101-tour-6.jpg",
+      "text": "Erste-Schritte-Tour · Schritt 6 / 7\nEigenschaften rechts\n\nWenn du ein Element auf der Canvas auswählst, erscheinen rechts die Details und Werkzeuge zur Bearbeitung.\n\nTour beenden\nZurück\nWeiter"
     },
     {
       "nr": 102,
-      "name": "hilfe-updates",
-      "datei": "oberflaeche-102-hilfe-updates.jpg",
-      "text": "Aktuelle Version\nDu verwendest bereits die neueste Version (9.1.0).\nOK"
+      "name": "tour-7",
+      "datei": "oberflaeche-102-tour-7.jpg",
+      "text": "Erste-Schritte-Tour · Schritt 7 / 7\nKabel-Plan & Warnung\n\nImportierst du Kabelmengen aus Rentman, warnt der LZ Cable Planner beim Verkabeln, sobald du mehr Kabel verbaust als vorhanden sind. Über „Kabel an Rentman senden\" gleichst du fertige Mengen zurück.\n\nTour beenden\nZurück\nLos geht's"
     },
     {
       "nr": 103,
-      "name": "hilfe-ueber",
-      "datei": "oberflaeche-103-hilfe-ueber.jpg",
-      "text": "Über LZ Cable Planner\nLZ Cable Planner\nv9.1.0-10-gfa0733b6-dirty\nLars Zumpe Medienproduktion\nVersion\n9.1.0-10-gfa0733b6-dirty\nBuild\n28.9.2026, 22:32:37\nAutor\nLars Zumpe\nRepository\ngithub.com/larszu/cable-planner\nPlattform\nElectron + React + ReactFlow + Vite + Tailwind\nIssues + Feature-Wünsche bitte direkt auf GitHub melden."
-    },
-    {
-      "nr": 104,
-      "name": "handy-knopf",
-      "datei": "oberflaeche-104-handy-knopf.jpg",
+      "name": "tour-ende",
+      "datei": "oberflaeche-103-tour-ende.jpg",
       "text": ""
     },
     {
+      "nr": 104,
+      "name": "hilfe-updates",
+      "datei": "oberflaeche-104-hilfe-updates.jpg",
+      "text": "Aktuelle Version\nDu verwendest bereits die neueste Version (9.8.0).\nOK"
+    },
+    {
       "nr": 105,
-      "name": "handy-dialog",
-      "datei": "oberflaeche-105-handy-dialog.jpg",
-      "text": "Handy-Zugriff\n\nStartet einen kleinen Web-Server im lokalen Netzwerk. mehr\n\nRückmeldungen vom Handy\nNur lesen\nMitschreiben: Häkchen, Kabel, Fotos, neue Geräte\n\nDie Schreibwege sind geschlossen — das Handy bekommt auf jeden Schreibversuch eine Absage. Den Plan ändert die Person am Rechner.\n\nServer ist gestoppt. Klicke unten, um den LAN-Server zu starten.\n\nLAN-Server starten\nAnlagen-Zugangscodes abrufbar machen\n\nDieses Projekt trägt keine Intercom-Konfiguration mit Zugangscodes.\n\nHinweise zur Sicherheit"
+      "name": "hilfe-ueber",
+      "datei": "oberflaeche-105-hilfe-ueber.jpg",
+      "text": "Über LZ Cable Planner\nLZ Cable Planner\nv9.8.0-37-gb150bebf\nLars Zumpe Medienproduktion\nVersion\n9.8.0-37-gb150bebf\nBuild\n21.10.2026, 08:36:05\nAutor\nLars Zumpe\nRepository\ngithub.com/larszu/cable-planner\nPlattform\nElectron + React + ReactFlow + Vite + Tailwind\nIssues + Feature-Wünsche bitte direkt auf GitHub melden."
+    },
+    {
+      "nr": 106,
+      "name": "handy-knopf",
+      "datei": "oberflaeche-106-handy-knopf.jpg",
+      "text": ""
     },
     {
       "nr": 107,
-      "name": "handy-sicherheitshinweise",
-      "datei": "oberflaeche-107-handy-sicherheitshinweise.jpg",
-      "text": "Handy-Zugriff\n\nStartet einen kleinen Web-Server im lokalen Netzwerk. mehr\n\nRückmeldungen vom Handy\nNur lesen\nMitschreiben: Häkchen, Kabel, Fotos, neue Geräte\n\nHäkchen, vor Ort gezogene Kabel, Meldungen, Fotos und neue Geräte gehen zurück ins Projekt. Wer den QR-Code hat, kann den Plan ändern.\n\nServer ist gestoppt. Klicke unten, um den LAN-Server zu starten.\n\nLAN-Server starten\nAnlagen-Zugangscodes abrufbar machen\n\nDieses Projekt trägt keine Intercom-Konfiguration mit Zugangscodes.\n\nHinweise zur Sicherheit\nOb das Handy zurückschreiben darf, entscheidet die Einstellung darüber. Steht sie auf „Häkchen, Kabel und Fotos zurückschicken“, kann jeder mit dem QR-Code den Plan ändern.\nJeder Schreibweg verlangt das Token aus dem QR-Code. Passwörter und Schlüssel werden aus dem Projekt entfernt, bevor es das Gerät verlässt.\nDie Anlagen-Zugangscodes gehen NIE im Projekt mit. Sie liegen nur im Speicher der Desktop-App und nur, solange der Schalter oben an ist; abgerufen werden sie über einen zweiten Code, der nicht im QR-Code steht.\nDer Server bindet auf das lokale Netzwerk (0.0.0.0). Wenn unklar ist, wer im Netz hängt, lieber stoppen.\nBeim Schließen der Desktop-App stoppt auch der Server automatisch."
+      "name": "handy-dialog",
+      "datei": "oberflaeche-107-handy-dialog.jpg",
+      "text": "Handy-Zugriff\n\nStartet einen kleinen Web-Server im lokalen Netzwerk. mehr\n\nRückmeldungen vom Handy\nNur lesen\nMitschreiben: Häkchen, Kabel, Fotos, neue Geräte\n\nDie Schreibwege sind geschlossen — das Handy bekommt auf jeden Schreibversuch eine Absage. Den Plan ändert die Person am Rechner.\n\nServer ist gestoppt. Klicke unten, um den LAN-Server zu starten.\n\nLAN-Server starten\nAnlagen-Zugangscodes abrufbar machen\n\nDieses Projekt trägt keine Intercom-Konfiguration mit Zugangscodes.\n\nHinweise zur Sicherheit"
     },
     {
       "nr": 108,
-      "name": "erststart-willkommen",
-      "datei": "oberflaeche-108-erststart-willkommen.jpg",
-      "text": "Willkommen beim LZ Cable Planner\n\nLege ein neues Projekt an oder öffne ein bestehendes, damit deine Arbeit zuverlässig gespeichert wird.\n\nNeues Projekt\nMit Projektname, Auftraggeber und Planer starten.\nProjekt öffnen…\nEine vorhandene .cableplan-Datei laden.\nSpäter entscheiden"
+      "name": "handy-mehr",
+      "datei": "oberflaeche-108-handy-mehr.jpg",
+      "text": "Handy-Zugriff\n\nStartet einen kleinen Web-Server im lokalen Netzwerk. Scanne den QR-Code mit dem Handy → der Mobile-Viewer öffnet sich im Browser und lädt das aktuelle Projekt. Der Server stoppt automatisch beim Schließen der App oder über den Stop-Button. weniger\n\nRückmeldungen vom Handy\nNur lesen\nMitschreiben: Häkchen, Kabel, Fotos, neue Geräte\n\nDie Schreibwege sind geschlossen — das Handy bekommt auf jeden Schreibversuch eine Absage. Den Plan ändert die Person am Rechner.\n\nServer ist gestoppt. Klicke unten, um den LAN-Server zu starten.\n\nLAN-Server starten\nAnlagen-Zugangscodes abrufbar machen\n\nDieses Projekt trägt keine Intercom-Konfiguration mit Zugangscodes.\n\nHinweise zur Sicherheit"
     },
     {
       "nr": 109,
-      "name": "erststart-willkommen-dialog",
-      "datei": "oberflaeche-109-erststart-willkommen-dialog.jpg",
-      "text": "Willkommen beim LZ Cable Planner\n\nLege ein neues Projekt an oder öffne ein bestehendes, damit deine Arbeit zuverlässig gespeichert wird.\n\nNeues Projekt\nMit Projektname, Auftraggeber und Planer starten.\nProjekt öffnen…\nEine vorhandene .cableplan-Datei laden.\nSpäter entscheiden"
+      "name": "handy-sicherheitshinweise",
+      "datei": "oberflaeche-109-handy-sicherheitshinweise.jpg",
+      "text": "Handy-Zugriff\n\nStartet einen kleinen Web-Server im lokalen Netzwerk. Scanne den QR-Code mit dem Handy → der Mobile-Viewer öffnet sich im Browser und lädt das aktuelle Projekt. Der Server stoppt automatisch beim Schließen der App oder über den Stop-Button. weniger\n\nRückmeldungen vom Handy\nNur lesen\nMitschreiben: Häkchen, Kabel, Fotos, neue Geräte\n\nDie Schreibwege sind geschlossen — das Handy bekommt auf jeden Schreibversuch eine Absage. Den Plan ändert die Person am Rechner.\n\nServer ist gestoppt. Klicke unten, um den LAN-Server zu starten.\n\nLAN-Server starten\nAnlagen-Zugangscodes abrufbar machen\n\nDieses Projekt trägt keine Intercom-Konfiguration mit Zugangscodes.\n\nHinweise zur Sicherheit\nOb das Handy zurückschreiben darf, entscheidet die Einstellung darüber. Steht sie auf „Häkchen, Kabel und Fotos zurückschicken“, kann jeder mit dem QR-Code den Plan ändern.\nJeder Schreibweg verlangt das Token aus dem QR-Code. Passwörter und Schlüssel werden aus dem Projekt entfernt, bevor es das Gerät verlässt.\nDie Anlagen-Zugangscodes gehen NIE im Projekt mit. Sie liegen nur im Speicher der Desktop-App und nur, solange der Schalter oben an ist; abgerufen werden sie über einen zweiten Code, der nicht im QR-Code steht.\nDer Server bindet auf das lokale Netzwerk (0.0.0.0). Wenn unklar ist, wer im Netz hängt, lieber stoppen.\nBeim Schließen der Desktop-App stoppt auch der Server automatisch."
     },
     {
       "nr": 110,
-      "name": "erststart-modulfrage",
-      "datei": "oberflaeche-110-erststart-modulfrage.jpg",
-      "text": "Willkommen — wofür nutzt du LZ Cable Planner?\n\nWähle einen oder mehrere Anwendungsfälle — passende Funktionsmodule werden aktiviert. mehr\n\nShow / Event\n\nTemporäre Produktionen — schnell planen, vor Ort abhaken.\n\nFestinstallation\n\nDauerhafte Anlagen — mitwachsende Doku, Service, Übergabe.\n\nVermietung / Rental\n\nLagerbestand & Verfügbarkeit über Projekte hinweg.\n\nSpäter entscheiden\nLoslegen"
+      "name": "erststart-willkommen",
+      "datei": "oberflaeche-110-erststart-willkommen.jpg",
+      "text": "Willkommen beim LZ Cable Planner\n\nLege ein neues Projekt an oder öffne ein bestehendes, damit deine Arbeit zuverlässig gespeichert wird.\n\nNeues Projekt\nMit Projektname, Auftraggeber und Planer starten.\nProjekt öffnen…\nEine vorhandene .cableplan-Datei laden.\nSpäter entscheiden"
     },
     {
       "nr": 111,
-      "name": "erststart-modulfrage-auswahl",
-      "datei": "oberflaeche-111-erststart-modulfrage-auswahl.jpg",
-      "text": "Willkommen — wofür nutzt du LZ Cable Planner?\n\nWähle einen oder mehrere Anwendungsfälle — passende Funktionsmodule werden aktiviert. mehr\n\nShow / Event\n\nTemporäre Produktionen — schnell planen, vor Ort abhaken.\n\nFestinstallation\n\nDauerhafte Anlagen — mitwachsende Doku, Service, Übergabe.\n\nVermietung / Rental\n\nLagerbestand & Verfügbarkeit über Projekte hinweg.\n\nSpäter entscheiden\nLoslegen"
+      "name": "erststart-willkommen-dialog",
+      "datei": "oberflaeche-111-erststart-willkommen-dialog.jpg",
+      "text": "Willkommen beim LZ Cable Planner\n\nLege ein neues Projekt an oder öffne ein bestehendes, damit deine Arbeit zuverlässig gespeichert wird.\n\nNeues Projekt\nMit Projektname, Auftraggeber und Planer starten.\nProjekt öffnen…\nEine vorhandene .cableplan-Datei laden.\nSpäter entscheiden"
     },
     {
       "nr": 112,
+      "name": "erststart-modulfrage",
+      "datei": "oberflaeche-112-erststart-modulfrage.jpg",
+      "text": "Willkommen — wofür nutzt du LZ Cable Planner?\n\nWähle einen oder mehrere Anwendungsfälle — passende Funktionsmodule werden aktiviert. mehr\n\nShow / Event\n\nTemporäre Produktionen — schnell planen, vor Ort abhaken.\n\nFestinstallation\n\nDauerhafte Anlagen — mitwachsende Doku, Service, Übergabe.\n\nVermietung / Rental\n\nLagerbestand & Verfügbarkeit über Projekte hinweg.\n\nSpäter entscheiden\nLoslegen"
+    },
+    {
+      "nr": 113,
+      "name": "erststart-modulfrage-auswahl",
+      "datei": "oberflaeche-113-erststart-modulfrage-auswahl.jpg",
+      "text": "Willkommen — wofür nutzt du LZ Cable Planner?\n\nWähle einen oder mehrere Anwendungsfälle — passende Funktionsmodule werden aktiviert. mehr\n\nShow / Event\n\nTemporäre Produktionen — schnell planen, vor Ort abhaken.\n\nFestinstallation\n\nDauerhafte Anlagen — mitwachsende Doku, Service, Übergabe.\n\nVermietung / Rental\n\nLagerbestand & Verfügbarkeit über Projekte hinweg.\n\nSpäter entscheiden\nLoslegen"
+    },
+    {
+      "nr": 114,
       "name": "erststart-tour",
-      "datei": "oberflaeche-112-erststart-tour.jpg",
-      "text": "ERSTE-SCHRITTE-TOUR · SCHRITT 1 / 7\nWillkommen im LZ Cable Planner\n\nEine kurze Tour zeigt dir, wo du die wichtigsten Funktionen findest. Du kannst sie jederzeit über das Hilfe-Menü oben rechts wieder öffnen.\n\nTour beenden\nZurück\nWeiter"
+      "datei": "oberflaeche-114-erststart-tour.jpg",
+      "text": "Erste-Schritte-Tour · Schritt 1 / 7\nWillkommen im LZ Cable Planner\n\nEine kurze Tour zeigt dir, wo du die wichtigsten Funktionen findest. Du kannst sie jederzeit über das Hilfe-Menü oben rechts wieder öffnen.\n\nTour beenden\nZurück\nWeiter"
     }
   ],
-  "fehler": [
-    "09 geraet-gewaehlt: locator.click: Timeout 30000ms exceeded.",
-    "32 bearbeiten-geraet-anklicken: locator.click: Timeout 30000ms exceeded.",
-    "106 handy-mitschreiben: locator.check: Clicking the checkbox did not change its state"
-  ],
+  "fehler": [],
   "notizen": {
     "menueleiste": "LZ Cable Planner\n│\nDatei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup\nHandy-Zugriff\nEinstellungen",
-    "bibliothek": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n1\nRacks\n1\nLLokal(1848)\nGeteilt(0)\nRRentman(0)\nSTRG+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n59\nPatchfelder\n8\nStative\n49\nVideo\n23\nKonverter\n27\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n36\nKreuzschiene\n17\nFunkstrecke\n11",
-    "inspector-leer": "Inspector\nEIGENSCHAFTEN\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFOTOS DES PROJEKTS\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSCHNELLE ORIENTIERUNG\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erstellen.\n• Mehrere Geräte auswählen und im Canvas als Gruppe speichern.\n• Rentman-Aktionen findest du im Equipment-Tab unter Rentman.",
-    "statusleiste": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "menue-datei": "Neues Projekt\nStrg+N\nNeu aus Vorlage…\nÖffnen…\nStrg+O\nSpeichern\nStrg+S\nSpeichern unter…\nStrg+Umsch+S\nyEd / GraphML importieren…\nMultiCam-Kameras importieren…\nEquipment aus CSV importieren…\nRentman-Import…\nNetBox-Import…\nGesamtprojekt exportieren (.avplan)…\nGesamtprojekt importieren (.avplan)…\nIdentitäts-Karte exportieren (.avsourcemap)…\nIdentitäts-Karte importieren (.avsourcemap)…\nPatch-Liste…\nWer hängt an welchem Ein- und Ausgang\nFestinstallation: Doku & Übergabe…\nStage-Plot (SVG)…\nBühnenaufsicht als Ein-Seiten-Blatt\nExportieren & Drucken…\nCloud & Lese-Link…\nAls Viewer-Datei exportieren…\nAnmerkungen aus Viewer-Datei importieren…\nPlan-Stände vergleichen…\nAusgegebene Dokumente…\nPlan an Rentman anhängen (kein Projekt verknüpft)\nKabel an Rentman senden (kein Projekt verknüpft)",
-    "menue-werkzeuge": "BERECHNEN\nRecording-Speicherplatz berechnen…\nProjektion & Display…\nPRÜFEN\nAnalysen…\nGewicht, Netzwerk, Redundanz, Kabelwege\nPlan-Check…\nFindet Lücken und Widersprüche im Plan\nPlan gegen Vorgefundenes…\nVergleicht den Plan mit dem, was vor Ort steht\nPLANEN\nBestandsaufnahme (Vorhandenes erfassen)…\nVorhandene Technik vor Ort erfassen: Name, Raum, vermutete Verbindung, Foto\nDrum-Mikrofonierung…\nMikrofone am Schlagzeug setzen und benennen\nFunkstrecken / Gesang…\nFrequenzen, Sender, Empfänger im Spektrum\nAblauf und Kamera-Aufträge…\nAbschnitte einlesen, Aufträge je Kameraposition\nAusspielung (Streaming-Ziele)…\nWohin gesendet wird, mit welchen Parametern\nLED-Wand…\nPanels, Auflösung, Gewicht, Leistung — und die Pixelmap für den Medienserver\nFrontplatten-Editor…\nWandanschlussfelder, Stageboxen: die Stecker in Millimetern setzen und den Streifen 1:1 drucken\nBerichts-Editor…\nSpalten, Gruppierung, Sortierung und Filter für jede Liste — als Vorlage gespeichert\nAdern und Farbnormen…\nFarbnormen und Anschlüsse, die man je Leiter einzeln zieht\nEmpfangene Show-Control-Nachrichten…\nWas hereinkam — eine Mitschrift, kein Anlagenzustand\nERSTELLEN & VERWALTEN\nMehrere Kabel verbinden…\nViele Ports in einem Zug verkabeln\nNeues Rack erstellen…\nRack-Builder…\nBestehende Racks bestücken und bearbeiten\nKI-Plan generieren…\nErzeugt einen Entwurf aus einer Beschreibung\nRevisionen & Snapshots…\nStände sichern und vergleichen\nLager / Bestand…\nGERÄTE-KONFIGURATION\nATEM Multiviewer-Layout…",
-    "geraet-gewaehlt": "Inspector\nEIGENSCHAFTEN\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFOTOS DES PROJEKTS\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSCHNELLE ORIENTIERUNG\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erstellen.\n• Mehrere Geräte auswählen und im Canvas als Gruppe speichern.\n• Rentman-Aktionen findest du im Equipment-Tab unter Rentman.",
+    "bibliothek": "‹\nFenster\nBibliothek\nGeräte\nKabel\nGruppen\n1\nRacks\n1\nLokal\nGeteilt\nRentman\nStrg+F\n+\nAudio\n22\nKameras\n381\nLED Processing\n4\nObjektive\n835\nLicht\n84\nMikrofone\n184\nMonitore\n39\nNetzwerk\n60\nPatchfelder\n8\nStative\n49\nVideo\n24\nControl\n3\nKonverter\n27\nIntercom\n13\nIP/NDI\n37\nIT/Server\n2\nStromverteilung\n6\nSync/Referenz\n4\nVideo-Konverter\n7\nBildmischer\n37\nKreuzschiene\n17\nFunkstrecke\n11",
+    "inspector-leer": "Inspector\nEigenschaften\nFenster\n›\nNichts ausgewählt\nWähle ein Gerät, Kabel, Rahmen oder eine Library-Vorlage aus.\nFotos des Projekts\n\nNoch keine Fotos. Ein Foto beantwortet Fragen, für die es kein Feld gibt.\n\nFoto hinzufügen…\nSchnelle Orientierung\n• Geräte links aus der Library auf den Canvas setzen.\n• Ports verbinden, um Kabel zu erstellen.\n• Mehrere Geräte auswählen und im Canvas als Gruppe speichern.\n• Rentman-Aktionen findest du im Equipment-Tab unter Rentman.",
+    "statusleiste": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "menue-datei": "Neues Projekt\nStrg+N\nNeu aus Vorlage…\nÖffnen…\nStrg+O\nSpeichern\nStrg+S\nSpeichern unter…\nStrg+Umsch+S\nyEd / GraphML importieren…\nMultiCam-Kameras importieren…\nEquipment aus CSV importieren…\nRentman-Import…\nNetBox-Import…\nGesamtprojekt exportieren (.avplan)…\nGesamtprojekt importieren (.avplan)…\nIdentitäts-Karte exportieren (.avsourcemap)…\nIdentitäts-Karte importieren (.avsourcemap)…\nPatch-Liste…\nWer hängt an welchem Ein- und Ausgang\nFestinstallation: Doku & Übergabe…\nStage-Plot (SVG)…\nBühnenaufsicht als Ein-Seiten-Blatt, hell oder dunkel wie der Canvas\nStage-Plot hell (SVG)…\nWeißer Hintergrund, für Druck und E-Mail\nExportieren & Drucken…\nCloud & Lese-Link…\nAls Viewer-Datei exportieren…\nAnmerkungen aus Viewer-Datei importieren…\nPlan-Stände vergleichen…\nAusgegebene Dokumente…\nPlan an Rentman anhängen (kein Projekt verknüpft)\nKabel an Rentman senden (kein Projekt verknüpft)",
+    "menue-werkzeuge": "Berechnen\nRecording-Speicherplatz berechnen…\nProjektion & Display…\nPrüfen\nAnalysen…\nGewicht, Netzwerk, Redundanz, Kabelwege\nPlan-Check…\nFindet Lücken und Widersprüche im Plan\nPlan gegen Vorgefundenes…\nVergleicht den Plan mit dem, was vor Ort steht\nPlanen\nBestandsaufnahme (Vorhandenes erfassen)…\nVorhandene Technik vor Ort erfassen: Name, Raum, vermutete Verbindung, Foto\nDrum-Mikrofonierung…\nMikrofone am Schlagzeug setzen und benennen\nFunkstrecken / Gesang…\nFrequenzen, Sender, Empfänger im Spektrum\nAblauf und Kamera-Aufträge…\nAbschnitte einlesen, Aufträge je Kameraposition\nAusspielung (Streaming-Ziele)…\nWohin gesendet wird, mit welchen Parametern\nLED-Wand…\nPanels, Auflösung, Gewicht, Leistung — und die Pixelmap für den Medienserver\nFrontplatten-Editor…\nWandanschlussfelder, Stageboxen: die Stecker in Millimetern setzen und den Streifen 1:1 drucken\nBerichts-Editor…\nSpalten, Gruppierung, Sortierung und Filter für jede Liste — als Vorlage gespeichert\nAdern und Farbnormen…\nFarbnormen und Anschlüsse, die man je Leiter einzeln zieht\nEmpfangene Show-Control-Nachrichten…\nWas hereinkam — eine Mitschrift, kein Anlagenzustand\nErstellen & verwalten\nMehrere Kabel verbinden…\nViele Ports in einem Zug verkabeln\nNeues Rack erstellen…\nRack-Builder…\nBestehende Racks bestücken und bearbeiten\nKI-Plan generieren…\nErzeugt einen Entwurf aus einer Beschreibung\nRevisionen & Snapshots…\nStände sichern und vergleichen\nLager / Bestand…\nGeräte-Konfiguration\nATEM Multiviewer-Layout…",
+    "geraet-gewaehlt": "Gerät: Camera 2\nEigenschaften\nFenster\n›\nAlle zu\nAlle auf\nName\nKurzname\nC2\nautomatisch\nUntertitel (optional, z.B. \"PGM Monitor\")\nInputs & Outputs\n0 In · 1 Out\nPorts spiegeln (Inputs rechts, Outputs links)\n≡\nInputs\n(0)\n+ Hinzufügen\nKeine\n≡\nOutputs\n(1)\n+ Hinzufügen\n≡\n×\nXLR\nMini-XLR\nJack 6.35 mm TS\nJack 6.35 mm TRS\nJack 6.35 mm\nJack 3.5 mm TS\nJack 3.5 mm TRS\nJack 3.5 mm TRRS\nJack 3.5 mm\nJack 2.5 mm TRS\nKlinke\nBNC\nHD-BNC\nHDMI\nMini-HDMI\nMicro-HDMI\nEthernet/RJ45\nGG45\nFiber\nSFP\nSFP+\nDIN\nDisplayPort\nVGA\nDVI\nUSB\nUSB-C\nTriax\nTriax (Damar & Hagen)\nTriax (Fischer)\nLEMO 3K.93C (SMPTE 304M)\nNeutrik Dragonfly (SMPTE 304M)\nNeutrik opticalCON DUO\nNeutrik opticalCON QUAD\nF-Connector\nDB9\nDB25\nWireless/RF\nDMX 5-pol (XLR)\nDMX 3-pol (XLR)\nCinch/RCA\nSCART\nS-Video\nTT/Bantam\nMini-BNC\nMicro-BNC\nIEC 230V\nPowerCON\nSchuko 230V\nC7 Eurostecker\nCEE16\nCEE32\nCEE63\nPowerlock\nSocapex\nHarting\nKleeblatt\nXLR 3 Male\nXLR 3 Female\nCombo XLR/Jack\nspeakON 2 Pole\nspeakON 4 Pole\nBinding Post\nXLR 4 Male\nXLR 4 Female\nXLR 5 Male\nXLR 5 Female\nXLR 6 Male\nXLR 6 Female\nXLR 7 Male\nXLR 7 Female\nMIDI\nS-VHS\nUSB Type A\nUSB Type B\nUSB 3 Type A\nUSB 3 Type B\nFireWire 400\nFireWire 800\nPS/2\nFiber Optic LC\nFiber Optic SC\nFiber Optic ST\nToslink\nopticalCON DUO\nopticalCON QUAD\npowerCON Input\npowerCON Output\nLemo\nTourine 25\nTourine 37\nGeneric\nBlanking Panel\nPhoenix/Euroblock\nTerminal Block\nBare Wire\netherCON\nRJ11\nQSFP\nQSFP28\nUSB Mini-B\nUSB Micro-B\nDB15\nDB37\nMini-DIN 4\nMini-DIN 7\nMini-DIN 8\nDIN 5-pol\nMini-DisplayPort\nMPO\nNEMA 5-15 (Edison)\nNEMA L5-20\nNEMA L6-20\nNEMA L6-30\nNEMA L21-30\nIEC C15\nIEC C20\npowerCON TRUE1\nCam-Lok\nDC Barrel\nPCIe 6-pin\nV-Mount\nD-Tap\nSMA\nRP-TNC\nMultipin\nCustom\n+ Neuer Stecker-Typ…\n-\nSDI-SD\nSDI-HD\nSDI-3G\nSDI-6G\nSDI-12G\nHDMI-1.4\nHDMI-2.0\nHDMI-2.1\nDP-1.2\nDP-1.4\nDP-2.0\nEth-100\nEth-1G\nEth-10G\nAnalog-Audio\nAES3\nAES3id\nUSB-2.0\nUSB-3.x\nThunderbolt-3\nThunderbolt-4\nMADI\nDVB-ASI\nSMPTE-297\nSMPTE-304M\nSMPTE-311M\nNDI\nNDI-HX\nDante\nAES67\nST2110-20\nST2110-30\nST2110-40\nSRT\nRTMP\nHLS\nBlackburst\nTri-Level\nWord-Clock\nPTP\nLTC\nRF-UHF\nRF-VHF\nRF-2.4G\nRF-5G\nRS-232\nRS-422\nRS-485\nDMX512\nRDM\nArt-Net\nsACN\nCVBS\nY/C\nYPbPr\nRGBHV\nMTC\nTally\nGPI/GPO\nHDBaseT\nPower-230V\nFiber-SM\nFiber-MM\nGeneric\n+ Neuer Standard…\nRichtung (auto)\nNur Input\nNur Output\nBidirektional (z.B. Netzwerk)\nSeite (auto)\nLinks\nRechts\nGeschlecht (–)\n♂ Male / Stecker\n♀ Female / Buchse\nGruppe:\n— Kein —\n+ Neue Gruppe …\nSDI-Fähigkeiten (port-spezifisch)\nNotiz (optional)\n⠿\nOptionale Felder\nHersteller-Link, Referenzbild, Icon, Mietpreis, Verifizierung\n⠿\nFotos\n⠿\nDarstellung & Flags\nkompakt · Farbe · gepackt\nNicht im Rentman-Plan erfasst\nKategorie\nAudio\nBildmischer\nControl\nFunkstrecke\nIntercom\nIP/NDI\nIT/Server\nKabel\nKameras\nKonverter\nKreuzschiene\nLED Processing\nLicht\nMikrofone\nMischpult\nMonitore\nMultiviewer\nNetzwerk\nObjektive\nPatchfelder\nPC\nRigging\nSonstiges\nStative\nStrom\nStromverteilung\nSync/Referenz\nVideo\nVideo-Konverter\n+ Neue Kategorie…\nFachdaten — Cameras\n⠿\nSignalquelle (Rolle)\nnicht zugewiesen\n⠿\nNetwork & Access\nIP · MAC · S/N · Kennungen · Login\nIP Address\nSeriennummer\nAsset-Tag\nInterne Nummer\nSubnet Mask\nGateway\nVLAN-ID\nMAC-Adresse\nUsername\nPassword\nWeitere Netzwerk-Schnittstellen\nHinzufügen\n\nDie Felder oben sind die erste Schnittstelle. Hier stehen die weiteren — Dante sekundär, ST 2110 blau, getrennte Steuerung.\n\nRolle der ersten Schnittstelle\nMedien primär\nMedien sekundär\nSteuerung\nManagement\nnicht angegeben\n\nKeine weiteren Schnittstellen.\n\n⠿\nStreams\nRTSP · SRT · NDI · Vorschau\nLebenszyklus / Wartung\nOptik (MultiCam-Plan)\nSchwenk\t0°\nNeigung\t0°\nPreset\tEinstellung\tGespeichert\n1\tWide\nSchwenk 0°, Neigung -5°, 10 mm, Fokus 8 m\n\t2026-10-21\n2\tAudience\nSchwenk 15°, Neigung -10°, 30 mm, Fokus 10 m\n\t2026-10-21\n\nIm MultiCam-Planer gesetzt; der nächste Kamera-Import aktualisiert es.\n\nSteuerbare Funktionen\n⠿\nKamera-Steuerung (Brücke)\nnoch nicht auf der Brücke\n⠿\nStromverbrauch\n–\n⠿\nSchaltbild (Strom)\nkeine\n⠿\nAdapter\nkein Adapter\n⠿\nDMX\nkein DMX\n⠿\nHausanschluss\nkeine Gebäude-Datei\n⠿\nFormatprofil (Senke)\nnicht erklärt\n⠿\nSchaltung (Signalweg)\nnicht schaltbar\n⠿\nDimensionen\n–\n⠿\nBetriebsmodi\nkeiner — anlegen unten\n⠿\nRack / 19\" Einstellungen\nnicht aktiv\n⠿\nBibliothek\nals Vorlage speichern\n⠿\nKatalog & Herkunft\nnicht verknüpft\n⠿\nGerät ersetzen\nVerkabelung erhalten\n⠿\nDruck / Dokumentation\nDatenblatt, Patch-Sheet A4/A3",
     "fenster-bibliothek-menue": "Abdocken (schwebend)\nIn eigenes Fenster\n\nDer Knopf lässt sich auch ziehen.",
     "fenster-inspector-menue": "Abdocken (schwebend)\nIn eigenes Fenster\n\nDer Knopf lässt sich auch ziehen.",
     "bearbeiten-menue": "Rückgängig\nStrg+Z\nWiederherstellen\nStrg+Y\nDuplizieren\nStrg+D\nAuswahl löschen\nEntf\nAlles auswählen\nStrg+A\nAuswahl aufheben\nEsc",
     "bearbeiten-menue-rueckgaengig-aktiv": "Rückgängig\nStrg+Z\nWiederherstellen\nStrg+Y\nDuplizieren\nStrg+D\nAuswahl löschen\nEntf\nAlles auswählen\nStrg+A\nAuswahl aufheben\nEsc",
-    "ansicht-menue": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nHelles Design\nSystem-Theme folgen\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel",
-    "ansicht-vergroessern": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 120%\nv9.1.0-10-gfa0733b6-dirty",
-    "ansicht-vergroessern-2": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 144%\nv9.1.0-10-gfa0733b6-dirty",
-    "ansicht-verkleinern": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 120%\nv9.1.0-10-gfa0733b6-dirty",
-    "ansicht-zoom-100": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "ansicht-einpassen": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 62%\nv9.1.0-10-gfa0733b6-dirty",
-    "ansicht-menue-dunkel": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nHelles Design\nSystem-Theme folgen\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel",
-    "ansicht-menue-system-folgen": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nHelles Design\nSystem-Theme folgen\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel",
-    "ansicht-menue-raster-aus": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nHelles Design\nSystem-Theme folgen\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel",
-    "ansicht-menue-labels": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nHelles Design\nSystem-Theme folgen\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel",
-    "ansicht-menue-offpage": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nHelles Design\nSystem-Theme folgen\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel",
-    "ansicht-menue-farbe-laenge": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nHelles Design\nSystem-Theme folgen\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel",
-    "ansicht-menue-farbe-gewerk": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nHelles Design\nSystem-Theme folgen\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel",
-    "ansicht-menue-anmerkungen": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nHelles Design\nSystem-Theme folgen\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel",
+    "ansicht-menue": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nDarstellung: wie System\nHelle Darstellung\nDunkle Darstellung\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel\nHallenplan\nSymbole",
+    "ansicht-vergroessern": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 89%\nv9.8.0-37-gb150bebf",
+    "ansicht-vergroessern-2": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 107%\nv9.8.0-37-gb150bebf",
+    "ansicht-verkleinern": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 89%\nv9.8.0-37-gb150bebf",
+    "ansicht-zoom-100": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 100%\nv9.8.0-37-gb150bebf",
+    "ansicht-einpassen": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 62%\nv9.8.0-37-gb150bebf",
+    "ansicht-menue-dunkel": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nDarstellung: wie System\nHelle Darstellung\nDunkle Darstellung\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel\nHallenplan\nSymbole",
+    "ansicht-menue-system-folgen": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nDarstellung: wie System\nHelle Darstellung\nDunkle Darstellung\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel\nHallenplan\nSymbole",
+    "ansicht-menue-raster-aus": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nDarstellung: wie System\nHelle Darstellung\nDunkle Darstellung\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel\nHallenplan\nSymbole",
+    "ansicht-menue-labels": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nDarstellung: wie System\nHelle Darstellung\nDunkle Darstellung\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel\nHallenplan\nSymbole",
+    "ansicht-menue-offpage": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nDarstellung: wie System\nHelle Darstellung\nDunkle Darstellung\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel\nHallenplan\nSymbole",
+    "ansicht-menue-farbe-laenge": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nDarstellung: wie System\nHelle Darstellung\nDunkle Darstellung\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel\nHallenplan\nSymbole",
+    "ansicht-menue-farbe-gewerk": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nDarstellung: wie System\nHelle Darstellung\nDunkle Darstellung\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel\nHallenplan\nSymbole",
+    "ansicht-menue-anmerkungen": "Einpassen\nZoom 100 %\nVergrößern\nVerkleinern\nVollbild\nDarstellung: wie System\nHelle Darstellung\nDunkle Darstellung\nAm Raster ausrichten\nKabel-Labels ausblenden\nOff-Page-Namen anzeigen\nKabelfarbe nach Länge\nKabelfarbe nach Gewerk\nGerät suchen\nStrg+F\nWerkzeugleiste\nAnmerkungen-Panel\nHallenplan\nSymbole",
     "anmerkungen-fenster-menue": "Abdocken (schwebend)\nIn eigenes Fenster\n\nDer Knopf lässt sich auch ziehen.",
-    "status-grundzustand": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-zoom": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 144%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-komplexitaet-neu": "Example: small studio setup\n|\n2 Geräte\n0 Kabel\n0 Rahmen\n0/2 gepackt\nNeu\nOK\nRentman: Standalone\nZoom: 144%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-komplexitaet-klein": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-komplexitaet-mittel": "Example: small studio setup\n|\n20 Geräte\n16 Kabel\n0 Rahmen\n0/20 gepackt\nMittel\nOK\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-komplexitaet-gross": "Example: small studio setup\n|\n50 Geräte\n40 Kabel\n0 Rahmen\n0/50 gepackt\nGroß\nOK\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-komplexitaet-xl": "Example: small studio setup\n|\n115 Geräte\n92 Kabel\n0 Rahmen\n0/115 gepackt\nXL\nOK\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-plancheck-warnung": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\n1\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-plancheck-fehler": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\n2\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-netz-befunde": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\n2\nNetz 2\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-gepackt-teilweise": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n2/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-gepackt-alle": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n5/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-fotos": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nFotos 44 MB\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-rentman-projekt": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Beispielprojekt Stadthalle\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
-    "status-keine-sicherungskopie": "Example: small studio setup\n|\n10 Geräte\n8 Kabel\n0 Rahmen\n0/10 gepackt\nKlein\nOK\nKeine Sicherungskopie\nRentman: Standalone\nZoom: 120%\nv9.1.0-10-gfa0733b6-dirty",
+    "status-grundzustand": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-zoom": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 107%\nv9.8.0-37-gb150bebf",
+    "status-komplexitaet-neu": "Example: small studio setup\n|\n2 Geräte\n0 Kabel\n0 Rahmen\n0/2 gepackt\nNeu\nOK\nRentman: Standalone\nZoom: 107%\nv9.8.0-37-gb150bebf",
+    "status-komplexitaet-klein": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-komplexitaet-mittel": "Example: small studio setup\n|\n20 Geräte\n16 Kabel\n0 Rahmen\n0/20 gepackt\nMittel\nOK\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-komplexitaet-gross": "Example: small studio setup\n|\n50 Geräte\n40 Kabel\n0 Rahmen\n0/50 gepackt\nGroß\nOK\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-komplexitaet-xl": "Example: small studio setup\n|\n115 Geräte\n92 Kabel\n0 Rahmen\n0/115 gepackt\nXL\nOK\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-plancheck-warnung": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\n1\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-plancheck-fehler": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\n2\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-netz-befunde": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\n2\nNetz 2\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-gepackt-teilweise": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n2/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-gepackt-alle": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n5/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-fotos": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nFotos 44 MB\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-rentman-projekt": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Beispielprojekt Stadthalle\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "status-keine-sicherungskopie": "Example: small studio setup\n|\n10 Geräte\n8 Kabel\n0 Rahmen\n0/10 gepackt\nKlein\nOK\nKeine Sicherungskopie\nRentman: Standalone\nZoom: 89%\nv9.8.0-37-gb150bebf",
     "schmal-kopfleiste": "Datei\nBearbeiten\nWerkzeuge\nAnsicht\nHilfe\nExample: small studio setup",
-    "schmal-statusleiste": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\nKlein\nOK\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty",
+    "schmal-statusleiste": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\nKlein\nOK\nZoom: 74%\nv9.8.0-37-gb150bebf",
     "hilfe-menue": "Befehlspalette…\nStrg+K\nTastaturkürzel…\n?\nErste-Schritte-Tour…\nAuf Updates prüfen…\nÜber LZ Cable Planner…",
     "hilfe-befehlspalette": "Rückgängig\nBearbeiten\nWiederherstellen\nBearbeiten\nDuplizieren\nBearbeiten\nAlles auswählen\nBearbeiten\nEinpassen\nAnsicht\nVergrößern\nAnsicht\nVerkleinern\nAnsicht\nZoom zurücksetzen (100%)\nAnsicht\nPlan-Check…\nWerkzeuge\nPatch-Liste…\nWerkzeuge\nAnalysen…\nWerkzeuge\nMehrere Kabel verbinden…\nWerkzeuge\nRevisionen & Snapshots…\nWerkzeuge\nKI-Plan generieren…\nWerkzeuge\nEquipment aus CSV importieren…\nWerkzeuge\nBandbreite berechnen…\nWerkzeuge\nStromverbrauch berechnen…\nWerkzeuge\nRecording-Speicherplatz berechnen…\nWerkzeuge\nProjektion & Display…\nWerkzeuge\nFestinstallation: Doku & Übergabe…\nWerkzeuge\nDMX-Adressen vergeben…\nWerkzeuge\nBeispielprojekt laden\nWerkzeuge\nEinstellungen…\nHilfe\nTastaturkürzel…\nHilfe\nÜber LZ Cable Planner…\nHilfe",
     "palette-suche-zoom": "Zoom zurücksetzen (100%)\nAnsicht",
     "palette-suche-gruppe": "Keine Befehle gefunden",
-    "palette-befehl-ausfuehren": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 100%\nv9.1.0-10-gfa0733b6-dirty"
+    "palette-befehl-ausfuehren": "Example: small studio setup\n|\n5 Geräte\n4 Kabel\n0 Rahmen\n0/5 gepackt\nKlein\nOK\nRentman: Standalone\nZoom: 74%\nv9.8.0-37-gb150bebf",
+    "handy-mehr": "Handy-Zugriff\n\nStartet einen kleinen Web-Server im lokalen Netzwerk. Scanne den QR-Code mit dem Handy → der Mobile-Viewer öffnet sich im Browser und lädt das aktuelle Projekt. Der Server stoppt automatisch beim Schließen der App oder über den Stop-Button. weniger\n\nRückmeldungen vom Handy\nNur lesen\nMitschreiben: Häkchen, Kabel, Fotos, neue Geräte\n\nDie Schreibwege sind geschlossen — das Handy bekommt auf jeden Schreibversuch eine Absage. Den Plan ändert die Person am Rechner.\n\nServer ist gestoppt. Klicke unten, um den LAN-Server zu starten.\n\nLAN-Server starten\nAnlagen-Zugangscodes abrufbar machen\n\nDieses Projekt trägt keine Intercom-Konfiguration mit Zugangscodes.\n\nHinweise zur Sicherheit",
+    "handy-sicherheitshinweise": "Handy-Zugriff\n\nStartet einen kleinen Web-Server im lokalen Netzwerk. Scanne den QR-Code mit dem Handy → der Mobile-Viewer öffnet sich im Browser und lädt das aktuelle Projekt. Der Server stoppt automatisch beim Schließen der App oder über den Stop-Button. weniger\n\nRückmeldungen vom Handy\nNur lesen\nMitschreiben: Häkchen, Kabel, Fotos, neue Geräte\n\nDie Schreibwege sind geschlossen — das Handy bekommt auf jeden Schreibversuch eine Absage. Den Plan ändert die Person am Rechner.\n\nServer ist gestoppt. Klicke unten, um den LAN-Server zu starten.\n\nLAN-Server starten\nAnlagen-Zugangscodes abrufbar machen\n\nDieses Projekt trägt keine Intercom-Konfiguration mit Zugangscodes.\n\nHinweise zur Sicherheit\nOb das Handy zurückschreiben darf, entscheidet die Einstellung darüber. Steht sie auf „Häkchen, Kabel und Fotos zurückschicken“, kann jeder mit dem QR-Code den Plan ändern.\nJeder Schreibweg verlangt das Token aus dem QR-Code. Passwörter und Schlüssel werden aus dem Projekt entfernt, bevor es das Gerät verlässt.\nDie Anlagen-Zugangscodes gehen NIE im Projekt mit. Sie liegen nur im Speicher der Desktop-App und nur, solange der Schalter oben an ist; abgerufen werden sie über einen zweiten Code, der nicht im QR-Code steht.\nDer Server bindet auf das lokale Netzwerk (0.0.0.0). Wenn unklar ist, wer im Netz hängt, lieber stoppen.\nBeim Schließen der Desktop-App stoppt auch der Server automatisch."
   }
 }

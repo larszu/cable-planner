@@ -1,177 +1,375 @@
 ## Programmoberfläche
 
+### Aufbau des Hauptfensters
 
-![Übersicht der Programmoberfläche](bilder/de/oberflaeche-start.jpg)
+![Hauptfenster mit Beispielprojekt](bilder/de/oberflaeche-01-start.jpg)
 
-Die Oberfläche von LZ Cable Planner besteht aus vier Hauptbereichen: der Menüleiste oben, der Bibliothek-Seitenleiste links, der Canvas-Fläche in der Mitte und dem Inspector-Panel rechts. Am unteren Rand liegt die Statusleiste.
+Das Hauptfenster hat fünf Bereiche:
+
+| Bereich | Lage | Inhalt |
+|---|---|---|
+| Kopfleiste | oben | Menüs *Datei*, *Bearbeiten*, *Werkzeuge*, *Ansicht*, *Hilfe*, Projektname, Rückgängig/Wiederherstellen, Darstellungs-Knopf, *Handy-Zugriff*, *Einstellungen* |
+| Bibliothek | links | Geräte, Kabel, Gruppen und Racks zum Einsetzen in den Plan |
+| Canvas | Mitte | der Plan mit Geräten und Kabeln, Werkzeugleiste, Suchfeld, Zoom-Knöpfe, Übersichtskarte |
+| Inspector | rechts | Eigenschaften der Auswahl |
+| Statusleiste | unten | Kennzahlen und Hinweise zum Projekt |
+
+#### Kopfleiste
+
+![Kopfleiste](bilder/de/oberflaeche-02-menueleiste.jpg)
+
+Ein Klick auf den Projektnamen in der Mitte öffnet den Dialog *Projektdaten bearbeiten*.
+
+![Projektdaten bearbeiten](bilder/de/oberflaeche-10-projektname-klick.jpg)
+
+| Feld | Wirkung |
+|---|---|
+| Projektname (Pflichtfeld) | Name in Kopfleiste, Statusleiste und Ausdrucken |
+| Auftragnehmer (Firma), Kunde, Planer / Autor, Projekt-/Job-Nr. | Angaben für das Planköpfchen |
+| Einsatz-/Mietbeginn, Einsatz-/Mietende | Zeitraum des Einsatzes |
+| Beschreibung | freier Text |
+| Firmenlogo, Kundenlogo | Bilddatei über *Logo auswählen…* |
+
+Die Daten erscheinen im Planköpfchen unten rechts beim PDF-Export. *Speichern* übernimmt sie, *Abbrechen* verwirft sie.
+
+Rechts in der Kopfleiste liegen die Knöpfe für Rückgängig und Wiederherstellen. Sie sind ausgegraut, solange es keinen Schritt gibt.
+
+![Rückgängig und Wiederherstellen in der Kopfleiste](bilder/de/oberflaeche-31-kopfleiste-rechts.jpg)
+
+In einem schmalen Fenster rückt die Kopfleiste zusammen; die Menüs bleiben erreichbar.
+
+![Kopfleiste im schmalen Fenster](bilder/de/oberflaeche-81-schmal-kopfleiste.jpg)
+
+#### Menüs Datei und Werkzeuge
+
+Das Menü *Datei* enthält Anlegen, Öffnen, Speichern, die Importe und die Exporte. Die Einträge beschreiben die Kapitel [Datei und Import](#datei-und-import) und [Exportieren und Drucken](#exportieren-und-drucken).
+
+![Menü Datei](bilder/de/oberflaeche-07-menue-datei.jpg)
+
+Das Menü *Werkzeuge* ist in Gruppen gegliedert, darunter *Berechnen*, *Prüfen* und *Planen*. Die Werkzeuge beschreiben die Kapitel zu den Werkzeugen.
+
+![Menü Werkzeuge](bilder/de/oberflaeche-08-menue-werkzeuge.jpg)
+
+#### Inspector ohne Auswahl
+
+Ist nichts ausgewählt, zeigt der Inspector *Nichts ausgewählt*, den Block *Fotos des Projekts* mit *Foto hinzufügen…* und die *Schnelle Orientierung* mit vier Hinweisen zum Einstieg.
+
+![Inspector ohne Auswahl](bilder/de/oberflaeche-05-inspector-leer.jpg)
+
+### Seitenleisten anordnen
+
+Bibliothek und Inspector lassen sich einklappen, abdocken, in ein eigenes Fenster legen und in der Breite ändern.
+
+#### Fenster-Menü
+
+1. Klicken Sie oben in der Seitenleiste auf *Fenster*.
+
+   ![Fenster-Menü der Bibliothek](bilder/de/oberflaeche-11-fenster-bibliothek-menue.jpg)
+
+2. Wählen Sie *Abdocken (schwebend)*. Die Bibliothek schwebt als verschiebbares Feld über dem Canvas. *Andocken* setzt sie zurück an ihren Platz.
+
+   ![Bibliothek abgedockt](bilder/de/oberflaeche-12-bibliothek-abgedockt.jpg)
+
+*In eigenes Fenster* öffnet die Seitenleiste als eigenes Programmfenster. Der Knopf *Fenster* lässt sich auch ziehen. Das Menü des Inspectors und das des Anmerkungen-Panels bieten dieselben Einträge.
+
+#### Einklappen und Breite
+
+- Der Pfeil-Knopf neben *Fenster* klappt die Seitenleiste ein. Ein Klick auf den Pfeil am Rand klappt sie wieder aus.
+
+  ![Bibliothek eingeklappt](bilder/de/oberflaeche-14-bibliothek-eingeklappt.jpg)
+
+  ![Inspector eingeklappt](bilder/de/oberflaeche-17-inspector-eingeklappt.jpg)
+
+- Die Trennleiste zwischen Seitenleiste und Canvas lässt sich mit der Maus ziehen und ändert die Breite.
+
+  ![Bibliothek verbreitert](bilder/de/oberflaeche-19-trennleiste-gezogen.jpg)
+
+- **Strg+B** blendet die Bibliothek aus und ein, **Strg+I** den Inspector.
+
+Die Taste **P** öffnet die Patchliste.
+
+![Patchliste nach Taste P](bilder/de/oberflaeche-23-tastatur-patchliste-p.jpg)
 
 ### Menü Bearbeiten
 
-![Menü Bearbeiten](bilder/de/oberflaeche-menu-edit.jpg)
+![Menü Bearbeiten](bilder/de/oberflaeche-24-bearbeiten-menue.jpg)
 
-Das Menü Bearbeiten enthält Funktionen zum Verändern der Auswahl.
-
-| Funktion | Tastaturkürzel | Beschreibung |
+| Eintrag | Kürzel | Wirkung |
 |---|---|---|
-| Rückgängig | Strg+Z | Letzten Schritt rückgängig machen |
-| Wiederherstellen | Strg+Y | Letzten rückgängig gemachten Schritt wiederherstellen |
-| Duplizieren | Strg+D | Ausgewählte Geräte oder Kabel duplizieren |
-| Auswahl löschen | Entf | Ausgewählte Elemente löschen |
-| Alles auswählen | Strg+A | Alle Geräte und Kabel im Plan auswählen |
-| Auswahl aufheben | Esc | Aktuelle Auswahl aufheben |
+| Rückgängig | Strg+Z | nimmt den letzten Schritt zurück |
+| Wiederherstellen | Strg+Y | stellt den zurückgenommenen Schritt wieder her |
+| Duplizieren | Strg+D | kopiert die ausgewählten Elemente |
+| Auswahl löschen | Entf | löscht die ausgewählten Elemente |
+| Alles auswählen | Strg+A | wählt alle Elemente des Plans aus |
+| Auswahl aufheben | Esc | hebt die Auswahl auf |
+
+![Alles ausgewählt](bilder/de/oberflaeche-25-bearbeiten-alles-auswaehlen.jpg)
 
 ### Menü Ansicht
 
-![Menü Ansicht](bilder/de/oberflaeche-menu-view.jpg)
+![Menü Ansicht](bilder/de/oberflaeche-34-ansicht-menue.jpg)
 
-Das Menü Ansicht stellt Funktionen zur Verfügung, um die Canvas-Ansicht zu beeinflussen und die Anzeige verschiedener Panels zu kontrollieren.
+#### Zoom
 
-#### Zoom und Anpassung
-
-| Funktion | Beschreibung |
+| Eintrag | Wirkung |
 |---|---|
-| Einpassen | Canvas so zoomen, dass alle Elemente sichtbar sind |
-| Zoom 100 % | Zoom auf 100 % zurücksetzen |
-| Vergrößern | Canvas vergrößern |
-| Verkleinern | Canvas verkleinern |
+| Einpassen | zoomt so, dass alle Elemente sichtbar sind |
+| Zoom 100 % | setzt den Zoom auf 100 % |
+| Vergrößern | zoomt hinein |
+| Verkleinern | zoomt heraus |
+| Vollbild | schaltet das Fenster in den Vollbildmodus und zurück |
 
-#### Design und Darstellung
+Die aktuelle Zoomstufe steht in der Statusleiste.
 
-| Funktion | Beschreibung |
+#### Darstellung
+
+| Eintrag | Wirkung |
 |---|---|
-| Darstellung: wie System | Hell oder dunkel nach der Einstellung des Betriebssystems (Auto, Voreinstellung) |
-| Helle Darstellung | Immer hell |
-| Dunkle Darstellung | Immer dunkel |
-| Hallenplan | Hallenplan-Panel ein- und ausblenden |
-| Symbole | Symbol-Panel ein- und ausblenden |
-| Vollbild | App im Vollbildmodus anzeigen |
+| Darstellung: wie System | hell oder dunkel nach der Einstellung des Betriebssystems |
+| Helle Darstellung | immer hell |
+| Dunkle Darstellung | immer dunkel |
 
-#### Kabel und Beschriftungen
+Dieselbe Wahl bieten der Darstellungs-Knopf in der Kopfleiste (Sonne, Mond oder Bildschirm) und *Einstellungen → Darstellung*. Die Wahl bleibt gespeichert.
 
-| Funktion | Beschreibung |
+![Helle Darstellung](bilder/de/oberflaeche-40-ansicht-helles-design-aus.jpg)
+
+#### Raster und Beschriftungen
+
+| Eintrag | Wirkung |
 |---|---|
-| Am Raster ausrichten | Geräte auf einem Raster ausrichten |
-| Kabel-Labels ausblenden | Kabelbezeichnungen auf dem Canvas verbergen |
-| Off-Page-Namen anzeigen | Namen von Geräten außerhalb des Plans anzeigen |
-| Kabelfarbe nach Länge | Kabel nach ihrer Länge einfärben |
-| Kabelfarbe nach Gewerk | Kabel nach ihrer Disziplin/Gewerk einfärben |
+| Am Raster ausrichten | Geräte rasten beim Verschieben auf dem Raster ein |
+| Kabel-Labels ausblenden | blendet die Beschriftungen an den Kabeln aus |
+| Off-Page-Namen anzeigen | zeigt an Off-Page-Verbindern die Kabelnummer bzw. den Kabelnamen dauerhaft; ohne die Option erscheint sie nur beim Überfahren mit der Maus |
 
-#### Panels und Werkzeuge
+Ein Häkchen vor dem Eintrag zeigt, dass die Option eingeschaltet ist.
 
-| Funktion | Beschreibung |
+![Kabel-Labels ausgeblendet](bilder/de/oberflaeche-45-ansicht-labels-aus.jpg)
+
+#### Kabelfarbe nach Länge
+
+*Kabelfarbe nach Länge* färbt die Kabel nach dem Längen-Farbcode der Rundfunktechnik. Die gespeicherte Farbe jedes Kabels bleibt unverändert; ein zweiter Klick schaltet zurück.
+
+| Länge | Farbe |
 |---|---|
-| Gerät suchen | Canvas-Suchfeld ein- und ausblenden |
-| Werkzeugleiste | Canvas-Werkzeugleiste anzeigen oder ausblenden |
-| Anmerkungen-Panel | Annotations-Panel ein- und ausblenden |
+| 1 m | rot |
+| 2 m | gelb |
+| 3 m | grün |
+| 5 m | weiß |
+| 10 m | rot |
+| 20 m | gelb |
+| 25 m | gelb/weiß gestrichelt |
+| 50 m | weiß |
+| 100 m | rot |
+
+Kabel mit einer anderen Länge erscheinen grau.
+
+![Kabel mit 1, 2, 3 und 5 m nach Länge gefärbt](bilder/de/oberflaeche-53-ansicht-farbe-laenge-regel.jpg)
+
+#### Kabelfarbe nach Gewerk
+
+*Kabelfarbe nach Gewerk* färbt jedes Kabel nach seinem Gewerk: Video blau, Audio rot, Control orange, Network grün, Power violett, Other grau. Auch hier bleibt die gespeicherte Farbe unverändert. Die beiden Farbmodi schließen sich aus.
+
+![Kabel nach Gewerk gefärbt](bilder/de/oberflaeche-54-ansicht-farbe-gewerk-vergleich.jpg)
+
+#### Suchfeld, Werkzeugleiste und Panels
+
+| Eintrag | Kürzel | Wirkung |
+|---|---|---|
+| Gerät suchen | Strg+F | blendet das Suchfeld über dem Canvas ein und aus |
+| Werkzeugleiste | | blendet die Werkzeugleiste des Canvas ein und aus |
+| Anmerkungen-Panel | | öffnet und schließt das Panel *Anmerkungen* |
+| Hallenplan | | blendet das Hallenplan-Panel ein und aus |
+| Symbole | | blendet das Symbol-Panel ein und aus |
+
+![Canvas ohne Werkzeugleiste](bilder/de/oberflaeche-58-ansicht-werkzeugleiste-aus.jpg)
+
+Das Panel *Anmerkungen* erscheint rechts. Es filtert nach *alle*, *offen*, *gebaut* und *erledigt*; *+ Neue Anmerkung* legt eine Anmerkung an. *Schließen* blendet es aus.
+
+![Anmerkungen-Panel](bilder/de/oberflaeche-60-ansicht-anmerkungen-an.jpg)
 
 ### Menü Hilfe
 
-![Menü Hilfe](bilder/de/oberflaeche-menu-help.jpg)
+![Menü Hilfe](bilder/de/oberflaeche-83-hilfe-menue.jpg)
 
-Das Menü Hilfe bietet Zugang zu Dokumentation und Informationen über die App.
-
-| Funktion | Tastaturkürzel | Beschreibung |
+| Eintrag | Kürzel | Wirkung |
 |---|---|---|
-| Befehlspalette… | Strg+K | Schnellzugriff auf Befehle durch Tippsuche |
-| Tastaturkürzel… | | Übersicht aller Tastaturkürzel anzeigen |
-| Erste-Schritte-Tour… | | Interaktive Einführung in die App starten |
-| Auf Updates prüfen… | | Nach neuen Versionen suchen |
-| Über LZ Cable Planner… | | Versionsinformation und Credits anzeigen |
+| Befehlspalette… | Strg+K | öffnet die Befehlspalette |
+| Tastaturkürzel… | ? | öffnet die Übersicht der Tastaturkürzel |
+| Erste-Schritte-Tour… | | startet die Tour durch die Oberfläche |
+| Auf Updates prüfen… | | fragt nach einer neueren Version und meldet das Ergebnis |
+| Über LZ Cable Planner… | | öffnet den Dialog mit Version und Build |
 
-### Befehlspalette
+#### Befehlspalette
 
-![Befehlspalette](bilder/de/oberflaeche-command-palette.jpg)
+![Befehlspalette](bilder/de/oberflaeche-84-hilfe-befehlspalette.jpg)
 
-Die Befehlspalette ist ein schneller Zugriff auf die wichtigsten Aktionen. Sie wird mit **Strg+K** geöffnet oder über *Hilfe → Befehlspalette…* aufgerufen. Sie erlaubt das Suchen und Ausführen von Befehlen durch Textsuche.
+Die Befehlspalette listet Befehle aus *Bearbeiten*, *Ansicht* und *Werkzeuge*; rechts neben jedem Befehl steht seine Gruppe.
 
-Die Befehlspalette enthält:
-- **Bearbeiten**: Rückgängig, Wiederherstellen, Duplizieren, Alles auswählen
-- **Ansicht**: Einpassen, Vergrößern, Verkleinern, Zoom zurücksetzen
-- **Werkzeuge**: Plan-Überprüfung, Patch-Liste, Analysen, Massenverbindung, Revisionen, KI-Plan-Generierung, CSV-Import, und weitere Funktionen
+1. Öffnen Sie die Palette mit **Strg+K** oder über *Hilfe → Befehlspalette…*.
+2. Tippen Sie einen Teil des Befehlsnamens. Die Liste zeigt nur passende Befehle.
 
-Die Befehlspalette ist besonders nützlich, wenn Sie sich die genauen Menü-Pfade nicht merken oder wenn Sie eine Funktion schnell ausführen möchten, ohne durch die Menüs zu navigieren. Geben Sie einfach die ersten Buchstaben des gesuchten Befehls ein, um die Liste zu filtern.
+   ![Suche nach „zoom“](bilder/de/oberflaeche-87-palette-suche-zoom.jpg)
+
+3. Wählen Sie mit den Pfeiltasten einen Befehl und führen Sie ihn mit **Enter** aus.
+
+Die Suche prüft nur die Befehlsnamen, nicht die Gruppen. Passt nichts, steht *Keine Befehle gefunden* in der Liste.
+
+![Keine Treffer](bilder/de/oberflaeche-89-palette-keine-treffer.jpg)
+
+#### Tastaturkürzel
+
+*Hilfe → Tastaturkürzel…* oder die Taste **?** öffnet die Übersicht.
+
+![Tastaturkürzel, Ansicht Tastatur](bilder/de/oberflaeche-94-hilfe-tastenkuerzel.jpg)
+
+Die Ansicht *Tastatur* zeigt eine Tastatur; markierte Tasten haben eine Aktion, die beim Überfahren oder Anklicken erscheint. Die Ansicht *Liste* führt alle Kürzel als Liste. Dazu gehören unter anderem:
+
+| Kürzel | Aktion |
+|---|---|
+| Strg+N, Strg+O, Strg+S, Strg+Umsch+S | Neues Projekt, Öffnen, Speichern, Speichern unter |
+| Strg+C, Strg+V | Kopieren, Einfügen |
+| Strg+K | Befehlspalette |
+| Strg+F | Gerät suchen |
+| Strg++ | Neues Gerät an der Mausposition |
+| Strg+B, Strg+I | Bibliothek bzw. Inspector ein- und ausblenden |
+| P | Patchliste öffnen |
+| A | Pfeildarstellung umschalten |
+| ? | diese Übersicht |
+
+#### Erste-Schritte-Tour
+
+Die Tour führt in sieben Schritten durch die Oberfläche: Willkommen, Datei-Menü, Export-Menü, Einstellungen → Rentman, Bibliothek, Eigenschaften, Kabel-Plan & Warnung. *Weiter* und *Zurück* blättern, *Tour beenden* bricht ab.
+
+![Erster Schritt der Tour](bilder/de/oberflaeche-96-hilfe-tour-1.jpg)
+
+#### Über LZ Cable Planner
+
+![Über LZ Cable Planner](bilder/de/oberflaeche-105-hilfe-ueber.jpg)
+
+Der Dialog zeigt:
+
+- Version
+- Build: Datum und Uhrzeit, zu der das Programm gebaut wurde
+- Autor
+- Repository (github.com/larszu/cable-planner)
+- Plattform (Electron, React, ReactFlow, Vite, Tailwind)
+- den Hinweis, Fehler und Wünsche auf GitHub zu melden
+
+Derselbe Dialog öffnet sich mit einem Klick auf die Versionsnummer rechts in der Statusleiste.
 
 ### Statusleiste
 
-![Statusleiste](bilder/de/oberflaeche-statusbar.jpg)
+![Statusleiste](bilder/de/oberflaeche-06-statusleiste.jpg)
 
-Die Statusleiste am unteren Rand des Fensters zeigt wichtige Informationen zum aktuellen Projekt:
+Die Statusleiste zeigt von links nach rechts:
 
-| Element | Beschreibung |
+| Element | Bedeutung | Klick |
+|---|---|---|
+| Projektname | Name des Projekts | |
+| Geräte, Kabel | Anzahl im Plan | |
+| Rahmen | Anzahl der Raum-Rahmen | |
+| gepackt | Geräte, die in ihren Eigenschaften als gepackt markiert sind, z. B. *0/5 gepackt*; grau bei keinem, gelb bei einigen, grün bei allen | |
+| Komplexität | Größeneinschätzung des Plans | |
+| Plan-Check | Ergebnis der laufenden Planprüfung | öffnet den Plan-Check |
+| Rentman | Verbindung zu Rentman | |
+| Zoom | aktuelle Zoomstufe | |
+| Version | Programmversion | öffnet *Über LZ Cable Planner* |
+
+In einem schmalen Fenster blendet die Statusleiste Rahmen, gepackt und Rentman aus.
+
+#### Komplexität
+
+Das Abzeichen zählt Geräte und Kabel zusammen:
+
+| Summe | Abzeichen |
 |---|---|
-| Projektname | Name des aktuell geöffneten Projekts |
-| Geräte | Anzahl der Equipment-Elemente |
-| Kabel | Anzahl der Kabelverbindungen |
-| Rahmen | Anzahl der Rackrahmen |
-| Gepackt | Status und Anzahl gepackter Geräte |
-| Dateigröße | Größe der Projektdatei |
-| Plan-Check | Status der Planüberprüfung (grün OK, rot Probleme) |
-| Zoom | Aktuelle Zoomstufe in Prozent |
-| Version | Installierte App-Version |
+| unter 8 | Neu |
+| ab 8 | Klein |
+| ab 30 | Mittel |
+| ab 80 | Groß |
+| ab 200 | XL |
 
-Zusätzlich können folgende Badges angezeigt werden:
-- **Live-Kollaboration**: zeigt an, wenn eine Live-Zusammenarbeit aktiv ist
-- **MCP-Server**: zeigt an, ob der MCP-Server läuft und ob Claude den Plan liest
-- **Aufgaben**: zeigt an, wenn es fällige Aufgaben gibt
+Das Abzeichen dient nur der Orientierung über Lesbarkeit und Arbeitstempo.
 
-### Designeinstellungen
+![Komplexität XL bei 115 Geräten und 92 Kabeln](bilder/de/oberflaeche-70-status-komplexitaet-xl.jpg)
 
-#### Helles Design
+#### Plan-Check
 
-![Helles Design](bilder/de/oberflaeche-theme-light.jpg)
+Das Abzeichen hat drei Zustände:
 
-Die App hat eine helle und eine dunkle Darstellung. Drei Stellungen stehen zur Wahl: **Auto** (Voreinstellung, folgt dem Betriebssystem), **Hell** und **Dunkel**. Umschalten geht an drei Stellen: mit dem Darstellungs-Knopf rechts in der Kopfzeile (Sonne, Mond oder Bildschirm – ein Klick öffnet die drei Stellungen), in *Einstellungen → Darstellung* und im Menü *Ansicht*. Die Wahl bleibt gespeichert.
+| Farbe | Bedeutung |
+|---|---|
+| grün, *OK* | keine Befunde |
+| gelb mit Zahl | nur Warnungen |
+| rot mit Zahl | mindestens ein Fehler |
 
-### Canvas-Sichtbarkeitsoptionen
+Die Zahl ist die Summe aus Fehlern und Warnungen.
 
-#### Einrasten
+![Plan-Check mit einer Warnung](bilder/de/oberflaeche-71-status-plancheck-warnung.jpg)
 
-![Einrasten](bilder/de/oberflaeche-snap-to-grid.jpg)
+![Plan-Check mit Fehlern](bilder/de/oberflaeche-73-status-plancheck-fehler.jpg)
 
-Mit der Option „Am Raster ausrichten" werden Geräte, die Sie auf dem Canvas verschieben, automatisch auf einem Raster ausgerichtet. Dies erleichtert die Anordnung und erzeugt ein ordentliches Layoutergebnis. Sie können diese Option im Menü Ansicht aktivieren oder deaktivieren.
+Ein Klick öffnet den Plan-Check mit allen Befunden. Ein Klick auf einen Befund wählt das betroffene Element aus.
 
-#### Beschriftungen ausblenden
+![Plan-Check geöffnet](bilder/de/oberflaeche-72-status-plancheck-klick.jpg)
 
-![Kabel-Labels ausblenden](bilder/de/oberflaeche-hide-labels.jpg)
+#### Hinweise, die nur bei Bedarf erscheinen
 
-Kabel können Beschriftungen (Labels) wie die Portnummern tragen. Mit „Kabel-Labels ausblenden" im Menü Ansicht können diese ausgeblendet werden. Dies ist nützlich, wenn der Canvas überlastet wirkt oder wenn Sie nur die Verbindungsstruktur sehen möchten.
+| Abzeichen | Erscheint, wenn | Klick |
+|---|---|---|
+| *Netz* mit Zahl | Netzwerk-Befunde vorliegen: fehlende oder doppelte Adressen, Masken, Segmente | öffnet die Analysen auf dem Netzwerk-Reiter |
+| *Keine Sicherungskopie* | der Browser-Speicher die Sicherungskopie des Projekts abgelehnt hat; der Plan selbst ist nicht betroffen, speichern Sie ihn in eine Datei | |
+| *Fotos* mit MB | die Fotos im Plan mehr als 40 MB ausmachen; die Datei öffnet weiterhin, ist aber schwer per Mail zu verschicken | |
+| *Fällig* mit Zahl | Rückgaben, Ausgaben, Stunden, Belege oder Kosten überfällig oder heute fällig sind | öffnet die Analysen auf *Was ansteht* |
+| *Live* mit Teilnehmerzahl | eine Live-Zusammenarbeit läuft | öffnet die Einstellungen auf dem Netzwerk-Sync-Reiter |
+| *MCP* | der lokale MCP-Server läuft; daneben *· nur lesen* oder *· darf ändern*, bei aktiver Anfrage *MCP · fragt* | öffnet die Einstellungen auf dem MCP-Reiter |
 
-#### Kabelfarben
+![Netzwerk-Befunde](bilder/de/oberflaeche-74-status-netz-befunde.jpg)
 
-##### Farbe nach Länge
+![Keine Sicherungskopie](bilder/de/oberflaeche-79-status-keine-sicherungskopie.jpg)
 
-![Kabelfarbe nach Länge](bilder/de/oberflaeche-color-by-length.jpg)
+![Fotos über 40 MB](bilder/de/oberflaeche-77-status-fotos.jpg)
 
-Mit dieser Option werden Kabel je nach ihrer physikalischen Länge eingefärbt. Kurze Kabel erhalten eine Farbe, lange Kabel eine andere. Dies hilft, auf einen Blick zu erkennen, welche Kabel besonders lang sind und daher möglicherweise kostspielig oder schwierig zu verlegen sind.
+#### Rentman-Anzeige
 
-##### Farbe nach Gewerk
+Die Rentman-Anzeige erscheint nur, wenn das Modul Rentman eingeschaltet ist. Sie zeigt den Namen des verknüpften Rentman-Projekts, sonst *Token bereit*, wenn ein Zugangstoken hinterlegt ist, sonst *Standalone*.
 
-![Kabelfarbe nach Gewerk](bilder/de/oberflaeche-color-by-layer.jpg)
+![Verknüpftes Rentman-Projekt](bilder/de/oberflaeche-78-status-rentman-projekt.jpg)
 
-Mit dieser Option werden Kabel nach ihrer Disziplin/ihrem Gewerk eingefärbt (z. B. Video, Audio, Daten, Stromversorgung). Das erleichtert die Unterscheidung zwischen verschiedenen Kabeltypen auf einem komplexen Plan.
+### Handy-Zugriff
 
-### Informationen und Hilfe
+Der Knopf *Handy-Zugriff* in der Kopfleiste öffnet den gleichnamigen Dialog. Er startet einen kleinen Webserver im lokalen Netzwerk; ein Handy öffnet über den QR-Code die mobile Ansicht des Projekts.
 
-#### Über die App
+![Dialog Handy-Zugriff](bilder/de/oberflaeche-107-handy-dialog.jpg)
 
-![Über-Dialog](bilder/de/oberflaeche-about.jpg)
+| Element | Wirkung |
+|---|---|
+| Rückmeldungen vom Handy: *Nur lesen* | das Handy kann nichts zurückschreiben |
+| Rückmeldungen vom Handy: *Mitschreiben: Häkchen, Kabel, Fotos, neue Geräte* | das Handy darf Häkchen, Kabel, Fotos und neue Geräte zurückschicken |
+| *LAN-Server starten* | startet den Server und zeigt den QR-Code |
+| *Anlagen-Zugangscodes abrufbar machen* | gibt Intercom-Zugangscodes über einen zweiten Code frei; nur bei Projekten mit Intercom-Konfiguration wählbar |
+| *Hinweise zur Sicherheit* | klappt die Sicherheitshinweise auf |
 
-Der About-Dialog zeigt die aktuelle Version von LZ Cable Planner sowie Informationen über den Lizenzgeber und die Lizenzen der mitgelieferten Fremdbibliotheken. Er ist erreichbar über *Hilfe → Über LZ Cable Planner…*.
+Der Server stoppt beim Schließen der App oder über den Stop-Knopf. Die mobile Ansicht beschreibt das Kapitel [Web-Ausgabe und Tablet](#web-ausgabe-und-tablet).
 
-Hier finden Sie:
-- Die aktuelle Versionsnummer
-- Das Veröffentlichungsdatum
-- Den Autor (Lars Zumpe)
-- Das GitHub-Repository (github.com/larszu/cable-planner)
-- Verwendete Technologien (Electron, React, ReactFlow, Vite, Tailwind)
-- Hinweis zur Fehlermeldung (Issues und Feature-Anfragen sollten direkt auf GitHub gemeldet werden)
+![Hinweise zur Sicherheit](bilder/de/oberflaeche-109-handy-sicherheitshinweise.jpg)
 
-### Nicht aufgenommene Funktionen
+### Erster Start
 
-Die folgenden Elemente konnten nicht vollständig dokumentiert werden:
+Beim ersten Start ohne Projekt erscheinen nacheinander zwei Dialoge.
 
-- **Handy-Zugriff Dialog**: Der Button zum Starten des Handy-Zugriffs ist in der Test-Umgebung möglicherweise nicht verfügbar oder wurde nicht erfolgreich aktiviert.
-- **Zusammenarbeit Panel**: Das Sync-Panel wurde nicht erfolgreich vom Testskript geöffnet.
-- **Tastaturkürzel Dialog**: Der Dialog konnte nicht erfolgreich aktiviert werden.
+1. *Willkommen beim LZ Cable Planner* bietet *Neues Projekt* und *Projekt öffnen…*. *Später entscheiden* schließt den Dialog.
 
-Diese Funktionen sind alle im Code vorhanden und funktional. Die Dokumentation konzentriert sich auf die Hauptmenüs und die wichtigsten Einstellungen zur Konfiguration der Benutzeroberfläche.
+   ![Willkommen-Dialog](bilder/de/oberflaeche-111-erststart-willkommen-dialog.jpg)
+
+2. *Willkommen — wofür nutzt du LZ Cable Planner?* fragt nach dem Anwendungsfall. Wählen Sie einen oder mehrere:
+
+   | Anwendungsfall | schaltet die Module ein |
+   |---|---|
+   | Show / Event | Handy-Zugriff, Rentman |
+   | Festinstallation | Festinstallation, Handy-Zugriff, NetBox |
+   | Vermietung / Rental | Vermietung, Rentman |
+
+   ![Anwendungsfall gewählt](bilder/de/oberflaeche-113-erststart-modulfrage-auswahl.jpg)
+
+3. *Loslegen* übernimmt die Wahl. *Später entscheiden* lässt die Module, wie sie sind. Ändern lässt sich alles unter *Einstellungen → Module*.
