@@ -163,6 +163,32 @@ export interface PdfOptions {
   pageLabel: string
   /** Deckblatt mit Inhaltsverzeichnis — bei einem einzelnen Blatt weglassbar. */
   cover: boolean
+  /**
+   * Public Sans (OFL) als Base64-TTF, Regular und Bold. Mit ihr steht der
+   * Text in der Hausschrift und mit allen Zeichen; ohne sie fällt die
+   * Ausgabe auf Helvetica zurück und ersetzt, was Latin-1 nicht kennt.
+   */
+  fonts?: { regular: string; bold: string }
+}
+
+const FACE = 'PublicSans'
+
+/** Public Sans lazy laden (eigener Chunk, nur beim PDF-Export). */
+export async function loadPublicSans(): Promise<{ regular: string; bold: string }> {
+  const [r, b] = await Promise.all([
+    import('../assets/fonts/PublicSans-Regular.ttf?url'),
+    import('../assets/fonts/PublicSans-Bold.ttf?url'),
+  ])
+  const b64 = async (url: string) => {
+    const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer())
+    let bin = ''
+    for (let i = 0; i < bytes.length; i += 0x8000) {
+      bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+    }
+    return btoa(bin)
+  }
+  const [regular, bold] = await Promise.all([b64(r.default), b64(b.default)])
+  return { regular, bold }
 }
 
 /**
@@ -184,12 +210,23 @@ export function buildTablePdf(
   const slate = rgb(LZM.slate)
   const ice = rgb(LZM.ice)
   const starts: number[] = []
+  let face = 'helvetica'
+  let clean: (s: string) => string = pdfSafe
+  if (opts.fonts) {
+    doc.addFileToVFS('PublicSans-Regular.ttf', opts.fonts.regular)
+    doc.addFont('PublicSans-Regular.ttf', FACE, 'normal')
+    doc.addFileToVFS('PublicSans-Bold.ttf', opts.fonts.bold)
+    doc.addFont('PublicSans-Bold.ttf', FACE, 'bold')
+    face = FACE
+    // Public Sans hat Anführungszeichen, Striche und Auslassung, aber keine Pfeile.
+    clean = (x) => x.replace(/→/g, '->').replace(/←/g, '<-')
+  }
 
   const kicker = (text: string, y: number) => {
-    doc.setFont('helvetica', 'bold')
+    doc.setFont(face, 'bold')
     doc.setFontSize(8)
     doc.setTextColor(...slate)
-    doc.text(pdfSafe(text.toUpperCase()), M, y)
+    doc.text(clean(text.toUpperCase()), M, y)
     doc.setDrawColor(...steel)
     doc.setLineWidth(0.3)
     doc.line(M, y + 2, W - M, y + 2)
@@ -197,10 +234,10 @@ export function buildTablePdf(
 
   if (opts.cover) {
     kicker(opts.tocLabel, M)
-    doc.setFont('helvetica', 'bold')
+    doc.setFont(face, 'bold')
     doc.setFontSize(24)
     doc.setTextColor(...navy)
-    doc.text(pdfSafe(opts.title), M, M + 16)
+    doc.text(clean(opts.title), M, M + 16)
   }
 
   sheets.forEach((s, si) => {
@@ -208,7 +245,7 @@ export function buildTablePdf(
     starts.push(doc.getNumberOfPages())
     doc.outline.add(null, pdfSafe(s.title), { pageNumber: doc.getNumberOfPages() })
 
-    const headers = s.table.headers.map(pdfSafe)
+    const headers = s.table.headers.map(clean)
     const raw = columnWidths(s.table)
     const sum = raw.reduce((a, b) => a + b, 0) || 1
     const widths = raw.map((w) => (w / sum) * usable)
@@ -218,22 +255,22 @@ export function buildTablePdf(
 
     const drawTitle = (cont: boolean) => {
       kicker(opts.title, y)
-      doc.setFont('helvetica', 'bold')
+      doc.setFont(face, 'bold')
       doc.setFontSize(14)
       doc.setTextColor(...navy)
-      doc.text(pdfSafe(s.title + (cont ? ' (…)' : '')), M, y + 10)
+      doc.text(clean(s.title + (cont ? ' (…)' : '')), M, y + 10)
       y += 12
       if (s.stamp && !cont) {
-        doc.setFont('helvetica', 'normal')
+        doc.setFont(face, 'normal')
         doc.setFontSize(8)
         doc.setTextColor(...slate)
-        doc.text(pdfSafe(s.stamp), M, y + 3)
+        doc.text(clean(s.stamp), M, y + 3)
         y += 5
       }
       y += 3
     }
     const drawHead = () => {
-      doc.setFont('helvetica', 'bold')
+      doc.setFont(face, 'bold')
       doc.setFontSize(fs)
       const lines = headers.map((h, i) => doc.splitTextToSize(h, widths[i] - 2) as string[])
       const rh = Math.max(...lines.map((l) => l.length), 1) * lh + 2.5
@@ -250,18 +287,18 @@ export function buildTablePdf(
 
     drawTitle(false)
     drawHead()
-    doc.setFont('helvetica', 'normal')
+    doc.setFont(face, 'normal')
     s.table.rows.forEach((r, ri) => {
-      doc.setFont('helvetica', 'normal')
+      doc.setFont(face, 'normal')
       doc.setFontSize(fs)
-      const lines = widths.map((w, i) => doc.splitTextToSize(pdfSafe(cellText(r[i])), w - 2) as string[])
+      const lines = widths.map((w, i) => doc.splitTextToSize(clean(cellText(r[i])), w - 2) as string[])
       const rh = Math.max(...lines.map((l) => l.length), 1) * lh + 2
       if (y + rh > H - M) {
         doc.addPage()
         y = M
         drawTitle(true)
         drawHead()
-        doc.setFont('helvetica', 'normal')
+        doc.setFont(face, 'normal')
         doc.setFontSize(fs)
       }
       if (ri % 2 === 1) {
@@ -284,11 +321,11 @@ export function buildTablePdf(
   if (opts.cover) {
     doc.setPage(1)
     let y = M + 30
-    doc.setFont('helvetica', 'normal')
+    doc.setFont(face, 'normal')
     doc.setFontSize(11)
     sheets.forEach((s, i) => {
       doc.setTextColor(...navy)
-      doc.textWithLink(pdfSafe(s.title), M, y, { pageNumber: starts[i] })
+      doc.textWithLink(clean(s.title), M, y, { pageNumber: starts[i] })
       doc.setTextColor(...slate)
       doc.text(String(starts[i]), W - M, y, { align: 'right' })
       doc.setDrawColor(...steel)
@@ -305,7 +342,7 @@ export function buildTablePdf(
   const total = doc.getNumberOfPages()
   for (let p = 1; p <= total; p++) {
     doc.setPage(p)
-    doc.setFont('helvetica', 'normal')
+    doc.setFont(face, 'normal')
     doc.setFontSize(7)
     doc.setTextColor(...slate)
     doc.text('Lars Zumpe Medienproduktion', M, H - 8)
