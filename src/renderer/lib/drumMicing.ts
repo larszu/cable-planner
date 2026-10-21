@@ -5,7 +5,8 @@
 // ECHTEN Fachdaten des zugeordneten Mikrofons aus dem Katalog. Ist keinem
 // Placement ein Mic zugeordnet, wird es als "unbekannt" gezaehlt, nicht geraten.
 // ───────────────────────────────────────────────────────────────────────────
-import type { DrumKitPlan, DrumZone, DrumMicPlacement, DrumTechnique } from '../types/drumKit'
+import type { CsvTable } from './csv'
+import type { DrumKitPlan, DrumZone, DrumMicPlacement, DrumTechnique, DrumSubsnake } from '../types/drumKit'
 import { resolveDeviceType } from './deviceTypeRegistry'
 
 /** Standard-Zonen eines typischen 5-teiligen Kits (Positionen 0..1 Draufsicht). */
@@ -161,6 +162,8 @@ export interface DrumChannelRow {
    *  wenn der Max-SPL-Wert bekannt ist (kein Raten). */
   splRisk: boolean
   stereoGroup?: string
+  /** Subsnake-Eingang (#1001); undefined = passt nicht mehr auf die Subsnake. */
+  subsnakeInput?: number
 }
 
 /** Zonen, an denen extreme Pegel auftreten (DPA how-to-mic-a-snare/kick). */
@@ -194,7 +197,11 @@ export const deriveDrumChannels = (plan: DrumKitPlan): DrumDerivation => {
   let splRiskCount = 0
   const groups = new Set<string>()
 
+  const ss = drumSubsnake(plan)
+  const first = ss.firstInput ?? 1
   plan.mics.forEach((m, i) => {
+    const input = first + i
+    const subsnakeInput = input <= ss.inputs ? input : undefined
     const zone = zonesById.get(m.zoneId)
     const resolved = resolveDeviceType(m.micDeviceTypeId)
     const powering = resolved?.template.categoryProps?.powering
@@ -219,6 +226,7 @@ export const deriveDrumChannels = (plan: DrumKitPlan): DrumDerivation => {
       micUnknown,
       splRisk,
       stereoGroup: m.stereoGroup,
+      subsnakeInput,
     })
   })
 
@@ -282,3 +290,59 @@ export const emptyDrumKit = (): DrumKitPlan => ({
   mics: [],
   technique: 'custom',
 })
+
+// ── #1001 Subsnake-Patch, Patchliste, Etiketten ────────────────────────────
+// Kein eigener Patch-Editor: Kanal n liegt auf Subsnake-Eingang n (ab
+// firstInput). Die Kanalreihenfolge kommt aus der Technik, Stereo-Paare liegen
+// dadurch nebeneinander. Wer nur die Subsnake-Groesse waehlt, ist fertig.
+
+export const DEFAULT_SUBSNAKE: DrumSubsnake = { name: 'Drum Sub', inputs: 12, firstInput: 1 }
+export const SUBSNAKE_SIZES = [8, 12, 16, 24, 32] as const
+
+export const drumSubsnake = (plan: DrumKitPlan): DrumSubsnake => plan.subsnake ?? DEFAULT_SUBSNAKE
+
+/** Kanaele, die nicht mehr auf die Subsnake passen. */
+export const drumSubsnakeOverflow = (plan: DrumKitPlan): number =>
+  deriveDrumChannels(plan).channels.filter((c) => c.subsnakeInput === undefined).length
+
+const pad2 = (n: number) => String(n).padStart(2, '0')
+
+/** Patchliste als Tabelle — geht durch csvFromTable wie jede andere Liste. */
+export const drumPatchTable = (plan: DrumKitPlan): CsvTable => {
+  const ss = drumSubsnake(plan)
+  return {
+    headers: ['Ch', 'Source', 'Mic', 'Subsnake', 'Input', '48V', 'Stereo'],
+    rows: deriveDrumChannels(plan).channels.map((c) => [
+      c.channel,
+      c.label,
+      c.micUnknown ? '' : c.micName,
+      ss.name,
+      c.subsnakeInput ?? '',
+      c.needsPhantom ? 'yes' : '',
+      c.stereoGroup ?? '',
+    ]),
+  }
+}
+
+export interface DrumLabelRow {
+  /** Grosse Zeile: Kanal + Quelle ("03 SN Top"). */
+  label1: string
+  /** Zweite Zeile: wohin dieses Kabelende geht. */
+  label2: string
+}
+
+/**
+ * Etiketten je Kanal: eines fuers Mic-Ende des Kabels, eines fuers
+ * Subsnake-Ende. Gleiches Muster wie die Kabel-Etiketten der Patchliste.
+ */
+export const drumLabelRows = (plan: DrumKitPlan): DrumLabelRow[] => {
+  const ss = drumSubsnake(plan)
+  return deriveDrumChannels(plan).channels.flatMap((c) => {
+    const label1 = `${pad2(c.channel)} ${c.label}`
+    const port = c.subsnakeInput !== undefined ? `${ss.name} ${c.subsnakeInput}` : ss.name
+    return [
+      { label1, label2: `-> ${port}` },
+      { label1, label2: `<- ${c.micUnknown ? c.label : c.micName}` },
+    ]
+  })
+}

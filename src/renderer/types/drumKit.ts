@@ -47,4 +47,15 @@ export interface DrumKitPlan {
   technique?: DrumTechnique
   zones: DrumZone[]
   mics: DrumMicPlacement[]
+  /** Subsnake/Stagebox am Kit (#1001). Kanal n liegt auf Eingang
+   *  `firstInput + n - 1`; fehlt der Eintrag, gilt DEFAULT_SUBSNAKE. */
+  subsnake?: DrumSubsnake
+}
+
+/** Subsnake am Schlagzeug — Name fuer Etiketten, Eingangszahl fuer die
+ *  Ueberlauf-Pruefung, erster belegter Eingang. */
+export interface DrumSubsnake {
+  name: string
+  inputs: number
+  firstInput?: number
 }

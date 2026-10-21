@@ -58,6 +58,15 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Nach Etage':
     'Etage des Rahmens, in dem das Zielgerät liegt. Leer heißt: der Rahmen hat keine Etage oder das Gerät liegt in keinem Rahmen.',
   'Nach Raum': 'Der Rahmen (Raum, Bereich), in dem das Zielgerät auf dem Plan liegt. Leer heißt: in keinem Rahmen.',
+  // #1001 — Drum-Patchliste und Drum-Etiketten (`lib/drumMicing.ts`).
+  Source: 'Was am Schlagzeug abgenommen wird (Kessel, Becken, Overhead), so beschriftet wie der Kanal.',
+  Mic: 'Das Mikrofon an dieser Quelle. Leer heißt: noch kein Mikrofon zugeordnet.',
+  Subsnake: 'Name der Subsnake am Schlagzeug, auf die der Kanal gesteckt wird.',
+  Input: 'Eingang an der Subsnake. Leer heißt: der Kanal passt nicht mehr auf die Subsnake.',
+  '48V': '„yes“, wenn das Mikrofon laut Datenblatt Phantomspeisung braucht.',
+  Stereo: 'Kennung des Stereopaars; gleiche Kennung heißt L/R-Paar.',
+  Label1: 'Große Zeile des Etiketts: Kanalnummer und Quelle.',
+  Label2: 'Zweite Zeile: wohin dieses Kabelende führt.',
   // #879 — die Frontplatten-Liste (`lib/frontplattenListe.ts`). Sie geht an
   // den, der bohrt, und der hat den Plan nicht auf dem Schirm.
   Plate: 'Das Gerät, das diese Frontplatte IST — so benannt, wie es im Plan heißt.',
