@@ -108,12 +108,12 @@ interface ExportDialogProps {
 
 const SECTION_LABEL: Record<Section, string> = {
   plan: 'Plan',
-  patch: 'Patch-Sheets',
-  bom: 'Kabel-Stückliste',
-  devicebom: 'Geräte-Stückliste',
-  rack: 'Racks & Gruppen',
-  tally: 'Tally-Karte',
-  packet: 'Unterlagen-Stapel',
+  patch: 'Patch sheets',
+  bom: 'Cable BOM',
+  devicebom: 'Device BOM',
+  rack: 'Racks & groups',
+  tally: 'Tally map',
+  packet: 'Document packet',
 }
 
 const SECTION_ICON: Record<Section, LucideIcon> = {
@@ -127,14 +127,20 @@ const SECTION_ICON: Record<Section, LucideIcon> = {
 }
 
 const SECTION_DESC: Record<Section, string> = {
-  plan: 'Den Canvas-Plan als PDF herunterladen oder direkt drucken. PDF mit Titelblock — druckfertig. Auch PNG/JPEG für E-Mail/Slack.',
-  patch: 'Pro Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät. Auswahl an Geräten, dann Einzel-PDF, Sammel-PDF oder direkt drucken. Papier-Format wird nach Klick abgefragt. Alternativ: kompakte Patchliste (eine Zeile pro Kabel, sortiert nach Quell-Gerät) für den Techniker im Feld.',
-  bom: 'Stückliste aller Kabel im Projekt (Typ + Länge zusammengefasst). Editierbare Rentman-Planung daneben. Export als CSV oder PDF.',
-  devicebom: 'Was der Plan an Geräten braucht, gezählt nach Modell und gegen das Lager gedeckt. Drei Zustände, die unterscheidbar bleiben: gedeckt (über die Katalog-Identität), VORSCHLAG (Namenstreffer, wartet auf Bestätigung) und nicht im Lager. Dazu die Kommissionier-Liste — nur sicher Gedecktes, nach Lagerort sortiert.',
-  rack: 'Gespeicherte Racks und Gruppen einzeln als PDF exportieren oder drucken — eine Patch-Seite pro enthaltenem Gerät mit interner Verkabelung.',
+  plan:
+    'Download the canvas plan as a PDF or print it directly. PDF with title block, ready to print. Also PNG/JPEG for email/Slack.',
+  patch:
+    'One port assignment list per device, ideal for sticking on the device. Pick devices, then single PDF, combined PDF or print directly. Paper size is asked after the click. Alternatively: compact patch list (one line per cable, sorted by source device) for the technician in the field.',
+  bom:
+    'Bill of materials for all cables in the project (type + length combined). Editable Rentman planning alongside. Export as CSV or PDF.',
+  devicebom:
+    'The devices the plan needs, counted by model and checked against stock. Three states that stay distinct: covered (via catalogue identity), SUGGESTION (name match, awaiting confirmation) and not in stock. Plus the pick list: only safely covered items, sorted by storage location.',
+  rack:
+    'Export or print saved racks and groups individually as PDF: one patch page per contained device with internal wiring.',
   packet:
-    'Mehrere Blätter als EIN druckbarer Stapel: eine Seite je Blatt, Spaltenkopf auf jeder Folgeseite wiederholt, Papierformat und Farbmodus wählbar. Für den Ordner, der mit auf die Show fährt. Jedes Blatt trägt seinen Stempel — ein Stapel aus gestempelten Blättern lässt sich morgen gegen den Plan halten.',
-  tally: 'Die Kette Rolle → Gerät → Mischer-Eingang → UMD-Adresse, aus dem Plan abgeleitet und geprüft. Als CSV zum Gegenlesen, als JSON für die tally-pi-Konfiguration. Die Lampe selbst — welcher GPIO-Pin welcher Box — gehört der Hardware und steht bewusst nicht drin.',
+    'Several sheets as ONE printable stack: one page per sheet, column header repeated on every following page, paper size and colour mode selectable. For the binder that travels to the show. Every sheet carries its stamp, so a stack of stamped sheets can be checked against the plan tomorrow.',
+  tally:
+    'The chain role → device → switcher input → UMD address, derived from the plan and checked. As CSV for proofreading, as JSON for the tally-pi configuration. The lamp itself (which GPIO pin of which box) belongs to the hardware and is deliberately not included.',
 }
 
 export const ExportDialog = ({

@@ -96,19 +96,19 @@ export type { CircuitKind }
  * eine Aussage über eine Norm, die sie nicht trägt.
  */
 export const CIRCUIT_KIND_INFO = {
-  feed: { label: 'Einspeisung', marke: 'E', klemmen: [0], schaltbar: true, ruhe: 1 },
-  switch: { label: 'Aus-Schalter', marke: 'S', klemmen: [1, 2], schaltbar: true, ruhe: 0 },
-  changeover: { label: 'Wechselschalter', marke: 'W', klemmen: [0, 1, 2], schaltbar: true, ruhe: 1 },
-  crossover: { label: 'Kreuzschalter', marke: 'K', klemmen: [1, 2, 3, 4], schaltbar: true, ruhe: 1 },
+  feed: { label: 'Feed', marke: 'E', klemmen: [0], schaltbar: true, ruhe: 1 },
+  switch: { label: 'On/off switch', marke: 'S', klemmen: [1, 2], schaltbar: true, ruhe: 0 },
+  changeover: { label: 'Two-way switch', marke: 'W', klemmen: [0, 1, 2], schaltbar: true, ruhe: 1 },
+  crossover: { label: 'Intermediate switch', marke: 'K', klemmen: [1, 2, 3, 4], schaltbar: true, ruhe: 1 },
   dimmer: { label: 'Dimmer', marke: 'D', klemmen: [1, 2], schaltbar: false, ruhe: 0 },
-  lamp: { label: 'Leuchte', marke: 'L', klemmen: [0], schaltbar: false, ruhe: 0 },
-  junction: { label: 'Klemmstelle / Dose', marke: 'KL', klemmen: [], schaltbar: false, ruhe: 0 },
+  lamp: { label: 'Luminaire', marke: 'L', klemmen: [0], schaltbar: false, ruhe: 0 },
+  junction: { label: 'Junction / box', marke: 'KL', klemmen: [], schaltbar: false, ruhe: 0 },
   // ─── B-52 Teil 2 ────────────────────────────────────────────────────────
   //
   // Der Stromverteiler ist eine KLEMMSTELLE mit abgesicherten Abgängen. Die
   // Absicherung sitzt am Anschluss (`Port.absicherungA`, Teil 1) und löst
   // nie aus — der Plan kennt die angeschlossenen Lasten nicht.
-  distro: { label: 'Stromverteiler', marke: 'V', klemmen: [], schaltbar: false, ruhe: 0 },
+  distro: { label: 'Power distro', marke: 'V', klemmen: [], schaltbar: false, ruhe: 0 },
   // Die sechs Kontakte tragen dieselben Klemmen wie der Aus-Schalter und
   // rechnen mit derselben Funktion (`INNERE_VERBINDUNG` in `circuitSolver`).
   // Eigene Bauarten sind sie für die BESCHRIFTUNG und für die RUHESTELLUNG —
@@ -121,12 +121,12 @@ export const CIRCUIT_KIND_INFO = {
   // dann eine Rückkopplung zu lösen, die niemand angegeben hat. Wer ein
   // Schütz umlegt, sagt damit „es hat angezogen" — dasselbe Verhältnis wie
   // bei jedem anderen Kontakt hier.
-  button: { label: 'Taster', marke: 'T', klemmen: [1, 2], schaltbar: true, ruhe: 0 },
-  contactor: { label: 'Schütz', marke: 'SZ', klemmen: [1, 2], schaltbar: true, ruhe: 0 },
-  relay: { label: 'Relais', marke: 'R', klemmen: [1, 2], schaltbar: true, ruhe: 0 },
-  emergencyStop: { label: 'Not-Aus', marke: 'NA', klemmen: [1, 2], schaltbar: true, ruhe: 1 },
-  rcd: { label: 'FI-Schutzschalter', marke: 'FI', klemmen: [1, 2], schaltbar: true, ruhe: 1 },
-  mcb: { label: 'Leitungsschutzschalter', marke: 'LS', klemmen: [1, 2], schaltbar: true, ruhe: 1 },
+  button: { label: 'Push button', marke: 'T', klemmen: [1, 2], schaltbar: true, ruhe: 0 },
+  contactor: { label: 'Contactor', marke: 'SZ', klemmen: [1, 2], schaltbar: true, ruhe: 0 },
+  relay: { label: 'Relay', marke: 'R', klemmen: [1, 2], schaltbar: true, ruhe: 0 },
+  emergencyStop: { label: 'Emergency stop', marke: 'NA', klemmen: [1, 2], schaltbar: true, ruhe: 1 },
+  rcd: { label: 'RCD', marke: 'FI', klemmen: [1, 2], schaltbar: true, ruhe: 1 },
+  mcb: { label: 'Circuit breaker', marke: 'LS', klemmen: [1, 2], schaltbar: true, ruhe: 1 },
 } satisfies Record<
   CircuitKind,
   { label: string; marke: string; klemmen: number[]; schaltbar: boolean; ruhe: number }

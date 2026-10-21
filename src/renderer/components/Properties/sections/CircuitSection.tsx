@@ -63,7 +63,7 @@ export const CircuitSection = ({ equipment }: { equipment: EquipmentItem }) => {
           <option value="">{t('circuit.none', 'none')}</option>
           {CIRCUIT_KINDS.map((k) => (
             <option key={k} value={k}>
-              {CIRCUIT_KIND_INFO[k].label}
+              {t(`circuit.kind.${k}`, CIRCUIT_KIND_INFO[k].label)}
             </option>
           ))}
         </select>

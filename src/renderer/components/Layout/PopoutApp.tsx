@@ -16,9 +16,9 @@ import type { PopoutPanel } from '../../lib/panelPopout'
 
 const TITLE_KEYS: Record<PopoutPanel, { key: string; fallback: string }> = {
   library: { key: 'panel.title.library', fallback: 'Library' },
-  properties: { key: 'panel.title.properties', fallback: 'Eigenschaften' },
-  annotations: { key: 'panel.title.annotations', fallback: 'Anmerkungen' },
-  settings: { key: 'panel.title.settings', fallback: 'Einstellungen' },
+  properties: { key: 'panel.title.properties', fallback: 'Properties' },
+  annotations: { key: 'panel.title.annotations', fallback: 'Annotations' },
+  settings: { key: 'panel.title.settings', fallback: 'Settings' },
 }
 
 export const PopoutApp = ({ panel }: { panel: PopoutPanel }) => {
