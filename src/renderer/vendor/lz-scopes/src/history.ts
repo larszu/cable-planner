@@ -7,6 +7,7 @@
 
 import { LUMA, type Colorspace } from './color';
 import type { Decode } from './ycbcr';
+import { t } from './i18n';
 
 export const HUE_BINS = 24;
 export const GRID_W = 96, GRID_H = 54;
@@ -102,7 +103,7 @@ const LABEL = 'rgba(230, 215, 170, 0.85)', GRID = 'rgba(210, 190, 120, 0.25)';
  */
 export function drawTimeline(ctx: CanvasRenderingContext2D, r: { x: number; y: number; w: number; h: number }, h: History, cs: Colorspace, spanS: TimelineSpan, now = performance.now()) {
   const left = r.x + 26, w = r.w - 50;
-  const lanes = [{ name: 'Farbe', f: 0.12 }, { name: 'Farbton', f: 0.34 }, { name: 'Sättigung', f: 0.22 }, { name: 'Luma Y′', f: 0.32 }];
+  const lanes = [{ name: t('tools.hist.colour'), f: 0.12 }, { name: t('tools.hist.hue'), f: 0.34 }, { name: t('tools.hist.sat'), f: 0.22 }, { name: 'Luma Y′', f: 0.32 }];
   const gap = 6, total = r.h - 18 - gap * (lanes.length - 1);
   let y = r.y;
   const box = lanes.map((l) => { const b = { y, h: total * l.f, name: l.name }; y += b.h + gap; return b; });
@@ -163,10 +164,10 @@ export function drawTimeline(ctx: CanvasRenderingContext2D, r: { x: number; y: n
   const tick = spanS <= 10 ? 2 : spanS <= 60 ? 10 : 60;
   for (let s = 0; s <= spanS; s += tick) {
     const x = left + w - (s / spanS) * w;
-    ctx.fillText(s ? `−${s >= 60 ? `${s / 60} min` : `${s} s`}` : 'jetzt', x, r.y + r.h - 14);
+    ctx.fillText(s ? `−${s >= 60 ? `${s / 60} min` : `${s} s`}` : t('tools.hist.now'), x, r.y + r.h - 14);
   }
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   for (const b of box) { ctx.fillStyle = 'rgba(8,9,11,0.7)'; const tw = ctx.measureText(b.name).width + 6; ctx.fillRect(left + 2, b.y + 2, tw, 13); ctx.fillStyle = LABEL; ctx.fillText(b.name, left + 5, b.y + 4); }
-  if (!vis.length) { ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Verlauf beginnt, sobald die Quelle Bilder liefert', left + w / 2, r.y + r.h / 2); }
+  if (!vis.length) { ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t('tools.hist.empty'), left + w / 2, r.y + r.h / 2); }
   ctx.restore();
 }

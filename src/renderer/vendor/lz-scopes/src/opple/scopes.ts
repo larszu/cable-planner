@@ -15,13 +15,14 @@ import {
   cellKey, compareLights, displayColour, deltaUvPrime, gridStats, isothermXy, lightVector, miredShift, planckXy, seriesStats, suggestGels, xyToUvPrime, type XY,
 } from './lightScience';
 import { lightStore, type LightStore } from './store';
+import { num, t } from '../i18n';
 
 export type LightScope = 'light-cie' | 'light-vector' | 'light-bands' | 'light-trend' | 'light-map' | 'light-spectrum' | 'light-swatch';
 /** order of the light layout (3 per row); 'light-bands' stays available in the scope menu */
 export const LIGHT_SCOPES: LightScope[] = ['light-cie', 'light-vector', 'light-swatch', 'light-spectrum', 'light-trend', 'light-map'];
 export const LIGHT_LABELS: Record<LightScope, string> = {
-  'light-cie': 'Licht: Farbort (CIE)', 'light-vector': 'Licht: Vectorscope', 'light-bands': 'Licht: Filterkanäle',
-  'light-trend': 'Licht: Zeitverlauf', 'light-map': 'Licht: Messfeld', 'light-spectrum': 'Licht: Wellenlängen', 'light-swatch': 'Licht: Farbfläche',
+  'light-cie': t('opple.scope.cie'), 'light-vector': t('opple.scope.vector'), 'light-bands': t('opple.scope.bands'),
+  'light-trend': t('opple.scope.trend'), 'light-map': t('opple.scope.map'), 'light-spectrum': t('opple.scope.spectrum'), 'light-swatch': t('opple.scope.swatch'),
 };
 export const isLight = (s: string): s is LightScope => s.startsWith('light-');
 
@@ -46,7 +47,7 @@ export const DEFAULT_LIGHT: LightPanelOptions = { device: '', diagram: '1976', z
 export const lightOpts = (o?: Partial<LightPanelOptions>): LightPanelOptions => ({ ...DEFAULT_LIGHT, ...o });
 
 export const TARGET_LABELS: Record<LightTarget, string> = {
-  ref: 'Referenzpunkt (Seitenleiste)', p3200: '3200 K Planck', p4300: '4300 K Planck', p5600: '5600 K Planck', p6500: '6500 K Planck', d65: 'D65',
+  ref: t('opple.target.ref'), p3200: '3200 K Planck', p4300: '4300 K Planck', p5600: '5600 K Planck', p6500: '6500 K Planck', d65: 'D65',
 };
 const D65: XY = [0.3127, 0.329];
 
@@ -55,8 +56,8 @@ const DEVICE_COLOURS = ['#8cff9e', '#00dcff', '#ffb44a', '#ff7ad9'];
 const PROBE = '#00dcff';
 const REF = '#ffffff';
 
-const de = (v: number, d: number) => (Number.isFinite(v) ? v.toFixed(d).replace('.', ',').replace('-', '−') : '–');
-const sgn = (v: number, d: number) => (Number.isFinite(v) ? (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(d).replace('.', ',') : '–');
+const de = (v: number, d: number) => (Number.isFinite(v) ? num(v, d).replace('-', '−') : '–');
+const sgn = (v: number, d: number) => (Number.isFinite(v) ? (v >= 0 ? '+' : '−') + num(Math.abs(v), d) : '–');
 
 /** Redraw key: store version, options, size; the time course also moves with the clock. */
 export function lightSignature(scope: LightScope, o: Partial<LightPanelOptions> | undefined, w: number, h: number) {
@@ -73,10 +74,10 @@ function readingsOf(s: LightStore, o: LightPanelOptions) {
   return o.device ? s.history.filter((r) => r.device === o.device) : s.history;
 }
 
-export function targetXy(s: LightStore, t: LightTarget): { xy: XY; name: string } {
-  if (t === 'ref') { const p = s.point(s.opts.ref); if (p) return { xy: [p.reading.x, p.reading.y], name: `Referenz „${p.label}“` }; t = 'p5600'; }
-  if (t === 'd65') return { xy: D65, name: 'D65' };
-  const K = Number(t.slice(1));
+export function targetXy(s: LightStore, tg: LightTarget): { xy: XY; name: string } {
+  if (tg === 'ref') { const p = s.point(s.opts.ref); if (p) return { xy: [p.reading.x, p.reading.y], name: t('opple.target.refNamed', { label: p.label }) }; tg = 'p5600'; }
+  if (tg === 'd65') return { xy: D65, name: 'D65' };
+  const K = Number(tg.slice(1));
   return { xy: planckXy(K), name: `${K} K Planck` };
 }
 
@@ -102,7 +103,7 @@ export function drawLightPanel(ctx: CanvasRenderingContext2D, scope: LightScope,
   if (scope === 'light-map') drawMap(ctx, s, o, w, h);
   else {
     const list = readingsOf(s, o);
-    if (!list.length) message(ctx, w, h, s.connected.length ? 'Warte auf Messwerte …' : 'Kein Light Master verbunden', 'Seitenleiste → Lichtmesser (Opple) → Gerät suchen');
+    if (!list.length) message(ctx, w, h, s.connected.length ? t('opple.sc.waiting') : t('opple.sc.noMeter'), t('opple.sc.noMeterHint'));
     else if (scope === 'light-cie') drawCie(ctx, s, o, list, w, h);
     else if (scope === 'light-vector') drawVector(ctx, s, o, list, w, h);
     else if (scope === 'light-bands') drawBands(ctx, s, o, list, w, h);
@@ -186,10 +187,10 @@ function drawCie(ctx: CanvasRenderingContext2D, s: LightStore, o: LightPanelOpti
     `x ${de(last.x, 4)}  y ${de(last.y, 4)}`,
     `u′ ${de(u, 4)}  v′ ${de(v, 4)}`,
     `CCT ${de(cd.cct, 0)} K  Duv ${sgn(cd.duv, 4)}`,
-    `Δu′v′ zu ${tgt.name}: ${de(deltaUvPrime([last.x, last.y], tgt.xy), 4)}`,
+    t('opple.sc.duvTo', { name: tgt.name, v: de(deltaUvPrime([last.x, last.y], tgt.xy), 4) }),
   ]);
   ctx.fillStyle = 'rgba(230,215,170,0.55)'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-  ctx.fillText('Planck-Kurve, Isothermen, Duv ±0,01/±0,02 · Filtersensor: Trendmessung', f.ox + f.pw - 4, f.oy + f.ph - 4);
+  ctx.fillText(t('opple.sc.cieFoot'), f.ox + f.pw - 4, f.oy + f.ph - 4);
 }
 
 /** Trail per device, current value, captured points and the reference. */
@@ -217,7 +218,7 @@ function drawPoints(ctx: CanvasRenderingContext2D, s: LightStore, o: LightPanelO
     const isRef = p.id === s.opts.ref;
     ctx.strokeStyle = isRef ? REF : PROBE; ctx.fillStyle = isRef ? REF : PROBE;
     ctx.beginPath(); ctx.rect(px - 3, py - 3, 6, 6); ctx.stroke();
-    ctx.fillText(isRef ? `${p.label} (Ref.)` : p.label, px + 6, py);
+    ctx.fillText(isRef ? `${p.label} ${t('opple.sc.refShort')}` : p.label, px + 6, py);
   }
 }
 
@@ -281,22 +282,22 @@ function drawVector(ctx: CanvasRenderingContext2D, s: LightStore, o: LightPanelO
   const dir = (a: XY, b: XY) => { const [ax, ay] = P(a), [bx, by] = P(b); const l = Math.hypot(bx - ax, by - ay) || 1; return [(bx - ax) / l, (by - ay) / l]; };
   const warm = dir(planckXy(Tc), planckXy(Tc * 0.9)), green = dir(isothermXy(Tc, 0), isothermXy(Tc, 0.01));
   ctx.fillStyle = LABEL; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  const word = (d: number[], sgnv: number, t: string) => ctx.fillText(t, cx + d[0] * sgnv * (R + 14), cy + d[1] * sgnv * (R + 12));
-  word(warm, 1, 'wärmer'); word(warm, -1, 'kälter'); word(green, 1, 'grün'); word(green, -1, 'magenta');
+  const word = (d: number[], sgnv: number, text: string) => ctx.fillText(text, cx + d[0] * sgnv * (R + 14), cy + d[1] * sgnv * (R + 12));
+  word(warm, 1, t('opple.sc.warmer')); word(warm, -1, t('opple.sc.cooler')); word(green, 1, t('opple.sc.green')); word(green, -1, t('opple.sc.magenta'));
   // read-out
   const c = cctDuv([last.x, last.y]);
   const shift = miredShift(c.cct, cd.cct);
   const gel = Math.abs(shift) >= 5 && o.target !== 'd65' ? suggestGels(c.cct, cd.cct, s.opts.gelMaker, 1)[0] : null;
   textBox(ctx, 6, 6, [
-    `Mitte: ${tgt.name}`,
+    t('opple.sc.centre', { name: tgt.name }),
     `${s.label(last.device ?? '')}`,
-    `Farbton h ${de(vec.hue, 0)}°  Sättigung s ${de(vec.sat, 3)}`,
+    t('opple.sc.hueSat', { h: de(vec.hue, 0), s: de(vec.sat, 3) }),
     `Δu′v′ ${de(vec.sat / 13, 4)}`,
     `CCT ${de(c.cct, 0)} K  Duv ${sgn(c.duv, 4)}`,
-    ...(o.target === 'd65' ? [] : [`Mired zum Ziel ${sgn(shift, 0)}${gel ? ` → ${gel.gels.map((g) => g.name).join(' + ')}` : ''}`]),
+    ...(o.target === 'd65' ? [] : [`${t('opple.sc.miredToTarget', { v: sgn(shift, 0) })}${gel ? ` → ${gel.gels.map((g) => g.name).join(' + ')}` : ''}`]),
   ]);
   ctx.fillStyle = 'rgba(230,215,170,0.55)'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.font = FONT;
-  ctx.fillText('s = 13·Δu′v′ (CIELUV) · Trendmessung', w - 6, h - 4);
+  ctx.fillText(t('opple.sc.vecFoot'), w - 6, h - 4);
 }
 
 // ---------------------------------------------------------------- filter channels
@@ -340,7 +341,7 @@ function drawBands(ctx: CanvasRenderingContext2D, s: LightStore, o: LightPanelOp
     ctx.fillText(useRef ? `×${de(vals[i], 2)}` : de(last.bands[i], last.bands[i] < 10 ? 1 : 0), x + bwi / 2, pad.t + ah + 17);
   });
   ctx.fillStyle = LABEL; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText(`${s.label(last.device ?? '')} · ${n} Filterkanäle (kalibrierte Zählwerte, keine spektrale Leistung)${useRef ? ` · Verhältnis zu „${s.point(s.opts.ref)!.label}“` : ref && ref.model === last.model ? ` · gestrichelt: „${s.point(s.opts.ref)!.label}“` : ''}`, pad.l, 6);
+  ctx.fillText(`${s.label(last.device ?? '')} · ${t('opple.sc.bandsTitle', { n })}${useRef ? ` · ${t('opple.sc.ratioTo', { label: s.point(s.opts.ref)!.label })}` : ref && ref.model === last.model ? ` · ${t('opple.sc.dashed', { label: s.point(s.opts.ref)!.label })}` : ''}`, pad.l, 6);
 }
 
 // ---------------------------------------------------------------- time course
@@ -349,7 +350,7 @@ function drawTrend(ctx: CanvasRenderingContext2D, s: LightStore, o: LightPanelOp
   const now = Date.now(), t0 = now - o.window * 1000;
   const recent = list.filter((r) => r.ts >= t0);
   const qs: { key: 'lux' | 'cct' | 'duv'; name: string; unit: string; d: number; get: (r: Reading) => number }[] = [
-    { key: 'lux', name: 'Beleuchtungsstärke', unit: 'lx', d: 1, get: (r) => r.lux },
+    { key: 'lux', name: t('opple.sc.illuminance'), unit: 'lx', d: 1, get: (r) => r.lux },
     { key: 'cct', name: 'CCT', unit: 'K', d: 0, get: (r) => cctDuv([r.x, r.y]).cct },
     { key: 'duv', name: 'Duv', unit: '', d: 4, get: (r) => cctDuv([r.x, r.y]).duv },
   ];
@@ -379,7 +380,7 @@ function drawTrend(ctx: CanvasRenderingContext2D, s: LightStore, o: LightPanelOp
     }
     const st = seriesStats(vals);
     ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = LABEL;
-    ctx.fillText(`${q.name}${q.unit ? ` (${q.unit})` : ''} · Mittel ${de(st.mean, q.d)} · σ ${de(st.sd, q.d + 1)}${q.key === 'lux' && Number.isFinite(st.cv) ? ` (${de(st.cv * 100, 1)} %)` : ''} · n ${st.n}`, pad.l + 4, top + 3);
+    ctx.fillText(`${q.name}${q.unit ? ` (${q.unit})` : ''} · ${t('opple.sc.mean')} ${de(st.mean, q.d)} · σ ${de(st.sd, q.d + 1)}${q.key === 'lux' && Number.isFinite(st.cv) ? ` (${de(st.cv * 100, 1)} %)` : ''} · n ${st.n}`, pad.l + 4, top + 3);
   });
   ctx.fillStyle = LABEL; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   for (let i = 0; i <= 4; i++) { const t = t0 + (i / 4) * o.window * 1000; ctx.fillText(`−${Math.round((now - t) / 1000)} s`, x(t), h - pad.b + 3); }
@@ -439,18 +440,18 @@ function drawMap(ctx: CanvasRenderingContext2D, s: LightStore, o: LightPanelOpti
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   for (let r = 0; r < rows; r++) ctx.fillText(String.fromCharCode(65 + r), pad.l - 6, pad.t + (r + 0.5) * ch);
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  const what = { lux: 'Beleuchtungsstärke % vom hellsten Punkt', duv: 'Δu′v′ zum Mittel (Skala 0 … 0,01)', cct: 'CCT zum Mittel (±500 K)' }[o.map];
+  const what = { lux: t('opple.sc.mapLux'), duv: t('opple.sc.mapDuv'), cct: t('opple.sc.mapCct') }[o.map];
   ctx.fillText(st
-    ? `Messfeld ${cols}×${rows} · ${what} · Gleichmäßigkeit min/max ${de(st.uniformity, 0)} % · max Δu′v′ ${de(st.maxDuv, 4)} · ${cells.length}/${cols * rows} Punkte`
-    : `Messfeld ${cols}×${rows}: Punkte nacheinander aufnehmen (Seitenleiste → Lichtmesser → Messfeld). Blauer Rahmen = nächster Punkt.`, 6, 6);
+    ? t('opple.sc.mapTitle', { cols, rows, what, u: de(st.uniformity, 0), duv: de(st.maxDuv, 4), n: cells.length, total: cols * rows })
+    : t('opple.sc.mapEmpty', { cols, rows }), 6, 6);
   const a = s.point(s.opts.ref), b = s.point(s.opts.cmp);
   if (a && b && a !== b && h > 160) {
     const cmp = compareLights(a.reading, b.reading, s.opts.gelMaker);
     textBox(ctx, w - 6, h - 6 - 4 * 13 - 6, [
-      `Vergleich ${a.label} → ${b.label}`,
+      t('opple.sc.cmp', { a: a.label, b: b.label }),
       `Δu′v′ ${de(cmp.duv, 4)} · ΔCCT ${sgn(cmp.cctB - cmp.cctA, 0)} K`,
-      `Helligkeit ${sgn(cmp.stops, 2)} Blenden`,
-      `Mired für B ${sgn(cmp.shift, 0)}${cmp.gels[0] ? ` → ${cmp.gels[0].gels.map((g) => g.name).join(' + ')}` : ''}`,
+      t('opple.sc.stops', { v: sgn(cmp.stops, 2) }),
+      `${t('opple.sc.miredB', { v: sgn(cmp.shift, 0) })}${cmp.gels[0] ? ` → ${cmp.gels[0].gels.map((g) => g.name).join(' + ')}` : ''}`,
     ], 'right');
   }
 }
@@ -501,7 +502,7 @@ function drawSpectrum(ctx: CanvasRenderingContext2D, s: LightStore, o: LightPane
     };
     ctx.strokeStyle = '#e8e8e8'; ctx.lineWidth = 1.5; curve(sp); ctx.lineWidth = 1;
     if (ref?.spectrum && ref !== last) { ctx.strokeStyle = REF; ctx.setLineDash([4, 3]); curve(ref.spectrum); ctx.setLineDash([]); }
-    title = `${s.label(last.device ?? '')} · Spektrum ${de(sp.start, 0)}–${de(sp.end, 0)} nm, ${sp.values.length} Werte · Spitze ${de(pk.nm, 0)} nm${sp.unit !== 'relativ' ? ` = ${de(pk.value, 3)} ${sp.unit}` : ' (relativ)'}${ref?.spectrum && ref !== last ? ` · gestrichelt: „${refPoint!.label}“` : ''}`;
+    title = `${s.label(last.device ?? '')} · ${t('opple.sc.specTitle', { a: de(sp.start, 0), b: de(sp.end, 0), n: sp.values.length, peak: de(pk.nm, 0) })}${sp.unit !== 'relativ' ? ` = ${de(pk.value, 3)} ${sp.unit}` : ` ${t('opple.sc.relative')}`}${ref?.spectrum && ref !== last ? ` · ${t('opple.sc.dashed', { label: refPoint!.label })}` : ''}`;
   } else if (last.bands.length) {
     const fb = filterBands(last.model === 'lm4' ? 'lm4' : 'lm3', last.wavelengths);
     const max = Math.max(1e-9, ...last.bands);
@@ -513,14 +514,14 @@ function drawSpectrum(ctx: CanvasRenderingContext2D, s: LightStore, o: LightPane
       ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = LABEL; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(`${b.nm}`, x, y - 6);
     });
-    title = `${s.label(last.device ?? '')} · ${last.bands.length} Filterkanäle, kein Spektrum · Höhe = kalibrierter Zählwert relativ zum stärksten Kanal${last.model === 'lm4' ? ' · Balken = Halbwertsbreite (AS7341-Datenblatt)' : ' · Filterbreiten des LM3 nicht veröffentlicht'}`;
-  } else title = 'Keine Kanal- oder Spektraldaten';
+    title = `${s.label(last.device ?? '')} · ${t('opple.sc.bandsNoSpec', { n: last.bands.length })} · ${last.model === 'lm4' ? t('opple.sc.fwhmLm4') : t('opple.sc.fwhmLm3')}`;
+  } else title = t('opple.sc.noData');
   ctx.fillStyle = LABEL; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = FONT;
   ctx.fillText(title, 6, 4);
   if (extraLines) {
-    const c = (b: boolean) => (b ? ' (Vorsicht)' : '');
+    const c = (b: boolean) => (b ? ` ${t('opple.sc.caution')}` : '');
     const l1 = [last.cri ? `CRI Ra ${de(last.cri.ra, 1)} · R9 ${de(last.cri.r9, 1)}${c(last.cri.caution)}` : '', last.tlci ? `TLCI Qa ${de(last.tlci.qa, 1)}${c(last.tlci.caution)}` : '', last.tm30 ? `TM-30-15 Rf ${de(last.tm30.rf, 1)} Rg ${de(last.tm30.rg, 1)}${c(last.tm30.caution)}` : ''].filter(Boolean).join(' · ');
-    ctx.fillText(`${l1} – berechnet von ArgyllCMS`, 6, 17);
+    ctx.fillText(`${l1} – ${t('opple.sc.byArgyll')}`, 6, 17);
     if (last.cri?.r.length) ctx.fillText(last.cri.r.map((v, i) => `R${i + 1} ${de(v, 0)}`).join(' '), 6, 30);
   }
   void o;
@@ -549,14 +550,14 @@ function drawSwatch(ctx: CanvasRenderingContext2D, s: LightStore, list: Reading[
   const lum = (c: number[]) => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
   ctx.font = '600 13px system-ui'; ctx.textBaseline = 'top'; ctx.textAlign = 'left';
   ctx.fillStyle = lum(meas.linear.map((v) => Math.max(0, v))) > 0.45 ? '#111' : '#f2f2f2';
-  ctx.fillText('gemessen (mit Duv)', pad + 8, top + 8);
-  if (planck) { ctx.fillStyle = lum(planck.linear) > 0.45 ? '#111' : '#f2f2f2'; ctx.font = '11px system-ui'; ctx.fillText('Planck, gleiche CCT', pad + split + 8, top + 8); }
+  ctx.fillText(t('opple.sc.measuredDuv'), pad + 8, top + 8);
+  if (planck) { ctx.fillStyle = lum(planck.linear) > 0.45 ? '#111' : '#f2f2f2'; ctx.font = '11px system-ui'; ctx.fillText(t('opple.sc.planckSame'), pad + split + 8, top + 8); }
   ctx.font = FONT; ctx.fillStyle = LABEL; ctx.textBaseline = 'top';
   ctx.fillText(`${s.label(last.device ?? '')} · CCT ${de(cd.cct, 0)} K · Duv ${sgn(cd.duv, 4)} · x ${de(last.x, 4)} y ${de(last.y, 4)}`, pad, top + ph + 6);
   ctx.fillStyle = meas.outOfGamut ? '#ffb44a' : LABEL;
   ctx.fillText(meas.outOfGamut
-    ? `Außerhalb des Display-Gamuts (${space === 'display-p3' ? 'Display P3' : 'sRGB'}): schraffiert, gezeigt wird die abgeschnittene Farbe`
-    : `Display ${space === 'display-p3' ? 'P3' : 'sRGB'} · Helligkeit normiert · ohne Weißabgleich (Display-Weiß = D65)`, pad, top + ph + 19);
+    ? t('opple.sc.outOfGamut', { space: space === 'display-p3' ? 'Display P3' : 'sRGB' })
+    : t('opple.sc.swatchInfo', { space: space === 'display-p3' ? 'P3' : 'sRGB' }), pad, top + ph + 19);
   ctx.fillStyle = 'rgba(230,215,170,0.55)';
-  ctx.fillText('Stimmt nur bei kalibriertem Display und aktiver Farbverwaltung · Filtersensor: Trendmessung', pad, top + ph + 32);
+  ctx.fillText(t('opple.sc.swatchFoot'), pad, top + ph + 32);
 }

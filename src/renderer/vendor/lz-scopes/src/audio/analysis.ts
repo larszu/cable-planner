@@ -11,6 +11,7 @@ import { channelInfo, layoutKnown, type ChannelInfo } from './dsp/layouts';
 import { IdentDetector, type IdentReport } from './dsp/ident';
 import { AvSyncMeter } from './dsp/avsync';
 import { toDb } from './dsp/truepeak';
+import { t } from '../i18n';
 
 const RING = 32768;
 const HISTORY = 36000; // 1 h at 10 Hz
@@ -153,12 +154,12 @@ export class AudioAnalysis {
     const L = this.loud, f = (v: number | null) => (v === null || !Number.isFinite(v) ? '' : v.toFixed(1));
     const maxTP = toDb(Math.max(...this.level.maxTP));
     const lines = [
-      '# LZ Scopes – Lautheitsprotokoll (ITU-R BS.1770-5, EBU Tech 3341/3342)',
-      `# Quelle;${this.label.replace(/;/g, ',')}`,
-      `# Abtastrate;${this.fs};Kanaele;${this.channels};Layout;${this.layout || (this.layoutKnown ? 'Standard' : 'unbekannt')}`,
+      t('audio.csv.title'),
+      `# ${t('audio.csv.source')};${this.label.replace(/;/g, ',')}`,
+      `# ${t('audio.csv.rate')};${this.fs};${t('audio.csv.channels')};${this.channels};Layout;${this.layout || (this.layoutKnown ? t('audio.csv.standard') : t('audio.csv.unknown'))}`,
       `# Integrated LUFS;${f(L.integrated)};LRA LU;${f(L.lra)};Max M LUFS;${f(L.maxM)};Max S LUFS;${f(L.maxS)};Max TP dBTP;${f(maxTP)};PLR dB;${f(Number.isFinite(L.integrated) ? maxTP - L.integrated : null)}`,
-      `# Messdauer s;${L.measuredSeconds.toFixed(1)};Luecken;${this.gaps};Clip-Samples;${this.level.clips.reduce((s, c) => s + c, 0)}`,
-      'Zeit (ISO 8601);M LUFS;S LUFS;True Peak dBTP;TP > -1 dBTP',
+      `# ${t('audio.csv.duration')};${L.measuredSeconds.toFixed(1)};${t('audio.csv.gaps')};${this.gaps};${t('audio.csv.clips')};${this.level.clips.reduce((s, c) => s + c, 0)}`,
+      t('audio.csv.header'),
     ];
     for (const j of this.histIndex(HISTORY)) {
       lines.push(`${new Date(this.histTime[j]).toISOString()};${f(this.histM[j])};${f(this.histS[j])};${f(this.histTP[j])};${this.histTP[j] > TP_MARK ? 'x' : ''}`);

@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { messpunkt, plaketteStream, scopeQuelle, scopeQuellName, vergleichsStreams } from '../src/renderer/lib/scopes'
 import { normaliseStream } from '../src/renderer/lib/streamEndpoints'
 import { oeffneScopeFeed, type PortEmpfang, type ScopeFeedZustand } from '../src/renderer/lib/scopeFeed'
-import { PATTERN_GROUPS_EN, PATTERN_NAMES_EN } from '../src/renderer/lib/testPatternNames'
 import { PATTERNS } from '../src/renderer/vendor/lz-scopes/src/patterns'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
 import type { StreamEndpoint } from '../src/renderer/types/stream'
@@ -120,8 +119,9 @@ describe('Transport im Renderer', () => {
 })
 
 describe('Testbild-Namen', () => {
-  it('jedes Muster aus lz-scopes hat einen englischen Namen und eine Gruppe', () => {
-    expect(PATTERNS.filter((p) => !PATTERN_NAMES_EN[p.id]).map((p) => p.id)).toEqual([])
-    expect([...new Set(PATTERNS.map((p) => p.group))].filter((g) => !PATTERN_GROUPS_EN[g])).toEqual([])
+  // lz-scopes uebersetzt Namen und Gruppen seit 10/2026 selbst (en + de).
+  it('jedes Muster aus lz-scopes hat einen Namen und eine Gruppe', () => {
+    expect(PATTERNS.filter((p) => !p.name || p.name.startsWith('pattern.')).map((p) => p.id)).toEqual([])
+    expect(PATTERNS.filter((p) => !p.group).map((p) => p.id)).toEqual([])
   })
 })

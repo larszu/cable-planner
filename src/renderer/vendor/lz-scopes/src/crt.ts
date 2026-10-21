@@ -15,6 +15,8 @@
 // 440/558 nm, long; P31 yellowish green, 0.01–1 ms). The display colours are approximations of
 // those wavelengths on an sRGB screen, not colorimetric measurements.
 
+import { t } from './i18n';
+
 export type Phosphor = 'P31' | 'P1' | 'P7';
 
 export interface CrtSettings {
@@ -40,15 +42,15 @@ export interface PhosphorDef {
 }
 
 export const PHOSPHORS: Record<Phosphor, PhosphorDef> = {
-  P31: { name: 'P31 (gelbgrün, kurz)', color: [0.55, 1, 0.25], tau: 0.5, note: 'ZnS:Cu, gelblich grün, 0,01–1 ms' },
-  P1: { name: 'P1 (grün, mittel)', color: [0.2, 1, 0.35], tau: 30, note: 'Zn₂SiO₄:Mn, grün 525 nm, 1–100 ms' },
-  P7: { name: 'P7 (blau, gelbes Nachleuchten)', color: [0.85, 1, 0.2], flash: [0.55, 0.7, 1], tau: 1500, note: '(Zn,Cd)S:Cu, blau 440 nm mit gelbem Nachleuchten 558 nm, lang' },
+  P31: { name: t('tools.crt.p31'), color: [0.55, 1, 0.25], tau: 0.5, note: t('tools.crt.p31note') },
+  P1: { name: t('tools.crt.p1'), color: [0.2, 1, 0.35], tau: 30, note: t('tools.crt.p1note') },
+  P7: { name: t('tools.crt.p7'), color: [0.85, 1, 0.2], flash: [0.55, 0.7, 1], tau: 1500, note: t('tools.crt.p7note') },
 };
 
 export const DEFAULT_CRT: CrtSettings = { on: false, phosphor: 'P31', persist: 0.5, glow: 0.35, beam: 1.5 };
 
 export const PERSIST_CHOICES: [number, string][] = [
-  [0, 'aus'], [0.5, '0,5 ms (P31)'], [30, '30 ms (P1)'], [100, '100 ms'], [300, '300 ms'], [1500, '1,5 s (P7)'], [5000, '5 s'], [-1, 'unendlich'],
+  [0, t('tools.crt.off')], [0.5, t('tools.crt.p05')], [30, '30 ms (P1)'], [100, '100 ms'], [300, '300 ms'], [1500, t('tools.crt.p15')], [5000, '5 s'], [-1, t('tools.crt.infinite')],
 ];
 
 /** Gaussian σ in device pixels from the beam FWHM in CSS pixels. */

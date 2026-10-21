@@ -90,7 +90,7 @@ await s('menue-datei', menuAuf('app.menu.file'), () => a.menueFeld(), menuTxt)
 await s('menue-werkzeuge', menuAuf('app.menu.tools'), () => a.menueFeld(), menuTxt)
 await s('geraet-gewaehlt', async () => {
   await a.zu()
-  await win.locator('.react-flow__node').filter({ hasText: 'Camera 2' }).first().click({ position: { x: 20, y: 10 } })
+  await win.locator('.react-flow__node').filter({ hasText: 'Camera 2' }).first().click({ position: { x: 20, y: 10 }, force: true })
   await warte(600)
 }, rechts, async () => rechts().innerText())
 await s('projektname-klick', async () => {
@@ -178,7 +178,7 @@ await s('bearbeiten-auswahl-aufheben', M(EDIT, 'app.menu.edit.clearSelection'), 
 await a.menue(EDIT, 'app.menu.edit.undo')
 await s('kopfleiste-rechts', null, () => kopf().getByRole('button', { name: /Undo|Rückgängig/ }).first().locator('xpath=../..'))
 await s('bearbeiten-geraet-anklicken', async () => {
-  await win.locator('.react-flow__node').filter({ hasText: 'Camera 2' }).first().click({ position: { x: 20, y: 10 } })
+  await win.locator('.react-flow__node').filter({ hasText: 'Camera 2' }).first().click({ position: { x: 20, y: 10 }, force: true })
   await warte(500)
 }, canvas)
 await s('bearbeiten-auswahl-loeschen', M(EDIT, 'app.menu.edit.delete'), canvas)
@@ -465,12 +465,7 @@ await s('handy-mehr', async () => {
   await a.dialog().getByRole('button', { name: /^(mehr|more)$/i }).first().click()
   await warte(500)
 }, () => a.dialog(), async () => a.dialogText())
-await s('handy-mitschreiben', async () => {
-  await a.dialog().getByRole('radio').nth(1).click({ force: true })
-  await warte(500)
-}, () => a.dialog(), async () => a.dialogText())
 await s('handy-sicherheitshinweise', async () => {
-  await a.dialog().getByRole('radio').nth(0).click({ force: true })
   await a.dialog().locator('summary').click()
   await warte(500)
 }, () => a.dialog(), async () => a.dialogText())

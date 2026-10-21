@@ -14,6 +14,7 @@ import { spectrumDb, thirdOctaveBands, thirdOctaveCentres, tiltDb } from './dsp/
 import { toDb } from './dsp/truepeak';
 import { AV_RATING_TEXT, BT1359, rateAv } from './dsp/avsync';
 import { avCalibration } from './avcal';
+import { lang, t } from '../i18n';
 
 export interface AudioPanelOptions {
   scale?: 'ebu9' | 'ebu18';
@@ -39,8 +40,8 @@ export const AUDIO_DEFAULTS: Required<AudioPanelOptions> = {
 export const TARGET = -23; // LUFS, EBU R 128
 export const TARGETS: Record<Required<AudioPanelOptions>['target'], { label: string; hint: string; maxS?: number }> = {
   r128: { label: 'EBU R 128: −23 LUFS, ±1 LU live, ≤ −1 dBTP', hint: 'R 128' },
-  s1: { label: 'R 128 s1 (Werbung): −23 LUFS, Max S ≤ −18 LUFS, ≤ −1 dBTP', hint: 'R 128 s1', maxS: -18 },
-  s2: { label: 'R 128 s2 (Streaming): −23 LUFS; Ausspielung −20 … −16 LUFS zulässig', hint: 'R 128 s2' },
+  s1: { label: t('audio.tgt.s1'), hint: 'R 128 s1', maxS: -18 },
+  s2: { label: t('audio.tgt.s2'), hint: 'R 128 s2' },
 };
 const TP_MAX = -1;
 const ALIGN = -18; // EBU R 68
@@ -53,7 +54,11 @@ const LABEL = 'rgba(230, 215, 170, 0.85)';
 const TEXT = '#d6d6d6';
 const OK = '#8cff9e', WARN = '#ffb44a', BAD = '#ff5c5c';
 
-export const fmt1 = (v: number | null | undefined) => (v === null || v === undefined || !Number.isFinite(v) ? '–' : v.toFixed(1).replace('.', ',').replace('-', '−'));
+/** Decimal comma in German, point in English. */
+export const dec = (s: string) => (lang() === 'de' ? s.replace('.', ',') : s);
+/** Drop a trailing ",0" / ".0". */
+const trim0 = (s: string) => s.replace(/[.,]0$/, '');
+export const fmt1 = (v: number | null | undefined) => (v === null || v === undefined || !Number.isFinite(v) ? '–' : dec(v.toFixed(1)).replace('-', '−'));
 const signed = (v: number) => (v > 0.05 ? `+${fmt1(v)}` : fmt1(v));
 
 function scaleRange(o: Required<AudioPanelOptions>): [number, number] {
@@ -82,7 +87,7 @@ export function drawAudioPanel(ctx: CanvasRenderingContext2D, scope: string, a: 
   ctx.restore();
   if (a.stale) {
     ctx.font = FONT; ctx.fillStyle = WARN; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-    ctx.fillText('kein Ton-Eingang', w - 8, 6);
+    ctx.fillText(t('audio.noInput'), w - 8, 6);
   }
 }
 
@@ -104,12 +109,12 @@ function drawMeter(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o: R
   for (let d = lo; d <= hi; d += 6) {
     const y = yDb(d);
     ctx.strokeStyle = GRID_DIM; ctx.beginPath(); ctx.moveTo(pk.x, y + 0.5); ctx.lineTo(pk.x + pk.w, y + 0.5); ctx.stroke();
-    ctx.fillStyle = LABEL; ctx.fillText(fmt1(d).replace(',0', ''), pk.x - 4, y);
+    ctx.fillStyle = LABEL; ctx.fillText(trim0(fmt1(d)), pk.x - 4, y);
   }
-  for (const [d, c, t] of [[ALIGN, OK, '−18'], [TP_MAX, BAD, '−1']] as const) {
+  for (const [d, c, mark] of [[ALIGN, OK, '−18'], [TP_MAX, BAD, '−1']] as const) {
     const y = yDb(d);
     ctx.strokeStyle = c; ctx.globalAlpha = 0.7; ctx.beginPath(); ctx.moveTo(pk.x - 2, y + 0.5); ctx.lineTo(pk.x + pk.w, y + 0.5); ctx.stroke(); ctx.globalAlpha = 1;
-    ctx.fillStyle = c; ctx.textAlign = 'left'; ctx.fillText(t, pk.x + pk.w + 2, y); ctx.textAlign = 'right';
+    ctx.fillStyle = c; ctx.textAlign = 'left'; ctx.fillText(mark, pk.x + pk.w + 2, y); ctx.textAlign = 'right';
   }
   const bw = Math.max(4, Math.min(22, (pk.w - 4) / n - 4));
   for (let c = 0; c < n; c++) {
@@ -147,7 +152,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o: R
     const y = yL(v);
     ctx.strokeStyle = Math.abs(v - TARGET) < 1e-6 ? GRID : GRID_DIM;
     ctx.beginPath(); ctx.moveTo(lb.x, y + 0.5); ctx.lineTo(lb.x + lb.w, y + 0.5); ctx.stroke();
-    ctx.fillStyle = LABEL; ctx.fillText(o.rel ? signed(v - TARGET).replace(',0', '') : String(Math.round(v)).replace('-', '−'), lb.x - 4, y);
+    ctx.fillStyle = LABEL; ctx.fillText(o.rel ? trim0(signed(v - TARGET)) : String(Math.round(v)).replace('-', '−'), lb.x - 4, y);
   }
   // target band ±1 LU
   ctx.fillStyle = 'rgba(140, 255, 158, 0.10)';
@@ -178,18 +183,18 @@ function drawMeter(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o: R
     ['M', loudText(L.momentary, o.rel)],
     ['S', loudText(L.shortTerm, o.rel), maxS !== undefined && L.shortTerm > maxS ? WARN : undefined],
     ['I', loudText(I, o.rel) + (L.paused ? ' ⏸' : ''), Number.isFinite(I) ? (Math.abs(I - TARGET) <= 1 ? OK : WARN) : undefined],
-    ['LRA', `${fmt1(lra)} LU${lra !== null && secs < 60 ? ' (unstabil)' : ''}`, lra !== null && secs < 60 ? '#8a9098' : undefined],
+    ['LRA', `${fmt1(lra)} LU${lra !== null && secs < 60 ? t('audio.m.unstable') : ''}`, lra !== null && secs < 60 ? '#8a9098' : undefined],
     ['Max M', loudText(L.maxM, o.rel)],
     ['Max S', loudText(L.maxS, o.rel), maxS !== undefined && L.maxS > maxS ? BAD : undefined],
     ['Max TP', `${fmt1(maxTP)} dBTP`, maxTP > TP_MAX ? BAD : undefined],
     ['PLR', Number.isFinite(I) && Number.isFinite(maxTP) ? `${fmt1(maxTP - I)} dB` : '– dB'],
     ['PSR', `${fmt1(a.psr)} dB`],
-    ['Zeit', `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}${L.paused ? ' Pause' : ''}`],
+    [t('audio.m.time'), `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}${L.paused ? t('audio.m.paused') : ''}`],
   ];
   const clips = lv.clips.reduce((s, c) => s + c, 0);
-  if (clips) rows.push(['Clip', `${clips} Samples ≥ 0 dBFS`, BAD]);
-  if (a.gaps) rows.push(['Lücken', `${a.gaps} (Ton fehlte)`, WARN]);
-  if (!a.layoutKnown) rows.push(['Layout', 'unbekannt: alle Kanäle Gewicht 1,0', WARN]);
+  if (clips) rows.push(['Clip', t('audio.m.clips', { n: clips }), BAD]);
+  if (a.gaps) rows.push([t('audio.m.gaps'), t('audio.m.gapsValue', { n: a.gaps }), WARN]);
+  if (!a.layoutKnown) rows.push(['Layout', t('audio.m.layoutUnknown'), WARN]);
   const big = Math.max(12, Math.min(22, b.h / 16));
   ctx.textBaseline = 'top';
   let y = ty;
@@ -217,7 +222,7 @@ function drawHistory(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o:
     const y = yL(v);
     ctx.strokeStyle = Math.abs(v - TARGET) < 1e-6 ? GRID : GRID_DIM;
     ctx.beginPath(); ctx.moveTo(r.x, y + 0.5); ctx.lineTo(r.x + r.w, y + 0.5); ctx.stroke();
-    ctx.fillStyle = LABEL; ctx.fillText(o.rel ? signed(v - TARGET).replace(',0', '') : String(Math.round(v)).replace('-', '−'), r.x - 4, y);
+    ctx.fillStyle = LABEL; ctx.fillText(o.rel ? trim0(signed(v - TARGET)) : String(Math.round(v)).replace('-', '−'), r.x - 4, y);
   }
   ctx.fillStyle = 'rgba(140, 255, 158, 0.10)';
   ctx.fillRect(r.x, yL(TARGET + 1), r.w, yL(TARGET - 1) - yL(TARGET + 1));
@@ -228,10 +233,10 @@ function drawHistory(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o:
   ctx.textBaseline = 'top';
   const marks = o.span <= 1 ? 6 : o.span <= 5 ? 5 : o.span <= 15 ? 3 : 6;
   for (let i = 0; i <= marks; i++) {
-    const x = r.x + (i / marks) * r.w, t = o.span * (1 - i / marks);
+    const x = r.x + (i / marks) * r.w, ago = o.span * (1 - i / marks);
     ctx.strokeStyle = GRID_DIM; ctx.beginPath(); ctx.moveTo(x + 0.5, r.y); ctx.lineTo(x + 0.5, r.y + r.h); ctx.stroke();
     ctx.fillStyle = LABEL; ctx.textAlign = i === 0 ? 'left' : i === marks ? 'right' : 'center';
-    ctx.fillText(t === 0 ? 'jetzt' : t >= 1 ? `−${Math.round(t * 10) / 10} min`.replace('.', ',') : `−${Math.round(t * 60)} s`, x, r.y + r.h + 4);
+    ctx.fillText(ago === 0 ? t('audio.h.now') : ago >= 1 ? dec(`−${Math.round(ago * 10) / 10} min`) : `−${Math.round(ago * 60)} s`, x, r.y + r.h + 4);
   }
   const line = (vals: Float32Array, color: string, width: number) => {
     const n = vals.length;
@@ -261,7 +266,7 @@ function drawHistory(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o:
     for (const m of overs) ctx.fillRect(r.x + (m.i / points) * r.w - 0.5, r.y, 2, 8);
     const last = overs[overs.length - 1];
     ctx.font = FONT; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-    ctx.fillText(`TP > ${fmt1(TP_MARK)} dBTP: ${overs.length}× · zuletzt ${new Date(last.time).toLocaleTimeString('de-DE')} (${fmt1(last.db)} dBTP)`, r.x + r.w - 4, r.y + 10);
+    ctx.fillText(t('audio.h.overs', { mark: fmt1(TP_MARK), n: overs.length, time: new Date(last.time).toLocaleTimeString(lang() === 'de' ? 'de-DE' : 'en-GB'), db: fmt1(last.db) }), r.x + r.w - 4, r.y + 10);
   }
   ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = FONT;
   ctx.fillStyle = 'rgba(120, 170, 230, 0.9)'; ctx.fillText(`M ${loudText(a.loud.momentary, o.rel)}`, r.x + 6, r.y + 4);
@@ -293,7 +298,7 @@ function drawSpectrum(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o
     ctx.fillStyle = LABEL; ctx.fillText(f >= 1000 ? `${f / 1000}k` : String(f), x, r.y + r.h + 4);
   }
   const n = Math.min(o.fft, 32768);
-  if (a.frames < n) { empty(ctx, b.w, b.h, 'Sammle Samples …'); return; }
+  if (a.frames < n) { empty(ctx, b.w, b.h, t('audio.sp.collecting')); return; }
   const chans = o.chan === 'lr' && a.channels >= 2 ? [0, 1] : o.chan === 'r' && a.channels >= 2 ? [1] : o.chan === 'mid' && a.channels >= 2 ? [-1] : [0];
   const colors = chans.length === 2 ? ['rgba(255, 110, 110, 0.9)', 'rgba(110, 200, 255, 0.9)'] : ['#8cff9e'];
   const st = smoothState.get(key);
@@ -340,8 +345,8 @@ function drawSpectrum(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o
   });
   smoothState.set(key, { key: skey, lines: now });
   ctx.fillStyle = LABEL; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  const chName = chans.length === 2 ? 'L rot, R blau' : chans[0] === -1 ? '(L+R)/2' : a.names[chans[0]];
-  ctx.fillText(`dBFS · FFT ${n} · ${fmt1(fs / n)} Hz/Bin${o.tilt ? ` · Neigung ${fmt1(o.tilt)} dB/Okt. um 1 kHz` : ''}${o.bands ? ' · Terzbänder' : ''} · ${chName}`, r.x + 6, r.y + 4);
+  const chName = chans.length === 2 ? t('audio.sp.lrColours') : chans[0] === -1 ? '(L+R)/2' : a.names[chans[0]];
+  ctx.fillText(`dBFS · FFT ${n} · ${fmt1(fs / n)} Hz/Bin${o.tilt ? t('audio.sp.tilt', { db: fmt1(o.tilt) }) : ''}${o.bands ? ` · ${t('audio.set.bands')}` : ''} · ${chName}`, r.x + 6, r.y + 4);
 }
 
 // ---------------------------------------------------------------- goniometer + correlation
@@ -361,7 +366,7 @@ function drawPhase(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o: R
   ctx.font = FONT; ctx.fillStyle = LABEL; ctx.textBaseline = 'middle';
   ctx.textAlign = 'center'; ctx.fillText('M', cx, cy - rad + 8); ctx.fillText('+S', cx - rad + 10, cy - 8); ctx.fillText('−S', cx + rad - 10, cy - 8);
   ctx.fillText('L', cx - d - 6, cy - d - 6); ctx.fillText('R', cx + d + 6, cy - d - 6);
-  if (a.channels < 2) { empty(ctx, b.w, b.h, 'Goniometer braucht zwei Kanäle'); return; }
+  if (a.channels < 2) { empty(ctx, b.w, b.h, t('audio.ph.needsTwo')); return; }
   const n = Math.min(4096, Math.round(a.fs * 0.05));
   const L = a.latest(0, n), R = a.latest(1, n);
   let zoom = o.zoom;
@@ -379,14 +384,14 @@ function drawPhase(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o: R
   ctx.fillStyle = LABEL; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   ctx.fillText(o.zoom ? `×${o.zoom}` : `auto ×${fmt1(zoom)}`, b.x + 8, b.y + 8);
   const pol = [a.level.polarity(0), a.level.polarity(1)];
-  if (pol[0] && pol[1] && pol.every((p) => p !== '?')) ctx.fillText(`Polarität L ${pol[0]}  R ${pol[1]}`, b.x + 8, b.y + 22);
+  if (pol[0] && pol[1] && pol.every((p) => p !== '?')) ctx.fillText(t('audio.ph.polarity', { l: pol[0], r: pol[1] }), b.x + 8, b.y + 22);
   // correlation bar −1 … +1
   const bar: Box = { x: b.x + 52, y: b.y + b.h - barH + 6, w: b.w - 104, h: 10 };
   ctx.fillStyle = '#15181c'; ctx.fillRect(bar.x, bar.y, bar.w, bar.h);
   ctx.strokeStyle = GRID_DIM; ctx.strokeRect(bar.x + 0.5, bar.y + 0.5, bar.w - 1, bar.h - 1);
   const r = a.level.correlation(o.corrMs);
   ctx.textAlign = 'center'; ctx.fillStyle = LABEL;
-  for (const v of [-1, -0.5, 0, 0.5, 1]) ctx.fillText(String(v).replace('-', '−').replace('.', ','), bar.x + ((v + 1) / 2) * bar.w, bar.y + bar.h + 3);
+  for (const v of [-1, -0.5, 0, 0.5, 1]) ctx.fillText(dec(String(v)).replace('-', '−'), bar.x + ((v + 1) / 2) * bar.w, bar.y + bar.h + 3);
   if (r !== null) {
     const x = bar.x + ((r + 1) / 2) * bar.w, x0 = bar.x + bar.w / 2;
     ctx.fillStyle = r < 0 ? BAD : r < 0.3 ? WARN : OK;
@@ -394,7 +399,7 @@ function drawPhase(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box, o: R
     ctx.fillRect(x - 1, bar.y - 2, 2, bar.h + 4);
   }
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = TEXT;
-  ctx.fillText(r === null ? '–' : (r >= 0 ? '+' : '') + r.toFixed(2).replace('.', ',').replace('-', '−'), bar.x + bar.w + 4, bar.y + bar.h / 2);
+  ctx.fillText(r === null ? '–' : (r >= 0 ? '+' : '') + dec(r.toFixed(2)).replace('-', '−'), bar.x + bar.w + 4, bar.y + bar.h / 2);
   ctx.textAlign = 'right'; ctx.fillStyle = LABEL;
   ctx.fillText(`${o.corrMs} ms`, bar.x - 4, bar.y + bar.h / 2);
 }
@@ -430,7 +435,7 @@ export function drawAudioBar(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b:
   const S = a.loud.shortTerm;
   ctx.fillStyle = Number.isFinite(S) && Math.abs(S - TARGET) <= 1 ? OK : TEXT;
   ctx.fillText(Number.isFinite(S) ? `S${Math.round(S)}` : 'S –', x0 + w / 2, top + hh + 3);
-  if (a.stale) { ctx.fillStyle = WARN; ctx.fillText('kein Ton', x0 + w / 2, top + hh + 13); }
+  if (a.stale) { ctx.fillStyle = WARN; ctx.fillText(t('audio.bar.noSound'), x0 + w / 2, top + hh + 13); }
 }
 
 // ---------------------------------------------------------------- ident + A/V offset
@@ -444,7 +449,7 @@ function drawCheck(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box) {
   const r = a.identReport();
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   ctx.font = '600 13px ui-monospace, SFMono-Regular, Menlo, monospace'; ctx.fillStyle = TEXT;
-  ctx.fillText(r.kind && r.kind !== 'tone' ? `Ident: ${r.label}` : r.kind === 'tone' ? 'Kein Ident erkannt (Ton liegt an)' : 'Kein Signal', left.x, left.y, left.w);
+  ctx.fillText(r.kind && r.kind !== 'tone' ? `Ident: ${r.label}` : r.kind === 'tone' ? t('audio.chk.noIdent') : t('audio.chk.noSignal'), left.x, left.y, left.w);
   let y = left.y + 20;
   ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
   for (const f of r.findings.slice(0, 8)) {
@@ -454,24 +459,24 @@ function drawCheck(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box) {
   }
   y += 4;
   ctx.fillStyle = '#6b7078';
-  ctx.fillText('Kanal   Pegel      Frequenz', left.x, y); y += 14;
+  ctx.fillText(t('audio.chk.header'), left.x, y); y += 14;
   for (const c of r.channels.slice(0, Math.max(0, Math.floor((left.y + left.h - y) / 13)))) {
     ctx.fillStyle = c.present ? TEXT : '#6b7078';
-    ctx.fillText(`${c.name.padEnd(6)}  ${c.present && c.levelDb !== null ? `${fmt1(c.levelDb)} dBFS`.padEnd(11) : 'stumm'.padEnd(11)}${c.present && c.freq ? `${Math.round(c.freq)} Hz` : ''}`, left.x, y);
+    ctx.fillText(`${c.name.padEnd(6)}  ${c.present && c.levelDb !== null ? `${fmt1(c.levelDb)} dBFS`.padEnd(11) : t('audio.chk.silent').padEnd(11)}${c.present && c.freq ? `${Math.round(c.freq)} Hz` : ''}`, left.x, y);
     y += 13;
   }
   // --- A/V offset
   const av = a.av.result();
   ctx.font = '600 13px ui-monospace, SFMono-Regular, Menlo, monospace'; ctx.fillStyle = TEXT;
-  ctx.fillText('A/V-Versatz (Blitz ↔ Piep)', right.x, right.y);
+  ctx.fillText(t('audio.av.title'), right.x, right.y);
   ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
   let ry = right.y + 20;
-  const say = (t: string, c = TEXT) => { ctx.fillStyle = c; ctx.fillText(t, right.x, ry, right.w); ry += 15; };
-  if (av.problem) { say(av.problem, WARN); say('Nur über die Bridge mit Bild und Ton im selben Stream (Protokoll 2).', '#8a9098'); return; }
+  const say = (text: string, c = TEXT) => { ctx.fillStyle = c; ctx.fillText(text, right.x, ry, right.w); ry += 15; };
+  if (av.problem) { say(av.problem, WARN); say(t('audio.av.bridgeOnly'), '#8a9098'); return; }
   if (av.medianMs === null) {
-    say(`Blitze ${av.flashes} · Pieps ${av.beeps} – noch kein Paar`, '#8a9098');
-    say('Testbild „A/V-Sync“ ausgeben und Generator „A/V-Sync-Piep“', '#8a9098');
-    say('in die Kette geben (Kamera/Capture mit Ton → Bridge).', '#8a9098');
+    say(t('audio.av.noPair', { flashes: av.flashes, beeps: av.beeps }), '#8a9098');
+    say(t('audio.av.howTo1'), '#8a9098');
+    say(t('audio.av.howTo2'), '#8a9098');
     return;
   }
   const rating = rateAv(av.medianMs);
@@ -480,10 +485,10 @@ function drawCheck(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box) {
   ctx.fillText(`${av.medianMs > 0.05 ? '+' : ''}${fmt1(av.medianMs)} ms`, right.x, ry);
   ry += Math.max(18, Math.min(34, right.h / 7)) + 6;
   ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
-  say(av.medianMs > 0 ? 'Ton vor dem Bild' : av.medianMs < 0 ? 'Ton nach dem Bild' : 'synchron', TEXT);
+  say(av.medianMs > 0 ? t('audio.av.before') : av.medianMs < 0 ? t('audio.av.after') : t('audio.av.sync'), TEXT);
   say(AV_RATING_TEXT[rating], rc);
-  say(`Median der letzten ${Math.min(10, av.pairs.length)} · Streuung ${fmt1(av.minMs)} … ${fmt1(av.maxMs)} ms`, '#8a9098');
-  if (av.frameMs) say(`Auflösung Bild ±${fmt1(av.frameMs / 2)} ms (${fmt1(1000 / av.frameMs)} fps)`, '#8a9098');
+  say(t('audio.av.median', { n: Math.min(10, av.pairs.length), min: fmt1(av.minMs), max: fmt1(av.maxMs) }), '#8a9098');
+  if (av.frameMs) say(t('audio.av.resolution', { ms: fmt1(av.frameMs / 2), fps: fmt1(1000 / av.frameMs) }), '#8a9098');
   // scale −200 … +100 ms with the BT.1359 bands and the recent pairs
   const sc: Box = { x: right.x + 4, y: Math.min(ry + 8, right.y + right.h - 40), w: right.w - 8, h: 12 };
   const lo = -200, hi = 100, xs = (v: number) => sc.x + ((Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo)) * sc.w;
@@ -497,5 +502,5 @@ function drawCheck(ctx: CanvasRenderingContext2D, a: AudioAnalysis, b: Box) {
   ctx.textAlign = 'left';
   const cal = avCalibration();
   ctx.fillStyle = '#6b7078';
-  ctx.fillText(`+ = Ton vor Bild (ITU-R BT.1359-1) · Bild-Vorlauf ${fmt1(cal.videoLeadMs)} ms${cal.note ? '' : ' (unkalibriert)'}`, right.x, sc.y + sc.h + 17, right.w);
+  ctx.fillText(t('audio.av.legend', { ms: fmt1(cal.videoLeadMs) }) + (cal.note ? '' : t('audio.av.uncalibrated')), right.x, sc.y + sc.h + 17, right.w);
 }

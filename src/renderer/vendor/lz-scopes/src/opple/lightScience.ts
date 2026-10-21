@@ -12,6 +12,7 @@
 import { cctDuv, planckUv } from '../calib/colorimetry';
 import { GAMUTS, gammaInverse, inv3, mul3, rgbToXyzMatrix } from '../color';
 import type { Reading } from './photometry';
+import { num, t } from '../i18n';
 
 export type XY = [number, number];
 
@@ -200,12 +201,12 @@ export function compareLights(a: Reading, b: Reading, maker: Gel['maker'] = 'Lee
 
 /** Plain-language green/magenta difference with the Lee gel that comes closest. */
 export function greenMagentaHint(dDuv: number, cctSource = 3200) {
-  if (Math.abs(dDuv) < 0.002) return 'Grün/Magenta passt (|ΔDuv| < 0,002)';
+  if (Math.abs(dDuv) < 0.002) return t('opple.gm.ok');
   const g = suggestGreenGel(dDuv, cctSource);
-  const what = dDuv > 0 ? `B ist grüner (ΔDuv ${fmt(dDuv, 4)}) → Minus Green auf B` : `B ist magentastichiger (ΔDuv ${fmt(dDuv, 4)}) → Plus Green auf B`;
-  return g ? `${what}: Lee ${g.gel.name} (ΔDuv ${fmt(g.shift, 4)}, Rest ${fmt(g.residual, 4)})` : what;
+  const what = dDuv > 0 ? t('opple.gm.greener', { d: fmt(dDuv, 4) }) : t('opple.gm.magenta', { d: fmt(dDuv, 4) });
+  return g ? `${what}: ${t('opple.gm.gel', { name: g.gel.name, shift: fmt(g.shift, 4), rest: fmt(g.residual, 4) })}` : what;
 }
-const fmt = (v: number, d: number) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(d).replace('.', ',');
+const fmt = (v: number, d: number) => (v >= 0 ? '+' : '−') + num(Math.abs(v), d);
 
 // ---------------------------------------------------------------- measuring grid
 

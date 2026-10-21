@@ -8,6 +8,7 @@
 import type { Colorspace } from './color';
 import { LUMA } from './color';
 import { encodeYuv, type YuvCoding } from './ycbcr';
+import { t } from './i18n';
 
 export interface Frame16 { data: Uint16Array; width: number; height: number; coding: YuvCoding; colorspace: Colorspace }
 
@@ -162,14 +163,14 @@ export function plugeRaster(w: number, h: number, higher: number) {
 }
 
 /** Note shown for patterns whose exact codes only reach the scopes. */
-export const NOTE_16 = 'Scopes: exakte 10-bit-Codes (16-bit-Y′CbCr-Pfad). Ausgabefenster: exakte Codes auf float16-Canvas, wo verfügbar; Pegel Full schneidet unter 0 % / über 100 % ab, „Codes 1:1“ (Taste R) behält sie.';
+export const NOTE_16 = t('pattern.note16');
 
 export interface Pattern16 { id: string; name: string; transfer?: 'pq' | 'hlg'; colorspace: Colorspace; full: boolean; raster: (w: number, h: number) => CodeRaster }
 
 export const PATTERNS_16: Pattern16[] = [
-  { id: 'bt2111-hlg', name: 'BT.2111-3 HDR-Balken HLG (narrow)', transfer: 'hlg', colorspace: '2020', full: false, raster: (w, h) => bt2111Raster('hlg', w, h) },
-  { id: 'bt2111-pq', name: 'BT.2111-3 HDR-Balken PQ (narrow)', transfer: 'pq', colorspace: '2020', full: false, raster: (w, h) => bt2111Raster('pq', w, h) },
-  { id: 'bt2111-pqfull', name: 'BT.2111-3 HDR-Balken PQ (full)', transfer: 'pq', colorspace: '2020', full: true, raster: (w, h) => bt2111Raster('pqfull', w, h) },
+  { id: 'bt2111-hlg', name: t('pattern.bt2111Hlg'), transfer: 'hlg', colorspace: '2020', full: false, raster: (w, h) => bt2111Raster('hlg', w, h) },
+  { id: 'bt2111-pq', name: t('pattern.bt2111Pq'), transfer: 'pq', colorspace: '2020', full: false, raster: (w, h) => bt2111Raster('pq', w, h) },
+  { id: 'bt2111-pqfull', name: t('pattern.bt2111PqFull'), transfer: 'pq', colorspace: '2020', full: true, raster: (w, h) => bt2111Raster('pqfull', w, h) },
 ];
 
 /** 16-bit frames for the existing BT.814 PLUGE patterns (ids in patterns.ts). */

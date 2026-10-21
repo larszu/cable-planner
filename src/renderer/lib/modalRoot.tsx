@@ -51,9 +51,9 @@ export const MODAL_BACKDROP: CSSProperties = {
 }
 
 export const MODAL_CARD: CSSProperties = {
-  background: '#1e293b',
-  color: '#e2e8f0',
-  border: '1px solid #334155',
+  background: 'var(--cp-surface-1)',
+  color: 'var(--cp-text)',
+  border: '1px solid var(--cp-border)',
   padding: 16,
   minWidth: 320,
   maxWidth: 560,
@@ -61,9 +61,9 @@ export const MODAL_CARD: CSSProperties = {
 
 export const MODAL_BUTTON_SECONDARY: CSSProperties = {
   padding: '6px 14px',
-  background: '#334155',
+  background: 'var(--cp-surface-3)',
   border: 'none',
-  color: '#e2e8f0',
+  color: 'var(--cp-text)',
   cursor: 'pointer',
   fontSize: 13,
 }

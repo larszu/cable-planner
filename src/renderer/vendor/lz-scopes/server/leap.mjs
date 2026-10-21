@@ -14,7 +14,7 @@ export const LEAP_TABLE = [
 ];
 /** The table is authoritative up to this instant ("File expires on 28 June 2027"). */
 export const LEAP_TABLE_EXPIRES_MS = Date.UTC(2027, 5, 28);
-export const LEAP_SOURCE = 'IERS Bulletin C 72 (06.07.2026), Leap_Second.dat gültig bis 28.06.2027';
+export const LEAP_SOURCE = 'IERS Bulletin C 72 (2026-07-06), Leap_Second.dat valid until 2027-06-28';
 /** MJD 40587 = 1970-01-01 (SMPTE ST 2059-1 §9.3.4 step 3: MJD = D + 40587). */
 export const MJD_UNIX = 40587;
 

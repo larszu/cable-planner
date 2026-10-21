@@ -27,7 +27,10 @@ export interface PtpWant { iface: string; delayReq: boolean; rtp: { group: strin
 class PtpClient {
   status: PtpStatus | null = null;
   /** connection state for the UI */
-  conn: 'off' | 'connecting' | 'open' | 'closed' = 'off';
+  conn: 'off' | 'connecting' | 'open' | 'closed' | 'denied' = 'off';
+  /** consent page of the bridge for this page's origin (set when access is denied) */
+  allowUrl = '';
+  private checking = false;
   receivedAt = 0;
   private ws: WebSocket | null = null;
   private wantedAt = 0;
@@ -43,13 +46,38 @@ class PtpClient {
     this.want = want;
     const url = `${bridge}/clock`;
     if (url !== this.url) { this.close(); this.url = url; }
-    if (!this.ws && !this.retry) this.open();
+    if (!this.ws && !this.retry && !this.checking) void this.open();
     this.push();
     if (!this.idle) this.idle = setInterval(() => { if (performance.now() - this.wantedAt > 3000) this.close(); }, 1000);
   }
 
-  private open() {
+  /** http(s) URL of the bridge for a ws(s) URL */
+  private httpBase() { return this.url.replace(/^ws/, 'http').replace(/\/clock$/, ''); }
+
+  /** A page from another origin needs the user's consent in the bridge (server/origins.mjs). */
+  private async open() {
+    if (this.checking) return;
     this.conn = 'connecting';
+    this.checking = true;
+    const url = this.url;
+    try {
+      const r = await fetch(`${this.httpBase()}/api/clock-access`);
+      const j = await r.json() as { allowed: boolean };
+      if (this.url !== url || (this.conn as string) === 'off') return; // closed or switched meanwhile
+      if (!j.allowed) {
+        this.conn = 'denied';
+        this.allowUrl = `${this.httpBase()}/allow?origin=${encodeURIComponent(location.origin)}`;
+        // ask again later: the user may allow it in the meantime
+        this.retry = setTimeout(() => { this.retry = null; if (performance.now() - this.wantedAt < 3000) void this.open(); }, 3000);
+        return;
+      }
+    } catch { /* old bridge without the endpoint: just try the socket */ } finally { this.checking = false; }
+    if (this.url !== url || (this.conn as string) === 'off') return;
+    this.allowUrl = '';
+    this.connect();
+  }
+
+  private connect() {
     let ws: WebSocket;
     try { ws = new WebSocket(this.url); } catch { this.conn = 'closed'; return; }
     this.ws = ws; this.sent = '';
@@ -63,7 +91,7 @@ class PtpClient {
     ws.onclose = () => {
       if (this.ws !== ws) return;
       this.ws = null; this.conn = 'closed'; this.status = null;
-      if (performance.now() - this.wantedAt < 3000) this.retry = setTimeout(() => { this.retry = null; if (performance.now() - this.wantedAt < 3000) this.open(); }, 2000);
+      if (performance.now() - this.wantedAt < 3000) this.retry = setTimeout(() => { this.retry = null; if (performance.now() - this.wantedAt < 3000) void this.open(); }, 2000);
     };
   }
 

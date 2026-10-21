@@ -690,7 +690,7 @@ await a.win.evaluate(() => {
 await a.win.reload()
 await a.win.waitForLoadState('domcontentloaded')
 await pause(3500)
-await schritt('willkommen-dialog', async () => { await pause(600) }, { ziel: () => nurTitel('project.welcome.title') })
+await schritt('willkommen-dialog', async () => { await pause(600) }, { ziel: () => nurTitel('start.title') })
 
 })
 

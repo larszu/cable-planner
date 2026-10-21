@@ -16,6 +16,7 @@ import {
   parseCalibration, parseFlickerChunk, parseMeasurement, type Calibration, type FlickerPeriod, type FlickerResult, type Model,
 } from './protocol';
 import { processMeasurement, type Reading } from './photometry';
+import { t } from '../i18n';
 
 // Minimal Web Bluetooth types (not in TypeScript's DOM lib).
 interface BtCharacteristic extends EventTarget {
@@ -38,10 +39,15 @@ export const REQUEST_OPTIONS = {
   optionalServices: [NUS_SERVICE],
 };
 
+/** Linux desktop (not Android): Chromium's Web Bluetooth is only partial there. */
+const onLinux = () => typeof navigator !== 'undefined' && /Linux/.test(navigator.userAgent) && !/Android/.test(navigator.userAgent);
+
+/** ok: usable; reason: why not, or (ok on Linux) a note that it is only partial there. */
 export function bluetoothSupport(): { ok: boolean; reason: string } {
-  if (typeof navigator === 'undefined' || !bluetooth()) return { ok: false, reason: 'Dieser Browser hat kein Web Bluetooth (Chrome/Edge oder die Desktop-App nehmen; Safari und Firefox können es nicht).' };
-  if (typeof window !== 'undefined' && window.isSecureContext === false) return { ok: false, reason: 'Web Bluetooth braucht https oder localhost.' };
-  return { ok: true, reason: '' };
+  if (typeof navigator === 'undefined' || !bluetooth()) return { ok: false, reason: t(onLinux() ? 'opple.m.linuxNoBluetooth' : 'opple.m.noWebBluetooth') };
+  // the iOS app maps navigator.bluetooth onto CoreBluetooth (src/native/webBluetooth.ts); no secure-context rule there
+  if (typeof window !== 'undefined' && window.isSecureContext === false && !(bluetooth() as { native?: boolean }).native) return { ok: false, reason: t('opple.m.needsHttps') };
+  return { ok: true, reason: onLinux() ? t('opple.m.linuxPartial') : '' };
 }
 
 /**
@@ -93,36 +99,36 @@ export class OppleMeter extends EventTarget {
   async connect(device?: BtDevice) {
     const sup = bluetoothSupport();
     if (!sup.ok) { this.status('error', sup.reason); throw new Error(sup.reason); }
-    this.status('requesting', device ? `Verbinde mit ${device.name ?? 'Light Master'} …` : 'Light Master in der Liste wählen …');
+    this.status('requesting', device ? t('opple.m.connectingTo', { name: device.name ?? 'Light Master' }) : t('opple.m.pickInList'));
     try {
       this.device = device ?? await bluetooth()!.requestDevice(REQUEST_OPTIONS);
       this.deviceName = this.device.name ?? 'Light Master';
       this.device.addEventListener('gattserverdisconnected', this.onGone);
-      this.status('connecting', `Verbinde mit ${this.deviceName} …`);
-      const server = await withTimeout(this.device.gatt!.connect(), 15000, 'Verbindung');
+      this.status('connecting', t('opple.m.connectingTo', { name: this.deviceName }));
+      const server = await withTimeout(this.device.gatt!.connect(), 15000, t('opple.m.stepConnection'));
       this.server = server;
-      const svc = await withTimeout(server.getPrimaryService(NUS_SERVICE), 15000, 'Dienstsuche');
+      const svc = await withTimeout(server.getPrimaryService(NUS_SERVICE), 15000, t('opple.m.stepServices'));
       const tx = await svc.getCharacteristic(NUS_TX);
       let rx: BtCharacteristic | null = null;
       try { rx = await svc.getCharacteristic(NUS_RX); } catch { rx = null; }
       this.tx = tx;
       this.write = tx.properties.write || tx.properties.writeWithoutResponse ? tx : rx;
-      if (!this.write) throw new Error('Keine beschreibbare Characteristic am Gerät');
+      if (!this.write) throw new Error(t('opple.m.noWritable'));
       tx.addEventListener('characteristicvaluechanged', this.onNotify);
-      await withTimeout(tx.startNotifications(), 15000, 'Benachrichtigungen');
-      this.status('calibrating', 'Lese Sensor-Kalibrierung …');
+      await withTimeout(tx.startNotifications(), 15000, t('opple.m.stepNotify'));
+      this.status('calibrating', t('opple.m.readCal'));
       this.calibration = null;
       for (let i = 0; i < 2 && !this.calibration; i++) {
         try { this.calibration = parseCalibration(await this.command(OPCODE.REQ_CAL, OPCODE.RES_CAL)); } catch { /* retry */ }
       }
       const first = await this.measure(4000);
       this.model = first.model as Model;
-      this.status('connected', `${this.model === 'lm4' ? 'Light Master 4' : 'Light Master 3'} verbunden${this.calibration ? '' : ' (ohne Kalibrierfaktoren – Werte ungenauer)'}`);
+      this.status('connected', `${t('opple.m.connected', { model: this.model === 'lm4' ? 'Light Master 4' : 'Light Master 3' })}${this.calibration ? '' : ` ${t('opple.m.noCal')}`}`);
       this.emit(first);
     } catch (e) {
       // Chromium cancels the chooser at once when the window is not focused; Electron's handler
       // takes the first Light Master found within 20 s.
-      const msg = (e as Error).name === 'NotFoundError' ? 'Kein Light Master gefunden: Gerät einschalten, in die Nähe legen und mit dem Fenster im Vordergrund erneut verbinden. (In den Bluetooth-Einstellungen des Systems erscheint es nicht – das ist normal.)' : (e as Error).message;
+      const msg = (e as Error).name === 'NotFoundError' ? t('opple.m.notFound') : (e as Error).message;
       this.cleanup();
       this.status('error', msg);
       throw e;
@@ -136,7 +142,7 @@ export class OppleMeter extends EventTarget {
       if (this.busy || this.state !== 'connected') return;
       this.busy = true;
       try { this.emit(await this.measure()); this.misses = 0; }
-      catch (e) { if (++this.misses >= 3) { this.status('error', `Gerät antwortet nicht: ${(e as Error).message}`); this.stop(); } }
+      catch (e) { if (++this.misses >= 3) { this.status('error', t('opple.m.noAnswer', { msg: (e as Error).message })); this.stop(); } }
       this.busy = false;
     }, ms);
   }
@@ -145,7 +151,7 @@ export class OppleMeter extends EventTarget {
 
   async measure(timeout = TIMEOUT): Promise<Reading> {
     const m = parseMeasurement(await this.command(OPCODE.REQ_MEAS, OPCODE.RES_MEAS, timeout));
-    if (!m) throw new Error('Messantwort nicht lesbar');
+    if (!m) throw new Error(t('opple.m.unreadable'));
     return processMeasurement(m, this.calibration);
   }
 
@@ -153,11 +159,11 @@ export class OppleMeter extends EventTarget {
 
   /** One flicker capture (LM4 only): 4 answer messages → 1024 samples → metrics. */
   private async flickerOnce(period: FlickerPeriod): Promise<FlickerResult> {
-    if (!this.server?.connected || !this.write) throw new Error('nicht verbunden');
+    if (!this.server?.connected || !this.write) throw new Error(t('opple.ui.notConnected'));
     const asm = new FlickerAssembler();
     const done = new Promise<number[]>((ok, fail) => {
-      const t = window.setTimeout(() => { this.flickerSink = null; fail(new Error('Flicker: keine vollständige Antwort')); }, 10000);
-      this.flickerSink = (m) => { const c = parseFlickerChunk(m); const w = c ? asm.feed(c) : null; if (w) { clearTimeout(t); this.flickerSink = null; ok(w); } };
+      const timer = window.setTimeout(() => { this.flickerSink = null; fail(new Error(t('opple.m.flickerIncomplete'))); }, 10000);
+      this.flickerSink = (m) => { const c = parseFlickerChunk(m); const w = c ? asm.feed(c) : null; if (w) { clearTimeout(timer); this.flickerSink = null; ok(w); } };
     });
     this.seq = (this.seq + 1) & 0xff;
     await this.writeFrames(encapsulate(buildCommand(OPCODE.REQ_FREQ, this.seq, flickerRequestBody(period))));
@@ -170,7 +176,7 @@ export class OppleMeter extends EventTarget {
    * UNTESTED WITH A DEVICE; the LM3 flicker format is not known.
    */
   async flicker(): Promise<FlickerResult> {
-    if (this.model !== 'lm4') throw new Error('Flicker-Messung ist nur für den Light Master 4 dokumentiert');
+    if (this.model !== 'lm4') throw new Error(t('opple.m.flickerLm4'));
     const wasPolling = this.polling;
     this.stop();
     while (this.busy) await new Promise((r) => setTimeout(r, 50));
@@ -212,7 +218,7 @@ export class OppleMeter extends EventTarget {
     this.stop();
     try { this.device?.gatt?.disconnect(); } catch { /* ignore */ }
     this.cleanup();
-    this.status('idle', 'getrennt');
+    this.status('idle', t('opple.m.disconnected'));
   }
 
   private emit(r: Reading) { this.dispatchEvent(new CustomEvent('reading', { detail: r })); }
@@ -221,11 +227,11 @@ export class OppleMeter extends EventTarget {
     this.stop();
     this.tx?.removeEventListener('characteristicvaluechanged', this.onNotify);
     this.device?.removeEventListener('gattserverdisconnected', this.onGone);
-    if (this.pending) { clearTimeout(this.pending.timer); this.pending.reject(new Error('getrennt')); this.pending = null; }
+    if (this.pending) { clearTimeout(this.pending.timer); this.pending.reject(new Error(t('opple.m.disconnected'))); this.pending = null; }
     this.server = null; this.tx = null; this.write = null; this.asm.reset();
   }
 
-  private onGone = () => { this.cleanup(); this.status('error', 'Verbindung verloren (Gerät aus, außer Reichweite oder von der Opple-App belegt)'); };
+  private onGone = () => { this.cleanup(); this.status('error', t('opple.m.lost')); };
 
   private onNotify = (e: Event) => {
     const dv = (e.target as BtCharacteristic).value;
@@ -251,12 +257,12 @@ export class OppleMeter extends EventTarget {
   }
 
   private command(opcode: number, response: number, timeout = TIMEOUT): Promise<Uint8Array> {
-    if (!this.server?.connected || !this.write) return Promise.reject(new Error('nicht verbunden'));
-    if (this.pending) return Promise.reject(new Error('Befehl läuft noch'));
+    if (!this.server?.connected || !this.write) return Promise.reject(new Error(t('opple.ui.notConnected')));
+    if (this.pending) return Promise.reject(new Error(t('opple.m.busy')));
     this.seq = (this.seq + 1) & 0xff;
     const frames = encapsulate(buildCommand(opcode, this.seq));
     return new Promise((resolve, reject) => {
-      const timer = window.setTimeout(() => { this.pending = null; reject(new Error('keine Antwort (Gerät wach?)')); }, timeout);
+      const timer = window.setTimeout(() => { this.pending = null; reject(new Error(t('opple.m.noReply'))); }, timeout);
       this.pending = { opcode: response, resolve, reject, timer };
       this.writeFrames(frames).catch((err) => { clearTimeout(timer); this.pending = null; reject(err); });
     });
@@ -264,6 +270,6 @@ export class OppleMeter extends EventTarget {
 }
 
 function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
-  let t = 0;
-  return Promise.race([p, new Promise<never>((_, rej) => { t = window.setTimeout(() => rej(new Error(`${what}: Zeitüberschreitung nach ${ms / 1000} s`)), ms); })]).finally(() => clearTimeout(t));
+  let timer = 0;
+  return Promise.race([p, new Promise<never>((_, rej) => { timer = window.setTimeout(() => rej(new Error(t('opple.m.timeout', { what, s: ms / 1000 }))), ms); })]).finally(() => clearTimeout(timer));
 }

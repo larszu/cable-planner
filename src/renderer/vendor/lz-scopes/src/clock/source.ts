@@ -4,6 +4,7 @@
 
 import type { Source } from '../sources';
 import { formatTc, fromFrames, parseTc, rateForFps, toFrames, type Rate, type TimeAddress } from './timecode';
+import { t } from '../i18n';
 
 export interface SourceTimecode {
   ta: TimeAddress; rate: Rate;
@@ -15,7 +16,7 @@ export interface SourceTimecode {
 }
 
 const KIND: Record<string, string> = {
-  gop: 'GOP-Timecode (MPEG-2, Bildkopf)', s12m: 'SEI-Timecode (SMPTE 12-1)', resolve: 'Resolve-Timeline',
+  gop: t('clock.tc.gop'), s12m: t('clock.tc.sei'), resolve: t('clock.tc.resolve'),
 };
 
 /** Advance a time address by a (possibly fractional) time in seconds at the stream rate. */
@@ -46,14 +47,14 @@ export function sourceTimecode(src: Source | null, now = performance.now()): Sou
     const start = parseTc(src.info?.timecode ?? '');
     if (start && Number.isFinite(pts)) {
       const t0 = Number.isFinite(src.info?.startTime ?? NaN) ? (src.info!.startTime as number) : (tc.first ?? 0);
-      return make(advance(start, rate, pts - t0), rate, 'Start-Timecode der Datei + Position', tc.at);
+      return make(advance(start, rate, pts - t0), rate, t('clock.tc.fileStart'), tc.at);
     }
   }
   if (src.isVideoFile) {
     const v = src.video;
     const rate = rateForFps(1 / src.frameDuration);
     const frames = Math.floor((v?.currentTime ?? 0) * (rate.num / rate.den) + 1e-6);
-    return make(fromFrames(frames, rate, false), rate, 'Abspielzeit der Datei (currentTime, ohne Start-Timecode)', now);
+    return make(fromFrames(frames, rate, false), rate, t('clock.tc.filePlay'), now);
   }
   return null;
 }
