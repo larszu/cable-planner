@@ -23,11 +23,11 @@ import { PanelHint } from '../../shared/PanelHint'
 
 const CONFIG_KIND_LABEL: Record<DeviceConfigKind, string> = {
   'atem-mv': 'ATEM Multiviewer Layout',
-  'atem-audio': 'ATEM Audio-Routing',
+  'atem-audio': 'ATEM audio routing',
   'videohub-labels': 'Videohub Labels',
   'videohub-routing': 'Videohub Routing',
   greengo: 'GreenGo Intercom (.gg5)',
-  other: 'Sonstige',
+  other: 'Other',
 }
 
 const CONFIG_KIND_ICON: Record<DeviceConfigKind, LucideIcon> = {
@@ -264,7 +264,7 @@ export const ConfigsTab = () => {
                           type="text"
                           value={entry.name}
                           onChange={(e) => updateDeviceConfig(entry.id, { name: e.target.value })}
-                          className="min-w-0 flex-1 border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-text"
+                          className="min-w-0 flex-[1_1_14rem] border border-cp-border bg-cp-surface-3 px-1.5 py-0.5 text-cp-text"
                         />
                         <select
                           value={entry.kind}

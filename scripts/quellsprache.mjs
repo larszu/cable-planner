@@ -72,6 +72,13 @@ const DEUTSCH = [
   'einstellungen', 'ansicht', 'auswahl', 'vorlage', 'vorlagen', 'datei',
   'dateien', 'suche', 'suchen', 'farbe', 'nummer', 'zeile', 'spalte',
   'ordner',
+  // ── 2026-10-21 (Einstellungen-Durchgang): kurze Beschriftungen, die als
+  // „unklar" durchgingen — „Sonstige" (Konfig-Art), „Linie"/„Kurve"
+  // (Routing), „Qualifikation"/„Versicherung" (Nachweis-Art), die
+  // CSV-Spalten „Bezeichnung"/„Aussteller". Gleiche Bedingung wie oben:
+  // keines davon kommt in einem englischen Fallback vor.
+  'sonstige', 'sonstiges', 'linie', 'kurve', 'qualifikation', 'versicherung',
+  'unterweisung', 'ausweis', 'bezeichnung', 'aussteller', 'abgelaufen',
 ]
 
 /** Woerter, die es nur im Englischen gibt. */
@@ -465,8 +472,17 @@ export const messeSprachmix = (wurzel, quellsprache) => {
  *
  * Grenze NULL (2026-10-21 nachgezogen, #1117).
  */
-const DATEN_BESCHRIFTUNG = /\b(?:label|description):\s*(['"])((?:[^\\]|\\.){4,}?)\1/g
+const DATEN_BESCHRIFTUNG = /\b(?:label|description|hint):\s*(['"])((?:[^\\]|\\.){4,}?)\1/g
 const MAP_ALS_FALLBACK = /\b(?:t|tr|translate)\([^()]*?,\s*([A-Z][A-Z0-9_]*)\[/g
+// 2026-10-21: Beschriftungs-Maps, die OHNE t() gerendert werden
+// (`{NACHWEIS_ART_LABEL[a]}` im JSX, `NACHWEIS_LAGE_LABEL[z.lage]` in einer
+// CSV-Zeile), waren unsichtbar — MAP_ALS_FALLBACK sieht nur Maps INNERHALB
+// eines t(). Jede Map mit Namen `*_LABEL(S)`, die irgendwo indiziert wird,
+// zaehlt deshalb mit.
+const LABEL_MAP_ZUGRIFF = /\b([A-Z][A-Z0-9_]*_LABELS?)\[/g
+// CSV-/Tabellenkoepfe: `headers: ['Art', 'Bezeichnung', …]`.
+const KOPFZEILE = /\bheaders:\s*\[([^\]]*)\]/g
+const KOPF_WERT = /(['"])((?:[^\\]|\\.){2,}?)\1/g
 const MAP_WERT = /:\s*(['"])((?:[^\\]|\\.){2,}?)\1/g
 
 export const DATEN_GRENZE = { 'src/renderer': 0, 'src/mobile': 0, 'src/viewer': 0 }
@@ -519,6 +535,45 @@ export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
       texte.push(...(hier.length > 0 ? hier : importierteMapWerte(quelle, datei, name)))
     }
     for (const text of texte) {
+      if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })
+    }
+  }
+  return funde
+}
+
+/**
+ * Beschriftungen, die OHNE t() auf den Bildschirm oder in eine Datei gehen.
+ *
+ * Gefunden am 2026-10-21 (Einstellungen-Durchgang): `NACHWEIS_ART_LABEL`
+ * stand als `{NACHWEIS_ART_LABEL[a]}` im JSX, die CSV-Kopfzeile des
+ * Nachweis-Deckblatts als `headers: ['Art', 'Bezeichnung', …]`. Beides sah
+ * keine der Messungen oben: die Fallback-Messung kennt nur t()-Aufrufe,
+ * MAP_ALS_FALLBACK nur Maps INNERHALB eines t().
+ *
+ * Zwei Formen: jede indizierte Map mit Namen `*_LABEL(S)` und jede
+ * `headers: [...]`-Liste. Die erste Messung fand Hunderte Altfaelle
+ * (Analyse-Befunde, Dokument-Exporte) — deshalb eine eigene Grenze, die nur
+ * sinken darf, statt die Grenze 0 der Daten-Messung zu reissen.
+ */
+export const OHNE_T_GRENZE = { 'src/renderer': 404, 'src/mobile': 15, 'src/viewer': 0 }
+
+export const messeOhneT = (wurzel, quellsprache) => {
+  const ziel = quellsprache === 'de' ? 'en' : 'de'
+  const funde = []
+  for (const datei of dateien(wurzel)) {
+    const rel = relative(wurzel, datei).split(sep).join('/')
+    if (rel.includes('i18n') || rel.includes('__tests__') || rel.includes('.test.')) continue
+    if (rel.startsWith('vendor/')) continue
+    const quelle = ohneKommentare(readFileSync(datei, 'utf8'))
+    const texte = []
+    for (const k of quelle.matchAll(KOPFZEILE)) {
+      texte.push(...[...k[1].matchAll(KOPF_WERT)].map((m) => m[2]))
+    }
+    for (const name of new Set([...quelle.matchAll(LABEL_MAP_ZUGRIFF)].map((m) => m[1]))) {
+      const hier = mapWerte(quelle, name)
+      texte.push(...(hier.length > 0 ? hier : importierteMapWerte(quelle, datei, name)))
+    }
+    for (const text of new Set(texte)) {
       if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })
     }
   }
@@ -630,6 +685,19 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
       daten.length > datenGrenze
         ? `\n${daten.length - datenGrenze} mehr als erlaubt: label/description in der Quellsprache schreiben, Uebersetzung ins Woerterbuch.`
         : `\nDATEN_GRENZE fuer ${wurzel} auf ${daten.length} senken.`,
+    )
+    process.exit(1)
+  }
+
+  const ohneT = messeOhneT(wurzel, sprache)
+  const ohneTGrenze = OHNE_T_GRENZE[wurzel.replace(/\/+$/, '')] ?? 0
+  console.log(`Ohne t(): ${ohneT.length} Beschriftung(en) in der anderen Sprache (Grenze ${ohneTGrenze}).`)
+  if (ohneT.length !== ohneTGrenze) {
+    if (ohneT.length > ohneTGrenze) for (const f of ohneT) console.error(`  ${f.datei}: ${f.text}`)
+    console.error(
+      ohneT.length > ohneTGrenze
+        ? `\n${ohneT.length - ohneTGrenze} mehr als erlaubt: Map-Werte/Kopfzeilen englisch schreiben und ueber t()/tr() uebersetzen.`
+        : `\nOHNE_T_GRENZE fuer ${wurzel} auf ${ohneT.length} senken.`,
     )
     process.exit(1)
   }

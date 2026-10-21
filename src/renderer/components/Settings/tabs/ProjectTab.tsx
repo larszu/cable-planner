@@ -152,7 +152,7 @@ const LibraryExportSection = () => {
 
   return (
     <SettingsCard
-      title={t('settings.project.libExport.title', 'Library Export / Import (#122)')}
+      title={t('settings.project.libExport.title', 'Library Export / Import')}
       description={t(
         'settings.project.libExport.desc',
         'Save your own device templates, groups and rack presets as a JSON file. On import, existing entries with the same name are NOT overwritten (merge-by-name).',

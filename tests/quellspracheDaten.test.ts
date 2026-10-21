@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 // @ts-expect-error — reines JS-Hilfsmodul ohne Typen, absichtlich
-import { messeDatenBeschriftungen, mapWerte, importierteMapWerte } from '../scripts/quellsprache.mjs'
+import { messeDatenBeschriftungen, messeOhneT, mapWerte, importierteMapWerte } from '../scripts/quellsprache.mjs'
 import { PRESETS } from '../src/renderer/lib/modules'
 import { de } from '../src/renderer/lib/i18n/de'
 
@@ -51,5 +51,33 @@ describe('importierte Maps', () => {
     const datei = resolve(__dirname, '../src/renderer/components/Settings/tabs/HotkeysTab.tsx')
     const werte = importierteMapWerte(readFileSync(datei, 'utf8'), datei, 'HOTKEY_ACTION_LABEL') as string[]
     expect(werte).toContain('Save project')
+  })
+})
+
+describe('Beschriftungen ohne t() (Einstellungen-Durchgang)', () => {
+  it('Nachweis-Arten, Konfig-Arten, Routing und Deckblatt-Kopf sind englisch', () => {
+    const funde = messeOhneT(resolve(__dirname, '../src/renderer'), 'en') as { datei: string }[]
+    const hier = funde.filter((f) =>
+      /nachweis|ConfigsTab|RoutingToggle|ExportDialog/.test(f.datei),
+    )
+    expect(hier).toEqual([])
+    const daten = messeDatenBeschriftungen(resolve(__dirname, '../src/renderer'), 'en') as unknown[]
+    expect(daten).toEqual([])
+  })
+
+  it('sieht eine *_LABEL-Map, die ohne t() gerendert wird, und eine headers-Liste', () => {
+    for (const k of ['qualifikation', 'in-frist', 'other']) {
+      expect(de[`nachweis.kind.${k}`] ?? de[`nachweis.state.${k}`] ?? de[`settings.configs.kind.${k}`]).toBeTruthy()
+    }
+    expect(de['nachweis.csv.kind']).toBe('Art')
+    expect(de['routing.straight.label']).toBe('Linie')
+  })
+})
+
+describe('Kategorie-Dialog', () => {
+  it('ist ein Dialog und nutzt Tokens statt Dunkel-Hex', () => {
+    const src = readFileSync(resolve(__dirname, '../src/renderer/lib/bilingualCategoryDialog.tsx'), 'utf8')
+    expect(src).toContain('role="dialog"')
+    expect(src).not.toMatch(/#0f172a|#475569|#e2e8f0|#94a3b8/)
   })
 })

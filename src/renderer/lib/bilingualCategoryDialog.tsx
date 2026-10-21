@@ -101,9 +101,12 @@ const BilingualCategoryPrompt = ({ title, initial, onDone }: Props) => {
           submit()
         }}
         style={{ ...MODAL_CARD, minWidth: 360 }}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
       >
         <div style={{ marginBottom: 8, fontSize: 14 }}>{title}</div>
-        <div style={{ marginBottom: 10, fontSize: 11, color: '#94a3b8', lineHeight: 1.4 }}>
+        <div style={{ marginBottom: 10, fontSize: 11, color: 'var(--cp-text-muted)', lineHeight: 1.4 }}>
           {t(
             'category.bilingual.hint',
             'Fill in both languages — when switching the UI language the matching label is shown. Leaving one empty is fine; the display falls back to the other language then.',
@@ -111,7 +114,7 @@ const BilingualCategoryPrompt = ({ title, initial, onDone }: Props) => {
         </div>
         {fields.map((field, idx) => (
           <label key={field.key} style={{ display: 'block', marginBottom: idx === 0 ? 8 : 0 }}>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>
+            <div style={{ fontSize: 11, color: 'var(--cp-text-muted)', marginBottom: 4 }}>
               {field.label}
             </div>
             <input
@@ -128,9 +131,9 @@ const BilingualCategoryPrompt = ({ title, initial, onDone }: Props) => {
               style={{
                 width: '100%',
                 padding: '6px 8px',
-                background: '#0f172a',
-                border: '1px solid #475569',
-                color: '#e2e8f0',
+                background: 'var(--cp-bg)',
+                border: '1px solid var(--cp-border-strong)',
+                color: 'var(--cp-text)',
                 fontSize: 14,
               }}
             />

@@ -232,7 +232,7 @@ export function SharedSyncPanel() {
         title={format(t('sync.pullTitle', 'Pull from: {path}'), { path: syncPath })}
         disabled={busy}
         onClick={() => { void handlePull() }}
-        className="flex items-center gap-1 bg-cp-surface-4 px-2 py-1 text-cp-xs text-white hover:bg-cp-surface-5 disabled:opacity-50"
+        className="flex items-center gap-1 bg-cp-surface-4 px-2 py-1 text-cp-xs text-cp-text hover:bg-cp-surface-5 disabled:opacity-50"
       >
         <Icon icon={Download} size="xs" />
         <span>{t('sync.pull', 'Pull')}</span>

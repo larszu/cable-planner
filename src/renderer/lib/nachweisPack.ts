@@ -36,15 +36,15 @@
 // REIN: keine Uhr, kein Store, kein IO. Der Stichtag kommt von aussen herein.
 // ───────────────────────────────────────────────────────────────────────────
 
-import type { Nachweis, NachweisLage } from '../types/nachweis'
+import type { Nachweis, NachweisArt, NachweisLage } from '../types/nachweis'
 import { NACHWEIS_ART_LABEL, NACHWEIS_LAGE_LABEL } from '../types/nachweis'
 import type { CsvTable } from './csv'
 
 /** Was in einer Zelle steht, wenn niemand etwas angegeben hat. */
-export const OHNE_ANGABE = 'nicht angegeben'
+export const OHNE_ANGABE = 'not stated'
 
 /** Was dort steht, wo eine Datei stehen könnte und keine benannt ist. */
-export const OHNE_DATEI = 'keine Datei benannt'
+export const OHNE_DATEI = 'no file named'
 
 /**
  * Die Lage eines Nachweises am Stichtag.
@@ -102,6 +102,8 @@ export interface PaketZeile {
   gueltigBis: string
   lage: NachweisLage
   datei: string
+  /** Die Art als Schluessel — fuer die Uebersetzung des Deckblatts. */
+  artId: NachweisArt
 }
 
 export interface NachweisPaket {
@@ -123,6 +125,7 @@ export interface NachweisPaket {
 
 const zeileVon = (n: Nachweis, stichtagIso: string): PaketZeile => ({
   nachweisId: n.id,
+  artId: n.art,
   art: NACHWEIS_ART_LABEL[n.art],
   bezeichnung: n.bezeichnung.trim() || OHNE_ANGABE,
   aussteller: n.aussteller?.trim() || OHNE_ANGABE,
@@ -159,29 +162,46 @@ export const nachweisPaket = (
  * Blatt geht an einen Kunden und wird dort allein gelesen. Auch die Nullfälle
  * stehen da — „0 abgelaufen" ist eine Aussage, ihr Fehlen wäre keine.
  */
-export const nachweisDeckblatt = (paket: NachweisPaket): CsvTable => {
+/**
+ * Uebersetzer fuer das Deckblatt. Von aussen hereingereicht, damit das Modul
+ * REIN bleibt (kein Store). Ohne ihn steht die Quellsprache (en) da.
+ */
+export type DeckblattUebersetzer = (key: string, fallback: string) => string
+
+/** Spalten des Deckblatts in der Quellsprache; im Lexikon (dataDictionary) erklaert. */
+const NACHWEIS_HEADERS = ['Kind', 'Title', 'Issuer', 'Number', 'Valid until', 'Status', 'File']
+const NACHWEIS_HEADER_KEYS = ['kind', 'title', 'issuer', 'number', 'validUntil', 'state', 'file']
+
+const quelle: DeckblattUebersetzer = (_key, fallback) => fallback
+
+export const nachweisDeckblatt = (
+  paket: NachweisPaket,
+  tx: DeckblattUebersetzer = quelle,
+): CsvTable => {
+  const zelle = (wert: string) =>
+    wert === OHNE_ANGABE
+      ? tx('nachweis.csv.notStated', OHNE_ANGABE)
+      : wert === OHNE_DATEI
+        ? tx('nachweis.csv.noFile', OHNE_DATEI)
+        : wert
   const rows: CsvTable['rows'] = paket.zeilen.map((z) => [
-    z.art,
-    z.bezeichnung,
-    z.aussteller,
-    z.nummer,
-    z.gueltigBis,
-    NACHWEIS_LAGE_LABEL[z.lage],
-    z.datei,
+    tx(`nachweis.kind.${z.artId}`, z.art),
+    zelle(z.bezeichnung),
+    zelle(z.aussteller),
+    zelle(z.nummer),
+    zelle(z.gueltigBis),
+    tx(`nachweis.state.${z.lage}`, NACHWEIS_LAGE_LABEL[z.lage]),
+    zelle(z.datei),
   ])
-  rows.push([`${paket.abgelaufen.length} abgelaufen`, '', '', '', '', '', ''])
-  rows.push([`${paket.ohneFrist.length} ohne angegebene Frist`, '', '', '', '', '', ''])
-  rows.push([`${paket.ohneDatei.length} ohne benannte Datei`, '', '', '', '', '', ''])
+  const summe = (key: string, fallback: string, n: number) => [
+    tx(key, fallback).replace('{n}', String(n)),
+    '', '', '', '', '', '',
+  ]
+  rows.push(summe('nachweis.csv.expired', '{n} expired', paket.abgelaufen.length))
+  rows.push(summe('nachweis.csv.noExpiry', '{n} without a stated expiry date', paket.ohneFrist.length))
+  rows.push(summe('nachweis.csv.noFileCount', '{n} without a named file', paket.ohneDatei.length))
   return {
-    headers: [
-      'Art',
-      'Bezeichnung',
-      'Aussteller',
-      'Nummer',
-      'Gültig bis',
-      'Lage',
-      'Datei',
-    ],
+    headers: NACHWEIS_HEADERS.map((h, i) => tx(`nachweis.csv.${NACHWEIS_HEADER_KEYS[i]}`, h)),
     rows,
   }
 }

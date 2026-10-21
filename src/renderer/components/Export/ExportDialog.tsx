@@ -23,13 +23,13 @@ import { AlertTriangle, Check, Download, Lightbulb, Package as PackageIcon } fro
 import { useTranslation, format } from '../../lib/i18n'
 import { detectLayerForConnector, type StandardLayer } from '../../lib/cableLayers'
 
-const LAYER_LABEL_DE: Record<string, string> = {
+const LAYER_LABEL: Record<string, string> = {
   video: 'Video',
   audio: 'Audio',
-  control: 'Steuerung',
-  network: 'Netzwerk',
-  power: 'Strom',
-  other: 'Sonstiges',
+  control: 'Control',
+  network: 'Network',
+  power: 'Power',
+  other: 'Other',
 }
 import { Icon } from '../shared/Icon'
 import { Spinner } from '../shared/Spinner'
@@ -1357,7 +1357,7 @@ const BomSection = () => {
           </span>
           {layerSummary.map((l) => (
             <span key={l.layer}>
-              {t(`layer.${l.layer}`, LAYER_LABEL_DE[l.layer] ?? l.layer)}:{' '}
+              {t(`layer.${l.layer}`, LAYER_LABEL[l.layer] ?? l.layer)}:{' '}
               <b className="text-cp-text-bright">{l.count}×</b>{' '}
               <span className="font-mono">{Number(l.meters.toFixed(1))} m</span>
             </span>
