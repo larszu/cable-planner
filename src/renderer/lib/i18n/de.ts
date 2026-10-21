@@ -28,6 +28,22 @@
 import type { Dict } from './dict'
 
 export const de: Dict = {
+  'panelLabels.title': 'Patchfeld-Beschriftung',
+  'panelLabels.count': '{panels} Patchfelder · {labels} beschriftete Ports',
+  'panelLabels.empty': 'Keine Patchfelder im Projekt. Im Rack-Builder anlegen.',
+  'panelLabels.template': 'Streifen-Vorlage',
+  'panelLabels.template.auto': 'Vorlage: automatisch',
+  'panelLabels.template.rj45-24': 'RJ45, 24 Ports (15,9 mm)',
+  'panelLabels.template.rj45-12': 'RJ45, Blöcke à 12 (15,9 mm)',
+  'panelLabels.template.d-16': 'D-Serie, 16 Ausschnitte (24 mm)',
+  'panelLabels.print': 'Streifen drucken',
+  'panelLabels.export': 'Datei für Etikettendrucker',
+  'panelLabels.ok': 'Patchfelder, Racks und Beschriftung stimmen überein.',
+  'panelLabels.issue.notInRack': '{device}: Patchfeld steht in keinem Rack.',
+  'panelLabels.issue.noLabels': '{device}: kein Port beschaltet, der Streifen bleibt leer.',
+  'panelLabels.issue.sides': '{device}: Vorder- und Rückseite haben verschieden viele Ports ({detail}); die Beschriftung lässt sich nicht durchreichen.',
+  'panelLabels.issue.blank': '{device}: ein Kabel endet auf der Leerblende {detail}.',
+  'panelLabels.issue.bypass': '{device}: Port {detail} verlässt das Rack am Patchfeld vorbei.',
   'about.author': 'Autor',
   'about.build': 'Build',
   'about.issueHint': 'Issues + Feature-Wünsche bitte direkt auf GitHub melden.',

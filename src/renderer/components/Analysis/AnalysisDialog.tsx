@@ -25,6 +25,7 @@ import { subnetCidr } from '../../lib/subnet'
 import { addressPlanTable, buildAddressPlan, type AddressIssue } from '../../lib/addressPlan'
 import { ipWithVlan } from '../../lib/vlanAnzeige'
 import { StreamsPanel } from '../Network/StreamsPanel'
+import { PatchPanelLabelsPanel } from '../Network/PatchPanelLabelsPanel'
 import {
   buildSwitchPortMaps,
   switchPortDescriptionBlock,
@@ -789,6 +790,9 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
 
       {/* #946 — die Streams der Geraete, mit VLAN. */}
       <StreamsPanel projectName={projectName} />
+
+      {/* #999 — Patchfeld-Beschriftung + Abgleich mit Rack- und Patchfeld-Bauer. */}
+      <PatchPanelLabelsPanel projectName={projectName} />
 
       {/* BEDARF 20 — die Adressbereiche. Sie stehen NACH den Segmenten und VOR
           der Subnetz-Uebersicht: das Segment sagt, wofuer eine VLAN da ist,
