@@ -134,6 +134,18 @@
   one undo step. In the desktop app, speak through system dictation into the
   text field (macOS: press Fn twice, Windows: Win+H); the microphone button
   appears only in browsers whose speech recognition works.
+- **Complete a plan from documents.** *AI plan generation* (command palette
+  or menu) takes block diagrams, IP lists, bills of material, floor plans and
+  other `.cableplan` files by drag & drop — PDF, Excel, CSV, images. The
+  selected AI provider (Settings → AI) reads them together with the open
+  plan and proposes only what is missing: new rooms, devices with ports, IP
+  addresses and serial numbers, cables. Empty fields of existing devices are
+  filled; a value that differs from the plan is listed as a warning and the
+  plan's value is kept. Rooms grow to fit their new devices and the rooms
+  below move down with their contents. Everything shows as a preview first
+  and goes in as one undo step; each new device and cable names the document
+  it came from. Without documents the dialog builds a new system from a
+  plain-language description.
 - **Ask Claude.** A local MCP server answers questions about the open plan.
   With write access switched on, Claude can build a system without touching
   the UI: library devices (`search_library`, `add_device`), custom devices

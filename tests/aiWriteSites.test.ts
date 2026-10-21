@@ -47,7 +47,7 @@ const RENDERER = resolve(__dirname, '..', 'src', 'renderer')
  * Abdeckung.
  */
 const CALLS_MACHINE =
-  /felderAusfuellen|suggestFromAI|suggestFromWeb|completeWithAI|generatePlanFromPrompt/
+  /felderAusfuellen|suggestFromAI|suggestFromWeb|completeWithAI|generatePlanFromPrompt|vervollstaendigePlan/
 
 /** Beruehrt den Projekt-Store. Bewusst grob, wie beim Geraete-Register. */
 const TOUCHES_PLAN = /useProjectStore|projectStore/

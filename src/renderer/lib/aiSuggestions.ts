@@ -297,6 +297,7 @@ const callGemini = async (
     ...(opts.webSearch ? { tools: [{ google_search: {} }] } : {}),
     generationConfig: {
       ...(opts.webSearch ? {} : { responseMimeType: 'application/json' }),
+      ...(opts.maxTokens ? { maxOutputTokens: opts.maxTokens } : {}),
       temperature: 0.2,
     },
   }
@@ -323,7 +324,16 @@ interface AiCallOptions {
    * Namen allein raet jedes Modell die Produktfamilie, nicht das Geraet.
    */
   webSearch?: boolean
+  /**
+   * Obergrenze der Antwort. Ein ganzer Plan aus mehreren Dokumenten braucht
+   * weit mehr als die 16000 Token einer Port-Liste; Claude streamt dann, weil
+   * eine so lange Antwort ohne Stream in den HTTP-Timeout laeuft.
+   */
+  maxTokens?: number
 }
+
+/** Anhang als Data-URI: Bild (`image/*`) oder PDF (`application/pdf`). */
+const istPdf = (mime: string): boolean => mime === 'application/pdf'
 
 const callClaude = async (
   apiKey: string,
@@ -336,9 +346,12 @@ const callClaude = async (
   const model = override?.model ?? PROVIDERS.claude.defaultModel
   const url = `${base}/messages`
   const workspaceId = getClaudeWorkspaceId().trim()
+  const maxTokens = opts.maxTokens ?? 16000
+  const stream = maxTokens > 16000
   const body: Record<string, unknown> = {
     model,
-    max_tokens: 16000,
+    max_tokens: maxTokens,
+    ...(stream ? { stream: true } : {}),
     // Verweigert ein Sicherheitsfilter, beantwortet ein anderes Modell.
     fallbacks: 'default',
     ...(opts.webSearch
@@ -353,7 +366,10 @@ const callClaude = async (
             : [
                 ...images.map((uri) => {
                   const { mime, data } = zerlegeDataUri(uri)
-                  return { type: 'image', source: { type: 'base64', media_type: mime, data } }
+                  return {
+                    type: istPdf(mime) ? 'document' : 'image',
+                    source: { type: 'base64', media_type: mime, data },
+                  }
                 }),
                 { type: 'text', text: prompt },
               ],
@@ -385,6 +401,7 @@ const callClaude = async (
     }
     throw new Error(`Claude API ${res.status}: ${text.slice(0, 200)}`)
   }
+  if (stream) return leseClaudeStream(res)
   const json = (await res.json()) as {
     stop_reason?: string
     content?: Array<{ type?: string; text?: string }>
@@ -398,7 +415,49 @@ const callClaude = async (
     .join('')
 }
 
-const callOpenAI = async (apiKey: string, prompt: string, images: string[] = []): Promise<string> => {
+/** Text aus einem Server-Sent-Events-Strom der Messages-API zusammensetzen. */
+export const leseClaudeStream = async (res: Response): Promise<string> => {
+  if (!res.body) throw new Error('Claude API: empty stream')
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let puffer = ''
+  let text = ''
+  let stopReason = ''
+  const zeile = (z: string) => {
+    if (!z.startsWith('data:')) return
+    const ev = JSON.parse(z.slice(5).trim()) as {
+      type?: string
+      delta?: { type?: string; text?: string; stop_reason?: string }
+      error?: { message?: string }
+    }
+    if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') text += ev.delta.text ?? ''
+    if (ev.type === 'message_delta' && ev.delta?.stop_reason) stopReason = ev.delta.stop_reason
+    if (ev.type === 'error') throw new Error(`Claude API: ${ev.error?.message ?? 'stream error'}`)
+  }
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (value) puffer += decoder.decode(value, { stream: true })
+    let i
+    while ((i = puffer.indexOf('\n')) !== -1) {
+      zeile(puffer.slice(0, i).trimEnd())
+      puffer = puffer.slice(i + 1)
+    }
+    if (done) break
+  }
+  if (puffer.trim()) zeile(puffer.trim())
+  if (stopReason === 'refusal') throw new Error('Claude API: request declined')
+  if (stopReason === 'max_tokens') {
+    throw new Error('Claude API: the answer was cut off at the token limit — split the documents into smaller batches.')
+  }
+  return text
+}
+
+const callOpenAI = async (
+  apiKey: string,
+  prompt: string,
+  images: string[] = [],
+  opts: AiCallOptions = {},
+): Promise<string> => {
   const override = overrideFor<{ base?: string; model?: string }>('__CABLE_PLANNER_OPENAI__')
   const base = override?.base ?? 'https://api.openai.com/v1'
   const model = override?.model ?? PROVIDERS.openai.defaultModel
@@ -406,6 +465,7 @@ const callOpenAI = async (apiKey: string, prompt: string, images: string[] = [])
   const body = {
     model,
     temperature: 0.2,
+    ...(opts.maxTokens ? { max_completion_tokens: Math.min(opts.maxTokens, 16384) } : {}),
     response_format: { type: 'json_object' },
     messages: [
       {
@@ -415,7 +475,11 @@ const callOpenAI = async (apiKey: string, prompt: string, images: string[] = [])
             ? prompt
             : [
                 { type: 'text', text: prompt },
-                ...images.map((uri) => ({ type: 'image_url', image_url: { url: uri } })),
+                ...images.map((uri, i) =>
+                  istPdf(zerlegeDataUri(uri).mime)
+                    ? { type: 'file', file: { filename: `document-${i + 1}.pdf`, file_data: uri } }
+                    : { type: 'image_url', image_url: { url: uri } },
+                ),
               ],
       },
     ],
@@ -498,6 +562,6 @@ export const completeWithAI = async (
     case 'claude':
       return callClaude(key, prompt, images, opts)
     case 'openai':
-      return callOpenAI(key, prompt, images)
+      return callOpenAI(key, prompt, images, opts)
   }
 }

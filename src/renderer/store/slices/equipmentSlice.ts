@@ -47,6 +47,7 @@ export type EquipmentSlice = Pick<
   | 'importEquipment'
   | 'syncImportedEquipment'
   | 'insertGeneratedPlan'
+  | 'applyPlanErgaenzung'
   | 'updateEquipment'
   | 'deleteEquipment'
   | 'setActiveDeviceMode'
@@ -169,6 +170,39 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
           ...state.project,
           equipment: [...state.project.equipment, ...equipment.map((e) => mitKatalogTyp(e))],
           cables: [...state.project.cables, ...cables],
+        }),
+      }
+    }),
+  applyPlanErgaenzung: (erg) =>
+    set((state) => {
+      if (isProjectLocked(state)) return state
+      const aenderung = new Map(erg.geraeteAenderungen.map((a) => [a.equipmentId, a]))
+      const lage = new Map(erg.geraetePosition.map((p) => [p.equipmentId, p]))
+      const rahmen = new Map(erg.raumGeometrie.map((g) => [g.id, g]))
+      const equipment = state.project.equipment.map((item) => {
+        const a = aenderung.get(item.id)
+        const p = lage.get(item.id)
+        if (!a && !p) return item
+        return {
+          ...item,
+          ...(a?.patch ?? {}),
+          ...(p ? { x: p.x, y: p.y } : {}),
+          inputs: [...item.inputs, ...(a?.inputs ?? []).map((q) => sanitizePort(q, q.name))],
+          outputs: [...item.outputs, ...(a?.outputs ?? []).map((q) => sanitizePort(q, q.name))],
+        }
+      })
+      return {
+        project: touchProject({
+          ...state.project,
+          equipment: [...equipment, ...erg.neueGeraete.map((e) => mitKatalogTyp(e))],
+          cables: [...state.project.cables, ...erg.neueKabel],
+          locations: [
+            ...(state.project.locations ?? []).map((l) => {
+              const g = rahmen.get(l.id)
+              return g ? { ...l, ...g } : l
+            }),
+            ...erg.neueRaeume,
+          ],
         }),
       }
     }),
