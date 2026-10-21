@@ -458,7 +458,7 @@ export const messeSprachmix = (wurzel, quellsprache) => {
  */
 const DATEN_BESCHRIFTUNG = /\b(?:label|description):\s*(['"])((?:[^\\]|\\.){4,}?)\1/g
 
-export const DATEN_GRENZE = { 'src/renderer': 37, 'src/mobile': 0, 'src/viewer': 0 }
+export const DATEN_GRENZE = { 'src/renderer': 28, 'src/mobile': 0, 'src/viewer': 0 }
 
 export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'
