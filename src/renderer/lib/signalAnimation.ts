@@ -180,6 +180,32 @@ export interface FlowOptions {
  * sondern die Betriebsart-Anzeige am Canvas — und die ist Pflicht, nicht
  * Zierde.
  */
+// Ein Index je Snapshot statt `links.find` je Kante: bei 500 Kabeln waere
+// das sonst 500 x 500 Vergleiche pro Takt. Der Snapshot ist unveraenderlich,
+// also reicht die Referenz als Schluessel.
+const linkIndexCache = new WeakMap<LiveSnapshot, Map<string, LiveLink>>()
+export const linkIndex = (snapshot: LiveSnapshot): Map<string, LiveLink> => {
+  let m = linkIndexCache.get(snapshot)
+  if (!m) {
+    m = new Map(snapshot.links.map((l) => [l.cableId, l]))
+    linkIndexCache.set(snapshot, m)
+  }
+  return m
+}
+
+/**
+ * Kann in diesem Snapshot noch etwas veralten? Solange ja, muss der Takt
+ * laufen; danach steht alles auf Schema, und weiteres Ticken aendert nichts.
+ */
+export const hatFrischeMeldung = (
+  snapshot: LiveSnapshot,
+  now: number,
+  staleAfterMs: number = LIVE_STALE_AFTER_MS,
+): boolean => {
+  const frisch = (at: number | undefined) => typeof at === 'number' && now - at <= staleAfterMs
+  return frisch(snapshot.lastContactAt) || snapshot.links.some((l) => frisch(l.at)) || snapshot.tally.some((t) => frisch(t.at))
+}
+
 export const edgeFlow = (
   cable: Pick<Cable, 'id' | 'bidirectional'>,
   snapshot: LiveSnapshot | null | undefined,
@@ -193,23 +219,23 @@ export const edgeFlow = (
 
   const { live } = liveFreshness(snapshot, now, staleAfterMs)
   if (!live) {
-    return { kind: 'schema', animate: opts.motion, direction, dimmed: false, ageMs: null }
+    return { kind: 'schema', animate: false, direction, dimmed: false, ageMs: null }
   }
 
-  const eintrag = snapshot?.links.find((l) => l.cableId === cable.id)
+  const eintrag = snapshot ? linkIndex(snapshot).get(cable.id) : undefined
   if (!eintrag) {
     // Live gilt, aber ueber DIESE Strecke ist nichts bekannt. Das ist kein
     // „aus" — es ist keine Aussage, und die richtige Darstellung dafuer ist
     // das Schema. Sie hier als tot zu zeichnen waere eine Behauptung ueber
     // ein Kabel, das niemand gemessen hat.
-    return { kind: 'schema', animate: opts.motion, direction, dimmed: false, ageMs: null }
+    return { kind: 'schema', animate: false, direction, dimmed: false, ageMs: null }
   }
 
   const ageMs = Math.max(0, now - eintrag.at)
   if (ageMs > staleAfterMs) {
     // Der Gesamtkontakt ist frisch, diese eine Meldung nicht. Auch hier:
     // Schema, nicht der alte Wert.
-    return { kind: 'schema', animate: opts.motion, direction, dimmed: false, ageMs: null }
+    return { kind: 'schema', animate: false, direction, dimmed: false, ageMs: null }
   }
 
   switch (eintrag.state) {

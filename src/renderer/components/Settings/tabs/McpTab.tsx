@@ -10,6 +10,7 @@
 // nichts, Stufe 1), und sie zeigt den Befehl zum Einrichten, damit niemand
 // das Token von Hand abschreibt.
 // ───────────────────────────────────────────────────────────────────────────
+import { useVisiblePolling } from '../../../hooks/useVisiblePolling'
 import { useCallback, useEffect, useState } from 'react'
 import { Copy, Play, RefreshCw, Square } from 'lucide-react'
 import { cablePlannerApi, hasDesktopBridge, type McpStatus } from '../../../lib/bridge'
@@ -94,7 +95,9 @@ export const McpTab = () => {
 
   const laden = useCallback(async () => {
     if (!hasDesktopBridge) return
-    setStatus(await cablePlannerApi.mcp.status())
+    const neu = await cablePlannerApi.mcp.status()
+    // Nur bei echter Aenderung neu rendern — der Takt fragt alle 5 s.
+    setStatus((alt) => (JSON.stringify(alt) === JSON.stringify(neu) ? alt : neu))
   }, [])
 
   useEffect(() => {
@@ -122,20 +125,10 @@ export const McpTab = () => {
     }
   }
 
-  useEffect(() => {
-    // Der Status trägt die Angabe „ein Client hat gefragt"; sie veraltet,
-    // also wird sie nachgesehen, solange diese Seite offen ist.
-    //
-    // Der erste Blick liegt im Timeout und nicht direkt im Effekt: ein
-    // `setState` unmittelbar im Effekt loest eine zweite Renderrunde aus,
-    // bevor die erste auf dem Schirm ist (`react-hooks/set-state-in-effect`).
-    const sofort = window.setTimeout(() => void laden(), 0)
-    const uhr = window.setInterval(() => void laden(), 5000)
-    return () => {
-      window.clearTimeout(sofort)
-      window.clearInterval(uhr)
-    }
-  }, [laden])
+  // Der Status trägt die Angabe „ein Client hat gefragt"; sie veraltet,
+  // also wird sie nachgesehen, solange diese Seite offen und das Fenster
+  // sichtbar ist.
+  useVisiblePolling(laden, 5000, { enabled: hasDesktopBridge })
 
   const starten = async () => {
     setFehler(null)

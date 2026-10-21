@@ -421,6 +421,13 @@ html[data-cp-shell='app'] #root {
 .cp-flow--reverse {
   animation-name: cp-flow-reverse;
 }
+/* Niemand sieht hin (Fenster verborgen/ohne Fokus) oder die Striche sind
+ * zu klein: anhalten statt jeden Frame 500 Pfade neu zu malen
+ * (`useFlowPause`). */
+.cp-flow-pausiert .cp-flow,
+.cp-flow-weit .cp-flow {
+  animation-play-state: paused;
+}
 
 /* ── Light theme: remap dark Tailwind slate classes ────────────────────────
  *

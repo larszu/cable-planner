@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import {
   EMPTY_LIVE,
+  hatFrischeMeldung,
   LIVE_STALE_AFTER_MS,
   liveFreshness,
   type LiveLink,
@@ -31,6 +32,12 @@ import {
 interface LiveState {
   snapshot: LiveSnapshot
   /**
+   * Gemeinsame Uhr fuer ALLE Kanten und Knoten. Ein Takt fuer den ganzen
+   * Canvas statt eines Intervalls je Kante; er laeuft nur, solange etwas
+   * noch veralten kann (`startLiveTicker`).
+   */
+  clock: number
+  /**
    * Eine Runde Beobachtungen uebernehmen. `lastContactAt` wird HIER gesetzt
    * und nicht vom Einspeiser mitgegeben: „wann haben wir zuletzt etwas
    * gehoert" ist eine Aussage ueber die Verbindung, nicht ueber die Daten,
@@ -57,8 +64,10 @@ interface LiveState {
 
 export const useLiveStore = create<LiveState>((set) => ({
   snapshot: EMPTY_LIVE,
+  clock: Date.now(),
   melde: (teil, now) =>
     set((s) => ({
+      clock: Math.max(now, Date.now()),
       snapshot: {
         links: teil.links ?? s.snapshot.links,
         tally: teil.tally ?? s.snapshot.tally,
@@ -67,7 +76,11 @@ export const useLiveStore = create<LiveState>((set) => ({
     })),
   verbindungWeg: (teil) =>
     set((s) => {
-      if (!teil) return { snapshot: EMPTY_LIVE }
+      // Nichts zu raeumen: denselben Zustand zurueckgeben. Die Abfragen melden
+      // ein fehlendes Geraet in jeder Runde, und ein neuer Snapshot je Runde
+      // liesse jede Kante nachrechnen, ohne dass sich etwas aendert.
+      if (!teil) return s.snapshot === EMPTY_LIVE ? s : { snapshot: EMPTY_LIVE }
+      if (s.snapshot[teil].length === 0) return s
       return {
         snapshot: {
           ...s.snapshot,
@@ -89,3 +102,31 @@ export const useLiveStore = create<LiveState>((set) => ({
 export const LIVE_TICK_MS = 1000
 
 export { LIVE_STALE_AFTER_MS, liveFreshness }
+
+let tickerId: number | undefined
+const pruefeTicker = (): void => {
+  if (typeof window === 'undefined') return
+  const { snapshot } = useLiveStore.getState()
+  const noetig = hatFrischeMeldung(snapshot, Date.now())
+  if (noetig && tickerId === undefined) {
+    tickerId = window.setInterval(() => {
+      useLiveStore.setState({ clock: Date.now() })
+      // Der letzte Takt setzt die Uhr noch, damit der Rueckfall aufs Schema
+      // sichtbar wird — erst dann steht der Takt.
+      if (!hatFrischeMeldung(useLiveStore.getState().snapshot, Date.now())) {
+        window.clearInterval(tickerId)
+        tickerId = undefined
+      }
+    }, LIVE_TICK_MS)
+  } else if (!noetig && tickerId !== undefined) {
+    window.clearInterval(tickerId)
+    tickerId = undefined
+    useLiveStore.setState({ clock: Date.now() })
+  }
+}
+useLiveStore.subscribe((s, prev) => {
+  if (s.snapshot !== prev.snapshot) pruefeTicker()
+})
+
+/** Nur fuer Tests: laeuft der gemeinsame Takt gerade? */
+export const liveTickerLaeuft = (): boolean => tickerId !== undefined

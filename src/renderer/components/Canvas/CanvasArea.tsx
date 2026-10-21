@@ -52,6 +52,8 @@ import type { Cable } from '../../types/cable'
 import { EquipmentNode } from './EquipmentNode'
 import { useCanvasCableRouter } from './useCanvasCableRouter'
 import { useCanvasKeyboardShortcuts } from './useCanvasKeyboardShortcuts'
+import { FLOW_MIN_ZOOM, useFlowPause } from '../../hooks/useCanvasFlow'
+import { useAlleElementeRendern } from '../../lib/alleElementeRendern'
 import { CableEdge } from './CableEdge'
 import { CanvasToolbar } from './CanvasToolbar'
 import { LocationFrameNode } from './LocationFrameNode'
@@ -99,6 +101,19 @@ const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode, grund
  *  verbuchen — die Geraete-Logik in `onNodesChange` bekommt sie nie zu sehen. */
 const istEigenerKnoten = (id: string, symbolIds: Set<string>) => etageAusKnotenId(id) !== undefined || symbolIds.has(id)
 const edgeTypes = { cable: CableEdge }
+
+// Ab dieser Planmenge zeichnet ReactFlow nur, was im Ausschnitt liegt.
+// Darunter lohnt die Sichtbarkeitsrechnung nicht. Ausgaben schalten es ueber
+// `mitAllenElementen` ab; MCP, Pruefen und DXF lesen den Store, nicht das DOM.
+const GROSSER_PLAN_KNOTEN = 150
+const GROSSER_PLAN_KANTEN = 250
+
+/** Haelt die Fluss-Animation an, wenn sie niemand sieht (`useFlowPause`). */
+const FlowPause = () => {
+  const weit = useFlowStore((s) => s.transform[2] < FLOW_MIN_ZOOM)
+  useFlowPause(weit)
+  return null
+}
 
 type CanvasMode = 'main' | 'rack'
 
@@ -602,6 +617,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // Briefly flash a node red when its drag is rejected due to overlap, so the
   // user understands why the device snapped back (not a glitch).
   const [overlapFlashId, setOverlapFlashId] = useState<string | null>(null)
+  // Waehrend eines Zugs steht die Minikarte nicht: sie zeichnete sonst jeden
+  // Mausschritt aller Knoten mit.
+  const [zieht, setZieht] = useState(false)
+  const exportRendertAlles = useAlleElementeRendern((s) => s.aktiv > 0)
   // v7.9.67 / #178 — Rechtsklick-Kontextmenü pro Node. {clientX, clientY} sind
   // Screen-Pixel (für die Position des Fixed-Overlays), nodeId/nodeType
   // identifizieren das angeklickte Element. null = Menu geschlossen.
@@ -1416,6 +1435,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // Nodes (Multi-Select-Drag) werden eingefroren, damit shift-axis-lock
       // pro Node die korrekte Achse klemmen kann.
       shiftKeyRef.current = event.shiftKey
+      setZieht(true)
       dragStartPositionsRef.current.clear()
       const snapshot = (id: string) => {
         const rfNode = rfNodes.find((n) => n.id === id)
@@ -1463,6 +1483,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   )
 
   const onNodeDragStop = useCallback((_event: React.MouseEvent, node: Node) => {
+    setZieht(false)
     // Plan und Symbole schreiben ihre Lage in `eigeneKnotenAendern`.
     if (node.type === 'grundriss' || node.type === 'symbol') {
       draggingIdsRef.current.clear()
@@ -2212,6 +2233,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           return node
         })}
         edges={angezeigteKanten}
+        onlyRenderVisibleElements={
+          !exportRendertAlles &&
+          (rfNodes.length > GROSSER_PLAN_KNOTEN || angezeigteKanten.length > GROSSER_PLAN_KANTEN)
+        }
         nodesDraggable={!interactionLocked && !projectIsLocked}
         nodesConnectable={!projectIsLocked}
         elementsSelectable={!interactionLocked}
@@ -2342,7 +2367,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             das frühere onMoveEnd, das programmatischen Zoom nicht erfasste. */}
         <ViewportStateSync onChange={setCanvasState} />
         <GriffZoom />
-        <MiniMap pannable zoomable
+        <FlowPause />
+        {!zieht && <MiniMap pannable zoomable
           className="!bg-cp-surface-1"
           // Ruhige Minikarte (2026-10-14): Geraete als gedaempfte Flaechen,
           // der sichtbare Ausschnitt nur leicht abgesetzt statt als
@@ -2350,7 +2376,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           nodeColor="var(--cp-text-dimmer)"
           nodeStrokeColor="transparent"
           maskColor={effectiveCanvasTheme === 'light' ? 'rgba(22,24,29,0.05)' : 'rgba(0,0,0,0.22)'}
-        />
+        />}
         <Controls />
         {/* Issue #71: background pattern is user-configurable. When the
             user picked 'none' we omit the component entirely so React

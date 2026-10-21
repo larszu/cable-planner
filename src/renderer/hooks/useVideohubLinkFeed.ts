@@ -1,6 +1,8 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
+import { useVisiblePolling } from './useVisiblePolling'
+import type { EquipmentItem } from '../types/equipment'
 import { cablePlannerApi, hasDesktopBridge } from '../lib/bridge'
-import { useCanvasProjectStore as useProjectStore } from '../store/projectStoreContext'
+import { useCanvasProjectStore as useProjectStore, useCanvasProjectStoreInstance } from '../store/projectStoreContext'
 import { useLiveStore } from '../store/liveStore'
 import { videohubLinks } from '../lib/videohubLinks'
 import { detectDeviceKind } from '../lib/deviceKind'
@@ -27,48 +29,42 @@ import { detectDeviceKind } from '../lib/deviceKind'
  */
 const HUB_TICK_MS = 2000
 
+const ersterHub = (equipment: readonly EquipmentItem[]) =>
+  equipment.find((e) => detectDeviceKind(e) === 'videohub' && (e.ipAddress ?? '').trim() !== '')
+
 export const useVideohubLinkFeed = (): void => {
-  const equipment = useProjectStore((s) => s.project.equipment)
-  const cables = useProjectStore((s) => s.project.cables)
+  const storeApi = useCanvasProjectStoreInstance()
+  // Nur die Adresse abonnieren: vorher begann die Schleife bei JEDER
+  // Aenderung an Geraeten oder Kabeln neu.
+  const host = useProjectStore((s) => (ersterHub(s.project.equipment)?.ipAddress ?? '').trim())
   const melde = useLiveStore((s) => s.melde)
   const verbindungWeg = useLiveStore((s) => s.verbindungWeg)
 
   useEffect(() => {
-    if (!hasDesktopBridge) return
-    const hub = equipment.find(
-      (e) => detectDeviceKind(e) === 'videohub' && (e.ipAddress ?? '').trim() !== '',
-    )
-    if (!hub) {
-      // Kein Hub im Plan oder keiner mit Adresse: nichts zu melden, und
-      // nichts stehen lassen, was von einem frueheren Plan stammt.
-      verbindungWeg('links')
-      return
-    }
+    // Kein Hub im Plan oder keiner mit Adresse: nichts zu melden, und
+    // nichts stehen lassen, was von einem frueheren Plan stammt.
+    if (hasDesktopBridge && !host) verbindungWeg('links')
+  }, [host, verbindungWeg])
 
-    let lebt = true
-    const runde = async () => {
-      if (!lebt) return
-      try {
-        const antwort = await cablePlannerApi.videohub.readState({
-          host: (hub.ipAddress ?? '').trim(),
-          port: 9990,
-        })
-        if (!lebt) return
-        if (!antwort.ok || !antwort.state) {
-          verbindungWeg('links')
-          return
-        }
-        melde({ links: videohubLinks(hub, cables, antwort.state, Date.now()) }, Date.now())
-      } catch {
-        if (lebt) verbindungWeg('links')
+  const runde = useCallback(async () => {
+    try {
+      const antwort = await cablePlannerApi.videohub.readState({ host, port: 9990 })
+      if (!antwort.ok || !antwort.state) {
+        verbindungWeg('links')
+        return false
       }
+      const { equipment, cables } = storeApi.getState().project
+      const hub = ersterHub(equipment)
+      if (!hub) return true
+      melde({ links: videohubLinks(hub, cables, antwort.state, Date.now()) }, Date.now())
+      return true
+    } catch {
+      verbindungWeg('links')
+      return false
     }
+  }, [host, storeApi, melde, verbindungWeg])
 
-    void runde()
-    const timer = window.setInterval(() => void runde(), HUB_TICK_MS)
-    return () => {
-      lebt = false
-      window.clearInterval(timer)
-    }
-  }, [equipment, cables, melde, verbindungWeg])
+  // Unerreichbarer Hub: Pause bis 30 s gestreckt — jeder Versuch ist ein
+  // TCP-Verbindungsaufbau mit Zeitueberschreitung. Verborgenes Fenster: Pause.
+  useVisiblePolling(runde, HUB_TICK_MS, { enabled: hasDesktopBridge && !!host, maxBackoffMs: 30_000, resetKey: host })
 }

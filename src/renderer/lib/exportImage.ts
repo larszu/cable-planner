@@ -7,6 +7,7 @@
 // want to maintain in two places. The capture is done with html-to-image
 // directly so the output skips jsPDF entirely.
 
+import { mitAllenElementen } from './alleElementeRendern'
 import { toJpeg, toPng, toSvg } from 'html-to-image'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { buildExportFilename } from './exportFilename'
@@ -165,7 +166,11 @@ const buildFooter = (
   return el
 }
 
-const captureViewport = async (
+// Ausgaben lesen den Plan aus dem DOM: vorher alles zeichnen lassen.
+const captureViewport: typeof captureViewportAusschnitt = (...args) =>
+  mitAllenElementen(() => captureViewportAusschnitt(...args))
+
+const captureViewportAusschnitt = async (
   format: ImageExportFormat,
   backgroundTheme: 'dark' | 'light',
   pixelRatio: number,

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useVisiblePolling } from '../../hooks/useVisiblePolling'
+import { useState } from 'react'
 import { cablePlannerApi, type StreamSnapshotResult } from '../../lib/bridge'
 import { format, useTranslation } from '../../lib/i18n'
 import { protokollName, vorschauQuelle, vorschauStream, zugangsSchluessel } from '../../lib/streamEndpoints'
@@ -41,27 +42,22 @@ export const StreamPreviewTile = ({ streams, isLight }: { streams: StreamEndpoin
   const [live, setLive] = useState(false)
   const stand = abruf && abruf.url === url ? abruf.r : null
 
-  useEffect(() => {
-    if (!url || !freigegeben || !weg || !protocol || live) return
-    let aktiv = true
-    const holen = async () => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
+  // Antworten, die sich nicht von selbst aendern, werden nicht wiederholt:
+  // jede Wiederholung waere Last ohne Nutzen. Nicht erreichbar: Pause bis
+  // eine Minute gestreckt. Verborgenes Fenster: Pause (`useVisiblePolling`).
+  const endgueltig =
+    !!stand && !stand.ok && ['desktop-only', 'not-local', 'no-ffmpeg', 'unsupported', 'invalid-url'].includes(stand.code)
+  useVisiblePolling(
+    async () => {
+      if (!url || !weg || !protocol) return
       const r = await cablePlannerApi.streamPreview.snapshot({ credentialId, weg, protocol, url })
-      if (!aktiv || (!r.ok && r.code === 'busy')) return
+      if (!r.ok && r.code === 'busy') return
       setAbruf({ url, r })
-      // Antworten, die sich nicht von selbst aendern, werden nicht wiederholt:
-      // jede Wiederholung waere Last ohne Nutzen.
-      if (!r.ok && ['desktop-only', 'not-local', 'no-ffmpeg', 'unsupported', 'invalid-url'].includes(r.code)) {
-        clearInterval(uhr)
-      }
-    }
-    const uhr = setInterval(() => void holen(), STREAM_PREVIEW_INTERVAL_MS)
-    void holen()
-    return () => {
-      aktiv = false
-      clearInterval(uhr)
-    }
-  }, [url, freigegeben, credentialId, weg, protocol, live])
+      return r.ok
+    },
+    STREAM_PREVIEW_INTERVAL_MS,
+    { enabled: !!url && freigegeben && !!weg && !!protocol && !live && !endgueltig, maxBackoffMs: 60_000, resetKey: `${url}|${credentialId}|${weg}|${protocol}` },
+  )
 
   if (!stream || !url) return null
   if (!freigegeben) {

@@ -77,7 +77,14 @@ export default function ScopeMonitor({
       if (weg) f()
       else schliessen = f
     })
-    const uhr = setInterval(() => setFps(src.fps), 1000)
+    // Die Anzeige ist ganzzahlig: nur bei einer anderen Zahl neu rendern, und
+    // im verborgenen Fenster gar nicht. Das Intervall bleibt hier, weil es an
+    // genau dieser Quelle haengt und mit ihr endet.
+    const uhr = setInterval(() => {
+      if (document.hidden) return
+      const neu = Math.round(src.fps)
+      setFps((alt) => (alt === neu ? alt : neu))
+    }, 1000)
     return () => {
       weg = true
       clearInterval(uhr)
