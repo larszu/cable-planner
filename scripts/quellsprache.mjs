@@ -592,7 +592,6 @@ export const messeOhneT = (wurzel, quellsprache) => {
 const BEFUND_FELD = /\b(?:text|reason|detail|message|grund)\s*:\s*((?:(['"`])(?:[^\\]|\\.)*?\2\s*\+?\s*)+)/g
 const LITERAL = /(['"`])((?:[^\\]|\\.)*?)\1/g
 
-export const BEFUND_GRENZE = { 'src/renderer': 0, 'src/mobile': 0, 'src/viewer': 0 }
 
 export const messeBefundtexte = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'
@@ -728,15 +727,10 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
   }
 
   const befunde = messeBefundtexte(wurzel, sprache)
-  const befundGrenze = BEFUND_GRENZE[wurzel.replace(/\/+$/, '')] ?? 0
-  console.log(`Befundtexte: ${befunde.length} in der anderen Sprache (Grenze ${befundGrenze}).`)
-  if (befunde.length !== befundGrenze) {
-    if (befunde.length > befundGrenze) for (const f of befunde) console.error(`  ${f.datei}: ${f.text}`)
-    console.error(
-      befunde.length > befundGrenze
-        ? `\n${befunde.length - befundGrenze} mehr als erlaubt: Befundtexte ueber satz(key, 'English', werte) schreiben.`
-        : `\nBEFUND_GRENZE fuer ${wurzel} auf ${befunde.length} senken.`,
-    )
+  console.log(`Befundtexte: ${befunde.length} in der anderen Sprache.`)
+  if (befunde.length > 0) {
+    for (const f of befunde) console.error(`  ${f.datei}: ${f.text}`)
+    console.error("\nBefundtexte ueber satz(key, 'English', werte) schreiben.")
     process.exit(1)
   }
 
