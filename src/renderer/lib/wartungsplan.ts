@@ -35,6 +35,7 @@ import type { CsvCell, CsvTable } from './csv'
 import { equipmentAssetTag } from './docIds'
 import { standortText } from './equipmentLocation'
 import { vergleich } from './druckblatt'
+import { spalten } from './kanonisch'
 
 export type WartungsBasis = 'service' | 'uebergabe'
 
@@ -115,17 +116,7 @@ const befundText = (z: WartungsZeile, uebergabe: string): string =>
 export const wartungsplanTable = (project: CablePlannerProject): CsvTable => {
   const uebergabe = project.metadata.handoverDate ?? ''
   return {
-    headers: [
-      'Gerät',
-      'Asset-Tag',
-      'Standort',
-      'Wartungsintervall (Tage)',
-      'Letzter Service',
-      'Basis',
-      'Nächste Wartung',
-      'Garantie bis',
-      'Befund',
-    ],
+    headers: spalten(['Device', 'Asset tag', 'Location', 'Maintenance interval (days)', 'Last service', 'Basis', 'Next maintenance', 'Warranty until', 'Finding']),
     rows: wartungsplan(project).map((z): CsvCell[] => [
       z.geraet,
       z.assetTag,

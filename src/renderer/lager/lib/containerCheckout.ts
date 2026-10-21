@@ -24,6 +24,7 @@ import type { CheckoutDamage, CheckoutLine, CheckoutRecord } from '../types/chec
 import { descendantNodeIds, isContainerKind, nodePathLabel } from './storageTree'
 import type { CsvCell, CsvTable } from '../../lib/csv'
 import { ownershipNote } from './ownership'
+import { spalten } from '../../lib/kanonisch'
 
 /** Der Bestand, aus dem eine Ausgabe entsteht. */
 export interface InventorySnapshotIn {
@@ -257,7 +258,7 @@ export const checkoutSheet = (record: CheckoutRecord): CsvTable => ({
   // Bedarf 67: die Herkunft steht auf dem Blatt, das im Truck liegt. „Make
   // sure it survives into every printed pack list, case label and check-in
   // screen" — dies ist das dritte davon, und es war leer.
-  headers: ['Art', 'Bezeichnung', 'Menge', 'Etiketten-Code', 'Herkunft', 'Abgehakt'],
+  headers: spalten(['Kind', 'Designation', 'Quantity', 'Label code', 'Origin', 'Checked off']),
   rows: record.contents.map((l): CsvCell[] => [
     ART[l.kind],
     l.label,
@@ -325,7 +326,7 @@ export const openCheckoutsTable = (
   nodes: StorageNode[],
   heute: string,
 ): CsvTable => ({
-  headers: ['Container', 'Lagerort', 'An', 'Show', 'Ausgegeben', 'Zurück bis', 'Positionen', 'Status'],
+  headers: spalten(['Container', 'Storage location', 'To', 'Show', 'Issued', 'Due back', 'Items', 'Status']),
   rows: openCheckouts(records).map((r): CsvCell[] => [
     r.nodeLabel,
     nodePathLabel(nodes, r.nodeId) || '',
@@ -354,7 +355,7 @@ export const openCheckoutsTable = (
  * bleibt. Wer eine „alles in Ordnung"-Zeile ergaenzt, faellt darueber.
  */
 export const discrepancyTable = (records: CheckoutRecord[]): CsvTable => ({
-  headers: ['Container', 'An', 'Zurück am', 'Befund', 'Art', 'Bezeichnung', 'Menge', 'Kennung'],
+  headers: spalten(['Container', 'To', 'Returned on', 'Finding', 'Kind', 'Designation', 'Quantity', 'Identifier']),
   rows: records
     .filter((r) => r.in)
     .flatMap((r) => [

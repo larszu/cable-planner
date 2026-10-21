@@ -480,8 +480,9 @@ const MAP_ALS_FALLBACK = /\b(?:t|tr|translate)\([^()]*?,\s*([A-Z][A-Z0-9_]*)\[/g
 // eines t(). Jede Map mit Namen `*_LABEL(S)`, die irgendwo indiziert wird,
 // zaehlt deshalb mit.
 const LABEL_MAP_ZUGRIFF = /\b([A-Z][A-Z0-9_]*_LABELS?)\[/g
-// CSV-/Tabellenkoepfe: `headers: ['Art', 'Bezeichnung', …]`.
-const KOPFZEILE = /\bheaders:\s*\[([^\]]*)\]/g
+// CSV-/Tabellenkoepfe: `headers: ['Art', 'Bezeichnung', …]` — und die
+// englische Quelle gestempelter Blaetter, `spalten(['Kind', …])` (#1128).
+const KOPFZEILE = /\b(?:headers:\s*|spalten\(\s*)\[([^\]]*)\]/g
 const KOPF_WERT = /(['"])((?:[^\\]|\\.){2,}?)\1/g
 const MAP_WERT = /:\s*(['"])((?:[^\\]|\\.){2,}?)\1/g
 
@@ -555,7 +556,7 @@ export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
  * (Analyse-Befunde, Dokument-Exporte) — deshalb eine eigene Grenze, die nur
  * sinken darf, statt die Grenze 0 der Daten-Messung zu reissen.
  */
-export const OHNE_T_GRENZE = { 'src/renderer': 279, 'src/mobile': 0, 'src/viewer': 0 }
+export const OHNE_T_GRENZE = { 'src/renderer': 252, 'src/mobile': 0, 'src/viewer': 0 }
 
 export const messeOhneT = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'

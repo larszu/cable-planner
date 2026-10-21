@@ -26,6 +26,7 @@ import type { MoveRefusal, MoveSubjectKind, StorageMove } from '../types/storage
 import { MOVE_SUBJECT_LABEL } from '../types/storageMove'
 import { nodePathLabel, wouldCreateCycle } from './storageTree'
 import type { CsvCell, CsvTable } from '../../lib/csv'
+import { spalten } from '../../lib/kanonisch'
 
 /** Was dasteht, wo ein Lagerort nicht (mehr) auflösbar ist. */
 export const UNKNOWN_PLACE = 'nicht mehr im Lager'
@@ -131,7 +132,7 @@ export function moveTable(
     return nodes.some((n) => n.id === id) ? nodePathLabel([...nodes], id) : UNKNOWN_PLACE
   }
   return {
-    headers: ['Zeitpunkt', 'Art', 'Objekt', 'Von', 'Nach', 'Notiz'],
+    headers: spalten(['Time', 'Kind', 'Item', 'From', 'To location', 'Note']),
     rows: moves
       .slice()
       .sort((a, b) => b.at.localeCompare(a.at))

@@ -32,6 +32,7 @@ import type { InstallStatus } from '../types/lifecycle'
 import type { CsvCell, CsvTable } from './csv'
 import { druckblatt, esc, fmt, quelle, tabelle, vergleich, type Uebersetzen } from './druckblatt'
 import { installStatusText } from './installStatusText'
+import { spalten } from './kanonisch'
 
 export type MangelArt = 'stoerung' | 'messung' | 'meldung' | 'restpunkt'
 
@@ -157,7 +158,7 @@ const zeilen = (liste: Mangel[], w: Worte): CsvCell[][] =>
   liste.map((m, i) => [i + 1, w.art[m.art], m.betrifft, beschreibung(m, w), m.gemeldet, m.von])
 
 export const maengelTable = (project: CablePlannerProject): CsvTable => ({
-  headers: ['Nr.', 'Art', 'Betrifft', 'Beschreibung', 'Gemeldet', 'Gemeldet von'],
+  headers: spalten(['No.', 'Kind', 'Concerns', 'Description', 'Reported', 'Reported by']),
   rows: zeilen(maengel(project), KANONISCH),
 })
 
@@ -205,7 +206,7 @@ export const abnahmeStandTable = (project: CablePlannerProject): CsvTable => {
   const u = umfang(project)
   const liste = maengelTable(project)
   return {
-    headers: ['Feld', 'Wert', ...liste.headers],
+    headers: spalten(['Field', 'Value']).concat(liste.headers),
     rows: [
       ['Anlage', m.name ?? ''],
       ['Standort', m.siteAddress ?? ''],

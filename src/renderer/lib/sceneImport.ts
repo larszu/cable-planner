@@ -43,7 +43,7 @@ import {
   type SceneImport,
 } from '../types/sceneImport'
 import type { CsvTable } from './csv'
-import { kanonisch } from './kanonisch'
+import { kanonisch, spalten } from './kanonisch'
 
 /**
  * Die Kanal-Zeile.
@@ -212,7 +212,7 @@ const NO_COLOR = 'keine Farbe'
 /** Die eingelesene Liste als Blatt. */
 export function sceneTable(scene: SceneImport): CsvTable {
   return {
-    headers: ['Ch', 'Name', 'Farbe', 'Stumm'],
+    headers: spalten(['Ch', 'Name', 'Colour', 'Muted']),
     rows: scene.channels.map((c) => [
       c.ch,
       c.name.trim() || NO_NAME,
@@ -225,7 +225,7 @@ export function sceneTable(scene: SceneImport): CsvTable {
 /** Der Vergleich als Blatt — die Änderungsliste aus der Probe. */
 export function sceneDiffTable(rows: readonly SceneDiffRow[]): CsvTable {
   return {
-    headers: ['Ch', 'Was', 'Vorher', 'Nachher'],
+    headers: spalten(['Ch', 'What', 'Before', 'After']),
     rows: rows.map((r) => [
       r.ch,
       kanonisch(`scene.diff.${r.kind}`, SCENE_DIFF_LABEL[r.kind]),
@@ -293,7 +293,7 @@ export function matchToPlan(
 /** Die Zuordnung als Blatt. Nicht Zugeordnetes trägt einen NAMEN. */
 export function matchTable(matches: readonly SceneMatch[]): CsvTable {
   return {
-    headers: ['Ch (Pult)', 'Name (Pult)', 'Ch (Plan)', 'Quelle (Plan)'],
+    headers: spalten(['Ch (console)', 'Name (console)', 'Ch (plan)', 'Source (plan)']),
     rows: matches.map((m) => [
       m.sceneCh,
       m.sceneName || NO_NAME,

@@ -43,6 +43,7 @@ import { topLayer, detectLayerForConnector } from './cableLayers'
 import { portDisplayLabel } from './portLabel'
 import { fitToTarget, LABEL_TARGETS } from './labelTargets'
 import { channelName, venueNumber } from './channelIdentity'
+import { spalten } from './kanonisch'
 
 /** Eine Zeile der EINEN Kanalliste. Alle fuenf Sichten schneiden hieraus. */
 export interface ChannelRow {
@@ -141,7 +142,7 @@ export function buildChannelList(equipment: EquipmentItem[], cables: Cable[]): C
  */
 export function bandView(rows: ChannelRow[]): CsvTable {
   return {
-    headers: ['Ch', 'Name', 'Abnahme', 'Anschluss an der Quelle'],
+    headers: spalten(['Ch', 'Name', 'Pickup', 'Connector at the source']),
     rows: rows.map((r): CsvCell[] => [r.ch, channelName(r), r.sourceKind ?? '', r.sourcePort]),
   }
 }
@@ -167,7 +168,7 @@ export function bandView(rows: ChannelRow[]): CsvTable {
  */
 export function venueView(rows: ChannelRow[]): CsvTable {
   return {
-    headers: ['Port', 'Name', 'Ziel', 'Stecker', 'Länge (m)'],
+    headers: spalten(['Port', 'Name', 'Destination', 'Connector type', 'Length (m)']),
     rows: rows.map((r): CsvCell[] => [
       venueNumber(r),
       channelName(r),
@@ -187,7 +188,7 @@ export function venueView(rows: ChannelRow[]): CsvTable {
  */
 export function stageView(rows: ChannelRow[]): CsvTable {
   return {
-    headers: ['Ch', 'Name', 'X', 'Y'],
+    headers: spalten(['Ch', 'Name', 'X', 'Y']),
     rows: rows.map((r): CsvCell[] => [
       r.ch,
       channelName(r),
@@ -215,7 +216,7 @@ export function stageView(rows: ChannelRow[]): CsvTable {
  */
 export function consoleView(rows: ChannelRow[]): CsvTable {
   return {
-    headers: ['Ch', 'Name', 'Gekürzt'],
+    headers: spalten(['Ch', 'Name', 'Shortened']),
     rows: rows.map((r): CsvCell[] => {
       // BEDARF 113 — der Name kommt aus `channelName` und nicht roh aus der
       // Quelle. Eine blosse Nummer ist an dieser Stelle kein Name: sie steht
@@ -299,7 +300,7 @@ export function monitorPaths(equipment: EquipmentItem[], cables: Cable[]): Monit
 
 export function monitorView(paths: MonitorPath[]): CsvTable {
   return {
-    headers: ['Pult', 'Ausgang', 'Ziel', 'Eingang'],
+    headers: spalten(['Console', 'Output', 'Destination', 'Input']),
     rows: paths.map((p): CsvCell[] => [p.console, p.outputPort, p.sink, p.sinkPort]),
   }
 }

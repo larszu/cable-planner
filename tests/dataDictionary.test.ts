@@ -8,6 +8,7 @@ import {
   undescribedColumns,
 } from '../src/renderer/lib/dataDictionary'
 import { csvFromTable } from '../src/renderer/lib/documentStamp'
+import { spalten } from '../src/renderer/lib/kanonisch'
 import { pullListTable } from '../src/renderer/lib/installerLists'
 import type { CablePlannerProject } from '../src/renderer/types/project'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
@@ -210,6 +211,14 @@ describe('der Guard: jede Spalte, die irgendwo exportiert wird, ist erklaert', (
       for (const m of listen) {
         for (const s of m[1].matchAll(/'((?:[^'\\]|\\.)*)'/g)) {
           const spalte = s[1].replace(/\\'/g, "'")
+          if (!gefunden.has(spalte)) gefunden.set(spalte, pfad)
+        }
+      }
+      // FUENFTE FORM (#1128): `spalten(['Kind', …])` — englische Quelle, im
+      // Blatt kanonisch deutsch. Erklaert sein muss, was im Blatt steht.
+      for (const m of ohneKommentar.matchAll(/\bspalten\(\s*\[([\s\S]*?)\]/g)) {
+        for (const s of m[1].matchAll(/'((?:[^'\\]|\\.)*)'/g)) {
+          const spalte = spalten([s[1].replace(/\\'/g, "'")])[0]
           if (!gefunden.has(spalte)) gefunden.set(spalte, pfad)
         }
       }

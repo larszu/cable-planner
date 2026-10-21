@@ -39,7 +39,7 @@ import type { CsvCell, CsvTable } from './csv'
 import { DEFAULT_LENGTH_ESTIMATION } from './cableLengthEstimate'
 import { gebaeudeSzene, type GebaeudeSzene, type SzeneRaum, type SzeneSchacht } from './gebaeudeSzene'
 import { esc, fmt, quelle, vergleich, type Uebersetzen } from './druckblatt'
-import { kanonisch } from './kanonisch'
+import { kanonisch, spalten } from './kanonisch'
 
 export type DurchgangArt = 'raumgrenze' | 'schachtzugang' | 'geschossdecke' | 'ohne-weg'
 
@@ -279,7 +279,7 @@ const zeilen = (project: CablePlannerProject, liste: readonly Durchgang[], w: Wo
 }
 
 export const durchgaengeTable = (project: CablePlannerProject): CsvTable => ({
-  headers: ['Durchgang', 'Art', 'Etage', 'Kabel', 'Anzahl', 'Mantel/Brandklasse', 'Trasse/Pfad', 'Befund'],
+  headers: spalten(['Penetration', 'Kind', 'Floor', 'Cable', 'Count', 'Jacket/fire class', 'Route/path', 'Finding']),
   rows: zeilen(project, durchgaenge(project).durchgaenge, KANONISCH),
 })
 

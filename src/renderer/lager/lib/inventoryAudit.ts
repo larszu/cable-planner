@@ -44,7 +44,7 @@ import { unitLabel } from './unitIdentity'
 import { resolveInventoryCode, type ScanSources } from './inventoryScan'
 import { descendantNodeIds, nodePathLabel } from './storageTree'
 import type { CsvCell, CsvTable } from '../../lib/csv'
-import { kanonisch } from '../../lib/kanonisch'
+import { kanonisch, spalten } from '../../lib/kanonisch'
 
 export type AuditOutcome =
   /** Der Datensatz sagt: liegt hier (oder in einem Behaelter hier drin). */
@@ -338,7 +338,7 @@ export function auditTable(
 ): CsvTable {
   const geprueft = nodePathLabel(nodes, atNodeId)
   return {
-    headers: ['Ergebnis', 'Wie erfasst', 'Code', 'Objekt', 'Modell', 'Erwartet in', 'Geprüft an'],
+    headers: spalten(['Result', 'How recorded', 'Code', 'Item', 'Model', 'Expected in', 'Checked at']),
     rows: [
       ...hits.map((h): CsvCell[] => [
         kanonisch(`inventory.auditOutcome.${h.outcome}`, AUDIT_LABEL[h.outcome]),

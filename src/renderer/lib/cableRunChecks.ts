@@ -42,6 +42,7 @@ import {
   type LaengenKontext,
 } from './cableLengthEstimate'
 import type { CsvCell, CsvTable } from './csv'
+import { spalten } from './kanonisch'
 
 /**
  * Ab wie vielen Canvas-Pixeln Versatz eine abgeleitete Laenge als ueberholt
@@ -231,7 +232,7 @@ const ART: Record<RunFindingKind, string> = {
 
 /** Die Befunde als Blatt. */
 export const cableRunTable = (cables: Cable[], equipment: EquipmentItem[]): CsvTable => ({
-  headers: ['Kabel', 'Befund', 'Beschreibung', 'Dienste auf dem Strang'],
+  headers: spalten(['Cable', 'Finding', 'Description', 'Services on the run']),
   rows: cableRunFindings(cables, equipment).map((f): CsvCell[] => [
     f.cableLabel,
     ART[f.kind],

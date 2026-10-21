@@ -51,6 +51,7 @@
 
 import type { Geldbetrag, InventoryItem, InventoryUnit } from '../types/inventory'
 import type { CsvTable } from '../../lib/csv'
+import { spalten } from '../../lib/kanonisch'
 
 /** Was in einer Zelle steht, wenn niemand etwas angegeben hat. */
 export const NICHT_ANGEGEBEN = 'nicht angegeben'
@@ -224,7 +225,7 @@ export const versicherungsTabelle = (liste: VersicherungsListe): CsvTable => {
   }
 
   return {
-    headers: ['Modell', 'Herstellernummer', 'Hausreferenz', 'Versicherungswert', 'Währung', 'Stand'],
+    headers: spalten(['Model', 'Serial number', 'House reference', 'Insured value', 'Currency', 'As of']),
     rows,
   }
 }
@@ -246,14 +247,7 @@ export const carnetDatenblatt = (
   units: readonly InventoryUnit[],
   artikelVon: (unit: InventoryUnit) => InventoryItem | undefined,
 ): CsvTable => ({
-  headers: [
-    'Beschreibung',
-    'Herstellernummer',
-    'Gewicht (kg)',
-    'Anschaffungspreis',
-    'Währung',
-    'Ursprungsland',
-  ],
+  headers: spalten(['Description', 'Serial number', 'Weight (kg)', 'Purchase price', 'Currency', 'Country of origin']),
   rows: units.map((u) => {
     const artikel = artikelVon(u)
     const gewicht = artikel?.dimensions?.weightKg
