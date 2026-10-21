@@ -203,16 +203,20 @@ Das Panel *Anmerkungen* erscheint rechts. Es filtert nach *alle*, *offen*, *geba
 
 ![Befehlspalette](bilder/de/oberflaeche-84-hilfe-befehlspalette.jpg)
 
-Die Befehlspalette listet Befehle aus *Bearbeiten*, *Ansicht* und *Werkzeuge*; rechts neben jedem Befehl steht seine Gruppe.
+Die Befehlspalette listet die Befehle aus *Bearbeiten*, *Ansicht*, *Datei*, *Werkzeuge* und *Hilfe*; rechts neben jedem Befehl steht seine Gruppe, unter manchen eine Kurzbeschreibung. Befehle abgeschalteter Module fehlen.
 
 1. Öffnen Sie die Palette mit **Strg+K** oder über *Hilfe → Befehlspalette…*.
-2. Tippen Sie einen Teil des Befehlsnamens. Die Liste zeigt nur passende Befehle.
+2. Tippen Sie ein oder mehrere Suchwörter. Die Suche prüft Befehlsname, Gruppe, Kurzbeschreibung und hinterlegte Synonyme; jedes Wort muss vorkommen. Treffer im Befehlsnamen stehen vorn.
 
    ![Suche nach „zoom“](bilder/de/oberflaeche-87-palette-suche-zoom.jpg)
 
 3. Wählen Sie mit den Pfeiltasten einen Befehl und führen Sie ihn mit **Enter** aus.
 
-Die Suche prüft nur die Befehlsnamen, nicht die Gruppen. Passt nichts, steht *Keine Befehle gefunden* in der Liste.
+Synonyme gelten in beiden Sprachen: *qr* findet zum Beispiel *Aufs Handy teilen…*.
+
+![Suche nach „qr“](bilder/de/oberflaeche-88-palette-suche-synonym.jpg)
+
+Passt nichts, steht *Keine Befehle gefunden* in der Liste.
 
 ![Keine Treffer](bilder/de/oberflaeche-89-palette-keine-treffer.jpg)
 
@@ -238,13 +242,13 @@ Die Ansicht *Tastatur* zeigt eine Tastatur; markierte Tasten haben eine Aktion, 
 
 #### Erste-Schritte-Tour
 
-Die Tour führt in sieben Schritten durch die Oberfläche: Willkommen, Datei-Menü, Export-Menü, Einstellungen → Rentman, Bibliothek, Eigenschaften, Kabel-Plan & Warnung. *Weiter* und *Zurück* blättern, *Tour beenden* bricht ab.
+Die Tour führt in fünf Schritten durch die Oberfläche: Bibliothek links, Eigenschaften rechts, Plan-Prüfung, Export-Menü, Jede Funktion finden. *Weiter* und *Zurück* blättern, *Tour beenden* bricht ab. Der letzte Schritt schließt mit *Befehlspalette öffnen* die Tour und öffnet die Befehlspalette. Beim ersten Start öffnet sich die Tour von selbst.
 
 ![Erster Schritt der Tour](bilder/de/oberflaeche-96-hilfe-tour-1.jpg)
 
 #### Über LZ Cable Planner
 
-![Über LZ Cable Planner](bilder/de/oberflaeche-105-hilfe-ueber.jpg)
+![Über LZ Cable Planner](bilder/de/oberflaeche-103-hilfe-ueber.jpg)
 
 Der Dialog zeigt:
 
@@ -340,7 +344,7 @@ Die Rentman-Anzeige erscheint nur, wenn das Modul Rentman eingeschaltet ist. Sie
 
 Der Knopf *Handy-Zugriff* in der Kopfleiste öffnet den gleichnamigen Dialog. Er startet einen kleinen Webserver im lokalen Netzwerk; ein Handy öffnet über den QR-Code die mobile Ansicht des Projekts.
 
-![Dialog Handy-Zugriff](bilder/de/oberflaeche-107-handy-dialog.jpg)
+![Dialog Handy-Zugriff](bilder/de/oberflaeche-105-handy-dialog.jpg)
 
 | Element | Wirkung |
 |---|---|
@@ -352,24 +356,35 @@ Der Knopf *Handy-Zugriff* in der Kopfleiste öffnet den gleichnamigen Dialog. Er
 
 Der Server stoppt beim Schließen der App oder über den Stop-Knopf. Die mobile Ansicht beschreibt das Kapitel [Web-Ausgabe und Tablet](#web-ausgabe-und-tablet).
 
-![Hinweise zur Sicherheit](bilder/de/oberflaeche-109-handy-sicherheitshinweise.jpg)
+![Hinweise zur Sicherheit](bilder/de/oberflaeche-107-handy-sicherheitshinweise.jpg)
 
 ### Erster Start
 
-Beim ersten Start ohne Projekt erscheinen nacheinander zwei Dialoge.
+Beim ersten Start mit leerem Projekt erscheint der Dialog *Willkommen — was planst du?*.
 
-1. *Willkommen beim LZ Cable Planner* bietet *Neues Projekt* und *Projekt öffnen…*. *Später entscheiden* schließt den Dialog.
+![Startdialog](bilder/de/oberflaeche-109-erststart-startdialog.jpg)
 
-   ![Willkommen-Dialog](bilder/de/oberflaeche-111-erststart-willkommen-dialog.jpg)
-
-2. *Willkommen — wofür nutzt du LZ Cable Planner?* fragt nach dem Anwendungsfall. Wählen Sie einen oder mehrere:
+1. Wählen Sie optional einen oder mehrere Anwendungsfälle. Sie schalten die passenden Module ein:
 
    | Anwendungsfall | schaltet die Module ein |
    |---|---|
-   | Show / Event | Handy-Zugriff, Rentman |
-   | Festinstallation | Festinstallation, Handy-Zugriff, NetBox |
-   | Vermietung / Rental | Vermietung, Rentman |
+   | Show / Event | Mobile-Companion, Rentman |
+   | Festinstallation | Festinstallation, Mobile-Companion, NetBox |
+   | Vermietung | Vermietung / Lager, Rentman |
 
-   ![Anwendungsfall gewählt](bilder/de/oberflaeche-113-erststart-modulfrage-auswahl.jpg)
+   ![Anwendungsfall gewählt](bilder/de/oberflaeche-110-erststart-auswahl.jpg)
 
-3. *Loslegen* übernimmt die Wahl. *Später entscheiden* lässt die Module, wie sie sind. Ändern lässt sich alles unter *Einstellungen → Module*.
+2. Wählen Sie, wie Sie beginnen:
+
+   | Knopf | Wirkung |
+   |---|---|
+   | Neues Projekt | öffnet die Projektdaten für ein neues Projekt |
+   | Beispielprojekt laden | lädt das Beispielprojekt und passt die Ansicht ein |
+   | Projekt öffnen… | öffnet eine vorhandene `.cableplan`-Datei |
+   | Später entscheiden | schließt den Dialog |
+
+   Ohne gewählten Anwendungsfall bleiben die Module, wie sie sind. Ändern lässt sich alles unter *Einstellungen → Module*.
+
+3. Danach startet die [Erste-Schritte-Tour](#erste-schritte-tour).
+
+   ![Tour nach dem Startdialog](bilder/de/oberflaeche-112-erststart-tour.jpg)

@@ -395,19 +395,16 @@ await s('palette-suche-zoom', async () => {
   await win.keyboard.type('zoom')
   await warte(400)
 }, () => a.dialog(), async () => a.dialog().locator('ul').innerText())
-await s('palette-suche-gruppe', async () => {
-  await win.keyboard.press('Control+a')
-  await win.keyboard.type(a.text(VIEW))
+await s('palette-suche-synonym', async () => {
+  await a.dialog().locator('input').first().fill('qr')
   await warte(400)
 }, () => a.dialog(), async () => a.dialog().locator('ul').innerText())
 await s('palette-keine-treffer', async () => {
-  await win.keyboard.press('Control+a')
-  await win.keyboard.type('qqqq')
+  await a.dialog().locator('input').first().fill('qqqq')
   await warte(400)
 }, () => a.dialog())
 await s('palette-pfeiltasten', async () => {
-  await win.keyboard.press('Control+a')
-  await win.keyboard.type('zoom')
+  await a.dialog().locator('input').first().fill('zoom')
   await warte(300)
   await win.keyboard.press('ArrowDown')
   await win.keyboard.press('ArrowDown')
@@ -441,13 +438,13 @@ await a.zu()
 
 await s('hilfe-tour-1', M(HELP, 'app.menu.help.tour'), () => a.dialog())
 const weiter = () => a.dialog().getByRole('button', { name: a.muster('onboarding.next', true) })
-for (let i = 2; i <= 7; i += 1) {
+for (let i = 2; i <= 5; i += 1) {
   await s(`tour-${i}`, async () => { await weiter().click(); await warte(500) }, () => a.dialog())
 }
-await s('tour-ende', async () => {
-  await a.dialog().getByRole('button', { name: a.muster('onboarding.start', true) }).click()
-  await warte(700)
-}, undefined)
+await s('tour-palette', async () => {
+  await a.dialog().getByRole('button', { name: a.muster('onboarding.openPalette', true) }).click()
+  await warte(900)
+}, () => a.dialog())
 await a.zu()
 
 await s('hilfe-updates', M(HELP, 'app.menu.help.checkUpdates'), () => a.dialog())
@@ -481,22 +478,18 @@ await win.evaluate(() => {
 await win.reload()
 await win.waitForLoadState('domcontentloaded')
 await warte(3000)
+const startDlg = () => win.locator('[role="dialog"]').filter({ hasText: a.muster('start.title') }).last()
 await s('erststart-willkommen', null, undefined)
-await s('erststart-willkommen-dialog', null, () => win.locator('[role="dialog"]').filter({ hasText: a.muster('project.welcome.newTitle') }).last())
-await s('erststart-modulfrage', async () => {
-  await win.locator('[role="dialog"]').filter({ hasText: a.muster('project.welcome.newTitle') }).last()
-    .getByRole('button', { name: a.muster('project.welcome.later', true) }).click()
-  await warte(1000)
-}, () => win.locator('[role="dialog"]').filter({ hasText: a.muster('onboarding.title') }).last())
-await s('erststart-modulfrage-auswahl', async () => {
-  await win.locator('[role="dialog"]').filter({ hasText: a.muster('onboarding.title') }).last().locator('button[aria-pressed]').first().click()
+await s('erststart-startdialog', null, startDlg)
+await s('erststart-auswahl', async () => {
+  await startDlg().locator('button[aria-pressed]').first().click()
   await warte(500)
-}, () => win.locator('[role="dialog"]').filter({ hasText: a.muster('onboarding.title') }).last())
-await s('erststart-tour', async () => {
-  await win.locator('[role="dialog"]').filter({ hasText: a.muster('onboarding.title') }).last()
-    .getByRole('button', { name: a.muster('onboarding.confirm', true) }).click()
+}, startDlg)
+await s('erststart-beispielprojekt', async () => {
+  await startDlg().getByRole('button', { name: a.muster('canvas.empty.loadDemo', true) }).click()
   await warte(1500)
 }, undefined)
+await s('erststart-tour', null, () => a.dialog())
 
 f.speichern(new URL(`./oberflaeche.${sprache}.json`, import.meta.url))
 const roh = JSON.parse((await import('node:fs')).readFileSync(new URL(`./oberflaeche.${sprache}.json`, import.meta.url), 'utf8'))

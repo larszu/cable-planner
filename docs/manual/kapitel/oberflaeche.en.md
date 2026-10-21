@@ -203,16 +203,20 @@ The *Annotations* panel appears on the right. It filters by status with *all*, *
 
 ![Command palette](bilder/en/oberflaeche-84-hilfe-befehlspalette.jpg)
 
-The command palette lists commands from *Edit*, *View* and *Tools*; each command shows its group on the right.
+The command palette lists the commands from *Edit*, *View*, *File*, *Tools* and *Help*; each command shows its group on the right, some a short description below. Commands of disabled modules are left out.
 
 1. Open the palette with **Ctrl+K** or via *Help → Command palette…*.
-2. Type part of the command name. The list shows only matching commands.
+2. Type one or more search words. The search checks command name, group, short description and stored synonyms; every word must occur. Matches in the command name come first.
 
    ![Search for “zoom”](bilder/en/oberflaeche-87-palette-suche-zoom.jpg)
 
 3. Pick a command with the arrow keys and run it with **Enter**.
 
-The search checks only the command names, not the groups. If nothing matches, the list shows *No commands found*.
+Synonyms work in both languages: *qr*, for example, finds *Share to phone…*.
+
+![Search for “qr”](bilder/en/oberflaeche-88-palette-suche-synonym.jpg)
+
+If nothing matches, the list shows *No commands found*.
 
 ![No matches](bilder/en/oberflaeche-89-palette-keine-treffer.jpg)
 
@@ -238,13 +242,13 @@ The *Keyboard* view shows a keyboard; highlighted keys have an action, shown on 
 
 #### Getting-started tour
 
-The tour takes seven steps through the interface: Welcome, File menu, Export menu, Settings → Rentman, Library, Properties, Cable plan & warnings. *Next* and *Back* page through it, *End tour* stops it.
+The tour takes five steps through the interface: Library on the left, Properties on the right, Plan check, Export menu, Find any function. *Next* and *Back* page through it, *End tour* stops it. On the last step *Open command palette* ends the tour and opens the command palette. On the first start the tour opens by itself.
 
 ![First step of the tour](bilder/en/oberflaeche-96-hilfe-tour-1.jpg)
 
 #### About LZ Cable Planner
 
-![About LZ Cable Planner](bilder/en/oberflaeche-105-hilfe-ueber.jpg)
+![About LZ Cable Planner](bilder/en/oberflaeche-103-hilfe-ueber.jpg)
 
 The dialog shows:
 
@@ -340,7 +344,7 @@ The Rentman indicator appears only when the Rentman module is enabled. It shows 
 
 The *Phone access* button in the header opens the dialog *Mobile access*. It starts a small web server on the local network; a phone opens the mobile view of the project via the QR code.
 
-![Mobile access dialog](bilder/en/oberflaeche-107-handy-dialog.jpg)
+![Mobile access dialog](bilder/en/oberflaeche-105-handy-dialog.jpg)
 
 | Element | Effect |
 |---|---|
@@ -352,24 +356,35 @@ The *Phone access* button in the header opens the dialog *Mobile access*. It sta
 
 The server stops when the app closes or via the Stop button. The mobile view is described in the chapter [Web edition and tablet](#web-edition-and-tablet).
 
-![Security notes](bilder/en/oberflaeche-109-handy-sicherheitshinweise.jpg)
+![Security notes](bilder/en/oberflaeche-107-handy-sicherheitshinweise.jpg)
 
 ### First start
 
-On the first start without a project two dialogs appear one after the other.
+On the first start with an empty project the dialog *Welcome — what are you planning?* appears.
 
-1. *Welcome to LZ Cable Planner* offers *New project* and *Open project…*. *Decide later* closes the dialog.
+![Start dialog](bilder/en/oberflaeche-109-erststart-startdialog.jpg)
 
-   ![Welcome dialog](bilder/en/oberflaeche-111-erststart-willkommen-dialog.jpg)
-
-2. *Welcome — what do you use LZ Cable Planner for?* asks for the use case. Choose one or more:
+1. Optionally choose one or more use cases. They enable the matching modules:
 
    | Use case | enables the modules |
    |---|---|
-   | Show / Event | Phone access, Rentman |
-   | Festinstallation (fixed install) | Fixed install, Phone access, NetBox |
-   | Vermietung / Rental | Rental, Rentman |
+   | Show / Event | Mobile-Companion, Rentman |
+   | Fixed installation | Fixed installation, Mobile-Companion, NetBox |
+   | Rental | Rental / Stock, Rentman |
 
-   ![Use case selected](bilder/en/oberflaeche-113-erststart-modulfrage-auswahl.jpg)
+   ![Use case selected](bilder/en/oberflaeche-110-erststart-auswahl.jpg)
 
-3. *Get started* applies the choice. *Decide later* leaves the modules as they are. Everything can be changed under *Settings → Modules*.
+2. Choose how to begin:
+
+   | Button | Effect |
+   |---|---|
+   | New project | opens the project metadata for a new project |
+   | Load example project | loads the example project and fits the view |
+   | Open project… | opens an existing `.cableplan` file |
+   | Decide later | closes the dialog |
+
+   Without a use case the modules stay as they are. Everything can be changed under *Settings → Modules*.
+
+3. The [Getting-started tour](#getting-started-tour) starts afterwards.
+
+   ![Tour after the start dialog](bilder/en/oberflaeche-112-erststart-tour.jpg)
