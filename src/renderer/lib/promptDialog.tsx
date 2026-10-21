@@ -70,9 +70,9 @@ const PromptDialog = ({ title, defaultValue, onDone }: Props) => {
           style={{
             width: '100%',
             padding: '6px 8px',
-            background: '#0f172a',
-            border: '1px solid #475569',
-            color: '#e2e8f0',
+            background: 'var(--cp-bg)',
+            border: '1px solid var(--cp-border-strong)',
+            color: 'var(--cp-text)',
             fontSize: 14,
           }}
         />

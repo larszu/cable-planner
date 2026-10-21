@@ -24,9 +24,9 @@ const STATUS_COLOR: Record<ProjectAnnotation['status'], string> = {
 }
 
 const STATUS_LABEL: Record<ProjectAnnotation['status'], string> = {
-  open: 'Offen',
-  built: 'Gebaut',
-  resolved: 'Erledigt',
+  open: 'Open',
+  built: 'Built',
+  resolved: 'Resolved',
 }
 
 const initialsOf = (author: string): string => {

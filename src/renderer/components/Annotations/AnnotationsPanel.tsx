@@ -50,9 +50,9 @@ const ensureAnnotationAuthor = async (): Promise<string | null> => {
 }
 
 const STATUS_LABEL: Record<ProjectAnnotation['status'], string> = {
-  open: 'offen',
-  built: 'gebaut',
-  resolved: 'erledigt',
+  open: 'open',
+  built: 'built',
+  resolved: 'resolved',
 }
 
 const STATUS_COLOR: Record<ProjectAnnotation['status'], string> = {
