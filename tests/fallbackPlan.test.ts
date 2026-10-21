@@ -555,7 +555,7 @@ describe('Erreichbarkeit', () => {
 
   it('ist ein Dokument mit Stand', () => {
     expect(registerQuelle).toContain("'ausweich-plan': ofTable(fallbackTable)")
-    expect(registerQuelle).toContain("'ausweich-plan': 'Ausweich-Plan (Sicherheitsnetz)'")
+    expect(registerQuelle).toContain("'ausweich-plan': 'Fallback plan (safety net)'")
   })
 
   it('hat fuer jeden neuen Text einen EN-Eintrag', () => {

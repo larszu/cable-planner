@@ -243,7 +243,7 @@ describe('Bedarf 95 — das Blatt und das Register', () => {
 
   it('steht im Register mit Stand und Beschriftung', () => {
     expect(typeof DOCUMENT_STANDS['spektrum-plan']).toBe('function')
-    expect(DOCUMENT_LABELS['spektrum-plan']).toBe('Spektrum-Plan')
+    expect(DOCUMENT_LABELS['spektrum-plan']).toBe('Spectrum plan')
   })
 
   it('setzt keinen Platzhalter, wo kein Traeger steht', () => {

@@ -186,8 +186,8 @@ describe('Trassenplan-Blatt', () => {
 
 describe('Stand im Dokument-Register', () => {
   it('fuehrt beide Blätter mit Namen', () => {
-    expect(DOCUMENT_LABELS.durchgaenge).toBe('Durchgänge (Brandschutz)')
-    expect(DOCUMENT_LABELS.trassenplan).toBe('Trassenplan')
+    expect(DOCUMENT_LABELS.durchgaenge).toBe('Penetrations (fire safety)')
+    expect(DOCUMENT_LABELS.trassenplan).toBe('Cable route plan')
     expect(DOCUMENT_STANDS.durchgaenge(haus())).toMatch(/^[0-9a-f]{8}$/)
   })
 

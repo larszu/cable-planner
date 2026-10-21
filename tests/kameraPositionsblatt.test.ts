@@ -99,7 +99,7 @@ describe('das Blatt', () => {
     const b = plan()
     b.equipment[0] = { ...b.equipment[0], kameraPresets: [preset(3, { panGrad: 11 })] }
     expect(DOCUMENT_STANDS['kamera-positionen'](b)).not.toBe(DOCUMENT_STANDS['kamera-positionen'](a))
-    expect(DOCUMENT_LABELS['kamera-positionen']).toBe('Kamera-Positionsblatt')
+    expect(DOCUMENT_LABELS['kamera-positionen']).toBe('Camera position sheet')
     expect(kameraPositionsblattStandTable(a).headers).toEqual(['Gerät', 'Feld', 'Wert'])
   })
 })

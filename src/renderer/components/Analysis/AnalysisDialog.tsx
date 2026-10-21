@@ -2130,29 +2130,34 @@ const SheetTab = () => {
 
   // Ausgeschriebener switch, ein Schluessel je Fall — ein aus dem `kind`
   // gebauter waere fuer den i18n-Deckungs-Guard unsichtbar.
+  // Der Name des Dokuments in der eingestellten Sprache; die Quelle ist
+  // `DOCUMENT_LABELS` (englisch), der Schluessel folgt der Dokument-Kennung.
+  const docName = (r: SheetLookup): string =>
+    r.docId ? t(`doc.${r.docId}`, r.label ?? r.docId) : (r.label ?? '')
+
   const text = (r: SheetLookup): string => {
     switch (r.kind) {
       case 'identified':
         switch (r.status) {
           case 'current':
             return format(t('analysis.sheet.current', '{label}: state {stand} \u2014 current'), {
-              label: r.label ?? '',
+              label: docName(r),
               stand: r.stand ?? '',
             })
           case 'stale':
             return format(
               t('analysis.sheet.stale', '{label}: state {stand} \u2014 SUPERSEDED, the plan has moved on'),
-              { label: r.label ?? '', stand: r.stand ?? '' },
+              { label: docName(r), stand: r.stand ?? '' },
             )
           default:
             return format(
               t('analysis.sheet.unknown', '{label}: state {stand} \u2014 not judgeable ({grund})'),
-              { label: r.label ?? '', stand: r.stand ?? '', grund: r.reason ?? '' },
+              { label: docName(r), stand: r.stand ?? '', grund: r.reason ?? '' },
             )
         }
       case 'matched-by-stand':
         return format(t('analysis.sheet.matched', '{label}: current (state {stand})'), {
-          label: r.label ?? '',
+          label: docName(r),
           stand: r.stand ?? '',
         })
       case 'stale-or-foreign':

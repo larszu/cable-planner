@@ -253,7 +253,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
                     key={`${b.entry.docId}-${b.entry.emittedAt}-${i}`}
                     className="border-t border-cp-border-muted"
                   >
-                    <td className="px-2 py-1">{b.entry.label}</td>
+                    <td className="px-2 py-1">{t(`doc.${b.entry.docId}`, b.entry.label)}</td>
                     <td className="px-2 py-1 text-cp-text-secondary">{fmt(b.entry.emittedAt)}</td>
                     <td className="px-2 py-1 font-mono">
                       #{b.entry.stand}

@@ -109,7 +109,7 @@ describe('findByStand — der Rueckweg ohne Kamera', () => {
     const p = project()
     const stand = currentStand('asset-register', p)!
     expect(findByStand(stand, p)?.docId).toBe('asset-register')
-    expect(findByStand(`#${stand.toUpperCase()}`, p)?.label).toBe('Asset-Register')
+    expect(findByStand(`#${stand.toUpperCase()}`, p)?.label).toBe('Asset register')
   })
 
   it('findet nichts, wenn der Stand zu keinem aktuellen Blatt gehoert', () => {

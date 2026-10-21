@@ -181,7 +181,7 @@ describe('Anhänge-Verzeichnis', () => {
   })
 
   it('steht im Register', () => {
-    expect(DOCUMENT_LABELS.anhaenge).toBe('Anhänge-Verzeichnis')
+    expect(DOCUMENT_LABELS.anhaenge).toBe('Attachment index')
     expect(DOCUMENT_STANDS.anhaenge(haus(liste))).not.toBe(DOCUMENT_STANDS.anhaenge(haus(liste.slice(1))))
   })
 })

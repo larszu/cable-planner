@@ -277,7 +277,7 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
                           ? t('compare.verdict.unknown', 'cannot tell')
                           : t('compare.verdict.unaffected', 'unchanged')}
                     </span>
-                    <span>{d.label}</span>
+                    <span>{t(`doc.${d.docId}`, d.label)}</span>
                     {d.reason && <span className="text-cp-text-muted">— {d.reason}</span>}
                   </li>
                 ))}

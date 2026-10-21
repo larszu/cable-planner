@@ -208,7 +208,7 @@ describe('Bedarf 77 — was das Haus gesagt hat, gehoert auf das Blatt', () => {
 describe('Bedarf 77 — es ist ein Dokument und keine Nachricht', () => {
   it('steht im Register mit Stand und Beschriftung', () => {
     expect(typeof DOCUMENT_STANDS['crew-netz']).toBe('function')
-    expect(DOCUMENT_LABELS['crew-netz']).toBe('Netz-Merkblatt (Crew)')
+    expect(DOCUMENT_LABELS['crew-netz']).toBe('Network sheet (crew)')
   })
 
   it('der Stand aendert sich, wenn sich der Inhalt aendert', () => {
