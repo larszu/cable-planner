@@ -9,6 +9,9 @@ interface GrundrissUiState {
     | { art: 'rechteck'; breiteM: number; tiefeM: number }
     | null
   grundrissPanel: boolean
+  /** Welcher Plan im Panel bearbeitet wird: Etagenname, `null` = allgemein (#984). */
+  planEtage: string | null
+  setPlanEtage: (etage: string | null) => void
   symbolPanel: boolean
   ausgewaehltesSymbol: string | null
   starteKalibrierung: (k: GrundrissUiState['kalibrierung']) => void
@@ -20,6 +23,8 @@ interface GrundrissUiState {
 export const useGrundrissUi = create<GrundrissUiState>((set) => ({
   kalibrierung: null,
   grundrissPanel: false,
+  planEtage: null,
+  setPlanEtage: (planEtage) => set({ planEtage, kalibrierung: null }),
   symbolPanel: false,
   ausgewaehltesSymbol: null,
   starteKalibrierung: (kalibrierung) => set({ kalibrierung }),

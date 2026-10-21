@@ -60,14 +60,14 @@ export const GrundrissKalibrierung = () => {
       punkteRef.current = []
       setPunkte([])
       if (laufend.art === 'zweiPunkt') {
-        kalibriere({ art: 'zweiPunkt', a: neu[0], b: neu[1], meter: laufend.meter })
+        kalibriere({ art: 'zweiPunkt', a: neu[0], b: neu[1], meter: laufend.meter }, useGrundrissUi.getState().planEtage)
       } else {
         const ecken = neu.slice(0, 4) as [PlanPunkt, PlanPunkt, PlanPunkt, PlanPunkt]
         if (!eckenGueltig(ecken)) {
           setFehler('ecken')
           return
         }
-        kalibriere({ art: 'rechteck', ecken, breiteM: laufend.breiteM, tiefeM: laufend.tiefeM })
+        kalibriere({ art: 'rechteck', ecken, breiteM: laufend.breiteM, tiefeM: laufend.tiefeM }, useGrundrissUi.getState().planEtage)
       }
       starte(null)
     }

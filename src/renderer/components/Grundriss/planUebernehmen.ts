@@ -3,6 +3,7 @@
 // laufen (vor ADR-015 hatte das Panel seinen eigenen Lader).
 
 import { ladePlanDatei, type GeladenerPlan } from '../../avplan/floorplan/planDatei'
+import { pdfRenderer } from '../../lib/grundriss/pdfRenderer'
 import { confirmDialog } from '../../lib/confirmDialog'
 import {
   ersetzenBrauchtBestaetigung,
@@ -24,15 +25,19 @@ export async function planUebernehmen(o: {
   aktuell: Grundriss | null | undefined
   setze: (g: Grundriss) => void
   t: (key: string, fallback: string) => string
+  /** PDF-Seite ab 0 (#984). */
+  seite?: number
+  /** Seitenwechsel im selben PDF: ohne Nachfrage ersetzen. */
+  ohneNachfrage?: boolean
 }): Promise<PlanUebernahme> {
   const { t } = o
   let plan: GeladenerPlan
   try {
-    plan = await ladePlanDatei(o.datei, { maxKante: PLAN_MAX_KANTE_CABLE })
+    plan = await ladePlanDatei(o.datei, { maxKante: PLAN_MAX_KANTE_CABLE, pdf: pdfRenderer, seite: o.seite })
   } catch (e) {
     return { status: 'fehler', text: planFehlerText(planFehlerCode(e), t) }
   }
-  if (ersetzenBrauchtBestaetigung(o.aktuell)) {
+  if (!o.ohneNachfrage && ersetzenBrauchtBestaetigung(o.aktuell)) {
     const ja = await confirmDialog(t('floorplan.replaceConfirm', 'Replace the floor plan?'), {
       body: t(
         'floorplan.replaceConfirmBody',

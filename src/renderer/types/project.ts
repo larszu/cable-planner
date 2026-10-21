@@ -196,6 +196,8 @@ export interface CablePlannerProject {
   locations?: LocationFrame[]
   /** Hallenplan unter dem Canvas, mit Massstab. */
   grundriss?: import('./grundriss').Grundriss
+  /** #984 — Hallenplan je Etage, Schluessel `etagenSchluessel(name)`. */
+  etagenGrundrisse?: Record<string, import('./grundriss').Grundriss>
   /** Symbole auf dem Canvas. */
   symbole?: import('./symbol').PlatziertesSymbol[]
   /** Eigene Symbol-Definitionen dieses Projekts (importiert, per KI erzeugt).

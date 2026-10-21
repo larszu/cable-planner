@@ -38,6 +38,7 @@ import { planAblage, ziehtDateien } from '../../avplan/floorplan/planDatei'
 import { PLAN_PDF, planFehlerText, ungeeignetCode, ursprungUm } from '../../lib/grundriss/planUebernahme'
 import { planUebernehmen } from '../Grundriss/planUebernehmen'
 import { useUiStore } from '../../store/uiStore'
+import { alleGrundrisse, etageAusKnotenId, grundrissKnotenId, grundrissVon } from '../../lib/grundriss/etagenPlaene'
 import { netKeyOf } from '../../lib/offPageNet'
 import {
   MIME_ANNOTATION as ANNOTATION_DRAG_MIME,
@@ -96,8 +97,7 @@ const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode, grund
 
 /** Knoten, die weder Geraet noch Raum sind und ihre Aenderungen selbst
  *  verbuchen — die Geraete-Logik in `onNodesChange` bekommt sie nie zu sehen. */
-const GRUNDRISS_ID = 'grundriss'
-const istEigenerKnoten = (id: string, symbolIds: Set<string>) => id === GRUNDRISS_ID || symbolIds.has(id)
+const istEigenerKnoten = (id: string, symbolIds: Set<string>) => etageAusKnotenId(id) !== undefined || symbolIds.has(id)
 const edgeTypes = { cable: CableEdge }
 
 type CanvasMode = 'main' | 'rack'
@@ -486,11 +486,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // v7.9.68 — analog für Geräte.
       draggable: !item.positionLocked && !lockEquipment && !projectIsLocked,
     }))
-    const g = project.grundriss
-    const grundrissNodes: Node[] = g
-      ? [
-          {
-            id: GRUNDRISS_ID,
+    // #984: ein Plan je Etage; eine ausgeblendete Etage nimmt ihren Plan mit.
+    const grundrissNodes: Node[] = alleGrundrisse(project)
+      .filter(({ etage }) => etage == null || vollansicht || !ausgeblendeteEtagen.includes(etage))
+      .map(({ etage, g }) => ({
+            id: grundrissKnotenId(etage),
             type: 'grundriss',
             position: { x: g.x, y: g.y },
             data: g,
@@ -503,9 +503,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             style: { width: g.width, height: g.height },
             draggable: !g.gesperrt && !projectIsLocked,
             selectable: !g.gesperrt,
-          },
-        ]
-      : []
+          }))
     const defs = new Map([...EINGEBAUTE_SYMBOLE, ...(project.symbolDefs ?? [])].map((d) => [d.id, d]))
     const symbolNodes: Node[] = (project.symbole ?? []).map((sym) => ({
       id: sym.id,
@@ -516,7 +514,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       draggable: !sym.gesperrt && !projectIsLocked,
     }))
     return [...grundrissNodes, ...locationNodes, ...symbolNodes, ...equipmentNodes]
-  }, [project.equipment, project.grundriss, project.symbole, project.symbolDefs, locations, pdfExportThemeOverride, lockFrames, lockEquipment, projectIsLocked])
+  }, [project.equipment, project.grundriss, project.etagenGrundrisse, ausgeblendeteEtagen, vollansicht, project.symbole, project.symbolDefs, locations, pdfExportThemeOverride, lockFrames, lockEquipment, projectIsLocked])
   const symbolIds = useMemo(() => new Set((project.symbole ?? []).map((s) => s.id)), [project.symbole])
   const updateGrundriss = useProjectStore((state) => state.updateGrundriss)
   const updateSymbol = useProjectStore((state) => state.updateSymbol)
@@ -548,15 +546,16 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     setRfNodes((current) => applyNodeChanges(changes, current))
     const snap = (v: number) => (snapToGrid && gridSize > 0 ? Math.round(v / gridSize) * gridSize : v)
     for (const c of changes) {
-      const istPlan = 'id' in c && c.id === GRUNDRISS_ID
+      const planEtage = 'id' in c ? etageAusKnotenId(c.id) : undefined
+      const istPlan = planEtage !== undefined
       if (c.type === 'position' && c.position && c.dragging !== true) {
         const pos = c.dragging === false ? { x: snap(c.position.x), y: snap(c.position.y) } : c.position
-        if (istPlan) updateGrundriss(pos)
+        if (istPlan) updateGrundriss(pos, planEtage)
         else updateSymbol(c.id, pos)
       }
       if (c.type === 'dimensions' && c.dimensions && c.resizing !== undefined && c.updateStyle) {
         const { width, height } = c.dimensions
-        if (istPlan) updateGrundriss({ width, height })
+        if (istPlan) updateGrundriss({ width, height }, planEtage)
         else updateSymbol(c.id, { groesse: Math.round(Math.max(width, height)) })
       }
     }
@@ -1760,8 +1759,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           void planUebernehmen({
             datei,
             ursprung: (plan) => ursprungUm(punkt, plan),
-            aktuell: projectStoreInstance.getState().project.grundriss,
-            setze: (g) => projectStoreInstance.getState().setGrundriss(g),
+            aktuell: grundrissVon(projectStoreInstance.getState().project, useGrundrissUi.getState().planEtage),
+            setze: (g) => projectStoreInstance.getState().setGrundriss(g, useGrundrissUi.getState().planEtage),
             t,
           }).then((r) => {
             if (r.status === 'fehler') void infoDialog(t('floorplan.drop.failedTitle', 'Floor plan not loaded'), { body: r.text, tone: 'warning' })
