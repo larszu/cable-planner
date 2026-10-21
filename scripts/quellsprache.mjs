@@ -555,7 +555,7 @@ export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
  * (Analyse-Befunde, Dokument-Exporte) — deshalb eine eigene Grenze, die nur
  * sinken darf, statt die Grenze 0 der Daten-Messung zu reissen.
  */
-export const OHNE_T_GRENZE = { 'src/renderer': 404, 'src/mobile': 15, 'src/viewer': 0 }
+export const OHNE_T_GRENZE = { 'src/renderer': 344, 'src/mobile': 0, 'src/viewer': 0 }
 
 export const messeOhneT = (wurzel, quellsprache) => {
   const ziel = quellsprache === 'de' ? 'en' : 'de'

@@ -247,7 +247,7 @@ describe('der Guard: das Register ist die einzige Liste', () => {
     expect(bom).toBeDefined()
     expect(bom!.verdict).toBe('unknown')
     expect(bom!.reason).toMatch(/Reserve-Aufschlag/)
-    expect(bom!.label).toBe('Kabel-Stückliste')
+    expect(bom!.label).toBe('Cable bill of materials')
   })
 
   // Der Revisions-Vergleich im PlanCompareDialog spannt einen `RevisionSnapshot`

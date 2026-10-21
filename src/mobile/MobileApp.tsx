@@ -1539,7 +1539,7 @@ const ProjectView = ({
     const doc = parseDocQrPayload(raw)
     if (doc) {
       const now = currentStand(doc.docId, project)
-      const label = DOCUMENT_LABELS[doc.docId] ?? doc.docId
+      const label = t(`doc.${doc.docId}`, DOCUMENT_LABELS[doc.docId] ?? doc.docId)
       const status = docStandStatus(doc, now)
       setFocus(null)
       setLookupMsg(
@@ -1572,7 +1572,7 @@ const ProjectView = ({
       setLookupMsg({
         ok: true,
         text: format(t('mobile.lookup.docCurrent', '{label}: current revision'), {
-          label: typed.label,
+          label: t(`doc.${typed.docId}`, typed.label),
         }),
       })
       return

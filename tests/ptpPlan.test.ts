@@ -340,7 +340,7 @@ describe('Bedarf 73 — verdrahtet', () => {
     // der Stand-Eintrag umbenannt wurde -- die Beschriftungs-Zeile darunter
     // enthaelt dieselbe Zeichenfolge und hat die Zusicherung erfuellt.
     expect(typeof DOCUMENT_STANDS['ptp-plan']).toBe('function')
-    expect(DOCUMENT_LABELS['ptp-plan']).toBe('Zeit-Plan (PTP)')
+    expect(DOCUMENT_LABELS['ptp-plan']).toBe('Timing plan (PTP)')
   })
 })
 

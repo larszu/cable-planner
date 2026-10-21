@@ -238,7 +238,14 @@ describe('Die Woerterbuecher haben keine stillen Luecken', () => {
       // er sieht beim Lesen aus wie Deckung fuer eine Stelle, die es nicht
       // mehr gibt — dieselbe Regel wie beim Light-Theme-Remap.
       const benutzt = benutzteSchluessel(ordner, quellen)
-      const verwaist = [...uebersetzteSchluessel(ordner)].filter((k) => !benutzt.has(k))
+      // Dynamische Schluessel: `t(`doc.${id}`, DOCUMENT_LABELS[id])` ruft jeden
+      // Eintrag unter `doc.` — der Praefix steht im Aufruf, der Rest in den Daten.
+      const praefixe = quellen.flatMap((datei) =>
+        [...lies(`${ordner}/${datei}`).matchAll(/\bt\(\s*`([\w.]+\.)\$\{/g)].map((m) => m[1]),
+      )
+      const verwaist = [...uebersetzteSchluessel(ordner)].filter(
+        (k) => !benutzt.has(k) && !praefixe.some((p) => k.startsWith(p)),
+      )
       expect(verwaist, `Schluessel im Woerterbuch, die niemand ruft: ${verwaist.join(', ')}`)
         .toEqual([])
     })

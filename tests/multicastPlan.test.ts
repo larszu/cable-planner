@@ -645,7 +645,7 @@ describe('Erreichbarkeit', () => {
 
   it('ist ein Dokument mit Stand', () => {
     expect(registerQuelle).toContain("'multicast-plan': ofTable(multicastTableForProject)")
-    expect(registerQuelle).toContain("'multicast-plan': 'Multicast-Adressplan'")
+    expect(registerQuelle).toContain("'multicast-plan': 'Multicast address plan'")
   })
 
   it('hat fuer jeden neuen Text einen EN-Eintrag', () => {

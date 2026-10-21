@@ -377,7 +377,7 @@ describe('Bedarf 62 — die Übergabe an die Post', () => {
   it('der Weg ist verdrahtet', () => {
     // Das Blatt hat einen Stand (ADR-004) und liegt im Papierstapel.
     expect(registerQuelle).toMatch(/'post-uebergabe': ofTable\(handoverManifestTableForProject\)/)
-    expect(registerQuelle).toMatch(/'post-uebergabe': 'Übergabe an die Post'/)
+    expect(registerQuelle).toMatch(/'post-uebergabe': 'Post handover'/)
     // Der Import allein ist keine Verdrahtung — gepruft wird der EINTRAG in
     // der Kandidaten-Liste. Nachgemessen: gegen den blossen Namen blieb die
     // Gegenprobe „das Blatt fehlt im Papierstapel" gruen.
