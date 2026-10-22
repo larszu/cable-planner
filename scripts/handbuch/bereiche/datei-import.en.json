@@ -1,7 +1,461 @@
 {
-  "vorlagen": "New from template\n\nBundled show setups or your own saved templates as a starting point. more\n\nSave current project as template\nAs-built as template\nBUNDLED TEMPLATES\nOB van\nÜbertragungswagen mit Bühne und FOH — getrennte Standort-Rahmen.\n0 devices · 0 cables · 2 locations\nUse\nTV-Studio\nStudio mit Regie und Studioboden.\n0 devices · 0 cables · 2 locations\nUse\nLive stage\nBühne, FOH und Monitorwelt für Live-Events.\n0 devices · 0 cables · 3 locations\nUse\nKonferenz / Corporate\nSaal und Regie für Tagungen und Corporate-Events.\n0 devices · 0 cables · 2 locations\nUse\nHouses of Worship\nAltarraum/Bühne und Technikempore für Gottesdienste.\n0 devices · 0 cables · 2 locations\nUse\nMY TEMPLATES\n\nNo templates yet. Save a project via “Save current project as template”.",
-  "graphml": "Import yEd / GraphML\n\nyEd / GraphML importer\n\nPick a .graphml file. LZ Cable Planner auto-detects devices, ports and cables — you get a preview where you can include or exclude individual entries before committing to the project.\n\nPick file…",
-  "csv": "Import equipment from CSV\n\nPaste CSV or pick a file. more\n\nChoose CSV file…\nCancel\nImport 0",
-  "rentman": "Import from Rentman\nClose\nLoad projects\nNo projects loaded yet\nSort:\n# ↓\n# ↑\nDate ↓\nDate ↑\nError invoking remote method 'rentman:get-projects': Error: No Rentman token configured. Open Settings and add one.",
-  "netbox": "NetBox import\nPlease configure the instance URL and an API token first under Settings → Integrations → NetBox.\nNo NetBox URL configured\nCancel\nBuild preview"
+  "schritte": [
+    {
+      "nr": 1,
+      "name": "menue-datei-offen",
+      "datei": "datei-import-01-menue-datei-offen.jpg",
+      "text": ""
+    },
+    {
+      "nr": 2,
+      "name": "vorlagen-dialog",
+      "datei": "datei-import-02-vorlagen-dialog.jpg",
+      "text": "New from template\n\nBundled show setups or your own saved templates as a starting point. more\n\nSave current project as template\nAs-built as template\nBundled templates\nOB van\nOB van with stage and FOH — separate location frames.\n0 devices · 0 cables · 2 locations\nUse\nTV-Studio\nStudio with control room and studio floor.\n0 devices · 0 cables · 2 locations\nUse\nLive stage\nStage, FOH and monitor world for live events.\n0 devices · 0 cables · 3 locations\nUse\nKonferenz / Corporate\nHall and control room for conferences and corporate events.\n0 devices · 0 cables · 2 locations\nUse\nHouses of Worship\nSanctuary/stage and tech gallery for church services.\n0 devices · 0 cables · 2 locations\nUse\nMy templates\n\nNo templates yet. Save a project via “Save current project as template”."
+    },
+    {
+      "nr": 3,
+      "name": "vorlagen-as-built-frage",
+      "datei": "datei-import-03-vorlagen-as-built-frage.jpg",
+      "text": "Template name (from the as-built)\nCancel\nOK"
+    },
+    {
+      "nr": 4,
+      "name": "vorlagen-as-built-abgelehnt",
+      "datei": "datei-import-04-vorlagen-as-built-abgelehnt.jpg",
+      "text": "No as-built committed\nNothing is committed as “as built”. Commit an as-built revision first — otherwise the template would be the plan from before load-in, only under another name.\nOK"
+    },
+    {
+      "nr": 5,
+      "name": "oeffnen-kein-plan",
+      "datei": "datei-import-05-oeffnen-kein-plan.jpg",
+      "text": "This file is not an LZ Cable Planner project\nThe file could be read but contains no equipment and cable list. Nothing was loaded — the open project is unchanged.\nOK"
+    },
+    {
+      "nr": 6,
+      "name": "oeffnen-viewer-name",
+      "datei": "datei-import-06-oeffnen-viewer-name.jpg",
+      "text": "Viewer file — enter name You are opening a viewer file for review. Please enter your name — it will be attached to all annotations you create in this session.\nCancel\nOK"
+    },
+    {
+      "nr": 7,
+      "name": "oeffnen-viewer-name-leer",
+      "datei": "datei-import-07-oeffnen-viewer-name-leer.jpg",
+      "text": "Name missing\nWithout a name no annotations can be made. The file will not be loaded.\nOK"
+    },
+    {
+      "nr": 8,
+      "name": "graphml-dialog-leer",
+      "datei": "datei-import-08-graphml-dialog-leer.jpg",
+      "text": "Import yEd / GraphML\n\nyEd / GraphML importer\n\nPick a .graphml file. LZ Cable Planner auto-detects devices, ports and cables — you get a preview where you can include or exclude individual entries before committing to the project.\n\nPick file…"
+    },
+    {
+      "nr": 9,
+      "name": "graphml-vorschau-yed",
+      "datei": "datei-import-09-graphml-vorschau-yed.jpg",
+      "text": "Import yEd / GraphML\nFile beispiel.graphml2.8 KB • 11 nodes • 3 edges\nAnother file\nDevices: 3/3\nCables: 2/2\nSkipped: 1\nEdges without target: 1\nTarget:\nCanvas\nLibrary\nMode:\nAppend to project\nReplace GraphML import\nyEd preview\nDevices (3)\nCables (2)\nSkipped (2)\nKamera 1\nIP: 10.0.0.11\n12G-SDI Out\nBildmischer\nIP: 10.0.0.20\n3G/SDI In 1\n3G/SDI In 2\n3G/SDI Out 1\nMonitor Regie\nHDMI In\nLegende\n＋\n−\nReset\n100%\nMouse wheel zooms · Drag pans · 11 nodes · 3 edges\nCancel\n3 devices & 2 cables onto canvas"
+    },
+    {
+      "nr": 10,
+      "name": "graphml-reiter-geraete",
+      "datei": "datei-import-10-graphml-reiter-geraete.jpg",
+      "text": "Import yEd / GraphML\nFile beispiel.graphml2.8 KB • 11 nodes • 3 edges\nAnother file\nDevices: 3/3\nCables: 2/2\nSkipped: 1\nEdges without target: 1\nTarget:\nCanvas\nLibrary\nMode:\nAppend to project\nReplace GraphML import\nyEd preview\nDevices (3)\nCables (2)\nSkipped (2)\n\tName\tCategory\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\nCancel\n3 devices & 2 cables onto canvas"
+    },
+    {
+      "nr": 11,
+      "name": "graphml-geraet-abgewaehlt",
+      "datei": "datei-import-11-graphml-geraet-abgewaehlt.jpg",
+      "text": "Import yEd / GraphML\nFile beispiel.graphml2.8 KB • 11 nodes • 3 edges\nAnother file\nDevices: 2/3\nCables: 2/2\nSkipped: 1\nEdges without target: 1\nTarget:\nCanvas\nLibrary\nMode:\nAppend to project\nReplace GraphML import\nyEd preview\nDevices (3)\nCables (2)\nSkipped (2)\n\tName\tCategory\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\nCancel\n2 devices & 2 cables onto canvas"
+    },
+    {
+      "nr": 12,
+      "name": "graphml-geraet-umbenannt",
+      "datei": "datei-import-12-graphml-geraet-umbenannt.jpg",
+      "text": "Import yEd / GraphML\nFile beispiel.graphml2.8 KB • 11 nodes • 3 edges\nAnother file\nDevices: 2/3\nCables: 2/2\nSkipped: 1\nEdges without target: 1\nTarget:\nCanvas\nLibrary\nMode:\nAppend to project\nReplace GraphML import\nyEd preview\nDevices (3)\nCables (2)\nSkipped (2)\n\tName\tCategory\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\nCancel\n2 devices & 2 cables onto canvas"
+    },
+    {
+      "nr": 13,
+      "name": "graphml-reiter-kabel",
+      "datei": "datei-import-13-graphml-reiter-kabel.jpg",
+      "text": "Import yEd / GraphML\nFile beispiel.graphml2.8 KB • 11 nodes • 3 edges\nAnother file\nDevices: 2/3\nCables: 2/2\nSkipped: 1\nEdges without target: 1\nTarget:\nCanvas\nLibrary\nMode:\nAppend to project\nReplace GraphML import\nyEd preview\nDevices (3)\nCables (2)\nSkipped (2)\n\tSource\tTarget\tType\tStandard\tLength\n\tKamera 1\tBildmischer\tBNC\t—\t25 m\n\tBildmischer\tMonitor Regie\tHDMI\t—\t5 m\nCancel\n2 devices & 2 cables onto canvas"
+    },
+    {
+      "nr": 14,
+      "name": "graphml-kabel-abgewaehlt",
+      "datei": "datei-import-14-graphml-kabel-abgewaehlt.jpg",
+      "text": "Import yEd / GraphML\nFile beispiel.graphml2.8 KB • 11 nodes • 3 edges\nAnother file\nDevices: 2/3\nCables: 1/2\nSkipped: 1\nEdges without target: 1\nTarget:\nCanvas\nLibrary\nMode:\nAppend to project\nReplace GraphML import\nyEd preview\nDevices (3)\nCables (2)\nSkipped (2)\n\tSource\tTarget\tType\tStandard\tLength\n\tKamera 1\tBildmischer\tBNC\t—\t25 m\n\tBildmischer\tMonitor Regie\tHDMI\t—\t5 m\nCancel\n2 devices & 1 cable onto canvas"
+    },
+    {
+      "nr": 15,
+      "name": "graphml-filter",
+      "datei": "datei-import-15-graphml-filter.jpg",
+      "text": "Import yEd / GraphML\nFile beispiel.graphml2.8 KB • 11 nodes • 3 edges\nAnother file\nDevices: 2/3\nCables: 1/2\nSkipped: 1\nEdges without target: 1\nTarget:\nCanvas\nLibrary\nMode:\nAppend to project\nReplace GraphML import\nyEd preview\nDevices (3)\nCables (2)\nSkipped (2)\n\tSource\tTarget\tType\tStandard\tLength\n\tBildmischer\tMonitor Regie\tHDMI\t—\t5 m\nCancel\n2 devices & 1 cable onto canvas"
+    },
+    {
+      "nr": 16,
+      "name": "graphml-reiter-uebersprungen",
+      "datei": "datei-import-16-graphml-reiter-uebersprungen.jpg",
+      "text": "Import yEd / GraphML\nFile beispiel.graphml2.8 KB • 11 nodes • 3 edges\nAnother file\nDevices: 2/3\nCables: 1/2\nSkipped: 1\nEdges without target: 1\nTarget:\nCanvas\nLibrary\nMode:\nAppend to project\nReplace GraphML import\nyEd preview\nDevices (3)\nCables (2)\nSkipped (2)\nNodes skipped (1)\nlegende — Decorative shape\nEdges with unresolved ports (1)\ne3: legende → camOut\nCancel\n2 devices & 1 cable onto canvas"
+    },
+    {
+      "nr": 17,
+      "name": "graphml-ziel-bibliothek",
+      "datei": "datei-import-17-graphml-ziel-bibliothek.jpg",
+      "text": "Import yEd / GraphML\nFile beispiel.graphml2.8 KB • 11 nodes • 3 edges\nAnother file\nDevices: 2/3\nCables: 1/2\nSkipped: 1\nEdges without target: 1\nTarget:\nCanvas\nLibrary\nLibrary mode: devices are saved as reusable templates into the local library. Cables are not adopted (templates carry no cabling).\nyEd preview\nDevices (3)\nCables (2)\nSkipped (2)\n\tName\tCategory\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\nCancel\n2 devices into library"
+    },
+    {
+      "nr": 18,
+      "name": "graphml-ziel-canvas-ersetzen",
+      "datei": "datei-import-18-graphml-ziel-canvas-ersetzen.jpg",
+      "text": "Import yEd / GraphML\nFile beispiel.graphml2.8 KB • 11 nodes • 3 edges\nAnother file\nDevices: 2/3\nCables: 1/2\nSkipped: 1\nEdges without target: 1\nTarget:\nCanvas\nLibrary\nMode:\nAppend to project\nReplace GraphML import\nyEd preview\nDevices (3)\nCables (2)\nSkipped (2)\n\tName\tCategory\tIP\tIn/Out\tStatus\n\t\t\t10.0.0.11\t0/1\tHIGH\n\t\t\t10.0.0.20\t2/1\tHIGH\n\t\t\t—\t1/0\tHIGH\nCancel\n2 devices & 1 cable onto canvas"
+    },
+    {
+      "nr": 19,
+      "name": "graphml-hintergrund-rueckfrage",
+      "datei": "datei-import-19-graphml-hintergrund-rueckfrage.jpg",
+      "text": "Discard import?\nAnything not yet applied here will be lost.\nKeep editing\nDiscard"
+    },
+    {
+      "nr": 20,
+      "name": "graphml-import-ergebnis",
+      "datei": "datei-import-20-graphml-import-ergebnis.jpg",
+      "text": ""
+    },
+    {
+      "nr": 21,
+      "name": "graphml-bibliothek-ergebnis",
+      "datei": "datei-import-21-graphml-bibliothek-ergebnis.jpg",
+      "text": "Added to the library\nCreated 3 device(s). Not created: 0 name(s) that already existed\nOK"
+    },
+    {
+      "nr": 22,
+      "name": "graphml-bibliothek-zweites-mal",
+      "datei": "datei-import-22-graphml-bibliothek-zweites-mal.jpg",
+      "text": "Added to the library\nCreated 0 device(s). Not created: 3 name(s) that already existed — Kamera 1, Bildmischer, Monitor Regie\nOK"
+    },
+    {
+      "nr": 23,
+      "name": "graphml-datei-ohne-inhalt",
+      "datei": "datei-import-23-graphml-datei-ohne-inhalt.jpg",
+      "text": "Import yEd / GraphML\n\nImport failed\n\nkaputt.graphml\n\nreadTagExp returned undefined at position 17. Context: \"das ist kein xml <<<\"\nPick another file"
+    },
+    {
+      "nr": 24,
+      "name": "csv-dialog-leer",
+      "datei": "datei-import-24-csv-dialog-leer.jpg",
+      "text": "Import equipment from CSV\n\nPaste CSV or pick a file. more\n\nChoose CSV file…\nCancel\nImport 0"
+    },
+    {
+      "nr": 25,
+      "name": "csv-eingefuegt",
+      "datei": "datei-import-25-csv-eingefuegt.jpg",
+      "text": "Import equipment from CSV\n\nPaste CSV or pick a file. more\n\nChoose CSV file…\nDetected: 2 row(s), mapped columns: name, category, watts, weight, serial, ip, rackUnits, subtitle\nWhat happens to the rest\nNot recognised as a field, carried into the notes: Verantwortlich, Kundennotiz\nSecond column on the same field — the first one wins, this one becomes a note: Name (name)\n1 row(s) without a name will be skipped: 4\n1 name(s) already exist — they stay unchanged, nothing is overwritten: Monitor 24\nName\tCategory\tW\tkg\tHE\nATEM Mini Pro\tMischer\t30\t1.1\t1\nMonitor 24\tMonitore\t45\t3.2\t\nCancel\nImport 2"
+    },
+    {
+      "nr": 26,
+      "name": "csv-import-ergebnis",
+      "datei": "datei-import-26-csv-import-ergebnis.jpg",
+      "text": "CSV imported\nCreated 2 new device(s). Left unchanged: 1 name(s) that already existed. Skipped: 1 row(s) without a name.\nOK"
+    },
+    {
+      "nr": 27,
+      "name": "csv-in-bibliothek",
+      "datei": "datei-import-27-csv-in-bibliothek.jpg",
+      "text": ""
+    },
+    {
+      "nr": 28,
+      "name": "csv-zweiter-import-vorhanden",
+      "datei": "datei-import-28-csv-zweiter-import-vorhanden.jpg",
+      "text": "Import equipment from CSV\n\nPaste CSV or pick a file. more\n\nChoose CSV file…\nDetected: 0 row(s), mapped columns: name, category, watts, weight, serial, ip, rackUnits, subtitle\nWhat happens to the rest\nNot recognised as a field, carried into the notes: Verantwortlich, Kundennotiz\nSecond column on the same field — the first one wins, this one becomes a note: Name (name)\n1 row(s) without a name will be skipped: 4\n2 name(s) already exist — they stay unchanged, nothing is overwritten: ATEM Mini Pro, Monitor 24\nName\tCategory\tW\tkg\tHE\nCancel\nImport 0"
+    },
+    {
+      "nr": 29,
+      "name": "csv-datei-gewaehlt",
+      "datei": "datei-import-29-csv-datei-gewaehlt.jpg",
+      "text": "Import equipment from CSV\n\nPaste CSV or pick a file. more\n\nChoose CSV file…\nDetected: 1 row(s), mapped columns: name, category, watts, weight\nName\tCategory\tW\tkg\tHE\nVideohub 12x12\tRouter\t20\t1.5\t\nCancel\nImport 1"
+    },
+    {
+      "nr": 30,
+      "name": "multicam-erster-import",
+      "datei": "datei-import-30-multicam-erster-import.jpg",
+      "text": "MultiCam cameras: 2 new, 0 updated, 0 unchanged.\nOK"
+    },
+    {
+      "nr": 31,
+      "name": "multicam-zweiter-import",
+      "datei": "datei-import-31-multicam-zweiter-import.jpg",
+      "text": "MultiCam cameras: 1 new, 1 updated, 0 unchanged.\nNo longer in the MultiCam plan — marked, not deleted, because cables may hang on them: Kamera Saal\nOK"
+    },
+    {
+      "nr": 32,
+      "name": "multicam-fehler",
+      "datei": "datei-import-32-multicam-fehler.jpg",
+      "text": "Camera import failed — not a valid MultiCam camera list.\nOK"
+    },
+    {
+      "nr": 33,
+      "name": "netbox-ohne-url",
+      "datei": "datei-import-33-netbox-ohne-url.jpg",
+      "text": "NetBox import\nPlease configure the instance URL and an API token first under Settings → Integrations → NetBox.\nNo NetBox URL configured\nCancel\nBuild preview"
+    },
+    {
+      "nr": 34,
+      "name": "netbox-dialog-auswahl",
+      "datei": "datei-import-34-netbox-dialog-auswahl.jpg",
+      "text": "NetBox import\n\nPick a site or a single rack. more\n\nSite\n— pick a site —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— import the whole site —\nRack A1 (3)\nOptions\nOnly import cabled ports\nRecommended: otherwise a 48-port switch drags 48 unused ports onto the plan.\nImport connections\nCreate a frame per rack\nhttps://netbox.example.test\nCancel\nBuild preview"
+    },
+    {
+      "nr": 35,
+      "name": "netbox-standort-gewaehlt",
+      "datei": "datei-import-35-netbox-standort-gewaehlt.jpg",
+      "text": "NetBox import\n\nPick a site or a single rack. more\n\nSite\n— pick a site —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— import the whole site —\nRack A1 (3)\nOptions\nOnly import cabled ports\nRecommended: otherwise a 48-port switch drags 48 unused ports onto the plan.\nImport connections\nCreate a frame per rack\nhttps://netbox.example.test\nCancel\nBuild preview"
+    },
+    {
+      "nr": 36,
+      "name": "netbox-rack-gewaehlt",
+      "datei": "datei-import-36-netbox-rack-gewaehlt.jpg",
+      "text": "NetBox import\n\nPick a site or a single rack. more\n\nSite\n— pick a site —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— import the whole site —\nRack A1 (3)\nOptions\nOnly import cabled ports\nRecommended: otherwise a 48-port switch drags 48 unused ports onto the plan.\nImport connections\nCreate a frame per rack\nhttps://netbox.example.test\nCancel\nBuild preview"
+    },
+    {
+      "nr": 37,
+      "name": "netbox-optionen-aus",
+      "datei": "datei-import-37-netbox-optionen-aus.jpg",
+      "text": "NetBox import\n\nPick a site or a single rack. more\n\nSite\n— pick a site —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— import the whole site —\nRack A1 (3)\nOptions\nOnly import cabled ports\nRecommended: otherwise a 48-port switch drags 48 unused ports onto the plan.\nImport connections\nCreate a frame per rack\nhttps://netbox.example.test\nCancel\nBuild preview"
+    },
+    {
+      "nr": 38,
+      "name": "netbox-optionen-ein",
+      "datei": "datei-import-38-netbox-optionen-ein.jpg",
+      "text": "NetBox import\n\nPick a site or a single rack. more\n\nSite\n— pick a site —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— import the whole site —\nRack A1 (3)\nOptions\nOnly import cabled ports\nRecommended: otherwise a 48-port switch drags 48 unused ports onto the plan.\nImport connections\nCreate a frame per rack\nhttps://netbox.example.test\nCancel\nBuild preview"
+    },
+    {
+      "nr": 39,
+      "name": "netbox-vorschau",
+      "datei": "datei-import-39-netbox-vorschau.jpg",
+      "text": "NetBox import\nSite „Studio A\"Studio A · NetBox 4.1.0\n3\nNew devices\n2\nNew connections\n0\nNew ports on existing devices\n0\nUnchanged\nIn NetBox: 3 devices, 3 connections, 6 ports — 5 of them imported.\n1 skipped objects\nDevices that will be created\ncore-sw-01\nNetworking · 6 Ports\nenc-01\nVideo · 2 Ports\nregie-pc\nPC · 2 Ports\nhttps://netbox.example.test\nBack\nCancel\nAdd to project"
+    },
+    {
+      "nr": 40,
+      "name": "netbox-vorschau-uebersprungen",
+      "datei": "datei-import-40-netbox-vorschau-uebersprungen.jpg",
+      "text": "NetBox import\nSite „Studio A\"Studio A · NetBox 4.1.0\n3\nNew devices\n2\nNew connections\n0\nNew ports on existing devices\n0\nUnchanged\nIn NetBox: 3 devices, 3 connections, 6 ports — 5 of them imported.\n1 skipped objects\n#502 K-502 — At least one cable end lies outside the imported scope.\nDevices that will be created\ncore-sw-01\nNetworking · 6 Ports\nenc-01\nVideo · 2 Ports\nregie-pc\nPC · 2 Ports\nhttps://netbox.example.test\nBack\nCancel\nAdd to project"
+    },
+    {
+      "nr": 41,
+      "name": "netbox-zweiter-lauf-verknuepft",
+      "datei": "datei-import-41-netbox-zweiter-lauf-verknuepft.jpg",
+      "text": "NetBox import\n\nPick a site or a single rack. more\n\nSite\n— pick a site —\nStudio A (3)\nOB-Van (0)\nRack (optional)\n— import the whole site —\nRack A1 (3)\nOptions\nOnly import cabled ports\nRecommended: otherwise a 48-port switch drags 48 unused ports onto the plan.\nImport connections\nCreate a frame per rack\nThis project is linked to Site \"Studio A\". Last sync: 22.10.2026, 11:13:31.\nhttps://netbox.example.test\nCancel\nBuild preview"
+    },
+    {
+      "nr": 42,
+      "name": "netbox-zweiter-lauf-delta",
+      "datei": "datei-import-42-netbox-zweiter-lauf-delta.jpg",
+      "text": "NetBox import\nSite „Studio A\"Studio A · NetBox 4.1.0\n1\nNew devices\n0\nNew connections\n0\nNew ports on existing devices\n5\nUnchanged\nIn NetBox: 4 devices, 4 connections, 7 ports — 6 of them imported.\n2 skipped objects\nDevices that will be created\nptz-01\nCameras · 2 Ports\nhttps://netbox.example.test\nBack\nCancel\nAdd to project"
+    },
+    {
+      "nr": 43,
+      "name": "avplan-export-zugangsdaten-frage",
+      "datei": "datei-import-43-avplan-export-zugangsdaten-frage.jpg",
+      "text": "Include credentials?\nOne entry carries a device username or password. The .avplan goes to other trades. Without credentials, re-importing it into this app loses them.\nCancel\nInclude\nWithout credentials"
+    },
+    {
+      "nr": 44,
+      "name": "avplan-import-unbekannte-abschnitte",
+      "datei": "datei-import-44-avplan-import-unbekannte-abschnitte.jpg",
+      "text": "This file contains unknown sections\nThe file carries sections this app does not know — probably from a newer build or another trade. By default they are carried through unchanged and will be in the file again on the next export.\naudio\nCarry through (unchanged, preserved on export)\nTake over as\nlighting\nDiscard\nCarry all through\nOK"
+    },
+    {
+      "nr": 45,
+      "name": "avplan-import-uebernehmen-als",
+      "datei": "datei-import-45-avplan-import-uebernehmen-als.jpg",
+      "text": "This file contains unknown sections\nThe file carries sections this app does not know — probably from a newer build or another trade. By default they are carried through unchanged and will be in the file again on the next export.\naudio\nCarry through (unchanged, preserved on export)\nTake over as\nlighting\nDiscard\nCarry all through\nOK"
+    },
+    {
+      "nr": 46,
+      "name": "avplan-import-kameras-frage",
+      "datei": "datei-import-46-avplan-import-kameras-frage.jpg",
+      "text": "This file contains the cameras of the MultiCam plan. Apply them to the signal plan?\nMultiCam cameras: 0 new, 2 updated, 0 unchanged.\nNo longer in the MultiCam plan — marked, not deleted, because cables may hang on them: Kamera Galerie\nCancel\nOK"
+    },
+    {
+      "nr": 47,
+      "name": "avplan-import-fehler",
+      "datei": "datei-import-47-avplan-import-fehler.jpg",
+      "text": "Import failed — not a valid .avplan file.\nOK"
+    },
+    {
+      "nr": 48,
+      "name": "venue-dialog",
+      "datei": "datei-import-48-venue-dialog.jpg",
+      "text": "Linked venue plan (view only)\nRoom: Stadthalle Nord\n4 walls · 3 persons · 1 stage\nCameras (2)\nKamera Buehne\nKamera Saal\nFixtures (0)\n—\nOK"
+    },
+    {
+      "nr": 49,
+      "name": "karte-import-neu",
+      "datei": "datei-import-49-karte-import-neu.jpg",
+      "text": "Identity map imported\nNewly created: Kamera 1, Kamera 2\nDiscarded — Kamera 2 · umdAddress = 200: TSL UMD v3.1 only knows whole addresses 0–126.\nNo field for this in this app — stays in the file only: Kamera 1.notiz, Kamera 1.provenance.umdAddress (confirmed)\nOK"
+    },
+    {
+      "nr": 50,
+      "name": "karte-import-konflikt",
+      "datei": "datei-import-50-karte-import-konflikt.jpg",
+      "text": "Identity map imported\nNot applied — Kamera 1 · umdAddress: here \"3\", in the file \"5\".\nOK"
+    },
+    {
+      "nr": 51,
+      "name": "karte-import-nichts",
+      "datei": "datei-import-51-karte-import-nichts.jpg",
+      "text": "Identity map imported\nNothing to do — the map says what the plan already says.\nOK"
+    },
+    {
+      "nr": 52,
+      "name": "karte-import-fehler",
+      "datei": "datei-import-52-karte-import-fehler.jpg",
+      "text": "Import failed: Not a valid .avsourcemap file (kind != av-source-map).\nOK"
+    },
+    {
+      "nr": 53,
+      "name": "statusleiste-normal",
+      "datei": "datei-import-53-statusleiste-normal.jpg",
+      "text": ""
+    },
+    {
+      "nr": 54,
+      "name": "statusleiste-ohne-sicherungskopie",
+      "datei": "datei-import-54-statusleiste-ohne-sicherungskopie.jpg",
+      "text": ""
+    },
+    {
+      "nr": 55,
+      "name": "einstellungen-autosave",
+      "datei": "datei-import-55-einstellungen-autosave.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nAdvanced\nAutosave\n\nHow often the current project is automatically saved to localStorage. Default: 400 ms.\n\nAutosave interval (ms)\nCategory management\n\nRename library categories or add new ones. When renaming, all assigned templates move along.\n\nCategory\tTemplates\t\nAudio\t22\tRename\nCables\t0\tRename\nCameras\t381\tRename\nControl\t3\tRename\nConverter\t27\tRename\nFloor boxes\t2\tRename\nImportiert\t3\tRename\nIntercom\t13\tRename\nIP/NDI\t37\tRename\nIT/Server\t2\tRename\nLED Processing\t4\tRename\nLenses\t835\tRename\nLighting\t84\tRename\nMedia Server\t0\tRename\nMicrophones\t184\tRename\nMixer(Mischer)\t1\tRename\nMixing console\t0\tRename\nMonitors(Monitore)\t1\tRename\nMonitors\t39\tRename\nMultiviewer\t0\tRename\nNetworking\t60\tRename\nOther\t0\tRename\nPatch panels\t8\tRename\nPC\t0\tRename\nPower\t0\tRename\nPower distribution\t6\tRename\nProjectors\t0\tRename\nRigging\t0\tRename\nSync/Reference\t4\tRename\nTripods\t49\tRename\nVideo\t24\tRename\nVideo Converter\t7\tRename\nVideo Mixer\t37\tRename\nVideo Router\t17\tRename\nWireless\t11\tRename\n+ New category\nCaches & local data\n\nCache contents are reloaded on demand. Your data is safe — only performance caches are cleared.\n\nClear Rentman template cache\nClear web search history\nShow welcome dialog on next start\nData export\n\nExport LZ Cable Planner data stored locally as JSON — e.g. to migrate to another machine.\n\nExport all localStorage data"
+    },
+    {
+      "nr": 56,
+      "name": "vorlagen-haus-frage",
+      "datei": "datei-import-56-vorlagen-haus-frage.jpg",
+      "text": "Bind this template to the venue?\n1 venue-bound entries hang on this project — the venue IT answers and the address (Beispielstrasse 1, 12345 Beispielstadt). A neutral template leaves them out; a venue template takes them along and remembers which venue they apply to.\nCancel\nFor this venue\nNeutral (shape only)"
+    },
+    {
+      "nr": 57,
+      "name": "vorlagen-eigene-speichern-name",
+      "datei": "datei-import-57-vorlagen-eigene-speichern-name.jpg",
+      "text": "Template name\nCancel\nOK"
+    },
+    {
+      "nr": 58,
+      "name": "vorlagen-eigene-gespeichert",
+      "datei": "datei-import-58-vorlagen-eigene-gespeichert.jpg",
+      "text": "Saved as template\nTemplate “Meine Vorlage” saved.\nOK"
+    },
+    {
+      "nr": 59,
+      "name": "vorlagen-eigene-liste",
+      "datei": "datei-import-59-vorlagen-eigene-liste.jpg",
+      "text": "New from template\n\nBundled show setups or your own saved templates as a starting point. more\n\nSave current project as template\nAs-built as template\nBundled templates\nOB van\nOB van with stage and FOH — separate location frames.\n0 devices · 0 cables · 2 locations\nUse\nTV-Studio\nStudio with control room and studio floor.\n0 devices · 0 cables · 2 locations\nUse\nLive stage\nStage, FOH and monitor world for live events.\n0 devices · 0 cables · 3 locations\nUse\nKonferenz / Corporate\nHall and control room for conferences and corporate events.\n0 devices · 0 cables · 2 locations\nUse\nHouses of Worship\nSanctuary/stage and tech gallery for church services.\n0 devices · 0 cables · 2 locations\nUse\nMy templates\nMeine Vorlage\nDemo plan: 2 cameras → vision mixer → multiviewer & control room monitor. Made to be poked at — click or delete any device or cable.\n14 devices · 8 cables · 1 locations\nVenue template: Beispielstrasse 1, 12345 Beispielstadt · 0 answers\nBasis: As planned (no as-built)\nUse"
+    },
+    {
+      "nr": 60,
+      "name": "vorlagen-eigene-loeschen-frage",
+      "datei": "datei-import-60-vorlagen-eigene-loeschen-frage.jpg",
+      "text": "Delete template “Meine Vorlage”?\nCancel\nDelete"
+    },
+    {
+      "nr": 61,
+      "name": "vorlagen-verwenden-rueckfrage",
+      "datei": "datei-import-61-vorlagen-verwenden-rueckfrage.jpg",
+      "text": "Discard current project?\nThe template replaces the current project. Unsaved changes will be lost.\nCancel\nLoad template"
+    },
+    {
+      "nr": 62,
+      "name": "vorlagen-verwenden-name",
+      "datei": "datei-import-62-vorlagen-verwenden-name.jpg",
+      "text": "Name of the new project\nCancel\nOK"
+    },
+    {
+      "nr": 63,
+      "name": "vorlagen-verwenden-geladen",
+      "datei": "datei-import-63-vorlagen-verwenden-geladen.jpg",
+      "text": "Template loaded\nNew project “OB van” created from template.\nOK"
+    },
+    {
+      "nr": 64,
+      "name": "neu-dialog-mit-warnung",
+      "datei": "datei-import-64-neu-dialog-mit-warnung.jpg",
+      "text": "New project\n\nCreating a new project discards the current one. Unsaved changes will be lost.\n\nProject name *\nContractor (company)\nClient\nPlanner / author\nProject / job no.\nEvent/rental start\nEvent/rental end\nDescription\nCompany logo\nChoose logo…\nClient logo\nChoose logo…\n\nThese fields appear in the plan footer when exporting to PDF. more\n\nCancel\nCreate project"
+    },
+    {
+      "nr": 65,
+      "name": "neu-dialog-ausgefuellt",
+      "datei": "datei-import-65-neu-dialog-ausgefuellt.jpg",
+      "text": "New project\n\nCreating a new project discards the current one. Unsaved changes will be lost.\n\nProject name *\nContractor (company)\nClient\nPlanner / author\nProject / job no.\nEvent/rental start\nEvent/rental end\nDescription\nCompany logo\nChoose logo…\nClient logo\nChoose logo…\n\nThese fields appear in the plan footer when exporting to PDF. more\n\nCancel\nCreate project"
+    },
+    {
+      "nr": 66,
+      "name": "neu-dialog-ohne-warnung",
+      "datei": "datei-import-66-neu-dialog-ohne-warnung.jpg",
+      "text": "New project\nProject name *\nContractor (company)\nClient\nPlanner / author\nProject / job no.\nEvent/rental start\nEvent/rental end\nDescription\nCompany logo\nChoose logo…\nClient logo\nChoose logo…\n\nThese fields appear in the plan footer when exporting to PDF. more\n\nCancel\nCreate project"
+    },
+    {
+      "nr": 67,
+      "name": "rentman-import-offen",
+      "datei": "datei-import-67-rentman-import-offen.jpg",
+      "text": "Import from Rentman\nClose\nLoad projects\n3 / 3 projects\nSort:\n# ↓\n# ↑\nDate ↓\nDate ↑\n#2403 Beispiel Konferenz· 05.11.2026 → 06.11.2026\nConfirmed\n#2402 Beispiel Firmenevent· 20.09.2026 → 21.09.2026\nRequested\n#2401 Beispiel Sommerfest· 10.07.2026 → 12.07.2026\nConfirmed"
+    },
+    {
+      "nr": 68,
+      "name": "rentman-suche",
+      "datei": "datei-import-68-rentman-suche.jpg",
+      "text": "Import from Rentman\nClose\nLoad projects\n1 / 3 projects\nSort:\n# ↓\n# ↑\nDate ↓\nDate ↑\nClear\n#2401 Beispiel Sommerfest· 10.07.2026 → 12.07.2026\nConfirmed"
+    },
+    {
+      "nr": 69,
+      "name": "rentman-projekt-gewaehlt",
+      "datei": "datei-import-69-rentman-projekt-gewaehlt.jpg",
+      "text": "Import from Rentman\nClose\nProject:\n#2401 · Beispiel Sommerfest · (Confirmed)\nReload & sync\nchange\nPlan vs. reservation\nCSV\n0 only in the plan · 9 only reserved · 0 quantities differ\n6 lines not counted (comments, set contents, cancelled)\n15 of 15 shown · 5 in sets (expand to view)\n0 selected\nSelect all\nDeselect all\nExpand all sets\nCollapse all sets\nUncategorized\nATEM Mini Pro (streaming switcher)⊕ catalog\nLink…\nBeispiel Funkstrecke XY-100\n×2\nLink…\nBeispiel KamerapaketPhysical combi · 3+ main device only+ as rack\nLink…\nBNC Kabel 5m\n×6\nLink…\nBNC Kabel 5m\n×4\nLink…\nHDMI Kabel 10m\n×3\nLink…\nBeispielgerät Alpha\nLink…\nBeispielgerät Gamma\nLink…\nComment\nNote: setup from 8 am\nBeispiel LichtsetVirtual combi · 2+ main device only+ as rack\nLink…\nCable quantities from Rentman (2)\nopen\nDevices are added to the equipment library, not placed directly on the canvas.\nAdd to library"
+    },
+    {
+      "nr": 70,
+      "name": "rentman-alle-auswaehlen",
+      "datei": "datei-import-70-rentman-alle-auswaehlen.jpg",
+      "text": "Import from Rentman\nClose\nProject:\n#2401 · Beispiel Sommerfest · (Confirmed)\nReload & sync\nchange\nPlan vs. reservation\nCSV\n0 only in the plan · 9 only reserved · 0 quantities differ\n6 lines not counted (comments, set contents, cancelled)\n15 of 15 shown · 5 in sets (expand to view)\n14 selected\nSelect all\nDeselect all\nExpand all sets\nCollapse all sets\nUncategorized\nATEM Mini Pro (streaming switcher)⊕ catalog\nLink…\nBeispiel Funkstrecke XY-100\nLink…\nBeispiel KamerapaketPhysical combi · 3+ main device only+ as rack\nLink…\nBNC Kabel 5m\nLink…\nBNC Kabel 5m\nLink…\nHDMI Kabel 10m\nLink…\nBeispielgerät Alpha\nLink…\nBeispielgerät Gamma\nLink…\nComment\nNote: setup from 8 am\nBeispiel LichtsetVirtual combi · 2+ main device only+ as rack\nLink…\nCable quantities from Rentman (2)\nopen\nDevices are added to the equipment library, not placed directly on the canvas.\nAdd to library (14)"
+    },
+    {
+      "nr": 71,
+      "name": "rentman-sets-aufgeklappt",
+      "datei": "datei-import-71-rentman-sets-aufgeklappt.jpg",
+      "text": "Import from Rentman\nClose\nProject:\n#2401 · Beispiel Sommerfest · (Confirmed)\nReload & sync\nchange\nPlan vs. reservation\nCSV\n0 only in the plan · 9 only reserved · 0 quantities differ\n6 lines not counted (comments, set contents, cancelled)\n15 of 15 shown · 5 in sets (expand to view)\n14 selected\nSelect all\nDeselect all\nExpand all sets\nCollapse all sets\nUncategorized\nATEM Mini Pro (streaming switcher)⊕ catalog\nLink…\nBeispiel Funkstrecke XY-100\nLink…\nBeispiel KamerapaketPhysical combi · 3+ main device only+ as rack\nLink…\nall\nBeispiel Kamera Body\nBeispiel Stativ\nBeispiel Akku\nBNC Kabel 5m\nLink…\nBNC Kabel 5m\nLink…\nHDMI Kabel 10m\nLink…\nBeispielgerät Alpha\nLink…\nBeispielgerät Gamma\nLink…\nComment\nNote: setup from 8 am\nBeispiel LichtsetVirtual combi · 2+ main device only+ as rack\nLink…\nall\nBeispiel Scheinwerfer\nBeispiel Netzteil\nCable quantities from Rentman (2)\nopen\nDevices are added to the equipment library, not placed directly on the canvas.\nAdd to library (14)"
+    },
+    {
+      "nr": 72,
+      "name": "rentman-kabelmengen",
+      "datei": "datei-import-72-rentman-kabelmengen.jpg",
+      "text": "Import from Rentman\nClose\nProject:\n#2401 · Beispiel Sommerfest · (Confirmed)\nReload & sync\nchange\nPlan vs. reservation\nCSV\n0 only in the plan · 9 only reserved · 0 quantities differ\n6 lines not counted (comments, set contents, cancelled)\n15 of 15 shown · 5 in sets (expand to view)\n14 selected\nSelect all\nDeselect all\nExpand all sets\nCollapse all sets\nUncategorized\nATEM Mini Pro (streaming switcher)⊕ catalog\nLink…\nBeispiel Funkstrecke XY-100\nLink…\nBeispiel KamerapaketPhysical combi · 3+ main device only+ as rack\nLink…\nall\nBeispiel Kamera Body\nBeispiel Stativ\nBeispiel Akku\nBNC Kabel 5m\nLink…\nBNC Kabel 5m\nLink…\nHDMI Kabel 10m\nLink…\nBeispielgerät Alpha\nLink…\nBeispielgerät Gamma\nLink…\nComment\nNote: setup from 8 am\nBeispiel LichtsetVirtual combi · 2+ main device only+ as rack\nLink…\nall\nBeispiel Scheinwerfer\nBeispiel Netzteil\nCable quantities from Rentman (2)\ncollapse\nDeselect all\nBNC\n5 m\n2 entries\nHDMI\n10 m\nHDMI Kabel 10m\n2 cable type(s) detected\nAdopt cable quantities\nDevices are added to the equipment library, not placed directly on the canvas.\nAdd to library (14)"
+    },
+    {
+      "nr": 73,
+      "name": "rentman-kabel-uebernommen",
+      "datei": "datei-import-73-rentman-kabel-uebernommen.jpg",
+      "text": "Import from Rentman\nClose\nProject:\n#2401 · Beispiel Sommerfest · (Confirmed)\nlinked\nReload & sync\nchange\nPlan vs. reservation\nCSV\n0 only in the plan · 9 only reserved · 0 quantities differ\n6 lines not counted (comments, set contents, cancelled)\n15 of 15 shown · 5 in sets (expand to view)\n14 selected\nSelect all\nDeselect all\nExpand all sets\nCollapse all sets\nUncategorized\nATEM Mini Pro (streaming switcher)⊕ catalog\nLink…\nBeispiel Funkstrecke XY-100\nLink…\nBeispiel KamerapaketPhysical combi · 3+ main device only+ as rack\nLink…\nall\nBeispiel Kamera Body\nBeispiel Stativ\nBeispiel Akku\nBNC Kabel 5m\nLink…\nBNC Kabel 5m\nLink…\nHDMI Kabel 10m\nLink…\nBeispielgerät Alpha\nLink…\nBeispielgerät Gamma\nLink…\nComment\nNote: setup from 8 am\nBeispiel LichtsetVirtual combi · 2+ main device only+ as rack\nLink…\nall\nBeispiel Scheinwerfer\nBeispiel Netzteil\nCable quantities from Rentman (2)\ncollapse\nDeselect all\nBNC\n5 m\n2 entries\nHDMI\n10 m\nHDMI Kabel 10m\n2 cable type(s) adopted as plan.\nAdopt cable quantities\nDevices are added to the equipment library, not placed directly on the canvas.\nAdd to library (14)"
+    },
+    {
+      "nr": 74,
+      "name": "rentman-auswahl",
+      "datei": "datei-import-74-rentman-auswahl.jpg",
+      "text": "Import from Rentman\nClose\nProject:\n#2401 · Beispiel Sommerfest · (Confirmed)\nlinked\nReload & sync\nchange\nPlan vs. reservation\nCSV\n0 only in the plan · 9 only reserved · 0 quantities differ\n6 lines not counted (comments, set contents, cancelled)\n15 of 15 shown · 5 in sets (expand to view)\n3 selected\nSelect all\nDeselect all\nExpand all sets\nCollapse all sets\nUncategorized\nATEM Mini Pro (streaming switcher)⊕ catalog\nLink…\nBeispiel Funkstrecke XY-100\nLink…\nBeispiel KamerapaketPhysical combi · 3+ main device only+ as rack\nLink…\nall\nBeispiel Kamera Body\nBeispiel Stativ\nBeispiel Akku\n×2\nBNC Kabel 5m\n×6\nLink…\nBNC Kabel 5m\n×4\nLink…\nHDMI Kabel 10m\n×3\nLink…\nBeispielgerät Alpha\nLink…\nBeispielgerät Gamma\nLink…\nComment\nNote: setup from 8 am\nBeispiel LichtsetVirtual combi · 2+ main device only+ as rack\nLink…\nall\nBeispiel Scheinwerfer\n×2\nBeispiel Netzteil\n×2\nCable quantities from Rentman (2)\ncollapse\nDeselect all\nBNC\n5 m\n2 entries\nHDMI\n10 m\nHDMI Kabel 10m\n2 cable type(s) adopted as plan.\nAdopt cable quantities\nDevices are added to the equipment library, not placed directly on the canvas.\nAdd to library (3)"
+    },
+    {
+      "nr": 75,
+      "name": "rentman-kategorie-zuordnung",
+      "datei": "datei-import-75-rentman-kategorie-zuordnung.jpg",
+      "text": "Category mapping before import\n\nMap every device to a local category. more\n\nDevice\tRentman\tTarget category\nATEM Mini Pro (streaming switcher)\tUncategorized\t\nPlease select…\nAccessories\nAudio\nCables\nCameras\nControl\nConverter\nFloor boxes\nImportiert\nIntercom\nIP/NDI\nIT/Server\nLED Processing\nLenses\nLighting\nMedia Server\nMicrophones\nMischer\nMixing console\nMonitore\nMonitors\nMultiviewer\nNetworking\nOther\nPatch panels\nPC\nPower\nPower distribution\nProjectors\nRigging\nSync/Reference\nTripods\nVideo\nVideo Converter\nVideo Mixer\nVideo Router\nWireless\n+ New\n\nBeispiel Funkstrecke XY-100\tUncategorized\t\nPlease select…\nAccessories\nAudio\nCables\nCameras\nControl\nConverter\nFloor boxes\nImportiert\nIntercom\nIP/NDI\nIT/Server\nLED Processing\nLenses\nLighting\nMedia Server\nMicrophones\nMischer\nMixing console\nMonitore\nMonitors\nMultiviewer\nNetworking\nOther\nPatch panels\nPC\nPower\nPower distribution\nProjectors\nRigging\nSync/Reference\nTripods\nVideo\nVideo Converter\nVideo Mixer\nVideo Router\nWireless\n+ New\n\nBeispielgerät Alpha\tUncategorized\t\nPlease select…\nAccessories\nAudio\nCables\nCameras\nControl\nConverter\nFloor boxes\nImportiert\nIntercom\nIP/NDI\nIT/Server\nLED Processing\nLenses\nLighting\nMedia Server\nMicrophones\nMischer\nMixing console\nMonitore\nMonitors\nMultiviewer\nNetworking\nOther\nPatch panels\nPC\nPower\nPower distribution\nProjectors\nRigging\nSync/Reference\nTripods\nVideo\nVideo Converter\nVideo Mixer\nVideo Router\nWireless\n+ New\nBack\nNext"
+    },
+    {
+      "nr": 76,
+      "name": "rentman-weiter",
+      "datei": "datei-import-76-rentman-weiter.jpg",
+      "text": "Category missing\nPlease pick a category for every device or create one with “+ New”.\nOK"
+    }
+  ],
+  "fehler": []
 }

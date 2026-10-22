@@ -1,0 +1,131 @@
+{
+  "sprache": "en",
+  "dateien": {
+    "nach-speichern": [
+      "beispiel.graphml",
+      "beispielplan.cableplan",
+      "beispielplan.cableplan.bak",
+      "kaputt.graphml"
+    ],
+    "nach-speichern-unter": [
+      "beispiel.graphml",
+      "beispielplan-kopie.cableplan",
+      "beispielplan.cableplan",
+      "beispielplan.cableplan.bak",
+      "kaputt.graphml"
+    ],
+    "beispielplan.avplan": 26020,
+    "beispielplan.avsourcemap": 667
+  },
+  "gelesen": {
+    "menueDatei": [
+      "New project",
+      "Ctrl+N",
+      "New from template…",
+      "Open…",
+      "Ctrl+O",
+      "Save",
+      "Ctrl+S",
+      "Save as…",
+      "Ctrl+Shift+S",
+      "Import yEd / GraphML…",
+      "Import MultiCam cameras…",
+      "Import equipment from CSV…",
+      "Rentman import…",
+      "NetBox import…",
+      "Export whole project (.avplan)…",
+      "Import whole project (.avplan)…",
+      "Export identity map (.avsourcemap)…",
+      "Import identity map (.avsourcemap)…",
+      "Patch list…",
+      "Who sits on which input and output",
+      "Fixed install: docs & handover…",
+      "Stage plot (SVG)…",
+      "Stage top view as a one-page sheet, light or dark like the canvas",
+      "Stage plot, light (SVG)…",
+      "White background, for print and email",
+      "Export & Print…",
+      "Cloud & share link…",
+      "Export as viewer file…",
+      "Import annotations from viewer file…",
+      "Compare plan revisions…",
+      "Documents handed out…",
+      "Attach plan to Rentman (no project linked)",
+      "Send cables to Rentman (no project linked)"
+    ],
+    "projektSchluessel": [
+      "metadata",
+      "equipment",
+      "cables",
+      "locations",
+      "canvasState",
+      "floors",
+      "revisions",
+      "changelog",
+      "sourceIdentities",
+      "tallyPositions",
+      "patternChecks",
+      "hubSwitches",
+      "cableStock",
+      "ledPanelTypes",
+      "ledWalls",
+      "fotos",
+      "farbnormen",
+      "berichtsvorlagen",
+      "mcpLog",
+      "polaritaetsnormen",
+      "oscLauscher",
+      "anschlussListe",
+      "networkSegments",
+      "addressLayers",
+      "deliveryDestinations"
+    ],
+    "metadata": {
+      "name": "beispielplan",
+      "description": "Demo plan: 2 cameras → vision mixer → multiviewer & control room monitor. Made to be poked at — click or delete any device or cable.",
+      "createdAt": "2026-10-22T09:10:59.994Z",
+      "updatedAt": "2026-10-22T09:11:13.638Z",
+      "defaultVideoFormat": "1080p50",
+      "defaultPowerStandard": "eu-230-1ph",
+      "defaultLightingControl": "dmx512",
+      "projectId": "5c118b62-a00a-4810-8376-72aa17fdf936"
+    },
+    "ladebericht": "",
+    "avplanSchluessel": [
+      "kind",
+      "formatVersion",
+      "app",
+      "appVersion",
+      "exportedAt",
+      "venue",
+      "domains"
+    ],
+    "avplanDomains": [
+      "cabling"
+    ],
+    "avplanDateiname": "beispielplan.avplan",
+    "avplanMetaKeys": {
+      "kind": "avplan",
+      "formatVersion": 1,
+      "app": "cable-planner"
+    },
+    "karteSchluessel": [
+      "kind",
+      "formatVersion",
+      "app",
+      "appVersion",
+      "exportedAt",
+      "sources",
+      "unresolved"
+    ],
+    "karteName": "beispielplan.avsourcemap",
+    "karteQuellen": [
+      "Kamera 1",
+      "Kamera 2"
+    ],
+    "badgeText": "beispielplan\n|\n14 devices\n8 cables\n1 frames\n0/14 packed\nSmall\n1\nNetwork 5\nRentman: Standalone\nZoom: 38%\nv9.11.0-27-gd0fa0196",
+    "autosaveKey": [
+      "cable-planner:projectAutosave"
+    ]
+  }
+}
