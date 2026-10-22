@@ -42,7 +42,7 @@ In a narrow window the header contracts; the menus stay available.
 
 #### File and Tools menus
 
-The *File* menu holds new, open, save, the imports and the exports. Its entries are described in the chapters [File and Import](#file-and-import) and [Export & Print](#export--print).
+The *File* menu holds new, open, save, the imports and the exports. Its entries are described in the chapters [File and Import](#6-file-and-import) and [Export & Print](#7-export--print).
 
 ![File menu](bilder/en/oberflaeche-07-menue-datei.jpg)
 
@@ -354,7 +354,7 @@ The *Phone access* button in the header opens the dialog *Mobile access*. It sta
 | *Make system access codes retrievable* | releases intercom access codes via a second code; selectable only for projects with an intercom configuration |
 | *Security notes* | expands the security notes |
 
-The server stops when the app closes or via the Stop button. The mobile view is described in the chapter [Web edition and tablet](#web-edition-and-tablet).
+The server stops when the app closes or via the Stop button. The mobile view is described in the chapter [Web edition and tablet](#12-web-edition-and-tablet).
 
 ![Security notes](bilder/en/oberflaeche-107-handy-sicherheitshinweise.jpg)
 

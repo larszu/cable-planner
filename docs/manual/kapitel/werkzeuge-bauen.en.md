@@ -1,6 +1,6 @@
 ## Tools: Build
 
-The *Tools* menu has five groups: *Calculate*, *Check*, *Plan*, *Create & manage* and *Device configuration*. This chapter describes the entries of the *Plan* group from *LED wall…* onwards, plus the groups *Create & manage* and *Device configuration*. The calculators, the checks and the other entries of the *Plan* group are in the chapter [Tools: Plan](#tools-plan). Patch list, fixed install, stage plot and *Export & Print…* are in the *File* menu and in the chapter [Export and Print](#export--print).
+The *Tools* menu has five groups: *Calculate*, *Check*, *Plan*, *Create & manage* and *Device configuration*. This chapter describes the entries of the *Plan* group from *LED wall…* onwards, plus the groups *Create & manage* and *Device configuration*. The calculators, the checks and the other entries of the *Plan* group are in the chapter [Tools: Plan](#8-tools-plan). Patch list, fixed install, stage plot and *Export & Print…* are in the *File* menu and in the chapter [Export and Print](#7-export--print).
 
 The group *Device configuration* appears only when the plan contains a matching device: *ATEM multiviewer layout…* for an ATEM or a multiviewer, *ATEM audio routing…* and *ATEM input labels…* for an ATEM, *Videohub routing / labels…* for a Videohub and *GreenGo intercom…* for a GreenGo device. The same tools are in the Inspector in the section *Tools for this device*. *Inventory / stock…* appears when the rental module is switched on.
 
@@ -288,7 +288,7 @@ The dialog creates several cables in one go: port *i* of the source goes to port
 
 *Tools → Create new rack…*
 
-The entry opens the 2D rack builder with an empty rack and switches the library to the tab *Racks*. The builder assembles a rack from devices, shows it from the front, the rear, the side and in 3D, and saves it as a placeable group in the library. The cards on the tab *Racks*, editing saved racks and placing them on the canvas are described in the chapter [Library](#rack-builder); how a rack looks on the canvas is in the chapter [Canvas](#canvas).
+The entry opens the 2D rack builder with an empty rack and switches the library to the tab *Racks*. The builder assembles a rack from devices, shows it from the front, the rear, the side and in 3D, and saves it as a placeable group in the library. The cards on the tab *Racks*, editing saved racks and placing them on the canvas are described in the chapter [Library](#rack-builder); how a rack looks on the canvas is in the chapter [Canvas](#3-canvas).
 
 The draft of a new rack is saved continuously; the footer shows *Autosave active* while there are unsaved changes, otherwise *Saved*.
 
@@ -436,7 +436,7 @@ The dialog *AI plan generation* creates a draft from a description or completes 
 
 *Tools → Revisions & snapshots…*
 
-A revision stores a complete state of the plan under a name. Restoring keeps the history. The latest revision appears in the title block of the outputs, for an as-built revision with the suffix *(As-Built)*. You compare two states with *File → Compare plan revisions…*, see [Export and Print](#export--print).
+A revision stores a complete state of the plan under a name. Restoring keeps the history. The latest revision appears in the title block of the outputs, for an as-built revision with the suffix *(As-Built)*. You compare two states with *File → Compare plan revisions…*, see [Export and Print](#7-export--print).
 
 1. Open *Tools → Revisions & snapshots…*. The section *Commit current state* has *Label* (for example "A" or "Rev 2"), *Note: what changed?* and the checkbox *As-built*. As long as no revision exists it says *No revisions committed yet.*
 
