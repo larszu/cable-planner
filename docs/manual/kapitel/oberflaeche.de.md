@@ -42,7 +42,7 @@ In einem schmalen Fenster rückt die Kopfleiste zusammen; die Menüs bleiben err
 
 #### Menüs Datei und Werkzeuge
 
-Das Menü *Datei* enthält Anlegen, Öffnen, Speichern, die Importe und die Exporte. Die Einträge beschreiben die Kapitel [Datei und Import](#datei-und-import) und [Exportieren und Drucken](#exportieren-und-drucken).
+Das Menü *Datei* enthält Anlegen, Öffnen, Speichern, die Importe und die Exporte. Die Einträge beschreiben die Kapitel [Datei und Import](#6-datei-und-import) und [Exportieren und Drucken](#7-exportieren-und-drucken).
 
 ![Menü Datei](bilder/de/oberflaeche-07-menue-datei.jpg)
 
@@ -354,7 +354,7 @@ Der Knopf *Handy-Zugriff* in der Kopfleiste öffnet den gleichnamigen Dialog. Er
 | *Anlagen-Zugangscodes abrufbar machen* | gibt Intercom-Zugangscodes über einen zweiten Code frei; nur bei Projekten mit Intercom-Konfiguration wählbar |
 | *Hinweise zur Sicherheit* | klappt die Sicherheitshinweise auf |
 
-Der Server stoppt beim Schließen der App oder über den Stop-Knopf. Die mobile Ansicht beschreibt das Kapitel [Web-Ausgabe und Tablet](#web-ausgabe-und-tablet).
+Der Server stoppt beim Schließen der App oder über den Stop-Knopf. Die mobile Ansicht beschreibt das Kapitel [Web-Ausgabe und Tablet](#12-web-ausgabe-und-tablet).
 
 ![Hinweise zur Sicherheit](bilder/de/oberflaeche-107-handy-sicherheitshinweise.jpg)
 

@@ -14,90 +14,86 @@ English version: [manual.en.md](manual.en.md)
    - [Installation](#installation)
    - [Erstes Projekt](#erstes-projekt)
 2. [Programmoberfläche](#2-programmoberfläche)
+   - [Aufbau des Hauptfensters](#aufbau-des-hauptfensters)
+   - [Seitenleisten anordnen](#seitenleisten-anordnen)
    - [Menü Bearbeiten](#menü-bearbeiten)
    - [Menü Ansicht](#menü-ansicht)
    - [Menü Hilfe](#menü-hilfe)
-   - [Befehlspalette](#befehlspalette)
    - [Statusleiste](#statusleiste)
-   - [Designeinstellungen](#designeinstellungen)
-   - [Canvas-Sichtbarkeitsoptionen](#canvas-sichtbarkeitsoptionen)
-   - [Informationen und Hilfe](#informationen-und-hilfe)
-   - [Nicht aufgenommene Funktionen](#nicht-aufgenommene-funktionen)
+   - [Handy-Zugriff](#handy-zugriff)
+   - [Erster Start](#erster-start)
 3. [Canvas](#3-canvas)
-   - [Werkzeugleiste (Toolbar)](#werkzeugleiste-toolbar)
-   - [Einstellungen: Defaults (Voreinstellungen für neue Kabel)](#einstellungen-defaults-voreinstellungen-für-neue-kabel)
-   - [Rahmen (Location Frames)](#rahmen-location-frames)
-   - [Auswahl und Mehrfach-Verkabelung](#auswahl-und-mehrfach-verkabelung)
-   - [Ausrichtung und Anordnung](#ausrichtung-und-anordnung)
-   - [Geräte im 2D-Rack-Builder anordnen](#geräte-im-2d-rack-builder-anordnen)
-   - [Kontextmenüs (Rechtsklick)](#kontextmenüs-rechtsklick)
-   - [Layer-Sichtbarkeit (Video, Audio, Control, Network, Power)](#layer-sichtbarkeit-video-audio-control-network-power)
-   - [Signalfluss-Darstellung (Flow Mode)](#signalfluss-darstellung-flow-mode)
-   - [Grundriss (Floor Plan)](#grundriss-floor-plan)
-   - [Symbole (Electrical, Alarm, PA, IT, AV)](#symbole-electrical-alarm-pa-it-av)
-   - [Raumsichtbarkeit (Rooms)](#raumsichtbarkeit-rooms)
-   - [3D-Gebäudeansicht](#3d-gebäudeansicht)
-   - [Signalweg anzeigen](#signalweg-anzeigen)
-   - [Geräte-Suche (Strg+F / Cmd+F)](#geräte-suche-strgf--cmdf)
-   - [Inline-Auswahl-Toolbar (Multiple Selection)](#inline-auswahl-toolbar-multiple-selection)
-   - [Sperren (Lock)](#sperren-lock)
-   - [Finalisieren (Plan-Lock)](#finalisieren-plan-lock)
-   - [Anmerkungen (Annotations)](#anmerkungen-annotations)
-   - [Zoom und Navigation](#zoom-und-navigation)
-   - [3D-Rackansicht](#3d-rackansicht)
-   - [Kabel-Details](#kabel-details)
-   - [Stream-Vorschau](#stream-vorschau)
+   - [Der leere Plan und das Beispielprojekt](#der-leere-plan-und-das-beispielprojekt)
+   - [Die Werkzeugleiste](#die-werkzeugleiste)
+   - [Defaults](#defaults)
+   - [Geräte auswählen](#geräte-auswählen)
+   - [Geräte ausrichten](#geräte-ausrichten)
+   - [Gerätegruppe speichern](#gerätegruppe-speichern)
+   - [Auswahl im Rack-Builder anordnen](#auswahl-im-rack-builder-anordnen)
+   - [Mehrere Kabel zwischen zwei Geräten](#mehrere-kabel-zwischen-zwei-geräten)
+   - [Kabel per Sprache](#kabel-per-sprache)
    - [Tastenkürzel auf dem Canvas](#tastenkürzel-auf-dem-canvas)
+   - [Kabel ziehen](#kabel-ziehen)
+   - [Kabel bearbeiten](#kabel-bearbeiten)
+   - [Seitenverbinder](#seitenverbinder)
+   - [Rahmen](#rahmen)
+   - [Räume, Etagen und 3D-Gebäudeansicht](#räume-etagen-und-3d-gebäudeansicht)
+   - [Ebenen](#ebenen)
+   - [Signalweg](#signalweg)
+   - [Betriebsarten: Schema, Schaltbild, Prüfbild](#betriebsarten-schema-schaltbild-prüfbild)
+   - [Sperren](#sperren)
+   - [Plan abschließen](#plan-abschließen)
+   - [Anmerkungen](#anmerkungen)
+   - [Hallenplan](#hallenplan)
+   - [Planzeichen](#planzeichen)
+   - [Gerätesuche](#gerätesuche)
+   - [Zoom und Navigation](#zoom-und-navigation)
+   - [Kontextmenüs](#kontextmenüs)
+   - [Auswahlleiste am Gerät](#auswahlleiste-am-gerät)
+   - [Standbild unter dem Gerät](#standbild-unter-dem-gerät)
+   - [Adapter und Wandler im Kabel](#adapter-und-wandler-im-kabel)
 4. [Bibliothek](#4-bibliothek)
-   - [Geräte (Equipment)](#geräte-equipment)
+   - [Die Bibliothek-Spalte](#die-bibliothek-spalte)
+   - [Geräte](#geräte)
    - [Kabel](#kabel)
    - [Gruppen](#gruppen)
    - [Racks](#racks)
-   - [Häufig genutzte Einstellungen](#häufig-genutzte-einstellungen)
 5. [Inspector](#5-inspector)
    - [Nichts ausgewählt](#nichts-ausgewählt)
    - [Geräteeigenschaften](#geräteeigenschaften)
-   - [Die Abschnitte im Detail](#die-abschnitte-im-detail)
    - [Kabeleigenschaften](#kabeleigenschaften)
    - [Rahmen-Eigenschaften](#rahmen-eigenschaften)
-   - [Mehrfachauswahl](#mehrfachauswahl)
 6. [Datei und Import](#6-datei-und-import)
    - [Neues Projekt](#neues-projekt)
    - [Neu aus Vorlage](#neu-aus-vorlage)
    - [Öffnen](#öffnen)
-   - [Speichern](#speichern)
-   - [Speichern unter](#speichern-unter)
+   - [Speichern und Speichern unter](#speichern-und-speichern-unter)
+   - [Autosave und Statusleiste](#autosave-und-statusleiste)
+   - [Das Dateiformat `.cableplan`](#das-dateiformat-cableplan)
    - [Import yEd / GraphML](#import-yed--graphml)
    - [Import MultiCam-Kameras](#import-multicam-kameras)
    - [Import Equipment aus CSV](#import-equipment-aus-csv)
    - [Rentman-Import](#rentman-import)
    - [NetBox-Import](#netbox-import)
-   - [Gesamtprojekt exportieren](#gesamtprojekt-exportieren)
-   - [Gesamtprojekt importieren](#gesamtprojekt-importieren)
-   - [Identitäts-Karte exportieren](#identitäts-karte-exportieren)
-   - [Identitäts-Karte importieren](#identitäts-karte-importieren)
+   - [Gesamtprojekt exportieren und importieren (`.avplan`)](#gesamtprojekt-exportieren-und-importieren-avplan)
+   - [Identitäts-Karte (`.avsourcemap`)](#identitäts-karte-avsourcemap)
    - [Verknüpfte Venue-Planung ansehen](#verknüpfte-venue-planung-ansehen)
-   - [Projekt-Dateiformat: `.cableplan`](#projekt-dateiformat-cableplan)
-   - [Sicherungskopie in der Statusleiste](#sicherungskopie-in-der-statusleiste)
 7. [Exportieren und Drucken](#7-exportieren-und-drucken)
-   - [Patchliste](#patchliste)
+   - [Patch-Liste](#patch-liste)
    - [Festinstallation: Doku & Übergabe](#festinstallation-doku--übergabe)
-   - [Stage Plot](#stage-plot)
+   - [Stage-Plot](#stage-plot)
    - [Exportieren & Drucken](#exportieren--drucken)
    - [Cloud & Lese-Link](#cloud--lese-link)
-   - [Export als Viewer-Datei](#export-als-viewer-datei)
+   - [Viewer-Datei](#viewer-datei)
    - [Anmerkungen importieren](#anmerkungen-importieren)
    - [Plan-Stände vergleichen](#plan-stände-vergleichen)
    - [Ausgegebene Dokumente](#ausgegebene-dokumente)
+   - [Rückweg nach Rentman](#rückweg-nach-rentman)
 8. [Werkzeuge: Planen](#8-werkzeuge-planen)
    - [Berechnen](#berechnen)
    - [Prüfen](#prüfen)
    - [Planen](#planen)
-   - [Erstellen & Verwalten](#erstellen--verwalten)
-   - [Device-Konfiguration](#device-konfiguration)
-9. [Werkzeuge](#9-werkzeuge)
-   - [Patchliste](#patchliste)
-   - [Patch-Reihenfolge](#patch-reihenfolge)
+9. [Werkzeuge: Bauen](#9-werkzeuge-bauen)
    - [LED-Wand](#led-wand)
    - [Frontplatten-Editor](#frontplatten-editor)
    - [Berichts-Editor](#berichts-editor)
@@ -105,31 +101,26 @@ English version: [manual.en.md](manual.en.md)
    - [Empfangene Show-Control-Nachrichten](#empfangene-show-control-nachrichten)
    - [Mehrere Kabel verbinden](#mehrere-kabel-verbinden)
    - [Neues Rack erstellen](#neues-rack-erstellen)
-   - [Rack-Builder](#rack-builder)
    - [KI-Plan generieren](#ki-plan-generieren)
    - [Revisionen & Snapshots](#revisionen--snapshots)
    - [Lager / Bestand](#lager--bestand)
-   - [ATEM Multiviewer-Layout](#atem-multiviewer-layout)
-   - [ATEM Audio-Routing](#atem-audio-routing)
-   - [ATEM Input-Labels](#atem-input-labels)
-   - [Videohub-Routing / Labels](#videohub-routing--labels)
-   - [GreenGo-Intercom](#greengo-intercom)
-   - [Hinweise](#hinweise)
+   - [Geräte-Konfiguration](#geräte-konfiguration)
 10. [Einstellungen](#10-einstellungen)
+   - [Einstellungen öffnen](#einstellungen-öffnen)
    - [Projekt](#projekt)
+   - [Module](#module)
    - [Darstellung](#darstellung)
    - [Bearbeiten](#bearbeiten)
+   - [Hotkeys](#hotkeys)
+   - [Integrationen](#integrationen)
+   - [Gerätebibliothek](#gerätebibliothek)
+   - [MCP](#mcp)
+   - [Konfigurationen](#konfigurationen)
    - [Kabeltypen](#kabeltypen)
    - [Stammdaten](#stammdaten)
-   - [Konfigurationen](#konfigurationen)
-   - [Gerätebibliothek](#gerätebibliothek)
-   - [Integrationen](#integrationen)
-   - [MCP](#mcp)
-   - [Module](#module)
+   - [Kategorien & Felder](#kategorien--felder)
+   - [Netzwerk-Sync](#netzwerk-sync)
    - [Nachweise](#nachweise)
-   - [Schema-Builder](#schema-builder)
-   - [Sync](#sync)
-   - [Tastenkürzel](#tastenkürzel)
    - [Erweitert](#erweitert)
 11. [Claude (MCP)](#11-claude-mcp)
 12. [Web-Ausgabe und Tablet](#12-web-ausgabe-und-tablet)
@@ -172,2590 +163,4584 @@ Ohne Installation läuft die Web-Ausgabe unter
 
 ## 2. Programmoberfläche
 
+### Aufbau des Hauptfensters
 
-![Übersicht der Programmoberfläche](bilder/de/oberflaeche-start.jpg)
+![Hauptfenster mit Beispielprojekt](bilder/de/oberflaeche-01-start.jpg)
 
-Die Oberfläche von LZ Cable Planner besteht aus vier Hauptbereichen: der Menüleiste oben, der Bibliothek-Seitenleiste links, der Canvas-Fläche in der Mitte und dem Inspector-Panel rechts. Am unteren Rand liegt die Statusleiste.
+Das Hauptfenster hat fünf Bereiche:
+
+| Bereich | Lage | Inhalt |
+|---|---|---|
+| Kopfleiste | oben | Menüs *Datei*, *Bearbeiten*, *Werkzeuge*, *Ansicht*, *Hilfe*, Projektname, Rückgängig/Wiederherstellen, Darstellungs-Knopf, *Handy-Zugriff*, *Einstellungen* |
+| Bibliothek | links | Geräte, Kabel, Gruppen und Racks zum Einsetzen in den Plan |
+| Canvas | Mitte | der Plan mit Geräten und Kabeln, Werkzeugleiste, Suchfeld, Zoom-Knöpfe, Übersichtskarte |
+| Inspector | rechts | Eigenschaften der Auswahl |
+| Statusleiste | unten | Kennzahlen und Hinweise zum Projekt |
+
+#### Kopfleiste
+
+![Kopfleiste](bilder/de/oberflaeche-02-menueleiste.jpg)
+
+Ein Klick auf den Projektnamen in der Mitte öffnet den Dialog *Projektdaten bearbeiten*.
+
+![Projektdaten bearbeiten](bilder/de/oberflaeche-10-projektname-klick.jpg)
+
+| Feld | Wirkung |
+|---|---|
+| Projektname (Pflichtfeld) | Name in Kopfleiste, Statusleiste und Ausdrucken |
+| Auftragnehmer (Firma), Kunde, Planer / Autor, Projekt-/Job-Nr. | Angaben für das Planköpfchen |
+| Einsatz-/Mietbeginn, Einsatz-/Mietende | Zeitraum des Einsatzes |
+| Beschreibung | freier Text |
+| Firmenlogo, Kundenlogo | Bilddatei über *Logo auswählen…* |
+
+Die Daten erscheinen im Planköpfchen unten rechts beim PDF-Export. *Speichern* übernimmt sie, *Abbrechen* verwirft sie.
+
+Rechts in der Kopfleiste liegen die Knöpfe für Rückgängig und Wiederherstellen. Sie sind ausgegraut, solange es keinen Schritt gibt.
+
+![Rückgängig und Wiederherstellen in der Kopfleiste](bilder/de/oberflaeche-31-kopfleiste-rechts.jpg)
+
+In einem schmalen Fenster rückt die Kopfleiste zusammen; die Menüs bleiben erreichbar.
+
+![Kopfleiste im schmalen Fenster](bilder/de/oberflaeche-81-schmal-kopfleiste.jpg)
+
+#### Menüs Datei und Werkzeuge
+
+Das Menü *Datei* enthält Anlegen, Öffnen, Speichern, die Importe und die Exporte. Die Einträge beschreiben die Kapitel [Datei und Import](#6-datei-und-import) und [Exportieren und Drucken](#7-exportieren-und-drucken).
+
+![Menü Datei](bilder/de/oberflaeche-07-menue-datei.jpg)
+
+Das Menü *Werkzeuge* ist in Gruppen gegliedert, darunter *Berechnen*, *Prüfen* und *Planen*. Die Werkzeuge beschreiben die Kapitel zu den Werkzeugen.
+
+![Menü Werkzeuge](bilder/de/oberflaeche-08-menue-werkzeuge.jpg)
+
+#### Inspector ohne Auswahl
+
+Ist nichts ausgewählt, zeigt der Inspector *Nichts ausgewählt*, den Block *Fotos des Projekts* mit *Foto hinzufügen…* und die *Schnelle Orientierung* mit vier Hinweisen zum Einstieg.
+
+![Inspector ohne Auswahl](bilder/de/oberflaeche-05-inspector-leer.jpg)
+
+### Seitenleisten anordnen
+
+Bibliothek und Inspector lassen sich einklappen, abdocken, in ein eigenes Fenster legen und in der Breite ändern.
+
+#### Fenster-Menü
+
+1. Klicken Sie oben in der Seitenleiste auf *Fenster*.
+
+   ![Fenster-Menü der Bibliothek](bilder/de/oberflaeche-11-fenster-bibliothek-menue.jpg)
+
+2. Wählen Sie *Abdocken (schwebend)*. Die Bibliothek schwebt als verschiebbares Feld über dem Canvas. *Andocken* setzt sie zurück an ihren Platz.
+
+   ![Bibliothek abgedockt](bilder/de/oberflaeche-12-bibliothek-abgedockt.jpg)
+
+*In eigenes Fenster* öffnet die Seitenleiste als eigenes Programmfenster. Der Knopf *Fenster* lässt sich auch ziehen. Das Menü des Inspectors und das des Anmerkungen-Panels bieten dieselben Einträge.
+
+#### Einklappen und Breite
+
+- Der Pfeil-Knopf neben *Fenster* klappt die Seitenleiste ein. Ein Klick auf den Pfeil am Rand klappt sie wieder aus.
+
+  ![Bibliothek eingeklappt](bilder/de/oberflaeche-14-bibliothek-eingeklappt.jpg)
+
+  ![Inspector eingeklappt](bilder/de/oberflaeche-17-inspector-eingeklappt.jpg)
+
+- Die Trennleiste zwischen Seitenleiste und Canvas lässt sich mit der Maus ziehen und ändert die Breite.
+
+  ![Bibliothek verbreitert](bilder/de/oberflaeche-19-trennleiste-gezogen.jpg)
+
+- **Strg+B** blendet die Bibliothek aus und ein, **Strg+I** den Inspector.
+
+Die Taste **P** öffnet die Patchliste.
+
+![Patchliste nach Taste P](bilder/de/oberflaeche-23-tastatur-patchliste-p.jpg)
 
 ### Menü Bearbeiten
 
-![Menü Bearbeiten](bilder/de/oberflaeche-menu-edit.jpg)
+![Menü Bearbeiten](bilder/de/oberflaeche-24-bearbeiten-menue.jpg)
 
-Das Menü Bearbeiten enthält Funktionen zum Verändern der Auswahl.
-
-| Funktion | Tastaturkürzel | Beschreibung |
+| Eintrag | Kürzel | Wirkung |
 |---|---|---|
-| Rückgängig | Strg+Z | Letzten Schritt rückgängig machen |
-| Wiederherstellen | Strg+Y | Letzten rückgängig gemachten Schritt wiederherstellen |
-| Duplizieren | Strg+D | Ausgewählte Geräte oder Kabel duplizieren |
-| Auswahl löschen | Entf | Ausgewählte Elemente löschen |
-| Alles auswählen | Strg+A | Alle Geräte und Kabel im Plan auswählen |
-| Auswahl aufheben | Esc | Aktuelle Auswahl aufheben |
+| Rückgängig | Strg+Z | nimmt den letzten Schritt zurück |
+| Wiederherstellen | Strg+Y | stellt den zurückgenommenen Schritt wieder her |
+| Duplizieren | Strg+D | kopiert die ausgewählten Elemente |
+| Auswahl löschen | Entf | löscht die ausgewählten Elemente |
+| Alles auswählen | Strg+A | wählt alle Elemente des Plans aus |
+| Auswahl aufheben | Esc | hebt die Auswahl auf |
+
+![Alles ausgewählt](bilder/de/oberflaeche-25-bearbeiten-alles-auswaehlen.jpg)
 
 ### Menü Ansicht
 
-![Menü Ansicht](bilder/de/oberflaeche-menu-view.jpg)
+![Menü Ansicht](bilder/de/oberflaeche-34-ansicht-menue.jpg)
 
-Das Menü Ansicht stellt Funktionen zur Verfügung, um die Canvas-Ansicht zu beeinflussen und die Anzeige verschiedener Panels zu kontrollieren.
+#### Zoom
 
-#### Zoom und Anpassung
-
-| Funktion | Beschreibung |
+| Eintrag | Wirkung |
 |---|---|
-| Einpassen | Canvas so zoomen, dass alle Elemente sichtbar sind |
-| Zoom 100 % | Zoom auf 100 % zurücksetzen |
-| Vergrößern | Canvas vergrößern |
-| Verkleinern | Canvas verkleinern |
+| Einpassen | zoomt so, dass alle Elemente sichtbar sind |
+| Zoom 100 % | setzt den Zoom auf 100 % |
+| Vergrößern | zoomt hinein |
+| Verkleinern | zoomt heraus |
+| Vollbild | schaltet das Fenster in den Vollbildmodus und zurück |
 
-#### Design und Darstellung
+Die aktuelle Zoomstufe steht in der Statusleiste.
 
-| Funktion | Beschreibung |
+#### Darstellung
+
+| Eintrag | Wirkung |
 |---|---|
-| Helles Design | Zwischen hellem und dunklem Design umschalten |
-| System-Theme folgen | Das Design des Betriebssystems verwenden |
-| Vollbild | App im Vollbildmodus anzeigen |
+| Darstellung: wie System | hell oder dunkel nach der Einstellung des Betriebssystems |
+| Helle Darstellung | immer hell |
+| Dunkle Darstellung | immer dunkel |
 
-#### Kabel und Beschriftungen
+Dieselbe Wahl bieten der Darstellungs-Knopf in der Kopfleiste (Sonne, Mond oder Bildschirm) und *Einstellungen → Darstellung*. Die Wahl bleibt gespeichert.
 
-| Funktion | Beschreibung |
+![Helle Darstellung](bilder/de/oberflaeche-40-ansicht-helles-design-aus.jpg)
+
+#### Raster und Beschriftungen
+
+| Eintrag | Wirkung |
 |---|---|
-| Am Raster ausrichten | Geräte auf einem Raster ausrichten |
-| Kabel-Labels ausblenden | Kabelbezeichnungen auf dem Canvas verbergen |
-| Off-Page-Namen anzeigen | Namen von Geräten außerhalb des Plans anzeigen |
-| Kabelfarbe nach Länge | Kabel nach ihrer Länge einfärben |
-| Kabelfarbe nach Gewerk | Kabel nach ihrer Disziplin/Gewerk einfärben |
+| Am Raster ausrichten | Geräte rasten beim Verschieben auf dem Raster ein |
+| Kabel-Labels ausblenden | blendet die Beschriftungen an den Kabeln aus |
+| Off-Page-Namen anzeigen | zeigt an Off-Page-Verbindern die Kabelnummer bzw. den Kabelnamen dauerhaft; ohne die Option erscheint sie nur beim Überfahren mit der Maus |
 
-#### Panels und Werkzeuge
+Ein Häkchen vor dem Eintrag zeigt, dass die Option eingeschaltet ist.
 
-| Funktion | Beschreibung |
+![Kabel-Labels ausgeblendet](bilder/de/oberflaeche-45-ansicht-labels-aus.jpg)
+
+#### Kabelfarbe nach Länge
+
+*Kabelfarbe nach Länge* färbt die Kabel nach dem Längen-Farbcode der Rundfunktechnik. Die gespeicherte Farbe jedes Kabels bleibt unverändert; ein zweiter Klick schaltet zurück.
+
+| Länge | Farbe |
 |---|---|
-| Gerät suchen | Canvas-Suchfeld ein- und ausblenden |
-| Werkzeugleiste | Canvas-Werkzeugleiste anzeigen oder ausblenden |
-| Anmerkungen-Panel | Annotations-Panel ein- und ausblenden |
+| 1 m | rot |
+| 2 m | gelb |
+| 3 m | grün |
+| 5 m | weiß |
+| 10 m | rot |
+| 20 m | gelb |
+| 25 m | gelb/weiß gestrichelt |
+| 50 m | weiß |
+| 100 m | rot |
+
+Kabel mit einer anderen Länge erscheinen grau.
+
+![Kabel mit 1, 2, 3 und 5 m nach Länge gefärbt](bilder/de/oberflaeche-53-ansicht-farbe-laenge-regel.jpg)
+
+#### Kabelfarbe nach Gewerk
+
+*Kabelfarbe nach Gewerk* färbt jedes Kabel nach seinem Gewerk: Video blau, Audio rot, Control orange, Network grün, Power violett, Other grau. Auch hier bleibt die gespeicherte Farbe unverändert. Die beiden Farbmodi schließen sich aus.
+
+![Kabel nach Gewerk gefärbt](bilder/de/oberflaeche-54-ansicht-farbe-gewerk-vergleich.jpg)
+
+#### Suchfeld, Werkzeugleiste und Panels
+
+| Eintrag | Kürzel | Wirkung |
+|---|---|---|
+| Gerät suchen | Strg+F | blendet das Suchfeld über dem Canvas ein und aus |
+| Werkzeugleiste | | blendet die Werkzeugleiste des Canvas ein und aus |
+| Anmerkungen-Panel | | öffnet und schließt das Panel *Anmerkungen* |
+| Hallenplan | | blendet das Hallenplan-Panel ein und aus |
+| Symbole | | blendet das Symbol-Panel ein und aus |
+
+![Canvas ohne Werkzeugleiste](bilder/de/oberflaeche-58-ansicht-werkzeugleiste-aus.jpg)
+
+Das Panel *Anmerkungen* erscheint rechts. Es filtert nach *alle*, *offen*, *gebaut* und *erledigt*; *+ Neue Anmerkung* legt eine Anmerkung an. *Schließen* blendet es aus.
+
+![Anmerkungen-Panel](bilder/de/oberflaeche-60-ansicht-anmerkungen-an.jpg)
 
 ### Menü Hilfe
 
-![Menü Hilfe](bilder/de/oberflaeche-menu-help.jpg)
+![Menü Hilfe](bilder/de/oberflaeche-83-hilfe-menue.jpg)
 
-Das Menü Hilfe bietet Zugang zu Dokumentation und Informationen über die App.
-
-| Funktion | Tastaturkürzel | Beschreibung |
+| Eintrag | Kürzel | Wirkung |
 |---|---|---|
-| Befehlspalette… | Strg+K | Schnellzugriff auf Befehle durch Tippsuche |
-| Tastaturkürzel… | | Übersicht aller Tastaturkürzel anzeigen |
-| Erste-Schritte-Tour… | | Interaktive Einführung in die App starten |
-| Auf Updates prüfen… | | Nach neuen Versionen suchen |
-| Über LZ Cable Planner… | | Versionsinformation und Credits anzeigen |
+| Befehlspalette… | Strg+K | öffnet die Befehlspalette |
+| Tastaturkürzel… | ? | öffnet die Übersicht der Tastaturkürzel |
+| Erste-Schritte-Tour… | | startet die Tour durch die Oberfläche |
+| Auf Updates prüfen… | | fragt nach einer neueren Version und meldet das Ergebnis |
+| Über LZ Cable Planner… | | öffnet den Dialog mit Version und Build |
 
-### Befehlspalette
+#### Befehlspalette
 
-![Befehlspalette](bilder/de/oberflaeche-command-palette.jpg)
+![Befehlspalette](bilder/de/oberflaeche-84-hilfe-befehlspalette.jpg)
 
-Die Befehlspalette ist ein schneller Zugriff auf die wichtigsten Aktionen. Sie wird mit **Strg+K** geöffnet oder über *Hilfe → Befehlspalette…* aufgerufen. Sie erlaubt das Suchen und Ausführen von Befehlen durch Textsuche.
+Die Befehlspalette listet die Befehle aus *Bearbeiten*, *Ansicht*, *Datei*, *Werkzeuge* und *Hilfe*; rechts neben jedem Befehl steht seine Gruppe, unter manchen eine Kurzbeschreibung. Befehle abgeschalteter Module fehlen.
 
-Die Befehlspalette enthält:
-- **Bearbeiten**: Rückgängig, Wiederherstellen, Duplizieren, Alles auswählen
-- **Ansicht**: Einpassen, Vergrößern, Verkleinern, Zoom zurücksetzen
-- **Werkzeuge**: Plan-Überprüfung, Patch-Liste, Analysen, Massenverbindung, Revisionen, KI-Plan-Generierung, CSV-Import, und weitere Funktionen
+1. Öffnen Sie die Palette mit **Strg+K** oder über *Hilfe → Befehlspalette…*.
+2. Tippen Sie ein oder mehrere Suchwörter. Die Suche prüft Befehlsname, Gruppe, Kurzbeschreibung und hinterlegte Synonyme; jedes Wort muss vorkommen. Treffer im Befehlsnamen stehen vorn.
 
-Die Befehlspalette ist besonders nützlich, wenn Sie sich die genauen Menü-Pfade nicht merken oder wenn Sie eine Funktion schnell ausführen möchten, ohne durch die Menüs zu navigieren. Geben Sie einfach die ersten Buchstaben des gesuchten Befehls ein, um die Liste zu filtern.
+   ![Suche nach „zoom“](bilder/de/oberflaeche-87-palette-suche-zoom.jpg)
+
+3. Wählen Sie mit den Pfeiltasten einen Befehl und führen Sie ihn mit **Enter** aus.
+
+Synonyme gelten in beiden Sprachen: *qr* findet zum Beispiel *Aufs Handy teilen…*.
+
+![Suche nach „qr“](bilder/de/oberflaeche-88-palette-suche-synonym.jpg)
+
+Passt nichts, steht *Keine Befehle gefunden* in der Liste.
+
+![Keine Treffer](bilder/de/oberflaeche-89-palette-keine-treffer.jpg)
+
+#### Tastaturkürzel
+
+*Hilfe → Tastaturkürzel…* oder die Taste **?** öffnet die Übersicht.
+
+![Tastaturkürzel, Ansicht Tastatur](bilder/de/oberflaeche-94-hilfe-tastenkuerzel.jpg)
+
+Die Ansicht *Tastatur* zeigt eine Tastatur; markierte Tasten haben eine Aktion, die beim Überfahren oder Anklicken erscheint. Die Ansicht *Liste* führt alle Kürzel als Liste. Dazu gehören unter anderem:
+
+| Kürzel | Aktion |
+|---|---|
+| Strg+N, Strg+O, Strg+S, Strg+Umsch+S | Neues Projekt, Öffnen, Speichern, Speichern unter |
+| Strg+C, Strg+V | Kopieren, Einfügen |
+| Strg+K | Befehlspalette |
+| Strg+F | Gerät suchen |
+| Strg++ | Neues Gerät an der Mausposition |
+| Strg+B, Strg+I | Bibliothek bzw. Inspector ein- und ausblenden |
+| P | Patchliste öffnen |
+| A | Pfeildarstellung umschalten |
+| ? | diese Übersicht |
+
+#### Erste-Schritte-Tour
+
+Die Tour führt in fünf Schritten durch die Oberfläche: Bibliothek links, Eigenschaften rechts, Plan-Prüfung, Export-Menü, Jede Funktion finden. *Weiter* und *Zurück* blättern, *Tour beenden* bricht ab. Der letzte Schritt schließt mit *Befehlspalette öffnen* die Tour und öffnet die Befehlspalette. Beim ersten Start öffnet sich die Tour von selbst.
+
+![Erster Schritt der Tour](bilder/de/oberflaeche-96-hilfe-tour-1.jpg)
+
+#### Über LZ Cable Planner
+
+![Über LZ Cable Planner](bilder/de/oberflaeche-103-hilfe-ueber.jpg)
+
+Der Dialog zeigt:
+
+- Version
+- Build: Datum und Uhrzeit, zu der das Programm gebaut wurde
+- Autor
+- Repository (github.com/larszu/cable-planner)
+- Plattform (Electron, React, ReactFlow, Vite, Tailwind)
+- den Hinweis, Fehler und Wünsche auf GitHub zu melden
+
+Derselbe Dialog öffnet sich mit einem Klick auf die Versionsnummer rechts in der Statusleiste.
 
 ### Statusleiste
 
-![Statusleiste](bilder/de/oberflaeche-statusbar.jpg)
+![Statusleiste](bilder/de/oberflaeche-06-statusleiste.jpg)
 
-Die Statusleiste am unteren Rand des Fensters zeigt wichtige Informationen zum aktuellen Projekt:
+Die Statusleiste zeigt von links nach rechts:
 
-| Element | Beschreibung |
+| Element | Bedeutung | Klick |
+|---|---|---|
+| Projektname | Name des Projekts | |
+| Geräte, Kabel | Anzahl im Plan | |
+| Rahmen | Anzahl der Raum-Rahmen | |
+| gepackt | Geräte, die in ihren Eigenschaften als gepackt markiert sind, z. B. *0/5 gepackt*; grau bei keinem, gelb bei einigen, grün bei allen | |
+| Komplexität | Größeneinschätzung des Plans | |
+| Plan-Check | Ergebnis der laufenden Planprüfung | öffnet den Plan-Check |
+| Rentman | Verbindung zu Rentman | |
+| Zoom | aktuelle Zoomstufe | |
+| Version | Programmversion | öffnet *Über LZ Cable Planner* |
+
+In einem schmalen Fenster blendet die Statusleiste Rahmen, gepackt und Rentman aus.
+
+#### Komplexität
+
+Das Abzeichen zählt Geräte und Kabel zusammen:
+
+| Summe | Abzeichen |
 |---|---|
-| Projektname | Name des aktuell geöffneten Projekts |
-| Geräte | Anzahl der Equipment-Elemente |
-| Kabel | Anzahl der Kabelverbindungen |
-| Rahmen | Anzahl der Rackrahmen |
-| Gepackt | Status und Anzahl gepackter Geräte |
-| Dateigröße | Größe der Projektdatei |
-| Plan-Check | Status der Planüberprüfung (grün OK, rot Probleme) |
-| Zoom | Aktuelle Zoomstufe in Prozent |
-| Version | Installierte App-Version |
+| unter 8 | Neu |
+| ab 8 | Klein |
+| ab 30 | Mittel |
+| ab 80 | Groß |
+| ab 200 | XL |
 
-Zusätzlich können folgende Badges angezeigt werden:
-- **Live-Kollaboration**: zeigt an, wenn eine Live-Zusammenarbeit aktiv ist
-- **MCP-Server**: zeigt an, ob der MCP-Server läuft und ob Claude den Plan liest
-- **Aufgaben**: zeigt an, wenn es fällige Aufgaben gibt
+Das Abzeichen dient nur der Orientierung über Lesbarkeit und Arbeitstempo.
 
-### Designeinstellungen
+![Komplexität XL bei 115 Geräten und 92 Kabeln](bilder/de/oberflaeche-70-status-komplexitaet-xl.jpg)
 
-#### Helles Design
+#### Plan-Check
 
-![Helles Design](bilder/de/oberflaeche-theme-light.jpg)
+Das Abzeichen hat drei Zustände:
 
-Das App-Design kann zwischen einem hellen und dunklem Design umgeschaltet werden. Im hellen Design hat die App einen weißen/hellen Hintergrund, im dunklen Design (Standard) einen dunklen Hintergrund. Die Farbpalette wird automatisch angepasst.
+| Farbe | Bedeutung |
+|---|---|
+| grün, *OK* | keine Befunde |
+| gelb mit Zahl | nur Warnungen |
+| rot mit Zahl | mindestens ein Fehler |
 
-Sie können auch einstellen, dass das System-Theme des Betriebssystems verwendet wird. Dann wechselt die App automatisch zwischen hellem und dunklem Design, je nach Systemeinstellung.
+Die Zahl ist die Summe aus Fehlern und Warnungen.
 
-### Canvas-Sichtbarkeitsoptionen
+![Plan-Check mit einer Warnung](bilder/de/oberflaeche-71-status-plancheck-warnung.jpg)
 
-#### Einrasten
+![Plan-Check mit Fehlern](bilder/de/oberflaeche-73-status-plancheck-fehler.jpg)
 
-![Einrasten](bilder/de/oberflaeche-snap-to-grid.jpg)
+Ein Klick öffnet den Plan-Check mit allen Befunden. Ein Klick auf einen Befund wählt das betroffene Element aus.
 
-Mit der Option „Am Raster ausrichten" werden Geräte, die Sie auf dem Canvas verschieben, automatisch auf einem Raster ausgerichtet. Dies erleichtert die Anordnung und erzeugt ein ordentliches Layoutergebnis. Sie können diese Option im Menü Ansicht aktivieren oder deaktivieren.
+![Plan-Check geöffnet](bilder/de/oberflaeche-72-status-plancheck-klick.jpg)
 
-#### Beschriftungen ausblenden
+#### Hinweise, die nur bei Bedarf erscheinen
 
-![Kabel-Labels ausblenden](bilder/de/oberflaeche-hide-labels.jpg)
+| Abzeichen | Erscheint, wenn | Klick |
+|---|---|---|
+| *Netz* mit Zahl | Netzwerk-Befunde vorliegen: fehlende oder doppelte Adressen, Masken, Segmente | öffnet die Analysen auf dem Netzwerk-Reiter |
+| *Keine Sicherungskopie* | der Browser-Speicher die Sicherungskopie des Projekts abgelehnt hat; der Plan selbst ist nicht betroffen, speichern Sie ihn in eine Datei | |
+| *Fotos* mit MB | die Fotos im Plan mehr als 40 MB ausmachen; die Datei öffnet weiterhin, ist aber schwer per Mail zu verschicken | |
+| *Fällig* mit Zahl | Rückgaben, Ausgaben, Stunden, Belege oder Kosten überfällig oder heute fällig sind | öffnet die Analysen auf *Was ansteht* |
+| *Live* mit Teilnehmerzahl | eine Live-Zusammenarbeit läuft | öffnet die Einstellungen auf dem Netzwerk-Sync-Reiter |
+| *MCP* | der lokale MCP-Server läuft; daneben *· nur lesen* oder *· darf ändern*, bei aktiver Anfrage *MCP · fragt* | öffnet die Einstellungen auf dem MCP-Reiter |
 
-Kabel können Beschriftungen (Labels) wie die Portnummern tragen. Mit „Kabel-Labels ausblenden" im Menü Ansicht können diese ausgeblendet werden. Dies ist nützlich, wenn der Canvas überlastet wirkt oder wenn Sie nur die Verbindungsstruktur sehen möchten.
+![Netzwerk-Befunde](bilder/de/oberflaeche-74-status-netz-befunde.jpg)
 
-#### Kabelfarben
+![Keine Sicherungskopie](bilder/de/oberflaeche-79-status-keine-sicherungskopie.jpg)
 
-##### Farbe nach Länge
+![Fotos über 40 MB](bilder/de/oberflaeche-77-status-fotos.jpg)
 
-![Kabelfarbe nach Länge](bilder/de/oberflaeche-color-by-length.jpg)
+#### Rentman-Anzeige
 
-Mit dieser Option werden Kabel je nach ihrer physikalischen Länge eingefärbt. Kurze Kabel erhalten eine Farbe, lange Kabel eine andere. Dies hilft, auf einen Blick zu erkennen, welche Kabel besonders lang sind und daher möglicherweise kostspielig oder schwierig zu verlegen sind.
+Die Rentman-Anzeige erscheint nur, wenn das Modul Rentman eingeschaltet ist. Sie zeigt den Namen des verknüpften Rentman-Projekts, sonst *Token bereit*, wenn ein Zugangstoken hinterlegt ist, sonst *Standalone*.
 
-##### Farbe nach Gewerk
+![Verknüpftes Rentman-Projekt](bilder/de/oberflaeche-78-status-rentman-projekt.jpg)
 
-![Kabelfarbe nach Gewerk](bilder/de/oberflaeche-color-by-layer.jpg)
+### Handy-Zugriff
 
-Mit dieser Option werden Kabel nach ihrer Disziplin/ihrem Gewerk eingefärbt (z. B. Video, Audio, Daten, Stromversorgung). Das erleichtert die Unterscheidung zwischen verschiedenen Kabeltypen auf einem komplexen Plan.
+Der Knopf *Handy-Zugriff* in der Kopfleiste öffnet den gleichnamigen Dialog. Er startet einen kleinen Webserver im lokalen Netzwerk; ein Handy öffnet über den QR-Code die mobile Ansicht des Projekts.
 
-### Informationen und Hilfe
+![Dialog Handy-Zugriff](bilder/de/oberflaeche-105-handy-dialog.jpg)
 
-#### Über die App
+| Element | Wirkung |
+|---|---|
+| Rückmeldungen vom Handy: *Nur lesen* | das Handy kann nichts zurückschreiben |
+| Rückmeldungen vom Handy: *Mitschreiben: Häkchen, Kabel, Fotos, neue Geräte* | das Handy darf Häkchen, Kabel, Fotos und neue Geräte zurückschicken |
+| *LAN-Server starten* | startet den Server und zeigt den QR-Code |
+| *Anlagen-Zugangscodes abrufbar machen* | gibt Intercom-Zugangscodes über einen zweiten Code frei; nur bei Projekten mit Intercom-Konfiguration wählbar |
+| *Hinweise zur Sicherheit* | klappt die Sicherheitshinweise auf |
 
-![Über-Dialog](bilder/de/oberflaeche-about.jpg)
+Der Server stoppt beim Schließen der App oder über den Stop-Knopf. Die mobile Ansicht beschreibt das Kapitel [Web-Ausgabe und Tablet](#12-web-ausgabe-und-tablet).
 
-Der About-Dialog zeigt die aktuelle Version von LZ Cable Planner sowie Informationen über den Lizenzgeber und die Lizenzen der mitgelieferten Fremdbibliotheken. Er ist erreichbar über *Hilfe → Über LZ Cable Planner…*.
+![Hinweise zur Sicherheit](bilder/de/oberflaeche-107-handy-sicherheitshinweise.jpg)
 
-Hier finden Sie:
-- Die aktuelle Versionsnummer
-- Das Veröffentlichungsdatum
-- Den Autor (Lars Zumpe)
-- Das GitHub-Repository (github.com/larszu/cable-planner)
-- Verwendete Technologien (Electron, React, ReactFlow, Vite, Tailwind)
-- Hinweis zur Fehlermeldung (Issues und Feature-Anfragen sollten direkt auf GitHub gemeldet werden)
+### Erster Start
 
-### Nicht aufgenommene Funktionen
+Beim ersten Start mit leerem Projekt erscheint der Dialog *Willkommen — was planst du?*.
 
-Die folgenden Elemente konnten nicht vollständig dokumentiert werden:
+![Startdialog](bilder/de/oberflaeche-109-erststart-startdialog.jpg)
 
-- **Handy-Zugriff Dialog**: Der Button zum Starten des Handy-Zugriffs ist in der Test-Umgebung möglicherweise nicht verfügbar oder wurde nicht erfolgreich aktiviert.
-- **Zusammenarbeit Panel**: Das Sync-Panel wurde nicht erfolgreich vom Testskript geöffnet.
-- **Tastaturkürzel Dialog**: Der Dialog konnte nicht erfolgreich aktiviert werden.
+1. Wählen Sie optional einen oder mehrere Anwendungsfälle. Sie schalten die passenden Module ein:
 
-Diese Funktionen sind alle im Code vorhanden und funktional. Die Dokumentation konzentriert sich auf die Hauptmenüs und die wichtigsten Einstellungen zur Konfiguration der Benutzeroberfläche.
+   | Anwendungsfall | schaltet die Module ein |
+   |---|---|
+   | Show / Event | Mobile-Companion, Rentman |
+   | Festinstallation | Festinstallation, Mobile-Companion, NetBox |
+   | Vermietung | Vermietung / Lager, Rentman |
+
+   ![Anwendungsfall gewählt](bilder/de/oberflaeche-110-erststart-auswahl.jpg)
+
+2. Wählen Sie, wie Sie beginnen:
+
+   | Knopf | Wirkung |
+   |---|---|
+   | Neues Projekt | öffnet die Projektdaten für ein neues Projekt |
+   | Beispielprojekt laden | lädt das Beispielprojekt und passt die Ansicht ein |
+   | Projekt öffnen… | öffnet eine vorhandene `.cableplan`-Datei |
+   | Später entscheiden | schließt den Dialog |
+
+   Ohne gewählten Anwendungsfall bleiben die Module, wie sie sind. Ändern lässt sich alles unter *Einstellungen → Module*.
+
+3. Danach startet die [Erste-Schritte-Tour](#erste-schritte-tour).
+
+   ![Tour nach dem Startdialog](bilder/de/oberflaeche-112-erststart-tour.jpg)
 
 ---
 
 ## 3. Canvas
 
-Die Arbeitsfläche ist das Herzstück von Cable Planner. Hier planen Sie Ihr Verkabelungssystem, visualisieren den Signalfluss und verwalten die Anordnung aller Geräte. Die schwebende Werkzeugleiste oben links bietet direkten Zugriff auf alle Funktionen.
+Der Canvas ist die Arbeitsfläche, auf der Geräte stehen, Kabel verlaufen und Rahmen Räume bilden. Dieses Kapitel beschreibt die Fläche selbst, die schwebende Werkzeugleiste, die Auswahl, das Zeichnen und Bearbeiten von Kabeln, Rahmen, Etagen, Ebenen, Betriebsarten, Anmerkungen, Hallenplan und Planzeichen. Die Eigenschaften eines markierten Geräts, Kabels oder Rahmens stehen im Kapitel [Inspector](#5-inspector); die Bibliothek links im Kapitel [Bibliothek](#4-bibliothek).
 
-### Werkzeugleiste (Toolbar)
+### Der leere Plan und das Beispielprojekt
 
-Die Toolbar ist eine schwebende Leiste oben links auf dem Canvas. Sie enthält alle wichtigen Funktionen und lässt sich mit dem Zieh-Griff verschieben.
+Ein Plan ohne Geräte zeigt in der Mitte den Hinweis *Noch keine Geräte im Plan*: Ein Gerät aus der Bibliothek links auf die Fläche ziehen. Darunter steht *Beispielprojekt laden*.
 
-![Toolbar-Hauptansicht](bilder/de/canvas-01-toolbar-main.jpg)
+1. Starten Sie mit einem leeren Plan.
 
-#### Toolbar schließen und wieder öffnen
+   ![Leerer Plan mit Hinweis](bilder/de/canvas-start-01-leerer-plan.jpg)
 
-Der **X**-Button neben dem Zieh-Griff versteckt die Toolbar. Sie können sie über das *Ansicht* → *Canvas-Werkzeugleiste* Menü wieder öffnen. Dies ist nützlich auf kleinen Bildschirmen oder für ungestörte Pläne.
+2. Klicken Sie auf *Beispielprojekt laden*. Der Plan zeigt dann Camera 1, Camera 2, Vision mixer, Multiviewer und Control room monitor mit vier Kabeln. Die weiteren Abschnitte dieses Kapitels arbeiten an diesem Beispiel.
 
-### Einstellungen: Defaults (Voreinstellungen für neue Kabel)
+   ![Beispielprojekt auf dem Canvas](bilder/de/canvas-start-02-beispiel-geladen.jpg)
 
-Das Menü *Defaults* fasst alle Standard-Verhaltenswerte zusammen, die beim Erstellen neuer Kabel gelten. Klicken Sie auf den Defaults-Button (Zahnrad-Symbol) um das Menü zu öffnen.
+Die Fläche lässt sich mit gedrückter Maustaste auf freiem Grund verschieben, mit dem Mausrad zoomen und zeigt unten rechts eine Übersichtskarte.
 
-#### Routing (Kabel-Verlauf)
+### Die Werkzeugleiste
 
-Bestimmt die Standardform neuer Kabel:
+Die Werkzeugleiste schwebt oben links über dem Plan. In der Leiste stehen von links nach rechts:
 
-- **Orthogonal** (rechtwinkliges Gitter): Kabel verlaufen waagerecht und senkrecht
-- **Straight** (direkt): Gerade Linien zwischen den Anschlüssen
-- **Curved** (geschwungen): Sanfte Kurven
+- der Griff zum Verschieben und der Schließen-Knopf,
+- *Defaults* (Voreinstellungen für neue Kabel und die Darstellung),
+- *Rahmen*,
+- *Sprache* (Kabel aus einem Satz anlegen),
+- Knöpfe für die Auswahl, solange Geräte markiert sind (Kabel verbinden, Gruppe speichern, Rack, Ausrichten),
+- die Ebenen-Chips *Video*, *Audio*, *Control*, *Network*, *Power*, *Other* und eigene Ebenen,
+- der Chip der gerade eingeschalteten Betriebsart (Signalweg, Schaltbild, Prüfbild),
+- *Mehr*.
 
-#### Pfeile (Signalrichtung)
+![Die Werkzeugleiste](bilder/de/canvas-leiste-01-leiste-ganz.jpg)
 
-Aktiviert kleine Pfeile an den Kabeln, die die Signalrichtung anzeigen.
+Unter *Mehr* stehen die selteneren Schalter: *Ebenen ⋯* (Ebenen verwalten), *Sperren*, *Schema* beziehungsweise *Live*, *Schaltbild*, *Prüfbild*, *Abschließen*, *Badges*, *Anmerkungen*, *Hallenplan* und *Symbole*. Die Knöpfe *Räume* und *3D* erscheinen dort, sobald der Plan Rahmen enthält.
 
-#### Kabelbrücken (Cable Bumps)
+![Mehr geöffnet](bilder/de/canvas-modi-04-schaltbild-an.jpg)
 
-Zeigt kleine Hügel an Kreuzungspunkten, damit Kabel optisch übereinander gehen, statt sich zu schneiden.
+Auf einem Telefon zeigt die Leiste nur den Griff, *Defaults* und *Mehr*; Rahmen, Ebenen und Auswahl-Knöpfe stehen dann unter *Mehr*.
 
-#### Ports nach Typ färben
+#### Leiste verschieben, schließen und wieder öffnen
 
-Färbt die Anschlüsse je nach Typ (z. B. SDI, Audio, Power) unterschiedlich.
+1. Ziehen Sie die Leiste am Griff (sechs Punkte links) an eine andere Stelle.
 
-#### Kabelfarben
+2. Mit dem **×** neben dem Griff schließen Sie die Leiste.
 
-Wählen Sie die Färbungs-Logik für Kabel:
+3. Öffnen Sie das Menü *Ansicht*.
 
-- **Manuell**: Sie wählen die Farbe für jedes Kabel einzeln
-- **Nach Länge**: Automatische Färbung je nach Kabellänge (mit Farblegenden)
-- **Nach Layer**: Automatische Färbung je nach Signaltyp (Video, Audio, Control, Network, Power)
+   ![Menü Ansicht](bilder/de/canvas-leiste-05-ansicht-menue.jpg)
 
-### Rahmen (Location Frames)
+4. Wählen Sie *Werkzeugleiste*. Die Leiste erscheint wieder.
 
-Rahmen sind farbige Rechtecke, um Gerätegruppen zu kennzeichnen — zum Beispiel alle Kameras, alle Mischer oder alle Switch-Komponenten.
+### Defaults
 
-**Neuen Rahmen hinzufügen:**
-1. Klicken Sie auf den **Frame**-Button in der Toolbar
-2. Ein leerer Rahmen wird am Viewport-Zentrum erstellt
-3. Ziehen Sie den Rahmen und die Ecken, um ihn anzupassen
-4. Rechtsklick auf einen Rahmen öffnet das Kontextmenü zum Bearbeiten
+*Defaults* (Tooltip: *Standard-Verhalten für neue Kabel + Darstellung*) legt fest, wie neue Kabel entstehen und wie der Plan aussieht. Ein Punkt am Knopf zeigt, dass mindestens ein Wert verändert ist.
 
-**Rahmen um ausgewählte Geräte:**
-1. Wählen Sie ein oder mehrere Geräte
-2. Der **Frame**-Button zeigt jetzt "Frame um die X Geräte"
-3. Klicken Sie ihn an — ein neuer Rahmen wird automatisch um alle Geräte gezogen
+![Menü Defaults](bilder/de/canvas-defaults-01-menue-offen.jpg)
 
-### Auswahl und Mehrfach-Verkabelung
+| Gruppe | Option | Wirkung |
+|---|---|---|
+| *Kabel-Routing* | *Ortho* | Neue Kabel verlaufen waagerecht und senkrecht. |
+| | *Direkt* | Neue Kabel verlaufen geradlinig. |
+| | *Kurve* | Neue Kabel verlaufen als Kurve. |
+| *Kabelfarbe* | *Nach Typ* | Die Farbe kommt vom Kabeltyp. |
+| | *Nach Länge* | Die Farbe richtet sich nach der Länge; der Knopf *?* zeigt die Legende *Längenfarben*. |
+| *Sonstiges* | *Pfeil am Kabel-Ende* | Frisch gezogene Kabel bekommen einen Pfeil. |
+| | *Kabelbrücken bei Kreuzungen* | Kreuzungen werden als kleine Brücke gezeichnet. Pro Kabel lässt sich das im Kontextmenü überschreiben. |
+| | *Alle Kabel-Labels ausblenden* | Die Beschriftungen aller Kabel verschwinden; ihre Lage bleibt gespeichert. |
+| | *Kabel-Labels: Kurzform* | Das Format-Suffix (zum Beispiel „(1080p50/60)") wird aus der Anzeige entfernt. Der volle Name bleibt in den Kabel-Eigenschaften. |
+| | *Ports nach Connector-Typ einfärben* | Anschlüsse erhalten die Farbe ihres Steckertyps (SDI amber, HDMI violett, Ethernet grün und so weiter). |
 
-#### Ein Gerät auswählen
+Das Routing wirkt auf Kabel, die danach entstehen. Bereits gezeichnete Kabel behalten ihre Form (siehe [Kabel bearbeiten](#kabel-bearbeiten)).
 
-Klicken Sie auf ein Gerät. Es wird mit blauem Umriss markiert. Die Ausrichtungs-Buttons erscheinen nun in der Toolbar.
+1. Wählen Sie unter *Kabel-Routing* zum Beispiel *Kurve*.
 
-#### Mehrere Geräte auswählen
+2. Wählen Sie unter *Kabelfarbe* *Nach Länge*. Die Kabel erscheinen in Längenfarben.
 
-Halten Sie **Strg** (Windows/Linux) oder **Cmd** (Mac) gedrückt und klicken Sie auf weitere Geräte. Sie können auch ein Rechteck ziehen, um mehrere Geräte auf einmal zu erfassen.
+   ![Kabelfarbe nach Länge](bilder/de/canvas-defaults-06-farbe-laenge-flaeche.jpg)
 
-#### Mehrfach-Verkabelung (Bulk Connect)
+3. Der Knopf *?* neben *Nach Länge* blendet die Legende *Längenfarben* ein: 1 m rot, 2 m gelb, 3 m grün, 5 m weiß, 10 m rot, 20 m gelb, 25 m gelb/weiß gestrichelt, 50 m weiß, 100 m rot. *Schließen* blendet sie aus.
 
-Wenn genau **zwei Geräte** ausgewählt sind, erscheint der **Connect cables**-Button in der Toolbar.
+   ![Legende der Längenfarben](bilder/de/canvas-defaults-07-farbe-legende.jpg)
 
-![Zwei Geräte ausgewählt](bilder/de/canvas-06-two-equipment-selected.jpg)
+4. *Kabelbrücken bei Kreuzungen* zeichnet an Kreuzungen eine Brücke.
 
-Im Dialog können Sie mehrere Verbindungen auf einmal erstellen:
-- Wählen Sie Output-Ports des ersten Gerätes
-- Wählen Sie Input-Ports des zweiten Gerätes
-- Wählen Sie den Kabeltyp und die Farbe
-- Klicken Sie "Verbinden", um alle auf einmal anzulegen
+   ![Kabelbrücke an einer Kreuzung](bilder/de/canvas-defaults-11-bruecken-flaeche.jpg)
 
-### Ausrichtung und Anordnung
+5. *Alle Kabel-Labels ausblenden* entfernt die Beschriftungen vom Plan.
 
-Die Ausrichtungs-Buttons erscheinen nur, wenn mindestens ein Gerät ausgewählt ist.
+6. *Ports nach Connector-Typ einfärben* färbt die Anschlüsse nach Steckertyp.
 
-![Ausrichtungs-Buttons](bilder/de/canvas-05-align-buttons.jpg)
+   ![Farbige Anschlüsse](bilder/de/canvas-defaults-16-ports-nach-typ-flaeche.jpg)
 
-| Button | Funktion |
-|--------|----------|
-| **Links** | Bei 1 Gerät: am linken Viewport-Rand; bei mehreren: linke Kanten bündig |
-| **Mitte horizontal** | Bei 1 Gerät: horizontal im Viewport zentriert; bei mehreren: mittig aneinander |
-| **Rechts** | Bei 1 Gerät: am rechten Viewport-Rand; bei mehreren: rechte Kanten bündig |
-| **Oben** | Bei 1 Gerät: am oberen Viewport-Rand; bei mehreren: obere Kanten bündig |
-| **Mitte vertikal** | Bei 1 Gerät: vertikal im Viewport zentriert; bei mehreren: mittig aneinander |
-| **Unten** | Bei 1 Gerät: am unteren Viewport-Rand; bei mehreren: untere Kanten bündig |
-| **Verteilen horizontal** | (nur bei 3+ Geräten) Gleiche Abstände horizontal |
-| **Verteilen vertikal** | (nur bei 3+ Geräten) Gleiche Abstände vertikal |
+Zusätzlich färbt der Eintrag *Kabelfarbe nach Gewerk* im Menü *Ansicht* die Kabel nach ihrer Ebene (Video, Audio und so weiter).
 
-#### Gerätegruppen speichern
+### Geräte auswählen
 
-Wählen Sie ein oder mehrere Geräte und klicken Sie den **Gruppen-speichern**-Button (3 Rechtecke). Ein Eingabefeld erscheint. Geben Sie einen Namen ein und klicken Sie den grünen **Speichern**-Button.
+- **Klick** auf ein Gerät markiert es; der Inspector rechts zeigt seine Eigenschaften.
+- **Umschalt**, **Strg** oder **Cmd** plus Klick fügt weitere Geräte hinzu oder nimmt sie wieder heraus.
+- **Umschalt** gedrückt halten und auf freier Fläche ziehen spannt ein Auswahlrechteck auf.
+- *Bearbeiten → Alles auswählen* markiert alle Geräte.
+- Ein Klick auf freie Fläche hebt die Auswahl auf.
 
-Gruppen können Sie später aus der Bibliothek auf den Canvas ziehen und die Anordnung wird beibehalten.
+1. Klicken Sie auf den Kopf von Camera 2.
 
-### Geräte im 2D-Rack-Builder anordnen
+   ![Ein Gerät markiert](bilder/de/canvas-auswahl-01-ein-geraet.jpg)
 
-Wenn Sie ein oder mehrere normale Geräte ausgewählt haben, können Sie sie mit dem **Rack**-Button der Werkzeugleiste oder per Rechtsklick → **Im Rack-Builder anordnen** in den 2D-Rack-Builder verschieben, um sie in Reihen anzuordnen (z. B. um einen Schrank zu simulieren). Ist ein Rack in der Auswahl, fehlt beides: Racks lassen sich nicht in Racks packen.
+2. Klicken Sie mit gedrückter Umschalt-Taste auf den Vision mixer.
 
-Wenn Sie ein bestehendes Rack (schwarz-weiße Black-Box) auswählen, erscheint stattdessen ein **Bearbeiten**-Button zum Öffnen des Rack-Builders für dieses spezifische Rack.
+   ![Zwei Geräte markiert](bilder/de/canvas-auswahl-04-zwei-geraete.jpg)
 
-### Kontextmenüs (Rechtsklick)
+3. Ziehen Sie mit gedrückter Umschalt-Taste ein Rechteck über mehrere Geräte.
 
-#### Geräte-Kontextmenü
+   ![Auswahlrechteck](bilder/de/canvas-auswahl-07-rechteck.jpg)
 
-Klicken Sie mit der rechten Maustaste auf ein Gerät. Ein Menü erscheint mit diesen Optionen:
+4. *Bearbeiten → Alles auswählen* markiert alle fünf Geräte.
 
-- **Gerät umbenennen**: Beschriftung ändern
-- **Farbe ändern**: Rahmen- und Hintergrundfarbe des Geräts
-- **Gerät duplizieren**: Kopiert das Gerät mit allen Verbindungen
-- **Gerät löschen**: Gerät und alle seine Kabel entfernen
-- **Beschriftung verbergen**: Symbol ohne Namen anzeigen
-- **Anschlüsse verbergen**: Nur das Gerätsymbol ohne Port-Punkte
-- **Im Rack-Builder anordnen**: Öffnet den Rack-Builder mit dem Gerät bzw. der ganzen Auswahl (wie der Rack-Button der Werkzeugleiste)
+Sobald Geräte markiert sind, erscheinen in der Leiste die Knöpfe für Auswahl-Aktionen und über der Auswahl die [Auswahlleiste](#auswahlleiste-am-gerät).
 
-#### Kabel-Kontextmenü
+### Geräte ausrichten
 
-Klicken Sie mit der rechten Maustaste auf ein Kabel. Folgende Optionen sind verfügbar:
+Die Ausrichte-Knöpfe stehen in der Leiste, sobald mindestens ein Gerät markiert ist. Alle Ergebnisse rasten auf das Raster ein, wenn *Am Raster ausrichten* eingeschaltet ist.
 
-![Kabel-Kontextmenü](bilder/de/canvas-11-canvas-context-menu.jpg)
+| Knopf (Tooltip) | Bei einem Gerät | Bei mehreren Geräten |
+|---|---|---|
+| *Linksbündig* / *An linkem Viewport-Rand ausrichten* | Am linken Rand des sichtbaren Ausschnitts | Linke Kanten bündig |
+| *Horizontal zentrieren* | In der Mitte des sichtbaren Ausschnitts | Auf eine gemeinsame senkrechte Mittelachse |
+| *Rechtsbündig* | Am rechten Rand des Ausschnitts | Rechte Kanten bündig |
+| *Oben ausrichten* | Am oberen Rand des Ausschnitts | Obere Kanten bündig |
+| *Vertikal zentrieren* | In der Mitte des Ausschnitts | Auf eine gemeinsame waagerechte Mittelachse |
+| *Unten ausrichten* | Am unteren Rand des Ausschnitts | Untere Kanten bündig |
+| *Horizontal gleichmäßig verteilen* | – | Ab drei Geräten: gleiche Abstände |
+| *Vertikal gleichmäßig verteilen* | – | Ab drei Geräten: gleiche Abstände |
 
-- **Kabel umbenennen**: Beschriftung ändern
-- **Kabeltyp wechseln**: Port-Typen neu zuweisen (z. B. SDI ↔ Optical)
-- **Farbe ändern**: Kabelfarbe überschreiben
-- **Länge ändern**: Kabellänge in Metern eintragen
-- **Verbindung prüfen**: Wenn verfügbar, wird die Kabelverbindung validiert
-- **Knickpunkte anzeigen**: Zeichnet Zwischenpunkte sichtbar, um Wegführung zu ändern
-- **Adapter einsetzen**: Dialog zum Hinzufügen eines Gender-Changers (z. B. XLR M↔F)
-- **Seitenverbinder**: Führt das Kabel über einen Off-Page-Connector raus und wieder rein
-- **Kabel löschen**: Verbindung entfernen
+1. Mit einem markierten Gerät richtet *An linkem Viewport-Rand ausrichten* es am Rand des sichtbaren Ausschnitts aus.
 
-#### Canvas-Kontextmenü (Leerefläche)
+   ![Ein Gerät am linken Rand](bilder/de/canvas-auswahl-02-einzeln-links.jpg)
 
-Klicken Sie mit der rechten Maustaste auf eine leere Fläche:
+2. Markieren Sie Camera 2, Vision mixer und Multiviewer und klicken Sie *Linksbündig*.
 
-- **Neues Gerät hier…**: Öffnet die Geräte-Bibliothek gefiltert für schnelle Auswahl am Klick-Punkt
-- **Rahmen hinzufügen**: Erstellt einen neuen Rahmen am Cursor
-- **Einfügen**: Wenn Sie ein Gerät kopiert haben, wird es hier eingefügt
+   ![Linksbündig ausgerichtet](bilder/de/canvas-auswahl-09-ausrichten-links.jpg)
 
-### Layer-Sichtbarkeit (Video, Audio, Control, Network, Power)
+3. *Horizontal gleichmäßig verteilen* gleicht die Abstände aus.
 
-![Layer-Sichtbarkeit](bilder/de/canvas-12-layer-visibility.jpg)
+   ![Horizontal verteilt](bilder/de/canvas-auswahl-15-ausrichten-verteilen-waagerecht.jpg)
 
-Die farbigen **Chips** nach dem Signalweg-Button filtern, welche Kabel sichtbar sind. Sie verbergen nur die Kabel — die Geräte bleiben immer sichtbar.
+Ausrichten lässt sich mit *Bearbeiten → Rückgängig* zurücknehmen.
 
-Klicken Sie auf einen **Video**-, **Audio**-, **Control**-, **Network**- oder **Power**-Chip, um diese Kabel ein-/auszublenden. Ein **X** im Chip bedeutet, dass dieser Layer verborgen ist.
+### Gerätegruppe speichern
 
-Für benutzerdefinierte Layer (z. B. "RF", "Intercom"), die Sie angelegt haben, erscheinen zusätzliche Chips.
+Der Knopf *N markierte Geräte als Gruppe speichern* legt die Auswahl samt Kabeln als Vorlage ab. Die Gruppe steht danach in der Bibliothek unter *Gruppen* und lässt sich auf den Plan ziehen.
 
-### Signalfluss-Darstellung (Flow Mode)
+1. Markieren Sie mehrere Geräte und klicken Sie auf den Knopf mit den drei Rechtecken. In der Leiste erscheint das Feld *Gruppenname…*.
 
-Der **Flow Mode**-Chip bestimmt, wie Kabel dargestellt werden:
+   ![Feld für den Gruppennamen](bilder/de/canvas-auswahl-17-gruppe-name.jpg)
 
-- **Linear**: Direkte Verbindungen ohne zusätzliche Visualisierung
-- **Schematic**: Grafische Darstellung mit Signalfluss-Visualisierung (Pfeile und Farben zeigen Signal-Richtung)
-- **Circuit**: Elektrotechnische Schaltplan-Ansicht (wenn verfügbar)
+2. Geben Sie einen Namen ein und klicken Sie auf den grünen Haken (*Gruppe speichern*). In der Bibliothek erscheint die Gruppe unter *Gruppen*.
 
-### Grundriss (Floor Plan)
+   ![Gruppe in der Bibliothek](bilder/de/canvas-auswahl-18-gruppe-gespeichert.jpg)
 
-![Grundriss-Panel](bilder/de/canvas-14-floorplan-panel.jpg)
+3. Existiert der Name schon, fragt die App *Es existiert bereits eine Vorlage namens „…". Überschreiben?* Mit *Überschreiben* ersetzen Sie die Vorlage.
 
-Der **Floor plan**-Button blendet oder verbirgt einen Grundriss unter der Canvas, um räumliche Positionen zu zeigen.
+### Auswahl im Rack-Builder anordnen
 
-**Im Grundriss-Panel können Sie:**
-- Einen Grundriss hochladen (JPG/PNG) oder aus der Datei-Bibliothek wählen
-- Maßstab / Kalibrierung anpassen
-- **Zwei-Punkt-Kalibrierung**: Zwei Punkte im Plan markieren und deren reale Meter eingeben
-- **Vier-Ecken-Kalibrierung**: Ein Grundriss-Rechteck auf die Canvas-Koordinaten abbilden
+Der Knopf *N markierte Geräte im 2D-Rack-Builder anordnen* öffnet den Rack-Builder mit der Auswahl (dasselbe steht im Kontextmenü eines Geräts als *Im Rack-Builder anordnen*). Enthält die Auswahl bereits ein Rack, fehlt der Knopf; ist genau ein Rack markiert, öffnet stattdessen der Knopf *Dieses Rack im 2D-Rack-Builder bearbeiten* den Builder für dieses Rack. Der Builder selbst ist im Kapitel [Rack-Builder](#rack-builder) beschrieben.
 
-### Symbole (Electrical, Alarm, PA, IT, AV)
+![Rack-Builder mit der Auswahl](bilder/de/canvas-auswahl-20-rack-aus-auswahl.jpg)
 
-![Symbole-Panel](bilder/de/canvas-15-symbols-panel.jpg)
+### Mehrere Kabel zwischen zwei Geräten
 
-Der **Symbols**-Button öffnet ein Panel mit Planzeichen:
+Sind genau zwei Geräte markiert, erscheint in der Leiste der Knopf *Kabel verbinden* (Tooltip: *Mehrere Kabel zwischen den zwei markierten Geräten auf einmal anlegen*). Ohne Auswahl öffnet *Werkzeuge → Mehrere Kabel verbinden…* denselben Dialog mit zwei Auswahllisten für Quelle und Ziel.
 
-- **Kategorien**: Electrical, Alarm, PA, IT, Automation, AV
-- **Symbol ziehen**: Wählen Sie ein Symbol und ziehen Sie es auf den Canvas
-- **Import**: Externe SVG-Symbole hochladen
-- **KI-Erzeugung**: Mit Beschreibung neue Symbole erzeugen lassen
-- **CSV-Import**: Große Symbolmengen aus Datei importieren
+1. Markieren Sie zwei Geräte, zum Beispiel Camera 2 und Vision mixer.
 
-### Raumsichtbarkeit (Rooms)
+2. Klicken Sie auf *Kabel verbinden*. Der Dialog *Mehrere Kabel verbinden* erklärt: Er erstellt N Kabel auf einmal, Quell-Port i zu Ziel-Port i; belegte Ziel-Ports werden übersprungen.
 
-Der **Rooms** ▾-Button zeigt alle definierten Räume des Projekts. Klicken Sie einen Raum an, um nur die Geräte in diesem Raum anzuzeigen. Dies ist nützlich bei größeren Projekten mit mehreren Räumen.
+   ![Dialog Mehrere Kabel verbinden](bilder/de/canvas-auswahl-22-kabel-verbinden-dialog.jpg)
 
-### 3D-Gebäudeansicht
+| Feld | Bedeutung |
+|---|---|
+| *Quelle → Gerät*, *Seite* | Gerät und Seite (*Outputs* oder *Inputs*), von der die Kabel ausgehen. |
+| *Start-Output (1..n)* | Nummer des ersten Quell-Anschlusses. |
+| *Ziel → Gerät*, *Seite* | Gerät und Seite (*Inputs* oder *Outputs*), an der sie enden. |
+| *Start-Input (1..n)* | Nummer des ersten Ziel-Anschlusses. |
+| *Anzahl Kabel* | Wie viele Kabel entstehen. |
+| *Kabel-Typ* | Der Kabeltyp aller neuen Kabel; die Farbe kommt vom Typ. |
+| *Länge pro Kabel (m)* | Länge aller neuen Kabel. |
+| *Vorschau (x/y Kabel)* | Listet die Paare. Übersteigt die Anzahl die freien Anschlüsse, steht dort *Anzahl überschreitet verfügbare Ports — überzählige werden ausgelassen.* |
 
-Der **3D**-Button öffnet eine dreidimensionale Gebäude-Ansicht. Hier sehen Sie die Positionen aller Geräte räumlich — nützlich, um Kabel-Laufwege und Raumaufteilung zu visualisieren.
+3. Stellen Sie *Start-Input* und *Anzahl Kabel* ein. Die Vorschau zeigt, welche Paare entstehen.
 
-Verwenden Sie die Maus, um die Ansicht zu drehen und zu zoomen.
+   ![Werte eingestellt](bilder/de/canvas-auswahl-23-kabel-verbinden-werte.jpg)
 
-### Signalweg anzeigen
+4. Klicken Sie auf *N Kabel erstellen*. Eine Meldung nennt, wie viele Kabel entstanden und wie viele übersprungen wurden (*Ziel-Port belegt oder ungültig*).
 
-Wenn ein Gerät ausgewählt ist, werden alle Kabel, die ein Signal zu oder von diesem Gerät transportieren, hervorgehoben. So sehen Sie schnell den kompletten Signalfluss.
+   ![Kabel erstellt](bilder/de/canvas-auswahl-24-kabel-verbinden-erstellt.jpg)
 
-### Geräte-Suche (Strg+F / Cmd+F)
+### Kabel per Sprache
 
-Drücken Sie **Strg+F** (Windows/Linux) oder **Cmd+F** (Mac) oder klicken Sie auf die Lupe. Ein Suchfeld erscheint oben über dem Canvas.
+Der Knopf *Sprache* (Tooltip: *Kabel aus einem gesprochenen oder getippten Satz anlegen*) öffnet den Dialog *Kabel per Sprache*. Ein Satz der Form „<Quelle> nach <Ziel>" wird gegen die Namen der Geräte, ihrer Räume und Anschlüsse im Plan gelesen. Es gibt kein Sprachmodell und keine Netzverbindung. Mehrere Kabel trennen Sie mit einem Punkt.
 
-![Geräte-Suche](bilder/de/canvas-22-equipment-search.jpg)
+1. Klicken Sie auf *Sprache*. Das Eingabefeld ist aktiv; mit dem Mikrofon-Knopf diktieren Sie, wenn die Spracherkennung verfügbar ist, sonst tippen Sie oder nutzen die Systemdiktierfunktion (macOS: zweimal Fn, Windows: Win+H).
 
-Tippen Sie den Namen eines Geräts ein. Gefundene Geräte werden hervorgehoben und die Canvas zoomt heran.
+2. Geben Sie einen Satz ein, zum Beispiel „SDI 1 von Camera 1 nach Vision mixer In 3".
 
-### Inline-Auswahl-Toolbar (Multiple Selection)
+3. Klicken Sie auf *Vorschau* oder drücken Sie die Eingabetaste. Die Vorschau zeigt je Satz Quellgerät und -anschluss, Zielgerät und -anschluss. Jede Auswahl lässt sich ändern. Der Knopf unten nennt die Zahl der bereiten Kabel (*N Kabel verbinden*).
 
-Wenn Sie mehrere Geräte auswählen, erscheint über der Auswahl eine kleine Werkzeugleiste mit schnellen Optionen:
+   ![Vorschau eines Satzes](bilder/de/canvas-sprache-03-vorschau.jpg)
 
-- **Farbe**: Ändert die Farbe aller ausgewählten Geräte
-- **Löschen**: Entfernt alle ausgewählten Geräte
-- **Weitere Optionen**: Menü für alle Aktionen
+4. Mehrere Sätze erscheinen untereinander. Ein Satz ohne Treffer zeigt *Kein Treffer – Gerät wählen*; solange dort nichts gewählt ist, zählt er nicht mit. Passen mehrere Geräte, fragt die Vorschau *Welches? (n Treffer)*. Steht ein genanntes Gerät nur in der Bibliothek, bietet die Vorschau *Aus Bibliothek hinzufügen: Name* an; es wird beim Verbinden im Plan angelegt. Ist ein Zielanschluss belegt, fragt die Vorschau *Dieser Eingang hat schon Kabel …. Ersetzen?*. Passen die Signalfamilien nicht zusammen, erscheint der Hinweis, dass wahrscheinlich ein Wandler nötig ist, und es lässt sich ein Wandler einsetzen.
 
-### Sperren (Lock)
+   ![Vorschau mehrerer Sätze](bilder/de/canvas-sprache-04-zwei-saetze.jpg)
 
-Der **Sperren**-Button fasst drei Schutzmaßnahmen zusammen:
+5. *N Kabel verbinden* legt die Kabel in einem Schritt an. Ein Rückgängig nimmt alle wieder zurück.
 
-| Bereich | Effekt |
-|---------|--------|
-| **Rahmen sperren** | Rahmen können nicht verschoben oder gelöscht werden |
-| **Geräte sperren** | Geräte können nicht verschoben oder gelöscht werden |
-| **Kabel sperren** | Kabel können nicht verschoben, geändert oder gelöscht werden |
-
-Das Button-Label zeigt die Anzahl der aktiven Sperren. Wenn alle drei aktiv sind, wird der Button grau und zeigt "Sperren: 3".
-
-### Finalisieren (Plan-Lock)
-
-Der **Finalize**-Button auf der rechten Seite der Toolbar sperrt den gesamten Plan:
-
-![Finalize-Button](bilder/de/canvas-17-finalize-button.jpg)
-
-- **Editing** (Standard): Sie können alle Änderungen machen
-- **Finalised**: Kein Verschieben, keine neuen Verbindungen, keine Löschungen. Ein Bestätigungsdialog warnt vor Änderungen
-- **Viewer**: Read-only-Datei (`.cpviewer`), kann nicht bearbeitet werden
-
-Ein Klick toggelt zwischen Editing und Finalised. Der Plan bleibt in dieser Datei gespeichert.
-
-### Anmerkungen (Annotations)
-
-![Anmerkungen-Buttons](bilder/de/canvas-18-annotations-buttons.jpg)
-
-**Badges** zeigen/verstecken die farbigen Kreis-Marken auf dem Canvas, ohne Anmerkungen zu löschen.
-
-**Annotations** öffnet das Anmerkungs-Panel mit einer Liste aller Markierungen. Hier können Sie Notizen hinzufügen, Farben ändern und Anmerkungen verwalten.
-
-Im **Viewer-Modus** wird der Anmerkungen-Button lila und zeigt "Viewer", um Reviewer zu ermutigen, Feedback zu geben.
-
-### Zoom und Navigation
-
-![Zoom-Buttons und Minimap](bilder/de/canvas-19-zoom-minimap.jpg)
-
-Unten links im Canvas:
-
-- **+** und **−** zum Zoomen
-- **1:1** zum Zurücksetzen auf Originalgröße
-- **Fit** um alle Geräte sichtbar zu machen
-- **Minimap** zeigt eine Vogelperspektive, klicken Sie drauf um zu springen
-
-Sie können auch mit dem **Mausrad** zoomen oder die rechte Maustaste (nicht auf Geräten!) zum Verschieben nutzen.
-
-### 3D-Rackansicht
-
-Wenn Sie ein Rack öffnen oder vom Canvas aus den Rack-Builder aufrufen, wird eine 3D-Ansicht aller Rack-Units angezeigt. Hier können Sie Geräte in einzelne Units einordnen und die räumliche Anordnung sehen.
-
-Die 3D-Ansicht kann mit der Maus rotiert und gezoomt werden.
-
-### Kabel-Details
-
-Doppelklicken Sie auf ein Kabel oder öffnen Sie sein Kontextmenü, um Details zu bearbeiten:
-
-- **Name/Label**: Beschriftung (erscheint auf dem Kabel)
-- **Länge**: In Metern (wird zur Kabelplanung und Farb-Kodierung genutzt)
-- **Typ**: Port-Typ (SDI, Optical, Audio, Power, etc.)
-- **Farbe**: Farbe des Kabels (nur bei manueller Färbung)
-- **Waypoints**: Knickpunkte zum Kontrollieren des Verlaufs
-
-### Stream-Vorschau
-
-Wenn Sie einen Stream-Output eines Geräts aktivieren, kann eine kleine Vorschau-Kachel auf dem Canvas angezeigt werden (z. B. ATEM-Multiviewer oder Videohub-Ausgang). Diese zeigt das Live-Signal.
+   ![Kabel angelegt](bilder/de/canvas-sprache-05-angelegt.jpg)
 
 ### Tastenkürzel auf dem Canvas
 
-| Shortcut | Funktion |
-|----------|----------|
-| **Klick** | Gerät/Kabel auswählen |
-| **Strg+Klick** (Cmd+Klick) | Zur Auswahl hinzufügen |
-| **Ziehen** | Gerät oder Kabel verschieben |
-| **Rechtsklick** | Kontextmenü |
-| **Strg+F** (Cmd+F) | Geräte-Suche |
-| **Strg+D** (Cmd+D) | Auswahl duplizieren |
-| **Entf** | Auswahl löschen |
-| **Strg+Z** (Cmd+Z) | Rückgängig |
-| **Strg+Y** (Cmd+Y) | Wiederherstellen |
-| **Mausrad** | Zoomen |
-| **Rechte Taste + Ziehen** | Canvas verschieben |
+| Taste | Wirkung |
+|---|---|
+| Klick, Umschalt/Strg/Cmd + Klick | Auswählen, zur Auswahl hinzufügen |
+| Pfeiltasten | Markierte Geräte um eine Rasterzelle verschieben |
+| Umschalt + Pfeiltasten | Um vier Rasterzellen verschieben |
+| Strg/Cmd + C, Strg/Cmd + V | Markierte Geräte kopieren und einfügen |
+| Strg/Cmd + D | Auswahl duplizieren |
+| Strg/Cmd + Plus (oder =) | Ein neues Gerät an der Mausposition anlegen; ein Dialog fragt den Namen. Das Gerät erhält die Kategorie *Other* und keine Anschlüsse. |
+| Entf oder Rücktaste | Auswahl löschen (Geräte und Kabel zusammen in einem Schritt) |
+| Esc | Ein begonnenes Kabel abbrechen |
+| Strg/Cmd + F | Gerätesuche |
+
+Die Tasten wirken nicht, solange der Cursor in einem Textfeld steht.
+
+1. Markieren Sie Camera 2 und drücken Sie die Pfeiltaste nach rechts.
+
+2. Strg/Cmd + D dupliziert das markierte Gerät.
+
+3. Strg/Cmd + Plus fragt nach dem Namen des neuen Geräts.
+
+   ![Dialog Neues Gerät](bilder/de/canvas-kuerzel-06-strg-plus.jpg)
+
+### Kabel ziehen
+
+Kabel entstehen, indem Sie von einem Anschluss zu einem anderen ziehen.
+
+1. Drücken Sie auf den Anschlusspunkt eines Ausgangs (zum Beispiel SDI Out von Camera 2) und ziehen Sie ihn auf einen freien Eingang (zum Beispiel In 3 am Vision mixer).
+
+   ![Kabel wird gezogen](bilder/de/canvas-kabel-01-ziehen.jpg)
+
+2. Beim Loslassen öffnet sich der Dialog *Neues Kabel*. Oben stehen *Von:* und *Nach:*. Die Liste *Kabel* zeigt alle Kabeltypen; ✓ kennzeichnet Typen, die zu beiden Steckern passen, ✕ solche, die nicht passen. *★ Custom-Kabel…* legt einen eigenen Typ an. Weitere Felder sind *Signal-Standard*, *Name*, *Länge (m)*, *Farbe* und *Notizen*; ein grüner Hinweis bestätigt, dass der Typ zu den Steckern passt (zum Beispiel *SDI 3G (1080p50/60) passt zu BNC ↔ BNC.*).
+
+   ![Dialog Neues Kabel](bilder/de/canvas-kabel-02-dialog.jpg)
+
+3. Wählen Sie einen Typ und klicken Sie auf *Erstellen*. Das Kabel erscheint mit Beschriftung und Länge.
+
+   ![Kabel angelegt](bilder/de/canvas-kabel-04-kabel-angelegt.jpg)
+
+Besonderheiten beim Ziehen:
+
+- Ein **belegter Eingang** wird nicht stillschweigend überschrieben. Nach *Erstellen* meldet die App *Port bereits belegt* und nennt das vorhandene Kabel. *Ersetzen* löscht das bestehende Kabel und legt die neue Verbindung an, *Abbrechen* verwirft die neue Verbindung, alles bleibt wie es ist.
+
+  ![Meldung Port bereits belegt](bilder/de/canvas-kabel-05-besetzt.jpg)
+
+- Wer **auf freier Fläche** loslässt, bekommt ein offenes Ende: Die App legt dort ein Gerät „Open …" mit einem Anschluss *Open End* desselben Steckertyps an und öffnet den Dialog *Neues Kabel* dafür.
+
+  ![Kabel zu einem offenen Ende](bilder/de/canvas-kabel-07-offenes-ende.jpg)
+
+- Wer auf den **Körper eines anderen Geräts** loslässt, bekommt dort einen passenden Anschluss neu angelegt und verbunden. So lässt sich auch ein Gerät verkabeln, das erst einen Namen hat.
+
+  ![Loslassen auf dem Gerätekörper](bilder/de/canvas-kabel-09-auf-den-koerper.jpg)
+
+- **Zwei Klicks statt Ziehen:** Ein Klick auf einen Anschluss beginnt das Kabel; Klicks auf freie Fläche setzen Knickpunkte, ein Klick auf einen Anschluss beendet es. Das Banner nennt *Kabel zeichnen: Tippen auf die Fläche setzt einen Knick, Tippen auf einen Port beendet.* *Knick zurück* nimmt den letzten Knick zurück, *Abbrechen* verwirft das Kabel; Esc bricht ebenfalls ab. Ein Eingang lässt sich nur mit einem Ausgang verbinden, nicht mit einem anderen Eingang. Während das Kabel aussteht, zeigt die rechte Seite *Schnelle Vorschläge (Steckertyp)*: bis zu acht Bibliotheksgeräte mit passendem Anschluss, die im Projekt am häufigsten verbunden sind zuerst. Ein Klick auf einen Vorschlag setzt das Gerät an die Mausposition und beendet das Kabel am ersten passenden Anschluss.
+
+  ![Kabel mit Banner und Vorschlägen](bilder/de/canvas-kabel-12-klick-knick.jpg)
+
+Der Standard für *Kabel-Routing* und *Pfeil am Kabel-Ende* aus [Defaults](#defaults) gilt für jedes neue Kabel.
+
+### Kabel bearbeiten
+
+Ein Klick auf ein Kabel markiert es; der Inspector zeigt seine Eigenschaften, ein Doppelklick öffnet den Bearbeiten-Dialog. Am markierten Kabel erscheinen Griffe.
+
+1. Klicken Sie auf ein Kabel.
+
+   ![Markiertes Kabel mit Griffen](bilder/de/canvas-kabeleditor-01-gewaehlt.jpg)
+
+2. Ziehen Sie ein Segment, um den Verlauf zu verschieben.
+
+3. Ziehen Sie eine Ecke, um den Knick zu verlegen.
+
+   ![Ecke verschoben](bilder/de/canvas-kabeleditor-03-ecke-ziehen.jpg)
+
+4. Rechtsklick auf das Kabel öffnet das Kabel-Menü.
+
+   ![Kabel-Menü](bilder/de/canvas-kabeleditor-04-menue.jpg)
+
+| Eintrag | Wirkung |
+|---|---|
+| *Bezeichnung ändern…* | Fragt die Beschriftung des Kabels ab. |
+| *Anmerkung hinzufügen…* | Heftet eine Anmerkung an das Kabel. |
+| *In Plan übernehmen (Handy-Vorschlag akzeptieren)* / *Mobile-Haken entfernen* | Nur bei Kabeln, die vom Handy vorgeschlagen oder abgehakt wurden. |
+| *Signal messen* | Öffnet die Scopes für den Strom, den das Gerät am Kabelanfang sendet. Ausgegraut, wenn das Quellgerät keinen Strom hat, den die App öffnen kann (RTSP, RTMP, SRT, HLS, MJPEG; Eigenschaften → Streams). |
+| *Wegpunkt hier hinzufügen* | Fügt am Klickpunkt einen Wegpunkt ein. |
+| *Nächsten Wegpunkt entfernen* | Entfernt den Wegpunkt, der dem Klick am nächsten liegt. |
+| *Alle Wegpunkte löschen (n)* | Entfernt alle Wegpunkte des Kabels. |
+| *Automatisch neu routen* | Berechnet den Verlauf neu. |
+| *Routing:* *Orthogonal* / *Direkt* / *Geschwungen* | Stellt die Form dieses Kabels ein. |
+| *Kabelbrücken für dieses Kabel* | Überschreibt die globale Einstellung; *Override entfernen (global folgen)* nimmt das zurück. |
+| *Pfeil am Ende*, *Pfeil am Anfang* | Blendet den Pfeil ein oder aus. |
+| *Bidirektional* | Schaltet Pfeile an beiden Enden ein oder aus. |
+| *Off-Page-Verbindung erstellen…* | Siehe [Seitenverbinder](#seitenverbinder). |
+| *Kabel löschen* | Fragt *Kabel „…" löschen?* und entfernt es nach Bestätigung. |
+
+5. *Wegpunkt hier hinzufügen* setzt einen Wegpunkt auf das Kabel.
+
+6. Unter *Routing:* wählen Sie die Form des Kabels.
+
+7. *Pfeil am Ende* blendet den Pfeil aus.
+
+8. *Bezeichnung ändern…* öffnet ein Eingabefeld für die Beschriftung.
+
+9. Ein Doppelklick auf ein Kabel öffnet den Dialog zum Bearbeiten des Kabels; die Felder sind im Kapitel [Inspector](#5-inspector) beschrieben.
+
+   ![Doppelklick auf ein Kabel](bilder/de/canvas-kabeleditor-19-doppelklick.jpg)
+
+### Seitenverbinder
+
+Eine Off-Page-Verbindung ersetzt die durchgehende Linie eines Kabels an jedem Ende durch ein kleines Verbindersymbol. Das hält Pläne lesbar, in denen zwei Geräte weit auseinanderstehen. Alle Off-Page-Kabel mit demselben Netznamen bilden ein Netz.
+
+1. Rechtsklick auf das Kabel, *Off-Page-Verbindung erstellen…*. Die App fragt *Netzname / Signalname für die Off-Page-Verbindung:*; vorbelegt ist der Kabelname.
+
+   ![Frage nach dem Netznamen](bilder/de/canvas-seitenverbinder-01-erstellen-frage.jpg)
+
+2. Mit *OK* wird das Kabel zur Off-Page-Verbindung. Jedes Verbindersymbol nennt das Gegenstück (*Gerät · Port*), ein Pfeil zeigt die Signalrichtung. Ein Klick auf den Pfeil springt zum nächstgelegenen Gegenstück.
+3. Der Netzname erscheint beim Zeigen auf das Symbol; der Eintrag *Off-Page-Namen anzeigen* im Menü *Ansicht* blendet ihn dauerhaft ein.
+4. Rechtsklick auf ein Symbol öffnet die Netz-Info: Zahl der Endpunkte, eine Sprungliste und *Off-Page auflösen*, das die Linie wiederherstellt.
+
+### Rahmen
+
+Ein Rahmen ist ein farbiges Rechteck, das Geräte zu einem Ort oder Raum zusammenfasst. Der Knopf *Rahmen* der Leiste legt einen neuen Rahmen („Neue Location") in der Mitte des sichtbaren Ausschnitts an. Sind Geräte markiert, trägt der Knopf den Tooltip *Rahmen um die N markierten Geräte* und zieht den Rahmen um sie.
+
+1. Klicken Sie ohne Auswahl auf *Rahmen*.
+
+   ![Neuer Rahmen](bilder/de/canvas-rahmen-01-rahmen-leer.jpg)
+
+2. Ein Doppelklick auf den Rahmen fragt *Location umbenennen:*.
+
+3. Ein Klick auf den Rahmen zeigt im Inspector die Rahmen-Eigenschaften (Name, Breite, Tiefe, Fläche, Stockwerk, Farbe, Steigschacht, Raumnummer, Adresse, Notizen); sie sind im Kapitel [Inspector](#5-inspector) beschrieben.
+
+4. An den Griffen des markierten Rahmens ändern Sie die Größe.
+
+5. Ziehen Sie den Rahmen an seinem Titel. Die Geräte, deren Mittelpunkt im Rahmen liegt, wandern mit.
+
+   ![Rahmen mit Geräten verschoben](bilder/de/canvas-rahmen-14-rahmen-nimmt-mit.jpg)
+
+6. Das Schloss am Rahmentitel sperrt Verschieben und Größenänderung; die Einstellungen bleiben erreichbar.
+
+7. Rechtsklick auf den Rahmen öffnet das Menü mit *Position sperren* (beziehungsweise *Position entsperren*) und *Rahmen löschen*.
+
+   ![Kontextmenü eines Rahmens](bilder/de/canvas-rahmen-09-rahmen-kontext.jpg)
+
+8. *Rahmen löschen* fragt *Rahmen „…" löschen?* — nur der Rahmen verschwindet, die Geräte bleiben.
+
+9. Markieren Sie mehrere Geräte und klicken Sie *Rahmen*, um einen Rahmen um sie zu ziehen.
+
+   ![Rahmen um die Auswahl](bilder/de/canvas-rahmen-13-rahmen-um-auswahl-fertig.jpg)
+
+### Räume, Etagen und 3D-Gebäudeansicht
+
+Jeder Rahmen ist ein Raum. Rahmen lassen sich Etagen zuordnen; sie bestimmen die Sichtbarkeit im Plan und die Stapelung in der 3D-Ansicht. Die Knöpfe *Räume* und *3D* stehen unter *Mehr*, sobald der Plan mindestens einen Rahmen enthält.
+
+1. Legen Sie Rahmen an (hier Studio, Regie, Technik).
+
+2. Markieren Sie einen Rahmen. Im Inspector öffnet die Auswahl *Stockwerk* mit dem Eintrag *Etage hinzufügen…* eine Abfrage *Name der neuen Etage (z. B. „3. OG")*.
+
+   ![Etage hinzufügen](bilder/de/canvas-raeume-05-etage-neu.jpg)
+
+3. Die Etage steht danach im Feld *Stockwerk*.
+
+4. Im Inspector zeigt der Abschnitt *Etagen (n)* die Etagen von unten nach oben mit ihrer Fußbodenhöhe in Metern; mit den Pfeilen ändern Sie die Reihenfolge, der Papierkorb entfernt eine Etage, *Etage hinzufügen…* ergänzt eine weitere.
+
+   ![Etagen mit Höhen](bilder/de/canvas-raeume-08-etage-hoehen.jpg)
+
+5. *Steigschacht / senkrechte Trasse* kennzeichnet einen Rahmen, der in der 3D-Ansicht durch alle Etagen geht; Kabel zwischen Etagen verlaufen dann durch ihn statt als Luftlinie.
+
+6. *Mehr → Räume* öffnet eine Liste, gegliedert nach Etagen (oberste zuerst). Jede Etage und jeder Raum hat ein Häkchen; Räume ohne Etage stehen unter *Ohne Etage*.
+
+   ![Liste der Räume](bilder/de/canvas-raeume-11-raeume-menue.jpg)
+
+7. Nehmen Sie das Häkchen bei einem Raum weg: Seine Geräte und Kabel verschwinden vom Plan. Die Beschriftung des Knopfes lautet dann *Räume (n ausgeblendet)*.
+
+8. Das Häkchen einer Etage blendet alle Räume dieser Etage aus.
+
+9. *Alle zeigen* blendet alles wieder ein. Mehrere Räume lassen sich gleichzeitig ausblenden.
+
+10. *Mehr → 3D* öffnet *Gebäude 3D*: die Räume nach Etagen gestapelt, dazwischen die Verbindungen.
+
+    ![Gebäude 3D mit Raumverbindungen](bilder/de/canvas-raeume-17-drei-d-raeume.jpg)
+
+11. Unter *Anzeigen* wechseln Sie zwischen *Raumverbindungen* und *Einzelne Kabel*.
+
+    ![Einzelne Kabel in 3D](bilder/de/canvas-raeume-18-drei-d-kabel.jpg)
+
+12. *Beschriftung* blendet die Namen ein oder aus. *Geschosshöhe (m)* gilt nur für Etagen ohne eingetragene Höhe; die Ansicht weist darauf hin, dass dies eine Annahme ist.
+
+Geräte lassen sich in der 3D-Ansicht ziehen. Bodentanks erscheinen als flache Platte im Boden, andere Geräte als Würfel. Ziehen neben ein Gerät dreht die Ansicht, das Mausrad zoomt.
+
+### Ebenen
+
+Die Ebenen-Chips blenden die Kabel einer Ebene ein und aus. Nur die Kabel werden gefiltert, die Geräte bleiben. Ein farbiger Punkt kennzeichnet die Signalart; der Tooltip nennt die Zahl der Kabel (zum Beispiel *Video — 4 Kabel · sichtbar (klick: ausblenden)*).
+
+1. Die Leiste zeigt *Video*, *Audio*, *Control*, *Network*, *Power* und *Other*.
+
+   ![Ebenen-Chips](bilder/de/canvas-ebenen-01-chips.jpg)
+
+2. Klicken Sie auf *Video*: Die Videokabel verschwinden.
+
+   ![Ebene Video ausgeblendet](bilder/de/canvas-ebenen-02-video-aus.jpg)
+
+3. *Mehr → Ebenen ⋯* öffnet das Verwaltungsmenü: *Custom-Layer anlegen…* und *Alle Ebenen wieder einblenden*.
+
+   ![Menü Ebenen](bilder/de/canvas-ebenen-03-menue.jpg)
+
+4. *Custom-Layer anlegen…* fragt den Namen (zum Beispiel „intercom"). Die neue Ebene erscheint als Chip mit Rautensymbol.
+
+   ![Eigene Ebene anlegen](bilder/de/canvas-ebenen-05-eigene-anlegen.jpg)
+
+5. Rechtsklick (auf dem Telefon langer Druck) auf den Chip einer eigenen Ebene fragt *Custom-Layer „…" entfernen?*.
+
+### Signalweg
+
+Der Signalweg hebt die ganze Kette hervor, in der ein Kabel liegt, und dunkelt den Rest ab.
+
+1. Markieren Sie ein Kabel.
+
+2. Klicken Sie im Inspector auf *Signalweg zeigen*.
+
+   ![Signalweg gezeigt](bilder/de/canvas-signalweg-02-signalweg-zeigen.jpg)
+
+3. In der Leiste steht der Chip *Signalweg: n Kabel, m Geräte*. Ein Klick darauf oder Esc beendet die Ansicht.
+
+
+### Betriebsarten: Schema, Schaltbild, Prüfbild
+
+#### Schema und Live
+
+Der Knopf *Schema* unter *Mehr* zeigt, woher der Plan sein Bild nimmt: *Schema* heißt, es ist der geplante Weg ohne Verbindung zu einer Anlage; *Live* heißt, der beobachtete Zustand eines Mischers oder einer Kreuzschiene wird gezeigt (mit Alter in Sekunden). Reißt die Verbindung ab, steht *· Verbindung verloren* und die Ansicht fällt auf den geplanten Weg zurück. Ein Klick auf den Chip schaltet nicht die Betriebsart um, sondern die Bewegung der Darstellung ein oder aus; hat das Betriebssystem Bewegung abgeschaltet, bleibt die Ansicht ruhig.
+
+
+#### Schaltbild
+
+*Schaltbild* rechnet Stromkreise: welche Leuchten brennen, welche Schalterstellungen gelten, welche Leitungen unter Spannung stehen. Das Ergebnis ist gerechnet und nicht gemessen; die Schalterstellungen gehören nicht zum Plan. Berücksichtigt werden nur Geräte, die in ihren Eigenschaften eine Schaltbild-Bauart tragen; sie wird nicht aus der Kategorie geraten. Steht kein Gerät mit Bauart im Plan, zeigt der Chip *· nichts angegeben*.
+
+1. Schalten Sie *Schaltbild* ein. Der Chip nennt die brennenden von allen Leuchten (zum Beispiel „1/1").
+
+
+2. Mit *Schalter zurück* gehen alle Schalter in ihre Grundstellung; der Plan ändert sich dadurch nicht. *Vorschläge* erklärt, warum die Schaltung nicht tut, was sie soll, und welche Ader das ändern würde; jeder Vorschlag bringt seine Wahrheitstafel mit, nichts wird ohne Klick eingetragen.
+
+
+#### Prüfbild
+
+*Prüfbild* ist eine Erwartung, kein Videobild: Nach der Wahl einer Quelle zeigt der Plan an jedem Ankunftsort, welches Bild dort stehen müsste. Die App sieht nicht, was wirklich ankommt.
+
+1. Öffnen Sie *Mehr* und wählen Sie unter *Prüfbild* eine Quelle (die Liste enthält jedes Gerät mit einem Ausgang, zuerst *keine*).
+
+2. Der Plan zeigt das Prüfbild an der Quelle und an jedem Ankunftsort, mit der Aufschrift *Erwartung laut Plan*. Die Leiste zeigt den Chip *Prüfbild* mit Quelle, Zahl der Ankunftsorte und den Zählern *· n offen*, *· n vertauscht*, *· n ungeprüft*.
+
+   ![Prüfbild gewählt](bilder/de/canvas-modi-07-pruefbild-gewaehlt.jpg)
+
+3. An jedem Ankunftsort tragen Sie ein, was Sie vor Ort gesehen haben: *stimmt*, *anderes Bild…* (dann den Namen, der darauf steht, und *merken*), *kein Bild* oder *kein Monitor*. Der Befund steht danach farbig am Ankunftsort (stimmt, noch offen, vertauscht oder eine andere Abweichung) und fließt in die Zähler der Leiste ein.
+
+   ![Prüfbild-Leiste](bilder/de/canvas-modi-08-pruefbild-leiste.jpg)
+
+4. *Sichern…* bietet drei Dateien an: *Prüfbild (SVG)* für Mediaplayer, Standbild-Speicher oder Laptop (die App speist nichts ein), *Prüfblatt (CSV)* als Liste zum Abgehen, auch mit Wegen, die der Plan nicht zu Ende kennt, und *Abnahmeblatt (CSV)* mit dem, was gesehen wurde, samt Zeitpunkt.
+
+5. *Weg schalten…* erscheint, wenn auf einem Weg der Quelle eine Kreuzschiene liegt. Der Dialog setzt die Kreuzpunkte des Plans an der laufenden Anlage.
+
+
+   Unter *Wohin soll das Bild?* wählen Sie das Ziel; der Dialog zeigt den Weg (zum Beispiel Camera 1 → Videohub 12x12 → Control room monitor) und die gesendeten Befehle. Ist für das Gerät kein Steuer-Protokoll erklärt (Eigenschaften → Steuerung), wird nichts gesendet. *Wer schaltet* nimmt einen Namen auf. *jetzt schalten* ist nur möglich, wenn der Plan Befehle enthält, nichts im Weg steht (zum Beispiel ein fehlendes Steuer-Protokoll) und der Haken *Ich habe gelesen, welche Ausgänge umgeschaltet werden, und schalte an der laufenden Anlage.* gesetzt ist.
+
+Die Wahl *keine* beendet das Prüfbild.
+
+### Sperren
+
+*Mehr → Sperren* schützt vor versehentlichem Verschieben. Das Menü hat drei Schalter:
+
+| Schalter | Wirkung |
+|---|---|
+| *Rahmen* | Keine Frame-Verschiebung |
+| *Geräte* | Keine Geräte-Verschiebung |
+| *Kabel* | Keine Waypoint-Bearbeitung (die Griffe am Kabel entfallen) |
+
+Der Knopf zeigt die Zahl der aktiven Schalter (zum Beispiel *Sperren 1/3*).
+
+1. Öffnen Sie *Sperren*.
+
+   ![Menü Sperren](bilder/de/canvas-sperren-01-menue.jpg)
+
+2. Schalten Sie *Geräte* ein. Die Geräte lassen sich nicht mehr ziehen.
+
+   ![Geräte gesperrt](bilder/de/canvas-sperren-02-geraete.jpg)
+
+3. Mit *Kabel* gesperrt zeigt ein markiertes Kabel keine Griffe.
+
+   ![Kabel ohne Griffe](bilder/de/canvas-sperren-05-kabel-ohne-griffe.jpg)
+
+Einzelne Geräte und Rahmen lassen sich außerdem im Kontextmenü mit *Position sperren* festsetzen.
+
+### Plan abschließen
+
+*Mehr → Abschließen* sperrt den ganzen Plan: keine Verschiebungen, keine neuen Verbindungen, keine Löschungen. Der Eintrag zeigt danach *Abgeschlossen*.
+
+1. Klicken Sie auf *Abschließen*. Die App fragt *Planung abschließen?* und erklärt, dass der Canvas gesperrt wird und die Sperre jederzeit aufgehoben werden kann.
+
+   ![Rückfrage Planung abschließen](bilder/de/canvas-abschliessen-02-frage.jpg)
+
+2. Nach *Abschließen* erscheint über dem Plan das Banner *Plan ist abgeschlossen — Änderungen sind gesperrt.* mit dem Knopf *Bearbeitung freigeben*.
+
+   ![Abgeschlossener Plan](bilder/de/canvas-abschliessen-03-abgeschlossen.jpg)
+
+3. *Bearbeitung freigeben* (oder erneut der Eintrag unter *Mehr*) fragt *Planung wieder zur Bearbeitung freigeben?*; *Freigeben* hebt die Sperre auf.
+
+   ![Rückfrage Freigeben](bilder/de/canvas-abschliessen-05-freigeben-frage.jpg)
+
+Eine Viewer-Datei (`.cpviewer`) ist dauerhaft schreibgeschützt; der Eintrag heißt dann *Viewer* und ist nicht bedienbar.
+
+### Anmerkungen
+
+Anmerkungen sind Notizen am Plan, frei oder an ein Gerät oder Kabel geheftet. Zwei Einträge unter *Mehr* gehören dazu: *Badges* blendet die Marken der Anmerkungen auf dem Plan ein oder aus (die Daten bleiben), *Anmerkungen* öffnet das Panel.
+
+1. Öffnen Sie *Anmerkungen*. Das Panel zeigt oben die Filter *alle*, *offen*, *gebaut*, *erledigt* und den Knopf *+ Neue Anmerkung*.
+
+   ![Panel Anmerkungen](bilder/de/canvas-anmerkungen-02-panel-offen.jpg)
+
+2. Klicken Sie auf *+ Neue Anmerkung* und schreiben Sie den Text.
+
+3. *Hinzufügen* fragt beim ersten Mal nach Ihrem Namen; er wird allen Anmerkungen angeheftet, die Sie erstellen.
+
+4. Die Anmerkung steht danach in der Liste.
+
+   ![Anmerkung angelegt](bilder/de/canvas-anmerkungen-06-hinzugefuegt.jpg)
+
+5. Jede Anmerkung hat einen Status (*offen*, *gebaut*, *erledigt*); die Filter zeigen nur die Anmerkungen eines Status.
+
+6. Mit dem Knopf zum Platzieren in der Mitte erscheint die Marke in der Mitte des Plans; ziehen Sie den Griff einer Anmerkung auf ein Gerät, um sie dort anzuheften.
+
+   ![Anmerkung am Gerät](bilder/de/canvas-anmerkungen-13-an-geraet.jpg)
+
+7. Ein Klick auf die Marke auf dem Plan zeigt die Anmerkung.
+
+8. *Badges* blendet die Marken aus.
+
+9. Löschen fragt *Anmerkung löschen?*.
+
+Rechtsklick auf ein Gerät oder ein Kabel bietet außerdem *Anmerkung hinzufügen…*: Nach der Frage nach Text (und beim ersten Mal nach Ihrem Namen) wird die Anmerkung an das Gerät oder Kabel geheftet. Im Viewer-Modus lädt der Eintrag *Anmerkungen* Prüfer ein, Notizen zu hinterlassen (Tooltip: *Anmerkungen — als Reviewer Notizen hinterlassen*).
+
+### Hallenplan
+
+*Mehr → Hallenplan* (auch im Menü *Ansicht*) legt ein Bild oder ein PDF unter den Plan. Es dient als Maßstab für Kabellängen und als räumliche Vorlage.
+
+1. Öffnen Sie *Hallenplan*. Das Panel bietet *Hallenplan als Bild oder PDF laden…*, *Venue aus MultiCam / Light Planner importieren…* und den Hinweis, dass sich ein Bild oder PDF auch hierher oder auf den Canvas ziehen lässt.
+
+   ![Leeres Panel Hallenplan](bilder/de/canvas-hallenplan-02-panel-leer.jpg)
+
+2. Laden Sie ein Bild (PNG, JPG, WebP, GIF, BMP oder AVIF bis 40 MB). Es liegt unter den Geräten. Die App meldet *Hallenplan geladen. Als Nächstes den Maßstab setzen — bis dahin rechnen die Längen mit „Meter pro 100 px".*
+
+   ![Hallenplan geladen](bilder/de/canvas-hallenplan-03-bild-geladen.jpg)
+
+3. *Deckkraft* regelt, wie stark das Bild durchscheint.
+
+4. *Position sperren (Klicks gehen an die Geräte durch)* macht das Bild unempfindlich für Klicks.
+
+Den **Maßstab** setzen Sie auf zwei Wegen.
+
+5. *Zwei Punkte* (für Pläne von oben, CAD-Export, Scan): Tragen Sie die bekannte Strecke in Metern ein und klicken Sie *Zwei Punkte*. Die App sagt *Klicke beide Enden einer Strecke von N m an.*
+
+6. Nach dem zweiten Klick steht im Panel *Maßstab aus N m Referenz: … cm je Canvas-Pixel.*
+
+   ![Maßstab aus zwei Punkten](bilder/de/canvas-hallenplan-09-zwei-punkte-fertig.jpg)
+
+7. *Vier Ecken* (für Fotos, Schilder und isometrische Zeichnungen): Tragen Sie Breite × Tiefe einer rechteckigen Bodenfläche in Metern ein und klicken Sie nacheinander die vier Ecken an: links oben, rechts oben, rechts unten, links unten. Bilden die Punkte kein Rechteck, meldet die App das.
+
+   ![Vier Ecken in falscher Reihenfolge](bilder/de/canvas-hallenplan-11-vier-ecken-falsch.jpg)
+
+8. Danach steht *Perspektivischer Maßstab aus einer B × T m großen Fläche.*
+
+9. *Kabellängen neu berechnen* ermittelt die Längen entlang der gezeichneten Wege (*n Kabellängen entlang ihres gezeichneten Wegs neu berechnet.*).
+
+10. *Bild ersetzen…* fragt *Hallenplan ersetzen?* — die Maßstab-Kalibrierung geht verloren und muss neu gesetzt werden.
+
+11. Eine Datei, die kein Bild ist, weist die App ab: *Diese Datei ist kein Hallenplan-Bild. Verwende PNG, JPG, WebP, GIF, BMP oder AVIF.*
+
+**PDF.** Ein PDF wird als Bild der Seite geladen. Hat es mehrere Seiten, erscheint im Panel *PDF-Seite* mit der Seitennummer und *von n*; eine andere Seite ersetzt den Plan an derselben Stelle mit derselben Deckkraft.
+
+12. Laden Sie ein PDF.
+
+13. Wählen Sie eine andere Seite.
+
+    ![PDF-Seite gewählt](bilder/de/canvas-hallenplan-21-pdf-seite.jpg)
+
+14. *Zuschneiden…* öffnet im Panel eine Vorschau mit dem Hinweis *Ein Rechteck über den Teil des Plans ziehen, der bleiben soll.* Ziehen Sie das Rechteck auf und klicken Sie *Plan zuschneiden*; *Abbrechen* verwirft es.
+
+    ![Zuschnitt aufgezogen](bilder/de/canvas-hallenplan-23-zuschnitt-rahmen.jpg)
+
+15. Der Plan zeigt nur noch den gewählten Ausschnitt.
+
+    ![Zugeschnittener Plan](bilder/de/canvas-hallenplan-24-zugeschnitten.jpg)
+
+**Eine Etage je Plan.** Sobald der Plan Etagen hat, steht im Panel oben die Auswahl *Etage* mit *Alle Etagen* und den Etagennamen; jede Etage hat ihren eigenen Hallenplan. Für Kabellängen gilt der Maßstab des Plans für alle Etagen (*Kabellängen nutzen den Maßstab des Plans für alle Etagen.*).
+
+**Venue-Austausch.** *Venue aus MultiCam / Light Planner importieren…* liest eine Venue-Datei der Schwester-Apps samt Hallenplan und Maßstab. Fehlerfälle meldet das Panel: *Das ist keine Venue-Austauschdatei (MultiCam / Light Planner).*, *Die Venue-Datei enthält kein Hallenplan-Bild.*, *Die Venue-Datei enthält einen Hallenplan ohne reale Maße.* *Venue für MultiCam / Light Planner exportieren* schreibt den Plan zurück; der Austausch kennt einen Maßstab je Plan, deshalb ist der Knopf nach einer Vier-Ecken-Kalibrierung gesperrt.
+
+16. Import einer Venue-Datei.
+
+17. *Hallenplan entfernen* nimmt das Bild wieder weg.
+
+### Planzeichen
+
+*Mehr → Symbole* (auch im Menü *Ansicht*) öffnet das Panel *Symbole* mit Planzeichen, die nicht zu den Geräten zählen: Steckdosen, Melder, Lautsprecher, Netzwerkdosen und Ähnliches.
+
+1. Öffnen Sie *Symbole*. Oben stehen die Kategorien *Elektro*, *EMA*, *BMA*, *SAA / ELA*, *IT / Netzwerk*, *Automation*, *AV* und *Eigene*; darunter das Suchfeld *Symbole suchen…* und die Symbole der Kategorie.
+
+   ![Panel Symbole](bilder/de/canvas-symbole-02-panel-offen.jpg)
+
+2. Jede Kategorie enthält feste Symbole, zum Beispiel unter *Elektro* Steckdose, Schutzkontakt-Steckdose, Schalter, Taster, Leuchte, Verteiler, Sicherung, FI-Schutzschalter, Zähler, Erdung, Motor, Transformator, Abzweigdose und CEE-Steckdose; unter *AV* Kamera, Monitor, Beamer, Leinwand, Stagebox, Rack, Bodentank und Kabelbrücke.
+
+   ![Kategorie AV](bilder/de/canvas-symbole-09-kategorie-av.jpg)
+
+3. Ein Klick auf ein Symbol (Tooltip *Auf dem Canvas platzieren*) setzt es auf den Plan.
+
+   ![Symbol platziert](bilder/de/canvas-symbole-12-platziert.jpg)
+
+4. Ein markiertes Symbol hat die Felder *Beschriftung*, *Größe*, *Drehung* (0°, 90°, 180°, 270°), *Position sperren* und *Symbol löschen*.
+
+   ![Eigenschaften eines Symbols](bilder/de/canvas-symbole-15-drehung.jpg)
+
+5. *Symbol importieren (SVG, PNG, JPG, WebP)…* legt eigene Zeichen unter *Eigene* ab. SVG darf höchstens 200 KB haben, Rasterbilder höchstens 512 KB. Ein ungenutztes eigenes Symbol lässt sich mit dem **×** an seiner Kachel wieder aus der Bibliothek entfernen.
+
+6. Mit hinterlegtem KI-Anbieter erzeugt *Symbol erzeugen* aus einer Beschreibung ein Symbol und legt es unter *Eigene* ab. Die App weist darauf hin, das Ergebnis zu prüfen: Es ist die Zeichnung eines Modells, kein Normzeichen.
+
+7. *Symbolliste als CSV (n)* exportiert die platzierten Symbole mit Kategorie, Anzahl und Beschriftungen.
+
+   ![Symbolliste als CSV](bilder/de/canvas-symbole-29-liste-csv.jpg)
+
+### Gerätesuche
+
+*Strg/Cmd + F* oder *Ansicht → Gerät suchen* öffnet über dem Plan die Suchleiste *Gerät suchen…*. Sie lässt sich verschieben, zu einer Pille einklappen und schließen (*Suche schließen*); Strg/Cmd + F und das Menü *Ansicht* holen sie zurück.
+
+1. Die Suche steht als Pille über dem Plan.
+
+   ![Suche als Pille](bilder/de/canvas-suche-01-pille.jpg)
+
+2. Strg/Cmd + F klappt sie auf.
+
+3. Tippen Sie einen Begriff. Die Liste zeigt Treffer mit dem Feld, in dem er gefunden wurde. Durchsucht werden Name, Kurzname, IP, MAC, VLAN, Asset-Tag, Interne Nr., Seriennummer, Etiketten-Code, Switch-Port, Kategorie, Untertitel und Notiz.
+
+   ![Treffer](bilder/de/canvas-suche-03-treffer.jpg)
+
+4. Ein Klick auf einen Treffer zentriert den Plan auf das Gerät und schließt die Suche. Ohne Treffer steht *Keine Treffer*.
+
+   ![Springen zum Treffer](bilder/de/canvas-suche-06-springen.jpg)
+
+### Zoom und Navigation
+
+Unten links stehen die Regler *Vergrößern*, *Verkleinern*, *Einpassen* und der Knopf zum Sperren der Interaktion. Unten rechts zeigt die Übersichtskarte den ganzen Plan; ein Klick darauf oder Ziehen springt zur Stelle. Das Mausrad zoomt zwischen 10 % und 400 %; mit gedrückter Maustaste auf freier Fläche verschieben Sie den Plan. Das Menü *Ansicht* bietet *Einpassen*, *Zoom 100 %*, *Vergrößern*, *Verkleinern* und *Vollbild*.
+
+![Regler und Übersichtskarte](bilder/de/canvas-zoom-01-regler-minikarte.jpg)
+
+1. *Vergrößern* zoomt hinein.
+
+2. *Einpassen* zeigt alle Geräte.
+
+   ![Plan eingepasst](bilder/de/canvas-zoom-06-einpassen.jpg)
+
+3. Der Schloss-Knopf sperrt die Interaktion: Der Plan lässt sich dann weder verschieben noch zoomen.
+
+4. *Ansicht → Zoom 100 %* setzt den Maßstab zurück.
+
+### Kontextmenüs
+
+**Gerät** (Rechtsklick auf ein Gerät):
+
+| Eintrag | Wirkung |
+|---|---|
+| *Rack-Editor öffnen* | Nur bei einem Rack: öffnet den Rack-Builder dafür. |
+| *Anmerkung hinzufügen…* | Fragt (beim ersten Mal) Ihren Namen und den Text und heftet die Anmerkung an das Gerät. |
+| *Geräte-Datenblatt…* | Öffnet das Datenblatt (eine A4-Seite) für das Gerät beziehungsweise die Auswahl. |
+| *Scopes…* / *Scopes vergleichen* | Nur in der Desktop-App und wenn die Geräte Ströme haben, die die App öffnen kann. |
+| *Im Rack-Builder anordnen* / *N Geräte im Rack-Builder anordnen* | Öffnet den Rack-Builder mit dem Gerät beziehungsweise der Auswahl. |
+| *Position sperren* / *Position entsperren* | Hält das Gerät an seinem Ort. |
+| *Gerät löschen* | Fragt *Gerät „…" löschen?* — das Gerät und alle angeschlossenen Kabel werden gelöscht. |
+
+![Kontextmenü eines Geräts](bilder/de/canvas-kontext-01-geraet.jpg)
+
+![Geräte-Datenblatt](bilder/de/canvas-kontext-02-geraet-datenblatt.jpg)
+
+**Freie Fläche:** Rechtsklick bietet *Neues Gerät hier …*. Es öffnet *Eigenes Gerät anlegen* mit Name, Kategorie, Port-Gruppen und den Knöpfen *In Bibliothek speichern*, *Nur im Projekt platzieren* und *Speichern + Platzieren*; der Dialog ist im Kapitel [Eigenes Gerät anlegen](#eigenes-gerät-anlegen) beschrieben.
+
+![Kontextmenü der freien Fläche](bilder/de/canvas-kontext-08-flaeche.jpg)
+
+**Kabel** und **Rahmen**: siehe [Kabel bearbeiten](#kabel-bearbeiten) und [Rahmen](#rahmen).
+
+### Auswahlleiste am Gerät
+
+Über einer Auswahl erscheint eine kleine Leiste mit Schnellaktionen.
+
+| Auswahl | Knöpfe |
+|---|---|
+| Ein Gerät | *Duplizieren*, *Rahmen um Auswahl*, *Geräte-Datenblatt (A4-PDF / Druck)*, *Löschen* |
+| Zwei Geräte | zusätzlich die sechs Ausrichte-Knöpfe |
+| Drei und mehr Geräte | zusätzlich *Horizontal verteilen* und *Vertikal verteilen* |
+
+Bei Geräten mit lesbaren Strömen kommt *Scopes vergleichen (ein Parade je Quelle)* hinzu.
+
+![Auswahlleiste an einem Gerät](bilder/de/canvas-inline-01-ein-geraet.jpg)
+
+![Auswahlleiste bei drei Geräten](bilder/de/canvas-inline-04-drei-geraete.jpg)
+
+### Standbild unter dem Gerät
+
+Für ein Gerät, das einen Stream oder ein Standbild liefert, zeigt der Canvas unter dem Gerät eine Kachel. Sie wird im Inspector unter *Streams* eingeschaltet (*Standbild unter dem Gerät im Canvas zeigen*, mit einer *Standbild-Adresse für die Vorschau*). Die Kachel startet nicht von selbst: *Vorschau starten · Name* holt ein Standbild, danach alle 10 Sekunden, solange die Kachel sichtbar ist. Ist es ein Live-Stream, spielt die Kachel ihn ab, bis *Live beenden* gewählt wird. Die Kachel nennt den Grund, wenn kein Bild kommt, zum Beispiel *Keine Vorschau: die Adresse liegt nicht im lokalen Netz.*, *Keine Vorschau: ffmpeg wurde nicht gefunden …* oder *Keine Vorschau: das Gerät ist nicht erreichbar.* Standbilder holt nur die Desktop-App.
+
+![Gerät mit Streams-Abschnitt](bilder/de/canvas-stream-02-abschnitt-streams.jpg)
+
+
+### Adapter und Wandler im Kabel
+
+Beim Anlegen eines Kabels prüft die App, ob die Stecker zusammenpassen. Der Dialog *Neues Kabel* nennt dann den Grund und was dazwischengehört:
+
+- gleiches Geschlecht an beiden Enden: ein Geschlechtswandler,
+- Stecker, die nicht ineinandergehen: ein Adapter,
+- verschiedene Signalfamilien: ein Konverter, ein Gerät mit Strom und Bandbreitengrenze, das Sie selbst wählen.
+
+Nach dem Anlegen bietet der Inspector des Kabels *Einsetzen*; es setzt den Adapter als eigenes Gerät in die Strecke (*In diesen Lauf einsetzen — ein Undo nimmt es wieder heraus*). Ein Adapter gehört als Gerät in den Plan, sonst steht er weder im Signalweg noch auf der Packliste.
+
+![Dialog bei verschiedenen Steckern](bilder/de/canvas-adapter-09-dialog-adapter.jpg)
 
 ---
 
 ## 4. Bibliothek
 
-Die Bibliothek links organisiert Gerätevorlagen, Kabeltypen, Gerätegruppen und Racks
-zum Speichern, Laden und Wiederverwenden von Plänen.
+Die Bibliothek ist die Spalte links neben dem Plan. Sie hält die Vorlagen, aus denen der Plan gebaut wird: Geräte (lokal, aus der gemeinsamen Gerätebibliothek und aus Rentman), Kabeltypen, Gerätegruppen und Racks. Vorlagen werden per Klick oder Ziehen auf den [Canvas](#3-canvas) gesetzt; die Eigenschaften eines Eintrags erscheinen im [Inspector](#5-inspector).
 
-### Geräte (Equipment)
+![Bibliothek links neben dem Plan](bilder/de/bibliothek-01-fenster-ueberblick.jpg)
 
-Die Geräte-Registerkarte zeigt lokale Vorlagen und externe Quellen.
+### Die Bibliothek-Spalte
 
-#### Lokale Bibliothek
+Der Kopf der Spalte trägt links den Pfeil *Library ausblenden* und daneben das Menü *Fenster*. Darunter stehen die vier Reiter *Geräte*, *Kabel*, *Gruppen* und *Racks*; bei Gruppen und Racks zeigt eine Zahl, wie viele Einträge es gibt.
 
-![Geräte-Übersicht in der Bibliothek](bilder/de/bibliothek-geraete-lokal.jpg)
+1. Der Pfeil links oben blendet die Spalte aus und gibt dem Plan die Breite.
 
-Die lokale Bibliothek enthält die 150+ mitgelieferten Geräte und alle selbst angelegten Vorlagen.
+   ![Spalte ausgeblendet](bilder/de/bibliothek-02-spalte-einklappen.jpg)
 
-- *Suchen*: Suchfeld mit `Strg+F`-Kurzbefehl. Der Such-Text filtert nach Name oder Kategorie.
-- *Filter-Menü*: Sortierrichtung (Manuell, A→Z, Z→A), Anzeige versteckter Geräte, nur Eigentum anzeigen.
-- *Kategorien*: Aufklappen/Einklappen, Bearbeiten-Button zum Umbenennen.
-- *Einträge*: Ein Eintrag pro Gerät. Hover zeigt Aktionen. Ein Klick markiert den Eintrag und zeigt seine Eigenschaften; platziert wird per Doppelklick oder Ziehen auf den Canvas – der markierte Eintrag nennt beides.
+2. Am Rand erscheint ein Knopf *Library einblenden*; er holt die Spalte zurück.
+
+   ![Spalte wieder eingeblendet](bilder/de/bibliothek-03-spalte-einblenden.jpg)
+
+3. Das Menü *Fenster* bietet *Abdocken (schwebend)* und *In eigenes Fenster*. Der Knopf lässt sich auch ziehen.
+
+   ![Menü Fenster](bilder/de/bibliothek-04-fenster-menue.jpg)
+
+4. Abgedockt schwebt die Bibliothek über dem Plan; *Andocken* (zurück zur Seiten-Spalte) setzt sie wieder an ihren Platz.
+
+   ![Abgedockte Bibliothek](bilder/de/bibliothek-05-abgedockt.jpg)
+
+5. Die Breite der Spalte ändern Sie, indem Sie ihre Trennlinie zum Plan ziehen.
+
+   ![Spalte verbreitert](bilder/de/bibliothek-07-spalte-verbreitern.jpg)
+
+### Geräte
+
+Der Reiter *Geräte* hat drei Unterreiter für die Quelle der Vorlagen: *Lokal* (eigene und importierte Vorlagen sowie der eingebaute Katalog), *Geteilt* (die gemeinsame Gerätebibliothek, schreibgeschützt) und *Rentman* (nur wenn das Rentman-Modul eingeschaltet ist).
+
+#### Lokal
+
+Der Unterreiter *Lokal* zeigt die Vorlagen nach Kategorien. Jede Kategorie ist ein aufklappbarer Streifen mit der Zahl der Einträge; ein Klick klappt sie auf oder zu.
+
+![Kategorien der lokalen Bibliothek](bilder/de/bibliothek-11-geraete-lokal.jpg)
+
+![Aufgeklappte Kategorie](bilder/de/bibliothek-12-kategorie-aufklappen.jpg)
+
+Jeder Eintrag zeigt den Namen und darunter die Kategorie mit der Zahl der Ein- und Ausgänge. Das **L** vor dem Namen kennzeichnet ein lokales Gerät (nicht aus Rentman). Ein Klick markiert den Eintrag und zeigt seine Vorlage im Inspector; ein Doppelklick oder Ziehen auf den Canvas platziert das Gerät. Beim Zeigen auf einen Eintrag erscheinen vier Knöpfe:
+
+| Knopf | Wirkung |
+|---|---|
+| Stern (*Als Favorit markieren* / *Favorit entfernen*) | Hebt den Eintrag mit einem Stern hervor. |
+| Auge (*Ausblenden* / *Wieder anzeigen*) | Blendet den Eintrag aus der Liste aus; mit *Versteckte zeigen* im Filtermenü erscheint er abgeblendet wieder. |
+| Pfeil nach unten (*Exportieren*) | Speichert den Eintrag als Datei (`.cpdevice`) in den Downloads-Ordner. |
+| Rotes **×** (*Aus der Bibliothek entfernen*) | Fragt „… aus der Bibliothek entfernen?" und löscht die Vorlage nach *OK*. |
+
+![Knöpfe beim Zeigen auf einen Eintrag](bilder/de/bibliothek-13-eintrag-hover.jpg)
+
+![Eintrag als Favorit](bilder/de/bibliothek-15-eintrag-favorit.jpg)
+
+![Eintrag ausgeblendet](bilder/de/bibliothek-16-eintrag-verstecken.jpg)
+
+#### Suchen
+
+Das Suchfeld über der Liste filtert in Echtzeit nach Name und Kategorie. Es trägt den Hinweis *Strg+F*: Solange der Unterreiter *Lokal* offen ist, setzt Strg+F den Cursor in dieses Feld. Mit dem **×** im Feld löschen Sie den Suchbegriff.
+
+![Suche nach „Avantis"](bilder/de/bibliothek-28-suche-tippen.jpg)
+
+Findet die Suche nichts, steht *Keine Geräte gefunden* mit *Suche zurücksetzen*.
+
+![Suche ohne Treffer](bilder/de/bibliothek-29-suche-ohne-treffer.jpg)
+
+#### Filtermenü
+
+Das Trichter-Symbol öffnet das Filtermenü.
+
+![Filtermenü](bilder/de/bibliothek-17-filter-menue.jpg)
+
+| Eintrag | Wirkung |
+|---|---|
+| *Alle Kategorien einklappen* / *Alle Kategorien ausklappen* | Klappt alle Kategorien auf einmal zu oder auf. |
+| *Sortierung* → *Manuell (Drag&Drop)* | Die Kategorien stehen in der Reihenfolge, in die Sie sie ziehen. |
+| *Sortierung* → *Alphabetisch A → Z* / *Z → A* | Sortiert die Kategorien nach dem Namen. |
+| *Versteckte zeigen (n)* | Zeigt die ausgeblendeten Einträge abgeblendet; die Zahl nennt, wie viele es sind. |
+| *Leere Kategorien zeigen* | Zeigt auch Kategorien ohne Einträge. |
+| *Nur eigenes Material* | Zeigt nur Geräte, die zum eigenen Lagerbestand passen (nach Modell). Der Eintrag ist ausgegraut, solange der Bestand nichts Passendes enthält. |
+
+![Versteckte Einträge sichtbar](bilder/de/bibliothek-18-filter-versteckte-zeigen.jpg)
+
+![Alle Kategorien eingeklappt](bilder/de/bibliothek-21-filter-alle-einklappen.jpg)
+
+![Sortierung Z → A](bilder/de/bibliothek-22-filter-sortierung-z-a.jpg)
+
+![Leere Kategorien angezeigt](bilder/de/bibliothek-57-filter-leere-kategorien-an.jpg)
+
+#### Kategorien
+
+Kategorien ordnen die Vorlagen. Beim Zeigen auf den Kategoriestreifen erscheint ein Stift.
+
+1. Der Stift öffnet *Kategorie umbenennen*. Das Fenster hat zwei Felder, *Deutsch* und *Englisch*; beim Umschalten der Oberflächensprache erscheint der jeweilige Name. Ein leeres Feld ist erlaubt, dann fällt die Anzeige auf die andere Sprache zurück.
+
+   ![Kategorie umbenennen](bilder/de/bibliothek-34-kategorie-umbenennen-dialog.jpg)
+
+2. Mit dem Griff links vom Namen ziehen Sie eine Kategorie an eine andere Stelle (bei der Sortierung *Manuell*).
+
+   ![Kategorie am Griff ziehen](bilder/de/bibliothek-35-kategorie-ziehen-griff.jpg)
+
+3. Einträge lassen sich auf eine andere Kategorie ziehen; eine leere Kategorie sagt dazu *Gerät hierher ziehen zum Verschieben*.
+
+   ![Eintrag in eine Kategorie ziehen](bilder/de/bibliothek-52-eintrag-in-kategorie-ziehen.jpg)
+
+4. Neue Kategorien entstehen über das Menü **+** (siehe unten).
+
+   ![Neue, leere Kategorie](bilder/de/bibliothek-55-kategorie-umbenannt.jpg)
+
+#### Das Menü +
+
+Der Knopf **+** neben dem Suchfeld (Tooltip: *Neues Gerät oder neue Kategorie anlegen*) öffnet ein Menü mit fünf Einträgen.
+
+![Menü +](bilder/de/bibliothek-37-plus-menue.jpg)
+
+| Eintrag | Wirkung |
+|---|---|
+| *Neues Gerät…* | Öffnet den Dialog [Eigenes Gerät anlegen](#eigenes-gerät-anlegen). |
+| *Neue Kategorie…* | Zeigt in der Liste ein Feld *Kategoriename…*; *OK* legt die Kategorie an, **×** bricht ab. |
+| *Datei importieren…* | Liest eine `.cpdevice`- oder `.cpgroup`-Datei (siehe unten). |
+| *Vorlagen einreichen…* | Öffnet den Dialog [Vorlagen einreichen](#vorlagen-einreichen). |
+| *Bibliotheks-Ordner öffnen…* | Öffnet den Ordner der Bibliothek im Dateimanager. |
+
+1. *Neue Kategorie…* zeigt das Namensfeld über der Liste.
+
+   ![Feld für den Kategorienamen](bilder/de/bibliothek-39-plus-neue-kategorie.jpg)
+
+2. Nach *OK* steht die Kategorie in der Liste und lässt sich mit dem Stift zweisprachig benennen.
+
+   ![Namen für beide Sprachen](bilder/de/bibliothek-54-kategorie-umbenennen-ausgefuellt.jpg)
 
 ##### Eigenes Gerät anlegen
 
-Neue Geräte mit Anschlüssen und optional Fotos erstellen:
+*Neues Gerät…* öffnet den Dialog *Eigenes Gerät anlegen*. Er ist ein einziges durchlaufendes Formular ohne Reiter. Ein Rechtsklick auf freie Fläche des Plans (*Neues Gerät hier …*) und die Tastenkombination Strg/Cmd + Plus am Plan führen zum selben Formular beziehungsweise zu einem Namensdialog.
 
-*Bibliothek → +* (grüner Button) *→ Eigenes Gerät anlegen*
+![Dialog Eigenes Gerät anlegen](bilder/de/bibliothek-geraet-01-dialog-offen.jpg)
 
-![Neues Gerät anlegen](bilder/de/bibliothek-dialog-geraet-anlegen-allgemein.jpg)
+| Feld | Bedeutung |
+|---|---|
+| *Name* | Name des Geräts. Während Sie tippen, listet das Formular passende Geräte der Bibliothek (*Name*, Kategorie, Zahl der Ein- und Ausgänge) mit *Als Vorlage nutzen*. |
+| *Kategorie* | Auswahl aus den vorhandenen Kategorien; *+ Neue Kategorie…* legt eine weitere an. Voreinstellung ist *Sonstiges*. |
+| *19" Rack-Gerät* → *Ist Rack-Gerät* | Markiert das Gerät als Rack-Gerät; dann erscheint das Feld *HE* für die Höhe. |
+| *Ports aus Foto erkennen* | Erscheint, sobald ein KI-Anbieter hinterlegt ist; sonst steht dort der Hinweis, ihn unter *Einstellungen → Integrationen → AI* einzutragen, mit dem Knopf *Einstellungen öffnen*. |
+| *Die Ports aus dem Geräte-Namen raten* | Die Knöpfe *Ausfüllen* (füllt die Port-Gruppen aus der in den Einstellungen gewählten Quelle) und *Datenblatt…* (liest die Port-Gruppen aus einer PDF-, HTML- oder Textdatei). Die Quelle steht daneben: *aus einer Web-Suche — ohne API-Schlüssel* oder *vom KI-Modell — braucht einen API-Schlüssel*. *API-Schlüssel hinterlegen (KI)* öffnet ein Feld für den Schlüssel; er wird nur lokal gespeichert. |
+| *Port-Gruppen* | Die Anschlüsse in Gruppen. *+ Input-Gruppe* und *+ Output-Gruppe* fügen eine Zeile hinzu. |
 
-Die Felder:
+Eine Port-Gruppe hat vier Angaben: die Richtung (*Input* oder *Output*), die Anzahl, den Steckertyp und den Namen (Beschriftungspräfix). Beim Speichern entstehen daraus einzelne Anschlüsse. Eine Gruppe ohne Anzahl erzeugt keine Anschlüsse; die Meldung *Noch keine Anschlüsse — das ist in Ordnung.* sagt, dass sich Anschlüsse auch später ergänzen lassen: Ein Kabel, das auf das Gerät gezogen wird, legt einen an.
 
-- **Name**: Wie das Gerät heißen soll.
-- **Kategorie**: Z.B. Kameras, Mixer, Monitore; steht zu Beginn auf „Sonstiges“. Wird in der Bibliothek als Ordner angezeigt. Neue Kategorien entstehen hier.
-- **Ist ein 19" Rack-Gerät**: Checkbox. Falls ja, Höhe in Rack-Einheiten (RU) eingeben.
+1. Tippen Sie einen Namen. Passende Geräte der Bibliothek erscheinen unter dem Feld.
 
-###### Reiter: Anschlüsse
+   ![Vorschläge beim Tippen des Namens](bilder/de/bibliothek-geraet-02-name-vorschlaege.jpg)
 
-![Anschlüsse konfigurieren](bilder/de/bibliothek-dialog-geraet-anlegen-anschluesse.jpg)
+2. *Als Vorlage nutzen* übernimmt Kategorie und Port-Gruppen des Eintrags; der Name erhält den Zusatz *(Kopie)*. Das Formular sagt *Felder aus „…" übernommen. Passe an, was abweicht.*
 
-Anschlüsse zu Gruppen zusammenfassen („4x BNC In", „2x HDMI Out"):
+   ![Felder aus einer Vorlage übernommen](bilder/de/bibliothek-geraet-03-vorlage-genommen.jpg)
 
-- **+Input group** oder **+Output group**: Neue Gruppe hinzufügen.
-- *Für jede Gruppe*:
-  - *Richtung*: Input oder Output.
-  - *Anzahl*: Wie viele Anschlüsse dieser Art.
-  - *Name*: Z.B. „SDI In" oder „Ethernet Out".
-  - *Stecker*: BNC, HDMI, DisplayPort, USB, Ethernet, XLR, Power, etc. oder Custom.
+3. Mit dem Haken bei *Ist Rack-Gerät* erscheint das Feld *HE*.
 
-Die Gruppen werden beim Speichern in einzelne Anschlüsse aufgelöst (z.B. „SDI In 1", „SDI In 2", …).
+   ![Rack-Gerät mit Feld HE](bilder/de/bibliothek-geraet-04-rack-geraet.jpg)
 
-###### Reiter: Foto
+4. *+ Output-Gruppe* fügt eine weitere Zeile hinzu; das rote **×** entfernt eine Gruppe.
 
-![Fotos hochladen und Anschlüsse erkennen](bilder/de/bibliothek-dialog-geraet-anlegen-foto.jpg)
+   ![Zusätzliche Output-Gruppe](bilder/de/bibliothek-geraet-05-gruppe-ausgang.jpg)
 
-Anschlüsse automatisch vom Gerätedatenblatt oder einem Foto erkennen:
+Unten stehen vier Knöpfe:
 
-- **Fotos hochladen**: Drag-and-Drop oder Button.
-- **Erkennen**: Erkennt Stecker-Art und -Anzahl.
-  - Falls mehrere Modelle passen: Bestes Treffer-Gerät anzeigen.
-  - Ergebnisse als Tabelle mit Checkboxes (unsichere Einträge sind unchecked).
-- **Fotos speichern**: Checkbox — Bilder werden mit der Vorlage gespeichert.
+| Knopf | Wirkung |
+|---|---|
+| *Abbrechen* | Schließt den Dialog ohne zu speichern. |
+| *In Bibliothek speichern* | Legt die Vorlage in der lokalen Bibliothek ab (zur Wiederverwendung); das Gerät kommt nicht auf den Plan. |
+| *Nur im Projekt platzieren* | Setzt das Gerät in dieses Projekt, ohne eine Vorlage anzulegen. Gedacht für Leihgeräte, Platzhalter und Einzelstücke; nichts wird hochgeladen. |
+| *Speichern + Platzieren* | Beides. |
 
-Die Erkennung braucht einen API-Schlüssel für die Gerätebibliothek oder KI (Einstellungen → KI-Einstellungen).
+Mit Foto-Erkennung erscheint der Abschnitt *Ports aus Foto erkennen*: *Fotos wählen* oder *Foto aufnehmen* (Fotos der Anschlussseite lassen sich auch hineinziehen oder einfügen; sie werden zur Erkennung an den gewählten Anbieter gesendet), *Erkennen*, *Foto entfernen* und der Haken *Fotos beim Platzieren am Gerät speichern*. Die Vorschläge stehen als Tabelle (*Übernehmen*, *Richtung*, *Anzahl*, *Stecker*, *Beschriftung*, bei Bedarf *Gelesen als: …*); unsichere Zeilen sind abgewählt und mit *unsicher* gekennzeichnet. Erkennt die App das Modell, nennt sie das Katalog-Gerät mit Datenblatt-Anschlüssen und bietet *Katalog-Gerät platzieren* an. *N Port-Gruppe(n) ins Formular übernehmen* trägt die gewählten Zeilen in die Port-Gruppen ein.
 
-###### Port-Guessing
+#### Datei importieren
 
-Anschlüsse aus dem Gerätenamen raten:
+*Datei importieren…* liest ausschließlich `.cpdevice`- und `.cpgroup`-Dateien (das Format, in das *Exportieren* Einträge schreibt).
 
-*„Guess the ports from the device name"* — Knopf **Ausfüllen** (mit Quelle aus Einstellungen):
-- **KI** (Claude API, OpenAI GPT, Google Gemini): Sendet Namen und optional Beschreibung an die KI.
-- **Websuche**: Sucht öffentliche Datenblätter und Hersteller-Seiten.
-- **Heuristik**: Einfache Regeln nach Name (Z.B. „ATEM 4 Pro": 4 Eingänge erwartet).
+1. Nach der Dateiwahl meldet die App *Gerät importiert: „…" wurde der Library hinzugefügt.*
 
-KI-Quelle und API-Schlüssel stehen in *Einstellungen → KI-Anbieter*.
+   ![Gerät importiert](bilder/de/bibliothek-42-plus-datei-importieren.jpg)
 
-###### Speichern
+2. Existiert der Name schon, fragt sie *Ein Gerät mit dem Namen „…" existiert bereits. Überschreiben?* — *Abbrechen* oder *Überschreiben*.
 
-Unten drei Buttons:
+   ![Rückfrage beim Überschreiben](bilder/de/bibliothek-43-import-gleicher-name.jpg)
 
-- **Nur platzieren**: Gerät auf den Canvas, keine Vorlage speichern.
-- **In Bibliothek speichern**: Nur Vorlage, kein Gerät auf Canvas.
-- **Speichern und platzieren**: Beides.
+3. Eine andere Datei lehnt die App ab: *Datei nicht erkannt: Diese Datei ist kein gültiger .cpdevice- oder .cpgroup-Export.*
+
+   ![Datei nicht erkannt](bilder/de/bibliothek-44-import-unbekannte-datei.jpg)
+
+Eine importierte Gruppe erscheint im Reiter *Gruppen* (siehe dort).
 
 #### Vorlagen einreichen
 
-Selbst erstellte Geräte zur Gerätebibliothek beitragen:
+*Vorlagen einreichen…* prüft die eigenen Vorlagen und sendet sie an die Gerätebibliothek oder speichert sie als Einreichungsdatei. Der Dialog nennt oben, wie viele der Vorlagen eingereicht werden können (*3 von 3 Vorlagen können eingereicht werden.*), und weist darauf hin, dass die Gerätebibliothek Hersteller und Modell getrennt führt: Die aus dem Vorlagennamen vorgeschlagene Trennung ist zu prüfen. Je Vorlage stehen ein Haken, die Felder für Hersteller und Modell, der Datenblatt-Link und Hinweise, zum Beispiel *Leistungsaufnahme nicht angegeben.*
 
-*Bibliothek → +* *→ Vorlagen einreichen*
+Der **Datenblatt-Link ist Pflicht**: Eine Vorlage ohne Link lässt sich nicht einreichen. Zum Senden an die Gerätebibliothek müssen Sie angemeldet sein (*Anmelden…*); eine Einreichungsdatei lässt sich auch ohne Konto speichern. Die Knöpfe unten sind *Schließen*, *Einreichungsdatei speichern* und *N an die Gerätebibliothek senden*.
 
-![Vorlagen einreichen Dialog](bilder/de/bibliothek-dialog-vorlagen-einreichen.jpg)
+![Dialog Vorlagen einreichen](bilder/de/bibliothek-45-plus-vorlagen-einreichen.jpg)
 
-- Wähle aus, welche lokalen Vorlagen versendet werden sollen.
-- Gib Hersteller und Modell an, optional Datenblatt-Link.
-- Die Vorlage wird hochgeladen und von anderen Nutzern bestätigt (Voting).
+#### Einträge ändern, platzieren, entfernen
 
-Die Gerätebibliothek ist eine Community-Ressource. Verifizierte Geräte verstecken die „lokale" Version.
+1. Suchen Sie den Eintrag.
 
-#### NetBox-Import
+   ![Eintrag gefunden](bilder/de/bibliothek-46-eintrag-gefunden.jpg)
 
-Netzwerk-Infrastruktur aus NetBox importieren:
+2. Der Knopf *Aus der Bibliothek entfernen* (rotes **×**) fragt nach.
 
-*Bibliothek → +* *→ Import-Datei …* oder über NetBox-Integration
+   ![Rückfrage Eintrag entfernen](bilder/de/bibliothek-48-eintrag-entfernen-abfrage.jpg)
 
-![NetBox Geräte suchen](bilder/de/bibliothek-dialog-netbox-import.jpg)
+3. Ein Doppelklick auf einen Eintrag setzt das Gerät auf den Plan; ein Klick zeigt die Vorlage im Inspector.
 
-- **Suchfeld**: Z.B. „Cisco Catalyst". Sucht in NetBox-Datentypen.
-- **Kategorie wählen**: Wird die importierte Vorlage eingeordnet.
-- **Importieren**: Gerät wird zur lokalen Bibliothek hinzugefügt.
+   ![Eintrag per Klick markiert](bilder/de/bibliothek-50-eintrag-klick-platziert.jpg)
 
-#### Gerätebibliothek
+4. Ziehen Sie einen Eintrag auf den Plan, um ihn an der Ablageposition zu platzieren.
 
-Öffentliche Gerätedatenbank mit 500+ verifizierten Vorlagen:
+   ![Eintrag auf den Canvas gezogen](bilder/de/bibliothek-51-eintrag-auf-canvas-ziehen.jpg)
 
-![Gerätebibliothek](bilder/de/bibliothek-geraete-geraetebibliothek.jpg)
+#### Geteilt
 
-- Geräte aus der Datenbank laden (erfordert Anmeldung).
-- Bestätigungsstatus sehen: wie viele Nutzer das Gerät verifiziert haben.
-- Mit lokalen Versionen abgleichen und zusammenführen.
+Der Unterreiter *Geteilt* zeigt die gemeinsame Gerätebibliothek (devices.zumpelars.de), schreibgeschützt. Zum Holen oder Aktualisieren der Geräte ist eine Anmeldung nötig (*Anmelden…*); bereits geholte Geräte bleiben nutzbar. *Aktualisieren* holt den aktuellen Stand. Die Zeile *N Geräte lokal gespeichert* nennt, wie viele Geräte auf diesem Rechner liegen; sie stehen nach Kategorie geordnet. Jeder Eintrag trägt den Namen, den Status (*verifiziert*, *bestätigt*, *unbestätigt* oder *umstritten*), die Zahl der Bestätigungen und den Link *Seite* zur Detailseite. Den Status setzt die Gerätebibliothek, nicht der Planer.
 
-#### Rentman
+![Geteilte Gerätebibliothek](bilder/de/bibliothek-58-geteilt-uebersicht.jpg)
 
-Rentman-Projekte mit Gerätebestand abgleichen (falls Rentman-Modul aktiv):
+![Suche in der geteilten Bibliothek](bilder/de/bibliothek-59-geteilt-suche.jpg)
 
-![Rentman-Integration](bilder/de/bibliothek-geraete-rentman.jpg)
+*Anmelden…* öffnet *Einstellungen → Gerätebibliothek* mit dem Server und dem Konto.
 
-- **Linked Project**: Das Rentman-Projekt abrufen.
-- **Imported**: Welche Rentman-Geräte bereits importiert sind.
-- **Catalog**: Weitere Geräte zum Import anschauen.
-- **Reconcile**: Abweichungen zwischen Plan und Rentman-Projekt zeigen.
+![Einstellungen Gerätebibliothek](bilder/de/bibliothek-61-geteilt-anmelden.jpg)
+
+#### Rentman in der Bibliothek
+
+Der Unterreiter *Rentman* gehört zum Rentman-Modul. Ohne verknüpftes Projekt steht dort *Kein Rentman-Projekt verknüpft.* mit dem Knopf *Rentman-Projekt verknüpfen…*; darunter wählen die Ansichten *Importiert*, *Katalog* und *Abgleich*.
+
+![Rentman ohne verknüpftes Projekt](bilder/de/bibliothek-95-rentman-nicht-verknuepft.jpg)
+
+1. *Rentman-Projekt verknüpfen…* öffnet *Aus Rentman importieren*, wo die Projekte geladen und eines ausgewählt wird.
+
+   ![Dialog Rentman-Projekt verknüpfen](bilder/de/bibliothek-96-rentman-projekt-verknuepfen-dialog.jpg)
+
+2. Mit verknüpftem Projekt zeigt der Reiter oben *Aktuell verknüpftes Rentman-Projekt* mit den Zählern *n importiert*, *n ohne Rentman-ID* und *n entfernt*, dazu die Knöpfe *Aus Rentman aktualisieren / neue Items importieren* und, falls nötig, *N fehlende Library-Einträge nachbauen* (rekonstruiert die Vorlagen aus den Daten des Plans).
+
+   ![Verknüpftes Projekt mit importierten Geräten](bilder/de/bibliothek-100-rentman-verknuepft-importiert.jpg)
+
+3. Die Ansicht *Importiert* listet die importierten Geräte nach Projekt (das aktive trägt *AKTIV*) und Kategorie. Mit *Alle einklappen* / *Alle ausklappen* und dem Suchfeld *In Rentman-Geräten suchen…* behalten Sie den Überblick.
+
+   ![Suche in den importierten Geräten](bilder/de/bibliothek-105-rentman-suche.jpg)
+
+4. Die Ansicht *Katalog* zeigt nach *Katalog laden* alle in Ihrem Rentman-Account angelegten Equipments, gegliedert nach den Rentman-Ordnern, mit der Rentman-ID. *+ Projekt* fragt *„…" zu Rentman hinzufügen?* und weist darauf hin, dass dies das Rentman-Projekt ändert und nicht automatisch rückgängig zu machen ist.
+
+   ![Katalog geladen](bilder/de/bibliothek-110-rentman-katalog-geladen.jpg)
+
+   ![Rückfrage Zu Rentman hinzufügen](bilder/de/bibliothek-113-rentman-katalog-zum-projekt.jpg)
+
+5. Die Ansicht *Abgleich* (*Abgleich Canvas ↔ Rentman*) nennt, wie viele Geräte des Plans nicht erfasst sind: zuerst die *Nicht mehr in Rentman vorhanden* (*entfernt*), dann die Geräte ohne Rentman-ID (*kein Rentman-ID*).
+
+   ![Abgleich Canvas und Rentman](bilder/de/bibliothek-114-rentman-abgleich.jpg)
+
+Ein Rentman-Gerät, zu dem es ein gleichnamiges lokales Gerät gibt, lässt sich mit dessen Anschlüssen verknüpfen (Knopf *Verknüpfen* am Eintrag).
 
 ### Kabel
 
-Verfügbare Kabeltypen und deren Konfigurationen:
+Der Reiter *Kabel* (*Kabel-Library*) listet die Kabeltypen, gruppiert nach Steckertyp (zum Beispiel *Audio / XLR*, *SDI*, *Ethernet*, *Fiber*). Hinter jeder Gruppe steht die Zahl der Typen. Oben nennt die Zeile *N verbaut*, wie viele Kabel im Plan liegen, wie viele eigene Kabeltypen es gibt und welche SDI-Empfehlung gilt.
 
-![Kabel-Übersicht](bilder/de/bibliothek-kabel-uebersicht.jpg)
+![Kabel-Library](bilder/de/bibliothek-62-kabel-uebersicht.jpg)
 
-- **Kabeltypen** (SDI, HDMI, DisplayPort, Ethernet, Lichtleiter, Audio/XLR, USB, Strom, Custom):
-  Je eine Gruppe mit den Kabeln dieser Art.
-- *Pro Kabel*:
-  - Anzeige-Name (z.B. „SDI 75 Ω" oder „HDMI 2.1").
-  - Konnektoren an beiden Enden.
-  - Maximale Länge (optional).
-  - Signalstandards.
-  - **Verbaut** / **Geplant**: Anzahl aktuell verlegter/geplanter Kabel im Plan.
+1. Ein Klick auf eine Gruppe klappt sie auf. Jeder Typ zeigt Farbe, Namen, Stecker mit Höchstlänge und Signal-Standards.
 
-Die Kabel-Bibliothek ist fest vorgegeben; eigene Typen sind „Custom".
+   ![Aufgeklappte Kabelgruppe](bilder/de/bibliothek-63-kabel-gruppe-aufklappen.jpg)
 
-#### Kabeltypen verwalten
+2. Eigene Typen tragen das Zeichen *Eigen*, angepasste eingebaute Typen das Zeichen *Angepasst*.
 
-Neue Kabeltypen definieren oder bestehende bearbeiten:
+   ![Eigener Kabeltyp in der Liste](bilder/de/bibliothek-69-kabel-eigener-typ.jpg)
 
-*Bibliothek → Kabel-Reiter → „Manage cable types…"*
+3. Der Stift öffnet *Kabeltyp bearbeiten*. Das Formular hat die Felder *Name*, *Stecker-Typ* (mit **+** für einen neuen Steckertyp), *Kabel-Farbe*, *Auch kompatibel mit (optional)*, *Signal-Standards* (mit *+ Standard* für einen neuen Standard), *Max. Länge (m) – optional* und *Notiz (optional)*. *Speichern* ist erst möglich, wenn ein Name und mindestens ein Standard gesetzt sind. Bei einem eingebauten Typ wird die Änderung als lokale Anpassung gespeichert (*Angepasst*); der Knopf mit dem Pfeil (*Override entfernen*) fragt *Override für „…" zurücksetzen?* und stellt mit *Zurücksetzen* die ursprünglichen Werte wieder her.
 
-![Kabeltypen-Verwaltung](bilder/de/bibliothek-dialog-kabeltypen-verwalten.jpg)
+   ![Dialog Kabeltyp bearbeiten](bilder/de/bibliothek-64-kabel-eintrag-bearbeiten.jpg)
 
-- Neue Gruppe: z.B. „Satellite" mit eigenem Konnektoren-Paar und Standards.
-- Kabel editieren: Name, Länge, Farbe, Signale, Status (Empfohlen/Custom/Modified).
+4. Das rote **×** an einem eigenen Typ fragt *Kabeltyp „…" löschen?* — bereits verlegte Kabel sind nicht betroffen (verweist ein Kabel auf den Typ, behält es Stecker und Standard, verliert aber die Verknüpfung zur Vorlage).
+
+   ![Eigenen Kabeltyp löschen](bilder/de/bibliothek-70-kabel-eigener-typ-loeschen.jpg)
+
+5. Die Gruppen lassen sich am Griff vor dem Namen verschieben.
+
+   ![Kabelgruppe verschieben](bilder/de/bibliothek-71-kabel-gruppe-verschieben.jpg)
+
+Neue eigene Kabeltypen legen Sie unter *Einstellungen → Kabeltypen* an.
 
 ### Gruppen
 
-Mehrere Geräte + Kabel zusammen speichern und später einzusetzen:
+Der Reiter *Gruppen* (*Gerätegruppen: Mehrere Geräte + Kabel als Vorlage*) zeigt gespeicherte Gerätegruppen. Eine Karte nennt Namen, Zahl der Geräte und Kabel, die Höhe in HE und die Gerätenamen. Eine Gruppe entsteht auf dem Canvas: mehrere Geräte markieren und den Knopf *N markierte Geräte als Gruppe speichern* in der Werkzeugleiste klicken (siehe [Gerätegruppe speichern](#gerätegruppe-speichern)).
 
-![Gruppen-Übersicht](bilder/de/bibliothek-gruppen-uebersicht.jpg)
+![Gespeicherte Gruppen](bilder/de/bibliothek-74-gruppen-uebersicht.jpg)
 
-*So entsteht eine Gruppe*:
+1. Beim Zeigen auf eine Karte erscheinen *Umbenennen* (Stift), *Exportieren* (Pfeil nach unten) und *Gruppe aus Library entfernen* (rotes **×**).
 
-1. Geräte auf dem Canvas anordnen und miteinander verdrahten.
-2. Die markierten Geräte + Kabel **wählen** (Mehrfach-Auswahl auf dem Canvas).
-3. *Canvas-Toolbar → „Als Gruppe speichern"*.
-4. Namen eingeben → Gruppe erscheint in der Bibliothek.
+   ![Karte mit Knöpfen](bilder/de/bibliothek-75-gruppe-karte-hover.jpg)
 
-*Eine gespeicherte Gruppe verwenden*:
+2. Ein Klick auf die Karte platziert die Gruppe auf dem Canvas; beim Ziehen landet sie an der Ablageposition.
 
-- Aus der Bibliothek auf den Canvas ziehen → alle Geräte + Kabel werden an dieser Position platziert.
-- Beim Speichern mit Positionsdaten, damit sie an Ort und Stelle landen.
+   ![Gruppe auf den Canvas gesetzt](bilder/de/bibliothek-76-gruppe-klick-platzieren.jpg)
 
-*Operationen auf Gruppen*:
+3. *Umbenennen* fragt *Neuer Name der Vorlage:*. Existiert der Name schon, bittet die App um einen anderen.
 
-- **Umbenennen** (Stift-Icon)
-- **Exportieren** → `.cpgroup`-Datei
-- **Löschen**
+   ![Gruppe umbenennen](bilder/de/bibliothek-79-gruppe-umbenennen-eingetippt.jpg)
+
+4. *Exportieren* speichert die Gruppe als `.cpgroup`-Datei in den Downloads-Ordner; *Datei importieren…* im Menü **+** des Reiters *Geräte* liest sie wieder ein. Ist der Name schon vergeben, fragt die App nach dem Überschreiben.
+
+5. Das rote **×** fragt *Gruppe „…" löschen?*.
+
+   ![Gruppe löschen](bilder/de/bibliothek-81-gruppe-loeschen-abfrage.jpg)
+
+6. Die Karten lassen sich am Griff vor dem Namen umsortieren.
+
+   ![Reihenfolge der Gruppen](bilder/de/bibliothek-83-gruppe-reihenfolge-losgelassen.jpg)
+
+Ohne Gruppen steht dort *Noch keine Gruppen gespeichert.*
+
+![Keine Gruppen](bilder/de/bibliothek-94-gruppen-leer.jpg)
 
 ### Racks
 
-2D-Rack-Layout speichern: Welche Geräte, an welcher Höhe, hintereinander:
+Der Reiter *Racks* (*2D Rack Builder: Rack-Slots in HE, als platzierbare Gruppe gespeichert*) zeigt gespeicherte Rack-Layouts als Karten mit Zahl der Geräte, HE und Kabel sowie den Gerätenamen. Oben stehen die Knöpfe *Fürs Lager* und *+ Neues Rack*.
 
-![Racks-Übersicht](bilder/de/bibliothek-racks-uebersicht.jpg)
+![Racks](bilder/de/bibliothek-86-racks-uebersicht.jpg)
+
+1. Ein Klick auf die Karte platziert das Rack als Black-Box auf dem Canvas; beim Ziehen landet es an der Ablageposition. Beim Zeigen erscheinen *Bearbeiten* (Stift, öffnet den Rack-Builder), *Exportieren* und das rote **×** (*Rack aus Library entfernen*, fragt *Rack „…" löschen?*).
+
+   ![Rack-Karte mit Knöpfen](bilder/de/bibliothek-87-racks-karte-hover.jpg)
+
+2. *Fürs Lager* sichert, was in jedem Rack sitzt, als Datei für den Inventory Planner, der es gegen das Rack-Case prüft. Die App meldet danach, wie viele Racks übergeben wurden und wie viele Geräte außerhalb ihres Racks sitzen und weggelassen wurden. Ohne Racks steht *Noch kein Rack-Layout zum Übergeben.*
+
+   ![Fürs Lager ohne Racks](bilder/de/bibliothek-93-racks-fuers-lager-leer.jpg)
+
+3. Ohne gespeicherte Racks steht *Noch kein Rack-Layout gespeichert.*
+
+   ![Keine Racks](bilder/de/bibliothek-92-racks-leer.jpg)
 
 #### Rack Builder
 
-Ein leeres oder bestehendes Rack editieren:
+*+ Neues Rack* öffnet den 2D-Rack-Builder mit einem leeren Rack; der Stift an einer Karte öffnet ihn mit diesem Rack. Der Builder hat links die Bibliothek der Geräte (*Patchblende*, *Rack-Shelf*, Suche, *Auch Nicht-Rack-Geräte*), in der Mitte das Rack-Layout (*2D* oder *3D*; *Vorne*, *Hinten*, *Beide*, *Seite*) und rechts die Live-Vorschau als Black-Box auf dem Canvas. Oben stehen *Rack-Name*, *Höhe (HE)* und *Tiefe (mm)*, unten *Intern verkabeln*, *Abbrechen* und *Rack speichern*. Geräte kommen mit *+ Ins Rack* oder per Ziehen in einen Slot; *Konflikte* nennt, was nicht passt. Das gespeicherte Rack ist eine platzierbare Gruppe.
 
-*Bibliothek → Racks-Reiter → „+" → Neues Rack*
+![Rack-Builder mit neuem Rack](bilder/de/bibliothek-88-racks-neues-rack.jpg)
 
-![Rack Builder Dialog](bilder/de/bibliothek-dialog-rack-builder-leer.jpg)
-
-- **Rack-Name**: Z.B. „Server Rack 1".
-- **Rack-Höhe**: Gesamthöhe in Rack-Einheiten (meist 42 RU).
-- **Geräte einfügen**: Rechts aus der Liste hinzufügen.
-- **Slot-Editor**: Jedes Gerät bekommt eine Anfangsposition (oberste freie Stelle).
-- **Übereinanderstapeln**: Mehrere Geräte im gleichen Rack.
-
-Nach dem Speichern:
-
-- Das Rack wird zu einer Vorlage (wie eine Gruppe).
-- Auf den Canvas ziehen → alle Geräte im Rack werden platziert.
-- Im Canvas-Toolbar: **Rack bearbeiten** öffnet den Builder für ein bereits platziertes Rack.
-
-#### Zum Lagern exportieren
-
-Rack-Bestand für Lagerbestandssystem exportieren:
-
-*Bibliothek → Racks-Reiter → „For the warehouse"*
-
-![Rack zum Lagern exportieren](bilder/de/bibliothek-racks-zum-lagern.jpg)
-
-Erzeugt `rack-belegung.json` für dein Lagerbestands-System (z.B. Inventory-Planner).
-
-### Häufig genutzte Einstellungen
-
-**Quelle für Port-Guessing** (automatische Anschluss-Erkennung):
-- *Einstellungen → KI-Anbieter* → wähle OpenAI, Claude oder Google Gemini.
-- Gib deinen API-Schlüssel an.
-- Die Heuristik (Namens-Analyse) läuft ohne Schlüssel.
-
-**Kategorien verwalten**:
-- Neue Kategorien entstehen, wenn du ein Gerät anlegst oder umbenennst.
-- Kategorie-Namen sind zweisprachig (Deutsch + Englisch).
-- Über das Filter-Menü **Expand all** / **Collapse all** schaltet alle Kategorien auf einmal.
-
-**Suche und Filter**:
-- Suchfeld = Echtzeit-Filterung nach Name oder Kategorie.
-- **Nur Eigentum**: Zeigt nur Geräte, die in deinem Lagerbestand eingetragen sind.
-- **Versteckte zeigen**: Geräte, die du aus Ansicht geklappt hast.
+![Rack-Builder mit gespeichertem Rack](bilder/de/bibliothek-89-racks-bearbeiten.jpg)
 
 ---
 
 ## 5. Inspector
 
-Der Inspector ist die rechte Seitenleiste der Anwendung. Sie zeigt Eigenschaften des aktuell ausgewählten Objekts — eines Geräts, eines Kabels, eines Rahmens oder einer Bibliotheks-Vorlage. Ist nichts ausgewählt, sieht der Inspector den Ist-Zustand des Plans: Fotos, die dem Plan gehören, und eine Schnelle Orientierung.
-
-![Nichts ausgewählt im Inspector](bilder/de/eigenschaften-nichts-ausgewaehlt.jpg)
+Der Inspector ist die rechte Seitenleiste. Er zeigt die Eigenschaften dessen, was ausgewählt ist: eines Geräts, eines Kabels, eines Rahmens oder einer Bibliotheks-Vorlage. Die Kopfzeile nennt die Auswahl, zum Beispiel *Gerät: Camera 1*, *Kabel: CAM 1 → mixer* oder *Rahmen: Regie*.
 
 ### Nichts ausgewählt
 
-Wenn Sie kein Objekt auf dem Canvas ausgewählt haben, zeigt der Inspector drei Dinge:
+![Inspector ohne Auswahl](bilder/de/eigenschaften-01-nichts-ausgewaehlt.jpg)
 
-- **Hinweis**: Eine kurze Orientierung — Geräte aus der Bibliothek auf den Canvas ziehen, Anschlüsse verbinden, um Kabel zu erstellen.
-- **Fotos des Plans**: Der Abschnitt *Projekt-Fotos* enthält alle Bilder, die Sie ohne Zielgerät an den Plan anhängt haben. Das gehört dem Plan als Ganzes, nicht einem einzelnen Gerät.
+Ohne Auswahl zeigt der Inspector:
+
+- *Nichts ausgewählt* mit dem Hinweis, ein Gerät, Kabel, einen Rahmen oder eine Library-Vorlage auszuwählen.
+- *Fotos des Projekts*: Fotos, die dem ganzen Plan gehören und keinem einzelnen Gerät. *Foto hinzufügen…* öffnet die Dateiauswahl. Jedes Foto zeigt Größe und Herkunft (*vom Planer* oder *vom Handy*) und hat ein Feld *Notiz*.
+- *Schnelle Orientierung* mit vier Hinweisen: Geräte aus der Library auf den Canvas setzen, Ports verbinden, um Kabel zu erstellen, mehrere Geräte auswählen und im Canvas als Gruppe speichern, Rentman-Aktionen im Equipment-Tab unter Rentman.
+
+![Projektfoto hinzugefügt](bilder/de/eigenschaften-02-projektfoto-hinzugefuegt.jpg)
+
+Der Knopf *Fenster* oben bietet *Abdocken (schwebend)* und *In eigenes Fenster*; der Pfeil daneben klappt den Inspector ein. Beides beschreibt [Seitenleisten anordnen](#seitenleisten-anordnen).
+
+![Fenster-Menü des Inspectors](bilder/de/eigenschaften-04-fenstermenue-offen.jpg)
 
 ### Geräteeigenschaften
 
-Wenn Sie ein Gerät auf dem Canvas anklicken, zeigt der Inspector alle Eigenschaften dieses Geräts in verschiebbaren und umsortierbar Abschnitten.
+Ein Klick auf ein Gerät im Canvas zeigt seine Eigenschaften.
 
-#### Struktur und Umsortieren
+![Gerät gewählt](bilder/de/eigenschaften-07-kamera-gewaehlt.jpg)
 
-Der Inspector organisiert Geräteeigenschaften in etwa 30 aufklappbaren Abschnitten. Jeder Abschnitt kann:
+Im Viewer-Modus und in einem abgeschlossenen Plan sind die Felder gesperrt; der Inspector sagt es oben. Ein abgeschlossener Plan wird über *Bearbeitung freigeben* im Canvas-Banner wieder bearbeitbar. Filtern und Auf- und Zuklappen gehen auch dann.
 
-- **Auf-/zugeklappt** werden durch Klick auf die Kopfzeile. Der Zustand wird gespeichert.
-- **Umsortiert** werden: Das ⠿-Griff-Symbol am linken Rand erlaubt Drag&Drop, um die Reihenfolge zu ändern. Die neue Reihenfolge wird pro Gerät gespeichert und überträgt sich auf alle Geräte derselben Art (z. B. alle Kameras).
+Oben stehen fest, in dieser Reihenfolge: Name, Kurzname, Untertitel, *Inputs & Outputs* und *Notiz*. Darunter folgen die aufklappbaren Abschnitte. Welche Abschnitte erscheinen, hängt von Kategorie, Gerät und eingeschalteten Modulen ab.
 
-![Geräteeigenschaften: Mixer-Überblick](bilder/de/eigenschaften-geraet-mixer-uebersicht.jpg)
+#### Abschnitte filtern, auf- und zuklappen
 
-#### Abschnitte filtern
+- Das Feld *Abschnitte filtern …* blendet alle Abschnitte aus, deren Titel, Untertitel oder Kennung den Suchtext nicht enthalten. Passende Abschnitte klappen auf. Das × leert das Feld.
+- *Alle zu* klappt alle Abschnitte zu, *Alle auf* klappt alle auf.
 
-Im oberen Bereich des Inspectors befindet sich ein Suchfeld mit dem Label *Abschnitte durchsuchen*. Geben Sie einen Namen oder Stichwort ein:
+![Filter „dmx“](bilder/de/eigenschaften-35-filter-dmx-getippt.jpg)
 
-- Der Filter sucht in der **Abschnitt-ID** (z. B. `network-config`), im **Titel** (z. B. „Netzwerk") und im **Untertitel** (z. B. „3 in · 2 out").
-- Alle Abschnitte, die nicht treffen, werden ausgeblendet.
-- Ein Treffer wird automatisch aufgeklappt.
+![Alle Abschnitte zugeklappt](bilder/de/eigenschaften-37-alle-zugeklappt.jpg)
 
-#### Alle aufklappen / zuklappen
+#### Abschnitte umsortieren
 
-Neben dem Suchfeld gibt es zwei Schaltflächen:
+Abschnitte mit dem Griff ⠿ lassen sich mit der Maus an eine andere Stelle ziehen. Die Reihenfolge gilt für alle Geräte und bleibt gespeichert. Name, Kurzname, Untertitel, *Inputs & Outputs* und *Notiz* stehen fest und haben keinen Griff.
 
-- **Alle auf** — öffnet alle Abschnitte.
-- **Alle zu** — schließt alle Abschnitte.
+#### Name, Kurzname, Untertitel
 
-### Die Abschnitte im Detail
+| Feld | Wirkung |
+|---|---|
+| Name | Bezeichnung des Geräts im Plan |
+| Kurzname | kurze Form für Port- und Endpunkt-Beschriftungen; ohne eigene Eingabe wird er aus dem Namen gebildet (*automatisch*). Der Stift öffnet das Feld; *auto* stellt den gebildeten Kurznamen wieder her |
+| Untertitel | optionale Zeile unter dem Namen am Knoten, z. B. „PGM Monitor“ |
 
-#### Name und Notiz (oben, nicht verschiebbar)
+![Kurzname bearbeiten](bilder/de/eigenschaften-10-kopf-kurzname-stift.jpg)
 
-- **Name**: Eindeutige Bezeichnung des Geräts (z. B. „ATEM 1", „Kamera Main").
-- **Notiz**: Freies Textfeld für alles, was keinen Platz in einem anderen Feld hat (z. B. Web-UI, Firmware-Version, Standort, Zugehörigkeit).
-- **Kurzname**: Automatisch aus dem Namen generiert (z. B. „ATEM" statt „ATEM Constellation 8K"). Wird in platzknappen Kontexten wie Port-Labels verwendet. Sie können den Auto-Vorschlag durch ein eigenes Wort überschreiben oder mit dem Refresh-Button (↻) zurücksetzen.
+#### Inputs & Outputs
 
-#### Ein- und Ausgänge (oben, Standardposition)
+Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie, z. B. *0 In · 1 Out*.
 
-![Abschnitt: Ein- und Ausgänge](bilder/de/eigenschaften-sektion-ports.jpg)
+![Inputs & Outputs](bilder/de/eigenschaften-15-ports-abschnitt.jpg)
 
-Die Anschlüsse sind direkt unter Name und Notiz — oben im Panel, weil die ganze Anwendung um die Verkabelung dreht.
+1. *+ Hinzufügen* legt einen Port in der Liste an.
 
-- **Eingänge**: Liste der Eingangs-Anschlüsse mit Typ (z. B. SDI, HDMI, Fiber).
-- **Ausgänge**: Liste der Ausgangs-Anschlüsse.
-- Je nach Gerät können Sie Anschlüsse hinzufügen, bearbeiten oder löschen.
-- Jeder Anschluss zeigt seinen Namen (z. B. „SDI 1") und seinen Typ.
+   ![Eingang hinzugefügt](bilder/de/eigenschaften-16-ports-eingang-hinzu.jpg)
 
-#### Kategorie
+2. Tragen Sie Nummer und Name ein und wählen Sie Steckertyp und Signalstandard.
 
-Wählen Sie die Geräte-Art (z. B. „Kamera", „Mischer", „Monitor", „Lagerbestand"). Die Kategorie bestimmt, welche anderen Felder im Inspector sichtbar sind (z. B. erscheint das Feld „Optik/Linse" nur bei Kameras).
+   ![Port mit BNC](bilder/de/eigenschaften-18-ports-anschlusstyp-bnc.jpg)
+
+3. Weitere Felder je Port:
+
+   | Feld | Werte |
+   |---|---|
+   | Inhalt / Funktion | freier Text, z. B. „PGM“ |
+   | Richtung | Richtung (auto), Nur Input, Nur Output, Bidirektional (z.B. Netzwerk) |
+   | Seite | Seite (auto), Links, Rechts |
+   | Geschlecht | Geschlecht (–), ♂ Male / Stecker, ♀ Female / Buchse |
+   | Gruppe | — Kein —, vorhandene Gruppen, *+ Neue Gruppe …* |
+
+   ![Signal, Inhalt und Richtung](bilder/de/eigenschaften-19-ports-signal-inhalt-richtung.jpg)
+
+4. Bei SDI-Ports klappt *SDI-Fähigkeiten (port-spezifisch)* auf: *Max Single-Link* überschreibt den Wert des Geräts für diesen Port; *Quad-Link Set* und *Dual-Link Set* fassen Ports zu einem Set zusammen (*+ Neues Set…*). Ein neues Set meldet, wie viele Ports ihm schon zugewiesen sind.
+
+   ![SDI-Fähigkeiten](bilder/de/eigenschaften-20-ports-sdi-faehigkeiten.jpg)
+
+Eine Gruppe fasst zusammengehörige Ports zusammen. Ihre Art ist *Stereo (L/R)*, *M/S*, *Summe (A/B)*, *Gebrückt (+/-)*, *Powerlock-Satz (L1/L2/L3/N/PE)* oder *Sonstige*; je Port wird die Rolle in der Gruppe gewählt, bei Stereo L oder R.
+
+Bei Glasfaser-Ports erscheinen zusätzlich *Breakout* (*DUO (2)*, *QUAD (4)*) mit einer Zeile je Faser (*TX (sendend)*, *RX (empfangend)*, *nicht angegeben*, *Faser hinzufügen*) sowie das *SFP-Modul* mit Stecker (LC, SC, ST, FC, E2000, MPO-MTP, opticalCON, LEMO) und Faserklasse (OM1–OM5, OS1, OS2).
+
+Am Ende der Steckertyp-Liste legt ein eigener Eintrag einen neuen Stecker-Typ an; die App fragt nach dem Namen. Das × löscht einen Port.
+
+Der Griff ≡ vor *Inputs* und *Outputs* tauscht die beiden Listen; *Ports spiegeln (Inputs rechts, Outputs links)* setzt die Eingänge an die rechte Seite des Knotens.
+
+![Gespiegelter Knoten im Canvas](bilder/de/eigenschaften-33-ports-spiegeln-canvas.jpg)
+
+#### Notiz
+
+Freies Feld für alles, was kein eigenes Feld hat, etwa Web-Oberfläche, Firmware oder Standort.
+
+#### Rentman-Hinweis und Kategorie
+
+Ist das Modul Rentman eingeschaltet und das Gerät nicht im verknüpften Rentman-Plan, steht dort *Nicht im Rentman-Plan erfasst*. Darunter wählt *Kategorie* die Geräteart; *+ Neue Kategorie…* legt eine eigene an. Der Abschnitt *Fachdaten — <Kategorie>* zeigt die Felder dieser Art, bei Monitoren etwa Panel-Typ, HDR, Helligkeit, Bildrate und Farbraum.
+
+![Fachdaten eines Monitors](bilder/de/eigenschaften-147-monitor-spezifikation.jpg)
+
+#### Optionale Felder
+
+![Optionale Felder](bilder/de/eigenschaften-41-opt-offen.jpg)
+
+| Feld | Wirkung |
+|---|---|
+| Als korrekt verifizieren | bestätigt mit Ihrem Namen, dass die Ports stimmen; die Zahl der Bestätigungen steht daneben |
+| Mietpreis / Tag | Preis mit Währung |
+| Hersteller-Link | Adresse des Datenblatts; *Öffnen* ruft sie auf |
+| Preis / Miete (€) | Wert für den Angebots-Export |
+| Referenzbild | Bild, z. B. der Port-Belegung (*Auswählen…*) |
+| Icon | Zeichen oder Emoji am Knoten, höchstens 2 Zeichen; leer bedeutet automatisch |
+
+![Verifiziert](bilder/de/eigenschaften-44-opt-verifiziert.jpg)
 
 #### Fotos
 
-Laden Sie Bilder des Geräts hoch. Sie werden in der Galerie unter den Eigenschaften angezeigt.
+*Foto hinzufügen…* hängt ein Foto an das Gerät. Hat das Gerät einen Gerätetyp aus der Bibliothek, fragt die App *Auch für den Gerätetyp übernehmen?*. Mit *Auch für den Gerätetyp* erscheint das Foto an jedem Gerät dieses Typs im Plan und wird nur einmal gespeichert; *Nur dieses Gerät* hängt es nur hier an. Der Abschnitt zeigt dann zwei Listen: *Dieses Gerät* und *Gerätetyp* mit der Zahl der Geräte dieses Typs.
 
-- **Hinzufügen**: Klicken Sie auf das Plus-Symbol oder ziehen Sie Bilder direkt ins Feld.
-- **Löschen**: Klicken Sie auf das X-Symbol eines Bildes.
+![Foto am Gerät](bilder/de/eigenschaften-50-fotos-hinzugefuegt.jpg)
 
-#### Informationen zu Geräteart
+#### Darstellung & Flags
 
-Wenn das Gerät eine Spezial-Unterstützung hat (z. B. ATEM, Videohub, GreenGo Intercom), zeigt dieser Abschnitt einen Knopf zum Öffnen eines Geräteinformationen-Dialogs oder zum Exportieren (z. B. Export-Patch für ATEM).
+![Darstellung & Flags](bilder/de/eigenschaften-52-flags-offen.jpg)
 
-#### Katalog und Herkunft
+| Feld | Wirkung |
+|---|---|
+| Kompakte Darstellung | Knoten zeigt nur Icon und Name, Ports als Punkte |
+| Gerätefarbe | Farbe des Knotens; *Reset* setzt sie zurück |
+| Gepackt / Pack-Status | markiert das Gerät als gepackt: ✓ im Canvas und Spalte in der Geräteliste |
+| Wandler (Patchliste folgt Durchgangskabel) | die Patchliste überspringt das Gerät und zeigt das nächste echte Ziel |
+| Patchfeld (Durchgang folgt der Position) | Ein- und Ausgang gleicher Position gelten als durchverbunden |
+| Verteilverstärker (1→N) | ein Eingang wird auf mehrere Ausgänge derselben Quelle verteilt |
+| Timecode | —, Quelle, Senke |
+| Tally | —, Quelle, Senke |
+| Embedding | —, Embedder, De-Embedder |
 
-- **Katalog-Typ**: Der Hersteller und die Modell-Nummer aus der Geräte-Bibliothek (z. B. „Blackmagic Design: ATEM Constellation 8K").
-- **Herkunft**: Zeigt, woher die Port-Informationen kommen (z. B. aus dem Datenblatt, manuell eingegeben, von Rentman).
-- **In die Bibliothek speichern**: Legt das Gerät als Vorlage ab, um es später schneller platzieren zu können.
+![Kompakter Knoten](bilder/de/eigenschaften-54-flags-kompakt-canvas.jpg)
 
-#### Netzwerk und Zugang
+#### Signalquelle (Rolle)
 
-- **IP-Adresse**: Die Netzwerk-Adresse des Geräts (z. B. `192.168.1.10`).
-- **Benutzername, Passwort**: Anmeldedaten für die Web-UI oder die API des Geräts.
-- Diese Daten werden im Betriebssystem-Credential-Store gespeichert — nicht in der Projekt-Datei.
+Eine Rolle ist der redaktionelle Name einer Quelle, z. B. „Kamera 1“. Sie bleibt beim Gerätetausch erhalten. *Rolle* wählt eine vorhandene Rolle oder *Neue Rolle aus Gerätename anlegen…*. Eine Rolle hat Name, Nummer und eine TSL-UMD-Adresse; *Umbenennen* und *Verwerfen* ändern den Namen, *Rolle löschen* gibt alle Bindungen frei.
 
-#### Streams und Ausspielziele
+![Signalquelle](bilder/de/eigenschaften-60-quelle-offen.jpg)
 
-Falls das Gerät Live-Video-Feeds aussendet:
+#### Network & Access
 
-- **Stream-URL**: Der HTTP(S)- oder RTMP-Endpoint des Geräts.
-- **Stream-Keys / Zugangsdaten**: Werden sicher im Credential-Store hinterlegt.
+![Network & Access](bilder/de/eigenschaften-66-netz-adresse-kennungen.jpg)
 
-#### Optik und Linsendaten (nur Kameras)
+| Feld | Inhalt |
+|---|---|
+| IP Address, Subnet Mask, Gateway, VLAN-ID, MAC-Adresse | Netzdaten der ersten Schnittstelle |
+| Seriennummer, Asset-Tag, Interne Nummer | Kennungen des Geräts |
+| Einheit aus dem Bestand | die konkrete Einheit, die an diesem Platz steht |
+| Username, Password | Anmeldedaten des Geräts |
+| Rolle der ersten Schnittstelle | Medien primär, Medien sekundär, Steuerung, Management, nicht angegeben |
+| Weitere Netzwerk-Schnittstellen | *Hinzufügen* legt weitere Schnittstellen an, je mit Rolle, Switch, PTP-Profil (ST 2059-2, AES67, IEEE 1588 Default) und PTP-Rolle (Grandmaster, Boundary Clock, Slave) |
 
-![Abschnitt: Optik/Linse](bilder/de/eigenschaften-sektion-optik.jpg)
+Username und Password stehen in der Projektdatei. Beim Export und beim Teilen entfernt die App sie.
 
-Für Kameras zeigt dieser Abschnitt:
+![Weitere Schnittstelle](bilder/de/eigenschaften-70-netz-schnittstelle-hinzu.jpg)
 
-- **Linsenmodell**: Z. B. „Canon CN7x7", „Fujinon HA22x7.6".
-- **Fokussierer-Typ**: Manuell oder motorgesteuert (z. B. „Canon R-FS").
-- **Steuerungsart**: Serielle Steuerung, ESP32-Bridge, Simulator (zu Test-Zwecken).
+#### Streams
 
-#### Stromversorgung und Stromkreis
+Streams, die das Gerät sendet oder empfängt. Benutzername, Passwort oder Passphrase in einer Adresse trennt die App heraus und legt sie im Schlüsselbund des Rechners ab, nie im Plan.
 
-- **Stromverbrauch**: Die typische Leistungsaufnahme in Watt (z. B. 150 W).
-- **Stromkreis-Bauart**: Die Netzfrequenz und Betriebsart (z. B. „230 V AC, 16 A Kühlschrank" oder „12 V DC Batterie").
-- **Anschlusspunkte**: Eine Tabelle zeigt, welche Anschlüsse an welche Stromschiene gehen (z. B. „Eingang 1 → Stromkreis A, Klemme 1").
+1. *Stream hinzufügen* legt einen Eintrag an.
+2. Wählen Sie Protokoll (RTSP, SRT, RTMP, NDI, NDI-HX, HLS, MJPEG, WebRTC, WHIP, WHEP, RTP, ST 2110, Dante, AES67, Anderes) und Richtung (*Sendet*, *Empfängt*, *Sendet und empfängt*), dann Name, Adresse, Vorschau-Adresse, Port, Codec und Format.
+
+   ![Stream eingetragen](bilder/de/eigenschaften-74-streams-gefuellt.jpg)
+
+3. Auswahl:
+
+   | Element | Wirkung |
+   |---|---|
+   | Standbild unter dem Gerät im Canvas zeigen | zeigt das Vorschaubild am Knoten |
+   | Live-Bild | spielt den Stream ab, solange die Anzeige offen ist |
+   | Scopes | zeigt Waveform und Vectorscope des Streams live; *Große Scopes* zeigt Waveform, Vectorscope, Parade und Histogramm in einem großen Panel |
+   | Live-Waveform unter dem Gerät im Canvas zeigen | zeigt die Waveform am Knoten |
+
+Das Live-Bild spielt die Desktop-App für RTSP, RTMP, SRT, HLS und MJPEG ab (braucht ffmpeg), der Browser HLS, MJPEG und WebRTC (WHEP). Die Adresse muss im lokalen Netz liegen; höchstens vier Streams laufen gleichzeitig. Geht es nicht, nennt die Anzeige den Grund.
+
+#### Lebenszyklus / Wartung
+
+Erscheint, wenn das Modul Festinstallation oder Vermietung eingeschaltet ist.
+
+![Lebenszyklus](bilder/de/eigenschaften-76-lebenszyklus-offen.jpg)
+
+| Feld | Werte |
+|---|---|
+| Status | — kein Status —, Geplant, Installiert, Getestet, In Betrieb, Störung, Außer Betrieb |
+| Garantie bis | Datum |
+| Wartungsintervall (Tage) | Zahl |
+| Eigentum (nur Vermietung) | — k.A. —, Eigenbestand, Angemietet, Sub-Hire |
+| Anschaffung, Lagerort, Lieferant (nur Vermietung) | Datum bzw. Text |
+| Service-Historie | Einträge mit Datum, Art (Installation, Inspektion, Reparatur, Austausch, Notiz), Text und Autor; *Hinzufügen* legt einen an |
+
+![Service-Historie](bilder/de/eigenschaften-79-lebenszyklus-historie.jpg)
+
+#### Optik (MultiCam-Plan)
+
+Bei Kameras aus einem MultiCam-Plan zeigt dieser Abschnitt nur lesend: Objektiv, Brennweitenbereich, eingestellte Brennweite, Extender, horizontalen Bildwinkel, Objektiv- und Kamera-Anschluss, Höhe, Schwenk, Neigung und eine Tabelle der Presets. Die Werte setzt der MultiCam-Planer; der nächste Kamera-Import aktualisiert sie.
+
+#### Steuerbare Funktionen
+
+Bei Kameras listet der Abschnitt je Steuerfunktion (Schwenken und Neigen, Zoom, Schärfe, Blende, Verstärkung, Verschluss, ND-Filter, Weißabgleich, Farbtemperatur, Rot- und Blau-Anteil, Detail, Preset abrufen und speichern), ob das Modell sie unterstützt. *nicht belegt* heißt, dass dazu keine Angabe vorliegt.
+
+![Steuerbare Funktionen](bilder/de/eigenschaften-81-kamerasteuerung.jpg)
+
+#### Steuerung über
+
+Für Geräte, deren Steuerschnittstellen die App kennt (etwa Kameras mit VISCA oder AW-Protokoll, HyperDeck, KUMO), zeigt dieser Abschnitt nur lesend je Schnittstelle: Protokoll, Übertragung (seriell, SDI oder IP), Anschluss, Baud, Format, Pinbelegung, Flusssteuerung, Mehrpunkt, Netzwerk-Port und für eine Netzwerk-Bridge Modus, Port und Pakete. Angaben, die nicht in der Herstellerdoku stehen, sind als *Nicht in der Herstellerdoku* markiert. *Quelle* verweist auf die Dokumentation.
+
+#### Stromverbrauch
+
+Felder Spannung (V), Stromstärke (A) und Leistung (W). Sind Spannung und Stromstärke gesetzt, berechnet die App die Leistung (P = U × I).
+
+![Stromverbrauch](bilder/de/eigenschaften-83-strom-werte.jpg)
+
+#### Schaltbild (Strom)
+
+*Bauart im Stromkreis* legt fest, als was das Gerät im Stromschaltbild zählt: keine, Einspeisung, Aus-Schalter, Wechselschalter, Kreuzschalter, Dimmer, Leuchte, Klemmstelle / Dose, Stromverteiler, Taster, Schütz, Relais, Not-Aus, FI-Schutzschalter, Leitungsschutzschalter. Danach wird jeder Anschluss einer Klemme der Bauart zugeordnet. Die Klemme hängt am Anschluss, nicht an seiner Position in der Liste.
+
+![Schaltbild-Bauart](bilder/de/eigenschaften-85-stromkreis-rolle.jpg)
 
 #### Adapter
 
-Falls das Gerät Adapter benötigt (z. B. XLR → BNC, Stecker → Buchse):
+*Dieses Gerät ist ein Adapter* öffnet die Felder:
 
-- Liste verfügbarer Adapter.
-- Sie können Adapter hinzufügen oder aus einer Vorlage übernehmen.
+| Feld | Werte |
+|---|---|
+| Seite zur Quelle, Seite zur Senke | Steckertypen |
+| Richtung | nur in eine Richtung, in beide Richtungen, nicht erklärt |
+| Speisung | passiv (kein Strom), aktiv, eigene Einspeisung, aktiv, Strom aus der Quelle, nicht erklärt |
+| Lässt höchstens durch | höchster Signalstandard |
+| Setzt an der Quelle voraus | Merkmal, das das Quellgerät unter *Kann* führen muss |
+| Notiz | Text |
 
-#### DMX (für Steuergeräte)
+*Kann* führt die Merkmale, die ein Gerät erklärt. Leer heißt „nicht erklärt“, nicht „kann nicht“.
 
-Für Geräte mit DMX-Steuerung:
+![Adapter eingetragen](bilder/de/eigenschaften-89-adapter-gefuellt.jpg)
 
-- **DMX-Startkanal**: Der erste belegte Kanal (z. B. 1, 65, etc.).
-- **DMX-Geräte-ID**: Die Universum- und Kanal-Nummer.
+#### DMX
 
-#### Hausverkabelung
+*Dieses Gerät wird über DMX adressiert* öffnet Hersteller, Modell, die Liste der Modi und Universe und Adresse. *+ Modus* legt einen Modus mit Name, Kanalzahl und Herkunft an (Von Hand, GDTF-Datei, Pult-Patch, Am Gerät abgelesen, Geschätzt). Mit gewähltem Modus zeigt die Kopfzeile Modus, Kanalzahl und Adresse. *Diese Adresse behalten* schützt die Adresse vor der automatischen Vergabe.
 
-Dokumentiert Verkabelungsrouten innerhalb des Geräts (z. B. vom Eingang zum Mischer-Kern zum Ausgang).
+![DMX eingetragen](bilder/de/eigenschaften-94-dmx-gefuellt.jpg)
 
-#### Formatprofil
+#### Hausanschluss
 
-Die Eingangs-/Ausgangs-Formate und Codec-Profile, wenn das Gerät mehrere Betriebsmodi unterstützt.
+*Gebäude-Datei laden…* liest eine `.avfacility`-Datei aus dem Gebäude-Werkzeug. Danach wählt *Hausanschluss* eine Dose oder Einspeisung des Hauses; die App zeigt Absicherung, Dauerleistung und ob die Dose geschaltet oder gedimmt ist. *Steueradresse* verknüpft eine Adresse des Hauses, etwa KNX oder DALI.
 
-#### Abmessungen
+![Hausanschluss zugeordnet](bilder/de/eigenschaften-98-haus-zugeordnet.jpg)
 
-Breite, Höhe und Tiefe in Millimetern. Wird später für 3D-Rack-Visualisierung und Platzbedarf-Planung verwendet.
+#### Formatprofil (Senke)
 
-#### Netzwerk-Konfiguration
+*Für dieses Gerät ist erklärt, welche Formate es annimmt* öffnet das Profil. *Herkunft (Pflicht)* sagt, woher die Angabe stammt; ohne Herkunft verwirft die App das Profil beim nächsten Laden. *+ Format* legt eine Zeile an: Format, Bittiefe (8, 10, 12 bit), Farbformat (RGB, YCbCr 4:4:4, 4:2:2, 4:2:0) und Dynamik (SDR, HDR10, HLG, Dolby Vision). Ohne Profil sagt der Plan „nicht erklärt“.
 
-Erweiterte Netzwerk-Settings (falls das Gerät mehrere Netzwerk-Modi oder VLANs unterstützt).
+![Formatprofil](bilder/de/eigenschaften-101-senke-format-hinzu.jpg)
 
-#### Modi
+#### Dimensionen
 
-Falls das Gerät verschiedene Betriebsmodi hat (z. B. „Aufnahme", „Live-Streaming", „Simulator"), können Sie diese hier konfigurieren.
+Breite, Höhe und Tiefe in mm. Die Kopfzeile zeigt die Maße.
 
-#### Rackplatz
+![Dimensionen](bilder/de/eigenschaften-104-masse-gefuellt.jpg)
 
-- **Rackposition**: Die HE (Höheneinheit) und Tiefe im 19"-Rack.
-- **Rack-3D-Ansicht**: Zeigt eine 3D-Visualisierung der Geräte im Rack.
+#### Betriebsmodi
 
-#### Lebenszyklus
+Ein Betriebsmodus ist ein eigenes Port-Layout des Geräts.
 
-- **Installationsstatus**: z. B. „Geplant", „Installiert", „Getestet", „Live".
-- **Test-Ergebnisse**: Bestätigung, dass das Gerät funktioniert.
-- **Wartungsplan**: Wartungstermine und nächste Überprüfung.
+1. *+ Neuer Modus (Editor)* öffnet *Neuer Betriebsmodus* mit Name, Beschreibung, Leistung und Gewicht in diesem Modus und eigenen Listen für Inputs und Outputs (*+ Port*). *Aus aktuellem Geräte-Layout übernehmen* kopiert die Ports des Geräts. *Modus anlegen* speichert.
 
-#### Druck und Dokumentation
+   ![Neuer Betriebsmodus](bilder/de/eigenschaften-107-modi-editor-gefuellt.jpg)
 
-Generiert Patch-Sheets und Dokumentation zum Ausdrucken (z. B. Geräte-Übersicht, Port-Listen).
+2. *+ aus aktuellem Layout speichern* legt einen Modus aus den aktuellen Ports an; die App fragt nach dem Namen.
+3. Je Modus öffnet *Editor* den Dialog; *Ports übernehmen* setzt das Layout des Modus am Gerät. Beim Löschen bleiben die Ports am Gerät erhalten.
 
-#### Anhänge
+![Modi](bilder/de/eigenschaften-112-modi-liste.jpg)
 
-Laden Sie Datenblätter, Handbücher oder andere Dateien hoch.
+#### Bibliothek
+
+*Als neue Standard-Vorlage speichern* überschreibt nach Rückfrage die Vorlage dieses Geräts in der Bibliothek. *Als neues Gerät in Library speichern* fragt nach einem Namen und legt eine neue Vorlage an.
+
+![Bibliothek](bilder/de/eigenschaften-115-bib-speichern-offen.jpg)
+
+#### Katalog & Herkunft
+
+Verknüpft das Gerät mit einem Modell aus dem eingebauten Katalog; Datenblatt-Link, Lager-Abgleich und Stückliste nutzen das. *Von Hand wählen* öffnet eine Liste aller Katalogmodelle.
+
+![Katalogwahl](bilder/de/eigenschaften-119-katalog-manuell.jpg)
+
+#### Gerät ersetzen
+
+*↔ Anderes Gerät wählen…* öffnet eine Liste der Bibliothek mit Kategoriefilter und Suche. Nach der Wahl zeigt die App, wie viele verkabelte Verbindungen bestehen und wie viele Eingänge und Ausgänge sie überträgt. *Ersetzen* tauscht das Gerät und erhält die Verkabelung.
+
+![Ersetzen bestätigen](bilder/de/eigenschaften-124-ersetzen-bestaetigung.jpg)
+
+#### Druck / Dokumentation
+
+| Knopf | Wirkung |
+|---|---|
+| Geräte-Datenblatt (A4) … | öffnet das Datenblatt dieses Geräts |
+| Patch-Sheet (A4 PDF) drucken | druckt das Patch-Sheet A4 |
+| Patch-Sheet (A3 PDF) drucken | druckt das Patch-Sheet A3 |
+
+Das Geräte-Datenblatt ist eine A4-Seite. Es gliedert sich in Fotos, Allgemein, Technische Daten, Fachdaten, Betrieb und Tabellen; jedes Feld hat ein Häkchen. *Ausgefüllte*, *Alle* und *Keine* setzen die Häkchen; *Drucken* und *PDF speichern* geben das Blatt aus.
+
+![Geräte-Datenblatt](bilder/de/eigenschaften-126-datenblatt-dialog.jpg)
+
+#### Schaltung (Signalweg)
+
+Bei Geräten mit Ein- und Ausgängen, etwa Mischern und Kreuzschienen, legt dieser Abschnitt je Ausgang fest, welcher Eingang darauf liegt. Die Kopfzeile zählt die geplanten Ausgänge.
+
+![Schaltung](bilder/de/eigenschaften-132-schaltung-kreuzpunkt.jpg)
+
+*Steuer-Protokoll* bestimmt, wohin geschaltet wird:
+
+| Protokoll | Zusatzfelder |
+|---|---|
+| keins — es wird nicht gesendet | keine |
+| Blackmagic Videohub | Ziel; Schalter *ATEM-Eingangsnamen folgen der Route dieses Videohubs* |
+| Blackmagic ATEM | Ziel; *Nummern am Gerät* je Ein- und Ausgang (Programm, Vorschau, Aux) |
+| Bitfocus Companion | Companion-IP, Port, *Verbindungen abrufen*, Seite, Zeile, Spalte und zwei Variablen für Ausgang und Eingang |
+| Erklärtes Text-Protokoll | Befehlszeile aus dem Handbuch des Geräts, Zeilenanfang, Zeilenende, Zählbeginn, Nummern, Ebene, Quittung, Port und Vorlagen, etwa Quartz / Evertz; eine Vorschau zeigt die gesendete Zeile |
+
+*Ziel* ist *Anlage* (das Gerät im Netz) oder *Prüfstand (Emulator)*.
+
+![Text-Protokoll mit Vorlage](bilder/de/eigenschaften-135-schaltung-text-vorlage.jpg)
+
+Ist bei einem Videohub *ATEM-Eingangsnamen folgen der Route dieses Videohubs* eingeschaltet, listet der Abschnitt jeden Hub-Ausgang, der über Kabel an einem ATEM-Eingang endet. *Folgen starten* hält die Verbindung zum Hub offen; bei jedem Umschalten bekommt der ATEM-Eingang den Namen der neuen Hub-Quelle (Langname bis 20 Zeichen, Kurzname 4 Zeichen). Geschrieben werden nur Namen. Nur in der Desktop-App.
+
+#### Rack / 19" Einstellungen
+
+*Ist ein 19" Rack-Gerät* öffnet Höhe in HE, *Ansicht* (Nur vorne, Nur hinten, Vorne + hinten), *Frontgrafik importieren + zuschneiden*, *Reargrafik importieren + zuschneiden* und eine 2D-Vorschau mit den Ports.
+
+![Rack-Einstellungen](bilder/de/eigenschaften-141-rack-hoehe-ansicht.jpg)
+
+#### Display
+
+Bei Monitoren: Auflösung und Diagonale in Zoll.
+
+![Display](bilder/de/eigenschaften-146-monitor-anzeige-gefuellt.jpg)
+
+#### Mehrere Geräte ausgewählt
+
+Der Inspector bearbeitet immer ein Gerät. Aktionen für mehrere ausgewählte Geräte, etwa als Gruppe speichern oder ausrichten, liegen im Canvas.
 
 ### Kabeleigenschaften
 
-Klicken Sie auf ein Kabel auf dem Canvas, um seine Eigenschaften zu sehen.
+Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 
-![Kabeleigenschaften: Überblick](bilder/de/eigenschaften-kabel-uebersicht.jpg)
+![Kabel gewählt](bilder/de/eigenschaften-160-kabel-gewaehlt.jpg)
 
-#### Verbindung (Von/Zu)
+| Feld | Wirkung |
+|---|---|
+| Kabeltyp / Standard festlegen | öffnet die Wahl von Kabeltyp und Standard |
+| Fotos | Fotos dieses Kabels |
+| Name | Bezeichnung; *↳ aus Quelle → Ziel* bildet sie aus Quelle und Ziel |
+| Länge (m) | Länge des Kabels |
+| Farbe | Farbe im Canvas |
+| Ebene (Layer) | Video, Audio, Control, Network, Power, Other; wirkt mit dem Layer-Filter der Werkzeugleiste |
+| Multicore / Snake | Name des Multicores, zu dem das Kabel gehört |
+| Tie-Line / Festverbindung (permanent) | markiert eine feste Verbindung |
+| Off-Page-Verbindung (Pfeil-Connector) | zeichnet statt der Linie zwei Pfeil-Verbinder mit *Netzname / Signalname* |
+| Signalweg zeigen | hebt den Weg des Signals im Canvas hervor |
+| Hausstrecke | ordnet das Kabel einer Strecke des Hauses zu |
+| Notiz | Text |
+| Kabel löschen | entfernt das Kabel |
 
-- **Von-Gerät und Von-Port**: Das Quell-Gerät und sein Port (z. B. „Camera 1 → SDI out").
-- **Zu-Gerät und Zu-Port**: Das Ziel-Gerät und sein Port (z. B. → „Mixer → SDI in 1").
-- Sie können diese durch Dropdown-Listen ändern.
+![Name aus Quelle und Ziel](bilder/de/eigenschaften-161-kabel-name-quelle-ziel.jpg)
 
-![Kabel: Verbindung](bilder/de/eigenschaften-kabel-verbindung.jpg)
+#### Signalweg zeigen
 
-#### Beschriftung und Farbe
+*Signalweg zeigen* hebt im Canvas alle Kabel und Geräte des Signalwegs hervor und blendet den Rest ab. Die Werkzeugleiste zeigt *Signalweg: n Kabel, n Geräte*; das × dort beendet die Hervorhebung.
 
-- **Name**: Eine Beschriftung für das Kabel (z. B. „Main Camera Feed").
-- **Farbe**: Klicken Sie auf das Farbfeld, um die Darstellungsfarbe zu ändern.
+![Signalweg im Canvas](bilder/de/eigenschaften-175-kabel-signalweg-canvas.jpg)
 
-#### Kabel-Typ und Spezifikation
+#### Festinstallation / Lebenszyklus
 
-- **Kabel-Spezifikation**: Wählen Sie einen Standard-Kabeltyp aus dem Katalog (z. B. „Belden 1694A SDI", „Fiber Optic SM9/125").
-- **Länge**: Die Kabellänge in Metern.
-- **Custom-Kabel**: Falls nicht im Katalog, können Sie den Typ als Freitext eingeben.
+| Feld | Werte |
+|---|---|
+| Status | — kein Status —, Geplant, Installiert, Getestet, In Betrieb, Störung, Außer Betrieb |
+| Trasse / Pfad | Text |
+| Mantel/Brandklasse | Text |
+| Term. A, Term. B | Terminierung an beiden Enden |
+| Faser A, Faser B | bei Glasfaser die belegte Faser je Ende |
+| Mess-/Test-Ergebnis | — nicht getestet —, PASS, FAIL; dazu *Marge dB*, *Standard/Limit* und *Report-Datei*; *Löschen* leert das Ergebnis |
 
-![Kabel: Routing und Spezifikation](bilder/de/eigenschaften-kabel-routing.jpg)
+![Lebenszyklus des Kabels](bilder/de/eigenschaften-167-kabel-messergebnis.jpg)
 
-#### Routing
+#### Adern (Strom)
 
-- **Orthogonal** (rechtwinkliger Knick): Das Kabel folgt einem rechtwinkeligen Weg (Standard).
-- **Diagonal**: Das Kabel verläuft gerade von Quelle zu Ziel.
-- **Gebogen**: Das Kabel zeigt einen Bezier-Kurvenverlauf.
+*Gehört zum Anschluss* ordnet das Kabel einem Anschluss aus *Werkzeuge → Adern und Farbnormen* zu. *+ Leiter* legt einen Leiter an: Rolle (L1, L2, L3, N, PE, frei), Farbe (leer bedeutet aus der Norm) und Grund für eine Abweichung.
 
-#### Aderaufbau (bei Mehrleitern-Kabeln)
+![Adern](bilder/de/eigenschaften-171-kabel-ader-gefuellt.jpg)
 
-Falls das Kabel mehrere Adern hat (z. B. ein Audio-Multikabel mit 4 Paaren):
+#### Verbindung
 
-- Liste der einzelnen Adern mit ihren Funktionen (z. B. „Ader 1: Audio L", „Ader 2: Audio R").
+Zeigt Quelle und Ziel. *Von Gerät*, *Port*, *Nach Gerät* und *Port* ändern die Enden; belegte Ports tragen den Zusatz *belegt*, und die App warnt, wenn ein Port schon belegt ist.
 
-#### Glasfaser-Modus (Fiber Optic)
+![Verbindung](bilder/de/eigenschaften-177-kabel-verbindung-offen.jpg)
 
-Falls das Kabel eine Glasfaser ist:
+#### Darstellung des Kabels
 
-- **Modus**: Singlemode (SM) oder Multimode (MM).
-- **Wellenlänge**: z. B. 1310 nm, 1550 nm.
+| Feld | Werte |
+|---|---|
+| Routing | Ortho, Linie, Kurve |
+| Stroke width | Linienstärke in px, Regler |
+| Label Position | Start, Mitte, End; ein Klick auf die aktive Position blendet die Beschriftung aus; der Regler verschiebt sie fein entlang des Kabels |
+| Endpoint-Labels (→ zum anderen Ende) | Auto (folgt *Einstellungen → Bearbeiten*), Anzeigen, Ausblenden |
+| Dashed, Arrow ◄, Arrow ► | gestrichelte Linie und Pfeile |
+| Bidirektional ⇌ | Pfeile an beiden Enden |
 
-#### Hausverkabelung und Steigschacht
+![Routing Kurve, Linienstärke und Beschriftung](bilder/de/eigenschaften-181-kabel-beschriftung-position.jpg)
 
-- Dokumentiert, ob das Kabel durch einen Hausverteilschrank oder Steigschacht führt.
-- Notizen zum Installationsroute.
+#### Funkverbindung
 
-#### Lebenszyklu und Test-Ergebnisse
+*Wireless Verbindung (kein Kabel)* macht aus dem Kabel eine Funkstrecke. Statt der Länge steht *Max. Reichweite (m)*; dazu kommen Frequenz und Kanal.
 
-- **Status**: z. B. „Geplant", „Installiert", „Getestet", „Live".
-- **Test-Resultat**: Pass/Fail mit Datum und Techniker.
+![Funkverbindung](bilder/de/eigenschaften-188-kabel-funk-felder.jpg)
+
+#### Adapter-Vorschlag
+
+Passen die Stecker beider Enden nicht zusammen oder haben sie dasselbe Geschlecht, zeigt das Kabel einen Hinweis und passende Adapter oder Wandler aus der Bibliothek. *Einsetzen* fügt den Adapter in die Strecke ein; ein Rückgängig-Schritt entfernt ihn wieder.
+
 
 ### Rahmen-Eigenschaften
 
-Klicken Sie auf einen Rahmen (LocationFrame), um seine Eigenschaften zu sehen.
+Ein Klick auf einen Rahmen zeigt seine Eigenschaften.
 
-#### Name
+![Rahmen-Eigenschaften](bilder/de/eigenschaften-196-rahmen-eigenschaften.jpg)
 
-Der Name des Rahmens/Raums (z. B. „Studio A", „Serverraum", „Kontrolle").
+| Feld | Wirkung |
+|---|---|
+| Name | Name des Raums |
+| Breite (m), Tiefe (m) | Größe; darunter die Fläche |
+| Stockwerk | Etage des Raums; *Etage hinzufügen…* legt eine an |
+| Farbe | Farbe des Rahmens |
+| Steigschacht / senkrechte Trasse | markiert den Rahmen als senkrechte Trasse zwischen Etagen |
+| Raumnummer, Adresse, Notizen | Text |
+| Etagen | Liste der Etagen von unten nach oben mit Fußbodenhöhe in Metern; die 3D-Ansicht stapelt die Räume danach. *Etagen aus der Gebäude-Auskunft übernehmen* liest sie aus einer Gebäude-Datei |
 
-#### Größe
+![Etagen](bilder/de/eigenschaften-202-etagen-verwaltung-offen.jpg)
 
-- **Breite, Höhe** in Pixeln auf dem Canvas (bestimmt die sichtbare Größe der Box).
+| Knopf | Wirkung |
+|---|---|
+| Stückliste exportieren | öffnet die Stückliste des Raums mit Geräten, internen Kabeln und externen Verbindungen; *Kabel zusammenfassen*, *Plan einbetten* und *PDF exportieren* |
+| Nur Rahmen löschen | löscht den Rahmen, die Geräte bleiben |
+| Rahmen + Inhalt löschen | löscht nach Rückfrage den Rahmen mit allen Geräten und deren Kabeln |
 
-#### Farbe
-
-Klicken Sie auf das Farbfeld, um die Rahmendarstellung zu ändern.
-
-#### Etage
-
-- **Stockwerk**: Wählen Sie aus vorhandenen Etagen oder erstellen Sie eine neue.
-- Etagen können eine Höhenkote (z. B. „3. Stock (18 m)") haben.
-
-#### Steigschacht
-
-Ein besonderer Rahmen, durch den mehrere Kabelleitungen vertikal verlaufen (Routing-Dokumentation).
-
-### Mehrfachauswahl
-
-Wenn Sie mehrere Geräte gleichzeitig auswählen (Ctrl+Click oder Drag-Auswahl), zeigt der Inspector Eigenschaften, die **für alle** gelten:
-
-- **Kategorie**: Nur wenn alle ausgewählten Geräte dieselbe Kategorie haben.
-- **Gemeinsame Felder**: Felder, deren Wert bei allen gleich ist.
-
-Dies erlaubt Batch-Änderungen, z. B. um mehrere Geräte auf einmal die gleiche Farbe zu geben oder in die gleiche Kategorie zu verschieben.
+![Stückliste](bilder/de/eigenschaften-206-rahmen-stueckliste-dialog.jpg)
 
 ---
 
 ## 6. Datei und Import
 
-Das Menü *Datei* ist das zentrale Tor zum Projektmanagement: Projekte anlegen, öffnen, speichern, Import-Datenquellen, Export-Formate und die Zusammenarbeit mit externen Entwürfen.
+Das Menü *Datei* hat vier Teile. Oben stehen Projekt anlegen, öffnen und speichern, darunter die Importe (*yEd / GraphML*, *MultiCam-Kameras*, *Equipment aus CSV*, *Rentman-Import*, *NetBox-Import*) und der Austausch ganzer Projekte (*.avplan*, *.avsourcemap*). Darauf folgen die Ausgaben *Patch-Liste…*, *Festinstallation: Doku & Übergabe…*, *Stage-Plot*, *Exportieren & Drucken…*, die Cloud, die Viewer-Datei und die Einträge für Rentman. Diese Ausgaben beschreibt das Kapitel *Exportieren und Drucken*. *Rentman-Import…* und *NetBox-Import…* stehen nur im Menü, wenn die Integration unter *Einstellungen → Integrationen* eingeschaltet ist. *Verknüpfte Venue-Planung ansehen…* erscheint nur, wenn das Projekt eine verknüpfte Venue-Planung enthält.
+
+![Das Menü Datei](bilder/de/datei-import-01-menue-datei-offen.jpg)
 
 ### Neues Projekt
 
-*Datei → Neu*
+*Datei → Neues Projekt* (`Strg+N`) öffnet das Formular *Neues Projekt*. Es verlangt einen Projektnamen; ohne ihn bleibt *Projekt anlegen* gesperrt. Enthält der aktuelle Plan Geräte, Kabel oder Standorte, steht darüber der Hinweis, dass ein neues Projekt das aktuelle verwirft und ungespeicherte Änderungen verloren gehen. Bei einem leeren Plan entfällt der Hinweis.
 
-Öffnet das Formular *Neues Projekt* mit Projektname, Kunde und Logos. *Projekt anlegen* ersetzt den aktuellen Plan durch einen leeren. Enthält der aktuelle Plan schon Geräte, Kabel oder Orte, steht im Formular der Hinweis, dass ungespeicherte Änderungen verloren gehen.
+![Formular Neues Projekt](bilder/de/datei-import-64-neu-dialog-mit-warnung.jpg)
 
-Tastatur: `Strg+N`
+Das Formular fragt neben dem Namen *Auftragnehmer (Firma)*, *Kunde*, *Planer / Autor*, *Projekt-/Job-Nr.*, *Einsatz-/Mietbeginn*, *Einsatz-/Mietende*, *Beschreibung*, *Firmenlogo* und *Kundenlogo* ab. Diese Angaben erscheinen im Plankopf unten rechts beim PDF-Export. Sie lassen sich später über *Projektdaten bearbeiten* in der Kopfleiste ändern.
+
+![Ausgefülltes Formular](bilder/de/datei-import-65-neu-dialog-ausgefuellt.jpg)
+
+*Projekt anlegen* ersetzt den aktuellen Plan durch einen leeren mit diesen Angaben. Bei einem leeren Plan zeigt das Formular keine Warnung.
+
+![Formular ohne Warnung](bilder/de/datei-import-66-neu-dialog-ohne-warnung.jpg)
 
 ### Neu aus Vorlage
 
-*Datei → Neu aus Vorlage…*
+*Datei → Neu aus Vorlage…* öffnet den Dialog *Neu aus Vorlage*. Er lädt eine Kopie der gewählten Vorlage als neues Projekt.
 
-Öffnet einen Dialog mit allen verfügbaren Vorlagen. Projektvorlagen sind vordefinierte Bausteine: Raum-Layouts, Standard-Geräte oder Verkabelungs-Muster, die als Grundlage für neue Entwürfe dienen. Der Dialog zeigt die Vorlagen themenweise gruppiert; ein Klick auf eine Vorlage erzeugt das neue Projekt.
+![Dialog Neu aus Vorlage](bilder/de/datei-import-02-vorlagen-dialog.jpg)
 
-![Vorlagen-Dialog](bilder/de/datei-import-templates.jpg)
+Unter *Mitgelieferte Vorlagen* liegen fünf Show-Setups. Jede Karte nennt die Zahl der Geräte, Kabel und Standorte.
+
+| Vorlage | Inhalt |
+|---|---|
+| *OB van* | Übertragungswagen mit Bühne und FOH, getrennte Standort-Rahmen |
+| *TV-Studio* | Studio mit Regie und Studioboden |
+| *Live stage* | Bühne, FOH und Monitorwelt für Live-Events |
+| *Konferenz / Corporate* | Saal und Regie für Tagungen und Corporate-Events |
+| *Houses of Worship* | Altarraum/Bühne und Technikempore für Gottesdienste |
+
+Unter *Eigene Vorlagen* stehen die Vorlagen, die Sie selbst gespeichert haben. Sie liegen im lokalen Speicher dieser App auf diesem Rechner, nicht in der Projektdatei.
+
+**Eine Vorlage laden**
+
+1. Klicken Sie auf *Verwenden*. Enthält der aktuelle Plan Inhalt, fragt *Aktuelles Projekt verwerfen?* nach. *Vorlage laden* bestätigt.
+
+   ![Rückfrage vor dem Laden](bilder/de/datei-import-61-vorlagen-verwenden-rueckfrage.jpg)
+
+2. Tragen Sie den Namen des neuen Projekts ein. Vorbelegt ist der Name der Vorlage.
+
+   ![Name des neuen Projekts](bilder/de/datei-import-62-vorlagen-verwenden-name.jpg)
+
+3. *Vorlage geladen* meldet das neue Projekt. Es ist ungespeichert und hat noch keinen Dateipfad.
+
+   ![Meldung Vorlage geladen](bilder/de/datei-import-63-vorlagen-verwenden-geladen.jpg)
+
+Bringt eine Haus-Vorlage Antworten für ein anderes Haus mit, als das aktuelle Projekt trägt, fragt vor dem Namen *Antworten aus einem anderen Haus* nach. *Trotzdem laden* führt fort.
+
+**Das aktuelle Projekt als Vorlage speichern**
+
+*Aktuelles Projekt als Vorlage* fragt nach dem Namen der Vorlage; vorbelegt ist der Projektname.
+
+![Name der Vorlage](bilder/de/datei-import-57-vorlagen-eigene-speichern-name.jpg)
+
+Hängen am Projekt ortsgebundene Angaben, also Antworten der Haus-IT oder die Adresse, fragt *Vorlage an dieses Haus binden?* nach. *Neutral (nur die Form)* lässt sie weg. *Für dieses Haus* nimmt sie mit und merkt sich, für welches Haus sie gelten. Ohne ortsgebundene Angaben entfällt die Frage.
+
+![Rückfrage Haus-Vorlage](bilder/de/datei-import-56-vorlagen-haus-frage.jpg)
+
+*Als Vorlage gespeichert* bestätigt das Speichern.
+
+![Meldung Als Vorlage gespeichert](bilder/de/datei-import-58-vorlagen-eigene-gespeichert.jpg)
+
+Die Vorlage steht danach unter *Eigene Vorlagen*. Eine Haus-Vorlage zeigt *Haus-Vorlage* mit dem Haus und der Zahl der Antworten, eine aus dem As-Built gebildete zeigt *Grundlage*. Das Papierkorb-Symbol an der Karte löscht die Vorlage nach einer Rückfrage.
+
+![Eigene Vorlagen](bilder/de/datei-import-59-vorlagen-eigene-liste.jpg)
+
+![Löschen-Rückfrage](bilder/de/datei-import-60-vorlagen-eigene-loeschen-frage.jpg)
+
+**As-Built als Vorlage**
+
+*As-Built als Vorlage* nimmt nicht den aktuellen Plan, sondern den als „wie gebaut" festgeschriebenen Stand. Die Schaltfläche bleibt immer aktiv; der Hinweis am Knopf nennt den Unterschied. Zuerst fragt der Dialog nach dem Namen der Vorlage.
+
+![Name der Vorlage aus dem As-Built](bilder/de/datei-import-03-vorlagen-as-built-frage.jpg)
+
+Ist nichts als As-Built festgeschrieben, lehnt *Kein As-Built festgeschrieben* ab: Schreiben Sie zuerst eine As-Built-Revision fest, sonst wäre die Vorlage der Plan von vor dem Aufbau unter anderem Namen. Die Revisionen beschreibt das Kapitel *Werkzeuge: Bauen*. Mit festgeschriebenem As-Built meldet der Dialog *Vorlage … aus dem As-Built … erstellt*.
+
+![Ablehnung ohne As-Built](bilder/de/datei-import-04-vorlagen-as-built-abgelehnt.jpg)
 
 ### Öffnen
 
-*Datei → Öffnen…*
+*Datei → Öffnen…* (`Strg+O`) öffnet den Dateidialog des Betriebssystems. Er zeigt Dateien mit den Endungen `.cableplan`, `.json` und `.cpviewer`. Die gewählte Datei ersetzt den aktuellen Plan im Fenster.
 
-Öffnet einen Datei-Dialog des Betriebssystems. Es werden Dateien mit den Endungen `.cableplan`, `.json` oder (beim Mergen von Anmerkungen) `.cpviewer` gelesen. Die ausgewählte Datei wird im aktiven Fenster geladen.
+Die App prüft die Datei, bevor sie sie lädt. Gültiges JSON, das keine Geräte- und Kabelliste enthält, lehnt sie ab. *Diese Datei ist kein LZ-Cable-Planner-Projekt* meldet das; der geöffnete Plan bleibt unverändert.
 
-Tastatur: `Strg+O`
+![Meldung Kein Projekt](bilder/de/datei-import-05-oeffnen-kein-plan.jpg)
 
-### Speichern
+Eine `.cpviewer`-Datei, oder ein Projekt mit dem Modus *viewer*, öffnet die App als Prüfdatei. Zuerst fragt *Viewer-Datei — Name eingeben* nach Ihrem Namen. Er wird an jede Anmerkung gehängt, die Sie in dieser Sitzung anlegen.
 
-*Datei → Speichern*
+![Namensabfrage der Viewer-Datei](bilder/de/datei-import-06-oeffnen-viewer-name.jpg)
 
-Speichert das aktive Projekt unter seinem aktuellen Namen und Pfad. War das Projekt noch nie gespeichert, öffnet sich ein „Speichern unter"-Dialog. Die Datei trägt die Endung `.cableplan` und ist ein JSON-Dokument, das alle Projekt-Daten enthält: Geräte, Kabel, Einstellungen, Metadaten.
+Ohne Namen lädt die App die Datei nicht. *Name fehlt* sagt: ohne Namen können keine Anmerkungen gemacht werden. Wie Sie Viewer-Dateien erzeugen und Anmerkungen zurückholen, beschreibt das Kapitel *Exportieren und Drucken*.
 
-Tastatur: `Strg+S`
+![Meldung Name fehlt](bilder/de/datei-import-07-oeffnen-viewer-name-leer.jpg)
 
-Bestandteile der `.cableplan`-Datei:
-- Projektmetadaten (Name, Ersteller, Änderungsdatum)
-- Alle Geräte und ihre Positionen
-- Alle Kabel und deren Verbindungen
-- Kategorien und benutzerdefinierte Geräte-Vorlagen
-- Drucksettings und Rahmen-Anordnung
-- Fotoanhänge (sofern vorhanden; ab etwa 40 MB wird eine `.cableplan` unhandlich zum Versand per E-Mail)
+Trägt das geöffnete Projekt den Namen *Untitled Project* oder gar keinen, übernimmt die App den Dateinamen als Projektnamen.
 
-**Automatische Sicherungskopie:** Die App speichert regelmäßig automatisch und behält eine `.bak`-Datei neben der aktuellen Projektdatei. Dreht sich das Speichersymbol in der Statusleiste, wird gerade eine Kopie geschrieben.
+### Speichern und Speichern unter
 
-### Speichern unter
+*Datei → Speichern* (`Strg+S`) schreibt das Projekt in seine Datei. Hat das Projekt noch keinen Dateipfad, öffnet sich zuerst der Dialog *Speichern unter*. Als Endung hängt die App `.cableplan` an, wenn Sie keine `.cableplan` oder `.json` angeben.
 
-*Datei → Speichern unter…*
+*Datei → Speichern unter…* (`Strg+Umschalt+S`) schreibt das Projekt unter einem neuen Namen oder Pfad. Das neue Projekt ist danach das aktive; die Datei davor bleibt unverändert. Der Dateiname wird zum neuen Projektnamen.
 
-Speichert das aktive Projekt unter einem neuen Namen oder an einem anderen Pfad. Die Originalversion bleibt ungeändert; die neue Datei wird als aktives Projekt geladen.
+Jede Schreibung ist atomar. Die App schreibt zuerst eine temporäre Datei, benennt die bisherige Datei in `<name>.cableplan.bak` um und setzt dann die temporäre Datei an ihre Stelle. Nach dem zweiten Speichern liegt neben der Projektdatei darum die `.bak`-Datei mit dem Stand davor. Ein Abbruch mitten im Schreiben zerstört weder die alte noch die neue Datei.
 
-Tastatur: `Strg+Umschalt+S`
+### Autosave und Statusleiste
+
+Unabhängig vom Speichern in eine Datei sichert die App den offenen Plan fortlaufend im lokalen Speicher des Programms. Nach einer Änderung wartet sie kurz, bevor sie schreibt; Standard sind 400 ms. Das Intervall steht unter *Einstellungen → Erweitert* im Feld *Autosave-Intervall (ms)*. Beim nächsten Start lädt die App diese Sicherung wieder, wenn sie gültig ist.
+
+![Einstellungen Erweitert mit dem Autosave-Intervall](bilder/de/datei-import-55-einstellungen-autosave.jpg)
+
+Der lokale Speicher fasst nur etwa 5 MB. Wird der Plan größer, lehnt der Speicher die Sicherung ab. Die Statusleiste unten zeigt dann *Keine Sicherungskopie*. Ein Hinhalten mit dem Mauszeiger nennt die Größe des Plans. Am Plan selbst fehlt nichts; speichern Sie in eine Datei. Sobald eine Sicherung wieder gelingt, verschwindet die Anzeige.
+
+![Statusleiste im Normalzustand](bilder/de/datei-import-53-statusleiste-normal.jpg)
+
+![Statusleiste mit der Anzeige Keine Sicherungskopie](bilder/de/datei-import-54-statusleiste-ohne-sicherungskopie.jpg)
+
+### Das Dateiformat `.cableplan`
+
+Eine `.cableplan`-Datei ist ein JSON-Dokument. Die App schreibt es mit zwei Leerzeichen Einrückung. Die obersten Felder sind: `metadata` (Name, Beschreibung, Zeitstempel, Standardwerte, `projectId`), `equipment`, `cables`, `locations`, `canvasState`, `floors`, `revisions`, `changelog`, `sourceIdentities`, `tallyPositions`, `patternChecks`, `hubSwitches`, `cableStock`, `ledPanelTypes`, `ledWalls`, `fotos` und weitere für Normen, Berichtsvorlagen, Adressebenen und Ausspielziele. Neue Felder bekommen beim Laden einen Vorgabewert, auch in älteren Dateien. Fotos liegen in der Datei; mit vielen Fotos wird sie entsprechend groß.
+
+Passwörter und Schlüssel externer Dienste (Rentman, NetBox, Gerätebibliothek, Stream-Keys) stehen nicht in der Datei, sondern im Schlüsselbund des Betriebssystems.
 
 ### Import yEd / GraphML
 
-*Datei → Import yEd / GraphML…*
+*Datei → yEd / GraphML importieren…* liest ein Diagramm aus yEd oder eine andere GraphML-Datei. Aus Knoten werden Geräte, aus Anschlusszellen Ports und aus Kanten Kabel. Der Dialog zeigt erst eine Vorschau; in den Plan geht nichts, bevor Sie den Import auslösen.
 
-Importiert Verkabelungsentwürfe aus yEd (Grapheneditor der y.Works) oder beliebigen GraphML-Dateien. Der Dialog lädt eine `.graphml`-Datei, analysiert sie und zeigt eine Vorschau mit drei Reitern:
+![Dialog ohne gewählte Datei](bilder/de/datei-import-08-graphml-dialog-leer.jpg)
 
-![GraphML-Import-Dialog](bilder/de/datei-import-graphml.jpg)
+*Datei auswählen…* öffnet den Dateidialog. Der Parser braucht etwa 250 ms je MB. Danach zeigt der Kopf des Dialogs den Dateinamen, die Zahl der Nodes und Edges und die Zähler *Geräte*, *Kabel*, *Übersprungen* und *Edges ohne Ziel*. *Geräte: 3/3* heißt: drei von drei Geräten sind zum Import gewählt. *Andere Datei* kehrt zur Dateiwahl zurück.
 
-**Reiter 1: Geräte** — Listet alle erkannten Knoten auf. Die App versucht, Knotennamen gegen die Gerätebibliothek abzugleichen (HIGH = sicher erkannt, MED = möglicherweise, LOW = Lücke). Die Spalten sind:
+![Vorschau mit der yEd-Zeichnung](bilder/de/datei-import-09-graphml-vorschau-yed.jpg)
 
-| Spalte | Wirkung |
+Der Reiter *yEd-Vorschau* zeigt die gelesene Zeichnung. Das Mausrad zoomt, Ziehen verschiebt. Der Reiter *Geräte* listet die erkannten Geräte.
+
+![Reiter Geräte](bilder/de/datei-import-10-graphml-reiter-geraete.jpg)
+
+| Spalte | Bedeutung |
 |---|---|
-| ☐ (Kontrollkästchen) | Kontrollkästchen zum Auswahl/Abwahl von Geräten. Markiert: wird importiert |
-| Name | Der Knotenname aus der yEd-Datei; kann manuell umbenannt werden |
-| Kategorie | Die erkannte Gerätekategorie (z. B. Camera, Mixer); kann überschrieben werden |
-| Vertrautheit | Farbkodierte Erkennungssicherheit (HIGH/MED/LOW) |
+| Kontrollkästchen | Gerät importieren oder auslassen |
+| *Name* | Name aus dem Diagramm; im Feld änderbar |
+| *Kategorie* | erkannte Kategorie; im Feld änderbar |
+| *IP* | die im Diagramm gefundene IP-Adresse |
+| *In/Out* | Zahl der erkannten Eingänge und Ausgänge |
+| *Status* | Erkennungssicherheit: *HIGH*, wenn Name und mindestens ein Port erkannt sind, *MED*, wenn der Name erkannt ist, aber kein Port, *LOW*, wenn sich kein Name ermitteln ließ |
 
-Funktionen:
-- Einzelne Zeile anklicken und editieren, um Namen oder Kategorie zu ändern
-- Mehrere Zeilen markieren; dann über die Dropdown-Liste oben eine Kategorie stapelweise zuordnen
-- Der grüne Button **Alle auswählen** markiert alle Geräte; **Keine** demarkiert alle
+Ein abgewähltes Gerät erscheint grau. Seine Kabel übernimmt der Import nicht.
 
-**Reiter 2: Kabel** — Listet alle erkannten Verbindungen (Kanten zwischen Knoten).
+![Gerät abgewählt](bilder/de/datei-import-11-graphml-geraet-abgewaehlt.jpg)
 
-| Spalte | Wirkung |
-|---|---|
-| ☐ (Kontrollkästchen) | Kontrollkästchen zum Auswahl/Abwahl von Kabeln |
-| Von | Quell-Gerätename |
-| Port | Quellenport (oder leer, wenn nicht spezifiziert) |
-| Zu | Ziel-Gerätename |
-| Port | Zielport (oder leer) |
+Name und Kategorie lassen sich vor dem Import ändern.
 
-Funktionen:
-- Jedes Kabel kann einzeln ein- oder ausgeschlossen werden
-- Gleiches Stapel-Verfahren wie bei Geräten (mehrere Zeilen, dann Aktion)
+![Name und Kategorie geändert](bilder/de/datei-import-12-graphml-geraet-umbenannt.jpg)
 
-**Reiter 3: Übersprungen** — Zeigt alle Knoten oder Kanten, die nicht importiert werden können (z. B. Beschriftungen, reine Strukturknoten, nicht zugeordnete Kategorien). Die Liste dient der Fehlersuche: Was wurde ausgelassen und warum?
+Der Reiter *Kabel* zeigt für jede Kante *Quelle*, *Ziel*, *Typ*, *Standard* und *Länge*. Den Typ leitet die App aus der Beschriftung ab. Fehlt eine Länge, setzt der Import 1 m. Knickpunkte der Linien aus yEd übernimmt der Import als Wegpunkte der Kabel.
 
-**Optionen:**
-- **Anfügen** (Standard) — Die importierten Geräte und Kabel werden zum bestehenden Projekt hinzugefügt
-- **Ersetzen** — Das gesamte Projekt wird durch die Import-Daten überschrieben
+![Reiter Kabel](bilder/de/datei-import-13-graphml-reiter-kabel.jpg)
 
-**Besonderheiten:**
-- Knotenpositionen aus yEd werden übernommen (soft mapping auf das Cable-Planner-Koordinatensystem)
-- Unbekannte Kategorien werden mit "unklar" gekennzeichnet und können manuell korrigiert werden
-- Verbindungen ohne Geräte-Zuordnung werden als Fehler angezeigt
+![Kabel abgewählt](bilder/de/datei-import-14-graphml-kabel-abgewaehlt.jpg)
+
+Das Feld *Filter: Name / IP / Kategorie / Kabeltyp* oben rechts blendet nicht passende Zeilen aus.
+
+![Filter auf HDMI](bilder/de/datei-import-15-graphml-filter.jpg)
+
+Der Reiter *Übersprungen* nennt, was nicht importiert wird. *Nodes übersprungen* führt Knoten wie Legenden und Zierformen auf, mit dem Grund. *Edges ohne aufgelöste Ports* führt Kanten auf, deren Enden sich keinem Anschluss zuordnen ließen.
+
+![Reiter Übersprungen](bilder/de/datei-import-16-graphml-reiter-uebersprungen.jpg)
+
+**Ziel und Modus**
+
+*Ziel* bestimmt, wohin der Import schreibt.
+
+- *Canvas* platziert die Geräte samt Kabeln im Plan.
+- *Library* legt die Geräte nur als wiederverwendbare Vorlagen in der lokalen Bibliothek ab. Kabel und Canvas-Platzierung entfallen.
+
+![Ziel Library mit Hinweis](bilder/de/datei-import-17-graphml-ziel-bibliothek.jpg)
+
+Bei *Canvas* gilt zusätzlich der *Modus*. *An Projekt anhängen* fügt die Geräte und Kabel zum Plan hinzu. *GraphML-Import ersetzen* ersetzt nur Geräte, die ein früherer GraphML-Import angelegt hat; von Hand angelegte Geräte bleiben unberührt.
+
+![Modus GraphML-Import ersetzen](bilder/de/datei-import-18-graphml-ziel-canvas-ersetzen.jpg)
+
+Der Knopf unten rechts nennt, was passiert, zum Beispiel *3 Geräte & 2 Kabel auf Canvas importieren* oder *2 Geräte in Library übernehmen*. Der Import auf den Canvas ist ein einziger Schritt für *Rückgängig*. Danach wählt die App das erste neue Gerät aus und zeigt den Ausschnitt mit den importierten Geräten.
+
+![Plan nach dem Import](bilder/de/datei-import-20-graphml-import-ergebnis.jpg)
+
+Beim Import in die Library meldet *In die Library übernommen*, wie viele Geräte neu angelegt wurden und welche Namen es schon gab. Vorhandene Vorlagen überschreibt der Import nie.
+
+![Meldung nach dem Import in die Library](bilder/de/datei-import-21-graphml-bibliothek-ergebnis.jpg)
+
+Beim zweiten Durchlauf mit derselben Datei legt der Import nichts an und nennt die vorhandenen Namen.
+
+![Zweiter Import in die Library](bilder/de/datei-import-22-graphml-bibliothek-zweites-mal.jpg)
+
+Klicken Sie neben den Dialog auf den Hintergrund, fragt *Import verwerfen?* nach: Was hier noch nicht übernommen wurde, geht verloren. *Weiter bearbeiten* kehrt zurück, *Verwerfen* schließt. Das Kreuz oben rechts schließt den Dialog ohne Rückfrage.
+
+![Rückfrage Import verwerfen](bilder/de/datei-import-19-graphml-hintergrund-rueckfrage.jpg)
+
+Eine Datei, die kein gültiges XML ist, zeigt *Import fehlgeschlagen* mit dem Dateinamen und der Meldung des Parsers.
+
+![Fehlermeldung bei ungültiger Datei](bilder/de/datei-import-23-graphml-datei-ohne-inhalt.jpg)
 
 ### Import MultiCam-Kameras
 
-*Datei → Import MultiCam cameras…*
+*Datei → MultiCam-Kameras importieren…* öffnet direkt den Dateidialog; einen eigenen Dialog gibt es nicht. Gelesen wird die Kameraliste (`camera-list`, Version 1 bis 3), die der MultiCam-Planer exportiert. Aus jedem Eintrag wird ein Gerät der Kategorie *Kameras*.
 
-Importiert Kameradefintionen aus einer MultiCam-Kameraliste. Die Datei wird über einen Datei-Dialog des Betriebssystems ausgewählt. Das Format ist Text-basiert; die App prüft die Struktur und fügt erkannte Kameras zur Gerätebibliothek hinzu.
+Passt das Modell eindeutig zu einem Katalogeintrag, erbt die Kamera dessen Anschlüsse. Passt es nicht eindeutig, bleibt sie ohne Ports und gilt als „Ports unbekannt". Die App erfindet keine Anschlüsse; der Plan-Check verlangt dann die Datenblattwerte.
 
-Der Dialog öffnet sich nicht — stattdessen wird direkt der Datei-Dialog angezeigt (verstecktes `<input type="file"`). Nach Dateiauswahl wird die Liste importiert und eine Bestätigung angezeigt.
+Eine Meldung nennt das Ergebnis: *MultiCam-Kameras: 2 neu, 0 aktualisiert, 0 unverändert.*
+
+![Meldung nach dem ersten Import](bilder/de/datei-import-30-multicam-erster-import.jpg)
+
+Ein weiterer Import ist ein Abgleich, kein Anhängen. Die App erkennt Kameras an der Herkunft aus dem MultiCam-Plan wieder. Aus der Liste übernimmt sie Name, Optik und, ab Version 3, die PTZ-Presets. Lage, Ports und Kabel bleiben, wie Sie sie gesetzt haben. Kameras, die im MultiCam-Plan nicht mehr stehen, markiert die App und löscht sie nicht, weil Kabel daran hängen können. Hat sich das Modell geändert, bleiben Ports und Kabel erhalten; den Körper tauschen Sie über *Anderes Gerät wählen…* in den Eigenschaften.
+
+![Meldung nach dem Abgleich](bilder/de/datei-import-31-multicam-zweiter-import.jpg)
+
+Eine Datei, die keine gültige Kameraliste ist, meldet *Kamera-Import fehlgeschlagen — keine gültige MultiCam-Kameraliste.*
+
+![Fehlermeldung](bilder/de/datei-import-32-multicam-fehler.jpg)
 
 ### Import Equipment aus CSV
 
-*Datei → Import Equipment aus CSV…*
+*Datei → Equipment aus CSV importieren…* legt Gerätevorlagen in der lokalen Bibliothek an. Es entstehen nur Vorlagen; auf den Canvas kommt nichts.
 
-Importiert Geräte-Kataloge aus einer CSV-Datei (Comma-Separated Values). Das Format ist flexibel: die Kopfzeile (Name, Kategorie, Leistung, Seriennummer, …) wird automatisch erkannt. Der Dialog unterstützt mehrsprachige Spaltennamen (DE/EN-Aliase).
+![Dialog ohne Inhalt](bilder/de/datei-import-24-csv-dialog-leer.jpg)
 
-![CSV-Import-Dialog](bilder/de/datei-import-csv.jpg)
+Sie fügen den CSV-Text in das Feld ein oder wählen mit *CSV-Datei wählen…* eine Datei. Die erste Zeile enthält die Spaltenüberschriften. Als Trenner gilt Semikolon oder Komma, je nachdem, was in der Kopfzeile häufiger vorkommt. Anführungszeichen und eine BOM am Dateianfang liest die App.
 
-**Ablauf:**
+![Eingefügter CSV-Text mit der Vorschau](bilder/de/datei-import-25-csv-eingefuegt.jpg)
 
-1. **Datei laden** — Klick auf *CSV-Datei wählen…* öffnet den Betriebssystem-Datei-Dialog
-2. **CSV-Text eingeben/anpassen** — Der erkannte Text wird im Textbereich gezeigt und kann manuell editiert werden
-3. **Vorschau** — Alle erkannten Spalten und deren Inhalte werden unten angezeigt; bekannte Spalten sind grün gekennzeichnet
-4. **Stille Verluste sichtbar** — Die App zählt und zeigt:
-   - Unbekannte Spalten (ignoriert beim Import)
-   - Zeilen ohne Namen (übersprungen)
-   - Doppelnamen (nur die erste Zeile wird importiert)
-5. **Importieren** — Der grüne Button *0 importieren* zeigt die Zahl der neuen Geräte; ein Klick committet den Import
+Die App ordnet die Überschriften einem Feld zu. Verglichen wird der ganze Text in Kleinschrift, nicht ein Teilstück.
 
-**Spalten-Aliase:**
+| Feld | erkannte Überschriften |
+|---|---|
+| Name | `name`, `gerät`, `geraet`, `device`, `bezeichnung`, `artikel` |
+| Kategorie | `kategorie`, `category`, `typ`, `type`, `gruppe` |
+| Leistung (W) | `watt`, `watts`, `leistung`, `power`, `w` |
+| Gewicht (kg) | `gewicht`, `weight`, `kg` |
+| Seriennummer | `seriennummer`, `serial`, `s/n`, `sn` |
+| Asset-Tag | `asset-tag`, `asset tag`, `assettag`, `asset_tag`, `inventarnummer`, `inventar-nr`, `inventar-nr.` |
+| Interne Nummer | `interne nummer`, `interne nr`, `interne nr.`, `internal number`, `internal no`, `internal no.`, `hausnummer` |
+| IP | `ip`, `ip-adresse`, `ipaddress`, `ip address`, `ip adresse` |
+| Höheneinheiten | `he`, `rackunits`, `ru`, `höheneinheiten`, `hoeheneinheiten` |
+| Untertitel | `untertitel`, `subtitle`, `hersteller`, `manufacturer`, `marke`, `brand` |
 
-| Deutsch | English | Wirkung |
-|---|---|---|
-| Name | Name | Gerätename (Pflicht) |
-| Kategorie | Category | Gerätekategorie (z. B. Camera) |
-| Leistung | Power | Stromaufnahme in Watt |
-| Gewicht | Weight | Gewicht für Lastberechnung |
-| Seriennummer | Serial number | Eindeutige Geräte-ID |
+Ein Gerät mit Höheneinheiten gilt als Rack-Gerät. Fehlt die Kategorie, setzt die App *Importiert*. Fehlt die Namensspalte, gilt die erste Spalte als Name.
 
-Die App merkt sich die Spalten-Zuordnung für nachfolgende CSV-Importe.
+Der Kasten *Was mit dem Rest passiert* legt offen, was nicht als Feld ankommt:
+
+- Spalten ohne Zuordnung wandern in die Notizen des Geräts, als Zeilen der Form `Überschrift: Wert`. Leere Zellen entfallen.
+- Eine zweite Spalte auf dasselbe Feld verliert die Zuordnung: die erste gewinnt, die zweite wird zur Notiz.
+- Zeilen ohne Namen werden übersprungen; der Kasten nennt ihre Nummern.
+- Namen, die es in der Bibliothek schon gibt, bleiben unverändert. Das gilt auch für Namen, die in der Datei doppelt vorkommen: nur die erste Zeile zählt.
+
+Der Knopf *2 importieren* nennt die Zahl der neuen Vorlagen. Danach meldet *CSV importiert*, wie viele Geräte neu angelegt wurden, wie viele Namen schon existierten und wie viele Zeilen ohne Namen übersprungen wurden.
+
+![Meldung CSV importiert](bilder/de/datei-import-26-csv-import-ergebnis.jpg)
+
+![Neue Vorlagen in der Bibliothek](bilder/de/datei-import-27-csv-in-bibliothek.jpg)
+
+Wiederholen Sie den Import mit denselben Namen, bleiben die Vorlagen unverändert, und der Dialog führt die vorhandenen Namen auf.
+
+![Zweiter Import mit vorhandenen Namen](bilder/de/datei-import-28-csv-zweiter-import-vorhanden.jpg)
+
+Die Datei kann auch über *CSV-Datei wählen…* kommen; der Inhalt landet im selben Feld.
+
+![Dialog nach der Dateiwahl](bilder/de/datei-import-29-csv-datei-gewaehlt.jpg)
 
 ### Rentman-Import
 
-*Datei → Rentman-Import…* (nur wenn die Rentman-Integration aktiviert ist)
+*Datei → Rentman-Import…* lädt die Geräte eines Rentman-Projekts in die Bibliothek. Der Import legt Vorlagen an, platziert aber nichts auf dem Canvas.
 
-Verbindet sich mit dem Rentman-Mietmanagement-System und lädt Geräte aus der Rentman-Klassifizierung als Gerätebibliothek in LZ Cable Planner. Der Dialog durchläuft mehrere Schritte:
+**Einrichten.** Schalten Sie unter *Einstellungen → Integrationen* die *Rentman-Integration aktivieren* ein. Auf der Karte *Rentman* tragen Sie den API-Token ein und speichern ihn. Er liegt im Schlüsselbund des Betriebssystems.
 
-**Schritte im Dialog:**
+**Projekt wählen.** *Projekte laden* ruft die Projekte des Kontos ab. Die Liste zeigt Nummer, Name, Zeitraum und Status; *Sortierung* ordnet nach Nummer oder Datum, das Suchfeld filtert nach Name, Nummer oder Status.
 
-1. **Authentifizierung** — Gibt den Rentman-API-Token ein (gespeichert im OS-Credential-Store)
-2. **Projektauswahl** — Listet alle Rentman-Projekte auf; der Nutzer wählt eines
-3. **Kategorien-Zuordnung** — Rentman-Geräteklassen werden auf Cable-Planner-Kategorien abgebildet
-4. **Vorschau** — Zeigt alle zu importierenden Geräte
-5. **Import** — Bestätigung und Durchführung
+![Dialog mit der Projektliste](bilder/de/datei-import-67-rentman-import-offen.jpg)
 
-Die Integration wird in den *Einstellungen → Integrationen* freigeschaltet. Der Workflow ist non-destruktiv: bestehende Geräte werden nicht überschrieben.
+![Projekte nach der Suche](bilder/de/datei-import-68-rentman-suche.jpg)
+
+Ein Klick auf ein Projekt lädt dessen Equipment. Der Kopf zeigt das Projekt; *ändern* kehrt zur Liste zurück, *Neu laden & Abgleichen* ruft die Stückzahlen neu ab.
+
+![Projekt gewählt](bilder/de/datei-import-69-rentman-projekt-gewaehlt.jpg)
+
+Der Kasten *Plan gegen Reservierung* vergleicht den Plan mit der Rentman-Reservierung: Geräte, die nur im Plan stehen, nur reserviert sind oder deren Menge abweicht. Zeilen ohne Gerätecharakter (Kommentare, Set-Inhalte, gestrichene) zählt er nicht. *CSV* speichert den Vergleich.
+
+**Auswahl.** Die Liste führt die Geräte gruppiert nach Kategorie. Neben jeder Zeile stehen die Stückzahl im Rentman-Projekt und die Auswahl *Verknüpfen…*, die ein Rentman-Gerät mit einem vorhandenen lokalen Gerät verbindet. Abzeichen zeigen, was die App zum Gerät weiß:
+
+| Abzeichen | Bedeutung |
+|---|---|
+| *⊕ Katalog* | Treffer im eingebauten Katalog; der Import legt die Vorlage daraus an |
+| *verknüpft* | schon per Rentman-ID mit einer lokalen Vorlage verbunden; ein erneuter Import ändert nur Kategorie und Projektverknüpfung, die Ports bleiben |
+| *schon in Lib* | lokale Vorlage mit demselben Namen, aber ohne Rentman-ID; der Import fragt dann nach |
+
+*Alle auswählen* und *Alle abwählen* setzen alle Häkchen. Kombinationen erscheinen als *Physische Kombi*, *Virtuelle Kombi* oder *Set*. Eine physische Kombination ist eine Bestandseinheit und wird als ein Gerät übernommen. *+ als Rack* übernimmt sie als Rack, *+ nur Hauptgerät* lässt das Zubehör aus. *Alle Sets ausklappen* zeigt die Inhalte.
+
+![Alle ausgewählt](bilder/de/datei-import-70-rentman-alle-auswaehlen.jpg)
+
+![Sets ausgeklappt](bilder/de/datei-import-71-rentman-sets-aufgeklappt.jpg)
+
+**Kabelmengen.** Der Block *Kabelmengen aus Rentman* fasst die Kabelzeilen nach Typ und Länge zusammen. Er lässt sich öffnen. Pro Typ stehen ein Häkchen, die Länge, eine änderbare Menge und die Zahl der Rentman-Einträge.
+
+![Kabelmengen geöffnet](bilder/de/datei-import-72-rentman-kabelmengen.jpg)
+
+*Kabelmengen übernehmen* speichert die gewählten Typen mit ihren Mengen als Kabelplan im Projekt und verknüpft das Projekt mit dem Rentman-Projekt. Das geht auch ohne Geräteimport. Die Meldung lautet *2 Kabeltyp(en) als Plan übernommen.* Mit *Kabel an Rentman senden…* im Datei-Menü gelangen diese Mengen später zurück; das beschreibt das Kapitel *Exportieren und Drucken*.
+
+![Kabelmengen übernommen](bilder/de/datei-import-73-rentman-kabel-uebernommen.jpg)
+
+**Übernehmen.** *Zur Library hinzufügen (n)* nennt die Zahl der gewählten Geräte.
+
+![Auswahl für die Bibliothek](bilder/de/datei-import-74-rentman-auswahl.jpg)
+
+Danach öffnet *Kategorie-Zuordnung vor Import*. Jedem Gerät ordnen Sie eine lokale Kategorie zu. Passende Kategorien erkennt und merkt sich die App; fehlende legen Sie mit *+ Neu* an. *Zurück* behält die Auswahl.
+
+![Kategorie-Zuordnung](bilder/de/datei-import-75-rentman-kategorie-zuordnung.jpg)
+
+*Weiter* ohne vollständige Zuordnung meldet *Kategorie fehlt*.
+
+![Meldung Kategorie fehlt](bilder/de/datei-import-76-rentman-weiter.jpg)
+
+Gibt es Geräte schon unter demselben Namen, erscheint pro Gerät ein Konflikt-Dialog. Vorgabe ist *Lokale Version beibehalten (empfohlen)*, damit eigene Port-Belegungen erhalten bleiben. Weitere Aktionen sind *Mit anderem lokalem Gerät verknüpfen*, *Mit Rentman-Version überschreiben*, *Ports mergen* und *Überspringen (nicht importieren)*. *Alle setzen:* wendet *Lokal beibehalten*, *Rentman übernehmen* oder *Überspringen* auf alle Zeilen an. Die Meldung am Ende nennt, wie viele Geräte zur Library hinzugefügt wurden.
 
 ### NetBox-Import
 
-*Datei → NetBox-Import…* (nur wenn die NetBox-Integration aktiviert ist)
+*Datei → NetBox-Import…* liest eine Site oder ein Rack aus NetBox und legt Geräte, Ports und Verbindungen als Kabelplan an.
 
-Lädt eine Netzwerk-Infrastruktur-Inventarbild aus NetBox (IPAM/DCIM-System). Der Dialog ähnelt dem Rentman-Import: Authentifizierung, Inventar-Auswahl, Kategorien-Mapping, Vorschau und Import.
+**Einrichten.** Schalten Sie unter *Einstellungen → Integrationen* die *NetBox-Integration aktivieren* ein. Auf der Karte *NetBox API* tragen Sie die *Instanz-URL* und den *API-Token* ein. Der Token liegt im Schlüsselbund. *Verbindung testen* prüft die Verbindung. Ohne URL zeigt der Dialog *Bitte zuerst unter Einstellungen → Integrationen → NetBox die Instanz-URL und ein API-Token hinterlegen.* Der Knopf *Vorschau erstellen* bleibt gesperrt.
 
-**Besonderheiten:**
-- NetBox-Gerätetypen werden als Kategorien interpretiert
-- Schnittstellenangaben (z. B. „SFP+") werden als Portnamen übernommen
-- Die Integration wird in den *Einstellungen → Integrationen* freigeschaltet
+![Dialog ohne konfigurierte URL](bilder/de/datei-import-33-netbox-ohne-url.jpg)
 
-### Gesamtprojekt exportieren
+**Auswählen.** Unter *Site* wählen Sie die Site, optional unter *Rack (optional)* ein einzelnes Rack. Die Zahl in Klammern ist die Zahl der Geräte. Das Symbol neben der Site lädt die Listen neu. Die Standardwahl *— ganze Site importieren —* nimmt alle Racks.
 
-*Datei → Exportieren Gesamtprojekt (.avplan)…*
+![Auswahl von Site und Rack](bilder/de/datei-import-34-netbox-dialog-auswahl.jpg)
 
-Speichert das Projekt im `.avplan`-Format — ein standortübergreifendes Austauschformat für AV-Planungssoftware. Das Format ist transparent (JSON) und enthält alle Projekt-Daten plus Metadaten für externe Werkzeuge (z. B. av-control-center).
+![Site gewählt](bilder/de/datei-import-35-netbox-standort-gewaehlt.jpg)
 
-Ein Klick öffnet einen Speichern-Dialog; der Standard-Dateiname ist `<Projektname>.avplan`.
+![Rack gewählt](bilder/de/datei-import-36-netbox-rack-gewaehlt.jpg)
 
-### Gesamtprojekt importieren
+Unter *Optionen* stehen drei Schalter:
 
-*Datei → Importieren Gesamtprojekt (.avplan)…*
+- *Nur verkabelte Ports importieren* lässt unbenutzte Ports weg. Empfohlen: ein 48-Port-Switch brächte sonst 48 unbenutzte Ports mit.
+- *Verbindungen importieren* legt die Kabel an.
+- *Rahmen je Rack anlegen* erzeugt für jedes Rack einen Rahmen im Plan.
 
-Lädt ein zuvor exportiertes `.avplan`-Projekt zurück. Das Projekt wird im aktiven Fenster geladen.
+![Optionen ausgeschaltet](bilder/de/datei-import-37-netbox-optionen-aus.jpg)
 
-Ein Klick öffnet einen Öffnen-Dialog; Dateitypen sind `.avplan` und `.json`.
+![Optionen eingeschaltet](bilder/de/datei-import-38-netbox-optionen-ein.jpg)
 
-### Identitäts-Karte exportieren
+**Vorschau.** *Vorschau erstellen* lädt die Daten und rechnet den Abgleich. Vier Zähler stehen oben: *Neue Geräte*, *Neue Verbindungen*, *Neue Ports an Bestand* und *Unverändert*. Darunter nennt die Zeile die Zahlen aus NetBox. *übersprungene Objekte* lässt sich aufklappen und nennt jedes Objekt mit dem Grund; im Beispiel liegt ein Kabelende außerhalb des importierten Bereichs. *Geräte, die angelegt werden* listet Name, Typ und Portzahl.
 
-*Datei → Exportieren Identitäts-Karte (.avsourcemap)…*
+![Vorschau](bilder/de/datei-import-39-netbox-vorschau.jpg)
 
-Die Identitäts-Karte ist eine Zuordnungstabelle zwischen internen Geräte-IDs (wie sie in Quellsystemen — z. B. ATEM-Videohub — referenziert werden) und den Geräteinamen im Cable-Planner-Plan. Die Datei dient dem Abgleich mit Hardware oder anderen Softwaresystemen.
+![Vorschau mit aufgeklappten übersprungenen Objekten](bilder/de/datei-import-40-netbox-vorschau-uebersprungen.jpg)
 
-Ein Klick öffnet einen Speichern-Dialog.
+*Zurück* kehrt zur Auswahl zurück, *In Projekt übernehmen* schreibt.
 
-### Identitäts-Karte importieren
+**Abgleich statt Anhängen.** Der Abgleich fügt immer nur hinzu: vorhandene Geräte und Kabel bleiben mit allen Anpassungen erhalten. Das Projekt merkt sich die Site. Beim nächsten Öffnen zeigt der Dialog *Dieses Projekt ist mit Site „…" verknüpft. Letzter Abgleich: …*.
 
-*Datei → Importieren Identitäts-Karte (.avsourcemap)…*
+![Erneuter Lauf, verknüpftes Projekt](bilder/de/datei-import-41-netbox-zweiter-lauf-verknuepft.jpg)
 
-Lädt eine zuvor exportierte Identitäts-Karte zurück und wendet die Zuordnungen auf die aktuellen Geräte an.
+Im Beispiel ist in NetBox ein Gerät hinzugekommen. Die zweite Vorschau zeigt nur dieses Gerät als neu; die fünf Geräte aus dem ersten Lauf stehen unter *Unverändert*.
 
-Ein Klick öffnet einen Öffnen-Dialog.
+![Vorschau des zweiten Laufs](bilder/de/datei-import-42-netbox-zweiter-lauf-delta.jpg)
+
+### Gesamtprojekt exportieren und importieren (`.avplan`)
+
+*Datei → Gesamtprojekt exportieren (.avplan)…* schreibt das Projekt im Austauschformat `.avplan`. Die Datei ist JSON mit den Feldern `kind` (*avplan*), `formatVersion`, `app`, `appVersion`, `exportedAt`, `venue` und `domains`. Der Cable Planner trägt seinen Teil unter `domains.cabling` ein. Teile anderer Planer (Kameras, Licht, Venue) bewahrt er unverändert. Der Dateiname ist `<Projektname>.avplan`; Zeichen außer Buchstaben, Ziffern, `_` und `-` ersetzt die App durch `_`. Die Datei wird als Download des Programmfensters geschrieben.
+
+Tragen Geräte Benutzername oder Passwort, fragt *Zugangsdaten mitgeben?* nach: Die `.avplan` geht an andere Gewerke. *Ohne Zugangsdaten* entfernt sie; ein Rück-Import in diesen Planer verliert sie dann. *Mitgeben* behält sie, *Abbrechen* bricht den Export ab. Die Frage entfällt, wenn kein Gerät Zugangsdaten trägt.
+
+![Rückfrage zu den Zugangsdaten](bilder/de/datei-import-43-avplan-export-zugangsdaten-frage.jpg)
+
+*Datei → Gesamtprojekt importieren (.avplan)…* lädt eine `.avplan`- oder `.json`-Datei und ersetzt den aktuellen Plan. Kennt die Datei Bereiche, die diese App nicht kennt, etwa von einer neueren Version, fragt *Diese Datei enthält unbekannte Bereiche* je Bereich nach. Zur Wahl stehen *Mitführen (unverändert, bleibt beim Export erhalten)*, *Übernehmen als* in einen freien bekannten Bereich und *Verwerfen*. *Alle mitführen* ist die vorsichtige Vorgabe; schließen Sie den Dialog ohne Wahl, gilt sie ebenfalls.
+
+![Unbekannte Bereiche](bilder/de/datei-import-44-avplan-import-unbekannte-abschnitte.jpg)
+
+![Bereich übernehmen als](bilder/de/datei-import-45-avplan-import-uebernehmen-als.jpg)
+
+Enthält die Datei die Kameraliste des MultiCam-Plans, fragt *Diese Datei enthält die Kameras des MultiCam-Plans. In den Signalplan übernehmen?* nach. Der Text darunter nennt das Abgleichsergebnis wie beim MultiCam-Import. Gefragt wird, weil eine bewusst gelöschte Kamera sonst bei jedem Öffnen zurückkäme.
+
+![Frage zu den Kameras](bilder/de/datei-import-46-avplan-import-kameras-frage.jpg)
+
+Eine Datei ohne gültiges `.avplan`-Format meldet *Import fehlgeschlagen — keine gültige .avplan-Datei.*
+
+![Fehlermeldung](bilder/de/datei-import-47-avplan-import-fehler.jpg)
+
+### Identitäts-Karte (`.avsourcemap`)
+
+Die Identitäts-Karte ist ein kleines, flaches Format für Laufzeit-Programme wie einen Tally-Rechner oder einen UMD-Sender. Sie soll nicht das ganze Projekt lesen müssen, um zu erfahren, dass „Kamera 1" auf Mischer-Eingang 3 liegt. Die Datei trägt `kind` *av-source-map*, `formatVersion`, `app`, `appVersion`, `exportedAt`, die Quellen (`sources`) und die ungeklärten Punkte (`unresolved`). Jeder Wert nennt seine Herkunft: *planned* (aus der Planung), *commanded* (an ein Gerät gesendet) oder *confirmed* (vom Gerät zurückgemeldet). Der Cable Planner schreibt nur *planned*.
+
+*Datei → Identitäts-Karte exportieren (.avsourcemap)…* schreibt `<Projektname>.avsourcemap` auf demselben Weg als Download. Zwei Hinweise erscheinen nach dem Schreiben, wenn sie zutreffen. *Karte geschrieben — mit einer Einschränkung* nennt Rollen mit mehreren Geräten: die Datei trägt die Ziel-Beschriftung nur einmal je Rolle. *Karte geschrieben — ohne Mischer-Eingang* nennt Rollen, die einen Router erreichen, ohne dass der Kreuzpunkt zum Mischer geplant ist; für sie steht keine Eingangsnummer in der Datei.
+
+*Datei → Identitäts-Karte importieren (.avsourcemap)…* liest eine Karte und gleicht sie mit den Quellen des Plans ab. Ein Bericht *Identitäts-Karte importiert* listet das Ergebnis:
+
+| Zeile | Bedeutung |
+|---|---|
+| *Neu angelegt* | Quellen, die der Plan noch nicht kannte |
+| *Ergänzt* | Felder, die im Plan leer waren |
+| *Nicht übernommen* | Felder, in denen Plan und Datei verschiedene Werte tragen; der Plan behält seinen Wert |
+| *Verworfen* | Werte, die die App ablehnt, mit Grund (zum Beispiel eine UMD-Adresse außerhalb des Bereichs 0 bis 126) |
+| *Kein Feld dafür in dieser App* | Angaben, die nur in der Datei bleiben |
+| *Nichts zu tun* | die Karte sagt dasselbe wie der Plan |
+
+![Bericht mit neuen Quellen und einem verworfenen Wert](bilder/de/datei-import-49-karte-import-neu.jpg)
+
+![Bericht mit einem Konflikt](bilder/de/datei-import-50-karte-import-konflikt.jpg)
+
+![Bericht: nichts zu tun](bilder/de/datei-import-51-karte-import-nichts.jpg)
+
+Eine Datei, die keine Identitäts-Karte ist, meldet *Import fehlgeschlagen* mit dem Grund.
+
+![Fehlermeldung](bilder/de/datei-import-52-karte-import-fehler.jpg)
 
 ### Verknüpfte Venue-Planung ansehen
 
-*Datei → Verknüpfte Venue-Planung ansehen…*
+Stammt ein Projekt aus einer `.avplan`, die Raum-, Kamera- oder Lichtdaten eines anderen Planers trägt, steht im Menü *Verknüpfte Venue-Planung ansehen…*. Der Dialog *Verknüpfte Venue-Planung (nur Ansicht)* nennt den Raum, die Zahl der Wände, Personen und Bühnenelemente sowie die Kameras und Lampen. Er ändert nichts.
 
-Wenn das Projekt über das `.avplan`-Format mit einem Venue-Planungsprojekt (z. B. aus light-planner) verknüpft ist, kann dieser Dialog die verknüpfte Datei anzeigen. Diese Funktion dient der Koordination zwischen Kabel- und Venue-Planung.
-
-### Projekt-Dateiformat: `.cableplan`
-
-Die Projektdatei ist ein JSON-Dokument mit der Struktur:
-
-```json
-{
-  "metadata": {
-    "name": "Mein Projekt",
-    "creator": "Max Mustermann",
-    "modified": "2026-09-28T10:00:00Z",
-    "version": "8.1.0"
-  },
-  "equipment": [
-    {"id": "...", "name": "Camera 1", "category": "Camera", "position": {...}},
-    ...
-  ],
-  "cables": [
-    {"id": "...", "from": "...", "to": "...", "type": "SDI"},
-    ...
-  ],
-  "library": [...],
-  "fotos": [...]
-}
-```
-
-Größenmerkmale:
-- Kleine Projekte (< 50 Geräte): 50–200 kB
-- Mittlere Projekte (50–200 Geräte): 200 KB–2 MB
-- Große Projekte (> 200 Geräte) + Fotos: > 5 MB
-
-**Sicherung und Datenverlust-Prävention:**
-
-- Die App speichert alle 30 Sekunden automatisch
-- Neben der `.cableplan` liegt eine `.bak`-Datei (Backup der vorherigen Version)
-- Bei Absturz wird die automatische Sicherung beim nächsten Start wiederhergestellt
-- Backup-Fehler werden in der Statusleiste mit einem Warnsymbol angezeigt
-
-### Sicherungskopie in der Statusleiste
-
-Unten rechts im Fenster zeigt die **Statusleiste** den Sicherungs-Status:
-
-- **Normales Symbol (☑)** — Projekt ist aktuell, letzter Speichern vor < 5 Sekunden
-- **Drehendes Symbol (⟳)** — Sicherungskopie läuft gerade
-- **Warnsymbol (⚠)** — Sicherung fehlgeschlagen (z. B. voller Speicher, Schreibfehler)
-
-Fehlerhafte Sicherungen werden gesammelt und in den Einstellungen unter *Fehlerlog* angezeigt.
-
-Die `.bak`-Datei ist atomar geschrieben: sie wird nie in einem Halb-Zustand auf die Platte fallen, und Stromausfälle während des Speicherns zerstören weder die aktuelle noch die alte Datei.
+![Dialog Verknüpfte Venue-Planung](bilder/de/datei-import-48-venue-dialog.jpg)
 
 ---
 
 ## 7. Exportieren und Drucken
 
-Der Export-Bereich ist die Zentrale für alle Ausgaben: Pläne als PDF/Bild, Patchlisten, Stücklisten, Cloud-Speicherung und spezialisierte Doku für Festinstallationen. Hier entsteht jedes Blatt, das den Plan verlässt.
+Alles, was den Plan als Blatt, Liste oder Datei verlässt, steht im Menü *Datei*. Die Einträge im Überblick:
 
-### Patchliste
+| Eintrag | Ergebnis |
+|---|---|
+| *Patch-Liste…* | jedes Kabel als Zeile; CSV, Excel, Etiketten, Kanallisten |
+| *Festinstallation: Doku & Übergabe…* | Listen und Dokumente für Installateur und Betreiber, QR-Etiketten |
+| *Stage-Plot (SVG)…* und *Stage-Plot hell (SVG)…* | die Bühnenaufsicht als Ein-Seiten-Blatt |
+| *Exportieren & Drucken…* | die Export-Zentrale mit sieben Bereichen |
+| *Cloud & Lese-Link…* | Kopie mit Revisionen und Lese-Links |
+| *Als Viewer-Datei exportieren…* | Prüfdatei für Reviewer |
+| *Anmerkungen aus Viewer-Datei importieren…* | Anmerkungen der Reviewer zurückholen |
+| *Plan-Stände vergleichen…* | Unterschiede zwischen zwei Ständen |
+| *Ausgegebene Dokumente…* | Register der ausgegebenen Blätter |
+| *Plan an Rentman anhängen…*, *Kabel an Rentman senden…* | Rückweg nach Rentman |
 
-*Datei → Werkzeuge → Patchliste…*
+![Das Menü Datei](bilder/de/export-01-datei-menue.jpg)
 
-![Patchlisten-Dialog](bilder/de/export-patchliste-dialog.jpg)
+Die Befehlspalette (`Strg+K`) findet Einträge wie *Patch-Liste…* über ihren Namen.
 
-Tabelle aller Kabel im Plan — eine Zeile je Kabel mit Quell- und Zielgerät, Port, Kabeltyp, Länge und Farbe. Speziell für den Techniker im Feld, der jedes einzelne Kabel legen muss, nicht für Planabstraktionen wie Stücklisten.
+![Befehlspalette mit der Suche Patch](bilder/de/export-02-palette-suche.jpg)
 
-**Spalten:**
-- **Nummer**: Kabelnummer (leer wenn keine vergeben)
-- **Quelle** → **Ziel**: Gerätename und Port
-- **Typ**, **Länge**: Kabelspezifikation
-- **Farbe**: Markierung des Kabels
-- **Multicore**: Bündel-Name (wenn Teil einer Schlange/Snake)
-- **Faser**: Bei Lichtwellenleitern die Faser-Nummer und -Rolle (TX/RX)
-- **Ebene**: Video, Audio, Steuerung, Netzwerk, Strom, Sonstiges
+**Dateinamen.** Dateien, die die App herunterlädt, heißen `JJJJMMTT_<Projektname>_NNN.<Endung>`, bei Listen mit dem Blattnamen dahinter, zum Beispiel `20260519_Demo-Show_007_patchliste.csv`. `NNN` zählt je Tag hoch. Zeichen, die ein Dateisystem nicht verträgt, ersetzt die App durch `_`.
 
-**Filter & Sortierung:**
-- Nach Ebene filtern (z. B. nur Video-Kabel zeigen)
-- Nach Quell-Gerät, Ziel-Gerät, Kabeltyp, Länge oder Farbe sortieren
-- Freitext-Suche über alle Spalten
+**Stempel.** Die Listen der Festinstallation, die Blätter des Unterlagen-Stapels und das Raster-PDF des Plans tragen einen Stempel mit dem Stand des Plans. Daran lässt sich später prüfen, ob ein ausgegebenes Blatt noch zum Plan passt; das Register *Ausgegebene Dokumente* nutzt ihn dafür.
 
-**Export-Formate:**
-- **CSV**: Tabellarisch, zur Bearbeitung in Excel oder als Druckvorlage
-- **Etikettenformat**: CSV für Etikett-Drucker-Software (Generic, Brother, Dymo); enthält Angaben wie Quellport, Zielport und Kabellänge in dem Format, das die Drucker-Software erwartet
-- **PDF Etiketten + QR**: Kleine Sticker pro Kabel mit QR-Code (zur Verfolgung) und gedruckten Angaben; A4 oder Rollen-Format
-- **PDF Patchliste**: Die Tabelle als ein druckbares PDF — eine Seite pro Gerät mit dessen Kabelzuordnungen
+### Patch-Liste
+
+*Datei → Patch-Liste…* zeigt jedes Kabel als eigene Zeile, sortiert für die Reihenfolge beim Stecken.
+
+![Dialog Patch-Liste](bilder/de/export-65-patch-oeffnen.jpg)
+
+Die Spalten sind *Nr.*, *Von Gerät*, *Port*, *Nach Gerät*, *Port*, *Typ*, *Länge (m)* und *Farbe*. Ein Klick auf eine Überschrift sortiert. Hat ein Port eine Inhaltsbezeichnung wie *PGM*, steht sie als Hauptzeile und die Portbezeichnung darunter. Das Geschlecht des Steckers (♂/♀) steht am Port, wo es gesetzt ist. Führt ein Kabel in ein Gerät, das als Wandler markiert ist und nur ein Folgekabel hat, zeigt die Zeile das Endgerät mit dem Zusatz *via* und dem Wandler; das Folgekabel erscheint dann nicht noch einmal. Die Spalte *Faser* erscheint nur, wenn der Plan eine aufgeteilte Buchse (Breakout) enthält.
+
+Das Suchfeld filtert nach Gerät, Port, Typ, Farbe und Notiz.
+
+![Suche in der Patch-Liste](bilder/de/export-66-patch-suche.jpg)
+
+Hat der Plan Kabel mit einem Layer, erscheint daneben die Auswahl *Alle Layer*.
+
+![Filter nach Layer](bilder/de/export-67-patch-ebene-audio.jpg)
+
+![Sortierung nach Länge](bilder/de/export-68-patch-sortierung.jpg)
+
+Rechts neben dem Filter steht die Zahl der gezeigten und aller Kabel, zum Beispiel *12 / 12*. Passt keine Zeile, steht *Keine Kabel passen zum Filter.*
+
+![Leere Treffermenge](bilder/de/export-69-patch-leer.jpg)
+
+**Ausgaben.** Die Fußzeile bietet vier Ausgaben. Alle nehmen die gerade gefilterten Zeilen.
+
+![Fußzeile mit den Ausgaben](bilder/de/export-70-patch-fussleiste.jpg)
+
+- *CSV exportieren* schreibt die Tabelle mit Semikolon als Trenner und UTF-8-BOM für Excel. Sie hat 13 Spalten: *Nr.*, *Von Gerät*, *Von Port*, *Nach Gerät*, *Nach Port*, *Typ*, *Länge (m)*, *Layer*, *Multicore*, *Faser*, *Farbe*, *Kabelname* und *Notizen*; die Port-Spalten tragen die Inhaltsbezeichnung in Klammern und das Steckergeschlecht.
+- *XLSX exportieren* schreibt dieselben 13 Spalten als Excel-Datei mit fetter Kopfzeile.
+- *Etiketten + QR (PDF)* druckt einen A4-Bogen mit zwei Spalten und neun Reihen. Je Kabel entstehen zwei Etiketten, eines je Ende, mit Nummer, Typ, Kabelname, Strecke, Länge, Farbstreifen und einem QR-Code. Der QR-Code trägt Kabelnummer oder -name sowie die Strecke; beide Enden teilen ihn.
+- *Etiketten-CSV* schreibt je Kabelende eine Zeile für Etikettendrucker. Das Format wählen Sie links daneben: *Generisch (CSV)*, *Brother P-touch (TXT)* oder *Dymo (CSV)*. Die Texte sind ASCII-tauglich, das Steckergeschlecht steht als *(M)* oder *(F)*.
+
+![Etiketten als PDF](bilder/de/export-73-patch-etiketten-pdf.jpg)
+
+![Etiketten-CSV, Format Generisch](bilder/de/export-74-patch-etikett-csv-generic.jpg)
+
+![Etiketten-CSV, Format Brother](bilder/de/export-75-patch-etikett-csv-brother.jpg)
+
+![Etiketten-CSV, Format Dymo](bilder/de/export-76-patch-etikett-csv-dymo.jpg)
+
+![CSV der Patch-Liste](bilder/de/export-71-patch-csv.jpg)
+
+![XLSX der Patch-Liste](bilder/de/export-72-patch-xlsx.jpg)
+
+Die Beschriftung von Patchfeldern (Streifen und Etiketten) steht im Kapitel *Werkzeuge: Planen* bei den Analysen.
+
+**Kanalliste.** Enthält der Plan Audiokanäle, erscheinen in der Fußzeile die Auswahl *Sicht auf die Kanalliste* und der Knopf *Kanalliste*. Eine Kanalliste, fünf Sichten, je als CSV:
+
+| Sicht | Für wen |
+|---|---|
+| *Band (Rider)* | Rider der Band |
+| *Haus (Patch)* | Patch am Haus-Eingang |
+| *Bühne (Position)* | Aufstellung auf der Bühne |
+| *Pult (Namen)* | Kanalnamen fürs Pult |
+| *Monitor-Wege* | Wege zu den Monitoren; nur wenn der Plan solche hat |
+| *Haus / Band (wem gehört was)* | stellt beide Hälften nebeneinander: der Stagebox-Eingang gehört dem Haus, das Mikrofon der Band |
+
+Die Monitor-Sicht zeigt Wege, nicht die Mischung; die kennt der Plan nicht.
+
+![Auswahl der Sichten](bilder/de/export-77-kanal-sichten.jpg)
+
+![Sicht Band (Rider)](bilder/de/export-78-kanal-band.jpg)
+
+![Sicht Haus (Patch)](bilder/de/export-79-kanal-venue.jpg)
+
+![Sicht Bühne (Position)](bilder/de/export-80-kanal-stage.jpg)
+
+![Sicht Pult (Namen)](bilder/de/export-81-kanal-console.jpg)
+
+![Sicht Monitor-Wege](bilder/de/export-82-kanal-monitor.jpg)
+
+![Sicht Haus / Band](bilder/de/export-83-kanal-owner.jpg)
+
+Über der Tabelle meldet der Dialog drei Auffälligkeiten an den Kanälen, bevor ein Blatt gedruckt ist: ein Kanal ohne Haus-Port, eine Nummer, die als Name auftritt, und zwei Kanäle auf derselben Buchse.
+
+**Szenendatei des Pults.** *Szene einlesen* liest die Datei, die ein Mischpult schreibt (X32, M32, WING; Endungen `.scn`, `.txt`, `.snap`, `.shw`). Die App liest nur und schreibt nichts zurück ans Pult. Über der Tabelle steht danach *Szenendatei des Pults* mit Format und Zahl der Kanäle, bei nicht lesbaren Zeilen mit deren Zahl. *Zuordnung zum Plan* gleicht die Kanäle *über den Namen* oder *über die Kanalnummer (nur wenn sie stimmt)* mit dem Plan ab.
+
+![Szene eingelesen](bilder/de/export-84-szene-lesen-1.jpg)
+
+![Zuordnung zum Plan](bilder/de/export-85-szene-zuordnung.jpg)
+
+![Zuordnung über die Kanalnummer](bilder/de/export-86-szene-nach-nummer.jpg)
+
+Drei Knöpfe schreiben CSV: *Kanäle* (die gelesenen Kanäle), *Zuordnung* und, ab dem zweiten Einlesen, *Änderungen*. Der erste Import bleibt der Bezugsstand; jeder weitere wird gegen ihn verglichen. So entsteht aus der Probe die Änderungsliste, die sonst nur im Kopf von jemandem steht. Ändert sich nichts, steht dort *Nichts geändert in den Kanalnamen zwischen den beiden Ständen.*
+
+![CSV der Kanäle](bilder/de/export-87-szene-kanaele-csv.jpg)
+
+![CSV der Zuordnung](bilder/de/export-88-szene-zuordnung-csv.jpg)
+
+![Zweiter Stand eingelesen, mit den Änderungen](bilder/de/export-89-szene-lesen-2.jpg)
+
+![CSV der Änderungen](bilder/de/export-90-szene-aenderungen-csv.jpg)
 
 ### Festinstallation: Doku & Übergabe
 
-*Datei → Werkzeuge → Festinstallation: Doku & Übergabe…*
+*Datei → Festinstallation: Doku & Übergabe…* sammelt die Unterlagen, die ein Installateur und ein Betreiber brauchen. Der Dialog hat keine Reiter, sondern Abschnitte von oben nach unten.
 
-Doku-Zentrale für Installateure und Betreiber. Jeder Reiter erzeugt ein eigenständiges CSV- oder PDF-Ausgabedokument für einen Aspekt der Festinstallation.
+![Dialog Festinstallation](bilder/de/export-106-doku-oeffnen.jpg)
 
-Die Reiter:
+**Grundlage dieser Übergabe.** Der Kasten ganz oben sagt, ob die Übergabe den gebauten Stand trägt (*As-Built*) oder den Angebotsstand (*Wie geplant (kein As-Built)*), und nennt dazu die Befunde, etwa *Kein As-Built festgeschrieben* oder *Kein Ort genannt*; ohne Ort lässt sich die Datei nächstes Jahr nicht dem Haus zuordnen, und die Antworten der Haus-IT gelten nirgends. Der Grund steht dabei: Nächstes Jahr wird dieselbe Veranstaltung aus dieser Datei geplant. Trägt sie den Plan von vor dem Aufbau, wird jede Änderung vor Ort neu entdeckt. Schreiben Sie dazu eine As-Built-Revision fest; das Kapitel *Werkzeuge: Bauen* beschreibt die Revisionen.
 
-**Übersicht** — Checkliste zur Installationsvorbereitung:
-- Installer-Listen: Pull-Liste (wer zieht was mit), Termination-Liste (wo werden Stecker aufgelöst), Zeitplan (Reihenfolge der Arbeitsschritte), Kabel-Stückliste (Typ+Länge zusammengefasst)
-- Betriebs-Asset-Register: Geräte-Inventar mit Seriennummern und Lagerort
-- Änderungsprotokoll: Wer hat wann welche Änderung eingetragen; kann geleert werden
+**Bearbeiter.** Das Feld *Bearbeiter (Autor für Änderungsprotokoll & Service)* hält den Namen, der in Protokoll- und Service-Einträgen steht. Er gilt für die ganze App.
 
-**Handover-Paket** — Markdown-Manifest aller Unterlagen mit Versionsstand und QR zum Nachverfolgung:
-- Umfasst automatisch alle Blätter: Installateur-Listen, Technische Doku, Signalwege, …
-- Jedes Blatt trägt seinen Stempel (Revision + Datum)
+![Bearbeiter eingetragen](bilder/de/export-107-doku-bearbeiter.jpg)
 
-**QR & Asset-IDs** — Markierung der Ausrüstung:
-- Auto-Nummern für Geräte und Kabel vergeben (falls noch nicht geschehen)
-- QR-Etikett-PDF erzeugen zum Aufkleben
+**Empfänger und Reserve.** *Empfänger dieses Blattes (Abteilung oder Person)* ist ein Freitext, kein Pflichtfeld. Der Eintrag steht im Register *Ausgegebene Dokumente*; ohne Eintrag steht dort *Empfänger nicht genannt*. *Reserve-Aufschlag für Stückliste (%)* (0 bis 100, Vorgabe 10) schlägt auf die Mengen der Kabel-Stückliste auf.
 
-**Bearbeiter-ID** — Name des Installateurs/Technikers (steht in jedem Protokoll-Eintrag als Autor)
+![Empfänger eingetragen](bilder/de/export-108-doku-empfaenger.jpg)
 
-### Stage Plot
+![Reserve-Aufschlag](bilder/de/export-109-doku-reserve.jpg)
 
-*Datei → Werkzeuge → Stage Plot (SVG)…*
+**Listen und Dokumente.** Jede Karte unter *Listen & Übergabe-Dokumente* erzeugt eine Datei mit dem Stempel des Plans. Ein Klick auf den Titel schreibt die Datei im Grundformat. Eine CSV trägt am Ende ein Spaltenlexikon (*# Spaltenlexikon — was die Spalten oben bedeuten*) und eine Stempelzeile mit Projekt, Zeitpunkt und der Kennung des Stands.
 
-Draufsicht des Plans als **SVG** (Vektor-Grafik): nur die Geräte, keine Kabel, Vogelperspektive auf die Bühne/den Saal. Ideal zum Ausdrucken oder für technische Zeichnungen.
+| Karte | Format | Inhalt |
+|---|---|---|
+| *Pull-/Verlege-Liste* | CSV | je Kabel: Von→Nach, Länge, Trasse, Status |
+| *Termination-Liste* | CSV | je Kabelende: Gerät, Port, Steckverbinder |
+| *Kabel-Schedule (Register)* | CSV | Master-Register aller Kabel |
+| *Kabel-Stückliste + Reserve* | CSV | nach Typ und Länge, mit Reserve-Aufschlag |
+| *Asset-Register* | CSV | Geräte: Asset-Tag, Standort, Serie, Garantie, Service |
+| *Übergabe-Dokument* | Markdown | Betreiber-Übersicht: Umfang, Status, Stückliste, Assets |
+| *Abnahmeprotokoll* | HTML, als PDF druckbar | Umfang, Messergebnisse, Mängel und Restpunkte aus dem Plan, Ergebnis-Kästchen und Unterschriftenblock |
+| *Mängel und Restpunkte* | CSV | Störungen, nicht bestandene Messungen, offene Feld-Meldungen, noch geplante Punkte |
+| *Wartungs- und Prüfplan* | CSV | nächste Fälligkeit je Gerät aus Intervall und letztem Service oder Übergabe-Datum |
+| *Konfigurationsvorgaben* | CSV | je Gerät und Schnittstelle: Adresse, Maske, Gateway, VLAN, Switch-Port, Blenden dazwischen, Web-Oberfläche |
+| *Geräte-Steckbrief* | HTML, als PDF druckbar | eine Karte je Gerät: Standort, Kennung, Netz, Mischer-Eingang, Kabel, Service-Historie |
+| *Bedien-Kurzübersicht* | HTML, als PDF druckbar | welche Quelle auf welchem Mischer-Eingang liegt, wohin die Ausgänge gehen, Kontakte, Web-Oberflächen |
+| *Kamera-Positionsblatt* | HTML, als PDF druckbar | je Kamera: Standort, Höhe, Ausrichtung, Optik, Mischer-Eingang und die PTZ-Presets aus dem Kameraplan |
+| *Anhänge-Verzeichnis* | CSV | jeder Anhang mit Art, Ziel, abgelegter Datei und SHA-256, dazu Kabel, deren Messergebnis kein Protokoll hat |
+| *Signalwege* | CSV | jede Kette von der Quelle bis zum Ziel, mit Etage und Raum an jeder Station |
+| *Trassenplan je Etage* | HTML, als PDF druckbar | Draufsicht je Etage: Räume, Steigschacht, die Verbindungen dazwischen und die Durchgangsliste |
+| *Durchgänge (Brandschutz)* | CSV | jede Raumgrenze, jeder Schachtzugang und jede Geschossdecke, die ein Kabel passiert, mit Mantel-/Brandklasse und Trasse |
+| *Hausstrecken-Belegung* | CSV | je Ader jeder Hausstrecke: welches Kabel sie benutzt, welche frei sind; nur wenn der Plan Hausstrecken kennt |
+
+Die Dateien der Karten werden im Dialog ohne Bild gezeigt; eine Auswahl zeigen die folgenden Aufnahmen.
+
+![Pull-Liste als CSV](bilder/de/export-110-doku-01-pull.jpg)
+
+![Kabel-Stückliste als CSV, Reserve 15 %](bilder/de/export-111-doku-04-bom.jpg)
+
+![Übergabe-Dokument als Markdown](bilder/de/export-112-doku-06-handover.jpg)
+
+![Abnahmeprotokoll](bilder/de/export-113-doku-07-abnahme.jpg)
+
+![Signalwege als CSV](bilder/de/export-114-doku-15-signalwege.jpg)
+
+**PDF und Excel.** Die Karten, die Tabellen sind (Pull-Liste, Termination-Liste, Kabel-Schedule, Kabel-Stückliste, Asset-Register, Mängel und Restpunkte, Wartungsplan, Konfigurationsvorgaben, Anhänge-Verzeichnis, Signalwege, Durchgänge und Hausstrecken), tragen unter dem Titel die Knöpfe *PDF* und *Excel*. Sie schreiben dieselbe Tabelle gestaltet statt als CSV; die CSV bleibt die Sicherung. Das PDF steht im Querformat A4, wiederholt den Tabellenkopf auf jeder Seite, trägt Lesezeichen sowie Stempel und Seitenzahl und ist in Public Sans gesetzt. Die Excel-Datei hat ein Blatt je Tabelle mit fixierter Kopfzeile und Autofilter. *Alle Listen als ein PDF* und *Alle Listen als eine Excel-Mappe* fassen alle diese Karten zusammen. Das PDF bekommt dann ein Deckblatt mit verlinktem Inhaltsverzeichnis.
+
+![Kabel-Stückliste als PDF](bilder/de/export-115-doku-pdf-einzeln.jpg)
+
+![Kabel-Stückliste als Excel-Datei](bilder/de/export-116-doku-excel-einzeln.jpg)
+
+![Alle Listen als ein PDF, Deckblatt](bilder/de/export-117-doku-alle-pdf.jpg)
+
+![Alle Listen als ein PDF, eine Tabellenseite](bilder/de/export-118-doku-alle-pdf-seite.jpg)
+
+![Alle Listen als eine Excel-Mappe](bilder/de/export-119-doku-alle-excel.jpg)
+
+**QR-/Asset-IDs und Etiketten.** Der Abschnitt *QR-/Asset-IDs & Etiketten* vergibt kurze, stabile IDs und druckt Etiketten, die das Gerät am Rack mit seinem Datensatz verbinden.
+
+![Abschnitt QR und Etiketten](bilder/de/export-120-doku-qr-abschnitt.jpg)
+
+- *QR-/Asset-IDs vergeben* gibt Kabeln und Geräten ohne ID eine. Die Meldung nennt die Zahl; hat alles schon eine ID, steht dort *Alle Elemente haben bereits eine ID.*
+- *QR-Etiketten (PDF)* druckt einen A4-Bogen mit drei Spalten, ein Etikett je Kabel und je Gerät. Beim Kabel trägt der QR-Code die ID. Beim Gerät führt er auf die Seite des Geräts in der Gerätebibliothek, wenn es dort bekannt ist, sonst auf die hinterlegte Hersteller- oder Datenblatt-URL, sonst trägt er Klartext mit Name, Hersteller, Modell und Asset-Tag, den jedes Handy ohne Netz liest. Das Etikett nennt Hersteller und Modell auch ohne Link. Der Scan in der App findet den Datensatz in allen drei Fällen.
+- *Kabel-Labels „Quelle → Ziel" (AVIXA F501.01)* benennt Kabel nach der Strecke. Hat ein Kabel schon einen Namen, bleibt er, solange *vorhandene Namen überschreiben* nicht angehakt ist. Die Meldung nennt die Zahl der Labels; wurde nichts geändert, sagt sie es.
+
+![IDs vergeben](bilder/de/export-121-doku-ids-vergeben.jpg)
+
+![QR-Etiketten als PDF](bilder/de/export-122-doku-qr-pdf.jpg)
+
+![Kabel-Labels aus Quelle und Ziel](bilder/de/export-123-doku-beschriftung-quelle-ziel.jpg)
+
+![Überschreiben vorhandener Namen](bilder/de/export-124-doku-ueberschreiben.jpg)
+
+**Anhänge.** Der Abschnitt *Anhänge* verwaltet Dateien, die dem Plan angehängt sind, und füttert das *Anhänge-Verzeichnis*. Wählen Sie die *Art* (*Messprotokoll*, *Herstellerunterlage*, *Konfigurations-Sicherung*, *Sonstiges*) und wozu die Datei gehört (*Ganze Anlage*, *Kabel*, *Geräte*) und klicken Sie *Dateien anhängen …*. Das gibt es nur in der Desktop-App. Die Dateien liegen in einem Ordner beim Projekt; ein noch nicht gespeichertes Projekt hat keinen. Dateien über 100 MB nimmt die App nicht an. Ein Eintrag zeigt die Datei im Ordner (*Im Ordner zeigen*) oder wird entfernt, wobei die Datei im Ordner bleibt. Kabel mit Messergebnis, aber ohne Protokoll, nennt der Abschnitt.
+
+![Abschnitt Anhänge](bilder/de/export-125-doku-anhaenge.jpg)
+
+**Feld-Rückmeldungen.** Meldet die Handy-Ansicht Korrekturen aus dem Feld, landen sie als offene Einträge im Abschnitt *Feld-Rückmeldungen*, geordnet mit dem jüngsten oben. Jeder Eintrag nennt das Kabel, das Gerät oder die Notiz. *Übernehmen (mergt + protokolliert)* führt die Änderung in den Plan ein und trägt sie ins Änderungsprotokoll ein, *Verwerfen* löscht den Eintrag.
+
+![Feld-Rückmeldungen](bilder/de/export-126-doku-rueckkanal.jpg)
+
+![Eintrag übernommen](bilder/de/export-127-doku-rueckkanal-uebernehmen.jpg)
+
+![Eintrag verworfen](bilder/de/export-128-doku-rueckkanal-verwerfen.jpg)
+
+**Änderungsprotokoll.** Der letzte Abschnitt führt die jüngsten 30 Einträge: wer, was, wann. *Leeren* löscht sie. Ohne Einträge steht dort, dass Status- und Service-Änderungen hier protokolliert werden.
+
+![Änderungsprotokoll](bilder/de/export-129-doku-protokoll.jpg)
+
+![Protokoll geleert](bilder/de/export-130-doku-protokoll-leeren.jpg)
+
+### Stage-Plot
+
+*Datei → Stage-Plot (SVG)…* schreibt die Bühnenaufsicht als SVG auf ein Blatt. *Stage-Plot hell (SVG)…* schreibt dieselbe Grafik mit weißem Grund und dunkler Schrift, für Druck und E-Mail. Der Eintrag ohne Zusatz folgt dem Thema des Canvas.
+
+Das Blatt enthält Zeichnung und Legende aus denselben Objekten. Die Nummer am Gerät ist die Kanalnummer der Kanalliste, dieselbe wie in der Patch-Liste. Geräte, die kein Kanal sind, etwa Stagebox, Pult oder Wedge, tragen keine Nummer; sie sind Ziel, nicht Quelle. Die Legende führt die Eingangsliste. Hat der Plan keine Audio-Kabel, zeigt das Blatt alle Geräte ohne Nummern und sagt das in der Unterzeile.
+
+![Stage-Plot ohne Audiokanäle](bilder/de/export-64-stageplot-ohne-audio.jpg)
+
+![Stage-Plot mit Audiokanälen und Eingangsliste](bilder/de/export-91-stageplot-mit-audio.jpg)
 
 ### Exportieren & Drucken
 
-*Datei → Exportieren & Drucken…*
+*Datei → Exportieren & Drucken…* öffnet die Export-Zentrale. Links wählen Sie einen von sieben Bereichen: *Plan*, *Patch-Sheets*, *Kabel-Stückliste*, *Geräte-Stückliste*, *Racks & Gruppen*, *Tally-Karte* und *Unterlagen-Stapel*. Jeder Bereich trägt oben eine Zeile, die sagt, was er tut. Nach einer Ausgabe schließt sich der Dialog.
 
-![Export-Dialog Übersicht](bilder/de/export-dialog-plan.jpg)
+![Die Export-Zentrale](bilder/de/export-07-export-plan-pdf.jpg)
 
-Zentrale Export-Dialog mit sieben Reitern für alle Ausgabe-Formate. Alle Aktionen sind nicht-destruktiv — keine Änderung am Plan selbst.
+![Die sieben Bereiche](bilder/de/export-08-export-seitenleiste.jpg)
 
-#### Reiter: Plan
+#### Plan als Datei
 
-Den Canvas-Plan als **PDF, PNG, JPEG, SVG oder DXF** exportieren.
+*Plan* gibt den Canvas als Datei aus. Fünf Formate stehen zur Wahl.
 
-**PDF (Raster):**
-- Klassischer Raster-PDF (JPEG-Snapshot des Plans)
-- Mit Titelblock: Projektname, Revision, Änderungs-Fingerprint, QR-Code
-- Druckfertig, Text wird bei hohem Zoom unscharf
+| Format | Eigenschaft |
+|---|---|
+| *PDF* | druckbar; der Titelblock steht nur im Raster-Modus (siehe unten) |
+| *PNG* | transparent möglich, scharf |
+| *JPEG* | kleiner, gut für E-Mail |
+| *SVG* | skalierbar, für Web und Weiterverarbeitung |
+| *DXF* | CAD/Plotter: Geräte, Kabel und Text auf Layern |
 
-**PDF (Vektor, Beta):**
-- Chromium printToPDF — Text bleibt selektierbar und scharf bei jedem Zoom
-- Kleinere Dateigröße
-- **Keine Titelblock** — Revision, Fingerprint und QR stehen nur im Raster-PDF
+Für PDF kommen diese Einstellungen dazu:
 
-**PNG, JPEG:**
-- Bitmap-Formate für E-Mail, Slack, Webseiten
-- PNG: transparent möglich, scharf bei kleinen Flächen
-- JPEG: komprimiert, kleinere Dateien
+- *PDF-Thema*: *Dunkles Thema (wie Canvas)* oder *Helles Thema (für Ausdruck empfohlen)*.
+- *Monochrom sicher (Ebene im Klartext, eine Strichfarbe)* schreibt die Ebene im Klartext an jedes Kabel und färbt alle Striche gleich. Auf einem Schwarzweiß-Drucker lassen sich sonst Video und Audio kaum unterscheiden.
+- *Render-Modus*: *Raster (klassisch)* ist ein JPEG-Abbild des Canvas, zuverlässig, aber der Text wird bei hohem Zoom unscharf. Es trägt den Titelblock mit den Projektdaten und dem Stempel. *Vektor* nutzt den Druckweg von Chromium: Text bleibt wählbar und scharf bei jedem Zoom, die Datei bleibt klein. Es hat keinen Titelblock; Revision, Stand-Fingerprint und QR-Code stehen nur im Raster-PDF.
+- *Page-Size* gibt es nur beim Vektor-PDF: *Auto — A0 Landscape (kompatibel mit allen Viewern)*, *A4 Landscape* bis *A0 Landscape*, *A0+ Plotter* und *Original — volle Canvas-Größe für Plotter*. Seiten über A0 zeigen Edge und Vorschau manchmal weiß an; Acrobat und Plotter-Software drucken sie. Der Canvas wird vektoriell auf die Seite skaliert, Text bleibt scharf.
+- *Ebenen (im PDF enthalten)*: Die Chips Video, Audio, Control, Network, Power und Other schalten eine Ebene für Canvas und PDF um. Für ein PDF nur mit Video schalten Sie die anderen aus, exportieren und schalten sie wieder ein.
 
-**SVG:**
-- Vektorgrafik für Web und weitere Bearbeitung; alle Elemente bleiben selektierbar
+![Thema Dunkel](bilder/de/export-09-plan-thema-dunkel.jpg)
 
-**DXF:**
-- CAD-Format für Plotter und Desktop-Planer
-- Geräte, Kabel und Text auf separaten Ebenen
+![Thema Hell](bilder/de/export-10-plan-thema-hell.jpg)
 
-**Optionen:**
+![Monochrom sicher](bilder/de/export-11-plan-monochrom.jpg)
 
-- **PDF-Thema**: Dunkel (wie Canvas) oder Hell (empfohlen für Druck)
-- **Monochrom-sicher**: Text der Ebene auf jedem Kabel drucken statt Farben — für Schwarzweiß-Drucker, wo Videokabel sonst nicht von Audiokabeln zu unterscheiden sind
-- **Render-Mode** (nur Vektor-PDF):
-  - Raster (Classic): JPEG-Snapshot, zuverlässig, aber Text unscharf bei Zoom
-  - Vektor: Chromium printToPDF, Text scharf, kleinere Datei, aber kein Titelblock
-- **Seitengröße** (nur Vektor-PDF): Auto (A0-compat), A4–A0+, Original (volle Canvas-Größe für Plotter)
-- **Ebenen**: Welche Kabeltypen (Video, Audio, Steuerung, Netzwerk, Strom, Sonstiges) in die PDF einbezogen werden; Auswahl ist synchron mit der Canvas-Ansicht
+![Render-Modus Vektor](bilder/de/export-12-plan-vektor.jpg)
 
-#### Reiter: Patch-Sheets
+![Page-Size, aufgeklappt](bilder/de/export-13-plan-seitenformat.jpg)
 
-Pro ausgewähltem Gerät eine Port-Belegungs-Liste — ideal zum Aufkleben am Gerät.
+![Ebenen im PDF](bilder/de/export-14-plan-ebenen.jpg)
 
-- **Geräte auswählen**: Haken neben jedem Gerät setzen oder "Alle wählen"
-- **Format wählen**: A4 oder A3 (wird nach dem Klick abgefragt)
-- **Aktion**:
-  - "PDF herunterladen": alle ausgewählten Geräte in eine PDF
-  - "Drucken": sofort an den OS-Drucker
-  - "Etikett-CSV": kompakte Tabelle als CSV (eine Zeile pro Gerät statt ganzer Seite)
+![Ebene wieder eingeschaltet](bilder/de/export-15-plan-ebenen-zurueck.jpg)
 
-#### Reiter: Kabel-Stückliste (BOM)
+Unten zeigt der Dialog, unter welchem Namen die Datei gespeichert wird. *Als PDF herunterladen* schreibt die Datei. *Drucken* öffnet das Plan-PDF im Druckdialog des Systems und gilt nur für PDF; bei PNG, JPEG, SVG und DXF ist der Knopf gesperrt.
 
-Alle Kabel zusammengefasst nach Typ und Länge — zur Bestellung.
+![Format PNG, Drucken gesperrt](bilder/de/export-19-plan-drucken-gesperrt.jpg)
 
-- **Tabelle**: Kabeltyp + Länge, Menge, Rentman-Planung (editierbar)
-- **Export**:
-  - CSV: für Excel-Bearbeitung
-  - PDF: druckfertig mit Rentman-Spalte
-- **Rentman-Integration**: Falls die Gerätebibliothek mit Rentman verknüpft ist, können Ausgabemengen und Preise direkt übernommen werden
+![Format JPEG](bilder/de/export-16-plan-format-jpeg.jpg)
 
-#### Reiter: Geräte-Stückliste
+![Format SVG](bilder/de/export-17-plan-format-svg.jpg)
 
-Was der Plan an Geräten braucht — gedeckt durch Bestand (Lager)?
+![Format DXF](bilder/de/export-18-plan-format-dxf.jpg)
 
-- **Drei Zustände pro Gerät**:
-  - Grün (Gedeckt): Gerät ist im Lager bekannt (über Katalog-Identität)
-  - Orange (VORSCHLAG): Namenstreffer — nur die Vermutung, dass es das richtige Gerät ist; wartet auf Bestätigung
-  - Rot (Nicht im Lager): Gerät nicht im Bestand
-- **Kommissionier-Liste**: nur die grünen Geräte, nach Lagerort sortiert — die Liste, die der Techniker zum Packen mitnimmt
+Die Ergebnisse, hier als Vorschau der geschriebenen Datei:
 
-#### Reiter: Racks & Gruppen
+![Ergebnis PNG](bilder/de/export-20-ergebnis-plan-png.jpg)
 
-Gespeicherte Racks und Gruppen einzeln als PDF exportieren.
+![Ergebnis JPEG](bilder/de/export-21-ergebnis-plan-jpeg.jpg)
 
-- Liste aller Racks und Gruppen im Plan
-- **Pro Rack**: eine Patch-Seite je enthaltenem Gerät, zeigt die interne Verkabelung
-- Aktion: "PDF herunterladen" oder "Drucken"
+![Ergebnis SVG](bilder/de/export-22-ergebnis-plan-svg.jpg)
 
-#### Reiter: Tally-Karte
+![Ergebnis DXF](bilder/de/export-23-ergebnis-plan-dxf.jpg)
 
-Die Kette Rolle (Show-Position) → Gerät (z. B. Kamera) → Mischer-Eingang → UMD-Adresse (Texteinblendung auf dem Multiviewer).
+![Ergebnis Raster-PDF, Seite 1](bilder/de/export-24-ergebnis-plan-pdf.jpg)
 
-Aus dem Plan abgeleitet und geprüft. Ideal zum gegenlesen oder zur Konfiguration der tally-pi-Hardware.
+![Ergebnis Vektor-PDF](bilder/de/export-25-ergebnis-plan-pdf-vektor.jpg)
 
-- **CSV**: zum gegenlesen (Mensch)
-- **JSON**: für tally-pi-Konfiguration
-  - (Anmerkung: GPIO-Pins der physischen Lampen gehören zur Hardware, nicht zum Plan)
+![Plan-PDF im Druckauftrag](bilder/de/export-26-ergebnis-plan-drucken.jpg)
 
-#### Reiter: Unterlagen-Stapel
+Jede PDF-Ausgabe des Plans, auch der Druck, trägt das Register *Ausgegebene Dokumente* ein. PNG, JPEG, SVG und DXF tragen nichts ein.
 
-Mehrere Blätter als ein druckbarer Stapel: eine Seite je Blatt, Spaltenkopf auf jeder Folgeseite, Farbe und Format wählbar.
+#### Patch-Sheets
 
-- **Blätter auswählen**: Haken neben jedem Blatt
-- **Format**: A4, A3, A2, A1, A0
-- **Farbmodus**: Farbe oder Schwarzweiß (jeder Eintrag bleibt lesbar)
-- **Aktion**: "Drucken" oder "PDF herunterladen"
-- Jedes Blatt trägt seinen Stempel (Revision + Datum) — später lässt sich ein Stapel gestempelter Blätter gegen den aktuellen Plan halten und überprüfen, ob noch alles gültig ist.
+*Patch-Sheets* erzeugt je Gerät eine Port-Belegungsliste, gedacht zum Aufkleben am Gerät.
+
+![Bereich Patch-Sheets](bilder/de/export-27-patchsheets-oeffnen.jpg)
+
+Oben steht die kompakte Patch-Liste: eine Zeile je Kabel, nach Quellgerät sortiert, für den Techniker vor Ort. *Patchliste öffnen…* springt in den Dialog *Patch-Liste*. Darunter wählen Sie Geräte: Haken je Gerät, *Alle wählen*, *Alle abwählen* und ein Filter nach Name oder Kategorie.
+
+![Filter in der Geräteliste](bilder/de/export-28-patchsheets-filter.jpg)
+
+![Alle Geräte gewählt](bilder/de/export-29-patchsheets-alle.jpg)
+
+![Keine Geräte gewählt](bilder/de/export-30-patchsheets-keine.jpg)
+
+![Auswahl einzelner Geräte](bilder/de/export-31-patchsheets-auswahl.jpg)
+
+Mit gewählten Geräten bieten drei Knöpfe die Ausgabe an: *Einzel-PDF (n)* eine PDF je Gerät, *Sammel-PDF (n)* eine PDF mit einem Gerät je Seite und *Drucken* die Sammel-PDF im Druckdialog. Nach dem Klick fragt eine Leiste, zum Beispiel *Einzel-PDFs — Papier-Format wählen:*, mit *A4*, *A3* und *Abbrechen*.
+
+![Papierformat wählen](bilder/de/export-32-patchsheets-papier.jpg)
+
+![Abbrechen](bilder/de/export-33-patchsheets-abbrechen.jpg)
+
+![Papierformat für die Sammel-PDF](bilder/de/export-34-patchsheets-sammel-papier.jpg)
+
+![Ergebnis: Sammel-PDF](bilder/de/export-35-ergebnis-patchsheet-sammel.jpg)
+
+![Ergebnis: Einzel-PDF auf A3](bilder/de/export-36-ergebnis-patchsheet-einzel-a3.jpg)
+
+![Ergebnis: Druckauftrag](bilder/de/export-37-ergebnis-patchsheet-drucken.jpg)
+
+*Datenblätter (n)…* öffnet das Geräte-Datenblatt: Fotos und gewählte Eigenschaften, eine A4-Seite je Gerät. Die Eigenschaften sind in Gruppen geordnet (*Allgemein*, *Technische Daten*, *Fachdaten*, *Betrieb*, *Tabellen*). Vorausgewählt sind die Eigenschaften, die mindestens ein Gerät ausgefüllt hat. *Ausgefüllte*, *Alle* und *Keine* ändern die Auswahl. Eine angehakte, aber leere Eigenschaft druckt als Strich. *Drucken* öffnet den Druckdialog, *PDF speichern* schreibt die Datei.
+
+![Datenblatt-Dialog](bilder/de/export-38-datenblatt-oeffnen.jpg)
+
+![Keine Eigenschaften gewählt](bilder/de/export-39-datenblatt-keine.jpg)
+
+![Alle Eigenschaften gewählt](bilder/de/export-40-datenblatt-alle.jpg)
+
+![Nur ausgefüllte Eigenschaften](bilder/de/export-41-datenblatt-ausgefuellte.jpg)
+
+![Datenblatt als PDF](bilder/de/export-42-datenblatt-pdf.jpg)
+
+#### Kabel-Stückliste
+
+*Kabel-Stückliste* ist die Stückliste aller Kabel, nach Typ und Länge zusammengefasst.
+
+![Kabel-Stückliste](bilder/de/export-43-bom-oeffnen.jpg)
+
+Die Tabelle nennt je Zeile *Typ*, *Länge (m)*, *Verbaut*, *Gesamt (m)*, die Rentman-Planung (*Rentman geplant*, editierbar) und die *Differenz*. Die Spalte *Stückelung* kommt hinzu, sobald Lagerlängen hinterlegt sind. Die Differenz zeigt, ob mehr oder weniger verbaut ist als geplant. Darunter steht die Summe je Gewerk und die Zahl der Steckverbinder nach Typ.
+
+![Eingabe der Rentman-Planung](bilder/de/export-44-bom-rentman-eingabe.jpg)
+
+Eine geänderte Planung bleibt ein Entwurf. *Rentman-Planung speichern* übernimmt sie ins Projekt, *Verwerfen* nimmt sie zurück. Die Planungsmengen stammen aus dem Rentman-Import; das Kapitel *Datei und Import* beschreibt ihn.
+
+![Entwurf verworfen](bilder/de/export-45-bom-rentman-verwerfen.jpg)
+
+*Als CSV herunterladen* schreibt die Tabelle als CSV in UTF-8 mit BOM für Excel, *Als PDF herunterladen* als PDF, *Drucken* öffnet sie im Druckdialog.
+
+![Kabel-Stückliste als CSV](bilder/de/export-46-bom-csv.jpg)
+
+![Kabel-Stückliste als PDF](bilder/de/export-47-bom-pdf.jpg)
+
+![Kabel-Stückliste im Druckauftrag](bilder/de/export-48-bom-drucken.jpg)
+
+Sind im Projekt Lagerlängen hinterlegt (*Einstellungen → Projekt*, Abschnitt *Verfügbare Lagerlängen*), teilt die Stückliste einen Lauf in vorhandene Stücke auf. Die Spalte *Stückelung* nennt die Teile, dazu die Kupplungen je Lauf und die Überlänge. Reicht der Bestand nicht, steht *Bestand reicht nicht* mit dem Fehlbestand dabei; CSV und PDF tragen die Spalten *Stückelung*, *Kupplungen* und *Fehlbestand*.
+
+![Stückelung nach Lagerlängen](bilder/de/export-100-bom-lagerlaengen.jpg)
+
+![Rentman-Planung neben den Lagerlängen](bilder/de/export-101-bom-rentman-geplant.jpg)
+
+![Rentman-Planung gespeichert](bilder/de/export-102-bom-rentman-speichern.jpg)
+
+![CSV mit Stückelung](bilder/de/export-103-bom-csv-lager.jpg)
+
+![PDF mit Stückelung](bilder/de/export-104-bom-pdf-lager.jpg)
+
+![Lagerlängen in den Einstellungen](bilder/de/export-105-bom-einstellungen-lager.jpg)
+
+#### Geräte-Stückliste
+
+*Geräte-Stückliste* zählt die Geräte, die der Plan braucht, nach Modell und prüft sie gegen den Lagerbestand. Drei Zustände bleiben getrennt: *gedeckt* (über die Katalog-Identität), *Vorschläge* (Namenstreffer, wartet auf Bestätigung) und *nicht im Lager*. Die Zeilen nennen *Menge*, *Modell*, *Deckung*, *Bestand* und *Lagerort*. *Typ zuweisen…* ordnet einem Gerät ohne Katalogtyp einen zu, *Bestätigen* übernimmt einen Vorschlag. *Stückliste als CSV* schreibt die Liste; *Kommissionier-Liste (CSV)* enthält nur sicher gedeckte Posten, nach Lagerort sortiert, zum Packen.
+
+![Geräte-Stückliste](bilder/de/export-49-geraete-bom-oeffnen.jpg)
+
+![Geräte-Stückliste als CSV](bilder/de/export-50-geraete-bom-csv.jpg)
+
+![Typ-Liste zum Zuweisen](bilder/de/export-51-geraete-bom-typ-liste.jpg)
+
+#### Racks & Gruppen
+
+*Racks & Gruppen* gibt gespeicherte Racks und Gruppen einzeln als PDF aus: je enthaltenem Gerät eine Patch-Seite mit der internen Verkabelung. Ein Filter sucht Racks und Gruppen; die Karte zeigt *Rack · n HE* oder *Gruppe* und die Zahl der Geräte. *Format* wählt das Papier, *PDF* schreibt, *Drucken* öffnet den Druckdialog. Ohne gespeicherte Racks oder Gruppen steht dort, wie man sie anlegt: Geräte auf dem Canvas wählen und *Als Rack speichern* oder *Gruppe speichern*.
+
+![Racks und Gruppen](bilder/de/export-52-racks-oeffnen.jpg)
+
+![Papierformat der Racks](bilder/de/export-53-racks-papier.jpg)
+
+![Filter ohne Treffer](bilder/de/export-54-racks-filter-leer.jpg)
+
+![Rack als PDF](bilder/de/export-55-racks-pdf.jpg)
+
+![Rack im Druckauftrag](bilder/de/export-56-racks-drucken.jpg)
+
+#### Tally-Karte
+
+*Tally-Karte* zeigt die Kette Rolle, Gerät, Mischer-Eingang und UMD-Adresse, aus dem Plan abgeleitet und geprüft. Die Tabelle hat die Spalten *Nr.*, *Rolle*, *Gerät(e)*, *Mischer*, *Eingang* und *UMD*. Die Lampe selbst, also welcher GPIO-Pin an welcher Box hängt, gehört zur Hardware und ist absichtlich nicht enthalten.
+
+![Tally-Karte ohne Rollen](bilder/de/export-57-tally-leer.jpg)
+
+![Tally-Karte mit Rollen](bilder/de/export-92-tally-karte.jpg)
+
+Der Kasten *Prüfung: n Fehler, m Hinweise* nennt, was an der Karte nicht stimmt, zum Beispiel eine Rolle ohne Mischer-Eingang, eine Rolle ohne Gerät oder ein Gerät ohne UMD-Adresse. *Tally-Karte als CSV* schreibt die Tabelle zum Gegenlesen. *tally-pi-Geräte (JSON)* schreibt den Teil der `tally.json`, der dem Plan gehört: ID, Name, Eingang. ATEM-Adresse und GPIO-Pins bleiben an der Box. Neben der JSON-Datei legt die App eine Herkunftsdatei (`.herkunft.txt`) mit Prüfsumme und Stand ab.
+
+![Tally-Karte als CSV](bilder/de/export-93-tally-csv.jpg)
+
+![tally-pi-Geräte, Herkunftsdatei](bilder/de/export-94-tally-pi-json.jpg)
+
+Hat der Plan Geräte mit Multiviewer, zeigt der Kasten *Multiviewer-Bild (wer steht in welchem Fenster)* je Gerät einen Knopf, der das Fensterbild als CSV schreibt: Multiviewer, Fenster, Position, Größe, Quelle (ATEM) und Rolle. Die Namen kommen aus denselben Rollen wie Tally und UMD, nicht aus einer zweiten, von Hand geführten Liste. Darunter stehen Befunde, etwa ein Fenster, dessen Quelle keine Rolle im Plan hat.
+
+![Multiviewer-Bild als CSV](bilder/de/export-95-tally-mv-csv.jpg)
+
+Der Kasten *Vor-Show-Prüfung: Weg, Lampe, und was zu sehen war* hält fest, was der Plan nicht ableiten kann. Je Position wählen Sie den *Weg* des Tally, tragen die *Adresse* und die *Lampe* ein und notieren, was *Programm* und *Vorschau* gezeigt haben. Der Knopf *gesehen* schreibt die Beobachtung mit Zeitstempel in die Spalte *Zuletzt*. Darunter steht, wie viele Positionen geprüft sind, und die Befunde, etwa ein fehlender Tally-Weg. *Vor-Show-Liste* schreibt die Prüfung als CSV.
+
+![Auswahl des Tally-Wegs](bilder/de/export-97-tally-pfad-liste.jpg)
+
+![Beobachtung eingetragen](bilder/de/export-98-tally-gesehen.jpg)
+
+![Beobachtung festgehalten](bilder/de/export-99-tally-gesehen-festhalten.jpg)
+
+![Vor-Show-Liste als CSV](bilder/de/export-96-tally-vorshow-csv.jpg)
+
+Sind in den Einstellungen der Direktweg und die Adresse des Pi eingetragen, steht darunter ein Block *Direkt an den Pi*. *Pi lesen* holt die Liste vom Pi und zeigt den Unterschied (*n bleiben, m kommen dazu*), und welche Rollen vom Pi verschwinden, auch samt ihrer GPIO-Zuordnung. Erst danach ist *An den Pi senden* frei. Ohne diese Einstellungen fehlt der Block; die Datei bleibt der Vorgabeweg.
+
+#### Unterlagen-Stapel
+
+*Unterlagen-Stapel* stellt mehrere Blätter zu einem druckbaren Stapel zusammen, für den Ordner, der zur Veranstaltung mitreist. Je Blatt eine Seite, der Spaltenkopf wiederholt sich auf jeder Folgeseite. Jedes Blatt trägt seinen Stempel, sodass sich ein Stapel gestempelter Blätter morgen gegen den Plan halten lässt.
+
+![Bereich Unterlagen-Stapel](bilder/de/export-58-stapel-oeffnen.jpg)
+
+Angeboten werden die Blätter, die einen Stempel tragen, zum Beispiel *Zug-Liste*, *Auflege-Liste*, *Kabel-Schedule*, *Geräte-Register*, *Netz-Merkblatt*, *Spektrum-Plan*, *Ausspielung*, *Tally-Karte*, *Übergabe an die Post*, *Frontplatten*, *Signalwege*, *Hausstrecken-Belegung*, *Durchgänge (Brandschutz)*, *Mängel und Restpunkte*, *Wartungs- und Prüfplan*, *Konfigurationsvorgaben* und *Anhänge-Verzeichnis*. Gewählt sind zunächst die Zug-Liste und der Kabel-Schedule.
+
+![Gewählte Blätter](bilder/de/export-59-stapel-blaetter.jpg)
+
+*Papier* wählt A4, Letter oder A3. *Farbe* wählt *farbig* oder *schwarzweiß*; im Schwarzweiß-Modus bleibt der Name einer Gruppe stehen, auch wo im Farbmodus ein Farbfeld steht. *Spaltenlexikon mitdrucken* hängt ein Lexikon der Spalten an. Ein Blatt, dessen Spalten das Lexikon nicht erklärt, meldet die App als Befund, weil der Stapel an jemanden geht, der die Spalten nicht kennt. *Stapel drucken* öffnet den Druckdialog.
+
+![Papierformat](bilder/de/export-60-stapel-papier.jpg)
+
+![Farbmodus](bilder/de/export-61-stapel-farbe.jpg)
+
+![Lexikon der Spalten](bilder/de/export-62-stapel-glossar.jpg)
+
+![Der Stapel im Druckauftrag](bilder/de/export-63-stapel-drucken.jpg)
 
 ### Cloud & Lese-Link
 
-*Datei → Cloud & Lese-Link…*
+*Datei → Cloud & Lese-Link…* ist freiwillig. Die Datei bleibt das Original; der Server hält eine Kopie mit Revisionen, verschlüsselt gespeichert. Zugangsdaten werden vor dem Hochladen entfernt. Die Cloud nutzt das Konto der Gerätebibliothek.
 
-![Cloud-Dialog](bilder/de/export-cloud-dialog.jpg)
+Ohne Anmeldung zeigt der Dialog *Cloud-Projekte nutzen dein Konto der Gerätebibliothek.* und den Knopf *Anmelden unter Einstellungen → Gerätebibliothek…*, der die Einstellungen öffnet.
 
-Plan in die Cloud speichern (optional), Revisionen verwalten, Lese-Link zum Öffnen in einem anderen Gerät erzeugen.
+![Dialog Cloud ohne Anmeldung](bilder/de/export-05-cloud-dialog.jpg)
 
-**Voraussetzung:** Anmeldung an der Gerätebibliothek (unter *Einstellungen → Gerätebibliothek*).
+Mit Anmeldung hat der Dialog drei Abschnitte. Diese Abschnitte sind nicht aufgenommen, weil dafür ein Konto nötig ist; sie sind aus dem Programm beschrieben.
 
-**Funktionen:**
+- *Dieses Projekt.* *Dieses Projekt in die Cloud legen* legt die erste Revision an. Danach nennt der Dialog Revision und Zeitpunkt: *Änderungen gehen automatisch in die Cloud.* *Jetzt in die Cloud speichern* speichert sofort, *Nicht mehr abgleichen* trennt die Verbindung, *Aus der Cloud löschen* entfernt das Projekt mit allen Revisionen und Lese-Links; die lokale Datei bleibt. Unter *Revisionen* steht jede Revision mit Zeit und Gerät. *Wiederherstellen* macht eine ältere zur jüngsten Revision; es geht nichts verloren. Hat zwischenzeitlich ein anderes Gerät gespeichert, führt die App beide Änderungen zusammen und sagt es.
+- *Lese-Link.* Ein Link lässt jeden den Plan im Browser lesen, ohne Konto; Zugangsdaten sind nicht enthalten. Der Dialog warnt davor, dass der Plan den Rechner verlässt. *Immer die neueste Revision zeigen* hält den Link aktuell, sonst zeigt er die Revision, die beim Erstellen die jüngste war. *Läuft ab* wählt *nie* oder *nach 7*, *30* oder *90 Tagen*. *Link erstellen und kopieren* legt den Link an und kopiert ihn. Die Liste der Links nennt jeweils die Zahl der Aufrufe und den Ablauf; *Kopieren* kopiert erneut, *Widerrufen* macht den Link ungültig.
+- *Deine Cloud-Projekte.* Jedes andere Projekt des Kontos mit *Öffnen* und *.cableplan herunterladen*. Die Liste hat keinen Löschen-Knopf; gelöscht wird nur das verbundene Projekt.
 
-- **Jetzt speichern**: Der aktuelle Plan wird als neue Revision in die Cloud hochgeladen
-- **Revisionen**: Liste aller bisherigen Versionen (mit Änderungs-Fingerprint + Speicherzeitpunkt)
-  - Eine Revision kann wiederhergestellt werden (sie wird zur neuen obersten)
-  - Download: die Revision als .cp-Datei lokal speichern
-- **Lese-Links**: Externe Betrachter öffnen den Plan im Web-Viewer (read-only), ohne sich anzumelden
-  - Link erstellen: eigene Adresse eingeben
-  - Link kopieren (für E-Mail, Slack, Dokumentation)
-  - Link löschen (Zugriff widerrufen)
-  - Verfallsdatum setzen (optional)
-- **Andere Cloud-Projekte**: Existierende Cloud-Projekte anschauen, öffnen, herunterladen oder von der Cloud löschen
+### Viewer-Datei
 
-**Datenschutz:**
-- Solange niemand „Jetzt speichern" drückt, verbleibt der Plan lokal.
-- Der Server fragt die Anmeldung ab — die Dateikennung ist device-spezifisch, nicht datei-spezifisch.
+*Datei → Als Viewer-Datei exportieren…* schreibt eine `.cpviewer`-Datei für Reviewer und Helfer. Der Inhalt entspricht der Projektdatei, mit erzwungenem Modus *viewer*; Zugangsdaten der Geräte sind entfernt, weil die Datei an Externe geht. Vorhandene Anmerkungen bleiben, so kann der Eigentümer Aufgaben für Freelancer vormerken. Danach nennt *Viewer-Datei gespeichert* den Pfad.
 
-### Export als Viewer-Datei
+![Meldung nach dem Export der Viewer-Datei](bilder/de/export-06-viewer-exportiert.jpg)
 
-*Datei → Export als Viewer-Datei…*
+Wer die Datei öffnet, gibt beim ersten Öffnen seinen Namen ein (Kapitel *Datei und Import*); jede Anmerkung trägt ihn.
 
-Plan in das **`.cpviewer`-Format** exportieren. External Reviewer (Freelancer, andere Teams) können den Plan später im Web-Viewer öffnen, Anmerkungen einzeichnen und die Datei zurückmailen.
-
-(Aktion: direkter Download; kein Dialog)
+![Inhalt der Viewer-Datei](bilder/de/export-138-viewer-exportiert-daten.jpg)
 
 ### Anmerkungen importieren
 
-*Datei → Anmerkungen importieren…*
+*Datei → Anmerkungen aus Viewer-Datei importieren…* liest die Anmerkungen aus einer `.cpviewer`- oder `.json`-Datei und führt sie in den Plan ein. Verglichen wird die ID einer Anmerkung: neue kommen dazu, vom Reviewer geänderte (Status, Text) werden aktualisiert. *Annotations importiert* nennt beides: *n neue Anmerkung(en) importiert.* und *n aus Prüfer-Änderungen aktualisiert.*
 
-Eine `.cpviewer`-Datei mit Anmerkungen von einem Reviewer öffnen und die Markierungen / Kommentare in den aktuellen Plan mergen. Das ermöglicht einen Feedback-Workflow ohne direkte Cloud-Anbindung.
+![Meldung nach dem ersten Import](bilder/de/export-136-anmerkungen-import.jpg)
 
-(Aktion: Datei-Dialog öffnen; kein Upload an den Server)
+Ein zweites Einlesen derselben Datei fügt nichts hinzu.
+
+![Meldung beim zweiten Import](bilder/de/export-137-anmerkungen-import-zweites-mal.jpg)
 
 ### Plan-Stände vergleichen
 
-*Datei → Plan-Stände vergleichen…*
+*Datei → Plan-Stände vergleichen…* hält den offenen Plan gegen einen früheren Stand. Der gewählte Stand ist der alte, der offene Plan der neue (*Der geöffnete Plan gilt als der neuere Stand. Nichts wird geladen oder überschrieben.*): Gefragt ist, was sich seit dem früheren Stand geändert hat.
 
-Zwei `.cp`-Dateien gegeneinander halten — z. B. die aktuelle Version gegen die Version von gestern, um Änderungen zu entdecken.
+![Dialog ohne gewählten Stand](bilder/de/export-04-vergleich-leer.jpg)
 
-- Gerät hinzugefügt/gelöscht
-- Kabel hinzugefügt/gelöscht/umgerouted
-- Port-Umbenennung
-- etc.
+Der frühere Stand kommt aus einer von zwei Quellen.
 
-Unterschiede werden visuell hervorgehoben, Details in einer Tabelle.
+- *Vergleichs-Datei wählen…* liest eine Plandatei. Sie wird nur gelesen, nicht geladen, und kommt nicht in die Liste der zuletzt geöffneten Projekte. Eine Datei ohne Geräte- und Kabelliste meldet, dass sie keinen lesbaren Plan enthält.
+- *oder festgeschriebene Revision:* wählt eine Revision des Projekts. Das braucht keine zweite Datei.
+
+![Vergleich mit einer Datei](bilder/de/export-132-vergleich-datei-gewaehlt.jpg)
+
+Danach nennt der Dialog den früheren Stand und beide Stempel (*Stand der gewählten Datei*, *Stand des geöffneten Plans*), dazu eine Zusammenfassung mit den Zahlen: inhaltliche Änderungen, reine Darstellung, weitere Bereiche und die überholten oder nicht beurteilbaren Blätter. Darunter stehen zwei Blöcke. *Dokumente* sagt für jede Blattart, ob der Vergleich sie überholt hat: *überholt*, *nicht beurteilbar* (mit dem Grund) oder *unverändert*. *Unterschiede* listet Geräte und Kabel als *neu*, *entfällt* oder *geändert*. *Weitere Projekt-Bereiche (nicht aufgeschlüsselt)* nennt Bereiche, die sich geändert haben, ohne einzeln aufgeführt zu sein. *Als CSV exportieren* schreibt die Unterschiede.
+
+![Auswahl einer Revision](bilder/de/export-134-vergleich-revision-auswahl.jpg)
+
+![Vergleich mit einer Revision](bilder/de/export-135-vergleich-revision.jpg)
+
+![CSV des Vergleichs](bilder/de/export-133-vergleich-csv.jpg)
 
 ### Ausgegebene Dokumente
 
-*Datei → Ausgegebene Dokumente…*
+*Datei → Ausgegebene Dokumente…* ist das Register der Blätter, die die App ausgegeben hat: die Listen der Festinstallation und jede PDF-Ausgabe des Plans. Eingetragen werden nur Blätter, deren Stand sich berechnen lässt; ein Eintrag ohne Stand könnte nie sagen, ob er noch gilt. Das Register liegt neben der App, nicht im Projekt: Es hält fest, was auf diesem Rechner ausgegeben wurde, und reist nicht mit dem Plan mit.
 
-Register aller Blätter, die bisher aus diesem Plan exportiert wurden. Warum? Damit sich ein Techniker morgen auf der Baustelle einen alten Ausdruck zu Hand nehmen und prüfen kann, ob er noch aktuell ist — oder ob der Plan seit damals gelaufen hat.
+Ohne Ausgaben steht dort *nichts ausgegeben*, dazu der Hinweis, dass für dieses Projekt noch nichts ausgegeben wurde oder die Ausgaben von einem anderen Rechner stammen.
 
-**Spalten:**
-- **Zeitstempel**: Wann wurde es ausgegeben
-- **Blatt**: Welches Blatt (Patchliste, Plan-PDF, BOM, …)
-- **Änderungs-Fingerprint**: Eindeutige Kennung des Planstandes bei der Ausgabe
-- **Revision** (wenn Cloud): Revisions-Nummer bei Upload in die Cloud
-- **Bearbeiter**: Wer hat es ausgegeben (aus den Einstellungen)
+![Register ohne Einträge](bilder/de/export-03-register-leer.jpg)
 
-Das Register ist Teil des Projekts und wird mit gespeichert.
+Mit Ausgaben nennt die Kopfzeile die Zahl der Einträge zu diesem Projekt und wie viele davon überholt sind. Die Tabelle gruppiert nach Empfänger (aus dem Feld *Empfänger dieses Blattes*; fehlt er, steht dort *Empfänger nicht genannt*) und zeigt je Eintrag *Dokument*, *Ausgegeben*, *Stand auf dem Blatt*, *Gilt noch?* und *Was sich seitdem geändert hat*. Der Status lautet *aktuell*, *überholt — neu ausgeben* oder *nicht beurteilbar*; bei überholten Blättern erklärt die letzte Spalte, was sich geändert hat. *Aktualisieren* liest das Register neu, *Register leeren* löscht die Einträge nach einer Rückfrage. Ältere Einträge fallen aus dem Register; ein Hinweis nennt das, ein zweiter nennt Einträge anderer Projekte.
 
----
+![Register mit Einträgen](bilder/de/export-131-register-gefuellt.jpg)
 
-© 2026 Lars Zumpe Medienproduktion · kostenlos nutzbar, proprietär lizenziert
+### Rückweg nach Rentman
+
+*Plan an Rentman anhängen…* hängt den aktuellen Plan als PDF an das verknüpfte Rentman-Projekt, mit Stempel. Der Dateiname trägt Projektname und Zeitpunkt; vorher fragt eine Rückfrage nach dem Zielprojekt. *Kabel an Rentman senden…* öffnet einen Dialog, der je Kabeltyp und Länge *Verbaut*, *Geplant* und *Bereits gesendet* gegenüberstellt, die Rentman-Zuordnung wählen lässt und die Differenz als Zugang sendet; weniger Verbautes als zuletzt gesendet muss in Rentman von Hand korrigiert werden. Beide Einträge sind ausgegraut, solange kein Rentman-Projekt verknüpft ist (*kein Projekt verknüpft*). Die Verknüpfung entsteht im Rentman-Import, siehe *Datei und Import*. Beide Wege sind nicht aufgenommen, weil sie ein Rentman-Konto brauchen.
 
 ---
 
 ## 8. Werkzeuge: Planen
 
-Die Werkzeug-Dialoge zum Erfassen, Analysieren und Planen einer Anlage — von der Bestandsaufnahme über Funktionsgruppen bis zur Ausspielung.
+Das Menü *Werkzeuge* gliedert sich in fünf Gruppen: *Berechnen*, *Prüfen*, *Planen*, *Erstellen & verwalten* und *Geräte-Konfiguration*. Dieses Kapitel beschreibt die Rechner, die Prüfungen und die Werkzeuge zum Erfassen und Planen vor Ort. Die übrigen Einträge der Gruppen *Planen* und *Erstellen & verwalten* stehen im Kapitel „Werkzeuge: Bauen“. Alle Dialoge öffnen sich über *Werkzeuge* und lassen sich mit dem **×** oder Esc schließen.
+
+![Menü Werkzeuge](bilder/de/werkzeuge-planen-01-menue-werkzeuge.jpg)
+
+Die Menüeinträge mit Hinweiszeile sind:
+
+| Gruppe | Eintrag | Hinweiszeile |
+|---|---|---|
+| *Berechnen* | *Recording-Speicherplatz berechnen…* | – |
+| | *Projektion & Display…* | – |
+| *Prüfen* | *Analysen…* | Gewicht, Netzwerk, Redundanz, Kabelwege |
+| | *Plan-Check…* | Findet Lücken und Widersprüche im Plan |
+| | *Plan gegen Vorgefundenes…* | Vergleicht den Plan mit dem, was vor Ort steht |
+| *Planen* | *Bestandsaufnahme (Vorhandenes erfassen)…* | Vorhandene Technik vor Ort erfassen: Name, Raum, vermutete Verbindung, Foto |
+| | *Drum-Mikrofonierung…* | Mikrofone am Schlagzeug setzen und benennen |
+| | *Funkstrecken / Gesang…* | Frequenzen, Sender, Empfänger im Spektrum |
+| | *Ablauf und Kamera-Aufträge…* | Abschnitte einlesen, Aufträge je Kameraposition |
+| | *Ausspielung (Streaming-Ziele)…* | Wohin gesendet wird, mit welchen Parametern |
 
 ### Berechnen
 
-Spezialisierte Rechner für Kapazitäten und Ressourcen.
+#### Recording-Speicherplatz berechnen
 
-#### Aufzeichnungsspeicher berechnen
+*Werkzeuge → Recording-Speicherplatz berechnen…* rechnet den Speicherbedarf einer Aufzeichnung: Codec-Bitrate × Dauer × Kanäle. Die Werte sind Richtwerte ohne Filesystem-Overhead.
 
-*Werkzeuge → Aufzeichnungsspeicher berechnen…*
+![Recording-Speicherplatz-Rechner](bilder/de/werkzeuge-planen-02-speicher-offen.jpg)
 
-![Speicherplatz-Rechner](bilder/de/werkzeuge-planen-recording-storage-calc.jpg)
+| Feld | Bedeutung |
+|---|---|
+| *Codec / Bitrate-Preset* | Ein Preset mit Auflösung, Bildrate und Bitrate im Namen, zum Beispiel *ProRes 422 HQ (1080p25) — 220 Mbps*. Die Liste enthält ProRes 422 HQ, 422, 422 LT und 4444 (1080p25), ProRes 422 und 422 HQ (2160p25), DNxHD 220, 145 und 36 (Proxy), H.264 1080p (high), H.265 2160p (high), XDCAM HD422 50, AVC-Intra 100 und *Custom (eigene Bitrate)*. |
+| *Eigene Bitrate (Mbps)* | Erscheint bei *Custom*. |
+| *Stunden*, *Minuten*, *Kanäle* | Dauer und Zahl der Aufzeichnungskanäle. |
 
-Berechnet den Speicherbedarf für Video-Aufzeichnung basierend auf Codec, Auflösung, Framerate und Dauer.
+Das Ergebnis nennt *Effektive Bitrate*, *Dauer*, *Pro Kanal*, *Gesamt (n× Kanäle)* und die *Schreibrate* mit einer Einordnung (zum Beispiel *unkritisch* oder *einzelne HDD grenzwertig*).
 
-- **Eingaben**: Videoformat (HD/4K/8K), Codec (DCI/H.265/ProRes/etc.), Framerate (25/50/60 fps), Dauer der Aufzeichnung.
-- **Ausgabe**: Speichergröße in GB/TB.
+1. Wählen Sie ein anderes Preset, hier *ProRes 422 HQ (2160p25)*.
+
+   ![Anderes Preset](bilder/de/werkzeuge-planen-03-speicher-codec-gewaehlt.jpg)
+
+2. Mit *Custom (eigene Bitrate)* tragen Sie die Bitrate selbst ein.
+
+   ![Eigene Bitrate](bilder/de/werkzeuge-planen-04-speicher-custom.jpg)
+
+3. Geben Sie Dauer und Kanäle ein.
+
+   ![Vier Kanäle, viereinhalb Stunden](bilder/de/werkzeuge-planen-05-speicher-dauer-kanaele.jpg)
+
+4. Der Block *Array-Dimensionierung* rechnet die Laufwerke: *Redundanz* (*Keine (JBOD)*, *RAID 5 (+1)*, *RAID 6 (+2)*, *Spiegelung (×2)*), *Reserve (%)* und *Laufwerk (TB)*. Das Ergebnis nennt *Nutzbedarf inkl. Reserve* und *Laufwerke nötig* (zum Beispiel „3 × 8 TB (roh 24.0 TB)").
+
+   ![Array mit RAID 6](bilder/de/werkzeuge-planen-06-speicher-array.jpg)
+
+5. *Formel* klappt die Rechenvorschrift auf.
+
+   ![Formel](bilder/de/werkzeuge-planen-07-speicher-formel.jpg)
 
 #### Projektion & Display
 
-*Werkzeuge → Projektion & Display…*
+*Werkzeuge → Projektion & Display…* rechnet Bildgröße, Projektionsabstand und Sitzabstände und die Auflösung einer LED-Wand. Zwei Reiter: *Projektion & Display* und *LED-Wall*.
 
-![Projektions-Rechner](bilder/de/werkzeuge-planen-projection-calc.jpg)
+##### Reiter Projektion & Display
 
-Berechnet Projektions-Parameter für Bildschirme und Beamer.
+Eine zweite Auswahl wählt die Art: *Projektor* oder *Display / LED*.
 
-- **Eingaben**: Displaygröße (Diagonale), Auflösung, Abstand zum Publikum.
-- **Ausgabe**: Optimale Projektions-Entfernung und Linsenparameter.
+![Projektion mit Vorgabewerten](bilder/de/werkzeuge-planen-08-projektion-offen.jpg)
+
+| Feld | Bedeutung |
+|---|---|
+| *Diagonale* (″) | Bilddiagonale in Zoll. |
+| *Seitenverhältnis* | *16:9 (HD/UHD)*, *16:10 (WUXGA)*, *4:3 (XGA)*, *21:9 (UltraWide)*, *2.39:1 (CinemaScope)* oder *1:1*. |
+| *Unterkante über Boden* (m) | Höhe der Bildunterkante. |
+| *Throw-Ratio* | Nur bei *Projektor*: Verhältnis Projektionsabstand zu Bildbreite. |
+| *Lens-Shift vertikal* / *horizontal* (%) | Nur bei *Projektor*. |
+| *Verfügbare Tiefe* (m) | Nur bei *Projektor*: Raumtiefe für die Prüfung des Abstands. |
+
+Darunter wählen *2D-Plan* und *3D-Ansicht* die Vorschau. Der 2D-Plan zeigt eine Seitenansicht mit Projektor, Bildfläche und den Sitzabständen (*Erste Reihe*, *Optimal*, *Letzte Reihe*) und eine Frontansicht mit Maßen. Die Ergebnisfelder:
+
+| Ergebnis | Bedeutung |
+|---|---|
+| *Bildfläche (B × H)* | Breite und Höhe des Bildes. |
+| *Oberkante über Boden* | Höhe der Bildoberkante. |
+| *Projektionsabstand (Objektiv → Bild)* | Throw-Ratio × Bildbreite (nur Projektor). |
+| *Objektivhöhe über Boden*, *Objektivversatz zur Leinwandmitte* | Lage des Objektivs (nur Projektor). |
+| *Max. Bildbreite im Raum* | Größte Bildbreite bei der verfügbaren Tiefe (nur Projektor). |
+| *Min. Sitzabstand (THX 36°)* | Kleinster Abstand nach THX. |
+| *Optimaler Sitzabstand (SMPTE 30°)* | Abstand nach SMPTE. |
+| *Max. Sitzabstand (6 × Bildhöhe)* | Größter Abstand. |
+
+Passt der Projektor nicht in die verfügbare Tiefe oder liegt das Objektiv unter dem Boden, meldet der Dialog das.
+
+1. Tragen Sie Diagonale, Throw-Ratio und verfügbare Tiefe ein. Die Vorschau und die Ergebnisse folgen sofort.
+
+   ![Werte eingetragen](bilder/de/werkzeuge-planen-09-projektion-wurf-werte.jpg)
+
+2. *3D-Ansicht* zeigt den Raum mit Projektor, Bild und Sitzpositionen in drei Dimensionen.
+
+   ![3D-Ansicht](bilder/de/werkzeuge-planen-10-projektion-3d.jpg)
+
+3. *Display / LED* blendet die Felder des Projektors aus; es bleiben Diagonale, Seitenverhältnis und Unterkante.
+
+   ![Art Display / LED](bilder/de/werkzeuge-planen-11-projektion-display.jpg)
+
+##### Reiter LED-Wall
+
+Der Reiter rechnet die Auflösung einer LED-Wand aus *Pixel-Pitch* (mm), *Breite* (m) und *Höhe* (m): *Auflösung* in Pixeln und *Pixel gesamt* mit Megapixeln. Die Faustregel lautet: Der Mindest-Betrachtungsabstand in Metern entspricht ungefähr dem Pixel-Pitch in Millimetern; bei 2,6 mm also ab etwa 2,6 m.
+
+![Reiter LED-Wall](bilder/de/werkzeuge-planen-12-projektion-led.jpg)
+
+![LED-Wand mit 3,9 mm](bilder/de/werkzeuge-planen-13-projektion-led-werte.jpg)
 
 ### Prüfen
 
-Analysen zur Kontrolle und Konsistenzprüfung des Plans.
-
 #### Analysen
 
-*Werkzeuge → Analysen (Gewicht/Netzwerk/Redundanz)…*
+*Werkzeuge → Analysen…* öffnet einen Dialog mit 14 Reitern in zwei Zeilen: *Was ansteht*, *Kunden-Übersicht*, *Kosten: Plan gegen Ist*, *Crew: Stunden & Auslagen*, *Namensregel*, *Dante-Patch*, *Gewicht & Wärme*, *Netzwerk*, *Redundanz*, *RF / Funk*, *Kabelwege*, *Signalwege*, *Anschlussliste* und *Blatt prüfen*. Die Beispiele zeigen ein Projekt, in dem bewusst vieles unfertig ist.
 
-Ein umfassendes Analyse-Werkzeug mit 14 Reitern zur Kontrolle aller Aspekte der Anlage.
+![Analysen, Reiter Gewicht & Wärme](bilder/de/werkzeuge-planen-73-analysen-offen.jpg)
 
-##### Reiter: Gewicht & Wärme
+##### Was ansteht
 
-![Gewicht und Wärmelast nach Gerätegruppe](bilder/de/werkzeuge-planen-analysis-weight.jpg)
+*Was ansteht* sagt, was ansteht, und bearbeitet nichts. Die Seite sammelt Befunde aus den anderen Analysen nach Dringlichkeit: *Termin*, *Stand* (zum Beispiel *heute* oder *ohne Termin*), *Quelle* (zum Beispiel *Belege*, *Kosten*, *Crew*) und *Was*. Ohne Befunde steht *Nichts offen — es gibt zu diesem Stand nichts zu melden.*
 
-Gesamtgewicht und Wärmelast (BTU/h) pro Gerätegruppe und insgesamt.
+![Was ansteht](bilder/de/werkzeuge-planen-92-ansteht-spaeter.jpg)
 
-- **Tabelle**: Kategorie, Anzahl, Gewicht (kg), Leistung (W), Wärme (BTU/h), optional Wert (€).
-- **Fehlend**: Anzeige, wenn Geräte ohne Gewichtsangabe.
-- **Download**: CSV-Export für Berechnungsblätter.
-- **Link**: Direkter Zugang zum Stromverbrauch-Rechner (s. u.).
+##### Kunden-Übersicht
 
-##### Reiter: Netzwerk
+Die *Kunden-Übersicht* ist eine Kennzahlentabelle (*Bereich*, *Kennzahl*, *Wert*, *Anteil*, *Grundlage*) für Geräte, Kabel und weitere Bereiche aus dem Plan, mit *CSV exportieren*. Ein Auswahlfeld legt fest, ob sie den Plan wie geplant oder als As-Built zeigt (*Wie geplant (kein As-Built)*).
 
-![Netzwerk-Übersicht: VLAN, IP-Doppelungen, Datenflüsse](bilder/de/werkzeuge-planen-analysis-network.jpg)
+![Kunden-Übersicht](bilder/de/werkzeuge-planen-75-kunde.jpg)
 
-IP-Adressen, VLANs, Switchports und Netzwerk-Topologie prüfen.
+##### Kosten: Plan gegen Ist
 
-- **Adressplan**: IP-Konflikte und fehlende Zuordnungen.
-- **VLAN-Zählung**: Welche VLANs und wie viele Ports je VLAN.
-- **Switchport-Belegung**: Welche Geräte-Ports an welchen Switch-Ports.
-- **Multicast**: Multicast-Adressen und -Gruppen prüfen.
+Der Reiter vergleicht je Kostenposition Schätzung und Ist-Wert. Ohne Position steht *Keine Kostenposition — es gibt nichts zu vergleichen.* Je Zeile gibt es ein Bezugsgerät (*— ohne Bezug —* oder ein Gerät), *Schätzung*, *Ist-Wert* und die *Herkunft* des Ist-Werts (*aus dem ERP*, *von der Rechnung*, *von Hand geschätzt*, *Herkunft nicht angegeben*). Die Summenzeile zeigt die Projektschätzung (gerechnet), die Posten ohne Schätzung oder Ist-Wert und die Abweichung in Prozent; weicht sie über die gesetzte Toleranz ab, meldet der Reiter das (*Abweichung über der gesetzten Toleranz — „Kameras“ weicht um 12 % ab (Toleranz 10 %).*). Ein Ist-Wert ohne genannte Herkunft wird ebenfalls gemeldet.
 
-##### Reiter: Redundanz
+![Kostenzeile](bilder/de/werkzeuge-planen-79-kosten-zeile-werte.jpg)
 
-![Single-Points-of-Failure erkennen](bilder/de/werkzeuge-planen-analysis-redundancy.jpg)
+##### Crew: Stunden & Auslagen
 
-Überprüft, wo nur ein Signal oder Stromkreis vorhanden ist.
+Der Reiter rechnet Stunden, Sätze und Auslagen für einen Zeitraum (*von* … *bis*) und erzeugt das Blatt für die Buchhaltung (*Blatt als CSV*). Oben fasst eine Zeile zusammen: *Stunden*, *Arbeit*, *Auslagen weiterberechenbar*, *eigene Auslagen* und *an den Kunden*. Die Abschnitte:
 
-- **Eingänge**: Wieviele unabhängige Strom- oder Upsream-Verbindungen je Gerät?
-- **Befunde**: Rote Flaggen für Geräte mit nur einer Verbindung.
+| Abschnitt | Inhalt |
+|---|---|
+| *Personen* | Name und Firma / freiberuflich; *+ Person*. |
+| *Zuschlagsbänder* | Bandname, Beginn, Ende, Zuschlag in Prozent, *nur sonntags*; *+ Band* (zum Beispiel „Nacht 20:00–06:00 +25 %“). |
+| *Sätze* | Je Person eine Tätigkeit mit Stundensatz, optional Pauschale, Stunden ab und Zuschlag; *+ Satz*. |
+| *Schichten* | Datum, Person und Tätigkeit, Beginn, Ende und Buchungsstand (*vorgemerkt*, *reserviert*, *bestätigt*, *geleistet*); die Zeile nennt Stunden, Betrag und Mehrarbeit. *+ Schicht*. |
+| *Auslagen* | Datum, Art (*Fahrt*, *Übernachtung*, *Verpflegung*, *Material*, *Sonstiges*), Job, Betrag, Beleg, *geht an den Kunden*; *+ Auslage*. Ein Belegtext (Kassenbon-Mail, PDF-Text) lässt sich einfügen; die App liest Datum, Betrag, Aussteller, Währung und Steuersatz heraus und legt mit *Auslage aus Beleg anlegen* eine Auslage an. |
+| *Belegdeckung je Kostenzeile* | Wie viel der Ist-Werte durch Belege gedeckt ist. Die belegte Summe wird nicht in den Ist-Wert geschrieben. |
+| *Zusagen* | Eine Nachricht hineinkopieren; Zeitpunkt und Absender werden gelesen, soweit sie im Text stehen. *Zusage festhalten*. |
+| *Übergabe an die Buchhaltung (netto)* | Die Posten je Person und die Einsatzpauschalen. |
 
-##### Reiter: RF / Funk
+Mehrarbeit ohne Zusage meldet der Reiter als Hinweis (*Mehrarbeit ohne Zusage — Max Beispiel hat am … 7.0 h Mehrarbeit — dazu liegt keine Zusage im Plan.*).
 
-![Funkfrequenzen und Spektrum-Konflikte](bilder/de/werkzeuge-planen-analysis-rf.jpg)
+![Reiter Crew](bilder/de/werkzeuge-planen-81-crew-leer.jpg)
 
-Funkstrecken (Mikrofone, Kopfhörer, Kameras) und Spektrum-Konflikte prüfen.
+![Person und Zuschlagsband](bilder/de/werkzeuge-planen-83-crew-band.jpg)
 
-- **Frequenz-Tabelle**: Alle Sender und Empfänger mit Frequenz (MHz), Bandbreite, Leistung.
-- **Konflikte**: Zu dicht beieinander liegende Kanäle (< 0,4 MHz Abstand).
-- **Spektrum-Scan**: Optional Upload von Spektrum-Messdaten zur Validierung.
+![Schicht mit Mehrarbeit](bilder/de/werkzeuge-planen-87-crew-schicht-nacht.jpg)
 
-##### Reiter: Kabelwege
+![Beleg gelesen](bilder/de/werkzeuge-planen-89-crew-beleg-lesen.jpg)
 
-![Kabel-Längen und Routen prüfen](bilder/de/werkzeuge-planen-analysis-runs.jpg)
+![Zusage festgehalten und Übergabe](bilder/de/werkzeuge-planen-91-crew-uebergabe.jpg)
 
-Überprüft die physischen Verlegungswege und Kabellängen.
+##### Namensregel
 
-- **Befunde**: Zu lange Kabel, unzulässige Verlauf-Komplexität.
-- **Weg-Details**: Pro Kabel Länge, Leitungsanzahl, Durchmesser.
+Der Reiter bildet Gerätenamen aus einer Regel statt aus dem Gefühl. Eine Zeile mit Trennzeichen, Schreibweise (*wie erzeugt*, *GROSS*, *klein*) und Kategorie (*— alle Kategorien —* oder eine) steuert die Vergabe; die Tabelle zeigt *Alter Name*, *Neuer Name* und die Zeichenzahl. *Anwenden (n)* benennt die Geräte um, *CSV exportieren* schreibt die Tabelle. Ändert die Regel nichts, sagt das der Reiter (*Die Regel ändert nichts*).
 
-##### Reiter: Signalwege
+Darunter erzeugt *Aufnahmenamen* den Dateinamen jeder Aufzeichnung aus dem Plan: *Take*, *Trenner* und ein *Zettel fürs Deck (CSV)*. Die Tabelle nennt je Rolle den Recorder, den Kanal und den Dateinamen. Erreicht eine Rolle keinen Recorder, entsteht keine Aufzeichnung; das steht als Hinweis daneben.
 
-![Verfolgung der Signale von Quelle bis Ziel](bilder/de/werkzeuge-planen-analysis-chain.jpg)
+![Namensregel](bilder/de/werkzeuge-planen-93-namen.jpg)
 
-Verfolgt ein Signal durch alle Ebenen — von der Quelle bis zur Ausgabe.
+![Regel Großbuchstaben, Kategorie Audio](bilder/de/werkzeuge-planen-94-namen-regel.jpg)
 
-- **Eintrag**: Wähle Quelle und Ziel.
-- **Kette**: Zeigt Weg durch Mischer, Router, Player, etc.
-- **Konflikte**: Unterbrochene oder mehrdeutige Wege.
+![Take-Nummer in den Aufnahmenamen](bilder/de/werkzeuge-planen-96-namen-aufnahme.jpg)
 
-##### Reiter: Anschlussliste
+##### Dante-Patch
 
-![Alle Gerät-zu-Port-Zuordnungen](bilder/de/werkzeuge-planen-analysis-patch.jpg)
+*Matrix einlesen* liest die Subscription-Matrix eines Dante-Netzes ein und zeigt die Zahl der Empfangskanäle; *CSV exportieren* schreibt sie als Blatt. Liest man eine zweite Matrix ein, zeigt *Änderungen* den Vergleich (zum Beispiel *Tonmischer / 1 auf andere Quelle gelegt*).
 
-Tabellarische Übersicht aller Kabel-Verbindungen.
+![Dante-Matrix eingelesen](bilder/de/werkzeuge-planen-98-dante-eins.jpg)
 
-- **Spalten**: Quellgerät, -port → Zielgerät, -port, Kabeltyp, Länge.
-- **Filter**: Nach Gerät, Kabeltyp, oder Statusn (Geplant/Verbaut).
-- **Download**: CSV für Patchlisten-Drucke.
+![Änderungen zur zweiten Matrix](bilder/de/werkzeuge-planen-99-dante-zwei.jpg)
 
-##### Reiter: Blatt prüfen
+##### Gewicht & Wärme
 
-![Datenblatts-Vollständigkeit prüfen](bilder/de/werkzeuge-planen-analysis-sheet.jpg)
+Der Reiter zeigt Gewicht (kg), Leistung (W), Wärmelast (BTU/h) und Wert (€) je Kategorie aus den Geräte-Eigenschaften, mit einer Summenzeile. Eine Zeile nennt, wie viele Geräte ohne Gewichtsangabe sind. *Schwerste Geräte (Rigging/Transport)* listet die schwersten Geräte; *CSV exportieren* schreibt die Tabelle. Der Knopf *Stromverbrauch berechnen…* öffnet den [Stromrechner](#stromrechner).
 
-Überprüft, ob alle erforderlichen Geräte-Datenblätter hinterlegt sind.
+![Gewicht & Wärme](bilder/de/werkzeuge-planen-100-gewicht.jpg)
 
-- **Status**: Welche Geräte haben Links zu PDF-Datenblättern?
-- **Befunde**: Fehlende oder veraltete Datenblätter.
+###### Stromrechner
 
-##### Reiter: Kunden-Übersicht
+Der Rechner summiert die Leistungsangaben der Geräte (Geräte ohne Wert zählen nicht mit). *Anschluss-Typ* (zum Beispiel *CEE 32 A (3-phase, red)*) und *Sicherheits-Reserve (%)* bestimmen die Auslegung. Das Ergebnis nennt die erfassten Geräte, den Gesamtverbrauch plus Reserve in W und kW, den Strom, die Generatorgröße und die Wärme in BTU/h und kW; *Passt auf* nennt die Anschlüsse, die genügen. Die *Phasen-Verteilung* zeigt die Last je Phase und den Neutralleiter-Strom; *Geräte → Phase* weist Geräte fest einer Phase zu oder lässt sie auf *Auto* (der Balancer verteilt, sortiert nach Leistung). *EU-Farbcode (DIN VDE 0293-308)* nennt die Aderfarben. *CSV exportieren* und *PDF-Report* schreiben das Ergebnis. Weitere Abschnitte: *USV / Notstrom-Puffer* (Scheinleistung, Leistungsfaktor, Akku-Daten, Auslastung, empfohlene USV, geschätzte Pufferzeit), *Spannungsfall (Zuleitung)* (Leitungslänge, Querschnitt, Laststrom, Spannungsfall in Prozent mit Bewertung ≤ 3 %, > 3 %, > 5 %) und *Top-Verbraucher*.
 
-![Zusammenfassung für Angebot und Abnahme](bilder/de/werkzeuge-planen-analysis-client.jpg)
+![Stromrechner](bilder/de/werkzeuge-planen-101-strom-offen.jpg)
 
-Übersicht für Kundenkommunikation und Projektabnahme.
+##### Netzwerk
 
-- **Projektname, Anlagensystem**: Standard-Info.
-- **Geräteliste**: Kurze Fassung für Angebot.
-- **Konfiguration**: Wichtigste Parameter (Kameras, Eingänge, Ausgaben).
+Der Reiter *Netzwerk* gibt eine IP-/VLAN-Übersicht aller netzwerkfähigen Geräte mit Doppel-IP-Prüfung. Oben stehen *Bandbreite berechnen…* (siehe unten) und die Befunde: *Doppelte IP-Adressen* und *Dante-/AES67-Namen prüfen (≤31 Zeichen, a–z/0–9/-)* mit dem Vorschlag eines gültigen Namens. Darunter folgen die Tabelle *Gerät*, *IP*, *Mgmt-VLAN*, *VLANs* und die Abschnitte:
 
-##### Reiter: Kosten: Plan gegen Ist
+| Abschnitt | Inhalt |
+|---|---|
+| *Segmente (VLAN, Zweck, Zeit, Weg hinein)* | Je VLAN ein Segment mit Name, *Zweck* (*Medien primär*, *Medien sekundär*, *Steuerung*, *Management*, *nicht angegeben*), *PTP-Domäne* und *Weg hinein*. *N VLAN(s) aus dem Plan übernehmen* legt die Segmente an; *Segmente* exportiert, *Wer steht wo* listet die Geräte je Segment. Eine VLAN-Nummer allein sagt nicht, ob Dante dort hin darf; deshalb meldet der Reiter Segmente ohne Namen. |
+| *Streams* | Gesendete und empfangene Streams der Geräte (Protokoll, Adresse, Format); *CSV*. |
+| *Patchfeld-Beschriftung* | Streifen und Etiketten für Patchfelder: *Vorlage: automatisch* (oder eine Vorlage), *Streifen drucken*, *Generisch (CSV)* (Format wählbar) und *Datei für Etikettendrucker*. Steht ein Patchfeld in keinem Rack, sagt der Reiter das. |
+| *Adressbereiche (stehender Plan + Haus-Ebene)* | *+ stehende Ebene* und *Haus-Ebene*; die Haus-Ebene ersetzt einen stehenden Bereich mit demselben Schlüssel. *Bereiche* exportiert. |
+| *Subnetze* | Die Subnetze des Plans mit den Geräten. |
+| *Adressplan* | Wie viele Netzgeräte adressiert sind; Hinweise zu fehlenden oder doppelten Adressen. |
+| *Switch-Port-Karte* | Je Switch die Ports mit Gerät, Schnittstelle, Adresse und Art der Verbindung; *CSV* und *Beschriftung*. |
+| *Anforderung an die Haus-IT* | Die Wünsche an das Haus-Netz (VLANs, Adressbereiche, Netz-Ports, Medien-Bandbreite, Multicast-Standards, PoE, IGMP-Querier, PTP, DHCP, QoS / DSCP). Zu jedem Punkt lässt sich die Antwort festhalten: *genehmigt*, *mit Auflage* (mit Feld *Auflage oder Umweg im Klartext*), *abgelehnt* oder *keine Antwort*. *CSV*. |
+| *Zeit (PTP)* | Die PTP-Domänen und die Frage, welches Gerät die Uhr stellt. |
+| *Welche Kiste füllt welchen Platz* | Geräte mit Netz-Identität, aber ohne benannte Einheit. |
+| *Multicast-Adressplan* | *Pool (CIDR)* und *UDP-Port*; *Vergeben* weist den Streams Adressen zu. |
 
-![Vergleich zwischen Angebot und tatsächlichen Ausgaben](bilder/de/werkzeuge-planen-analysis-cost.jpg)
+![Netzwerk, oberer Teil](bilder/de/werkzeuge-planen-110-netz-oben.jpg)
 
-Abweichungen zwischen geplanten und tatsächlichen Kosten.
+![Segmente aus dem Plan übernommen](bilder/de/werkzeuge-planen-112-netz-segmente-uebernehmen.jpg)
 
-- **Eingabe**: Gebotene und tatsächliche Preise pro Gerätezeile.
-- **Differenz**: Über-/Unterbietung, Prozentsatz.
-- **Toleranz**: Schwellenwert für Abweichung eingeben.
+![Subnetze, Adressplan, Switch-Port-Karte](bilder/de/werkzeuge-planen-119-netz-subnetze.jpg)
 
-##### Reiter: Crew: Stunden & Auslagen
+![Anforderung an die Haus-IT](bilder/de/werkzeuge-planen-122-netz-haus-anforderung.jpg)
 
-![Personaleinsatz und Material-Kosten](bilder/de/werkzeuge-planen-analysis-crew.jpg)
+![Antworten der Haus-IT festhalten](bilder/de/werkzeuge-planen-123-netz-haus-antwort.jpg)
 
-Arbeitsplan: Wer, wann, wie lange, Material-Budget.
+![Zeit (PTP) und Welche Kiste füllt welchen Platz](bilder/de/werkzeuge-planen-124-netz-ptp.jpg)
 
-- **Positionen**: Techniker, Kameraleute, Ton, etc.
-- **Stunden**: Aufbau, Betrieb, Abbau.
-- **Stundensatz**: Calculation der Personalkosten.
-- **Auslagen**: Reise, Hotel, Mietgeräte.
+###### Bandbreite berechnen
 
-##### Reiter: Namensregel
+*Bandbreite berechnen…* rechnet die Brutto-Datenrate eines Video-Streams vor der Kompression und nennt den kleinsten SDI-Tier, der sie trägt (Pixel × Zeilen × fps × Bits pro Pixel). Überschreitet sie 12G-SDI, steht dort *nur über IP-Transport (ST 2110, NDI, JPEG-XS …) möglich*. Aufklappbare Listen nennen die SDI-Tiers und die IP-/Digital-Signalstandards. Der Abschnitt *Projekt-Netzwerk-Budget* summiert die Brutto-Bandbreiten aller Kabel mit IP-Mediensignal (NDI, Dante/AES67, ST 2110); Ethernet-Kabel zählen nicht als Last, ihre Kapazität steht getrennt darunter.
 
-![Automatische Namens-Schemata anwenden](bilder/de/werkzeuge-planen-analysis-naming.jpg)
+![Bandbreitenrechner](bilder/de/werkzeuge-planen-129-bandbreite-offen.jpg)
 
-Einheitliche Benennung von Geräten, Kabeln und Netzwerk-Ports.
+##### Redundanz
 
-- **Schema**: Wähle aus vorgefertigten Regeln (Kategorie + Nummer, Hersteller + Modell, Custom).
-- **Anwendung**: Welche Objekte aktualisieren?
-- **Vorschau**: Zeigt, wie die neuen Namen aussehen.
+Die Tabelle *Gerät* / *Befund* nennt je Gerät, was an Redundanz fehlt, zum Beispiel *nur eine Strom-Anbindung (keine Netzteil-Redundanz)*, *keine Strom-Anbindung im Plan* oder *ST 2110 ohne 2110-7-Redundanz (nur ein Netzwerk-Pfad)*. *CSV exportieren* schreibt sie.
 
-##### Reiter: Dante-Patch
+![Redundanz](bilder/de/werkzeuge-planen-133-redundanz.jpg)
 
-![Audio-Netzwerk-Leitungen und Geräte-Zuordnung](bilder/de/werkzeuge-planen-analysis-dante.jpg)
+##### RF / Funk
 
-Überprüfung der Dante-Audio-Routing und Geräte-Zertifizierung.
+*RF / Funk* rechnet alles, was im Plan funkt — das Funkmikrofon-Rig und die Funkstrecken — in einer Rechnung. Der Reiter nennt die Zahl der Sender im Plan, Sender ohne Frequenz (sie sind in keiner Rechnung enthalten) und listet *Mögliche RF-Konflikte* (zum Beispiel gleicher WLAN-Kanal) und *Frequenz-Befunde über das ganze Spektrum* (Trägerabstand und Intermodulation 2. und 3. Ordnung).
 
-- **Patch-Matrix**: Sender → Empfänger-Zuordnung.
-- **Leitungsqualität**: Latenz, Jitter, Redundanz je Leitung.
-- **Geräte-Liste**: Dante-Zertifizierung und Firmware-Stand.
+Darunter stehen *Freie Frequenzen im Band* (Band wählbar), die *Frequenzbänder (Sennheiser / Shure / …)* als Tabelle mit Hersteller, Serie, Band, MHz-Bereich und Hinweisen (zum Beispiel *EU eingeschränkt*) und der *Spektrum-Scan vom Analyser*: *Scan einlesen* liest eine CSV mit Messpunkten ein (*21 Messpunkte · 600–610 MHz*); *belegt ab (dBm)* legt die Schwelle fest, *Abgleich* prüft die Träger gegen den Scan. Träger außerhalb des gemessenen Bereichs sind gesondert aufgeführt; „nicht gemessen“ heißt nicht „frei“.
 
-##### Reiter: Was ansteht
+![RF / Funk](bilder/de/werkzeuge-planen-134-rf.jpg)
 
-![Offene Aufgaben und Befunde](bilder/de/werkzeuge-planen-analysis-todo.jpg)
+![Frequenzbänder](bilder/de/werkzeuge-planen-136-rf-bandtabelle.jpg)
 
-Zusammenfassung aller Befunde und noch zu erledigenden Aufgaben.
+![Spektrum-Scan eingelesen](bilder/de/werkzeuge-planen-137-rf-scan.jpg)
 
-- **Kategorien**: Gewicht, Netzwerk, Redundanz, RF, Kabel, Kosten, etc.
-- **Priorität**: Rot (kritisch), Gelb (warnung), Grau (Info).
-- **Aktionen**: Was ist zu tun, um den Plan freizugeben?
+##### Kabelwege
 
-#### Plan-Prüfung
+Der Reiter meldet Kabel, deren Länge nicht stimmt: *Geschätzte Längen tragen ihre Herkunft.* Er nennt Kabel, bei denen sich eine geschätzte Länge seit der Schätzung geändert hat, und Kabel über der Reichweite ihres Typs (zum Beispiel *Länge 2500 m über der Reichweite von 2000 m*), jeweils mit den Diensten, die im Strang laufen. *CSV* schreibt die Liste.
 
-*Werkzeuge → Plan-Prüfung…*
+![Kabelwege](bilder/de/werkzeuge-planen-139-wege.jpg)
 
-![Plan-Check: Alle Befunde und Probleme](bilder/de/werkzeuge-planen-plan-check.jpg)
+##### Signalwege
 
-Scannt den gesamten Plan nach häufigen Fehlern und zeigt sie strukturiert.
+Der Reiter listet die mehrstufigen Wege: Quelle, Port, Kabelnummer, Zwischengerät (*Wandler*, *Patchfeld*) und *Endgerät erreicht*.
 
-- **Filter**: Nach Befund-Art (Fehler, Warnung, Hinweis) oder Gerät/Kabel.
-- **Befunde**: Unvollständige Verbindungen, ungültige Kombinationen, missing Metadaten.
-- **Automatisch**: Läuft bei jedem Speichern im Hintergrund.
+![Signalwege](bilder/de/werkzeuge-planen-140-signal.jpg)
+
+##### Anschlussliste
+
+Die Anschlussliste führt jeden Netzanschluss mit Gerät, Schnittstelle, IP, VLAN, Weg und dem erreichten Switch-Port auf, mit *Quelle* (*Kabel*, *Schnittstelle*, *Kabel + Schnittstelle*). Anschlüsse, deren Weg an einem anderen Gerät als einem Switch endet, stehen unter *Ohne erreichten Switch*. *Nur offene* zeigt nur die ungelösten; *CSV* exportiert.
+
+![Anschlussliste](bilder/de/werkzeuge-planen-141-anschluss.jpg)
+
+##### Blatt prüfen
+
+*Blatt prüfen* nimmt ein Blatt in die Hand: Tippen Sie den Stand vom Fuß (acht Zeichen) oder den ganzen Dokument-Code ein; *Prüfen* sagt, ob das Blatt zum aktuellen Plan passt, nicht lesbar ist oder zu einem anderen Projekt gehört.
+
+![Blatt prüfen](bilder/de/werkzeuge-planen-146-blatt-fremd.jpg)
+
+#### Plan-Check-Dialog
+
+*Werkzeuge → Plan-Check…* findet Lücken und Widersprüche im Plan. Die Prüfung läuft laufend gegen den aktuellen Plan, nicht erst beim Speichern. Oben stehen die Zahlen der Hinweise nach Schwere (Fehler, Warnungen, Infos) und die Gesamtzahl. Jede Zeile nennt die Art (zum Beispiel *Doppelte Kabelnummer*, *Doppelte IP*, *Hausanschluss*, *Adernbündel*, *Stecker-Mismatch*, *Kabellänge*, *Audio sym/unsym*, *Drum-Mikrofonierung*, *Dual-Link*, *Fibre breakout*) und den Befund. Ein Klick auf eine Zeile markiert das betroffene Objekt im Plan. In der Statusleiste unten zeigen drei farbige Zähler denselben Stand.
+
+![Plan-Check](bilder/de/werkzeuge-planen-148-check-offen.jpg)
+
+![Statusleiste mit Zählern](bilder/de/werkzeuge-planen-147-statusleiste.jpg)
 
 #### Plan gegen Vorgefundenes
 
-*Werkzeuge → Plan gegen Vorgefundenes…*
+*Werkzeuge → Plan gegen Vorgefundenes…* vergleicht den Plan mit dem, was vor Ort steht: Was vom LKW kam, unter welchen Namen und mit welchen Adressen — gegen das, was der Plan sagt. *Datei einlesen* liest eine CSV-Datei der Funde. Jede Zeile nennt das Ergebnis (*stimmt*, *Adresse weicht ab*, *nicht gefunden*, *nicht im Plan*, *nicht eindeutig — keine Zuordnung*), das gefundene Gerät mit Adresse und die Art der Zuordnung (*über IP* oder *über NAME*). Eine Zeile oben zählt die Ergebnisse. Der Knopf *As-Built* schreibt das As-Built-Blatt (wie geplant / wie gebaut); die Zeile *n von m Angaben nachgesehen* sagt, wie viele Angaben schon geprüft sind. *CSV* exportiert den Vergleich.
 
-![Abweichungen zwischen Plan und Bestandsaufnahme](bilder/de/werkzeuge-planen-reconcile.jpg)
+![Plan gegen Vorgefundenes, noch ohne Datei](bilder/de/werkzeuge-planen-153-abgleich-offen.jpg)
 
-Vergleicht den geplanten Plan mit der erfassten Ist-Situation vor Ort.
-
-- **Bestandsaufnahme laden**: CSV/Excel mit Namen und Positionen.
-- **Matching**: Automatischer Abgleich oder manuelle Zuordnung.
-- **Differenzen**: Was ist geplant, aber nicht vorhanden? Was steht vor Ort, aber nicht im Plan?
-- **Export**: Gegenüberstellung als Bericht.
+![Vergleich mit eingelesener Datei](bilder/de/werkzeuge-planen-154-abgleich-datei.jpg)
 
 ### Planen
 
-Werkzeuge zum Erfassen, Strukturieren und Detaillieren der Anlage.
+#### Bestandsaufnahme
 
-#### Bestandsaufnahme (Vorhandenes erfassen)
+*Werkzeuge → Bestandsaufnahme (Vorhandenes erfassen)…* ist für den Gang durch den Raum: aufschreiben, was man sieht. Die Felder: *Gerät* (Pflicht), *Raum* (bleibt für den nächsten Eintrag stehen), *Verbunden mit (vermutet)* und *Notiz*. *Erfassen (Enter)* legt den Eintrag an; steht ein Gerät gleichen Namens schon im Plan, sagt die App das („…“ steht im Plan.).
 
-*Werkzeuge → Bestandsaufnahme…*
+Zwei Listen: *Vom Telefon (n)* zeigt Einträge, die ein Telefon gemeldet hat (am Telefon *Mitschreiben* einstellen, *Melden* → *Neues Gerät*; vorher muss der Telefonzugriff eingeschaltet sein). Ein Haken übernimmt den Eintrag, **×** verwirft ihn. *Erfasst, noch nicht ausgearbeitet (n)* sammelt die erfassten Einträge; *Erledigt* nimmt einen Eintrag aus der Liste. Am Eintrag lässt sich unter *Fotos* mit *Foto hinzufügen…* ein Foto anhängen („Ein Foto beantwortet Fragen, für die es kein Feld gibt.“).
 
-![Erfassung vorhandener Geräte vor Ort](bilder/de/werkzeuge-planen-survey.jpg)
+![Bestandsaufnahme](bilder/de/werkzeuge-planen-14-bestand-offen.jpg)
 
-Dokumentiert physisch vorhandene Geräte und deren Position.
+![Eintrag erfasst](bilder/de/werkzeuge-planen-17-bestand-erfasst.jpg)
 
-- **Geräteeingabe**: Name, Kategorie, angenommener Einsatzort.
-- **Raum**: Ablageplatz in der Anlage, oder frei im Raum.
-- **Foto**: Schnappschuss des Geräts (optional).
-- **Notiz**: Beobachtungen (Zustand, Alternative, abgeklebte Anschlüsse).
-- **Anschlüsse raten**: Geräte-Datenblatt suchen und Anschlussgruppen ausfüllen.
+![Foto hinzufügen](bilder/de/werkzeuge-planen-19-bestand-fotos.jpg)
+
+![Vom Telefon übernommen](bilder/de/werkzeuge-planen-20-bestand-telefon-annehmen.jpg)
 
 #### Drum-Mikrofonierung
 
-*Werkzeuge → Drum-Mikrofonierung…*
+*Werkzeuge → Drum-Mikrofonierung…* setzt und benennt die Mikrofone am Schlagzeug. Links steht das Kit als Draufsicht mit den Zonen *Kick*, *SN Top*, *SN Bot*, *HiHat*, *Tom 1*, *Tom 2*, *Floor Tom*, *Ride*, *OH L*, *OH R*, *Room L* und *Room R*. Oben setzen die Presets *Technik* einen Startpunkt: *Minimal (Kick + Overheads)*, *Glyn Johns (4 Mics)*, *Recorderman (Kick, Snare, 2 OH)* und *Full Close (alle Kessel + OH + Room)*; *Alle Mics entfernen* leert das Kit.
 
-![Platzierung von Drum-Mikrofonen](bilder/de/werkzeuge-planen-drum-micing.jpg)
+![Drum-Mikrofonierung](bilder/de/werkzeuge-planen-22-drum-offen.jpg)
 
-Spezial-Dialog zur Platzierung von Mikrofonen an Schlagzeug-Komponenten.
+1. Ein Preset setzt die Mikrofone der Technik (hier *Glyn Johns*).
 
-- **Schlagzeug-Skizze**: Drum-Kit mit Positionen (Kick, Snare, Hi-Hat, Toms, Becken).
-- **Mik-Slots**: Drag-and-Drop von Mikro-Typen auf die Positionen.
-- **Stecker**: Geräte wählen (Mischpult, Interface) und Eingangsanschlüsse zuordnen.
-- **Notizen**: Name und Notizen je Mik (z.B. Kick-Outside, Snare Top).
+   ![Technik Glyn Johns](bilder/de/werkzeuge-planen-23-drum-technik.jpg)
 
-#### Funkstrecken / Gesang (Spektrum)
+2. Ein Klick auf eine Zone zeigt rechts ihre Mikrofone. *+ Mic* fügt ein Mikrofon hinzu, die Auswahl *— Mikrofon wählen —* ordnet ihm ein Modell zu (Dynamische, Kondensator- und Bändchenmikrofone gängiger Hersteller), der Papierkorb entfernt es.
 
-*Werkzeuge → Funkstrecken / Gesang…*
+   ![Zone Kick mit Mikrofon](bilder/de/werkzeuge-planen-24-drum-zone.jpg)
 
-![Frequenz-Planung für Funkstrecken](bilder/de/werkzeuge-planen-wireless.jpg)
+3. Rechts stehen weiter *Subsnake* (die Größe der Stagebox: *8*, *12*, *16*, *24* oder *32 Eing.*), *Patchliste* und *Etiketten* (Ausgabe der Kanalliste beziehungsweise der Beschriftungen) und *Kanalliste & Bedarf* mit der Zahl der Kanäle, der 48-V-Kanäle und der Kanäle ohne Mikrofon. Die *Materialliste* nennt Mikrofone, XLR-Kabel, Stative und Kessel-Clamps; *kopieren* übernimmt sie in die Zwischenablage.
 
-Plant Funkfrequenzen für Drahtlos-Mikrofone und Kopfhörer.
+   ![Kanalliste und Materialliste](bilder/de/werkzeuge-planen-25-drum-mikro-dazu.jpg)
 
-- **Bänder**: 2,4 GHz, UHF (600–700 MHz), UHF (900 MHz), IR, SMD24.
-- **Geräte**: Sender und Empfänger-Baureihen, teilweise mit Programmable Freqs.
-- **Frequenzzuweisung**: Kanäle Eins-zu-Eins zuordnen, oder automatisch Konflikte minimieren.
-- **Spektrum-Scan**: Upload von Messdaten (CSV) zur Überprüfung gegen echte Umweltfrequenzen.
+4. *Kit bearbeiten* öffnet den Kit-Editor: Zonen im Bild verschieben, umbenennen, löschen und neue Zonen (Kick, Snare, Tom, HiHat, Ride, Crash, Overhead, Room) hinzufügen. *Kit fertig* beendet das Bearbeiten.
+
+   ![Kit zusammenstellen](bilder/de/werkzeuge-planen-28-drum-kit-bearbeiten.jpg)
+
+5. *Full Close* setzt alle Kessel, Overheads und Room-Mikrofone: zwölf Kanäle.
+
+   ![Full Close](bilder/de/werkzeuge-planen-31-drum-full-close.jpg)
+
+Fehlen im Plan Mikrofoneingänge für das Kit, meldet der [Plan-Check](#plan-check-dialog) das (*Drum-Kit braucht 12 Mic-Inputs …*).
+
+#### Funkstrecken / Gesang
+
+*Werkzeuge → Funkstrecken / Gesang…* plant Funkmikrofone und prüft ihre Frequenzen. Die Kopfzeile hat *+ Kanal*, die Zahl der Kanäle, die Zahl der RF-Konflikte, die Auswahl *— Land —* (Deutschland, Österreich, Schweiz, Niederlande, Frankreich, USA) mit dem Knopf *Frequenztabelle*, *CSV* und *Drucken / PDF*. Je Kanal gibt es eine Zeile mit:
+
+| Spalte | Bedeutung |
+|---|---|
+| *Kanal* | Name des Kanals. |
+| *Sender (Body)* | Handsender oder Taschensender (zum Beispiel Shure AD2, ULXD2, QLXD2, Sennheiser SKM 6000, SK 6000). |
+| *Kapsel / Headset* | Die zum Sender kompatiblen Kapseln; ein Haken zeigt, dass die Kombination passt. |
+| *Band* | Das Frequenzband des Geräts (zum Beispiel *GB · 606–648*, *S1-7 · 606.2–662*); die Auswahl lässt sich nach Land eingrenzen. |
+| *Frequenz (MHz)* | Die Trägerfrequenz. |
+| *Bandbreite (kHz)* | Die belegte Bandbreite. |
+
+Der Kasten *RF-Koordination — Konflikte* listet, was nicht passt: *Abstand* (Träger zu nah beieinander, Abstand kleiner als die Bandbreite) und *IMD3·3* beziehungsweise *IMD3-2* (Intermodulation dritter Ordnung mit zwei oder drei Sendern). Geprüft werden Trägerabstand und Intermodulation. Der Plan wird einbezogen: Funkstrecken aus dem Plan, etwa Kamerafunk oder WLAN, erscheinen mit.
+
+![Funkstrecken / Gesang](bilder/de/werkzeuge-planen-35-funk-offen.jpg)
+
+![Kanal angelegt](bilder/de/werkzeuge-planen-36-funk-kanal.jpg)
+
+![Sender und Kapsel gewählt](bilder/de/werkzeuge-planen-38-funk-kapsel.jpg)
+
+![Frequenz eingetragen](bilder/de/werkzeuge-planen-39-funk-frequenz.jpg)
+
+##### Mic-Plot
+
+Der Abschnitt *Mic-Plot — wer trägt welche Strecke* hält für jede Sitzung fest, wer welche Strecke trägt. Der Kanalplan oben gehört zur Produktion; wer welche Strecke trägt, ändert sich je Vorstellung — dafür ist dieser Abschnitt.
+
+| Bedienung | Wirkung |
+|---|---|
+| *Session* (Auswahl) und *+ Session* | Wählt oder legt eine Sitzung an. |
+| *Aus vorheriger übernehmen* | Übernimmt die Zuordnungen der Vorsitzung; sie gelten für heute als nicht bestätigt (*Übernommen und nicht bestätigt*). |
+| *Session-Blatt* | Exportiert das Blatt der Sitzung. |
+| *+ Person* | Fügt eine Zeile mit *Person*, *Funktion*, *Kanal*, *Sender* und *Akku eingelegt* hinzu. |
+
+Die App weist auf Lücken hin: *Akku-Wechsel nicht festgehalten* (steht nicht, wann der Akku eingelegt wurde) und *Zwei Personen auf demselben Kanal*.
+
+![Mic-Plot, Person angelegt](bilder/de/werkzeuge-planen-43-funk-person-daten.jpg)
+
+![Zwei Personen auf einem Kanal](bilder/de/werkzeuge-planen-44-funk-person-doppelt.jpg)
+
+![Zweite Sitzung mit Übernahme](bilder/de/werkzeuge-planen-47-funk-uebernehmen.jpg)
 
 #### Ablauf und Kamera-Aufträge
 
-*Werkzeuge → Ablauf und Kamera-Aufträge…*
+*Werkzeuge → Ablauf und Kamera-Aufträge…* liest den Ablauf der Redaktion ein und weist je Abschnitt jeder Kameraposition einen Auftrag zu. Der Ablauf gehört der Redaktion und wird hier nur gelesen.
 
-![Szenen, Schnitte und Kamera-Anweisungen](bilder/de/werkzeuge-planen-rundown.jpg)
+1. Tragen Sie *Herkunft* (zum Beispiel „ablauf.xlsx, Mail vom 9. Sept.“) und *Stand der Quelle* (zum Beispiel „v4“) ein.
 
-Strukturiert den zeitlichen Ablauf einer Veranstaltung und ordnet Kamera-Aufgaben zu.
+   ![Herkunft und Stand](bilder/de/werkzeuge-planen-49-ablauf-herkunft.jpg)
 
-- **Segmente importieren**: Einlesen aus TCS-Dateien oder manuel eintragen.
-- **Schnitte / Szenen**: Pro Eintrag Name, Dauer, Musik-Timing.
-- **Kamera-Anschlüsse**: Pro Kamera-Position (Kamera 1, Kamera 2, …) welcher Schnitt/Shot zeigen?
-- **Handover**: Erstellt Befehlskarten für Kamerateam (QR-Code oder Ausdruck).
+2. Fügen Sie den Ablauf in das Textfeld ein — je Zeile Nummer, Titel und Notiz, getrennt durch Tab oder Semikolon — und klicken Sie auf *Einlesen*.
 
-#### Ausspielung (Streaming-Ziele)
+   ![Ablauf eingefügt](bilder/de/werkzeuge-planen-50-ablauf-text.jpg)
 
-*Werkzeuge → Ausspielung…*
+3. Das Ergebnis nennt die Zahl der Abschnitte mit Herkunft und Stand. Zeilen, die sich nicht lesen lassen, meldet die App und übernimmt sie nicht (*Zeile 3: Nummer ohne Titel — nicht übernommen*).
 
-![Streaming-Destinationen und Parameter](bilder/de/werkzeuge-planen-delivery.jpg)
+   ![Ablauf eingelesen](bilder/de/werkzeuge-planen-51-ablauf-eingelesen.jpg)
 
-Definiert, wohin das Video/Audio geleitet wird (YouTube Live, Zoom, Recording, etc.).
+4. Die Tabelle *Wer macht was* hat je Abschnitt eine Spalte je Kameraposition. Tragen Sie die Aufträge ein (zum Beispiel „Totale“, „Nahe Moderation“). Der Auftrag hängt an der Rolle, nicht am Gerät — springt die Havarie-Kamera ein, bleibt er stehen. Die Zeile unten zählt die Aufträge je Kamera (*Kamera 1: 3/4*).
 
-- **Destinationen**: YouTube Live, Facebook, Twitch, RTMPS-Server, Local Recording, Multiview-Monitor.
-- **Parameter**: Bitrate, Codec, Auflösung, Framerate.
-- **Credentials**: API-Schlüssel, Stream-URLs (sicher verwahrt, nicht im Projekt-File).
-- **Monitoring**: Live-Status, Bps-Verbrauch, Fehlerrate.
+   ![Aufträge eingetragen](bilder/de/werkzeuge-planen-52-ablauf-auftrag.jpg)
 
-#### LED-Wand
+5. Liest man den Ablauf neu ein, bleiben die Aufträge zu gleichen Abschnitten erhalten.
 
-*Werkzeuge → LED-Wand…*
+   ![Neu eingelesen](bilder/de/werkzeuge-planen-54-ablauf-neu-einlesen.jpg)
 
-![LED-Wand: Panelgröße, Auflösung, Gewicht](bilder/de/werkzeuge-planen-led-wall.jpg)
+#### Ausspielung
 
-Platz und Leistung von LED-Flächen planen.
+*Werkzeuge → Ausspielung (Streaming-Ziele)…* hält fest, wohin gesendet wird, mit welchen Parametern und welcher Weg der Ausweichweg ist. Oben stehen *CSV*, *Ablaufblatt* und *Ausspielweg*; der Dialog ist ein langer, scrollbarer Bogen. Ohne Ziel steht *Noch kein Ausspielziel. Lege eins an.* mit *Ziel hinzufügen*.
 
-- **Panelformat**: Wähle Standard-Größen oder Custom (z.B. 500×250 mm).
-- **Auflösung**: Pixel pro Meter (256, 312, 500 ppm).
-- **Anordnung**: Breite × Höhe in Paneleinheiten → Gesamt-Größe in Metern.
-- **Gewicht & Leistung**: Berechnung aus Panel-Daten.
-- **Pixel-Bild**: Export der Koordinaten für Media-Server (Pixel Mapping).
+![Ausspielung ohne Ziel](bilder/de/werkzeuge-planen-55-ausspielung-offen.jpg)
 
-#### Frontplatten-Editor
+Der Bogen hat diese Abschnitte:
 
-*Werkzeuge → Frontplatten-Editor…*
+| Abschnitt | Inhalt |
+|---|---|
+| *Unabhängige Archiv-Aufzeichnung* | Die Frage, wo die Archiv-Aufzeichnung liegt: *— noch nicht beantwortet —*, *auf diesem Gerät* (dann mit Gerätewahl und Anmerkung) oder *bewusst keine*. Unbeantwortet ist das eine offene Frage, keine Warnung über ein Gerät. *Blatt* exportiert das Archiv-Blatt. |
+| *Angaben zur Veranstaltung* | Titel, *Sichtbarkeit* (*öffentlich*, *nicht gelistet*, *privat*; es gibt keinen Vorgabewert), Beginn, Zeitzone, Vorschaubild, Schlagworte, Beschreibungstext. Darunter *Bewusste Abweichungen je Ziel* (leer heißt „gilt wie am Projekt“; eine Abweichung braucht eine Begründung). |
+| *Sendebericht* | Was die Sendung getan hat, soweit jemand es aufgeschrieben hat: *Eintrag* hinzufügen (Sendestart, Sendeende, Abriss, Verschlechterung, Umschaltung, Wieder normal, Änderung während der Sendung, Beobachtung) mit Zeitpunkt, Ziel und Herkunft (*gesehen*, *aus Log abgetippt*, *gemeldet*), eine Zusammenfassung für den Kunden (bewusst von Hand) und *Blatt*. |
+| *Ausweichverhalten (Sicherheitsnetz)* | Welches Gerät den Wächter betreibt (*Wächter läuft auf*), die Statistik-Quelle und die Szenen im Encoder (*Übernehmen*); je Ziel *Normalbetrieb*, *Niedrige Bitrate*, *Offline* und Schwellen. *Blatt* und *Gerüst* schreiben die Unterlagen. |
+| *Uplink (Mbit/s)* | Der verfügbare Uplink; die Zeile rechnet geplante gegen nutzbare kbit/s (nach 40 % Kopfraum). |
+| Ziele | Je Ziel Plattform (*YouTube Live*, *Twitch*, *Eigenes Ziel*), Transport (*RTMP*, *SRT*, *HLS*), Encoder (ein Gerät des Plans) und Weg (*eigener Weg* oder ein Ausweichweg), die Adresse, der *Stream-Key* (*Key speichern* legt ihn im Schlüsselbund ab; er steht nicht im Projekt), Breite, Höhe, fps, Video-kbit/s, Keyframe-Abstand, Audio, Codec und bei SRT Modus und gemessene RTT mit der empfohlenen Latenz. Für die Steuerung des Encoders sind OSC-Adresse, Companion-Seite und -Platz anzugeben. |
 
-![Anordnung von Anschlüssen auf Wandplatten oder Stage Boxes](bilder/de/werkzeuge-planen-faceplate.jpg)
+Zu jedem Ziel prüft die App und meldet zum Beispiel *Kein Stream-Key hinterlegt*, *Bitrate 15000 kbit/s über der Plattform-Grenze von 12000 kbit/s* oder *Kein Ausweichweg*.
 
-Platziert Anschlüsse auf ebener Fläche (Wandplatte, Patchfeld, Stage Box) und druckt 1:1 zum Ausdruck.
+![Ziel hinzugefügt](bilder/de/werkzeuge-planen-56-ausspielung-ziel.jpg)
 
-- **Platte**: Wähle Größe und Material (19"-Rack-Blende, Wandplatte, Custom).
-- **Anschlüsse**: Drag-and-Drop von Stecker-Gruppen.
-- **Positionierung**: Millimeter-genaue Platzierung (Rastergitter).
-- **Beschriftung**: Automatisch von Gerätennamen, oder Custom.
-- **Druck**: 1:1 auf Drucker für Lochbohrungen und Etikettendruck.
+![Ziel mit SRT und Latenz](bilder/de/werkzeuge-planen-60-ausspielung-srt-rtt.jpg)
 
-#### Berichts-Editor
+![Encoder gewählt](bilder/de/werkzeuge-planen-61-ausspielung-encoder.jpg)
 
-*Werkzeuge → Berichts-Editor…*
+![Stream-Key hinterlegt](bilder/de/werkzeuge-planen-63-ausspielung-schluessel.jpg)
 
-![Spalten, Sortierung und Filter für Listen](bilder/de/werkzeuge-planen-report-editor.jpg)
+![Companion-Steuerung](bilder/de/werkzeuge-planen-64-ausspielung-osc.jpg)
 
-Konfiguriert die Darstellung von Gerät- und Kabel-Listen (Druck & Export).
+![Uplink geändert](bilder/de/werkzeuge-planen-67-ausspielung-uplink.jpg)
 
-- **Spalten**: Auswahl, Reihenfolge, Breite.
-- **Gruppierung**: Nach Kategorie, Raum, Status, oder Custom.
-- **Sortierung**: A→Z, nach Wert, nach Datum.
-- **Filter**: Nur Geräte bestimmter Kategorien, Räume, oder Zustände.
-- **Vorlagen**: Speichern und Abrufen vorkonfigurierter Layouts.
+![Archiv-Aufzeichnung auf diesem Gerät](bilder/de/werkzeuge-planen-68-ausspielung-archiv.jpg)
 
-#### Adern und Farbnormen
+![Sendebericht mit Eintrag](bilder/de/werkzeuge-planen-70-ausspielung-sendebericht.jpg)
 
-*Werkzeuge → Adern und Farbnormen…*
-
-![Leitungs-Farben nach Standard und benutzerdefiniert](bilder/de/werkzeuge-planen-conductors.jpg)
-
-Definiert Leitungs-Farben für Kabel und Anschlussmarker nach IEC oder Custom.
-
-- **Standards**: IEC 60757 (International), EN 50575 (EU), Custom.
-- **Sätze**: Vordefinierte Farb-Sequenzen (z.B. Braun/Schwarz/Grau/Weiß für 4×4 XLR).
-- **Zuordnung**: Welcher Standard für welche Kabeltypen?
-- **Vorschau**: Zeigt tatsächliche Farben der aktuellen Nummern.
-
-#### Empfangene Show-Control-Nachrichten
-
-*Werkzeuge → Empfangene Show-Control-Nachrichten…*
-
-![Protokoll der eingegangenen OSC/MIDI/API-Befehle](bilder/de/werkzeuge-planen-show-control.jpg)
-
-Zeigt ein Protokoll aller Show-Control-Befehle, die die App erhalten hat (OSC, MIDI, HTTP).
-
-- **Eingangsquelle**: IP:Port, Netzwerk-Interface.
-- **Datenfluss**: Zeitstempel, Befehl, Parameter, Status (verarbeitet/ignoriert).
-- **Fehler**: Ungültige Befehle, Parse-Fehler.
-- **Live-Ansicht**: Echtzeit-Monitor während einer Show.
-
-### Erstellen & Verwalten
-
-Werkzeuge zum Aufbau und zur Verwaltung der Anlage.
-
-#### Mehrere Kabel verbinden
-
-*Werkzeuge → Mehrere Kabel verbinden…*
-
-![Kabel-Massenverbindung in einer Tabelle](bilder/de/werkzeuge-planen-bulk-connect.jpg)
-
-Verbindet viele Kabel auf einmal, statt einzeln zu klicken.
-
-- **Tabelle**: Quelle, Quellen-Port, Ziel, Ziel-Port, Kabeltyp.
-- **Paste**: Kopieren-Paste aus Excel oder CSV.
-- **Validierung**: Prüft auf Inkompatibilität (z.B. BNC an HDMI).
-- **Anwenden**: Alle Zeilen auf einmal verdrahten.
-
-#### Neues Rack erstellen
-
-*Werkzeuge → Neues Rack erstellen…*
-
-![Neues leeres Rack mit Konfiguration](bilder/de/werkzeuge-planen-new-rack.jpg)
-
-Erstellt einen neuen Rack-Container aus Geräte-Vorlagen.
-
-- **Name**: Bezeichnung (z.B. „Server Rack 1").
-- **Höhe**: Rack-Einheiten (RU), meist 42 RU.
-- **Vorlage**: Optional aus Standard-Layouts oder leer.
-- **Position**: Wo auf dem Canvas platzieren?
-
-#### Rack-Builder
-
-*Werkzeuge → Rack-Builder…*
-
-![Interaktive Bestückung eines Racks](bilder/de/werkzeuge-planen-rack-builder.jpg)
-
-Populiert einen Rack mit Geräten, ordnet sie und visualisiert in 3D.
-
-- **Vorhandene Racks**: Liste editierbarer Racks.
-- **Geräte-Slots**: Höhenangabe (RU) pro Gerät.
-- **3D-Ansicht**: Vorderansicht zur Kontrolle von Kabellängen und Verdeckungen.
-- **Exportieren**: Rack-Struktur speichern oder auf den Canvas.
-
-#### KI-Planung generieren
-
-*Werkzeuge → KI-Planung generieren…*
-
-![Generierung eines Draft-Plans aus Text-Beschreibung](bilder/de/werkzeuge-planen-ai-plan.jpg)
-
-Generiert einen ersten Plan-Entwurf basierend auf einer Text-Beschreibung (KI).
-
-- **Eingabe**: Kurze Beschreibung der Anlage (z.B. „3 Kameras, ATEM-Mischer, 2 Monitore, Streaming auf YouTube").
-- **Optionen**: Welche Gerätetypen prioritär, Budget-Grenzen.
-- **Entwurf**: KI wählt Geräte aus der Bibliothek und verdrahtet sie.
-- **Anpassung**: Generierten Plan editieren.
-
-Erfordert einen KI-API-Schlüssel (OpenAI, Google, Anthropic).
-
-#### Überarbeitungen & Snapshots
-
-*Werkzeuge → Überarbeitungen & Snapshots…*
-
-![Versionenverwaltung: Snapshots und Vergleich](bilder/de/werkzeuge-planen-revisions.jpg)
-
-Speichert Zwischen-Versionen eines Plans, um Änderungen nachzuverfolgen.
-
-- **Snapshots**: Zeitstempel, optionale Notiz.
-- **Autosave**: Automatische Snapshots nach großen Änderungen.
-- **Vergleich**: Zwei Versionen nebeneinander, Unterschiede hervorgehoben.
-- **Wiederherstellen**: Zurück zu einer älteren Version.
-
-### Device-Konfiguration
-
-Einrichtung spezialisierter Geräte (falls vorhanden).
-
-#### ATEM Multiviewer Layout
-
-*Werkzeuge → ATEM Multiviewer Layout…*
-
-(Nur wenn ein ATEM-Mischer in der Anlage vorhanden ist.)
-
-![Multiviewer-Windows auf dem ATEM konfigurieren](bilder/de/werkzeuge-planen-atem-mv.jpg)
-
-Legt fest, welche Quellen in welchen Multiviewer-Fenstern angezeigt werden.
-
-- **Layout**: Welche Fenster-Anzahl und Positionen?
-- **Zuordnung**: Quelle → Fenster-Nummer.
-- **Größe & Position**: Jedes Fenster einzeln dimensionierbar (bei unterstützten ATEM-Modellen).
-
-#### ATEM Audio Routing
-
-*Werkzeuge → ATEM Audio Routing…*
-
-(Nur wenn ein ATEM-Mischer mit Audio-Eingängen vorhanden ist.)
-
-![Audio-Eingänge des ATEM zuordnen](bilder/de/werkzeuge-planen-atem-audio.jpg)
-
-Richtet Audio-Eingänge (XLR, RCA, Dante) zu Kanal-Fader des Mischers.
-
-- **Eingänge**: Alle Audio-Eingänge des ATEM auflisten.
-- **Kanäle**: Welcher Kanal bekommt welchen Input?
-- **Empfindlichkeit**: Pegel pro Eingang.
-
-#### ATEM Input Labels
-
-*Werkzeuge → ATEM Input Labels…*
-
-(Nur wenn ein ATEM-Mischer vorhanden ist.)
-
-![Eingangsnamen des ATEM konfigurieren](bilder/de/werkzeuge-planen-atem-labels.jpg)
-
-Benennt die Eingangs-Quellen am ATEM-Mischer (Name auf der Control Surface).
-
-- **Eingänge**: Liste aller ATEM-Eingänge (1–20+).
-- **Namen**: Custom-Name pro Eingang (z.B. „Kamera 1", „Graphics").
-- **Farbe**: Optional Zuordnung von Marker-Farben.
+![Ausweichverhalten](bilder/de/werkzeuge-planen-71-ausspielung-ausweich.jpg)
 
 ---
 
-## 9. Werkzeuge
+## 9. Werkzeuge: Bauen
 
-Das Menü *Werkzeuge* enthält Spezialtasks zum Planen und Bauen von Systemen: Kabel verbinden, Racks aufbauen, LED-Wände konfigurieren, Schaltpläne exportieren und Geräte wie ATEM-Mischer und Videohub steuern.
+Das Menü *Werkzeuge* hat fünf Gruppen: *Berechnen*, *Prüfen*, *Planen*, *Erstellen & verwalten* und *Geräte-Konfiguration*. Dieses Kapitel beschreibt die Einträge der Gruppe *Planen* ab *LED-Wand…* sowie die Gruppen *Erstellen & verwalten* und *Geräte-Konfiguration*. Die Rechner, die Prüfungen und die übrigen Einträge der Gruppe *Planen* stehen im Kapitel [Werkzeuge: Planen](#8-werkzeuge-planen). Patch-Liste, Festinstallation, Stage Plot und *Exportieren & Drucken…* stehen im Menü *Datei* und im Kapitel [Exportieren und Drucken](#7-exportieren-und-drucken).
 
-### Patchliste
+Die Gruppe *Geräte-Konfiguration* erscheint nur, wenn der Plan ein passendes Gerät enthält: *ATEM Multiviewer-Layout…* bei einem ATEM oder Multiviewer, *ATEM Audio-Routing…* und *ATEM Input-Labels…* bei einem ATEM, *Videohub-Routing / Labels…* bei einem Videohub und *GreenGo-Intercom…* bei einem GreenGo-Gerät. Dieselben Werkzeuge stehen im Inspector im Abschnitt *Werkzeuge für dieses Gerät*. *Lager / Bestand…* erscheint, wenn das Modul Vermietung eingeschaltet ist.
 
-*Werkzeuge → Patch-Liste…*
-
-![Patchliste Dialog](bilder/de/werkzeuge-bauen-patchlist.jpg)
-
-Zeigt alle Verbindungen des Plans in tabellarischer Form — jedes Kabel eine Zeile, sortiert für die Patch-Reihenfolge am Set. 
-
-**Spalten:** Nr., Von Gerät, Port, Nach Gerät, Port, Typ, Länge (m), Farbe.
-
-**Layer-Filter:** Über das Dropdown oben wählen Sie, welche Schicht angezeigt wird (z. B. nur Video). Das Feld zeigt, wie viele Kabel insgesamt zu sehen sind.
-
-**Suchfeld:** Filtert nach Gerät, Port, Typ oder Farbe — die Suche läuft in Echtzeit.
-
-**Export-Optionen:**
-- **CSV exportieren:** Kommagetrennte Datei für Tabellenkalkulationen.
-- **XLSX exportieren:** Excel-Format.
-- **Etiketten + QR (PDF):** Druckvorlage für Beschriftung. Wählt man einen Etikett-Typ (Generisch, Brother P-touch, Dymo), wird zusätzlich die entsprechende Exportdatei angeboten.
-
-### Patch-Reihenfolge
-Kabel werden nach ihrer Position auf dem Set sortiert — zuerst die Quellen (oben), dann die Ziele (unten). Das erlaubt, die Patchliste am Mischpult auszudrucken und Zeile für Zeile abzuarbeiten.
-
----
+![Untere Hälfte des Menüs Werkzeuge](bilder/de/werkzeuge-bauen-menue-01-unten.jpg)
 
 ### LED-Wand
 
 *Werkzeuge → LED-Wand…*
 
-Definiert Panels, Auflösung, Gewicht und Leistung einer LED-Wand und generiert die Pixel-Map für den Media-Server.
+Der Dialog *LED-Wand* plant eine Wand aus gleichen Kacheln. Aus den Datenblattwerten des Panel-Typs rechnet er Kachelzahl, Auflösung, Maß, Gewicht und Leistung der Wand, prüft, ob die Ports der Sending Card die Pixel tragen, rechnet den Zuschnitt einer Standardquelle auf die Wand und liefert die Pixelmap als PNG. Panel-Typen und Wände gehören zum Projekt. Eine fehlende Angabe steht als Satz da, wo sonst die Zahl stünde: Trägt ein Panel-Typ kein Gewicht, ist das Gewicht der Wand unbekannt und nicht 0 kg.
 
-**Felder:**
-- **Panel-Typ:** Hersteller und Modell (z. B. Barco E22 Full HD, Unilumin LED-Panel).
-- **Auflösung:** Breite × Höhe in Pixeln.
-- **Panel-Größe:** Physische Abmessungen in mm (wird vom Datenblatt vorgegeben).
-- **Anzahl Panels:** Horizontal × Vertikal (errechnet Gesamtgewicht und Leistung).
-- **Helligkeit:** Nits (für die Planung der Kühlanlage relevant).
-- **Blickwinkel:** Horizontal und vertikal, in Grad.
+1. Öffnen Sie *Werkzeuge → LED-Wand…*. Ohne Panel-Typ steht dort *Kein Panel-Typ eingetragen.* mit dem Hinweis, die Zahlen vom Datenblatt zu nehmen; unter *Wände* steht *Eine Wand braucht zuerst einen Panel-Typ.*
 
-**Pixel-Map:** Nach dem Speichern können Sie die Pixel-Map im CSV- oder JSON-Format exportieren — für die Media-Server-Konfiguration (vPro, Notch, …).
+   ![Dialog LED-Wand ohne Panel-Typ](bilder/de/werkzeuge-bauen-led-01-leer.jpg)
 
----
+2. *Panel-Typ hinzufügen* legt einen Typ mit den Vorgaben *Neuer Panel-Typ*, 3,9 mm Pixelabstand, 128 × 128 Pixel und 500 × 500 mm an.
+
+   ![Neuer Panel-Typ](bilder/de/werkzeuge-bauen-led-02-typ-neu.jpg)
+
+3. Tragen Sie die Werte des Datenblatts ein. Jede Zahl wird übernommen, sobald Sie das Feld verlassen.
+
+   ![Panel-Typ mit Datenblattwerten](bilder/de/werkzeuge-bauen-led-03-typ-ausgefuellt.jpg)
+
+   | Feld | Bedeutung |
+   |---|---|
+   | *Name* | Bezeichnung des Typs; sie erscheint in der Auswahl der Wand. |
+   | *Pixelabstand (mm)* | Abstand der Pixel. |
+   | *Pixel quer* / *Pixel hoch* | Auflösung eines Panels. |
+   | *Breite (mm)* / *Höhe (mm)* | Maß eines Panels. |
+   | *Gewicht (kg)* | Gewicht eines Panels; leer heißt nicht angegeben. |
+   | *Leistung, Dauer (W)* / *Leistung, Spitze (W)* | Leistungsaufnahme eines Panels im Mittel und in der Spitze; leer heißt nicht angegeben. |
+   | *Datenblatt (URL)* | Verweis auf das Datenblatt. |
+
+   Das **×** neben den ersten Feldern (*Entfernen*) löscht den Panel-Typ.
+
+4. *Wand hinzufügen* legt eine Wand *Neue Wand* mit dem ersten Panel-Typ, 4 Spalten und 3 Reihen an. Gibt es mehrere Wände, wählen die Schaltflächen mit den Wandnamen, welche Wand unten steht.
+
+   ![Neue Wand](bilder/de/werkzeuge-bauen-led-04-wand-neu.jpg)
+
+5. Die Wand hat die Felder *Name*, *Panel-Typ* (Auswahl unter den Typen), *Spalten* und *Reihen*. Mit *Spalten* und *Reihen* ändert sich die Summe darunter sofort.
+
+   ![Raster 8 × 4](bilder/de/werkzeuge-bauen-led-05-raster.jpg)
+
+6. Statt das Raster zu zählen, geben Sie die Öffnung ein: *Öffnung Breite (mm)* und *Öffnung Höhe (mm)*. Neben dem Knopf steht, was passt, zum Beispiel *6 × 3 Kacheln, 300 mm quer und 200 mm hoch bleiben übrig*. Es wird abgerundet: eine Kachel, die nur zur Hälfte in der Öffnung steht, zählt nicht. Der Rest bleibt sichtbar, damit Sie entscheiden können, ob Sie die Wand mittig hängen oder die Öffnung ändern.
+
+   ![Öffnung eingegeben](bilder/de/werkzeuge-bauen-led-06-oeffnung.jpg)
+
+7. *Raster einpassen* übernimmt Spalten und Reihen. Der Knopf ist erst aktiv, wenn beide Maße größer als 0 sind.
+
+   ![Raster eingepasst](bilder/de/werkzeuge-bauen-led-07-oeffnung-eingepasst.jpg)
+
+#### Summe der Wand
+
+Unter den Feldern stehen sechs Werte: *Panels*, *Auflösung* (Pixel gesamt), *Mass (mm)*, *Gewicht*, *Leistung, Dauer* und *Leistung, Spitze*. Fehlt dem Panel-Typ das Gewicht oder die Leistung, steht an dieser Stelle *Panel-Typ trägt kein Gewicht* beziehungsweise *Panel-Typ trägt keine Leistungsangabe*. Ein Hinweis erinnert, die Sicherung nach der Spitze zu wählen und nicht nach dem Mittel.
+
+![Wand ohne Gewichtsangabe](bilder/de/werkzeuge-bauen-led-12-ohne-gewicht.jpg)
+
+#### Zuschnitt der Quelle
+
+Der Abschnitt *Zuschnitt der Quelle* rechnet, welchen Ausschnitt einer Standardquelle der Prozessor zeigen muss, damit sie die Wand unverzerrt und mittig füllt. *Breite der Quelle (px)* und *Höhe der Quelle (px)* sind mit 1920 × 1080 vorbelegt. Die Quelle wird so skaliert, dass sie die ganze Wand füllt; die Achse, die übersteht, wird mittig beschnitten. Vier Kacheln nennen die Werte in Quellpixeln: *X*, *Breite*, *Y* und *Höhe*. Die Achse, die nicht beschnitten wird, trägt die volle Quellgröße, nicht 0. Darunter steht ein Satz wie *Beschnitten: oben und unten (Y). Skalierung 30 %, Ebene 1152 × 576.* Die Achse heißt *nichts, gleiches Seitenverhältnis*, *seitlich (X)* oder *oben und unten (Y)*. Hat die Wand noch keine Auflösung, steht *Die Wand braucht zuerst eine Auflösung.*
+
+1. Geben Sie die Auflösung der Quelle ein, hier 3840 × 2160.
+
+   ![Zuschnitt für 3840 × 2160](bilder/de/werkzeuge-bauen-led-08-zuschnitt-quelle.jpg)
+
+2. Ein Klick auf eine Kachel kopiert ihren Wert in die Zwischenablage; die Kachel zeigt danach *· kopiert*.
+
+   ![Wert kopiert](bilder/de/werkzeuge-bauen-led-09-zuschnitt-kopiert.jpg)
+
+#### Sending Card
+
+*Ports der Sending Card* und *Pixel je Port* beschreiben die Sending Card. Der Dialog rechnet nur die Zahl der Ports, nicht, welche Kachel an welchem Port hängt. Das Urteil steht neben den Feldern: *2 von 4 Ports tragen sie*, *Reicht nicht — 2 Ports nötig, 1 vorhanden* oder, solange nichts eingetragen ist, *Zur Sending Card ist nichts eingetragen — also wird auch nichts behauptet.*
+
+![Vier Ports mit 650 000 Pixeln](bilder/de/werkzeuge-bauen-led-10-sending-card.jpg)
+
+![Ein Port reicht nicht](bilder/de/werkzeuge-bauen-led-11-sending-card-knapp.jpg)
+
+#### Anschlusspunkt des Hauses
+
+Enthält das Projekt eine Gebäude-Auskunft mit Anschlusspunkten, erscheint die Auswahl *Gespeist aus (Anschlusspunkt des Hauses)* mit der Vorgabe *nicht angegeben*. Die Dauerleistung geht dann in die Last an diesem Punkt; die Spitze bekommt einen eigenen Befund.
+
+#### Pixelmap
+
+*Pixelmap als PNG* speichert ein Bild, das so groß ist wie die Wand Pixel hat. Die Kacheln sind zeilenweise von oben links nummeriert. Der Knopf ist ohne Panels deaktiviert. Die Datei heißt `<Datum>_<Projektname>_<Nr>_pixelmap.png`.
 
 ### Frontplatten-Editor
 
 *Werkzeuge → Frontplatten-Editor…*
 
-Positioniert Buchsen auf einer Frontplatte (Wandfeld, Bühnenkiste) im Millimeter-Raster und druckt 1:1-Streifen zum Anbringen oder Fräsen.
+Der Frontplatten-Editor setzt die Stecker eines Wandanschlussfelds, einer Bodendose, einer Stagebox oder einer Blende in Millimetern und druckt den Beschriftungsstreifen im Maßstab 1:1. Die Stecker sind die Ports des Geräts und keine Zeichnung davon: Was Sie verschieben, ist dieselbe Lage, die die Rack-Ansicht liest.
 
-**Arbeitsweise:**
-1. Wählen Sie das Equipment (z. B. eine Wandplatte).
-2. Positionieren Sie Buchsen per Drag & Drop oder durch Eingabe der (X, Y)-Koordinaten.
-3. Definieren Sie Beschriftungen, Zonen und Farbcodes.
-4. Drucken Sie den Streifen in voller Größe — zum Aufkleben, als Fräsvorlage oder für die Überprüfung am Set.
+1. Öffnen Sie *Werkzeuge → Frontplatten-Editor…*. Hat das gewählte Gerät kein Maß in Millimetern, steht *Dieses Gerät hat noch kein Maß in Millimetern.* Ohne Breite und Höhe gibt es keine Platte, und *1:1 drucken* ist deaktiviert.
 
-**Reiter/Funktionen:**
-- **Layout:** Übersicht und Positionierung der Buchsen.
-- **Beschriftung:** Labels und Legende.
-- **Druck:** 1:1-Druckvorschau, Papierformat, Ränder.
+   ![Frontplatten-Editor ohne Maß](bilder/de/werkzeuge-bauen-frontplatte-01-offen.jpg)
 
----
+2. Wählen Sie das *Gerät*. Die Auswahl listet alle Geräte des Plans.
+
+   ![Gerät gewählt](bilder/de/werkzeuge-bauen-frontplatte-02-geraet-gewaehlt.jpg)
+
+3. Wählen Sie bei *Art*, was das Gerät ist: *Wandanschlussfeld*, *Bodentank*, *Stagebox*, *Rack-Blende* oder *Sonstige*. *keine Frontplatte* nimmt die Angabe wieder weg. Der *Bodentank* ist eine Bodendose: Er leitet wie ein Wandanschlussfeld durch und verbindet wie ein Anschlusspunkt; die 3D-Ansicht des Gebäudes legt ihn flach auf den Boden.
+
+   ![Art Wandanschlussfeld](bilder/de/werkzeuge-bauen-frontplatte-03-art-wandfeld.jpg)
+
+4. Tragen Sie *Breite (mm)* und *Höhe (mm)* der Platte ein. Beide Werte gelten für das Gerät.
+
+   ![Maß der Platte](bilder/de/werkzeuge-bauen-frontplatte-04-masse.jpg)
+
+5. Jeder Stecker ohne Lage steht in der Tabelle mit dem Knopf *setzen*; er setzt den Stecker in die Mitte der Platte.
+
+   ![Stecker gesetzt](bilder/de/werkzeuge-bauen-frontplatte-05-platziert.jpg)
+
+6. Ziehen Sie die Stecker mit der Maus an ihre Stelle. Die Tabelle zeigt die Lage in Millimetern von links oben (*Lage (mm)*).
+
+   ![Stecker verschoben](bilder/de/werkzeuge-bauen-frontplatte-06-verschoben.jpg)
+
+7. Tragen Sie bei jedem Stecker den *Ausschnitt (mm)* aus dem Dokument des Herstellers ein; er erscheint als gestrichelter Kreis um den Stecker. Das Programm rät den Ausschnitt nicht. Ohne Ausschnitt wird der Stecker nicht gegen die anderen geprüft, und die Befunde sagen das.
+
+   ![Ausschnitte eingetragen](bilder/de/werkzeuge-bauen-frontplatte-07-ausschnitt.jpg)
+
+8. *Raster (mm)* lässt gezogene Stecker auf ein Raster einrasten; 0 oder leer heißt frei. *Streifen (mm)* ist die Höhe des Streifenhalters; leer heißt kein Streifen. *1:1 drucken* druckt den Streifen in Originalgröße.
+
+   ![Raster und Streifen](bilder/de/werkzeuge-bauen-frontplatte-08-raster-streifen.jpg)
+
+Unter der Tabelle stehen die Befunde: *… sitzt außerhalb der Platte*, *… überschneiden sich um … mm* (beide rot), *… Stecker haben noch keine Lage auf der Platte* und *… Stecker tragen kein Ausschnittmaß — sie wurden NICHT gegeneinander geprüft.* Bei einem durchleitenden Feld (Patchfeld) gibt es zusätzlich das Feld *Auf der Platte* mit *Eingänge (n)* und *Ausgänge (n)*: Auf der Platte sitzt nur eine Seite; Position n vorne ist Position n hinten.
+
+![Art Bodentank](bilder/de/werkzeuge-bauen-frontplatte-09-art-bodentank.jpg)
 
 ### Berichts-Editor
 
 *Werkzeuge → Berichts-Editor…*
 
-Passt jede exportierbare Liste an (Kabel-BOM, Geräte, Lager): Spalten wählen oder verbergen, Gruppierung, Sortierung, Filter, und speichern als Vorlage für spätere Exporte.
+Der Berichts-Editor legt fest, wie eine Liste aussieht: Spalten, Reihenfolge, Gruppierung, Sortierung und Filter. Die Tabelle im Dialog ist der Inhalt der CSV-Datei und des gedruckten Blatts, keine Vorschau darauf.
 
-**Reiter:**
-- **Spalten:** Aktivieren/Deaktivieren der Spalten — die Liste wird mit den gewählten Spalten exportiert oder ausgedruckt.
-- **Gruppieren:** Nach Feld sortieren (z. B. Nach Gerättyp).
-- **Sortieren:** Primäre und sekundäre Sortierreihenfolge.
-- **Filter:** Zeigen nur Zeilen, die eine Bedingung erfüllen (z. B. nur Kabel > 50 m).
+1. Öffnen Sie *Werkzeuge → Berichts-Editor…*. Oben wählen Sie die *Liste*; sie ist beim Öffnen *Zug-Liste*. Die Zeile *Gruppieren nach* und der Zähler (*4 von 4 Zeilen · 24 Spalten*) stehen daneben, rechts die Knöpfe *CSV* und *Drucken*.
 
-Nach dem Speichern bleibt die Vorlage erhalten — der nächste Kabel-Export nutzt diese Einstellung.
+   ![Berichts-Editor mit der Zug-Liste](bilder/de/werkzeuge-bauen-bericht-01-offen.jpg)
 
----
+   Zur Auswahl stehen 17 Listen: *Zug-Liste*, *Auflege-Liste*, *Kabel-Schedule*, *Geräte-Register*, *Netz-Merkblatt*, *Spektrum-Plan*, *Ausspielung*, *Tally-Karte*, *Übergabe an die Post*, *Frontplatten*, *Signalwege*, *Hausstrecken-Belegung*, *Durchgänge (Brandschutz)*, *Mängel und Restpunkte*, *Wartungs- und Prüfplan*, *Konfigurationsvorgaben* und *Anhänge-Verzeichnis*.
+
+2. Wählen Sie eine andere Liste, hier *Kabel-Schedule*. Mit der Liste wechselt die Form; sie gehört zur Liste.
+
+   ![Kabel-Schedule gewählt](bilder/de/werkzeuge-bauen-bericht-02-liste-gewaehlt.jpg)
+
+3. Die Tabelle *Spalte | Reihenfolge | Sortieren | Filter* hat eine Zeile je Spalte. Das Kontrollkästchen vor dem Namen blendet die Spalte aus (der Name erscheint durchgestrichen) oder wieder ein.
+
+   ![Spalte *Standard* ausgeblendet](bilder/de/werkzeuge-bauen-bericht-03-spalte-aus.jpg)
+
+4. Die Pfeile unter *Reihenfolge* verschieben die Spalte nach oben (*Nach oben*) oder nach unten (*Nach unten*).
+
+   ![Spalte *Länge (m)* nach vorn geschoben](bilder/de/werkzeuge-bauen-bericht-04-spalte-verschoben.jpg)
+
+5. *Sortieren* schaltet bei jedem Klick weiter: *aufsteigend*, *absteigend*, *aus*. Mehrere Spalten sortieren in der Reihenfolge, in der Sie sie eingeschaltet haben; eine ausgeblendete Spalte sortiert mit.
+
+   ![Absteigend nach Länge](bilder/de/werkzeuge-bauen-bericht-05-sortiert.jpg)
+
+6. In *Filter* (Platzhalter *enthält…*) tippen Sie einen Text; nur Zeilen, deren Zelle ihn enthält, bleiben. Der Zähler nennt die Zeilen, hier *2 von 4 Zeilen*.
+
+   ![Gefiltert auf Camera](bilder/de/werkzeuge-bauen-bericht-06-gefiltert.jpg)
+
+7. *Gruppieren nach* wählt eine Spalte; unter der Tabelle stehen die Gruppen mit ihrer Zeilenzahl, zum Beispiel *BNC (2)*. Ohne Wert in der Gruppenspalte steht *nicht angegeben*.
+
+   ![Gruppiert nach Typ](bilder/de/werkzeuge-bauen-bericht-07-gruppiert.jpg)
+
+8. Unter *Als Vorlage speichern* geben Sie einen Namen ein, zum Beispiel *Ziehliste ohne Raum*.
+
+   ![Vorlagenname](bilder/de/werkzeuge-bauen-bericht-08-vorlage-name.jpg)
+
+9. *mit diesem Projekt* legt die Vorlage in der Projektdatei ab; sie geht mit ihr weiter. *für alle Projekte* legt sie in der Installation ab; sie gilt für das nächste Projekt. Die Vorlagen der gewählten Liste erscheinen darunter als Chips mit dem Zusatz *Projekt* beziehungsweise *global*. Ein Klick auf den Namen lädt die Vorlage; das Papierkorb-Symbol fragt *Berichts-Vorlage löschen?* und entfernt nur diese gespeicherte Ansicht.
+
+   ![Vorlage gespeichert](bilder/de/werkzeuge-bauen-bericht-09-vorlage-gespeichert.jpg)
+
+10. *CSV* speichert die Tabelle als CSV-Datei mit Semikolon als Trenner, benannt nach Projekt und Liste. *Drucken* öffnet das Blatt zum Drucken. Beide geben genau die Zeilen und Spalten aus, die die Tabelle zeigt.
+
+    ![Nach dem Speichern als CSV](bilder/de/werkzeuge-bauen-bericht-10-csv.jpg)
+
+Ist eine Liste im Projekt leer, steht *Diese Liste hat in diesem Projekt noch keine Zeilen.*; trifft kein Filter, steht *Keine Zeile passt zu den Filtern.*
 
 ### Adern und Farbnormen
 
 *Werkzeuge → Adern und Farbnormen…*
 
-Zeigt Steckerbelegungen und Farbcodes für alle unterstützten Stecker (XLR, HDMI, DB25, DMX, …) — zum Nachschlagen, für das Anlöten von Kabeln und zur Dokumentation.
+Der Dialog *Adern, Farbnormen, Anschlüsse und Faser-Polarität* hat drei Reiter. Es ist keine Norm eingebaut: Welche Farbzuordnung oder Polaritätsmethode für die Anlage gilt, steht nicht im Programm. Eine vorgegebene Norm würde wie eine geprüfte Angabe aussehen. Sie tragen deshalb die Norm ein, und zu jeder Norm gehört eine Herkunft.
 
-**Struktur:**
-- **Stecker auswählen:** Dropdown mit allen Typen (Cinch, XLR, BNC, Klinke, Speakon, …).
-- **Belegung:** Grafik oder Tabelle mit Kontakt-Nummer, Name, Farbe und Funktion.
-- **Standard:** Zur Information (z. B. IEC 60268-12 für XLR Audio).
+#### Reiter Farbnormen
 
-Nutzen Sie dieses Werkzeug, um Kabel anzulöten oder um Verwechslungen bei der Wartung zu vermeiden.
+1. Ohne Eintrag steht *Noch keine Farbnorm eingetragen.* Ohne Norm bleiben die Adernfarben ungeprüft; der Plan-Check sagt das.
 
----
+   ![Reiter Farbnormen ohne Eintrag](bilder/de/werkzeuge-bauen-adern-01-normen-leer.jpg)
+
+2. *Farbnorm eintragen* legt eine Norm *Neue Farbnorm* an. Der Papierkorb löscht sie nach der Rückfrage *Farbnorm löschen?*; Anschlüsse, die sie gewählt hatten, bleiben dann ohne Norm.
+
+   ![Neue Farbnorm](bilder/de/werkzeuge-bauen-adern-02-norm-neu.jpg)
+
+3. Geben Sie den *Name der Norm* und die *Herkunft (Pflicht)* ein, zum Beispiel eine Vorschrift mit Ausgabe und Seite oder „Hausstandard, festgelegt von …". Ohne Herkunft ist das Feld rot, und die Norm wird beim nächsten Laden verworfen. Dann tragen Sie je Leiter die Farbe ein: *L1*, *L2*, *L3*, *N* und *PE*.
+
+   ![Ausgefüllte Farbnorm](bilder/de/werkzeuge-bauen-adern-03-norm-ausgefuellt.jpg)
+
+#### Reiter Anschlüsse (Bündel)
+
+Ein Anschluss ist eine Verbindung, die man je Leiter einzeln zieht: fünf Leitungen bilden zum Beispiel einen 400-A-Anschluss. Tragen Sie ein, welche Leiter er haben muss; nur dann kann der Plan merken, dass die vierte Leitung fehlt. Ein Anschluss ist nicht dasselbe wie der Multicore-Name eines Kabels: Der Multicore-Name zählt Kabel in einem Mantel als ein Stück, der Anschluss legt fest, welche Leiter vorhanden sein müssen.
+
+1. Der Reiter beginnt leer; *Anschluss anlegen* legt einen Anschluss an.
+
+   ![Reiter Anschlüsse](bilder/de/werkzeuge-bauen-adern-04-anschluss-leer.jpg)
+
+   ![Neuer Anschluss](bilder/de/werkzeuge-bauen-adern-05-anschluss-neu.jpg)
+
+2. Ein Anschluss hat einen Namen, die Leiter *L1*, *L2*, *L3*, *N*, *PE* und *frei*, die er haben muss, die *Farbnorm für diesen Anschluss* (Vorgabe *keine gewählt*) und eine *Notiz (z. B. Steckverbinder-Kodierung)*. Die Kodierung steht im Dokument des Herstellers; sie wird eingetragen und nicht geraten. Der Papierkorb fragt *Anschluss löschen?*; die Leitungen bleiben, gehören danach zu keinem Anschluss.
+
+   ![Anschluss ausgefüllt](bilder/de/werkzeuge-bauen-adern-06-anschluss-ausgefuellt.jpg)
+
+#### Reiter Faser-Polarität
+
+Auch hier ist keine Methode eingebaut: TIA-568 kennt die Methoden A, B und C, sie unterscheiden sich darin, wo die Fasern gekreuzt werden. Welche gilt, steht im Anlagendokument.
+
+1. Ohne Eintrag bleibt die Faser-Richtung ungeprüft.
+
+   ![Reiter Faser-Polarität](bilder/de/werkzeuge-bauen-adern-07-polaritaet-leer.jpg)
+
+   ![Neue Methode](bilder/de/werkzeuge-bauen-adern-08-polaritaet-neu.jpg)
+
+2. Geben Sie *Name der Methode* und *Herkunft (Pflicht)* ein. *Diese Methode kreuzt die Fasern: TX des einen Endes trifft RX des anderen.* schaltet die Kreuzung ein. *Diese Methode gilt für dieses Projekt.* wählt die Methode für das Projekt. Löschen fragt *Polaritäts-Methode löschen?*; war sie die gewählte, ist die Faser-Richtung danach wieder ungeprüft.
+
+   ![Polaritäts-Methode ausgefüllt](bilder/de/werkzeuge-bauen-adern-09-polaritaet-ausgefuellt.jpg)
 
 ### Empfangene Show-Control-Nachrichten
 
 *Werkzeuge → Empfangene Show-Control-Nachrichten…*
 
-Protokolliert alle OSC-, MIDI- und andere Show-Control-Botschaften, die die Planner-App empfangen hat (aus einem Ablauf-System, einer Kamera-Fernbedienung, etc.). Eine Lesart, keine System-Konfiguration — zeigt, was kam, aber speichert es nicht.
+Das Fenster führt eine Mitschrift eingehender OSC-Nachrichten. Es ist kein Monitor der Anlage: Eine Zeile sagt, dass etwas ankam, nicht, dass etwas in Ordnung ist. Ein leeres Fenster heißt deshalb nur, dass hier nichts ankam, nicht, dass nichts gesendet wurde.
 
-**Spalten:** Uhrzeit, Befehl, Quelle, Parameter, Status.
+1. Oben steht der Zustand des Lauschers: *Lauscher: aus*, *Lauscher: lauscht — Adresse:Port* oder *Lauscher: eingeschaltet, aber nicht gebunden* mit dem Grund. Im letzten Fall kommt nichts an, auch wenn jemand sendet.
 
-**Nutzung:** Zum Testen von Integrationen oder zum Verfolgen von Fernsteuerungs-Vorgängen während einer Probenaufzeichnung.
+   ![Fenster mit ausgeschaltetem Lauscher](bilder/de/werkzeuge-bauen-osc-01-offen.jpg)
 
----
+2. Tragen Sie die *Adresse, auf der gelauscht wird* und den *Port* ein (Vorgabe 9000). Es gibt bewusst keine Vorgabe für die Adresse: Eine, die auf allen Schnittstellen lauscht, wäre eine Entscheidung, die niemand getroffen hat, auch im Kundennetz. Die Einstellung gehört zum Projekt. Eine geladene Projektdatei schaltet den Lauscher nicht von selbst ein.
+
+   ![Adresse und Port eingetragen](bilder/de/werkzeuge-bauen-osc-02-adresse.jpg)
+
+3. *Für dieses Projekt zuhören* schaltet den Lauscher ein.
+
+   ![Lauscher lauscht](bilder/de/werkzeuge-bauen-osc-03-lauscht.jpg)
+
+4. Jede Nachricht erscheint in der *Mitschrift* mit Adresse, Uhrzeit, Absender und Alter, zum Beispiel */cue/12/go um 06:29:01 von 127.0.0.1:57060 empfangen (vor 2 s)*, dazu die Größe der Nutzlast. Das Alter läuft weiter, damit eine alte Zeile nicht wie eine aktuelle aussieht.
+
+   ![Eine empfangene Nachricht](bilder/de/werkzeuge-bauen-osc-04-nachricht.jpg)
+
+5. *Leeren* löscht die Mitschrift.
+
+   ![Mitschrift geleert](bilder/de/werkzeuge-bauen-osc-05-geleert.jpg)
+
+Unter der Mitschrift steht der Abschnitt *Companion-Variablenstand zurücklesen*. Er kennt keinen Knopf, der Companion befragt: Er nennt die Befehlszeilen, die Sie in der TCP-Steuerung von Companion eingeben, und nimmt die Antworten über das Feld *Antworten hier einfügen* mit *Als Ablesung übernehmen* zurück. Jede Ablesung trägt die Uhrzeit des Ablesens. Solange kein Gerät im Plan über Companion geschaltet wird, steht dort *Kein Gerät im Plan wird über Companion geschaltet — es gibt keine Variable, die sich zurücklesen ließe.*
 
 ### Mehrere Kabel verbinden
 
 *Werkzeuge → Mehrere Kabel verbinden…*
 
-Erstellt N Kabel auf einmal — Quelle-Port i → Ziel-Port i. Belegte Ziel-Ports werden übersprungen.
+Der Dialog legt mehrere Kabel in einem Zug an: Port *i* der Quelle geht an Port *i* des Ziels. Belegte Ziel-Ports werden übersprungen. Er öffnet auch über die Befehlspalette (Strg+K) und über den Knopf *Kabel verbinden* der Werkzeugleiste des Canvas, wenn genau zwei Geräte markiert sind; die beiden Geräte sind dann als Quelle und Ziel vorbelegt.
 
-![Mehrere Kabel verbinden Dialog](bilder/de/werkzeuge-bauen-mehrere-kabel.jpg)
+1. Öffnen Sie *Werkzeuge → Mehrere Kabel verbinden…*. Der Dialog hat die Blöcke *Quelle* und *Ziel*, darunter *Anzahl Kabel*, *Kabel-Typ* und *Länge pro Kabel (m)*.
 
-**Felder:**
-- **QUELLE:** Gerät und Seite (Outputs/Inputs) + Start-Port-Nummer.
-- **ZIEL:** Gerät und Seite (Inputs/Outputs) + Start-Port-Nummer.
-- **Anzahl Kabel:** Wie viele Verbindungen erstellt werden.
-- **Kabel-Typ:** Aus einer Dropdown (XLR Audio, SDI 3G, HDMI, Dante, DMX, Power, …).
-- **Länge pro Kabel (m):** Wird auf alle Kabel übernommen (später einzeln änderbar).
+   ![Dialog Mehrere Kabel verbinden](bilder/de/werkzeuge-bauen-bulk-01-offen.jpg)
 
-**Vorschau:** Zeigt, welche Kabel entstehen, bevor Sie bestätigen. Belegte Ziele werden übersprungen — bei „0 Kabel erstellen" sind alle Ziel-Ports bereits belegt.
+2. Wählen Sie bei *Quelle* das *Gerät*, die *Seite* (*Outputs* oder *Inputs*) und den Start-Port (*Start-Output (1..n)*).
 
----
+   ![Quelle gewählt](bilder/de/werkzeuge-bauen-bulk-02-quelle.jpg)
+
+3. Wählen Sie bei *Ziel* ebenso Gerät, Seite (*Inputs* oder *Outputs*) und den Start-Port. Die Seiten lassen sich beliebig kombinieren, auch Output zu Output, zum Beispiel bei einer Patchblende.
+
+   ![Ziel gewählt](bilder/de/werkzeuge-bauen-bulk-03-ziel.jpg)
+
+4. Tragen Sie die *Anzahl Kabel* ein (1 bis 256; Vorgabe 8). Die *Vorschau* zeigt die Paare, bis zu 12; sind es mehr, steht die Zahl der übrigen. Reichen die Ports nicht, warnt der Dialog mit *Anzahl überschreitet verfügbare Ports — überzählige werden ausgelassen.*
+
+   ![Anzahl eingetragen](bilder/de/werkzeuge-bauen-bulk-04-bereich.jpg)
+
+5. Wählen Sie den *Kabel-Typ* aus dem Katalog samt eigenen Kabeltypen und die *Länge pro Kabel (m)*. Der Kabelname entsteht aus den beiden Port-Namen, die Farbe aus dem Kabeltyp.
+
+   ![Kabeltyp und Länge](bilder/de/werkzeuge-bauen-bulk-05-kabeltyp.jpg)
+
+6. *8 Kabel erstellen* legt die Kabel an; der Knopf nennt die Zahl der Paare der Vorschau. Müssen Ziel-Ports übersprungen werden, nennt eine Meldung, wie viele Kabel entstanden und wie viele ausgelassen wurden. Die Kabel zählen als ein Schritt für Rückgängig. Die Statusleiste nennt danach die neue Kabelzahl.
+
+   ![Statusleiste nach dem Anlegen](bilder/de/werkzeuge-bauen-bulk-06-angelegt.jpg)
 
 ### Neues Rack erstellen
 
 *Werkzeuge → Neues Rack erstellen…*
 
-Startet einen Assistent zum Aufbau eines neuen Racks oder einer Regalanlage. Sie definieren:
+Der Eintrag öffnet den 2D-Rack-Builder mit einem leeren Rack und schaltet die Bibliothek auf den Reiter *Racks*. Der Builder stellt ein Rack aus Geräten zusammen, zeigt es von vorn, von hinten, von der Seite und in 3D und speichert es als platzierbare Gruppe in der Bibliothek. Die Karten auf dem Reiter *Racks*, das Bearbeiten gespeicherter Racks und das Platzieren auf dem Canvas beschreibt das Kapitel [Bibliothek](#rack-builder); wie ein Rack auf dem Canvas aussieht, steht im Kapitel [Canvas](#3-canvas).
 
-1. **Racktyp:** 19" Standard, Grundriss-Feld oder Freistellung (z. B. Standregal).
-2. **Größe:** Höhe in HE, Tiefe in mm.
-3. **Material & Farbe:** Gehäuse, Seitenwand.
-4. **Position im Plan:** Raum und Koordinaten.
+Der Entwurf eines neuen Racks wird laufend zwischengespeichert; die Fußzeile zeigt *Autosave aktiv*, solange es ungespeicherte Änderungen gibt, sonst *Gespeichert*.
 
-Das neue Rack wird im Plan eingefügt und kann sofort mit Geräten gefüllt werden.
+1. Öffnen Sie *Werkzeuge → Neues Rack erstellen…*. Die Kopfzeile nennt *Neues Rack* mit der Marke *Neu*, nach der ersten Änderung zusätzlich *Ungespeichert*. Rechts stehen *Exportieren* und **×**.
 
----
+   ![Der leere Rack-Builder](bilder/de/werkzeuge-bauen-rack-01-offen.jpg)
 
-### Rack-Builder
+2. Tragen Sie den *Rack-Name* ein (Pflichtfeld), die *Höhe (HE)* (1 bis 60) und die *Tiefe (mm)* (200 bis 1500; Vorgabe 800; gängig sind 350, 450, 600, 800, 1000 und 1200).
 
-*Werkzeuge → Rack-Builder…*
+   ![Name, Höhe und Tiefe](bilder/de/werkzeuge-bauen-rack-02-kopf.jpg)
 
-Populiert und bearbeitet Racks — platziert Geräte im Gehäuse, definiert Kabelwege und exportiert STL/3D-Modelle zum Visualisieren oder Fräsen.
+3. Links steht die *Bibliothek* mit der Zahl der Treffer. Das Suchfeld *Gerät suchen…* filtert nach dem Namen; **×** im Feld löscht den Suchbegriff. Auf jeder Karte stehen Name, Kategorie und *n HE · x In · y Out*.
 
-![Rack-Builder Dialog](bilder/de/werkzeuge-bauen-rack-builder.jpg)
+   ![Suche nach einem Gerät](bilder/de/werkzeuge-bauen-rack-03-suchen.jpg)
 
-**Arbeitsweise:**
-1. Wählen Sie ein Rack aus dem Plan (oder erstellen Sie eines über „Neues Rack erstellen").
-2. Ziehen Sie Geräte aus der Gerätebibliothek in freie HE-Positionen.
-3. Verbinden Sie Rückseiten (A/B) und definieren Sie Kabelwege.
-4. Speichern — das 3D-Modell wird aktualisiert.
+4. *+ Ins Rack* stellt das Gerät in den ersten freien Platz. Ein Gerät lässt sich auch aus der Bibliothek in das Rack ziehen; die Stelle, an der es fällt, bestimmt die Start-HE und, in der Ansicht *Beide*, die Seite. Ist das Gerät schon im Rack, steht *+ Weitere* auf dem Knopf, und ein Zähler *n×* nennt, wie oft es steht.
 
-**Reiter:**
-- **Übersicht:** Rack mit eingebauten Geräten (Vorder- und Rückseite wählbar).
-- **3D-Ansicht:** Perspektivisches Modell zum Visualisieren von Kabelwegen und Platzbedarf.
-- **Kabelwege:** Liste der Verbindungen im Rack mit Längen und Wegen.
-- **Export:** STL für 3D-Druck, PDF für technische Zeichnungen.
+   ![Das Gerät steht im Rack](bilder/de/werkzeuge-bauen-rack-04-im-rack.jpg)
 
----
+   Der kleine Pfeil am Knopf öffnet die Montageart: *Full-Depth* (vorne + hinten, Vorgabe), *Nur vorne* (*Front-Mount*) oder *Nur hinten* (*Rear-Mount*, zum Beispiel für eine Patchblende).
+
+5. Weitere Geräte kommen auf dieselbe Weise dazu. Die Fußzeile zählt mit, wie voll das Rack ist: *Geräte:* und *HE belegt:*.
+
+   ![Zwei Geräte im Rack](bilder/de/werkzeuge-bauen-rack-05-zweites-geraet.jpg)
+
+#### Ansichten
+
+Über dem Rack stehen die Reiter *2D* und *3D*. Im Reiter *2D* wechseln die Knöpfe *Vorne*, *Hinten*, *Beide* und *Seite* die Ansicht; der Zoom (**−**, Prozentwert, **+**, *Einpassen*) wirkt nur in 2D. *Stecker-Symbole zeigen* blendet die gezeichneten Steckverbinder in 2D und 3D ein.
+
+1. *Hinten* zeigt die Rückseite.
+
+   ![Rückansicht](bilder/de/werkzeuge-bauen-rack-06-hinten.jpg)
+
+2. *Beide* stellt Vorder- und Rückseite nebeneinander.
+
+   ![Vorder- und Rückansicht](bilder/de/werkzeuge-bauen-rack-07-beide.jpg)
+
+3. *Seite* zeigt die Tiefe: Jedes Gerät ist ein Streifen von seiner Vorderkante bis zur Hinterkante in der Rack-Tiefe (*Vorne bis hinten: 800 mm*); die vorderen und hinteren Schienen sind markiert.
+
+   ![Seitenansicht](bilder/de/werkzeuge-bauen-rack-08-seite.jpg)
+
+4. *3D* zeigt das Rack räumlich: links drehen, rechts verschieben, mit dem Rad zoomen; *Shift* bewegt die Ansicht nach oben, *Space* nach unten. Die Auswahl *Ansicht:* wählt *Alle* (alle Geräte, freie Ports und Patchblenden), *Freie Ports* (nur Geräte mit freien Ports und Patchblenden) oder *Released* (Patchblenden und extern verkabelbare Geräte). Die 3D-Ansicht liest nur; bearbeitet wird in 2D.
+
+   ![3D-Ansicht](bilder/de/werkzeuge-bauen-rack-21-3d.jpg)
+
+#### Sonderfälle beim Bestücken
+
+- **Patchblende.** *+ Patchblende* öffnet *Patchblende anlegen*. Der Reiter *Basics* hat *Name*, *Höhe (HE)*, *Montage* (*Full-Depth (vorne)*, *Nur vorne*, *Nur hinten*), *Anzahl Ports* (12, 16, 24, 32 oder 48 oder ein eigener Wert), das Kästchen *Adapter-Patchblende* (Front und Rear tragen verschiedene Stecker, mit internem Adapterkabel) und den *Connector-Typ*. Im Reiter *Per-Port-Detail (n)* lassen sich Label und Stecker je Port überschreiben; leer heißt Vorgabe. *Patchblende erstellen* stellt sie ins Rack.
+
+  ![Dialog Patchblende anlegen](bilder/de/werkzeuge-bauen-rack-09-patchblende-dialog.jpg)
+
+  ![Reiter Per-Port-Detail](bilder/de/werkzeuge-bauen-rack-10-patchblende-ports.jpg)
+
+  ![Patchblende im Rack](bilder/de/werkzeuge-bauen-rack-11-patchblende-angelegt.jpg)
+
+- **Rack-Shelf.** *+ Rack-Shelf* öffnet *Rack-Shelf anlegen* mit *Name*, *Höhe (HE)* und *Tiefe (mm)*. Ein Shelf trägt Geräte, die keine 19 Zoll haben: Setzen Sie sie auf dieselbe Start-HE wie das Shelf, dann stehen sie in der Ansicht darauf.
+
+  ![Dialog Rack-Shelf anlegen](bilder/de/werkzeuge-bauen-rack-12-shelf-dialog.jpg)
+
+  ![Shelf im Rack](bilder/de/werkzeuge-bauen-rack-13-shelf-angelegt.jpg)
+
+- **Geräte ohne Rack-Maß.** Mit dem Kästchen *Auch Nicht-Rack-Geräte* zeigt die Bibliothek auch Geräte, die nicht als 19-Zoll-Gerät markiert sind; sie tragen die Marke *No-HE*.
+
+  ![Nicht-Rack-Geräte in der Bibliothek](bilder/de/werkzeuge-bauen-rack-14-nicht-rack.jpg)
+
+  Beim Hinzufügen fragt *… hinzufügen* nach der Art: *Als 19″-Gerät* (mit *HE-Höhe*) oder *Auf Shelf* (mit *Breite (mm)*, *Höhe (mm)* und *Tiefe (mm)*; Schnellwahl 1/3, 1/2 und 2/3 Rack-Breite). *Maße permanent ans Template speichern* merkt sich die Antwort, sodass nicht noch einmal gefragt wird.
+
+  ![Frage nach der Montageart](bilder/de/werkzeuge-bauen-rack-15-nicht-rack-dialog.jpg)
+
+  ![Gerät im Rack](bilder/de/werkzeuge-bauen-rack-16-nicht-rack-hinzugefuegt.jpg)
+
+#### Eigenschaften eines Geräts im Rack
+
+Ein Doppelklick auf ein Gerät im Rack öffnet *Eigenschaften · Gerätename*. Das Fenster hat *Name*, *Kategorie*, *Höhe (HE)*, *Start-HE* (mit dem Höchstwert), *Tiefe (mm)*, *Montage* (*Full-Depth*, *Nur vorne*, *Nur hinten*), bei halbbreiten Geräten *Hälfte (Vorderansicht)* (*Links* oder *Rechts*), *3D-Modell (STL, optional)*, die Abschnitte *Tiefen-Position (Z)* und *Port-Seite (Front/Rear)* sowie *Panel-Bilder (Import + Zuschneiden)*. Unten stehen *Aus Rack entfernen* (mit Rückfrage) und *Schließen*.
+
+![Eigenschaften eines Geräts im Rack](bilder/de/werkzeuge-bauen-rack-17-eigenschaften.jpg)
+
+- *Port-Seite* legt je Port fest, ob er vorn oder hinten sitzt; *alle nach hinten*, *spiegeln* und *alle nach vorne* ändern alle Ports auf einmal.
+- *STL auswählen…* nimmt ein 3D-Modell bis 5 MB; ohne Modell zeichnet die 3D-Ansicht das Gerät als Box mit Front- und Rückfoto. *Entfernen* nimmt das Modell wieder weg.
+- Die Panel-Bilder lassen sich importieren, zuschneiden (*Zuschnitt übernehmen*), tauschen (*Front/Rear tauschen*) und entfernen.
+
+![Untere Hälfte der Eigenschaften](bilder/de/werkzeuge-bauen-rack-18-eigenschaften-stl.jpg)
+
+#### Konflikte
+
+Überlappen sich zwei Geräte, steht über dem Rack der Kasten *Konflikte (n)* mit den Fällen, zum Beispiel *Luminex GigaCore 12 überlappt mit Blackmagic Smart Videohub 12x12.* Die Fußzeile nennt die Zahl ebenfalls (*n Konflikte*). Weitere Fälle: ein Gerät, das nicht als Rack-Gerät markiert ist, eine Start-HE kleiner als 1 und ein Gerät, das ab seiner Start-HE nicht mehr ins Rack passt. Konflikte blockieren das Speichern nicht; das Rack wird trotzdem gespeichert.
+
+![Zwei Geräte überlappen](bilder/de/werkzeuge-bauen-rack-19-konflikt.jpg)
+
+![Konflikt behoben](bilder/de/werkzeuge-bauen-rack-20-konflikt-behoben.jpg)
+
+![Zurück in 2D](bilder/de/werkzeuge-bauen-rack-22-2d.jpg)
+
+#### Exportieren, verkabeln und speichern
+
+- *Exportieren* in der Kopfzeile bietet vier Wege: *2D als PNG* (die aktuelle Ansicht), *3D aus 4 Perspektiven* (PNG: Front, Rear, Iso, Top; der Reiter *3D* muss vorher geöffnet worden sein), *3D als STL* (das ganze Rack als binäres STL für 3D-Druck und CAD) und *.cpgroup herunterladen* (das komplette Rack samt STL und Fotos für den Transport auf einen anderen Rechner).
+
+  ![Menü Exportieren](bilder/de/werkzeuge-bauen-rack-23-export.jpg)
+
+- *Intern verkabeln* in der Fußzeile öffnet *Rack-Verkabelung: Rackname*, eine Canvas-Ansicht der Geräte des Racks: Ziehen Sie Linien von einem Output zu einem Input; rechts zeigt der Inspector (*Eigenschaften (Rack-Scope)*) das markierte Gerät oder Kabel. *Fertig* kehrt zum Builder zurück. Der Knopf ist erst aktiv, wenn mindestens ein Gerät im Rack steht. Gibt es interne Kabel, nennt die Fußzeile ihre Zahl (*n Kabel*).
+
+  ![Rack-Verkabelung](bilder/de/werkzeuge-bauen-rack-24-intern.jpg)
+
+- *Rack speichern* legt das Rack als neue Gruppe in der Bibliothek ab. Es verlangt einen Namen (*Bitte Rack-Name angeben.*) und mindestens ein Gerät (*Bitte mindestens ein Gerät ins Rack legen.*). *Abbrechen* und **×** fragen bei ungespeicherten Änderungen nach (*Ungespeicherte Rack-Änderungen verwerfen?*). Beim Bearbeiten eines gespeicherten Racks heißt der Knopf *Speichern*.
+
+  ![Das gespeicherte Rack auf dem Reiter Racks](bilder/de/werkzeuge-bauen-rack-25-gespeichert.jpg)
+
+Das Feld *Live-Preview* rechts zeigt das Rack als *Black-Box auf Canvas* mit *n Geräte · m interne Kabel*: so erscheint es auf dem Canvas.
 
 ### KI-Plan generieren
 
 *Werkzeuge → KI-Plan generieren…*
 
-Generiert einen Entwurf für einen Kabelprojekt anhand einer Textbeschreibung — z. B. „Live-Konzert, 3 Kameras, ATEM 2 M/E, Multiviewer, Ton auf Dante". Die KI erstellt Geräte, Verbindungen und Grundriss basierend auf Standardvorlagen.
+Der Dialog *KI-Plan-Generierung* erzeugt einen Entwurf aus einer Beschreibung oder ergänzt den offenen Plan aus Dokumenten. Nichts wird ohne Bestätigung eingefügt: Erst erscheint eine Vorschau. Die Anfrage geht an den Anbieter, den Sie unter *Einstellungen → Integrationen → AI* gewählt haben; die Aufnahmen dieses Kapitels zeigen erfundene Antworten, es geht keine Anfrage hinaus.
 
-![KI-Plan-Generierung Dialog](bilder/de/werkzeuge-bauen-ki-plan.jpg)
+1. Ohne hinterlegten Schlüssel steht oben *Kein AI-API-Key hinterlegt. Bitte in den Einstellungen → AI einen Provider-Key eintragen.* und *Generieren* ist gesperrt.
 
-**Voraussetzung:** Ein API-Key für einen KI-Anbieter (OpenAI, Anthropic, …) in den Einstellungen → AI hinterlegt.
+   ![Dialog ohne Schlüssel](bilder/de/werkzeuge-bauen-ki-01-ohne-schluessel.jpg)
 
-**Arbeitsweise:**
-1. Beschreiben Sie das System in Klartext.
-2. Klicken Sie „Generieren".
-3. Eine Vorschau wird angezeigt.
-4. Bestätigen Sie, um sie in den Plan einzufügen.
+2. **Aus einer Beschreibung.** Beschreiben Sie die Anlage unter *System in Klartext beschreiben*, zum Beispiel eine Kamera über SDI in einen Bildmischer und das Programmbild auf einen Recorder.
 
-Das Ergebnis ist ein erster Entwurf — keine vollständige Planung. Sie ergänzen Geräte, ändern Verbindungen und gleichen mit der Realität ab, wie üblich.
+   ![Beschreibung eingegeben](bilder/de/werkzeuge-bauen-ki-02-beschreibung.jpg)
 
----
+3. *Generieren* zeigt die Vorschau: *Vorschau: 3 Geräte, 2 Kabel* mit der Liste der Geräte und ihrer Kategorie, dazu Warnungen, etwa wenn eine Verbindung auf ein unbekanntes Gerät zeigte. *In den Plan einfügen* übernimmt Geräte und Kabel.
+
+   ![Vorschau der Beschreibung](bilder/de/werkzeuge-bauen-ki-03-vorschau.jpg)
+
+4. Nach dem Einfügen schließt der Dialog; die Statusleiste nennt die neue Zahl der Geräte und Kabel.
+
+   ![Statusleiste nach dem Einfügen](bilder/de/werkzeuge-bauen-ki-04-eingefuegt.jpg)
+
+5. **Aus Dokumenten.** *Dateien wählen* oder Ablegen von Dateien im gestrichelten Feld nimmt Blockschaltbilder, IP-Listen, Stücklisten und Grundrisse an: PDF, Excel, CSV, Bilder und `.cableplan`. Die Dateien erscheinen mit ihrer Größe; **×** nimmt eine wieder weg. Alle Anhänge zusammen dürfen 20 MB nicht überschreiten; sonst steht *Zusammen … — mehr, als eine Anfrage tragen kann. Dokumente in mehreren Runden schicken.* Mit Dokumenten heißt das Textfeld *Hinweis an die KI (optional)*.
+
+   ![Dokument angehängt](bilder/de/werkzeuge-bauen-ki-05-dokument.jpg)
+
+6. *Plan vervollständigen* vergleicht die Dokumente mit dem offenen Plan und liefert nur, was fehlt: *Vorschau: 1 neue Räume, 1 neue Geräte, 0 Kabel, 0 Geräte ergänzt* mit den neuen Räumen (+) und Geräten (•, mit Kategorie und IP) sowie Warnungen. Enthalten die Dokumente nichts Neues, steht *Die Dokumente enthalten nichts, was dem Plan fehlt.*
+
+   ![Vorschau der Ergänzung](bilder/de/werkzeuge-bauen-ki-06-ergaenzung-vorschau.jpg)
+
+7. *In den Plan einfügen* übernimmt die Ergänzung.
+
+   ![Statusleiste nach der Ergänzung](bilder/de/werkzeuge-bauen-ki-07-ergaenzung-eingefuegt.jpg)
 
 ### Revisionen & Snapshots
 
 *Werkzeuge → Revisionen & Snapshots…*
 
-Speichert Snapshots des Plans — zum Dokumentieren von As-Built-Ständen, zum Vergleich mit früheren Versionen oder zum Archivieren.
+Eine Revision speichert einen vollständigen Stand des Plans unter einem Namen. Beim Wiederherstellen bleibt die Historie erhalten. Die letzte Revision erscheint im Titelblock der Ausgaben, bei einer As-Built-Revision mit dem Zusatz *(As-Built)*. Zwei Stände miteinander vergleichen Sie über *Datei → Plan-Stände vergleichen…*, siehe [Exportieren und Drucken](#7-exportieren-und-drucken).
 
-![Revisionen & Snapshots Dialog](bilder/de/werkzeuge-bauen-revisionen.jpg)
+1. Öffnen Sie *Werkzeuge → Revisionen & Snapshots…*. Der Abschnitt *Aktuellen Stand festschreiben* hat *Label* (zum Beispiel „A“ oder „Rev 2“), *Notiz: was hat sich geändert?* und das Kästchen *As-Built*. Solange keine Revision existiert, steht *Noch keine Revisionen festgeschrieben.*
 
-**Arbeitsweise:**
-1. Geben Sie einen Namen ein (z. B. „As-Built", „Technische Abnahme").
-2. Klicken Sie „Festschreiben" — ein kompletter Snapshot wird gespeichert.
-3. Revisionen sind unveränderlich — Sie können Sie nicht später bearbeiten.
-4. Zum Wiederherstellen: Wählen Sie eine Revision und klicken „Wiederherstellen".
+   ![Dialog ohne Revisionen](bilder/de/werkzeuge-bauen-revisionen-01-leer.jpg)
 
-**Unterschied zu Undo:** Revisionen sind absichtlich aufbewahrte Meilensteine. Undo ist ein temporärer Puffer für die aktuelle Arbeitssitzung.
+2. *Festschreiben* legt die Revision an. Ohne Label heißt sie *Rev n*.
 
-**Reiter:**
-- **Snapshots:** Liste aller Revisionen mit Datum, Benutzer und Beschreibung.
-- **Vergleich:** Zeigt die Unterschiede zwischen zwei Revisionen (neuen Geräten, geänderten Kabeln, …).
+   ![Erste Revision](bilder/de/werkzeuge-bauen-revisionen-02-festgeschrieben.jpg)
 
----
+3. Mit dem Kästchen *As-Built* markieren Sie den Stand, wie er gebaut wurde; die Liste kennzeichnet ihn mit *As-built*. Die Liste steht neueste zuerst, jede Zeile mit Label, Notiz und Zeitpunkt.
+
+   ![As-built-Revision](bilder/de/werkzeuge-bauen-revisionen-03-as-built.jpg)
+
+4. Der Pfeil in der Zeile (*Wiederherstellen*) fragt *Diesen Stand wiederherstellen?*: Der aktuelle Plan wird durch die Revision ersetzt, die Historie bleibt.
+
+   ![Rückfrage beim Wiederherstellen](bilder/de/werkzeuge-bauen-revisionen-04-wiederherstellen.jpg)
+
+5. Der Papierkorb (*Löschen*) fragt *Revision löschen?*; die Revision wird dauerhaft entfernt.
+
+   ![Rückfrage beim Löschen](bilder/de/werkzeuge-bauen-revisionen-05-loeschen.jpg)
 
 ### Lager / Bestand
 
-*Werkzeuge → Lager / Bestand…* (nur mit aktiviertem Rental-Modul)
+*Werkzeuge → Lager / Bestand…*
 
-Verwaltet die Lagerhaltung — verfügbare Geräte, Verbrauchtes, Beschädigtes — wenn Ihre Firma Geräte vermietet oder lagert.
+Der Eintrag erscheint, wenn das Modul Vermietung eingeschaltet ist. Das Fenster verwaltet das eigene Material: Artikel mit Menge und Preis, Lagerorte und Cases, einzelne serialisierte Einheiten, Sets, die Ausgabe von Containern, QR-Etiketten und eine Auswertung.
 
-**Reiter:**
-- **Bestand:** Aktuelle Menge jedes Geräts (verfügbar, vermietet, Wartung).
-- **Transaktionen:** Zu- und Abgänge mit Datum und Grund.
-- **Verfügbarkeit:** Zeigt, ob alle Geräte des Plans lagern (zum Reclassify zur Verfügung stellen oder nachbestellen).
+![Lager / Bestand mit den Artikeln des Plans](bilder/de/werkzeuge-bauen-lager-01-aus-plan.jpg)
 
-Dieses Werkzeug ist optional und wird durch ein Modul aktiviert, das Sie in Einstellungen → Module einschalten müssen.
+Über den Reitern steht das Feld *Code scannen / eingeben (Artikel, Lagerort, Einheit)…*. *Auflösen* sucht den Code; ein Treffer meldet *Artikel: …*, *Lagerort: …* oder *Einheit: Modell · Seriennummer*, sonst steht *Kein Treffer für „…".* Der Kamera-Knopf (*Mit Kamera scannen*) liest den Code mit der Kamera. Die Fußzeile nennt die Bestandszahlen (*n Artikel · m Einheiten · k Lagerorte · s Sets*) und bietet *Export* und *Import*: *Export* speichert das Lager als portable Datei (avplan-inventory), die auch andere Anwendungen lesen; *Import* liest eine solche Datei und fragt *Bestehenden Bestand ERSETZEN? „Abbrechen" fügt stattdessen zusammen (merge).* mit den Knöpfen *Ersetzen* und *Zusammenführen*. Ist die Datei kein Lager, steht *Keine gültige Lager-Datei (avplan-inventory).*
 
----
+#### Reiter Artikel
 
-### ATEM Multiviewer-Layout
+Ein Artikel ist ein Modell mit einer Menge. Die Liste zeigt *Modell*, *Menge*, *Lagerort / Case*, *Code (QR/Barcode)* und *Eigentum*; das Suchfeld filtert sie. Der Stift bearbeitet einen Artikel, der Papierkorb löscht ihn nach der Rückfrage *Artikel löschen?* Leer steht dort *Noch keine Lager-Artikel. Lege welche an oder übernimm sie aus dem Plan.*
 
-*Werkzeuge → ATEM Multiviewer-Layout…* (nur wenn ein ATEM-Mischer im Plan)
+1. *Aus Plan übernehmen* legt zu jedem Gerät des Plans einen Artikel an, den es noch nicht gibt; vorhandene werden nicht dupliziert. Danach nennt eine Meldung die Zahl der neuen Artikel. Hat der Plan keine Geräte, steht *Kein Equipment im Plan*.
 
-Konfiguriert, welche Quellen auf dem Multiviewer angezeigt werden — Position, Größe und Ausreißer (z. B. Lautstärke-Meter).
+2. *+ Artikel* öffnet das Formular *Neuer Artikel*.
 
-**Vorbedingung:** Der Plan muss einen Blackmagic ATEM Mischer enthalten. Das Werkzeug zeigt seinen aktuellen Multiviewer-Zustand und erlaubt, ihn zu ändern — Reiter, Layouts, Eingänge.
+   ![Formular Neuer Artikel](bilder/de/werkzeuge-bauen-lager-02-artikel-formular.jpg)
 
-**Nutzen:** Zum Visualisieren, wie der Operator die Quellen sieht, und zum Export der Konfiguration in das Mischer-Skript.
+3. Füllen Sie die Felder aus.
 
----
+   ![Ausgefülltes Formular](bilder/de/werkzeuge-bauen-lager-03-artikel-ausgefuellt.jpg)
 
-### ATEM Audio-Routing
+   | Feld | Bedeutung |
+   |---|---|
+   | *Modell* (Pflicht) | Bezeichnung des Artikels. |
+   | *Hersteller*, *Kategorie* | Freitext. |
+   | *Menge* | Stückzahl. |
+   | *Mietpreis/Tag (€)* | Mietpreis je Tag; die Auswertung rechnet damit. |
+   | *Eigentum* | *Eigentum*, *gemietet* oder *Sub-Miete*. Bei den beiden letzten erscheint *Rückgabe bis*. |
+   | *Lagerort / Case* | Auswahl unter den Lagerorten; Cases sind mit einem Paket-Symbol gekennzeichnet. |
+   | *Lieferant* | Von wem das Material kommt. |
+   | *Ursprungsland* | Zum Beispiel DE, JP, US; es geht in das Carnet-Blatt. |
+   | *Code (QR/Barcode)* und *Code-Art* | Der Code, den ein Etikett trägt; *QR-Code* oder *Barcode*. |
+   | *Material-Art* | *Vermietung* oder *Verbrauch*. |
+   | *Maße (B×H×T · Gewicht)* | Breite, Höhe und Tiefe in mm und Gewicht in kg. |
+   | *Notiz* | Freitext. |
 
-*Werkzeuge → ATEM Audio-Routing…* (nur wenn ein ATEM-Mischer im Plan)
+4. *Speichern* legt den Artikel an.
 
-Definiert Audio-Eingänge, Mixing und Ausgänge des ATEM-Mischers — Dante-In zu welchen Kanälen, Mic-Input-Verstärkung, welche Master-Ausgabe wohin.
+   ![Artikel in der Liste](bilder/de/werkzeuge-bauen-lager-04-artikel-gespeichert.jpg)
 
-**Struktur:**
-- **Eingänge:** Dante, AES/EBU, Mikro mit Verstärkung.
-- **Mixing:** Kanalmute, Fader, Pan.
-- **Ausgänge:** Monitor, Multiviewer, Codec, etc.
+Fremdes Material, das zurückmuss, meldet ein Kasten über der Liste: *Fremdes Material: n Position(en) zurückzugeben* mit den Zeilen *Menge× Modell → Lieferant · zurück seit Datum* oder *· kein Rückgabedatum*.
 
-Dieses Werkzeug exportiert ein ATEM-Konfigurationsskript, das der Operator am Mischer laden kann — wenn die Hardware diesen Weg unterstützt.
+#### Reiter Lagerorte
 
----
+Lagerplätze und Cases sind Knoten in einem Baum, jeder Knoten ist scanbar und beliebig verschachtelbar: Case in Case in Transport-Case.
 
-### ATEM Input-Labels
+1. *Lagerorte (n)* zeigt die Knoten. *+ Lagerort* öffnet das Formular *Neuer Lagerort* mit *Name*, *Art* (*Depot*, *Raum*, *Regal*, *Fach / Box*, *Case*, *Transport-Case*), *Übergeordnet* (*— Wurzel —* oder ein anderer Knoten), *Code (QR/Barcode)*, *Code-Art* und *Maße (B×H×T · Gewicht) — v. a. für Cases*.
 
-*Werkzeuge → ATEM Input-Labels…* (nur wenn ein ATEM-Mischer im Plan)
+   ![Reiter Lagerorte und Formular](bilder/de/werkzeuge-bauen-lager-05-lagerort-formular.jpg)
 
-Beschriftet die Eingänge des ATEM-Mischers — Name, Anzeige-Optionen, Ausreißer (z. B. nur Sicherungs-Feed zeigen).
+2. Die Zeile eines Knotens bietet *Inventur an diesem Ort*, *Unterknoten anlegen*, *Bearbeiten* und *Löschen*; *Löschen* fragt *Lagerort löschen?* — Unterknoten rücken eine Ebene hoch, die Artikel verlieren ihren Lagerort. Bei einem Case kommen *Packliste drucken* und *Packliste (rekursiv) kopieren* hinzu; die kopierte Liste nennt alles, was im Case und in seinen Unter-Cases liegt.
 
-**Verfahren:**
-1. Ordnen Sie jeden ATEM-Eingang einem Gerät zu (z. B. Eingang 3 ← „Kamera 1 HD").
-2. Geben Sie einen angezeigten Namen ein (max. 20 Zeichen für die ATEM-Anzeige).
-3. Wählen Sie Optionen (Farbe, Symbole, …).
+   ![Depot mit einem Case](bilder/de/werkzeuge-bauen-lager-06-lagerort-gespeichert.jpg)
 
-Die Beschriftung wird beim Export in die ATEM-Konfiguration übernommen.
+3. Die *Inventur an diesem Ort* öffnet unter dem Knoten das Feld *Code scannen — Lagerort-Etikett wechselt den Ort*. Jeder gescannte Code wird als *hier erwartet*, *am falschen Ort* oder als unbekannt vermerkt; die Zeile nennt Modell und, wo es abweicht, den erwarteten Ort. Ohne Scanner hakt die Liste *Ohne Scanner abhaken — hier erwartet: n, davon offen: m* ab (*hier*); sie vermerkt die Zeile als *aus der Liste*. *CSV* schreibt das Blatt samt der nicht gefundenen Positionen, *Ort übernehmen (n)* schreibt den Ort auf alle Objekte, die am falschen Ort lagen.
 
----
+#### Reiter Einheiten
 
-### Videohub-Routing / Labels
+Einheiten sind einzelne serialisierte Exemplare eines Artikels mit eigener Seriennummer, eigenem Code, Zustand und Historie. Die Knöpfe *Versicherung* und *Carnet* oben rechts erzeugen die Listen für die Versicherung und das Carnet; sie sind ohne Einheiten gesperrt.
 
-*Werkzeuge → Videohub-Routing / Labels…* (nur wenn ein Blackmagic Videohub im Plan)
+1. *+ Einheit* öffnet das Formular *Neue Einheit*. Ohne Artikel steht *Lege zuerst Artikel an, dann kannst du einzelne Einheiten serialisieren.*
 
-Konfiguriert den Videohub — Eingangs- und Ausgangs-Konfiguration, Routing, Labels.
+   ![Formular Neue Einheit](bilder/de/werkzeuge-bauen-lager-07-einheit-formular.jpg)
 
-**Reiter:**
-- **Routing:** Zeigt alle Crosspoints (Eingang X → Ausgang Y).
-- **Labels:** Beschriftet Ein- und Ausgänge.
-- **Sicherung:** Optionen für Rekonfiguration unter Last.
+2. Tragen Sie *Artikel-Modell*, *Seriennummer (Hersteller)*, *Hausreferenz*, *Code (QR/Barcode)* mit *Code-Art*, den *Anschaffungspreis* (mit *Währung* und *Gekauft am*), den *Versicherungswert* (mit *Währung* und *Wert-Stand*) und eine *Notiz* ein.
 
-Dieses Werkzeug exportiert eine Konfiguration im Videohub-Export-Format (CSV/JSON), die in das Gerät hochgeladen wird — z. B. nach einer Änderung vor Ort.
+   ![Einheit ausgefüllt](bilder/de/werkzeuge-bauen-lager-08-einheit-ausgefuellt.jpg)
 
----
+3. Eine gespeicherte Einheit zeigt den *Zustand* (*OK*, *defekt*, *in Reparatur*, *ausgemustert*) mit *Zustand ändern*, *Lagerort ändern*, *Fehler melden* (mit *Fehlerbeschreibung*; *Festhalten*) und die *Historie* der Bewegungen und Reparaturen. Offene Fehler zählt die Zeile (*n offene Fehler*); ein Fehler wird mit *behoben* geschlossen.
 
-### GreenGo-Intercom
+   ![Einheit gespeichert](bilder/de/werkzeuge-bauen-lager-09-einheit-gespeichert.jpg)
 
-*Werkzeuge → GreenGo-Intercom…* (nur wenn eine GreenGo-Anlage im Plan)
+#### Reiter Sets
 
-Zeigt die Intercom-Konfiguration der GreenGo-Headset-Anlage — Kanäle, Matrix, Prio, Routing. Ein reines Anzeige-Werkzeug — Änderungen müssen in der GreenGo-Netzwerk-Konfiguration vorgenommen werden.
+Ein Set ist ein logisches Kit aus Artikeln. Seine Verfügbarkeit ergibt sich aus der knappsten Komponente (*n× baubar*).
 
-**Ansicht:**
-- **Kanäle:** Name, Netzwerk-Adressen, Gruppenteilnahme.
-- **Kopfhörer:** Assigned Channels pro Ohr.
-- **Paging & Gates:** Sprechgruppen mit Prioritäten.
+1. *+ Set* öffnet das Formular *Neues Set* mit *Set-Name* und der Liste *Komponenten*: Wählen Sie *Artikel wählen…* und *Hinzufügen*. Ohne Eintrag steht *Noch keine Komponenten.*
 
-Nutzen Sie dieses Werkzeug zur Dokumentation und zur Überprüfung, dass die Routing-Logik mit dem Kabelprojekt übereinstimmt.
+   ![Formular Neues Set](bilder/de/werkzeuge-bauen-lager-10-set-formular.jpg)
 
----
+#### Reiter Ausgabe
 
-### Hinweise
+Ein Container geht als Ganzes hinaus; was darin liegt, folgt über alle Ebenen mit. Nur Cases und Transport-Cases lassen sich ausgeben.
 
-- Viele dieser Werkzeuge (ATEM, Videohub, GreenGo, LED-Wand) erscheinen nur im Menü, wenn die entsprechenden Geräte im aktuellen Plan vorhanden sind. Leere Menüpunkte sind absichtlich — es gibt in diesem Plan nichts zu konfigurieren.
-- Alle Exporte (PDF, CSV, STL, JSON) folgen dem Projekt-Dateinamen, um Verwechslungen zu vermeiden.
-- Einige Werkzeuge speichern Vorlagen (z. B. Bericht-Editor, Rack-Vorlagen) — diese bleiben über Projekte hinweg erhalten.
+1. Wählen Sie bei *— Container wählen —* den Container, tragen Sie *An (Person, Truck, Kunde)* und optional *Show (optional)* ein sowie *Ausgabe war am* und *Zurück bis*. Die Vorschau nennt, welche Positionen mitgehen (*n Positionen gehen mit: …*); ein leerer Container meldet *Dieser Container ist leer — es ginge nichts raus.*
+
+   ![Container gewählt](bilder/de/werkzeuge-bauen-lager-11-ausgabe-container.jpg)
+
+2. *Ausgeben* bucht den Container aus. Unter *Draußen (n)* steht jeder ausgegebene Container mit Empfänger, Positionszahl und, wenn überfällig, der Marke *überfällig*. Je Eintrag bieten die Knöpfe *Termin verschieben* (*Neuer Rückgabetermin*; es zählt mit, wie oft verschoben wurde), *Schein* (das Übergabeblatt), die Unterschrift *Ausgabe quittieren* beziehungsweise *Rückgabe gegenzeichnen*, *Schaden (n)* (*Schaden aufnehmen*), *Zurückbuchen* und *Beleg löschen*. Beim Zurückbuchen prüft das Fenster die Etiketten-Codes der Inhalte (*Prüfen*); die *Rückgabe-Befunde* nennen, was fehlt und was zusätzlich zurückkam. Eine Gegenzeichnung ist erst möglich, wenn der Container zurück ist; eine vorhandene Unterschrift lässt sich nicht überschreiben. *CSV* oberhalb der Liste speichert die ausgegebenen Container; eine Liste *Schäden (n)* nennt aufgenommene Schäden und, bei Häufung, an wen die Ausgabe ging.
+
+#### Reiter Labels
+
+*QR-Etiketten drucken — auf A4-Bögen (Avery/Zweckform) oder Endlos-Labeldruckern. Nur Objekte mit hinterlegtem Code.* Wählen Sie die *Quelle* (*Artikel mit Code*, *Lagerorte / Cases mit Code*, *Einheiten mit Code* oder *Inhalt eines Cases (rekursiv)* mit der Auswahl *Case / Container*), den *Code-Typ* (*Je Code-Art (Auto)*, *QR-Code* oder *Barcode (Code128)*) und das *Format* (A4-Bögen von Avery und Zweckform oder Endlos-Labeldrucker). Passt der Code nicht ganz auf das Etikett, nennt der Dialog, auf welchen Formaten er passt. *Erste Etikett-Position (angebrochener Bogen)* überspringt bereits benutzte Etiketten. Der Zähler nennt *n Etiketten · p Seite(n)*; *Drucken* erzeugt den Bogen. Enthält die Quelle keine Objekte mit Code, steht *Keine Codes*.
+
+![Reiter Labels](bilder/de/werkzeuge-bauen-lager-12-labels.jpg)
+
+#### Reiter Auswertung
+
+Die Auswertung zählt das Lager: *Artikel-Positionen*, *Einheiten (Bulk)*, *Serialisiert* und *Miet-Vol./Tag (€)*, dazu die Verteilung *Nach Kategorie*, *Nach Lagerort (Wurzel)*, *Nach Eigentum*, *Nach Material-Art* und *Einheiten nach Zustand*. Fehlt bei Artikeln der Mietpreis, steht *n Artikel ohne Mietpreis — Miet-Volumen unvollständig.*
+
+![Reiter Auswertung](bilder/de/werkzeuge-bauen-lager-13-auswertung.jpg)
+
+### Geräte-Konfiguration
+
+Die Werkzeuge dieser Gruppe stehen im Menü *Werkzeuge* und am Gerät selbst; der Audio-Router eines ATEM öffnet über den Inspector. Wählen Sie ein ATEM-, Videohub-, GreenGo- oder Multiviewer-Gerät auf dem Canvas, zeigt der Inspector unter den Anschlüssen und der Notiz eine Karte mit dem Namen des erkannten Geräts (zum Beispiel *Blackmagic ATEM erkannt*) und den Knöpfen dieses Geräts, weiter unten den Abschnitt *Werkzeuge für dieses Gerät* mit denselben Einträgen wie im Menü.
+
+![Karte im Inspector](bilder/de/werkzeuge-bauen-atem-audio-01-karte.jpg)
+
+![Abschnitt Werkzeuge für dieses Gerät](bilder/de/werkzeuge-bauen-atem-audio-02-werkzeuge.jpg)
+
+Alle Dialoge dieser Gruppe arbeiten zuerst offline am Plan. Verbinden, Lesen und Senden brauchen ein Gerät im Netz und die Desktop-App; ohne Verbindung sind die zugehörigen Knöpfe gesperrt. Die Aufnahmen dieses Kapitels zeigen nur den Zustand ohne Verbindung; es wird nichts gesucht, verbunden oder gesendet. Das Lesen vom Gerät ersetzt den Plan nie von selbst: Der gelesene Stand erscheint neben dem Plan, mit der Zahl der Abweichungen, und erst *In den Plan übernehmen* übernimmt ihn nach einer Rückfrage; *Befund verwerfen* lässt den Plan, wie er ist.
+
+#### ATEM Multiviewer-Layout
+
+*Werkzeuge → ATEM Multiviewer-Layout…*, im Inspector *Multiviewer-Layout konfigurieren*
+
+Der Dialog plant, welche Quelle in welchem Fenster der Multiviewer-Ausgänge eines ATEM-Mischers steht.
+
+1. Das Menü *Werkzeuge → ATEM Multiviewer-Layout…* öffnet erst die Auswahl *ATEM Multiviewer — Gerät wählen*. Enthält der Plan keinen ATEM-Mischer, steht dort *Kein ATEM-Mischer im Plan. Lege zuerst einen ATEM aus der Bibliothek an — danach ist hier seine Multiviewer-Konfiguration wählbar.* Aus dem Inspector eines Mischers öffnet der Dialog gleich mit diesem Gerät.
+
+   ![Auswahl ohne ATEM im Plan](bilder/de/werkzeuge-bauen-atem-mv-01-ohne-atem.jpg)
+
+2. Gibt es einen ATEM, zeigt die Auswahl ihn (*Welchen ATEM-Mischer-Multiviewer möchtest du konfigurieren?*). Ein Klick auf den Namen öffnet den Editor.
+
+   ![Auswahl mit einem ATEM](bilder/de/werkzeuge-bauen-atem-mv-02-auswahl.jpg)
+
+3. Der Editor heißt *Multiviewer-Layout · Gerätename*. Oben stehen die Reiter *MV 1*, *MV 2* … für die Multiviewer des Geräts; **+** (*Multiviewer hinzufügen*) und **−** (*Letzten Multiviewer entfernen*) ändern ihre Zahl (1 bis 4). Das Layout zeigt vier Quadranten; jedes Fenster trägt den Namen seiner Quelle und die ID.
+
+   ![Editor mit zwei Multiviewern](bilder/de/werkzeuge-bauen-atem-mv-03-editor.jpg)
+
+4. Ein Klick auf ein Fenster öffnet die Quellenauswahl. Sie hat ein Suchfeld (*Suchen…*), ein Feld für eine beliebige ID mit *Übernehmen* und die Quellen nach Gruppen, jeweils mit Namen und ID. Ohne Verbindung stehen dort die Eingänge des Geräts und die üblichen internen Quellen (Black, Color Bars, Color 1 und 2, Media Player 1 und 2, Super Source, Program und Preview von ME 1 bis 4, AUX 1 bis 24); mit Verbindung die Quellen des Mischers.
+
+   ![Quellenauswahl](bilder/de/werkzeuge-bauen-atem-mv-04-quelle-waehlen.jpg)
+
+   ![Quelle gesetzt](bilder/de/werkzeuge-bauen-atem-mv-05-quelle-gesetzt.jpg)
+
+5. Die kleine Vorschau neben *Layout* schaltet je Quadrant zwischen einem großen Fenster und vier kleinen um (*1 → 4* und *4 → 1*). Das ATEM-Layout wird daraus abgeleitet.
+
+   ![Ein Quadrant in vier kleine geteilt](bilder/de/werkzeuge-bauen-atem-mv-06-viertel.jpg)
+
+6. Die Zeile *Modell-Capabilities: Gerät · n MVs · m Layouts* klappt auf: Sie zeigt, welche Layouts das Modell kennt, und lässt Sie dies von Hand ändern, wenn die Erkennung nach dem Gerätenamen danebenliegt. Die Kästchen schalten Layouts (*Default*, *Program Top*, *Program Bottom*, *Program Left*, *Program Right*, *Top-Left Small*, *Top-Right Small*, *Bottom-Left Small*, *Bottom-Right Small*, *Grid (16 klein)*, *Quad (4 groß)*) ein und aus; *MV-Anzahl:* (0 bis 4) und *Max Fenster:* (0 bis 32) stellen die Zahlen ein; *Override zurücksetzen* kehrt zur Erkennung zurück. Die Angabe wird mit dem Projekt gespeichert.
+
+   ![Capabilities aufgeklappt](bilder/de/werkzeuge-bauen-atem-mv-07-faehigkeiten.jpg)
+
+7. Die Knöpfe unten: *Als PNG* speichert die Ansicht des aktuellen Multiviewers als Bild; *Zwischenspeichern* schreibt den Entwurf in den Plan (die Meldung *Gespeichert* bestätigt); *Vom ATEM laden* liest die Multiviewer des verbundenen Mischers; *An ATEM übertragen* sendet den Entwurf. Die beiden letzten sind ohne Verbindung gesperrt; die Statuszeile sagt dann *ATEM nicht verbunden.*, bei bestehender Verbindung *ATEM verbunden — direkt übertragbar.* Eine Änderung bleibt nur erhalten, wenn Sie *Zwischenspeichern* oder *An ATEM übertragen* gedrückt haben.
+
+   ![Entwurf zwischengespeichert](bilder/de/werkzeuge-bauen-atem-mv-08-entwurf-gespeichert.jpg)
+
+#### ATEM Audio-Routing
+
+Im Inspector eines ATEM-Mischers: *Audio-Router konfigurieren*
+
+Der Dialog *ATEM Audio-Konfiguration — Gerätename* plant die Audio-Zuordnung eines ATEM offline. Er liest und schreibt das Profil-XML der ATEM-Software und ändert darin nur Audio-Angaben; alle anderen Abschnitte des Profils bleiben erhalten.
+
+1. Öffnen Sie den Dialog über den Inspector eines ATEM-Mischers (*Audio-Router konfigurieren*).
+
+   ![Leerer Audio-Dialog](bilder/de/werkzeuge-bauen-atem-audio-03-leer.jpg)
+
+   Ohne Konfiguration zeigt er *ATEM Audio-Routing* mit zwei Wegen: *Profile-XML laden* liest ein ATEM-Profil; der Editor erkennt, ob es eine Crosspoint-Matrix oder einen klassischen Mixer enthält. *Matrix manuell* legt eine neue Matrix mit den Standard-Eingängen des ATEM und 8 Output-Bussen an; Quellen, Outputs und Zuordnungen lassen sich danach frei bearbeiten.
+
+   ![Neue Matrix](bilder/de/werkzeuge-bauen-atem-audio-04-matrix.jpg)
+
+2. Die Matrix zeigt links die Quellen (Zeilen) und oben die Outputs (Spalten). Ein Klick auf eine Zelle schaltet die Quelle auf den Output; ein zweiter Klick nimmt die Kreuzung weg. Eine belegte Zelle ist grün, ein Output, der anderweitig belegt ist, trägt einen Punkt. Neben dem Namen einer Quelle steht, auf wie vielen Outputs sie liegt (*×n*). Die Zeile über der Matrix nennt *n × m sichtbar · k Crosspoints*.
+
+   ![Matrix mit drei Kreuzungen](bilder/de/werkzeuge-bauen-atem-audio-05-kreuzung.jpg)
+
+3. *Quellen filtern…* und *Outputs filtern…* blenden Zeilen und Spalten nach einem Textteil aus.
+
+   ![Quellen gefiltert](bilder/de/werkzeuge-bauen-atem-audio-06-filter.jpg)
+
+4. *Quellen-Auswahl* und *Outputs-Auswahl* öffnen eine Liste mit Kästchen: Einzelne Quellen oder Outputs lassen sich ausblenden, ganze Gruppen gleichnamiger Einträge auf einmal (*Alle zeigen*, *Alle ausblenden*). Die Schaltfläche nennt, wie viele versteckt sind. Das ändert nur die Ansicht.
+
+   ![Quellen-Auswahl](bilder/de/werkzeuge-bauen-atem-audio-07-quellen-auswahl.jpg)
+
+5. *Alle Routings zurücksetzen* fragt *Alle Routings auf „No Audio" zurücksetzen?* und setzt jeden Output auf *No Audio*. Übersteigt die Matrix 12 000 sichtbare Crosspoints, fragt der Dialog, ob sie trotzdem gezeichnet werden soll (*Trotzdem anzeigen*); mit den Auswahlen lässt sie sich verkleinern.
+
+   ![Rückfrage beim Zurücksetzen](bilder/de/werkzeuge-bauen-atem-audio-08-zuruecksetzen.jpg)
+
+6. Die Knöpfe oben: *XML laden* und *XML speichern* (das geänderte Profil als Datei, mit einem Herkunftsblatt daneben), *Lesen (offline)* beziehungsweise *Vom ATEM lesen* und *Senden (offline)* beziehungsweise *An ATEM senden*. Das Senden wirkt sofort am Mischer und wird nicht als Startzustand gespeichert; dafür muss *Save Startup State* in der ATEM-Software ausgelöst werden. Unten schreibt *Im Projekt speichern* die Matrix in den Plan und schließt den Dialog; *Abbrechen* verwirft sie.
+
+#### ATEM Input-Labels
+
+*Werkzeuge → ATEM Input-Labels…*, im Inspector *ATEM verbinden / Setup übertragen*
+
+Der Dialog *ATEM Live Integration* trägt die Namen der Eingänge ein: Er verbindet sich per UDP mit dem Mischer und schreibt die Portnamen des Plans als Lang- und Kurzname.
+
+1. Das Fenster beginnt mit der *ATEM IP-Adresse* und den Knöpfen *Suchen* (sucht ATEM-Mischer im lokalen Netz per mDNS) und *Verbinden*. Darunter steht der *Event-Log (n)*.
+
+   ![Dialog ATEM Live Integration](bilder/de/werkzeuge-bauen-atem-labels-01-offen.jpg)
+
+2. Nach dem Verbinden zeigt der Dialog Modell und Zahl der M/E und AUX und die Tabelle *Input-Namen (n)* mit *ID*, *Typ*, *Live (long / short)*, *Neu Long (max 20)* und *Neu Short (4)*. Die neuen Namen sind aus den Portnamen des Plans vorbelegt, bei Eingängen mit der gebundenen Quelle (Rolle). Der Langname hat höchstens 20 Zeichen, der Kurzname 4. *n Änderungen senden* schreibt nur die geänderten Zeilen. Nicht überschrieben werden Mediaplayer, Audio-Eingänge (XLR, RJ45-Talkback) und interne Quellen (Black, Bars, Color, SuperSource); ihre Zeilen sind gesperrt. Die Namen gehen in den Arbeitsspeicher des Mischers; für den Neustart muss *Save Startup State* in der ATEM-Software ausgelöst werden. Mit bestehender Verbindung führt *MV Layout →* zum Multiviewer-Layout.
+
+#### Videohub-Routing / Labels
+
+*Werkzeuge → Videohub-Routing/Labels…*, im Inspector *Videohub konfigurieren · Labels + Routing*
+
+Der Dialog *Videohub konfigurieren · Labels + Routing* plant Beschriftung und Kreuzschiene eines Blackmagic Videohub und gibt sie als Datei oder direkt an den Hub aus.
+
+1. Wählen Sie das *Gerät auf dem Canvas* und das *Videohub-Modell*. Die Liste nennt die Modelle von *Micro Videohub 16x16* bis *Universal Videohub 288* mit ihrer Größe; *Custom (eigene Größe)* fragt nach *Inputs* und *Outputs*. Hat das Gerät mehr Ports als das Modell, warnt der Dialog, dass überschüssige Ports abgeschnitten werden.
+
+   ![Dialog Videohub](bilder/de/werkzeuge-bauen-videohub-01-offen.jpg)
+
+   ![Anderes Modell gewählt](bilder/de/werkzeuge-bauen-videohub-02-modell.jpg)
+
+2. *Datei-Export-Format* wählt, was die Vorschau und die Datei enthalten: *Voller Routing-Dump (Protokoll 2.5)* oder *Nur Labels (Input, n, Name)*. Es betrifft nur die Datei; das direkte Senden ist davon unabhängig. *Friendly Name* ist der Name des Hubs im Dump; im Format *Nur Labels* wird er ignoriert.
+
+3. Die *Routing-Ansicht* zeigt die Kreuzschiene. *Matrix* ist die Kreuzpunkt-Matrix, *Liste* eine Liste mit einer Auswahl je Output. Ein Klick auf einen Kreuzpunkt schaltet den Output auf diesen Input. *Out·In tauschen* vertauscht die Achsen; *Verkabelung an* beziehungsweise *aus* blendet hinter den Namen das Gerät ein, das am Port hängt (*← Gerät*), und *Input-Label an*/*aus* dazu den Portnamen. Zeilen- und Spaltenbreiten lassen sich wie in Excel ziehen (*Layout zurücksetzen*). Ist die Matrix zu groß für die Matrix-Darstellung, wechselt der Dialog selbst in die Liste.
+
+   ![Listenansicht](bilder/de/werkzeuge-bauen-videohub-03-liste.jpg)
+
+   ![Matrix mit getauschten Achsen](bilder/de/werkzeuge-bauen-videohub-04-matrix.jpg)
+
+4. *Smart-Routing* schlägt ein Routing aus den Kabeln im Plan vor: je Output der Input mit dem ähnlichsten Gerätenamen, sonst diagonal. *Reset* stellt die Diagonale wieder her (Output n an Input n).
+
+   ![Nach dem Smart-Routing](bilder/de/werkzeuge-bauen-videohub-05-smart-routing.jpg)
+
+5. *Salvos (Routing-Snapshots)*: *+ Aktuelles Routing speichern* fragt *Salvo-Name (= Routing-Snapshot speichern):* und legt den Stand ab; ein Klick auf den Namen holt ihn zurück, **×** (*Salvo löschen*) entfernt ihn. Salvos gehören zum Gerät und zum Modell und liegen im lokalen Speicher.
+
+   ![Name für den Salvo](bilder/de/werkzeuge-bauen-videohub-06-salvo.jpg)
+
+   ![Salvo gespeichert](bilder/de/werkzeuge-bauen-videohub-07-salvo-gespeichert.jpg)
+
+   Mit zwei Salvos erscheint die Zeile *Umbau von — Satz wählen — nach — Satz wählen —*. Sie rechnet den Unterschied zweier Salvos: *n von m Kreuzpunkten ändern sich.* (oder *Kein Unterschied — beim Umbau ist nichts umzustecken.*). *Umbau-Zettel* speichert die geänderten Kreuzpunkte als CSV, *Voller Satz* alle Kreuzpunkte des gewählten Salvos.
+
+6. *An Videohub senden (TCP)* verbindet erst, wenn Sie einen Knopf drücken. Die Felder *IP-Adresse* und *Port* (Vorgabe 9990) nehmen die Adresse auf; der Pfeil daneben nennt die zuletzt benutzten Verbindungen. *Suchen* sucht Hubs per mDNS, *Status laden* holt Labels, Routing und Sperren vom Hub. *Labels senden*, *Routing senden* und *Labels + Routing senden* schicken nur das Gewählte. Nach dem Lesen vergleicht der Dialog das Routing des Hubs mit dem Plan (*Routing stimmt mit dem Plan überein.* oder *n Kreuzpunkt(e) weichen vom Plan ab* mit *in den Plan übernehmen*); gesperrte Outputs zählt er (*n Outputs gesperrt*). Das *Activity-Log* nennt die letzten Sende-Versuche.
+
+7. Unten zeigt die *Vorschau* den Inhalt der Datei. *In Zwischenablage* kopiert ihn, *Als Datei speichern* schreibt die `.txt`-Datei; neben der Datei entsteht ein Herkunftsblatt mit der Endung `.herkunft.txt`, das Projekt, Stand und eine Prüfsumme nennt. Im Format *Nur Labels* liest *Labels.txt importieren* eine Labels-Datei (zum Beispiel aus Videohub Setup) und schreibt die Namen auf die Ports des Geräts; *Labels-PDF* erzeugt druckbare Beschriftungsstreifen im Smart-Control-Raster.
+
+   ![Format Nur Labels](bilder/de/werkzeuge-bauen-videohub-08-nur-labels.jpg)
+
+#### GreenGo-Intercom
+
+*Werkzeuge → GreenGo-Intercom…*, im Inspector *Intercom-Planung / .gg5 exportieren*
+
+Der Dialog *GreenGo Intercom-Planung* plant ein Green-GO-System: Stationen, Kommunikationsgruppen (Talk Groups) und die Zuordnung dazwischen. Er exportiert eine `.gg5`-Datei, die in die Green-GO-Software geladen wird. Unter dem Namen steht der Systemname.
+
+1. Der Reiter *Übersicht* ist leer, solange es weder Stationen noch Gruppen gibt (*Noch keine Stationen und Gruppen — wechsle zu den Tabs „Stationen" und „Gruppen".*). Unten stehen *GreenGo-Geräte auf dem Canvas* mit dem Hinweis *nicht zugewiesen*.
+
+   ![Leere Übersicht](bilder/de/werkzeuge-bauen-greengo-01-uebersicht-leer.jpg)
+
+2. Im Reiter *Stationen (n)* legt *+ Station* eine Station an (bis zu 12). Geben Sie den Namen ein (Platzhalter *Stationsname (z.B. Regie)*) und ordnen Sie ein Gerät auf dem Canvas zu (*— Gerät —*).
+
+   ![Zwei Stationen](bilder/de/werkzeuge-bauen-greengo-02-stationen.jpg)
+
+   ![Stationen benannt](bilder/de/werkzeuge-bauen-greengo-03-stationen-benannt.jpg)
+
+3. Im Reiter *Gruppen (n)* legt *+ Gruppe* eine Kommunikationsgruppe an (bis zu 9) und nennt die Zahl der Mitglieder.
+
+   ![Gruppe CAM](bilder/de/werkzeuge-bauen-greengo-04-gruppen.jpg)
+
+4. Die *Übersicht* ist die Matrix aus Stationen und Gruppen: Ein Klick auf einen Kreis nimmt die Station in die Gruppe auf oder wieder heraus; die Zeile *Mitglieder* zählt je Gruppe. Je Station wählt die Spalte *Gerät (Canvas)* das Gerät; *nicht zugewiesen* heißt kein Gerät.
+
+   ![Übersicht mit Gruppenzuordnung](bilder/de/werkzeuge-bauen-greengo-05-uebersicht.jpg)
+
+5. Der Reiter *System* hat *System-Name*, *Beschreibung*, *Multicast-Adresse* (Vorgabe 239.1.160.1, muss im Netz eindeutig sein) und *Sample Rate* (*32000 Hz (Standard GreenGo)* oder *48000 Hz*).
+
+   ![Reiter System](bilder/de/werkzeuge-bauen-greengo-06-system.jpg)
+
+6. Die Fußzeile nennt *n Stationen · m Gruppen* und die Zahl der Geräte auf dem Canvas und bietet: *.gg5 importieren* (liest eine `.gg5` und verknüpft ihre Stationen mit Geräten auf dem Canvas), *Excel-Matrix importieren* und *Excel-Matrix exportieren* (Benutzer und Gruppen als Excel-Matrix, auch zum Drucken), *Neutral importieren* und *Neutral exportieren* (eine herstellerneutrale Intercom-Datei mit Sprechstellen, Konferenzen und wer spricht oder hört), *Im Projekt speichern* und *Als .gg5 exportieren*. Ohne mindestens eine Station oder Gruppe entsteht keine gültige `.gg5` (*Ohne mindestens eine Station oder Gruppe entsteht keine gültige .gg5 — lege zuerst eine an.*). Eine Ausgabe der Datei schreibt zusätzlich ein Herkunftsblatt (`.herkunft.txt`).
+
+   ![Export der Dateien](bilder/de/werkzeuge-bauen-greengo-07-export.jpg)
 
 ---
 
 ## 10. Einstellungen
 
-Die Einstellungen-Dialog enthält 15 Reiter zur Konfiguration aller Aspekte der Anwendung. Sie öffnen den Dialog über die Befehlspalette (*Strg+K*, dann „Settings…" eingeben) oder über das Menü.
+### Einstellungen öffnen
+
+Der Knopf *Einstellungen* steht rechts in der Kopfleiste.
+
+![Kopfleiste mit dem Knopf Einstellungen](bilder/de/einstellungen-01-kopfleiste.jpg)
+
+Weitere Wege in den Dialog:
+
+- Befehlspalette (*Strg+K*), Eintrag *Einstellungen…*; der Eintrag *Module ein- oder ausschalten…* öffnet direkt den Reiter *Module*.
+- Läuft der MCP-Server, zeigt die Statusleiste eine Anzeige dafür; ein Klick öffnet den Reiter *MCP*.
+- Läuft eine Live-Kollaboration, öffnet die Anzeige *Live* in der Statusleiste den Reiter *Netzwerk-Sync*.
+
+Der Dialog hat links die Liste der 15 Reiter und rechts den Inhalt des gewählten Reiters. Er öffnet mit dem Reiter *Projekt*.
+
+![Einstellungen, Reiter Projekt](bilder/de/einstellungen-02-dialog.jpg)
+
+Oben rechts liegen zwei Knöpfe: der Pfeil-Knopf lagert die Einstellungen in ein eigenes Fenster aus (etwa für einen zweiten Monitor), das Kreuz schließt den Dialog. Ein Klick auf den abgedunkelten Hintergrund schließt ihn ebenfalls. Die Kopfzeile lässt sich ziehen, um den Dialog zu verschieben.
+
+![Kopfzeile des Dialogs mit Auslagern und Schließen](bilder/de/einstellungen-52-kopf-auslagern.jpg)
+
+Fast alle Einstellungen gelten sofort. Ausnahmen sind die Projekt-Metadaten im Reiter *Projekt* (Knopf *Speichern*) und einzelne Felder mit eigenem *Speichern*-Knopf.
+
+| Reiter | Inhalt | Gilt für |
+|---|---|---|
+| Projekt | Metadaten, Plan-Standards, Logos, Kabelnummerierung, Längenschätzung, Lagerlängen, Library-Export | das offene Projekt (Library-Export: diesen Rechner) |
+| Module | Funktionsbereiche ein- und ausblenden | diesen Rechner |
+| Darstellung | Sprache, Thema, Farben, Canvas-Hintergrund | diesen Rechner |
+| Bearbeiten | Kabelführung, Raster, Verhalten beim Verbinden | diesen Rechner |
+| Hotkeys | Tastenkürzel | diesen Rechner |
+| Integrationen | Rentman, NetBox, Tally-Pi, Ausfüllen-Quelle, KI-Anbieter, GreenGo-Presets | diesen Rechner |
+| Gerätebibliothek | Server, Konto, Hochladen und Abgleich | diesen Rechner |
+| MCP | lokaler Server, über den Claude den Plan abfragt | diesen Rechner |
+| Konfigurationen | Bibliothek von Gerätekonfigurationsdateien | diesen Rechner |
+| Kabeltypen | eigene und geänderte Kabeltypen | diesen Rechner |
+| Stammdaten | eigene Steckertypen, Signalstandards, Kabel-Ebenen | diesen Rechner |
+| Kategorien & Felder | eigene Kategorien und Fachfelder | diesen Rechner |
+| Netzwerk-Sync | Live-Kollaboration und Sync-Verzeichnis | diesen Rechner |
+| Nachweise | Qualifikationen, Versicherungen, Unterweisungen | diese Person |
+| Erweitert | Autosave, Kategorienverwaltung, Caches, Datenexport | diesen Rechner |
 
 ### Projekt
 
-![Einstellungen - Projekt](bilder/de/einstellungen-project.jpg)
+#### Projekt-Metadaten
 
-Im Projekt-Tab konfigurieren Sie projekt-spezifische Einstellungen:
+Die Felder oben werden mit der Projektdatei gespeichert:
 
-#### Gerätebibliothek: Export / Import
+| Feld | Inhalt |
+|---|---|
+| Projektname | Name des Projekts |
+| Beschreibung | freier Text |
+| Auftraggeber (Kunde) | Endkunde |
+| Auftragnehmer | ausführende Firma |
+| Autor | Name des Planers |
+| Projekt-Nr. | z. B. 2026-042 |
 
-Sichern Sie Ihre eigenen Gerätevorlagen und Gruppierungen als JSON-Datei. Beim Import werden bestehende Einträge mit denselben Namen NICHT überschrieben (Merge-by-name).
+Änderungen an diesen Feldern und an den Logos übernimmt erst *Speichern* ganz unten im Reiter; *Zurücksetzen* stellt die gespeicherten Werte wieder her. Dieselben Angaben bearbeitet auch der Dialog, der sich mit einem Klick auf den Projektnamen in der Kopfleiste öffnet.
 
-| Option | Wirkung |
-|--------|---------|
-| **Gerätebibliothek exportieren** | Speichert alle Gerätevorlagen, Gruppen und Rack-Presets als JSON-Datei |
-| **Gerätebibliothek importieren…** | Lädt eine zuvor exportierte Datei. Nur neue Einträge werden hinzugefügt |
+#### Plan-Standards
+
+Technische Vorgaben für diesen Plan, je Gewerk. Die drei Auswahllisten gelten sofort.
+
+![Plan-Standards](bilder/de/einstellungen-03-projekt-standards.jpg)
+
+| Auswahl | Werte | Wirkung |
+|---|---|---|
+| Video-Format (SDI) | 576i50 (PAL) bis 2160p59.94/60 sowie DCI 4K p24 und p60, jeweils mit dem nötigen SDI-Standard (3G, 6G, 12G oder Quad 3G) | steuert die SDI-Standardverkabelung |
+| Strom-/Netz-Standard | Europe / IEC 230 V einphasig, Europe 400 V dreiphasig, UK 230 V (BS 1363), North America 120 V, 208 V dreiphasig und 240 V split-phase, Japan 100 V, Australia / NZ 230 V | Spannung im Stromrechner (Watt ↔ Ampere) |
+| Licht-Steuerung (Default) | DMX512 / RDM (5-pin XLR), Art-Net (Ethernet), sACN — ANSI E1.31 (Ethernet) | Vorgabe für die Lichtsteuerung |
+
+#### Bauplan-Signatur (Logos)
+
+Je ein Logo für *Auftragnehmer* und *Kunde*. *Auswählen…* lädt eine Bilddatei, das Kreuz daneben entfernt das Logo wieder. Die Logos werden in der Projektdatei gespeichert und erscheinen im PDF-Export und in der Signatur auf dem Canvas.
+
+#### Verknüpftes Rentman-Projekt
+
+Zeigt Name und ID des verknüpften Rentman-Projekts. Ist keines verknüpft, steht dort der Hinweis, dass die Verknüpfung im Reiter *Integrationen* hergestellt wird.
+
+![Logos und verknüpftes Rentman-Projekt](bilder/de/einstellungen-04-projekt-logos-rentman.jpg)
 
 #### Kabelnummerierung
 
-Automatische, kollisionsfreie Kabel-IDs nach einem festen Schema. Die Nummern werden auf dem Canvas, in der Patch-Liste und auf Etiketten angezeigt.
+Automatische, kollisionsfreie Kabel-IDs nach festem Schema; sie erscheinen auf dem Canvas, in der Patchliste und auf den Etiketten.
+
+![Kabelnummerierung und Kabellängen schätzen](bilder/de/einstellungen-05-projekt-nummerierung.jpg)
 
 | Option | Wirkung |
-|--------|---------|
-| **Automatische Nummerierung für neue Kabel aktivieren** | Weist neuen Kabeln automatisch die nächste Nummer zu |
-| **Präfix** | Zeichenfolge vor der Nummer (z.B. „C") |
-| **Trennzeichen** | Zeichen zwischen Präfix und Nummer (z.B. „-") |
-| **Ziffern** | Anzahl der Stellen für die Nummer (1-6) |
-| **Startnummer** | Erste Nummer im Schema |
-| **Separater Zähler pro Ebene (V/A/N/P…)** | Nummern werden pro Signaltyp gezählt statt durchgehend |
-| **Alle Kabel neu nummerieren** | Wendet das aktuelle Schema auf alle vorhandenen Kabel an |
+|---|---|
+| Neuen Kabeln automatisch eine Nummer geben | jedes neue Kabel bekommt die nächste freie Nummer |
+| Präfix | Text vor der Nummer, Vorgabe „C" |
+| Trennzeichen | bis zu zwei Zeichen zwischen Präfix und Nummer, Vorgabe „-" |
+| Stellen | Anzahl der Ziffern (1 bis 6) |
+| Start-Nummer | erste vergebene Nummer |
+| Eigener Zähler je Layer (V/A/N/P …) | zählt je Kabel-Ebene getrennt |
 
-Beispiel: Mit Präfix „C", Trennzeichen „-" und 3 Ziffern entsteht „C-001", „C-002" usw.
+*Beispiel* zeigt die Nummer, die nach dem aktuellen Schema entsteht. *Alle Kabel neu nummerieren* vergibt die Nummern aller Kabel nach dem Schema neu; in Klammern steht die Zahl der Kabel. Ohne Kabel ist der Knopf gesperrt.
 
 #### Kabellängen schätzen
 
-Schätzt Kabellängen aus der Canvas-Entfernung zwischen Geräten (Luftlinie × Maßstab + Sicherheit). Überschreibt vorhandene Längen.
+Schätzt die Längen aus dem Abstand der Geräte auf dem Canvas: Luftlinie × Maßstab plus Reserve. Die Schätzung überschreibt vorhandene Längen; Funkverbindungen bleiben unberührt.
 
 | Option | Wirkung |
-|--------|---------|
-| **Meter pro 100 Pixel** | Skalierungsfaktor (z.B. 2 = 2 m pro 100 Bildschirmpixel) |
-| **Slack-Faktor** | Zusätzliche Länge für Sicherheit (1,2 = 20% Zuschlag) |
-| **Alle Kabellängen schätzen** | Berechnet Längen für alle vorhandenen Kabel |
+|---|---|
+| Meter pro 100 px | Maßstab des Canvas |
+| Reserve (%) | Zuschlag in Prozent, 0 bis 200 |
+| Auf ganze Meter aufrunden | rundet jede geschätzte Länge auf |
 
-### Darstellung
+*Längen jetzt schätzen* führt die Schätzung aus und meldet, wie viele Längen geändert wurden.
 
-![Einstellungen - Darstellung](bilder/de/einstellungen-appearance.jpg)
+#### Verfügbare Lagerlängen
 
-Konfigurieren Sie das visuelle Erscheinungsbild:
+Hier steht, mit welchen Kabellängen (Trommeln) diese Produktion fährt. Die Kabel-Stückliste teilt jeden Lauf in diese Längen — zuerst möglichst wenige Kupplungen, dann möglichst wenig Überlänge — und meldet, was der Bestand nicht hergibt.
 
-#### Sprache und Theme
+1. Unter *Typ für einen neuen Eintrag* den Kabeltyp wählen. Die Liste zeigt die Typen, die im Plan vorkommen.
+2. *Länge hinzufügen* legt eine Zeile mit 100 m an.
+3. In der Zeile *Kabeltyp*, *Länge (m)* und *Vorhanden* anpassen. Das Kreuz entfernt die Zeile.
 
-| Option | Wirkung |
-|--------|---------|
-| **Sprache** | Wähle zwischen Deutsch, Englisch und anderen unterstützten Sprachen |
-| **Canvas-Theme** | Hell oder Dunkel für die Arbeitsfläche |
+![Neue Lagerlänge eingetragen](bilder/de/einstellungen-06-projekt-laenge-hinzugefuegt.jpg)
 
-#### Anschlussfarben
+*Vorhanden* bleibt leer, wenn niemand gezählt hat. Leer bedeutet „nicht gezählt", nicht null: die Stückliste warnt nur vor einem Fehlbestand, der tatsächlich festgestellt wurde.
 
-| Option | Wirkung |
-|--------|---------|
-| **Anschlüsse nach Typ färben** | Färbt SDI, Audio, Power usw. unterschiedlich |
-| **Farben für Anschlusstypen** | Wählen Sie individuelle Farben für jeden Typ |
-| **Farben für Gerätkategorien** | Wählen Sie Farben für Kamera, Mischer, Monitor usw. |
+#### Library Export / Import
 
-#### Kabeldarstellung
+![Library Export / Import](bilder/de/einstellungen-07-projekt-library.jpg)
 
-| Option | Wirkung |
-|--------|---------|
-| **Kabelfarben** | Manual, nach Länge oder nach Layer (V/A/N/P) |
-| **Pfeile anzeigen** | Kleine Pfeile zeigen die Signalrichtung |
-| **Kabelbrücken** | Hügel an Kreuzungspunkten für visuelle Klarheit |
-| **Port-Label-Größe** | Größe der Anschlussbezeichnungen |
-
-#### Custom Palette
-
-Farben für Canvas-Hintergrund und Raster-Linien (überschreibt Theme-Defaults):
-
-| Option | Wirkung |
-|--------|---------|
-| **Custom Palette aktivieren** | Eigene Farben verwenden |
-| **Hintergrund** | Canvas-Hintergrundfarbe |
-| **Gitter-Strich** | Farbe der Raster-Linien |
-
-### Bearbeiten
-
-![Einstellungen - Bearbeiten](bilder/de/einstellungen-editing.jpg)
-
-Standard-Verhaltensweisen beim Bearbeiten von Kabeln und Geräten:
-
-#### Standard-Kabelverlauf
-
-| Option | Wirkung |
-|--------|---------|
-| **Orthogonal** | Rechtwinklige, gitterartige Kabel |
-| **Straight** | Gerade Linien |
-| **Curved** | Sanfte Kurven |
-
-#### Endpoint-Labels
-
-Kleine Labels an jedem Kabelende, die zeigen, wohin die andere Seite führt.
-
-| Option | Wirkung |
-|--------|---------|
-| **Endpoint-Labels anzeigen** | Am Quellende „→ Zielgeräte · Zielport", am Zielende „← Quellgeräte · Quellport" |
-
-#### Kabeltyp folgt Anschlusstyp
-
-| Option | Wirkung |
-|--------|---------|
-| **Kabeltyp vom Anschlusstyp ableiten** | Wenn ein Anschlusstyp geändert wird (z.B. BNC → XLR), passen verbundene Kabel automatisch an |
-
-#### Raster
-
-| Option | Wirkung |
-|--------|---------|
-| **Raster-Spacing** | Größe des Snap-Rasters in Pixeln |
-| **Zum Raster ausrichten** | Geräte rasten beim Verschieben ein |
-
-#### Verbindungs-Warnungen
-
-| Option | Wirkung |
-|--------|---------|
-| **Warnungen bei ungültigen Verbindungen anzeigen** | Zeigt Warnungen, wenn inkompatible Geräte verbunden werden |
-
-### Kabeltypen
-
-![Einstellungen - Kabeltypen](bilder/de/einstellungen-cableTypes.jpg)
-
-Definieren und verwalten Sie Kabeltypen:
-
-| Option | Wirkung |
-|--------|---------|
-| **Neuer Kabeltyp** | Erstellt einen neuen Kabeltyp |
-| **Kabeltyp bearbeiten** | Ändert Name, Farbe oder Standard-Länge |
-| **Kabeltyp löschen** | Entfernt einen nicht verwendeten Kabeltyp |
-
-Jeder Kabeltyp hat:
-- Ein eindeutiger Name (z.B. "SDI-Kabel")
-- Eine Farbe für die Canvas-Anzeige
-- Optional: Standard-Länge und Beschreibung
-
-### Stammdaten
-
-![Einstellungen - Stammdaten](bilder/de/einstellungen-stammdaten.jpg)
-
-Verwaltung von Steckertypen, Standards und Ebenen:
-
-#### Steckertypen
-
-| Option | Wirkung |
-|--------|---------|
-| **Neuer Steckertyp** | Erstellt einen neuen Steckertyp (z.B. 3G-SDI, MADI) |
-| **Steckertyp bearbeiten** | Ändert Name oder Display-Name |
-
-#### Standards
-
-| Option | Wirkung |
-|--------|---------|
-| **Video-Standard** | PAL, NTSC, SDI, HDMI usw. |
-| **Power-Standard** | IEC, USA, EU etc. |
-
-#### Ebenen
-
-Signaltypen für die Farbkodierung:
-
-| Option | Wirkung |
-|--------|---------|
-| **Video (V)** | Videoströme |
-| **Audio (A)** | Audioströme |
-| **Netzwerk (N)** | Datenverbindungen |
-| **Power (P)** | Stromversorgung |
-
-### Konfigurationen
-
-![Einstellungen - Konfigurationen](bilder/de/einstellungen-configs.jpg)
-
-Gespeicherte Geräte-Konfigurationen (z.B. verschiedene Firmware-Versionen oder Einstellungen):
-
-| Option | Wirkung |
-|--------|---------|
-| **Neue Konfiguration** | Erstellt eine benannte Konfiguration |
-| **Konfiguration anwenden** | Wendet eine gespeicherte Konfiguration auf ein Gerät an |
-| **Konfiguration löschen** | Entfernt eine nicht verwendete Konfiguration |
-
-### Gerätebibliothek
-
-![Einstellungen - Gerätebibliothek](bilder/de/einstellungen-deviceLibrary.jpg)
-
-Verbindung zur Geräte-Online-Datenbank (devices.zumpelars.de):
-
-| Option | Wirkung |
-|--------|---------|
-| **Anmelden…** | Registrieren oder anmelden mit Benutzerkonto |
-| **Geräte hochladen** | Sendet Ihre eigenen Gerätevorlagen an die Datenbank |
-| **Hochgeladene Geräte** | Zeigt, welche Geräte Sie bereits geteilt haben |
-
-**Hinweis:** Diese Einstellungen sind nur im Desktop-Client verfügbar. Der Browser-Modus unterstützt keine Anmeldung.
-
-### Integrationen
-
-![Einstellungen - Integrationen](bilder/de/einstellungen-integrations.jpg)
-
-Externe Dienste und KI-Anbieter:
-
-#### Ausfüll-Quelle
-
-Bestimmt, woher der „Ausfüllen"-Knopf Gerätinformationen bezieht:
-
-| Option | Wirkung |
-|--------|---------|
-| **Web-Suche** | Sucht auf Wikipedia und DuckDuckGo (kein API-Key nötig) |
-| **KI-Modell** | Verwendet ein KI-Modell (erfordert API-Key) |
-
-#### KI-Anbieter
-
-| Option | Wirkung |
-|--------|---------|
-| **Anbieter** | Wählen Sie zwischen Claude, OpenAI, Google Gemini |
-| **API-Key** | Geben Sie den API-Schlüssel des Anbieters ein |
-| **Schlüssel anzeigen / verbergen** | Toggles die Sichtbarkeit des Schlüssels |
-
-#### Rentman-Integration
-
-| Option | Wirkung |
-|--------|---------|
-| **Rentman-API-Token** | Token für die Rentman-Schnittstelle |
-| **Projekt verlinken** | Verbindet das aktuelle Projekt mit einem Rentman-Projekt |
-
-#### GreenGo-Presets
-
-| Option | Wirkung |
-|--------|---------|
-| **Preset speichern** | Speichert die aktuelle Planung als GreenGo-Konfiguration |
-| **Preset laden** | Lädt eine zuvor gespeicherte GreenGo-Konfiguration |
-| **Preset löschen** | Entfernt ein gespeichertes Preset |
-
-### MCP
-
-![Einstellungen - MCP](bilder/de/einstellungen-mcp.jpg)
-
-MCP-Server-Konfiguration (Claude fragt den Plan):
-
-| Option | Wirkung |
-|--------|---------|
-| **MCP-Server aktivieren** | Schaltet die Verbindung zu MCP-Servern ein |
-| **Server-Adresse** | URL oder Pfad zum MCP-Server |
-| **Authentifizierung** | Benutzername und Passwort (falls nötig) |
-
-**Hinweis:** MCP-Server im Browser-Modus nicht verfügbar.
+*Library exportieren* speichert die eigenen Gerätevorlagen, Gruppen und Kategorien als JSON-Datei; in Klammern stehen die Anzahlen. *Library importieren…* liest eine solche Datei ein. Dabei werden nur neue Einträge angelegt: eine Vorlage, deren Name schon existiert, bleibt unverändert. Der Bericht nach dem Import nennt die angelegten Vorlagen und Gruppen-Presets sowie die übersprungenen Namen.
 
 ### Module
 
-![Einstellungen - Module](bilder/de/einstellungen-modules.jpg)
+Module blenden ganze Funktionsbereiche ein oder aus. Das betrifft nur die Sichtbarkeit von Menüeinträgen, Panels und Dialogen; gespeicherte Projektdaten bleiben immer vollständig erhalten. Canvas, Geräte, Kabel, Eigenschaften und Export sind immer da und kein Modul.
 
-Installierte und verfügbare Module:
+![Reiter Module](bilder/de/einstellungen-08-module.jpg)
 
-| Modul | Status | Wirkung |
-|-------|--------|---------|
-| **ATEM-Steuerung** | Enabled/Disabled | Steuert Blackmagic ATEM-Mischer |
-| **Videohub** | Enabled/Disabled | Verbindung zu Blackmagic Videohub |
-| **Rentman** | Enabled/Disabled | Rentman-Integration |
-| **Mobile Share** | Enabled/Disabled | Smartphone-Ansicht freigeben |
+| Modul | Inhalt |
+|---|---|
+| Festinstallation | Lebenszyklus/Service, Asset-Register und QR-Etiketten, Übergabe-Doku, Feld-Rückkanal |
+| Mobile-Companion | Handy-Patchliste, Steck-Check, QR-Scan-Lookup, Feld-Meldungen |
+| Rentman | Import/Export-Kopplung zu Rentman (Katalog und Kabelmengen) |
+| Rental / Lager | Lagerbestand, Eigentum und Verfügbarkeit, Mietkalkulation (im Aufbau) |
+| NetBox | Site oder Rack aus einer NetBox-Instanz als Kabelplan importieren und später um neue Geräte und Verbindungen ergänzen |
 
-Jedes Modul kann aktiviert oder deaktiviert werden.
+Jedes Modul hat ein Kästchen *Modul aktiviert*.
+
+### Darstellung
+
+![Sprache, Thema und Geräte-Karten-Farben](bilder/de/einstellungen-09-darstellung.jpg)
+
+| Bereich | Bedienung | Wirkung |
+|---|---|---|
+| Sprache | *Deutsch* / *English* | Sprache der Oberfläche, wirkt sofort |
+| Darstellung | *Auto* / *Hell* / *Dunkel* | Thema der ganzen App einschließlich Canvas; *Auto* folgt dem System |
+| Geräte-Karten-Farben | je Thema (*Hell*, *Dunkel*) Farbfelder für Karten-Body, Header-Strip, Rand, Haupttext, Sekundär-Text; *Reset* je Thema | Farben der Geräteknoten. Eine am Gerät gesetzte Gerätefarbe überschreibt den Body-Wert weiterhin. |
+| Standard-Gerätefarbe | Farbfeld, *Reset* | Startfarbe neu hinzugefügter Geräte; leer: Body-Farbe des Themas |
+
+![Port-Schrift, Port-Farben, Kabelfarbe, Pfeile, Verbindungs-Warnungen](bilder/de/einstellungen-10-darstellung-portschrift.jpg)
+
+| Bereich | Bedienung | Wirkung |
+|---|---|---|
+| Port-Label-Schriftgröße | Schieberegler, Vorgabe 11 px, Knopf zum Zurücksetzen | Schriftgröße der Ein- und Ausgangsbeschriftungen auf den Geräteknoten; größer ist beim Herauszoomen besser lesbar, macht die Geräte aber breiter |
+| Port-Farben | *Nach Richtung (Standard)* / *Nach Steckertyp* | Einfärbung der Anschlusspunkte |
+| Kabelfarbe | *Manuell* / *Nach Länge* / *Nach Gewerk* | Manuell: Farbe je Kabel aus den Eigenschaften; nach Länge: Längen-Farbcodierung; nach Gewerk: Farben der Ebenen. Die am Kabel gespeicherte Farbe bleibt in jedem Modus erhalten. |
+| Pfeile auf Kabeln | *Pfeil am Ziel-Ende anzeigen (Signalflussrichtung)* | Vorgabe für neu gezeichnete Kabel; je Kabel in den Eigenschaften änderbar |
+| Verbindungs-Warnungen | *Beliebige Inputs und Outputs ohne Warnung verbinden* | Normalerweise fragt die App bei einem Steckertyp-Konflikt nach. Mit diesem Haken wird die Verbindung ohne Rückfrage angelegt und als Adapter/Konverter markiert. |
+
+![Kennung am Geräteknoten und Canvas-Hintergrund](bilder/de/einstellungen-11-darstellung-kennung-raster.jpg)
+
+| Bereich | Bedienung | Wirkung |
+|---|---|---|
+| Kennung am Geräteknoten | *Asset-Tag* / *Interne Nummer* / *Keine* | welche Nummer des Exemplars neben der Kategorie steht; erscheint nur, wo eine eingetragen ist |
+| Canvas-Hintergrund | *Muster*: *Punkte*, *Linien*, *Kreuze*, *Kein Raster*; Regler *Deckkraft* | Muster und Deckkraft des Canvas-Rasters. Die Rastergröße stellt der Reiter *Bearbeiten* ein. |
+
+![Eigenes Hintergrundbild und Custom-Palette](bilder/de/einstellungen-12-darstellung-bild-palette.jpg)
+
+**Eigenes Hintergrundbild:** *+ Bild hochladen…* lädt ein Bild als Canvas-Hintergrund, getrennt für *Dark-Mode-Bild* und *Light-Mode-Bild*. Ist ein Bild gesetzt, ersetzen *Ersetzen…* und *Bild entfernen* den Knopf. *Skalierung* wählt zwischen *Cover* (füllt komplett, beschneidet), *Contain* (vollständig sichtbar, mit Rand) und *Kacheln* (wiederholt). Das Rastermuster wird über das Bild gezeichnet.
+
+**Custom-Palette:** *Eigene Palette aktivieren* blendet zwei Farbfelder ein: *Hintergrund* und *Raster-Strich* des Canvas. Sie überschreiben die Vorgaben von hellem und dunklem Thema, aber nur auf dem Canvas; Dialoge bleiben im Thema.
+
+![Steckertyp-Farben](bilder/de/einstellungen-13-darstellung-steckerfarben.jpg)
+
+**Steckertyp-Farben:** ein Farbfeld je Steckertyp. Sichtbar wird die Farbe nur, wenn *Port-Farben* auf *Nach Steckertyp* steht. Ein leeres Feld gilt als Standard; *Alle zurücksetzen* stellt alle Steckerfarben zurück.
+
+![Geräte-Farben pro Kategorie](bilder/de/einstellungen-14-darstellung-kategoriefarben.jpg)
+
+**Geräte-Farben pro Kategorie:** eine Vorgabefarbe je Gerätekategorie für alle Geräte dieser Kategorie ohne eigene Farbe. Eine am Gerät gesetzte Farbe gewinnt. *Alle zurücksetzen* entfernt alle Kategoriefarben.
+
+### Bearbeiten
+
+![Reiter Bearbeiten, oberer Teil](bilder/de/einstellungen-15-bearbeiten.jpg)
+
+| Bereich | Bedienung | Wirkung |
+|---|---|---|
+| Standard-Kabelführung | *Ortho* / *Linie* / *Kurve* | Form neuer Kabel; je Kabel änderbar. *Auf alle bestehenden Kabel anwenden* setzt die gewählte Form auf alle vorhandenen Kabel (in Klammern deren Zahl). |
+| Raster (Grid) | *Geräte am Raster einrasten*; *Rastergröße in Pixeln (6-60)* | Ein Raster für alles: Geräte rasten ein, Port-Reihen sitzen darauf, das automatische Routing sucht darauf. |
+| Inline-Auswahl-Toolbar | *Inline-Toolbar bei Auswahl anzeigen* | schwebende Schnellaktionen (Ausrichten, Duplizieren, Rahmen, Löschen) neben der Auswahl auf dem Canvas |
+| Label mit Kabel mit-wandern | *Beim Reconnect Port-Labels mit-tauschen* | Beim Umstecken übernimmt der neue Port den selbst vergebenen Namen des alten Ports; der alte fällt auf den Namen aus der Vorlage zurück. Vorgabe aus. Wirkt nur bei Ports mit selbst vergebenem Namen. |
+
+![Reiter Bearbeiten, unterer Teil](bilder/de/einstellungen-16-bearbeiten-unten.jpg)
+
+| Bereich | Bedienung | Wirkung |
+|---|---|---|
+| Kabel-Typ folgt Port-Connector | *Kabel-Typ aus Port-Connector ableiten* | Ändert sich der Stecker eines Ports (z. B. BNC → XLR), übernehmen verbundene Kabel den neuen Typ, auch beim Umstecken auf einen Port mit anderem Stecker. Kabel mit Konverter-Hinweis bleiben unberührt. Vorgabe an. |
+| Endpoint-Labels an Kabelenden | *Endpoint-Labels einblenden* | kleines Label an jedem Kabelende: am Quell-Ende „→ Ziel-Gerät · Ziel-Port", am Ziel-Ende „← Quell-Gerät · Quell-Port". Vorgabe aus. Wirkt zusammen mit „Alle Labels ausblenden" und der Label-Position eines Kabels. |
+| Kabel-Darstellung | *Kreuzungs-Brücken auf orthogonalen Kabeln*; *Mittellinien automatisch versetzen wenn Kabel sich überlagern* | Brücken an Kreuzungen orthogonaler Kabel; automatischer Versatz übereinanderliegender Mittellinien |
+
+### Hotkeys
+
+Der Reiter listet die belegbaren Tastenkürzel mit ihrer aktuellen Belegung.
+
+![Reiter Hotkeys](bilder/de/einstellungen-17-hotkeys.jpg)
+
+| Aktion | Vorgabe |
+|---|---|
+| Rückgängig | Ctrl+Z |
+| Wiederherstellen | Ctrl+Y |
+| Projekt speichern | Ctrl+S |
+| Projekt speichern unter… | Ctrl+Shift+S |
+| Neues Projekt | Ctrl+N |
+| Projekt öffnen | Ctrl+O |
+| Auswahl löschen | Delete |
+| Alles auswählen | Ctrl+A |
+| Auswahl aufheben | Escape |
+| Library ein-/ausblenden | Ctrl+B |
+| Eigenschaften ein-/ausblenden | Ctrl+I |
+| Längen-Legende anzeigen | L |
+| Zu Patches springen | P |
+| Pfeil-Anzeige umschalten | A |
+| Routing umschalten | R |
+
+So belegen Sie ein Kürzel neu:
+
+1. Auf das Feld mit der Tastenkombination klicken. Es zeigt *Taste drücken…*.
+2. Die gewünschte Kombination drücken, z. B. Ctrl/Shift/Alt plus Buchstabe oder eine Funktionstaste. Sie wird sofort übernommen.
+
+![Feld wartet auf eine Taste](bilder/de/einstellungen-18-hotkeys-aufnahme.jpg)
+
+Das Kreuz neben dem Feld leert die Belegung; ein leeres Feld schaltet das Kürzel ab. Doppelbelegungen sind erlaubt, dann gewinnt das zuerst gefundene Kürzel. *Auf Standard zurücksetzen* stellt alle Vorgaben wieder her.
+
+### Integrationen
+
+#### Rentman
+
+![Rentman-Integration](bilder/de/einstellungen-19-integrationen.jpg)
+
+- *Rentman-Integration aktivieren* blendet Library-Reiter, Menüeinträge und Statusanzeigen für Rentman ein oder aus. Ausgeschaltet zeigt die App nur lokale Geräte und Kabel.
+- *Rentman API*: Feld *API-Token* für den Bearer-Token aus dem Rentman-Konto. *Token speichern* legt ihn verschlüsselt im Schlüsselbund des Betriebssystems ab, nie in der Projektdatei. *Verbindung testen* prüft ihn, *Token löschen* entfernt ihn. Status und *Token gespeichert* zeigen den Stand; der Endpunkt ist https://api.rentman.net.
+- *Verknüpftes Rentman-Projekt*: *Mit Rentman-Projekt verknüpfen…* verbindet das offene Projekt mit einem Rentman-Projekt. Dafür muss ein Token gespeichert sein.
+
+#### NetBox
+
+![NetBox-Integration](bilder/de/einstellungen-20-integrationen-netbox.jpg)
+
+- *NetBox-Integration aktivieren* blendet Menüeintrag und Import-Dialog für die eigene NetBox-Instanz ein oder aus.
+- *Instanz-URL*: Basis-URL der NetBox-Instanz, übernommen mit *Speichern*.
+- *API-Token*: Token mit Leserechten. *Token speichern* legt ihn verschlüsselt im Schlüsselbund ab; er verlässt den Hauptprozess nicht. *Verbindung testen* und *Token löschen* wie bei Rentman.
+- *Site/Rack importieren…* öffnet den Import, der eine Site oder ein Rack als Kabelplan übernimmt. Die App liest nur (`/api/dcim/…`).
+
+#### Tally-Pi (Direktweg)
+
+Schickt die Tally-Karte aus dem Export-Dialog direkt an den Tally-Pi, statt eine Datei herunterzuladen. Die Datei bleibt als Weg ohne Netzverbindung bestehen. Der Pi behält seine Verdrahtung; Rollen, die im Plan fehlen, verschwinden dort.
+
+1. *Direktweg zum Tally-Pi erlauben* einschalten.
+2. Unter *Adresse des Pi* die Adresse eintragen.
+3. *Verbindung prüfen* meldet *Der Pi antwortet.* oder *Keine Antwort.*
+
+![Tally-Pi mit eingeschaltetem Direktweg](bilder/de/einstellungen-21-integrationen-tallypi.jpg)
+
+Der Pi verlangt auf diesem Weg keinen Nachweis: wer ihn erreicht, kann ihn beschreiben. Den Direktweg deshalb nur in einem vertrauenswürdigen Netz nutzen.
+
+#### Quelle zum Ausfüllen und KI-Anbieter
+
+*Quelle zum Ausfüllen* bestimmt, woher der Knopf *Ausfüllen* im Anlegen-Dialog und im Rentman-Assistenten seine Port-Gruppen nimmt:
+
+| Quelle | Eigenschaft |
+|---|---|
+| Web-Suche | Wikipedia und DuckDuckGo, ohne API-Schlüssel. Fundstelle und Textausschnitt bleiben am Gerät gespeichert. |
+| KI-Modell | der darunter gewählte Anbieter; braucht einen API-Schlüssel und nennt sich als Urheber, aber keine Fundstelle |
+
+Beide Quellen raten und ersetzen kein Datenblatt.
+
+![Ausfüllen-Quelle und KI-Anbieter](bilder/de/einstellungen-22-integrationen-ki.jpg)
+
+*AI-Provider (KI-Port-Vorschläge)* listet Google Gemini, Anthropic Claude und OpenAI mit dem jeweils verwendeten Modell. Der Auswahlpunkt macht einen Anbieter aktiv. Jeder Anbieter hat ein eigenes Schlüsselfeld mit *Anzeigen*/*Ausblenden*, *Speichern* und Löschen; *Key erstellen ↗* öffnet die Seite des Anbieters. Bei Anthropic Claude gibt es zusätzlich das Feld *Workspace-ID*. Diese Schlüssel werden lokal im Speicher der App abgelegt.
+
+#### GreenGo Intercom Presets
+
+![GreenGo Intercom Presets](bilder/de/einstellungen-23-integrationen-greengo.jpg)
+
+Eine Bibliothek wiederverwendbarer Intercom-Konfigurationen. *Aktuelle Konfiguration als Preset speichern* fragt nach einem Namen und speichert die GreenGo-Konfiguration des Projekts mit Beltpack-Namen, Gruppen und Routing; ohne GreenGo-Konfiguration im Projekt ist der Knopf gesperrt. Jedes Preset zeigt die Zahl der Benutzer und Gruppen; *Laden* übernimmt es nach Rückfrage ins Projekt, *Löschen* entfernt es.
+
+### Gerätebibliothek
+
+Die Gerätebibliothek ist ein gemeinsamer Server, mit dem der Planer Gerätevorlagen abgleicht und an den er eigene Vorlagen einreicht.
+
+![Reiter Gerätebibliothek](bilder/de/einstellungen-24-geraetebibliothek.jpg)
+
+**Server:** Leer lassen nutzt den Standard-Server https://devices.zumpelars.de. Eine andere Adresse übernimmt *Speichern*; *Standard wiederherstellen* kehrt zum Standard zurück. Die Zeile *Aktiv* zeigt den Server in Gebrauch. In der Browser-Fassung liegt die Anmeldung im Speicher des Browsers, in der Desktop-App im Schlüsselbund des Systems.
+
+**Konto:** Die Gerätebibliothek ist nur mit Konto nutzbar. Konten werden auf der Website angelegt; dort wird die E-Mail-Adresse bestätigt und den Richtlinien zugestimmt.
+
+1. *E-Mail oder Benutzername* und *Passwort* eintragen, *Anmelden*.
+2. Ist für das Konto Zwei-Faktor-Anmeldung eingerichtet, erscheint das Feld *Zwei-Faktor-Code aus der Authenticator-App*; mit *Code bestätigen* ist die Anmeldung abgeschlossen, *Abbrechen* bricht ab.
+
+*Konto anlegen* und *Passwort vergessen* öffnen die Website. Angemeldet zeigt der Bereich Name und E-Mail-Adresse und den Knopf *Abmelden*.
+
+**Meine Geräte:** Selbst angelegte oder geänderte Vorlagen werden hochgeladen und gehen zuerst in die Moderation.
+
+- *Eigene Geräte automatisch hochladen* lädt beim Start und nach jeder Änderung einer Vorlage hoch, solange Sie angemeldet sind.
+- *Jetzt synchronisieren* lädt Geändertes hoch und holt danach Aktualisierungen. Der Knopf braucht eine Anmeldung.
+- *Eigene Vorlagen (n)* klappt die Liste der eigenen Vorlagen auf. Jede zeigt ihren Stand, z. B. *noch nicht hochgeladen*, *seit dem letzten Hochladen geändert*, *hochgeladen — wartet auf Moderation*, *hochgeladen — live* oder *blockiert — die Punkte unten beheben*. Fehlen Hersteller oder Modell, stehen darunter Felder dafür; ohne beide wird die Vorlage nicht hochgeladen.
+
+![Liste der eigenen Vorlagen und Abgleich](bilder/de/einstellungen-25-geraetebibliothek-eigene.jpg)
+
+**Abgleich:** *Aus der Gerätebibliothek aktualisieren* holt nur, was sich seit dem letzten Abgleich geändert hat (braucht eine Anmeldung). Die Geräte erscheinen schreibgeschützt in der Bibliothek unter *Geteilt* und bleiben offline verfügbar. Darunter stehen die Zahl der lokal gespeicherten Geräte und der Zeitpunkt des letzten Abgleichs. Der Bericht nennt neue, aktualisierte und entfernte Geräte sowie Einträge, die die Vorlagenprüfung der App nicht bestehen und deshalb übersprungen werden.
+
+### MCP
+
+Über den MCP-Server fragt Claude diesen Plan ab: Geräte, Ports, Signalwege, Kabel und das Ergebnis des Plan-Checks. Der Server läuft nur in der Desktop-App, hört nur auf 127.0.0.1 und verlangt ein Paarungs-Token.
+
+![Reiter MCP, Server aus](bilder/de/einstellungen-26-mcp.jpg)
+
+1. *Server starten* startet den Server. Daneben steht die Adresse, z. B. *Hört auf http://127.0.0.1:4187/mcp*; *Server stoppen* hält ihn an. Fragt gerade ein Client an, steht dort *ein Client fragt gerade*. Ist der eingestellte Port belegt, läuft der Server auf einem zufälligen Port und die Zeile sagt das.
+2. Der Zustand wird gemerkt: lief der Server beim Beenden, startet er beim nächsten Programmstart wieder auf demselben Port.
+3. *Port* legt den Port fest; er gilt beim nächsten Start des Servers.
+
+![MCP-Server läuft](bilder/de/einstellungen-27-mcp-laeuft.jpg)
+
+**Claude darf den Plan auch ändern:** ein eigener Schalter, Vorgabe aus. Eingeschaltet darf Claude Geräte aus der Bibliothek und eigene Geräte setzen, Kabel anlegen und entfernen, Kabel-Angaben und Rackhöhen setzen, Racks speichern und Geräte umbenennen. Jeder Aufruf ist ein Rückgängig-Schritt und hinterlässt eine Zeile in der Liste *Was Claude geändert hat*, die im Reiter erscheint, sobald es Einträge gibt. Schaltbefehle an Geräte (Videohub, ATEM) werden nie angeboten. Der Schalter gilt ab dem nächsten Start des Servers.
+
+**Paarungs-Token:** *Paarungs-Token zeigen* blendet das Token ein, *Neues Token* erzeugt ein neues. Das Token liegt im Schlüsselbund des Betriebssystems. Ein neues Token gilt nach einem Neustart des Servers, und jeder Client muss es neu bekommen.
+
+![Paarungs-Token sichtbar](bilder/de/einstellungen-28-mcp-token.jpg)
+
+Läuft der Server, zeigt der Reiter drei fertige Vorlagen mit Adresse und Token, jede mit *Kopieren*:
+
+| Vorlage | Zweck |
+|---|---|
+| In Claude Code eintragen | der Befehl `claude mcp add --transport http cable-planner …` |
+| JSON für .mcp.json oder andere Clients | Konfigurationsblock für andere Clients |
+| Ohne Client-Neustart: per curl aufrufen | ein `curl`-Aufruf, der die Werkzeugliste abfragt |
+
+![Vorlagen und Hinweis zu claude.ai](bilder/de/einstellungen-29-mcp-befehle.jpg)
+
+**claude.ai und die Claude-App** erreichen diesen Rechner nicht. Für sie: Projekt in die Cloud legen (*Datei → Cloud & Lese-Link…*), dann in claude.ai einen eigenen Connector mit der angezeigten Adresse (Standard: https://devices.zumpelars.de/mcp) hinzufügen und mit dem Konto der Gerätebibliothek anmelden. Dieser Connector liest nur Cloud-Projekte und ändert nichts.
+
+### Konfigurationen
+
+Eine Bibliothek von Konfigurationsdateien für Geräte (ATEM, Videohub, GreenGo), unabhängig vom Projekt.
+
+![Reiter Konfigurationen, leer](bilder/de/einstellungen-30-konfigurationen.jpg)
+
+1. *Datei wählen…* lädt eine Datei (XML, JSON, TXT, CSV oder .gg5). Der Typ wird aus dem Dateinamen geraten.
+2. Die Datei erscheint in der *Konfigurations-Bibliothek*, gruppiert nach Typ.
+
+![Hochgeladene Konfiguration](bilder/de/einstellungen-31-konfigurationen-hochgeladen.jpg)
+
+Jeder Eintrag hat:
+
+- ein Namensfeld,
+- die Typ-Auswahl: *ATEM Multiviewer Layout*, *ATEM Audio-Routing*, *Videohub Labels*, *Videohub Routing*, *GreenGo Intercom (.gg5)*, *Sonstige*,
+- die Geräte-Auswahl, die die Konfiguration einem Gerät auf dem Canvas zuordnet (*(unzugeordnet)* für keines),
+- den Dateinamen, einen Knopf *Originaldatei herunterladen* und das Kreuz zum Entfernen (mit Rückfrage).
+
+Die Filterknöpfe über der Liste (*Alle* und je Typ, mit Anzahl) schränken die Anzeige ein. *Bibliothek als JSON exportieren* speichert die ganze Bibliothek in einer Datei; *JSON-Bibliothek importieren…* liest eine solche Datei und fragt, ob sie die vorhandene Bibliothek ersetzen oder ergänzen soll.
+
+### Kabeltypen
+
+Kabeltypen sind die Vorlagen, die der Plan beim Zeichnen anbietet: Stecker, Signal-Standards, Farbe und Höchstlänge. Sie gehören zur Installation, nicht zu einem Projekt.
+
+![Reiter Kabeltypen](bilder/de/einstellungen-32-kabeltypen.jpg)
+
+- **Eigene Kabeltypen:** *+ Neuer Kabeltyp* öffnet den Dialog *Neuer Kabeltyp*. Angelegte Typen stehen in jedem Projekt auf diesem Rechner zur Verfügung und haben je *Bearbeiten* und *Löschen*.
+- **Geänderte eingebaute Typen:** Ein eingebauter Typ wird nie gelöscht, nur überschrieben. *Auf die eingebaute Vorgabe zurücksetzen* stellt die ausgelieferten Werte wieder her.
+
+Die Kabel-Bibliothek in der linken Seitenleiste bearbeitet einen Typ ebenfalls direkt.
+
+![Dialog Neuer Kabeltyp](bilder/de/einstellungen-33-kabeltypen-neu.jpg)
+
+| Feld | Inhalt |
+|---|---|
+| Name | z. B. CAT6a Patch 5m |
+| Stecker-Typ | Auswahl aus allen Steckertypen; *+* legt einen eigenen an |
+| Kabel-Farbe | Farbfeld |
+| Auch kompatibel mit (optional) | weitere Steckertypen zum Anklicken |
+| Signal-Standards | Standards zum Anklicken; *+ Standard* legt einen eigenen an |
+| Max. Länge (m) – optional | Höchstlänge |
+| Notiz (optional) | freier Text |
+
+*Anlegen* speichert den Typ, *Abbrechen* verwirft ihn.
+
+### Stammdaten
+
+Eigene Steckertypen, Signalstandards und Kabel-Ebenen an einer Stelle. Sie stehen in jeder Auswahl neben den eingebauten und reisen mit der geteilten Bibliothek (Netzwerk-Sync), damit ein Team dieselben Namen verwendet.
+
+![Reiter Stammdaten](bilder/de/einstellungen-34-stammdaten.jpg)
+
+Jeder der drei Bereiche *Steckertypen*, *Signalstandards* und *Kabel-Ebenen* funktioniert gleich:
+
+1. Den Namen ins Eingabefeld schreiben (z. B. „SMPTE 2110-20" bei den Signalstandards).
+2. *Hinzufügen* legt den Eintrag an. Ein Name, den es schon gibt, wird nicht angenommen.
+
+![Eigener Signalstandard angelegt](bilder/de/einstellungen-35-stammdaten-standard-angelegt.jpg)
+
+Eigene Einträge lassen sich umbenennen (die App fragt nach dem neuen Namen) und entfernen (nach Rückfrage). Wer einen Eintrag umbenennt, benennt ihn auch an allen Ports, Kabeln und Bibliotheksvorlagen um, die ihn benutzen.
+
+*Eingebaut (n)* klappt die mitgelieferten Einträge auf. Eingebaut sind 127 Steckertypen, 64 Signalstandards und sechs Kabel-Ebenen: video, audio, control, network, power, other.
+
+![Eingebaute Kabel-Ebenen aufgeklappt](bilder/de/einstellungen-36-stammdaten-eingebaut.jpg)
+
+### Kategorien & Felder
+
+Hier entstehen eigene Gerätekategorien und Fachfelder (z. B. eine Richtcharakteristik). Eigene Felder erscheinen automatisch in den Geräte-Eigenschaften und in Stückliste und Export. Eingebaute Felder sind gesperrt (*built-in*).
+
+![Reiter Kategorien & Felder](bilder/de/einstellungen-37-schema.jpg)
+
+**Kategorie wählen oder anlegen:** Die Auswahl *Kategorie* zeigt die Felder einer Kategorie. Eine neue Kategorie entsteht mit *Neue Kategorie (DE)*, optional *Name (EN)*, und *Kategorie anlegen*.
+
+![Felder der Kategorie Kameras](bilder/de/einstellungen-38-schema-unten.jpg)
+
+**Feld anlegen:**
+
+1. *Feld hinzufügen* öffnet das Formular *Neues Feld*.
+2. *Bezeichnung (DE)*, *Label (EN)* und *Schlüssel* eintragen.
+3. *Typ* wählen: *Text*, *Zahl*, *Auswahl*, *Ja/Nein* oder *Richtcharakteristik (Diagramm)*. Für *Auswahl* mit *Option* mindestens eine Auswahlmöglichkeit anlegen.
+4. Optional *Einheit* und *Platzhalter*.
+5. *Feld anlegen* speichert, *Abbrechen* verwirft.
+
+![Formular Neues Feld](bilder/de/einstellungen-39-schema-neues-feld.jpg)
+
+Ein Schlüssel darf in einer Kategorie nur einmal vorkommen. Eigene Felder lassen sich über das Papierkorb-Symbol löschen; ein angelegtes Feld wird nicht nachträglich bearbeitet, sondern gelöscht und neu angelegt. Kategorien umbenennen geht im Reiter *Erweitert*.
+
+### Netzwerk-Sync
+
+Der Reiter enthält zwei getrennte Wege der Zusammenarbeit: die Live-Kollaboration und das gemeinsame Sync-Verzeichnis.
+
+#### Live-Kollaboration (Beta)
+
+Mehrere Planer bearbeiten denselben Plan in Echtzeit. Änderungen werden ohne Server zusammengeführt, auch nach einer kurzen Trennung.
+
+![Live-Kollaboration, Modus Dieses Gerät](bilder/de/einstellungen-40-sync.jpg)
+
+| Feld | Inhalt |
+|---|---|
+| Dein Anzeigename | Name, den die anderen sehen |
+| Modus | *Dieses Gerät (mehrere Fenster)* oder *Netzwerk (LAN/WAN, P2P)* |
+| Raumname | Name des gemeinsamen Raums |
+
+Im Modus *Netzwerk* kommen weitere Felder hinzu:
+
+| Feld | Inhalt |
+|---|---|
+| Signaling-Server | leer: wss://relay.zumpelars.de; er sieht nur Verbindungsdaten, nie den Plan |
+| Nur lokal | kein entferntes Relay, nichts verlässt das LAN |
+| Raum-Passwort (optional) | verschlüsselt den Raum |
+| STUN-/TURN-Server (optional) | eine Zeile je Server: `URL|Benutzer|Passwort`; nur nötig, wenn die Gegenstelle in einem anderen Netz sitzt. Die Zugangsdaten bleiben auf diesem Rechner und stehen nicht im Einladungslink. |
+
+Ohne Raum-Passwort ist der Raum unverschlüsselt: wer Raumname und Signaling-Server kennt oder die Session im LAN findet, kann das ganze Projekt mitlesen.
+
+![Modus Netzwerk](bilder/de/einstellungen-41-sync-netzwerk.jpg)
+
+*Sessions im Netzwerk*: *Im Netzwerk suchen* sucht im lokalen Netz nach laufenden Sessions (nur Desktop-App). Gefundene Sessions haben einen Knopf *Beitreten*. Beitreten übernimmt den Plan des Gastgebers und ersetzt nach Rückfrage den eigenen Plan.
+
+*Session starten* eröffnet die Session. Danach zeigt der Bereich *Verbunden — Änderungen werden live geteilt*, die Teilnehmer im Raum und den Knopf *Einladung kopieren*, der einen Einladungslink in die Zwischenablage legt. *Verlassen* beendet die Teilnahme.
+
+![Laufende Session](bilder/de/einstellungen-42-sync-session-aktiv.jpg)
+
+#### Sync-Verzeichnis
+
+Ein gemeinsames Verzeichnis (verbundenes FTP-Laufwerk, Netzwerkpfad oder lokaler Ordner), in dem Projekt, Bibliothek und Presets als JSON-Dateien geteilt werden. Dieser Weg braucht die Desktop-App.
+
+1. *Sync-Verzeichnis* eintragen.
+2. *Benutzername (für Lock-Anzeige)* eintragen; er erscheint bei den anderen, solange Sie das Verzeichnis sperren.
+3. *Speichern*. *Zurücksetzen* stellt die gespeicherten Werte wieder her.
+
+![Sync-Verzeichnis eintragen](bilder/de/einstellungen-43-sync-verzeichnis.jpg)
+
+Mit gesetztem Verzeichnis erscheinen in der Kopfleiste die Knöpfe *Push* und *Pull*:
+
+- *Push* schreibt `cable-planner.project.json`, `cable-planner.library.json` und `cable-planner.presets.json` ins Verzeichnis.
+- *Pull* lädt diese Dateien in den aktuellen Stand. Liegen keine Sync-Dateien im Verzeichnis, meldet die App das.
+- Eine Lock-Datei (`.cable-planner-sync.lock`) verhindert gleichzeitiges Überschreiben; sie verfällt nach zwei Stunden. Ist das Verzeichnis gesperrt, nennt die Meldung den Namen dessen, der es sperrt.
+
+![Push und Pull in der Kopfleiste](bilder/de/einstellungen-45-sync-kopfleiste.jpg)
+
+**Gemeinsame Bibliothek (Workgroup):** *Bibliothek jetzt synchronisieren* gleicht Gerätevorlagen, Gruppen und Kategorien mit der Datei `cable-planner.library.json` im Sync-Verzeichnis ab. Abgeglichen wird nach Namen; lokale Vorlagen werden nie überschrieben. Die Meldung nennt, was geholt und geteilt wurde, und Namenskonflikte, bei denen die lokale Fassung blieb.
+
+![Gemeinsame Bibliothek mit gesetztem Verzeichnis](bilder/de/einstellungen-44-sync-gespeichert.jpg)
 
 ### Nachweise
 
-![Einstellungen - Nachweise](bilder/de/einstellungen-nachweise.jpg)
+Qualifikationen, Versicherungen und Unterweisungen der Person, die die App benutzt, jeweils mit Frist. Sie gehören zur Person, nicht zum Plan, und kommen nie in eine Projektdatei.
 
-Verwaltung von Qualifikationen und Versicherungen:
+![Reiter Nachweise](bilder/de/einstellungen-46-nachweise.jpg)
 
-| Option | Wirkung |
-|--------|---------|
-| **Neuer Nachweis** | Erstellt einen neuen Qualifikations-/Versicherungs-Nachweis |
-| **Nachweis bearbeiten** | Ändert Name, Gültigkeitsdatum oder Beschreibung |
-| **Nachweis löschen** | Entfernt einen Nachweis |
+**Nachweis eintragen:**
 
-Nachweise können an Personen oder Geräte angehängt werden.
+1. *Nachweis* öffnet das Formular.
+2. *Art* wählen: Qualifikation, Versicherung, Unterweisung, Ausweis oder Sonstiges.
+3. *Bezeichnung* eintragen (Pflichtfeld), optional *Aussteller*, *Nummer*, *Ausgestellt am*, *Gültig bis* und *Dateiname des Scans*.
+4. *Speichern*.
 
-### Schema-Builder
+![Formular Nachweis](bilder/de/einstellungen-47-nachweise-formular.jpg)
 
-![Einstellungen - Schema-Builder](bilder/de/einstellungen-schema.jpg)
+Ohne *Gültig bis* gilt ein Nachweis nicht als unbefristet, sondern als „keine Frist angegeben"; so steht es auch auf dem Deckblatt. Jeder Eintrag zeigt seinen Zustand, Art und Frist mit den verbleibenden Tagen und hat *Bearbeiten* und *Löschen*.
 
-Definieren Sie benutzerdefinierte Kategorien und Felder für Geräte:
+**Vorwarnzeit:** Die Zahl der *Tage* vor Fristende, ab der gewarnt wird. Darunter stehen die Nachweise, die innerhalb dieser Zeit ablaufen. Ohne Angabe wird nicht gewarnt.
 
-#### Kategorien
+**Deckblatt:** speichert eine CSV-Datei `nachweise-deckblatt.csv` mit allen Nachweisen (Art, Bezeichnung, Aussteller, Nummer, Gültig bis, Lage, Datei) und Summenzeilen für abgelaufene Nachweise, Nachweise ohne Frist und Nachweise ohne benannte Datei. Ohne Nachweise ist der Knopf gesperrt.
 
-| Option | Wirkung |
-|--------|---------|
-| **Neue Kategorie** | Erstellt eine neue Geräte-Kategorie (z.B. „Spezialkameras") |
-| **Kategorie umbenennen** | Ändert den Namen |
-| **Kategorie löschen** | Entfernt eine nicht verwendete Kategorie |
-
-#### Felder
-
-| Option | Wirkung |
-|--------|---------|
-| **Neues Feld** | Erstellt ein neues Attribut (Text, Zahl, Dropdown usw.) |
-| **Feld bearbeiten** | Ändert Typ, Validierung oder Standard-Wert |
-| **Feld löschen** | Entfernt ein Feld aus allen Geräten |
-
-### Sync
-
-![Einstellungen - Sync](bilder/de/einstellungen-sync.jpg)
-
-Netzwerk-Synchronisation für Zusammenarbeit:
-
-| Option | Wirkung |
-|--------|---------|
-| **Sync aktivieren** | Erlaubt anderen, Änderungen live zu sehen |
-| **Relay-Server** | Adresse des Signaling-Servers |
-| **Raum-Code** | Eindeutiger Code für diesen Plan (für Kollegen freigeben) |
-
-Andere Nutzer können sich mit Ihrem Plan verbinden, wenn sie den Raum-Code haben.
-
-### Tastenkürzel
-
-![Einstellungen - Tastenkürzel](bilder/de/einstellungen-hotkeys.jpg)
-
-Anpassen der Tastatur-Shortcuts:
-
-| Aktion | Standard-Shortcut | Wirkung |
-|--------|-------------------|---------|
-| **Neues Projekt** | Strg+N | Erstellt ein leeres Projekt |
-| **Projekt öffnen** | Strg+O | Öffnet eine Datei |
-| **Projekt speichern** | Strg+S | Speichert die Änderungen |
-| **Befehlspalette** | Strg+K | Öffnet die Suche und Navigation |
-| **Einstellungen** | (Strg+,) | Öffnet diesen Dialog |
-
-Alle Shortcuts können angepasst werden. Klicken Sie auf eine Aktion, um den neuen Shortcut zu definieren.
+![Eingetragener Nachweis mit Vorwarnzeit](bilder/de/einstellungen-48-nachweise-eingetragen.jpg)
 
 ### Erweitert
 
-![Einstellungen - Erweitert](bilder/de/einstellungen-advanced.jpg)
+![Reiter Erweitert](bilder/de/einstellungen-49-erweitert.jpg)
 
-Fortgeschrittene Optionen für Entwickler und Poweruser:
+**Autosave:** *Autosave-Intervall (ms)* bestimmt, wie oft das Projekt automatisch im lokalen Speicher gesichert wird. Vorgabe 400 ms.
 
-| Option | Wirkung |
-|--------|---------|
-| **Datenexport** | Exportiert projekt- und Anwendungsdaten als ZIP-Datei |
-| **Datenbank zurücksetzen** | Löscht alle lokalen Daten (nicht rückgängig zu machen) |
-| **Logging aktivieren** | Schreibt detaillierte Logs für Debugging |
-| **Log-Datei anzeigen** | Öffnet die aktuelle Log-Datei |
-| **Cache leeren** | Löscht den lokalen Bildschirm-Cache |
-| **DevTools öffnen** | Öffnet die Browser-Entwicklerwerkzeuge |
+**Kategorienverwaltung:** Die Tabelle listet alle Bibliothekskategorien mit der Zahl der Vorlagen. Steht neben dem Namen ein zweiter in Klammern, ist das der englische Name.
 
-Verwenden Sie diese Optionen nur, wenn Sie wissen, was Sie tun. Sie können Ihr Projekt beschädigen.
+- *Umbenennen* öffnet den Dialog *Kategorie umbenennen* mit je einem Feld *Deutsch* und *Englisch*. Beim Umschalten der Sprache wird der jeweilige Name gezeigt; ein leeres Feld fällt auf die andere Sprache zurück. Ändert sich der Name, wandern alle zugeordneten Vorlagen und verbauten Geräte mit. *OK* übernimmt.
+- *+ Neue Kategorie* legt mit demselben Dialog eine Kategorie an.
+
+![Dialog Kategorie umbenennen](bilder/de/einstellungen-50-erweitert-umbenennen.jpg)
+
+**Caches & Lokale Daten:** *Rentman-Template-Cache leeren* und *Web-Suchverlauf leeren* löschen nach Rückfrage den jeweiligen Zwischenspeicher; er wird bei Bedarf neu geladen, Projektdaten gehen nicht verloren. *Willkommens-Dialog beim nächsten Start zeigen* zeigt nach Rückfrage beim nächsten Start wieder den Willkommens-Dialog.
+
+**Datenexport:** *Alle localStorage-Daten exportieren* speichert alle lokal abgelegten Daten der App als JSON-Datei, etwa zum Übertragen auf einen anderen Rechner.
+
+![Caches und Datenexport](bilder/de/einstellungen-51-erweitert-unten.jpg)
 
 ---
 

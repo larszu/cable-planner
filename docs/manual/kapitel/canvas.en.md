@@ -1,6 +1,6 @@
 ## Canvas
 
-The canvas is the working area on which devices stand, cables run and frames form rooms. This chapter describes the area itself, the floating toolbar, selection, drawing and editing cables, frames, floors, layers, operating modes, annotations, floor plan and plan symbols. The properties of a selected device, cable or frame are described in the chapter [Inspector](#inspector); the library on the left in the chapter [Library](#library).
+The canvas is the working area on which devices stand, cables run and frames form rooms. This chapter describes the area itself, the floating toolbar, selection, drawing and editing cables, frames, floors, layers, operating modes, annotations, floor plan and plan symbols. The properties of a selected device, cable or frame are described in the chapter [Inspector](#5-inspector); the library on the left in the chapter [Library](#4-library).
 
 ### The empty plan and the example project
 
@@ -299,7 +299,7 @@ A click on a cable selects it; the inspector shows its properties, a double clic
 | *Create off-page connection…* | See [Off-page connectors](#off-page-connectors). |
 | *Delete cable* | Asks *Delete cable "…"?* and removes it after confirmation. |
 
-5. A double click on a cable opens the dialog for editing the cable; its fields are described in the chapter [Inspector](#inspector).
+5. A double click on a cable opens the dialog for editing the cable; its fields are described in the chapter [Inspector](#5-inspector).
 
    ![Double click on a cable](bilder/en/canvas-kabeleditor-19-doppelklick.jpg)
 
@@ -325,7 +325,7 @@ A frame is a coloured rectangle that groups devices into a place or room. The bu
 
 2. A double click on the frame asks *Rename location:*.
 
-3. A click on the frame shows the frame properties in the inspector (name, width, depth, area, floor, colour, riser, room number, address, notes); they are described in the chapter [Inspector](#inspector).
+3. A click on the frame shows the frame properties in the inspector (name, width, depth, area, floor, colour, riser, room number, address, notes); they are described in the chapter [Inspector](#5-inspector).
 
 4. Change the size with the handles of the selected frame.
 

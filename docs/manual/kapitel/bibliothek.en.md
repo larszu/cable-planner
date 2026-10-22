@@ -1,6 +1,6 @@
 ## Library
 
-The library is the column to the left of the plan. It holds the templates the plan is built from: devices (local, from the shared device library and from Rentman), cable types, device groups and racks. Templates are put on the [canvas](#canvas) with a click or by dragging; the properties of an entry appear in the [Inspector](#inspector).
+The library is the column to the left of the plan. It holds the templates the plan is built from: devices (local, from the shared device library and from Rentman), cable types, device groups and racks. Templates are put on the [canvas](#3-canvas) with a click or by dragging; the properties of an entry appear in the [Inspector](#5-inspector).
 
 ![Library next to the plan](bilder/en/bibliothek-01-fenster-ueberblick.jpg)
 
