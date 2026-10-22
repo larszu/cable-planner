@@ -801,7 +801,7 @@ abschnitt('atem-mv', async () => {
   await f.S('auswahl', () => werkzeug('atemMv'))
   await f.S('editor', () => klickLoc(D().getByRole('button', { name: /Constellation HD/ })))
   await f.S('quelle-waehlen', async () => {
-    await D().locator('button[title*="klicken zum Ändern"], button[title*="click"]').first().click().catch(() => {})
+    await D().locator('button[title*="klicken zum Ändern"]').first().click().catch(() => {})
     await pause(600)
   }, { ziel: FENSTER })
   await f.S('quelle-gesetzt', async () => {
