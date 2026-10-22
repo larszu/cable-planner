@@ -1,0 +1,73 @@
+{
+  "schritte": [
+    {
+      "nr": 1,
+      "name": "racks-reiter",
+      "datei": "rack-01-racks-reiter.jpg",
+      "text": ""
+    },
+    {
+      "nr": 2,
+      "name": "karte-hover",
+      "datei": "rack-02-karte-hover.jpg",
+      "text": ""
+    },
+    {
+      "nr": 3,
+      "name": "karte-exportieren",
+      "datei": "rack-03-karte-exportieren.jpg",
+      "text": ""
+    },
+    {
+      "nr": 4,
+      "name": "karte-loeschen-frage",
+      "datei": "rack-04-karte-loeschen-frage.jpg",
+      "text": ""
+    },
+    {
+      "nr": 5,
+      "name": "lager-meldung",
+      "datei": "rack-05-lager-meldung.jpg",
+      "text": ""
+    },
+    {
+      "nr": 6,
+      "name": "karte-platziert",
+      "datei": "rack-06-karte-platziert.jpg",
+      "text": ""
+    },
+    {
+      "nr": 7,
+      "name": "blackbox-kontextmenue",
+      "datei": "rack-07-blackbox-kontextmenue.jpg",
+      "text": ""
+    },
+    {
+      "nr": 8,
+      "name": "rack-editor-offen",
+      "datei": "rack-08-rack-editor-offen.jpg",
+      "text": "Example rack: small OB van\nEditing\n\n2D rack builder · Add devices from the library, drag for U position, internal cablingEsc close\n\nExport\nRack name *\nHeight (HE)\nDepth (mm)\nLibrary\n31 / 1856\n+ Patch panel\n+ Rack shelf\nInclude non-rack devices\nCrestron Avia DSP-1283\nAudio\n+ Into rack\n1 HE · 20 In · 8 Out\nCrestron CP3\nControl\n+ Into rack\n1 HE · 4 In · 9 Out\nClear-Com CS-702\nIntercom\n+ Into rack\n1 HE · 4 In · 8 Out\nClear-Com MS-702\nIntercom\n+ Into rack\n1 HE · 5 In · 8 Out\nClear-Com SB-704\nIntercom\n+ Into rack\n1 HE · 6 In · 16 Out\nSonnet xMac mini Server Thunderbolt 3 (XMAC-MS-A-TB3)\nIT/Server\n+ Into rack\n1 HE · 2 In · 4 Out\nBrompton Tessera S4\nLED Processing\n+ Into rack\n1 HE · 5 In · 6 Out\nBrompton Tessera S8\nLED Processing\n+ Into rack\n2 HE · 9 In · 12 Out\nBrompton Tessera T1\nLED Processing\n+ Into rack\n1 HE · 6 In · 4 Out\nBrompton Tessera XD 10G\nLED Processing\n+ Into rack\n1 HE · 2 In · 11 Out\nCisco Catalyst 9300 24-Port UPOE (C9300-24U)\nNetworking\n+ Into rack\n1 HE · 7 In · 27 Out\nCisco Catalyst 9300X 48-Port UPOE+ (C9300X-48HXN)\nNetworking\n+ Into rack\n1 HE · 7 In · 51 Out\nCisco Nexus 93108TC-EX\nNetworking\n+ Into rack\n1 HE · 6 In · 54 Out\nLuminex GigaCore 12\nNetworking\n+ Into rack\n1 HE · 2 In · 15 Out\nLuminex GigaCore 14R\nNetworking\n+ Into rack\n1 HE · 4 In · 16 Out\nLuminex GigaCore 16i\nNetworking\n+ Into rack\n1 HE · 1 In · 16 Out\nLuminex GigaCore 16RFO\nNetworking\n+ Into rack\n1 HE · 2 In · 21 Out\nLuminex GigaCore 16t\nNetworking\n+ Into rack\n1 HE · 1 In · 16 Out\nNETGEAR M4250-10G2XF"
+    },
+    {
+      "nr": 10,
+      "name": "racks-liste-mehrere",
+      "datei": "rack-10-racks-liste-mehrere.jpg",
+      "text": ""
+    },
+    {
+      "nr": 11,
+      "name": "leerzustand",
+      "datei": "rack-11-leerzustand.jpg",
+      "text": "Delete rack \"Example rack: small OB van\"?\nCancel\nDelete"
+    },
+    {
+      "nr": 12,
+      "name": "lager-leer",
+      "datei": "rack-12-lager-leer.jpg",
+      "text": "Delete rack \"Example rack: small OB van\"?\nCancel\nDelete"
+    }
+  ],
+  "fehler": [
+    "09 rack-editor-ziehen: locator.boundingBox: Timeout 30000ms exceeded."
+  ]
+}

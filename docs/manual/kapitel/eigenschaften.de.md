@@ -214,6 +214,43 @@ Bei Kameras listet der Abschnitt je Steuerfunktion (Schwenken und Neigen, Zoom, 
 
 Für Geräte, deren Steuerschnittstellen die App kennt (etwa Kameras mit VISCA oder AW-Protokoll, HyperDeck, KUMO), zeigt dieser Abschnitt nur lesend je Schnittstelle: Protokoll, Übertragung (seriell, SDI oder IP), Anschluss, Baud, Format, Pinbelegung, Flusssteuerung, Mehrpunkt, Netzwerk-Port und für eine Netzwerk-Bridge Modus, Port und Pakete. Angaben, die nicht in der Herstellerdoku stehen, sind als *Nicht in der Herstellerdoku* markiert. *Quelle* verweist auf die Dokumentation.
 
+#### Kamera-Steuerung (Brücke)
+
+Bei Kameras steht dieser Abschnitt unter den Schnittstellen. Gefahren wird ein Kamerakopf von der LZ Camera Bridge, einem Prozess im Regieraum. Der Abschnitt sagt ihr, wie sie den Kopf erreicht, schickt ihr den Raum und zeigt, was sie meldet. Die Zeile neben dem Titel nennt den Stand: *noch nicht auf der Brücke*, *Brücken-Slot n* oder *Brücken-Slot n · online*.
+
+![Der Abschnitt Kamera-Steuerung](bilder/de/kamerasteuerung-02-abschnitt.jpg)
+
+| Feld oder Knopf | Bedeutung |
+|---|---|
+| *Brücke (Raum)* und *Port* | Adresse der Brücke im Raum; der Port steht auf 9700. Sie gelten für das ganze Projekt. |
+| *Verbinden* / *Trennen* | baut die Verbindung auf oder ab; der Zustand steht daneben als *Brücke verbunden* oder *Brücke nicht verbunden*. *Verbinden* bleibt gesperrt, solange keine Adresse eingetragen ist. |
+| *Steuerweg* | wie die Brücke diesen Kopf erreicht: *– nicht erklärt –*, *Not remote-controlled*, *VISCA over IP*, *HTTP-CGI (Vissonic / PTZOptics, Sony SRG)*, *Panasonic AW PTZ*, *BirdDog*, *JVC ConnectedCam*, *Canon CCAPI*, *Blackmagic REST*, *Z CAM*, *Panasonic Lumix*, *Sony Monitor & Control*, *Sony CCU (700PTP)*, *VISCA RS-232 (at the bridge)*, *Sony RS-422 (at the bridge)*, *Sony USB (at the bridge)*, *DJI Ronin gimbal* und *DJI Osmo Pocket gimbal* |
+| *Firmware-Familie* | nur bei *HTTP-CGI*: *Vissonic / PTZOptics* oder *Sony SRG / BRC* |
+| *Steuer-Port* | Port des Kopfs; leer heißt *auto* |
+| Hinweiszeile | die IP-Adresse kommt aus dem Abschnitt *Netzwerk*; ohne sie steht dort *noch keine IP-Adresse — im Abschnitt Netzwerk setzen* |
+
+![Liste der Steuerwege](bilder/de/kamerasteuerung-05-steuerweg-liste.jpg)
+
+![Steuerweg HTTP-CGI mit Firmware-Familie](bilder/de/kamerasteuerung-06-steuerweg-http-cgi.jpg)
+
+*Raum an die Brücke schicken* ist bei bestehender Verbindung bedienbar. Es ersetzt die Kameras der Brücke durch die Kameras dieses Plans mit Adresse, Steuerweg, Stream, Ausrichtung und Shots. Die Brücke verbindet sie selbst und behält sie über Neustarts. Danach steht *n Kamera(s) geschickt*; Kameras ohne IP-Adresse oder ohne Steuerweg erscheinen unter *zurückgeblieben:*. Jede geschickte Kamera erhält ihre Slot-Nummer von der Brücke.
+
+Hat die Kamera einen Slot und ist die Brücke verbunden, kommen dazu:
+
+- *Kopf online* oder *Kopf offline* mit dem Knopf *Kopf verbinden*, das Tally *PGM* oder *PVW*, die Pose (*Pan … ° · Tilt … °*, bei Zoom auch dessen Anteil) und *Pose lesen*;
+- *Livebild von der Brücke zeigen*, sofern der Slot eine Stream-Adresse hat;
+- ein Steuerkreuz: Halten fährt, Loslassen stoppt; *⌂* fährt in die Grundstellung. Dazu kommen Tasten für Zoom und Fokus (*T/W* Zoom, *N/F* Fokus) und *AF*;
+- die *Zoomkurve* mit *Punkt aufnehmen* (Brennweite in mm, am Objektiv abgelesen) und *Kurve löschen*;
+- *Geplante Shots*: je Shot *Abrufen* (das im Kopf gespeicherte Preset), *Anfahren* (die geplante Pose) und *Kopf steht hier* mit anschließender Bestätigung, wodurch die Differenz zum Plan der Offset aller Shots wird. *Alle Shots im Kopf speichern* braucht einen zweiten Klick zur Bestätigung; *Offset löschen* nimmt den Offset wieder weg.
+
+#### Videowand
+
+*Videowand (Livebilder)…* im Abschnitt *Kamera-Steuerung (Brücke)* öffnet den Dialog *Videowand*. Er zeigt die Livebilder aller Kameras dieses Plans, die auf der Brücke einen Slot haben, als Kacheln. Das Fenster hat keinen Menüeintrag.
+
+![Der Dialog Videowand ohne Brücke](bilder/de/kamerasteuerung-03-videowand.jpg)
+
+Oben rechts stehen die Adresse der Brücke mit dem Zustand (ohne Adresse: *keine Brücken-Adresse in diesem Projekt*) und der Knopf *Bilder neu laden*. Ohne Kamera auf der Brücke steht *Noch keine Kamera dieses Plans ist auf der Brücke. Öffne eine Kamera, setze Steuerweg und Stream, und schicke den Raum an die Brücke.* Jede Kachel trägt unten *CAM n*, den Gerätenamen und bei Tally *PGM* oder *PVW*; der obere Rand färbt sich bei Programm und Vorschau. Fehlt der Kamera die Stream-Adresse, steht *keine Stream-Adresse*, fehlt sie auf der Brücke, *nicht auf der Brücke*. Bis zu vier Kacheln stehen in zwei Spalten, bis zu neun in drei, mehr in vier.
+
 #### Stromverbrauch
 
 Felder Spannung (V), Stromstärke (A) und Leistung (W). Sind Spannung und Stromstärke gesetzt, berechnet die App die Leistung (P = U × I).

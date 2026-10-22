@@ -1,0 +1,41 @@
+{
+  "schritte": [
+    {
+      "nr": 1,
+      "name": "kamera-gewaehlt",
+      "datei": "kamerasteuerung-01-kamera-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 2,
+      "name": "abschnitt",
+      "datei": "kamerasteuerung-02-abschnitt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 3,
+      "name": "videowand",
+      "datei": "kamerasteuerung-03-videowand.jpg",
+      "text": "Videowand\nkeine Brücken-Adresse in diesem Projekt · idle\nBilder neu laden\n\nNoch keine Kamera dieses Plans ist auf der Brücke. Öffne eine Kamera, setze Steuerweg und Stream, und schicke den Raum an die Brücke."
+    },
+    {
+      "nr": 4,
+      "name": "bruecke-adresse",
+      "datei": "kamerasteuerung-04-bruecke-adresse.jpg",
+      "text": ""
+    },
+    {
+      "nr": 5,
+      "name": "steuerweg-liste",
+      "datei": "kamerasteuerung-05-steuerweg-liste.jpg",
+      "text": ""
+    },
+    {
+      "nr": 6,
+      "name": "steuerweg-http-cgi",
+      "datei": "kamerasteuerung-06-steuerweg-http-cgi.jpg",
+      "text": ""
+    }
+  ],
+  "fehler": []
+}

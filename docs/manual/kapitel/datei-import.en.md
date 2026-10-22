@@ -324,6 +324,20 @@ Next, *Category mapping before import* opens. You assign each device a local cat
 
 If devices already exist under the same name, a conflict dialog appears per device. The default is *Keep local version (recommended)*, so your own port assignments are kept. Further actions are *Link to another local device*, *Overwrite with Rentman version*, *Merge ports* and *Skip (do not import)*. *Set all:* applies *Keep local*, *Take Rentman* or *Skip* to all rows. The message at the end says how many devices were added to the library.
 
+#### Merge devices
+
+If you choose *Merge ports* in the conflict dialog for a device, the dialog *Merge devices* opens for each such device after *Next*. It builds a new template from the local and the Rentman version. At the top it says *Pick which inputs/outputs to take from Local and Rentman.*
+
+| Element | Meaning |
+|---|---|
+| *Target category* | Category of the merged template; it starts with the category from the category mapping |
+| *Selected ports* | Number of ticked connectors |
+| *Preview* | Result as *n In / m Out* |
+| Column *Local* | Inputs and outputs of the local template, each with a tick, name and connector type; all are ticked at the start |
+| Column *Rentman* | Inputs and outputs of the Rentman version; none is ticked at the start |
+
+*Save merge* creates the template. It keeps the name of the local template. It takes the height in RU and the front and rear pictures from the Rentman version if that one has them; the notes of both versions are stacked. Without a target category the app says *Choose category*, without a ticked connector *Choose port*. *Cancel* discards all merges and ends the import before anything is written to the library. If several devices are to be merged, the dialog follows once per device; after the last one the import continues.
+
 ### NetBox import
 
 *File → NetBox import…* reads a site or a rack from NetBox and creates devices, ports and connections as a cable plan.

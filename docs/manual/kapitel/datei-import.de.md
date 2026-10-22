@@ -324,6 +324,20 @@ Danach öffnet *Kategorie-Zuordnung vor Import*. Jedem Gerät ordnen Sie eine lo
 
 Gibt es Geräte schon unter demselben Namen, erscheint pro Gerät ein Konflikt-Dialog. Vorgabe ist *Lokale Version beibehalten (empfohlen)*, damit eigene Port-Belegungen erhalten bleiben. Weitere Aktionen sind *Mit anderem lokalem Gerät verknüpfen*, *Mit Rentman-Version überschreiben*, *Ports mergen* und *Überspringen (nicht importieren)*. *Alle setzen:* wendet *Lokal beibehalten*, *Rentman übernehmen* oder *Überspringen* auf alle Zeilen an. Die Meldung am Ende nennt, wie viele Geräte zur Library hinzugefügt wurden.
 
+#### Geräte zusammenführen
+
+Wählen Sie im Konfliktdialog für ein Gerät *Ports mergen*, öffnet sich nach *Weiter* für jedes solche Gerät der Dialog *Geräte zusammenführen*. Er baut aus der lokalen und der Rentman-Fassung eine neue Vorlage. Oben steht *Wählen, welche Inputs/Outputs aus Lokal und Rentman übernommen werden.*
+
+| Element | Bedeutung |
+|---|---|
+| *Zielkategorie* | Kategorie der zusammengeführten Vorlage; Voreinstellung ist die Kategorie aus der Kategorie-Zuordnung |
+| *Gewählte Ports* | Zahl der angehakten Anschlüsse |
+| *Vorschau* | Ergebnis als *n In / m Out* |
+| Spalte *Lokal* | Inputs und Outputs der lokalen Vorlage, je mit Haken, Name und Steckertyp; zu Beginn sind alle angehakt |
+| Spalte *Rentman* | Inputs und Outputs der Rentman-Fassung; zu Beginn ist keiner angehakt |
+
+*Merge speichern* legt die Vorlage an. Sie behält den Namen der lokalen Vorlage. Höhe in HE, Front- und Rückbild übernimmt sie aus der Rentman-Fassung, wenn diese sie kennt; die Notizen beider Fassungen stehen untereinander. Ohne Zielkategorie meldet die App *Kategorie wählen*, ohne angehakten Anschluss *Port wählen*. *Abbrechen* verwirft alle Zusammenführungen und beendet den Import, bevor etwas in die Bibliothek geschrieben wurde. Sind mehrere Geräte zusammenzuführen, folgt der Dialog je Gerät nacheinander; nach dem letzten läuft der Import weiter.
+
 ### NetBox-Import
 
 *Datei → NetBox-Import…* liest eine Site oder ein Rack aus NetBox und legt Geräte, Ports und Verbindungen als Kabelplan an.
