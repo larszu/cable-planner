@@ -26,12 +26,11 @@ import { join } from 'node:path'
 const sprache = process.argv[2] ?? 'de'
 const NUR = process.env.NUR ? new Set(process.env.NUR.split(',')) : null
 const laeuft = (n) => !NUR || NUR.has(n)
+const ABS = process.env.ABS ? new Set(process.env.ABS.split(',')) : null
+const ab = (n) => !ABS || ABS.has(n)
 
-const ARB = join(
-  '/private/tmp/claude-501/-Users-larszumpe/12f0f693-b544-4eb3-a60a-27e5d3a1fe46/scratchpad',
-  'export-lauf',
-  sprache,
-)
+// Kurzer, neutraler Pfad: er steht in der Meldung nach dem Viewer-Export auf dem Bild.
+const ARB = join('/tmp', 'plaene', sprache)
 mkdirSync(ARB, { recursive: true })
 
 // ─────────────────────────────────────────────────────────────── Beispieldaten
@@ -192,7 +191,20 @@ async function lauf() {
     const grab = (el) => {
       const href = el.href || ''
       if (!blobs.has(href) && !href.startsWith('data:')) return false
-      const p = blobs.has(href) ? Promise.resolve(blobs.get(href)) : fetch(href).then((r) => r.blob())
+      const dataBlob = (u) => {
+        const i = u.indexOf(',')
+        const kopf = u.slice(5, i)
+        let bytes
+        if (kopf.endsWith(';base64')) {
+          const roh = atob(u.slice(i + 1))
+          bytes = new Uint8Array(roh.length)
+          for (let k = 0; k < roh.length; k += 1) bytes[k] = roh.charCodeAt(k)
+        } else {
+          bytes = new TextEncoder().encode(decodeURIComponent(u.slice(i + 1)))
+        }
+        return new Blob([bytes], { type: kopf.split(';')[0] })
+      }
+      const p = blobs.has(href) ? Promise.resolve(blobs.get(href)) : Promise.resolve(dataBlob(href))
       void p.then((b) => b.arrayBuffer().then((buf) => {
         const u8 = new Uint8Array(buf)
         let s = ''
@@ -211,6 +223,8 @@ async function lauf() {
       if (e && e.type === 'click' && this.hasAttribute('download') && grab(this)) return true
       return od.call(this, e)
     }
+    // Der Druck-iframe löst onload auch ohne Inhalt aus und würde den nativen Druckdialog öffnen.
+    Object.defineProperty(HTMLIFrameElement.prototype, 'onload', { configurable: true, get() { return null }, set() {} })
     const d = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'srcdoc')
     Object.defineProperty(HTMLIFrameElement.prototype, 'srcdoc', {
       configurable: true,
@@ -234,6 +248,7 @@ async function lauf() {
       if ((await dlZahl()) > n0) return win.evaluate((i) => window.__dl[i], n0)
       await win.waitForTimeout(250)
     }
+    await win.screenshot({ path: '/private/tmp/claude-501/-Users-larszumpe/ceacdd93-efce-4876-ad48-3f9bc7cb94a7/scratchpad/ex-fehler.png' }).catch(() => {})
     throw new Error('kein Download angekommen')
   }
   const druckZahl = () => a.app.evaluate(() => (globalThis.__druck ?? []).length)
@@ -348,6 +363,18 @@ async function lauf() {
       const b64 = readFileSync(join(ARB, jpg)).toString('base64')
       info.seiten = Number((execFileSync('pdfinfo', [pdf]).toString().match(/Pages:\s+(\d+)/) ?? [])[1] ?? 0)
       await overlay(`${name} (Seite ${seite}${info.seiten ? ` von ${info.seiten}` : ''})`, `<img style="display:block;max-width:100%;max-height:900px;margin:auto" src="data:image/jpeg;base64,${b64}">`)
+    } else if (ext === 'xlsx') {
+      const XLSX = (await import('xlsx-js-style')).default
+      const wb = XLSX.read(bytes, { type: 'buffer' })
+      info.blaetter = wb.SheetNames
+      const ws = wb.Sheets[wb.SheetNames[0]]
+      const zeilen = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }).slice(0, zeilenMax)
+      const spalten = Math.max(1, ...zeilen.map((z) => z.length))
+      const fs = spalten > 12 ? 9 : spalten > 8 ? 10 : 11
+      const tab = `<table style="border-collapse:collapse;font-size:${fs}px;width:100%">${zeilen
+        .map((z, i) => `<tr>${z.map((c) => `<${i === 0 ? 'th' : 'td'} style="border:1px solid #ccc;padding:2px 5px;text-align:left;${i === 0 ? 'background:#1D324F;color:#fff;' : ''}">${esc(c)}</${i === 0 ? 'th' : 'td'}>`).join('')}</tr>`)
+        .join('')}</table>`
+      await overlay(`${name} (Blätter: ${wb.SheetNames.join(', ')})`, tab)
     } else if (['png', 'jpg', 'jpeg', 'svg'].includes(ext)) {
       const mime = ext === 'svg' ? 'image/svg+xml' : ext === 'png' ? 'image/png' : 'image/jpeg'
       await overlay(name, `<img style="display:block;max-width:100%;max-height:900px;margin:auto;background:#fff" src="data:${mime};base64,${d.b64}">`)
@@ -360,8 +387,20 @@ async function lauf() {
     zeigeDatei(schritt, { name: `${schritt}.pdf`, b64 }, opt)
 
   // ── Kleine Helfer ───────────────────────────────────────────────────────
+  // Schritte, die das Kapitel nicht abbildet: sie laufen ohne Bild, weil spätere Schritte auf ihrem Ergebnis aufbauen.
+  const KEIN_BILD = new Set([
+    'plan-format-png', 'patch-ebene',
+    'doku-02-term', 'doku-03-sched', 'doku-05-asset', 'doku-08-maengel', 'doku-09-wartung', 'doku-10-konfig',
+    'doku-11-steckbrief', 'doku-12-bedien', 'doku-13-kamerapos', 'doku-14-anhaenge', 'doku-16-trassenplan', 'doku-17-durchgaenge',
+    'revision-festschreiben', 'plan-aendern',
+  ])
   const S = async (name, tun, opt) => {
     await overlayWeg()
+    if (KEIN_BILD.has(name)) {
+      try { await tun() } catch (e) { console.log(`✗ ${name} (ohne Bild): ${String(e.message).split('\n')[0]}`) }
+      await overlayWeg()
+      return
+    }
     await f.schritt(name, tun, opt)
   }
   const D = () => a.dialog()
@@ -586,13 +625,6 @@ async function lauf() {
     await S('datenblatt-keine', () => klickIn(D(), /^(Keine|None)$/i), { ziel: dlgZiel })
     await S('datenblatt-alle', () => klickIn(D(), /^(Alle|All)$/i), { ziel: dlgZiel })
     await S('datenblatt-ausgefuellte', () => klickIn(D(), /Ausgef(ü|u)llte|Filled ones/i), { ziel: dlgZiel })
-    await S('datenblatt-druck', async () => {
-      const n0 = await srcdocZahl()
-      await klickIn(D(), /^\s*(Drucken|Print)\s*$/i)
-      const html = await wartSrcdoc(n0)
-      dateien['datenblatt-druck'] = { kopf: html.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300) }
-      await overlay('Datenblatt (Druckvorschau)', '', { iframeHtml: html, hoehe: 760 })
-    }, { ziel: ueberlagerung })
     await S('datenblatt-pdf', async () => {
       const n0 = await dlZahl()
       await klickIn(D(), /PDF speichern|Save PDF/i)
@@ -886,6 +918,7 @@ async function lauf() {
     }, { ziel: dlgZiel })
     await a.zu()
 
+    if (ab('Festinstallation')) {
     // ── Festinstallation
     await abschnitt('Festinstallation')
     await S('doku-oeffnen', () => a.menue('app.menu.file', 'app.menu.tools.installDocs'), { ziel: dlgZiel })
@@ -901,7 +934,8 @@ async function lauf() {
       ['signalwege', /Signal paths|Signalwege/i], ['trassenplan', /Route plan|Trassenplan/i], ['durchgaenge', /Crossings|Durchg.nge/i],
     ]
     // Die Knöpfe stehen in einem Raster; ihre Reihenfolge ist die des Codes.
-    const raster = () => D().locator('div.grid > button')
+    const kachel = () => D().locator('div.grid > div')
+    const raster = () => kachel().locator('button:not(.rounded-cp-s)')
     const anzahl = await raster().count()
     console.log('Dokument-Knöpfe:', anzahl)
     for (let i = 0; i < anzahl; i += 1) {
@@ -917,6 +951,35 @@ async function lauf() {
         dateien[`doku-${key}`].knopf = beschriftung
       }, { ziel: ueberlagerung })
     }
+    await overlayWeg()
+    await S('doku-pdf-einzeln', async () => {
+      const k = kachel().nth(3)
+      await k.scrollIntoViewIfNeeded()
+      const n0 = await dlZahl()
+      await k.getByRole('button', { name: 'PDF', exact: true }).click()
+      await zeigeDatei('doku-pdf-einzeln', await wartDownload(n0, 60000))
+    }, { ziel: ueberlagerung })
+    await S('doku-excel-einzeln', async () => {
+      const k = kachel().nth(3)
+      const n0 = await dlZahl()
+      await k.getByRole('button', { name: 'Excel', exact: true }).click()
+      await zeigeDatei('doku-excel-einzeln', await wartDownload(n0, 60000))
+    }, { ziel: ueberlagerung })
+    await S('doku-alle-pdf', async () => {
+      const n0 = await dlZahl()
+      await klickIn(D(), /Alle Listen als ein PDF|All lists as one PDF/i)
+      await zeigeDatei('doku-alle-pdf', await wartDownload(n0, 90000), { seite: 1 })
+    }, { ziel: ueberlagerung })
+    await S('doku-alle-pdf-seite', async () => {
+      const n0 = await dlZahl()
+      await klickIn(D(), /Alle Listen als ein PDF|All lists as one PDF/i)
+      await zeigeDatei('doku-alle-pdf-seite', await wartDownload(n0, 90000), { seite: 3 })
+    }, { ziel: ueberlagerung })
+    await S('doku-alle-excel', async () => {
+      const n0 = await dlZahl()
+      await klickIn(D(), /Alle Listen als eine Excel|All lists as one Excel/i)
+      await zeigeDatei('doku-alle-excel', await wartDownload(n0, 60000))
+    }, { ziel: ueberlagerung })
     await overlayWeg()
     await S('doku-qr-abschnitt', async () => {
       await D().getByText(/QR-\/Asset-IDs|QR\/asset IDs/i).first().scrollIntoViewIfNeeded()
@@ -951,6 +1014,8 @@ async function lauf() {
       await D().getByRole('button', { name: /Leeren|Clear/i }).first().click()
     }, { ziel: dlgZiel })
     await a.zu()
+
+    }
 
     // ── Register nach Ausgaben und Änderung
     await abschnitt('Register')
