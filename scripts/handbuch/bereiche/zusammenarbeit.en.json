@@ -1,0 +1,77 @@
+{
+  "schritte": [
+    {
+      "nr": 1,
+      "name": "einstellungen-offen",
+      "datei": "zusammenarbeit-01-einstellungen-offen.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nNetwork sync\nLive collaboration (beta)\nOff\n\nMultiple planners edit the same plan in real time. more\n\nYour display name\nMode\nThis device (multiple windows)\nNetwork (LAN/WAN, P2P)\nRoom name\nSessions on the network\nSearch the network\n\nJoining adopts the host’s plan (replaces your current plan).\n\nNo open session found yet. \"Search the network\" scans the local network for running LZ Cable Planner sessions.\n\nStart session\n\nShared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.\n\nSync directory\nUser name (for lock display)\nReset\nSave\nShared library (workgroup)\n\nSyncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.\n\nSync library now\nSet a sync directory above first.\nNotes\nPush writes: cable-planner.project.json, .library.json, .presets.json\nPull loads these files from the directory into the current state.\nA lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL)."
+    },
+    {
+      "nr": 2,
+      "name": "name-und-raum",
+      "datei": "zusammenarbeit-02-name-und-raum.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nNetwork sync\nLive collaboration (beta)\nOff\n\nMultiple planners edit the same plan in real time. more\n\nYour display name\nMode\nThis device (multiple windows)\nNetwork (LAN/WAN, P2P)\nRoom name\nSessions on the network\nSearch the network\n\nJoining adopts the host’s plan (replaces your current plan).\n\nNo open session found yet. \"Search the network\" scans the local network for running LZ Cable Planner sessions.\n\nStart session\n\nShared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.\n\nSync directory\nUser name (for lock display)\nReset\nSave\nShared library (workgroup)\n\nSyncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.\n\nSync library now\nSet a sync directory above first.\nNotes\nPush writes: cable-planner.project.json, .library.json, .presets.json\nPull loads these files from the directory into the current state.\nA lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL)."
+    },
+    {
+      "nr": 3,
+      "name": "suche-im-netz",
+      "datei": "zusammenarbeit-03-suche-im-netz.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nNetwork sync\nLive collaboration (beta)\nOff\n\nMultiple planners edit the same plan in real time. more\n\nYour display name\nMode\nThis device (multiple windows)\nNetwork (LAN/WAN, P2P)\nRoom name\nSessions on the network\nSearch the network\n\nJoining adopts the host’s plan (replaces your current plan).\n\nNo open session found yet. \"Search the network\" scans the local network for running LZ Cable Planner sessions.\n\nStart session\n\nShared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.\n\nSync directory\nUser name (for lock display)\nReset\nSave\nShared library (workgroup)\n\nSyncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.\n\nSync library now\nSet a sync directory above first.\nNotes\nPush writes: cable-planner.project.json, .library.json, .presets.json\nPull loads these files from the directory into the current state.\nA lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL)."
+    },
+    {
+      "nr": 4,
+      "name": "modus-netzwerk",
+      "datei": "zusammenarbeit-04-modus-netzwerk.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nNetwork sync\nLive collaboration (beta)\nOff\n\nMultiple planners edit the same plan in real time. more\n\nYour display name\nMode\nThis device (multiple windows)\nNetwork (LAN/WAN, P2P)\nRoom name\nSignaling server\nEmpty: wss://relay.zumpelars.de (default) — sees only connection metadata, never the plan.\nLocal only (no remote relay, nothing leaves the LAN)\nRoom password (optional)\nSTUN/TURN servers (optional)\nOne server per line: URL|user|password. Only needed when the other side sits in a different network. The credentials stay on this machine — they are not part of the invite link.\nSessions on the network\nSearch the network\n\nJoining adopts the host’s plan (replaces your current plan).\n\nNo open session found yet. \"Search the network\" scans the local network for running LZ Cable Planner sessions.\n\nNetwork mode uses WebRTC + a signaling server to find peers. more\n\nWithout a room password the room is unencrypted: anyone who knows the room name and signaling server (or finds the session on the LAN) can read the entire project. more\n\nStart session\n\nShared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.\n\nSync directory\nUser name (for lock display)\nReset\nSave\nShared library (workgroup)\n\nSyncs device templates, groups and categories with cable-p"
+    },
+    {
+      "nr": 5,
+      "name": "modus-dieses-geraet",
+      "datei": "zusammenarbeit-05-modus-dieses-geraet.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nNetwork sync\nLive collaboration (beta)\nOff\n\nMultiple planners edit the same plan in real time. more\n\nYour display name\nMode\nThis device (multiple windows)\nNetwork (LAN/WAN, P2P)\nRoom name\nSessions on the network\nSearch the network\n\nJoining adopts the host’s plan (replaces your current plan).\n\nNo open session found yet. \"Search the network\" scans the local network for running LZ Cable Planner sessions.\n\nStart session\n\nShared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.\n\nSync directory\nUser name (for lock display)\nReset\nSave\nShared library (workgroup)\n\nSyncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.\n\nSync library now\nSet a sync directory above first.\nNotes\nPush writes: cable-planner.project.json, .library.json, .presets.json\nPull loads these files from the directory into the current state.\nA lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL)."
+    },
+    {
+      "nr": 6,
+      "name": "sitzung-laeuft",
+      "datei": "zusammenarbeit-06-sitzung-laeuft.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nNetwork sync\nLive collaboration (beta)\nConnected — changes are shared live\n\nMultiple planners edit the same plan in real time. more\n\nYour display name\nMode\nThis device (multiple windows)\nNetwork (LAN/WAN, P2P)\nRoom name\nOnly you in the room\nA\n\nOthers join by using the same room name: show-2026\n\nCopy invite\nLeave\n\nShared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.\n\nSync directory\nUser name (for lock display)\nReset\nSave\nShared library (workgroup)\n\nSyncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.\n\nSync library now\nSet a sync directory above first.\nNotes\nPush writes: cable-planner.project.json, .library.json, .presets.json\nPull loads these files from the directory into the current state.\nA lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL)."
+    },
+    {
+      "nr": 7,
+      "name": "einladung-kopiert",
+      "datei": "zusammenarbeit-07-einladung-kopiert.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nNetwork sync\nLive collaboration (beta)\nConnected — changes are shared live\n\nMultiple planners edit the same plan in real time. more\n\nYour display name\nMode\nThis device (multiple windows)\nNetwork (LAN/WAN, P2P)\nRoom name\nOnly you in the room\nA\n\nOthers join by using the same room name: show-2026\n\nCopied\nLeave\n\nShared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.\n\nSync directory\nUser name (for lock display)\nReset\nSave\nShared library (workgroup)\n\nSyncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.\n\nSync library now\nSet a sync directory above first.\nNotes\nPush writes: cable-planner.project.json, .library.json, .presets.json\nPull loads these files from the directory into the current state.\nA lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL)."
+    },
+    {
+      "nr": 8,
+      "name": "statusleiste-live",
+      "datei": "zusammenarbeit-08-statusleiste-live.jpg",
+      "text": ""
+    },
+    {
+      "nr": 9,
+      "name": "statusleiste-klick",
+      "datei": "zusammenarbeit-09-statusleiste-klick.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nNetwork sync\nLive collaboration (beta)\nConnected — changes are shared live\n\nMultiple planners edit the same plan in real time. more\n\nYour display name\nMode\nThis device (multiple windows)\nNetwork (LAN/WAN, P2P)\nRoom name\nOnly you in the room\nA\n\nOthers join by using the same room name: show-2026\n\nCopy invite\nLeave\n\nShared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.\n\nSync directory\nUser name (for lock display)\nReset\nSave\nShared library (workgroup)\n\nSyncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.\n\nSync library now\nSet a sync directory above first.\nNotes\nPush writes: cable-planner.project.json, .library.json, .presets.json\nPull loads these files from the directory into the current state.\nA lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL)."
+    },
+    {
+      "nr": 10,
+      "name": "verlassen",
+      "datei": "zusammenarbeit-10-verlassen.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nNetwork sync\nLive collaboration (beta)\nOff\n\nMultiple planners edit the same plan in real time. more\n\nYour display name\nMode\nThis device (multiple windows)\nNetwork (LAN/WAN, P2P)\nRoom name\nSessions on the network\nSearch the network\n\nJoining adopts the host’s plan (replaces your current plan).\n\nNo open session found yet. \"Search the network\" scans the local network for running LZ Cable Planner sessions.\n\nStart session\n\nShared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.\n\nSync directory\nUser name (for lock display)\nReset\nSave\nShared library (workgroup)\n\nSyncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.\n\nSync library now\nSet a sync directory above first.\nNotes\nPush writes: cable-planner.project.json, .library.json, .presets.json\nPull loads these files from the directory into the current state.\nA lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL)."
+    },
+    {
+      "nr": 11,
+      "name": "sync-verzeichnis",
+      "datei": "zusammenarbeit-11-sync-verzeichnis.jpg",
+      "text": "Settings\nProject\nModules\nAppearance\nEditing\nHotkeys\nIntegrations\nDevice library\nMCP\nConfigurations\nCable types\nMaster data\nCategories & fields\nNetwork sync\nCredentials\nAdvanced\nNetwork sync\nLive collaboration (beta)\nOff\n\nMultiple planners edit the same plan in real time. more\n\nYour display name\nMode\nThis device (multiple windows)\nNetwork (LAN/WAN, P2P)\nRoom name\nSessions on the network\nSearch the network\n\nJoining adopts the host’s plan (replaces your current plan).\n\nNo open session found yet. \"Search the network\" scans the local network for running LZ Cable Planner sessions.\n\nStart session\n\nShared directory (mapped FTP drive, network path or local folder) where project, library and presets are exchanged as JSON files.\n\nSync directory\nUser name (for lock display)\nReset\nSave\nShared library (workgroup)\n\nSyncs device templates, groups and categories with cable-planner.library.json in the sync directory. Merge by name — local templates are never overwritten.\n\nSync library now\nNotes\nPush writes: cable-planner.project.json, .library.json, .presets.json\nPull loads these files from the directory into the current state.\nA lock file (.cable-planner-sync.lock) prevents simultaneous overwrites (2 h TTL)."
+    },
+    {
+      "nr": 12,
+      "name": "push-pull-kopfleiste",
+      "datei": "zusammenarbeit-12-push-pull-kopfleiste.jpg",
+      "text": ""
+    }
+  ],
+  "fehler": []
+}

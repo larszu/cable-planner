@@ -214,6 +214,43 @@ For cameras the section lists, per control function (pan and tilt, zoom, focus, 
 
 For devices whose control interfaces the app knows (for example cameras with VISCA or AW protocol, HyperDeck, KUMO), this section shows, read-only, per interface: protocol, transport (serial, SDI or IP), connector, baud, format, pinout, flow control, multidrop, network port and, for a network bridge, mode, port and packets. Details not found in the manufacturer documentation are marked *Not in manufacturer documentation*. *Source* links to the documentation.
 
+#### Camera control (bridge)
+
+For cameras this section sits below the interfaces. A camera head is driven by the LZ Camera Bridge, a process in the control room. The section tells it how to reach the head, sends it the room and shows what it reports. The line beside the title gives the state: *not on the bridge yet*, *bridge slot n* or *bridge slot n · online*.
+
+![The section Camera control](bilder/en/kamerasteuerung-02-abschnitt.jpg)
+
+| Field or button | Meaning |
+|---|---|
+| *Bridge (room)* and *Port* | Address of the bridge in the room; the port is set to 9700. They apply to the whole project. |
+| *Connect* / *Disconnect* | builds up or tears down the connection; the state beside it reads *bridge connected* or *bridge not connected*. *Connect* stays disabled while no address is entered. |
+| *Control path* | how the bridge reaches this head: *– not declared –*, *Not remote-controlled*, *VISCA over IP*, *HTTP-CGI (Vissonic / PTZOptics, Sony SRG)*, *Panasonic AW PTZ*, *BirdDog*, *JVC ConnectedCam*, *Canon CCAPI*, *Blackmagic REST*, *Z CAM*, *Panasonic Lumix*, *Sony Monitor & Control*, *Sony CCU (700PTP)*, *VISCA RS-232 (at the bridge)*, *Sony RS-422 (at the bridge)*, *Sony USB (at the bridge)*, *DJI Ronin gimbal* and *DJI Osmo Pocket gimbal* |
+| *Firmware family* | only for *HTTP-CGI*: *Vissonic / PTZOptics* or *Sony SRG / BRC* |
+| *Control port* | port of the head; empty means *auto* |
+| Hint line | the IP address comes from the section *Network*; without it the line reads *no IP address yet — set it in the Network section* |
+
+![List of control paths](bilder/en/kamerasteuerung-05-steuerweg-liste.jpg)
+
+![Control path HTTP-CGI with firmware family](bilder/en/kamerasteuerung-06-steuerweg-http-cgi.jpg)
+
+*Send room to bridge* works while the connection exists. It replaces the bridge's cameras with the cameras of this plan, with address, control path, stream, heading and shots. The bridge connects them itself and keeps them across restarts. Afterwards it says *n camera(s) sent*; cameras without an IP address or without a control path appear under *left behind:*. Each camera sent gets its slot number from the bridge.
+
+If the camera has a slot and the bridge is connected, these come in addition:
+
+- *head online* or *head offline* with the button *Connect head*, the tally *PGM* or *PVW*, the pose (*pan … ° · tilt … °*, and the zoom share if there is one) and *Read pose*;
+- *Show live picture from the bridge*, provided the slot has a stream address;
+- a cross: holding drives, releasing stops; *⌂* drives to the home position. There are also keys for zoom and focus (*T/W* zoom, *N/F* focus) and *AF*;
+- the *Zoom curve* with *Record point* (focal length in mm, read off the lens) and *Clear curve*;
+- *Planned shots*: per shot *Recall* (the preset stored in the head), *Drive* (the planned pose) and *Head is here* with a following confirmation, which makes the difference to the plan the offset of all shots. *Store all shots in head* needs a second click to confirm; *Clear offset* takes the offset away again.
+
+#### Video wall
+
+*Video wall (live pictures)…* in the section *Camera control (bridge)* opens the dialog *Video wall*. It shows the live pictures of all cameras of this plan that have a slot on the bridge, as tiles. The window has no menu entry.
+
+![The dialog Video wall without a bridge](bilder/en/kamerasteuerung-03-videowand.jpg)
+
+At the top right are the address of the bridge with the state (without an address: *no bridge address in this project*) and the button *Reload pictures*. Without a camera on the bridge it says *No camera of this plan is on the bridge yet. Open a camera, set its control path and stream, and send the room to the bridge.* Each tile carries *CAM n* at the bottom, the device name and, with tally, *PGM* or *PVW*; the top edge colours for program and preview. If the camera lacks a stream address, it says *no stream address*, if it is not on the bridge, *not on the bridge*. Up to four tiles stand in two columns, up to nine in three, more in four.
+
 #### Power consumption
 
 Fields voltage (V), current (A) and power (W). When voltage and current are set, the app computes the power (P = U × I).

@@ -1,0 +1,41 @@
+{
+  "schritte": [
+    {
+      "nr": 1,
+      "name": "kamera-gewaehlt",
+      "datei": "kamerasteuerung-01-kamera-gewaehlt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 2,
+      "name": "abschnitt",
+      "datei": "kamerasteuerung-02-abschnitt.jpg",
+      "text": ""
+    },
+    {
+      "nr": 3,
+      "name": "videowand",
+      "datei": "kamerasteuerung-03-videowand.jpg",
+      "text": "Video wall\nno bridge address in this project · idle\nReload pictures\n\nNo camera of this plan is on the bridge yet. Open a camera, set its control path and stream, and send the room to the bridge."
+    },
+    {
+      "nr": 4,
+      "name": "bruecke-adresse",
+      "datei": "kamerasteuerung-04-bruecke-adresse.jpg",
+      "text": ""
+    },
+    {
+      "nr": 5,
+      "name": "steuerweg-liste",
+      "datei": "kamerasteuerung-05-steuerweg-liste.jpg",
+      "text": ""
+    },
+    {
+      "nr": 6,
+      "name": "steuerweg-http-cgi",
+      "datei": "kamerasteuerung-06-steuerweg-http-cgi.jpg",
+      "text": ""
+    }
+  ],
+  "fehler": []
+}

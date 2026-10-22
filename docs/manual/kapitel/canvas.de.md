@@ -1,6 +1,6 @@
 ## Canvas
 
-Der Canvas ist die Arbeitsfläche, auf der Geräte stehen, Kabel verlaufen und Rahmen Räume bilden. Dieses Kapitel beschreibt die Fläche selbst, die schwebende Werkzeugleiste, die Auswahl, das Zeichnen und Bearbeiten von Kabeln, Rahmen, Etagen, Ebenen, Betriebsarten, Anmerkungen, Hallenplan und Planzeichen. Die Eigenschaften eines markierten Geräts, Kabels oder Rahmens stehen im Kapitel [Inspector](#5-inspector); die Bibliothek links im Kapitel [Bibliothek](#4-bibliothek).
+Der Canvas ist die Arbeitsfläche, auf der Geräte stehen, Kabel verlaufen und Rahmen Räume bilden. Dieses Kapitel beschreibt die Fläche selbst, die schwebende Werkzeugleiste, die Auswahl, das Zeichnen und Bearbeiten von Kabeln, Rahmen, Etagen, Ebenen, Betriebsarten, Anmerkungen, Hallenplan und Planzeichen. Die Eigenschaften eines markierten Geräts, Kabels oder Rahmens stehen im Kapitel [Inspector](#6-inspector); die Bibliothek links im Kapitel [Bibliothek](#4-bibliothek).
 
 ### Der leere Plan und das Beispielprojekt
 
@@ -317,7 +317,7 @@ Ein Klick auf ein Kabel markiert es; der Inspector zeigt seine Eigenschaften, ei
 
 8. *Bezeichnung ändern…* öffnet ein Eingabefeld für die Beschriftung.
 
-9. Ein Doppelklick auf ein Kabel öffnet den Dialog zum Bearbeiten des Kabels; die Felder sind im Kapitel [Inspector](#5-inspector) beschrieben.
+9. Ein Doppelklick auf ein Kabel öffnet den Dialog zum Bearbeiten des Kabels; die Felder sind im Kapitel [Inspector](#6-inspector) beschrieben.
 
    ![Doppelklick auf ein Kabel](bilder/de/canvas-kabeleditor-19-doppelklick.jpg)
 
@@ -343,7 +343,7 @@ Ein Rahmen ist ein farbiges Rechteck, das Geräte zu einem Ort oder Raum zusamme
 
 2. Ein Doppelklick auf den Rahmen fragt *Location umbenennen:*.
 
-3. Ein Klick auf den Rahmen zeigt im Inspector die Rahmen-Eigenschaften (Name, Breite, Tiefe, Fläche, Stockwerk, Farbe, Steigschacht, Raumnummer, Adresse, Notizen); sie sind im Kapitel [Inspector](#5-inspector) beschrieben.
+3. Ein Klick auf den Rahmen zeigt im Inspector die Rahmen-Eigenschaften (Name, Breite, Tiefe, Fläche, Stockwerk, Farbe, Steigschacht, Raumnummer, Adresse, Notizen); sie sind im Kapitel [Inspector](#6-inspector) beschrieben.
 
 4. An den Griffen des markierten Rahmens ändern Sie die Größe.
 

@@ -57,12 +57,23 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [Cables](#cables)
    - [Groups](#groups)
    - [Racks](#racks)
-5. [Inspector](#5-inspector)
+5. [Create a device](#5-create-a-device)
+   - [By hand](#by-hand)
+   - [With a photo](#with-a-photo)
+   - [With Rentman](#with-rentman)
+   - [Building on a library device](#building-on-a-library-device)
+6. [Inspector](#6-inspector)
    - [Nothing selected](#nothing-selected)
    - [Device properties](#device-properties)
    - [Cable properties](#cable-properties)
    - [Frame properties](#frame-properties)
-6. [File and Import](#6-file-and-import)
+7. [Rack](#7-rack)
+   - [Saved racks](#saved-racks)
+   - [Placing a rack on the plan](#placing-a-rack-on-the-plan)
+   - [Editing a placed rack](#editing-a-placed-rack)
+   - [For the warehouse](#for-the-warehouse)
+   - [Deleting a rack](#deleting-a-rack)
+8. [File and Import](#8-file-and-import)
    - [New project](#new-project)
    - [New from template](#new-from-template)
    - [Open](#open)
@@ -77,7 +88,7 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [Exporting and importing a whole project (`.avplan`)](#exporting-and-importing-a-whole-project-avplan)
    - [Identity map (`.avsourcemap`)](#identity-map-avsourcemap)
    - [View linked venue plan](#view-linked-venue-plan)
-7. [Export & Print](#7-export--print)
+9. [Export & Print](#9-export--print)
    - [Patch list](#patch-list)
    - [Fixed install: docs & handover](#fixed-install-docs--handover)
    - [Stage plot](#stage-plot)
@@ -88,11 +99,11 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [Compare plan revisions](#compare-plan-revisions)
    - [Documents handed out](#documents-handed-out)
    - [Way back to Rentman](#way-back-to-rentman)
-8. [Tools: Plan](#8-tools-plan)
+10. [Tools: Plan](#10-tools-plan)
    - [Calculate](#calculate)
    - [Check](#check)
    - [Plan](#plan)
-9. [Tools: Build](#9-tools-build)
+11. [Tools: Build](#11-tools-build)
    - [LED wall](#led-wall)
    - [Faceplate editor](#faceplate-editor)
    - [Report editor](#report-editor)
@@ -104,7 +115,11 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [Revisions & snapshots](#revisions--snapshots)
    - [Inventory / stock](#inventory--stock)
    - [Device configuration](#device-configuration)
-10. [Settings](#10-settings)
+12. [Collaboration](#12-collaboration)
+   - [Live collaboration](#live-collaboration)
+   - [Sync directory](#sync-directory)
+   - [Other ways to share a plan](#other-ways-to-share-a-plan)
+13. [Settings](#13-settings)
    - [Opening the settings](#opening-the-settings)
    - [Project](#project)
    - [Modules](#modules)
@@ -121,9 +136,9 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [Network sync](#network-sync)
    - [Credentials](#credentials)
    - [Advanced](#advanced)
-11. [Claude (MCP)](#11-claude-mcp)
-12. [Web edition and tablet](#12-web-edition-and-tablet)
-13. [Data, safety and troubleshooting](#13-data-safety-and-troubleshooting)
+14. [Claude (MCP)](#14-claude-mcp)
+15. [Web edition and tablet](#15-web-edition-and-tablet)
+16. [Data, safety and troubleshooting](#16-data-safety-and-troubleshooting)
 
 ---
 
@@ -204,7 +219,7 @@ In a narrow window the header contracts; the menus stay available.
 
 #### File and Tools menus
 
-The *File* menu holds new, open, save, the imports and the exports. Its entries are described in the chapters [File and Import](#6-file-and-import) and [Export & Print](#7-export--print).
+The *File* menu holds new, open, save, the imports and the exports. Its entries are described in the chapters [File and Import](#8-file-and-import) and [Export & Print](#9-export--print).
 
 ![File menu](bilder/en/oberflaeche-07-menue-datei.jpg)
 
@@ -361,6 +376,19 @@ The *Annotations* panel appears on the right. It filters by status with *all*, *
 | Check for updates… | | asks for a newer version and reports the result |
 | About LZ Cable Planner… | | opens the dialog with version and build |
 
+#### Check for updates
+
+*Help → Check for updates…* asks for a newer version and shows the result as a message:
+
+| Message | Meaning |
+|---|---|
+| *Update check unavailable* | *Updates are only available in the installed desktop version.* In the browser and in a run that is not installed there is no check. |
+| *Update available* | *Version … is downloading in the background and will install on quit.* When the download is finished, the app offers a restart. |
+| *You are up to date* | The message names the running version. |
+| *Update check failed* | The check ended with an error. |
+
+Once an update is downloaded, *Update ready* asks: *Version … has been downloaded. Restart now to update?* with *Restart now* and *Later*. This also applies to updates the app downloaded by itself; without a restart it installs on quit.
+
 #### Command palette
 
 ![Command palette](bilder/en/oberflaeche-84-hilfe-befehlspalette.jpg)
@@ -381,6 +409,21 @@ Synonyms work in both languages: *qr*, for example, finds *Share to phone…*.
 If nothing matches, the list shows *No commands found*.
 
 ![No matches](bilder/en/oberflaeche-89-palette-keine-treffer.jpg)
+
+**Commands that exist only in the palette.** Some commands have no menu entry:
+
+| Command | Group | Effect |
+|---|---|---|
+| *Reset zoom (100%)* | *View* | sets the canvas to 100 % zoom |
+| *New project from template…* | *File* | opens the project templates |
+| *Import from Rentman…* | *File* | opens the Rentman import (only with the module *Rentman* on) |
+| *Import from NetBox…* | *File* | opens the NetBox import (only with the module *NetBox*) |
+| *Share to phone…* | *File* | patch list and plug check on a phone in the same network (only with the module *Mobile*) |
+| *Assign DMX addresses…* | *Tools* | assigns DMX addresses, see below |
+| *Switch modules on or off…* | *Help* | opens *Settings → Modules* |
+| *Settings…* | *Help* | opens the settings |
+
+*Assign DMX addresses…* starts at universe 1, address 1 and hands out addresses one after another to all devices that have a DMX profile. Devices with a fixed address keep it. Afterwards the app reports *DMX addresses assigned* and says how many devices got an address and how many were skipped because no mode is set. Overlaps are listed by the plan check.
 
 #### Keyboard shortcuts
 
@@ -516,7 +559,7 @@ The *Phone access* button in the header opens the dialog *Mobile access*. It sta
 | *Make system access codes retrievable* | releases intercom access codes via a second code; selectable only for projects with an intercom configuration |
 | *Security notes* | expands the security notes |
 
-The server stops when the app closes or via the Stop button. The mobile view is described in the chapter [Web edition and tablet](#12-web-edition-and-tablet).
+The server stops when the app closes or via the Stop button. The mobile view is described in the chapter [Web edition and tablet](#15-web-edition-and-tablet).
 
 ![Security notes](bilder/en/oberflaeche-107-handy-sicherheitshinweise.jpg)
 
@@ -555,7 +598,7 @@ On the first start with an empty project the dialog *Welcome — what are you pl
 
 ## 3. Canvas
 
-The canvas is the working area on which devices stand, cables run and frames form rooms. This chapter describes the area itself, the floating toolbar, selection, drawing and editing cables, frames, floors, layers, operating modes, annotations, floor plan and plan symbols. The properties of a selected device, cable or frame are described in the chapter [Inspector](#5-inspector); the library on the left in the chapter [Library](#4-library).
+The canvas is the working area on which devices stand, cables run and frames form rooms. This chapter describes the area itself, the floating toolbar, selection, drawing and editing cables, frames, floors, layers, operating modes, annotations, floor plan and plan symbols. The properties of a selected device, cable or frame are described in the chapter [Inspector](#6-inspector); the library on the left in the chapter [Library](#4-library).
 
 ### The empty plan and the example project
 
@@ -854,7 +897,7 @@ A click on a cable selects it; the inspector shows its properties, a double clic
 | *Create off-page connection…* | See [Off-page connectors](#off-page-connectors). |
 | *Delete cable* | Asks *Delete cable "…"?* and removes it after confirmation. |
 
-5. A double click on a cable opens the dialog for editing the cable; its fields are described in the chapter [Inspector](#5-inspector).
+5. A double click on a cable opens the dialog for editing the cable; its fields are described in the chapter [Inspector](#6-inspector).
 
    ![Double click on a cable](bilder/en/canvas-kabeleditor-19-doppelklick.jpg)
 
@@ -880,7 +923,7 @@ A frame is a coloured rectangle that groups devices into a place or room. The bu
 
 2. A double click on the frame asks *Rename location:*.
 
-3. A click on the frame shows the frame properties in the inspector (name, width, depth, area, floor, colour, riser, room number, address, notes); they are described in the chapter [Inspector](#5-inspector).
+3. A click on the frame shows the frame properties in the inspector (name, width, depth, area, floor, colour, riser, room number, address, notes); they are described in the chapter [Inspector](#6-inspector).
 
 4. Change the size with the handles of the selected frame.
 
@@ -1267,7 +1310,7 @@ After creating the cable, the inspector of the cable offers *Insert*; it puts th
 
 ## 4. Library
 
-The library is the column to the left of the plan. It holds the templates the plan is built from: devices (local, from the shared device library and from Rentman), cable types, device groups and racks. Templates are put on the [canvas](#3-canvas) with a click or by dragging; the properties of an entry appear in the [Inspector](#5-inspector).
+The library is the column to the left of the plan. It holds the templates the plan is built from: devices (local, from the shared device library and from Rentman), cable types, device groups and racks. Templates are put on the [canvas](#3-canvas) with a click or by dragging; the properties of an entry appear in the [Inspector](#6-inspector).
 
 ![Library next to the plan](bilder/en/bibliothek-01-fenster-ueberblick.jpg)
 
@@ -1615,7 +1658,151 @@ The tab *Racks* (*2D Rack Builder: Rack slots in RU, saved as a placeable group*
 
 ---
 
-## 5. Inspector
+## 5. Create a device
+
+A device the library does not know is created by yourself: by hand, with the help of a photo of the connector side, or through the Rentman import. This chapter shows which way fits when and where the new device ends up. The individual fields of the dialog *Create your own device* are described in the chapter [Library](#4-library); the connectors of a placed device are edited in the [Inspector](#6-inspector).
+
+| Way | When | Result |
+|---|---|---|
+| By hand | You know the connectors or first need only a placeholder. | Device in the library, in the project or both |
+| With a photo | You have a photo of the connector side and have set up an AI provider. | Suggestion for the port groups that you check |
+| With Rentman | The device is in a Rentman project. | Templates in the library, with a Rentman ID |
+
+### By hand
+
+The dialog *Create your own device* opens in three ways:
+
+- in the **+** menu of the library with *New device…*,
+- with a right click on empty area of the plan and *New device here …* (the device lands at the click position),
+- with **Ctrl/Cmd + Plus** over the plan. This way asks only for the name; the device gets the category *Other* and no connectors.
+
+1. Type the name. Matching devices of the library appear below it with *Use as template*; this takes category and port groups of a similar device and you change only what differs.
+
+   ![Suggestions while typing](bilder/en/geraet-anlegen-04-a-name-treffer.jpg)
+
+2. At the bottom, choose where the device should end up:
+
+   | Button | Library | Plan |
+   |---|---|---|
+   | *Save to library* | yes | no |
+   | *Place in project only* | no | yes |
+   | *Save + place* | yes | yes |
+
+   *Place in project only* suits rental devices, placeholders and one-offs: no template is created that stays in the library afterwards.
+
+   ![Form for a rental device](bilder/en/geraet-anlegen-22-a-nur-projekt-vorbereitet.jpg)
+
+   ![The device is on the plan, not in the library](bilder/en/geraet-anlegen-23-a-nur-projekt-platziert.jpg)
+
+3. With *Save to library* the template is in the library and the plan stays unchanged. The library search finds it at once.
+
+   ![Device only in the library](bilder/en/geraet-anlegen-26-a-nur-bibliothek-suche.jpg)
+
+4. A device without port groups is allowed. The library shows it with *0 in / 0 out*, and the dialog says that connectors can be added later.
+
+   ![Device without connectors in the library](bilder/en/geraet-anlegen-28-a-portlos-platziert.jpg)
+
+#### Adding connectors later
+
+A device that was created with a name only gets its connectors in the Inspector.
+
+1. Place the device and select it. The section *Inputs & outputs* shows *0 In · 0 Out*, with *None* under *Inputs* and *Outputs*.
+
+   ![Inspector of a device without connectors](bilder/en/geraet-anlegen-30-a-nur-name-inspektor.jpg)
+
+2. *+ Port* adds a connector. Enter the name, choose the connector and, if needed, enter the function.
+
+   ![New connector with a name](bilder/en/geraet-anlegen-31-a-port-plus.jpg)
+
+   ![Connector with plug, function and gender](bilder/en/geraet-anlegen-37-a-port-ausgefuellt.jpg)
+
+3. More connectors come with *+ Port*; the red **×** removes one. A cable dropped onto the device also adds a connector.
+
+### With a photo
+
+This way needs an AI provider with a key. The photo shows the connector side; the app sends it to the chosen provider for recognition. The suggestions are guesses and are never taken over without your confirmation.
+
+1. Set up the provider under *Settings → Integrations*. There you also choose where the button *Fill in* takes its suggestions from: a *Web search* (no key) or the *AI model* (with key).
+
+   ![Source for filling in: web search or AI model](bilder/en/geraet-anlegen-72-b-quelle-ki.jpg)
+
+   ![Choose a provider and store the key](bilder/en/geraet-anlegen-74-b-anbieter-claude.jpg)
+
+   Without a key the dialog shows, instead of the photo function, the note to enter the provider, with the button *Open settings*. The key can also be stored in the dialog itself; it is saved locally only.
+
+   ![Enter the key in the dialog](bilder/en/geraet-anlegen-76-b-schluessel-eingetippt.jpg)
+
+2. Open *Create your own device*. The section *Recognise ports from a photo* takes photos with *Choose photos*, by dropping or by pasting.
+
+   ![Section Recognise ports from a photo](bilder/en/geraet-anlegen-79-b-foto-feld.jpg)
+
+3. With a photo, *Recognise*, the preview and the tick *Keep the photos on the device when placing it* appear. Several photos of the same device are possible; the **×** on the preview removes one.
+
+   ![Photo chosen](bilder/en/geraet-anlegen-80-b-foto-gewaehlt.jpg)
+
+4. *Recognise* sends the photos. While the request runs, the button reads *Recognising…*.
+
+   ![Recognition running](bilder/en/geraet-anlegen-86-b-erkennen-laeuft.jpg)
+
+5. The result is a table: *Device:* names the recognised model. If the catalogue has a device with datasheet ports for it, *Place catalogue device* offers it. Every row has a tick, direction (*Input*, *Output*, *Both ways*), count, connector and label. Unsure rows are unticked and marked *unsure*.
+
+   ![Check the suggestions](bilder/en/geraet-anlegen-87-b-vorschlag.jpg)
+
+6. Tick or untick unsure rows and change what is wrong. *n port group(s) to the form* enters the ticked rows as port groups.
+
+   ![Rows chosen, ready to take over](bilder/en/geraet-anlegen-90-b-zeile-abgewaehlt.jpg)
+
+   ![Port groups in the form](bilder/en/geraet-anlegen-92-b-uebernehmen.jpg)
+
+7. Save as usual. With the tick *Keep the photos on the device when placing it*, the photos afterwards hang under *Photos* on the device.
+
+   ![Device with the photos in the Inspector](bilder/en/geraet-anlegen-94-b-inspektor-fotos.jpg)
+
+If the photo shows nothing readable, the app reports *Nothing recognised* and advises a sharper photo, straight on, with the labels readable. If the provider rejects the request (for example because of an invalid key), its error message appears under the section.
+
+![Error message of the provider](bilder/en/geraet-anlegen-101-b-fehler-anbieter.jpg)
+
+For an already placed device without connectors, the Inspector offers the same as *AI port suggestion* with the button *Suggest ports*. The suggestions appear as a list; *Adopt* enters them, *Discard* leaves the device unchanged.
+
+![Suggestion in the Inspector](bilder/en/geraet-anlegen-98-b-inspektor-vorschlag.jpg)
+
+![Suggestion adopted](bilder/en/geraet-anlegen-99-b-inspektor-uebernommen.jpg)
+
+The examples in these pictures use invented answers and a sample picture, no real key.
+
+### With Rentman
+
+If the device is in a Rentman project, you do not create it yourself but import it. The flow starts with the Rentman token under *Settings → Integrations*, followed by *File → Rentman import…*, the choice of devices, the *Category mapping before import* and, where needed, a conflict dialog for devices that already exist under this name. The steps with all pictures are in the chapter [File and Import](#rentman-import); the views of the tab *Rentman* in the library are described in [Rentman in the library](#rentman-in-the-library).
+
+![Rentman import with a chosen project](bilder/en/geraet-anlegen-113-c-projekt-gewaehlt.jpg)
+
+In the conflict you decide per device whether the local version stays, the device is linked to another local device, overwritten by the Rentman version, merged with it in its connectors or skipped. Merging opens the dialog [Merge devices](#merge-devices).
+
+### Building on a library device
+
+An existing device is the starting point for a new one.
+
+1. Drag the library entry onto the plan or click it. It appears as a device with all connectors of the template.
+
+   ![Device from the library on the plan](bilder/en/geraet-anlegen-59-d-ziehen.jpg)
+
+2. *Edit → Duplicate* (**Ctrl/Cmd + D**) copies the selected device with its connectors.
+
+   ![Menu Edit](bilder/en/geraet-anlegen-62-d-bearbeiten-menue.jpg)
+
+   ![The duplicate next to the original](bilder/en/geraet-anlegen-63-d-duplizieren.jpg)
+
+3. In the Inspector, the section *Replace device* swaps a placed device for an entry of the library. *Choose another device…* opens a search; the confirmation says how many connectors are mapped and how many cables lose their port and would be deleted.
+
+   ![Search in the section Replace device](bilder/en/geraet-anlegen-66-d-ersetzen-suche.jpg)
+
+   ![Confirmation before replacing](bilder/en/geraet-anlegen-67-d-ersetzen-bestaetigen.jpg)
+
+   ![The device after replacing](bilder/en/geraet-anlegen-68-d-ersetzen-ergebnis.jpg)
+
+---
+
+## 6. Inspector
 
 The inspector is the right-hand side panel. It shows the properties of the selection: a device, a cable, a frame or a library template. The header names the selection, for example *Device: Camera 1*, *Cable: CAM 1 → mixer* or *Frame: Control room*.
 
@@ -1830,6 +2017,43 @@ For cameras the section lists, per control function (pan and tilt, zoom, focus, 
 #### Controlled via
 
 For devices whose control interfaces the app knows (for example cameras with VISCA or AW protocol, HyperDeck, KUMO), this section shows, read-only, per interface: protocol, transport (serial, SDI or IP), connector, baud, format, pinout, flow control, multidrop, network port and, for a network bridge, mode, port and packets. Details not found in the manufacturer documentation are marked *Not in manufacturer documentation*. *Source* links to the documentation.
+
+#### Camera control (bridge)
+
+For cameras this section sits below the interfaces. A camera head is driven by the LZ Camera Bridge, a process in the control room. The section tells it how to reach the head, sends it the room and shows what it reports. The line beside the title gives the state: *not on the bridge yet*, *bridge slot n* or *bridge slot n · online*.
+
+![The section Camera control](bilder/en/kamerasteuerung-02-abschnitt.jpg)
+
+| Field or button | Meaning |
+|---|---|
+| *Bridge (room)* and *Port* | Address of the bridge in the room; the port is set to 9700. They apply to the whole project. |
+| *Connect* / *Disconnect* | builds up or tears down the connection; the state beside it reads *bridge connected* or *bridge not connected*. *Connect* stays disabled while no address is entered. |
+| *Control path* | how the bridge reaches this head: *– not declared –*, *Not remote-controlled*, *VISCA over IP*, *HTTP-CGI (Vissonic / PTZOptics, Sony SRG)*, *Panasonic AW PTZ*, *BirdDog*, *JVC ConnectedCam*, *Canon CCAPI*, *Blackmagic REST*, *Z CAM*, *Panasonic Lumix*, *Sony Monitor & Control*, *Sony CCU (700PTP)*, *VISCA RS-232 (at the bridge)*, *Sony RS-422 (at the bridge)*, *Sony USB (at the bridge)*, *DJI Ronin gimbal* and *DJI Osmo Pocket gimbal* |
+| *Firmware family* | only for *HTTP-CGI*: *Vissonic / PTZOptics* or *Sony SRG / BRC* |
+| *Control port* | port of the head; empty means *auto* |
+| Hint line | the IP address comes from the section *Network*; without it the line reads *no IP address yet — set it in the Network section* |
+
+![List of control paths](bilder/en/kamerasteuerung-05-steuerweg-liste.jpg)
+
+![Control path HTTP-CGI with firmware family](bilder/en/kamerasteuerung-06-steuerweg-http-cgi.jpg)
+
+*Send room to bridge* works while the connection exists. It replaces the bridge's cameras with the cameras of this plan, with address, control path, stream, heading and shots. The bridge connects them itself and keeps them across restarts. Afterwards it says *n camera(s) sent*; cameras without an IP address or without a control path appear under *left behind:*. Each camera sent gets its slot number from the bridge.
+
+If the camera has a slot and the bridge is connected, these come in addition:
+
+- *head online* or *head offline* with the button *Connect head*, the tally *PGM* or *PVW*, the pose (*pan … ° · tilt … °*, and the zoom share if there is one) and *Read pose*;
+- *Show live picture from the bridge*, provided the slot has a stream address;
+- a cross: holding drives, releasing stops; *⌂* drives to the home position. There are also keys for zoom and focus (*T/W* zoom, *N/F* focus) and *AF*;
+- the *Zoom curve* with *Record point* (focal length in mm, read off the lens) and *Clear curve*;
+- *Planned shots*: per shot *Recall* (the preset stored in the head), *Drive* (the planned pose) and *Head is here* with a following confirmation, which makes the difference to the plan the offset of all shots. *Store all shots in head* needs a second click to confirm; *Clear offset* takes the offset away again.
+
+#### Video wall
+
+*Video wall (live pictures)…* in the section *Camera control (bridge)* opens the dialog *Video wall*. It shows the live pictures of all cameras of this plan that have a slot on the bridge, as tiles. The window has no menu entry.
+
+![The dialog Video wall without a bridge](bilder/en/kamerasteuerung-03-videowand.jpg)
+
+At the top right are the address of the bridge with the state (without an address: *no bridge address in this project*) and the button *Reload pictures*. Without a camera on the bridge it says *No camera of this plan is on the bridge yet. Open a camera, set its control path and stream, and send the room to the bridge.* Each tile carries *CAM n* at the bottom, the device name and, with tally, *PGM* or *PVW*; the top edge colours for program and preview. If the camera lacks a stream address, it says *no stream address*, if it is not on the bridge, *not on the bridge*. Up to four tiles stand in two columns, up to nine in three, more in four.
 
 #### Power consumption
 
@@ -2072,7 +2296,61 @@ Clicking a frame shows its properties.
 
 ---
 
-## 6. File and Import
+## 7. Rack
+
+A rack combines devices in 19-inch rack units (RU) and behaves on the plan like a single device. This chapter follows the path of a rack: create, save, place, edit afterwards, hand over to the warehouse and delete. The details of the rack builder (patch panel, shelf, 3D, STL, conflicts, export) are in the chapter [Tools: Build](#11-tools-build), the cards of the tab *Racks* in the chapter [Library](#4-library).
+
+| Step | Where | Described in |
+|---|---|---|
+| Create | *Tools → Create new rack…*, *+ New rack* in the tab *Racks*, or arrange selected devices in the rack builder | [Tools: Build](#11-tools-build), [Canvas](#3-canvas) |
+| Save | *Save rack* in the rack builder puts a card into the tab *Racks* | [Tools: Build](#11-tools-build) |
+| Place | Click on the card | this chapter |
+| Edit | *Open rack editor* on the placed rack, pencil on the card | this chapter |
+| For the warehouse | *For the warehouse* in the tab *Racks* | this chapter |
+
+### Saved racks
+
+The tab *Racks* of the library (heading *2D Rack Builder*) shows every saved rack as a card with the number of devices, RU and cables and the device names. Without saved racks it says *No rack layout saved yet.*
+
+![The tab Racks with a card](bilder/en/rack-01-racks-reiter.jpg)
+
+When you point at the card, three buttons appear: the pencil (*Edit in the 2D rack builder*), *Export* (a copy as a file in the Downloads folder) and the red **×** (*Remove rack from library*).
+
+![The card with its buttons](bilder/en/rack-02-karte-hover.jpg)
+
+### Placing a rack on the plan
+
+1. Open the tab *Racks* and click the card. The rack stands on the plan as one device, with *(Rack)* added to its name.
+
+   ![The placed rack](bilder/en/rack-06-karte-platziert.jpg)
+
+   On the plan the rack shows every device it contains in its RU order with its connectors. The dashed lines inside the rack are the internal cables that were taken along when saving. From outside you connect the connectors of the contained devices like those of any other device.
+
+2. A right click on the header of the rack opens the context menu. *Open rack editor* exists only for a rack; the other entries are those of a device (*Add annotation…*, *Device datasheet…*, *Lock position*, *Delete device*).
+
+   ![Context menu of a rack](bilder/en/rack-07-blackbox-kontextmenue.jpg)
+
+### Editing a placed rack
+
+*Open rack editor* opens the rack builder for this rack. The header names the rack and carries the mark *Editing*. You rearrange devices, add or remove some and change *Height (HE)* and *Depth (mm)*. On the right the *Live-Preview* shows how the rack looks on the plan; the footer counts devices, occupied RU and internal cables. *Save* takes over the change, *Cancel* discards it.
+
+![The rack builder for the placed rack](bilder/en/rack-08-rack-editor-offen.jpg)
+
+### For the warehouse
+
+*For the warehouse* in the tab *Racks* hands over what sits in each saved rack, as a file, to the Inventory Planner, which checks it against the rack case. Afterwards the app says how many racks were handed over (*1 racks handed over.*) and, if there are any, how many devices sit outside their rack and were therefore left out. Without saved racks it says *No rack layout to hand over yet.*
+
+![Message after For the warehouse](bilder/en/rack-05-lager-meldung.jpg)
+
+### Deleting a rack
+
+The red **×** on the card asks *Delete rack "…"?* with *Cancel* and *Delete*. Deleting removes the card from the library.
+
+![Confirmation before deleting](bilder/en/rack-04-karte-loeschen-frage.jpg)
+
+---
+
+## 8. File and Import
 
 The *File* menu has four parts. At the top are creating, opening and saving a project. Below them come the imports (*Import yEd / GraphML*, *Import MultiCam cameras*, *Import equipment from CSV*, *Rentman import*, *NetBox import*) and the exchange of whole projects (*.avplan*, *.avsourcemap*). Next come the outputs *Patch list…*, *Fixed install: docs & handover…*, *Stage plot*, *Export & Print…*, the cloud, the viewer file and the Rentman entries. The chapter *Export & Print* describes these outputs. *Rentman import…* and *NetBox import…* appear in the menu only when the integration is switched on under *Settings → Integrations*. *View linked venue plan…* appears only when the project contains a linked venue plan.
 
@@ -2398,6 +2676,20 @@ Next, *Category mapping before import* opens. You assign each device a local cat
 
 If devices already exist under the same name, a conflict dialog appears per device. The default is *Keep local version (recommended)*, so your own port assignments are kept. Further actions are *Link to another local device*, *Overwrite with Rentman version*, *Merge ports* and *Skip (do not import)*. *Set all:* applies *Keep local*, *Take Rentman* or *Skip* to all rows. The message at the end says how many devices were added to the library.
 
+#### Merge devices
+
+If you choose *Merge ports* in the conflict dialog for a device, the dialog *Merge devices* opens for each such device after *Next*. It builds a new template from the local and the Rentman version. At the top it says *Pick which inputs/outputs to take from Local and Rentman.*
+
+| Element | Meaning |
+|---|---|
+| *Target category* | Category of the merged template; it starts with the category from the category mapping |
+| *Selected ports* | Number of ticked connectors |
+| *Preview* | Result as *n In / m Out* |
+| Column *Local* | Inputs and outputs of the local template, each with a tick, name and connector type; all are ticked at the start |
+| Column *Rentman* | Inputs and outputs of the Rentman version; none is ticked at the start |
+
+*Save merge* creates the template. It keeps the name of the local template. It takes the height in RU and the front and rear pictures from the Rentman version if that one has them; the notes of both versions are stacked. Without a target category the app says *Choose category*, without a ticked connector *Choose port*. *Cancel* discards all merges and ends the import before anything is written to the library. If several devices are to be merged, the dialog follows once per device; after the last one the import continues.
+
 ### NetBox import
 
 *File → NetBox import…* reads a site or a rack from NetBox and creates devices, ports and connections as a cable plan.
@@ -2497,7 +2789,7 @@ If a project comes from an `.avplan` that carries room, camera or lighting data 
 
 ---
 
-## 7. Export & Print
+## 9. Export & Print
 
 Everything that leaves the plan as a sheet, list or file is in the *File* menu. The entries at a glance:
 
@@ -3020,7 +3312,7 @@ With outputs, a summary line gives how many entries belong to this project and h
 
 ---
 
-## 8. Tools: Plan
+## 10. Tools: Plan
 
 The *Tools* menu has five groups: *Calculate*, *Check*, *Plan*, *Create & manage* and *Device configuration*. This chapter describes the calculators, the checks and the tools for capturing and planning on site. The other entries of the groups *Plan* and *Create & manage* are in the chapter "Tools". Every dialog opens from *Tools* and closes with the **×** or Esc.
 
@@ -3459,9 +3751,9 @@ For each destination the app checks and reports, for example *No stream key stor
 
 ---
 
-## 9. Tools: Build
+## 11. Tools: Build
 
-The *Tools* menu has five groups: *Calculate*, *Check*, *Plan*, *Create & manage* and *Device configuration*. This chapter describes the entries of the *Plan* group from *LED wall…* onwards, plus the groups *Create & manage* and *Device configuration*. The calculators, the checks and the other entries of the *Plan* group are in the chapter [Tools: Plan](#8-tools-plan). Patch list, fixed install, stage plot and *Export & Print…* are in the *File* menu and in the chapter [Export and Print](#7-export--print).
+The *Tools* menu has five groups: *Calculate*, *Check*, *Plan*, *Create & manage* and *Device configuration*. This chapter describes the entries of the *Plan* group from *LED wall…* onwards, plus the groups *Create & manage* and *Device configuration*. The calculators, the checks and the other entries of the *Plan* group are in the chapter [Tools: Plan](#10-tools-plan). Patch list, fixed install, stage plot and *Export & Print…* are in the *File* menu and in the chapter [Export and Print](#9-export--print).
 
 The group *Device configuration* appears only when the plan contains a matching device: *ATEM multiviewer layout…* for an ATEM or a multiviewer, *ATEM audio routing…* and *ATEM input labels…* for an ATEM, *Videohub routing / labels…* for a Videohub and *GreenGo intercom…* for a GreenGo device. The same tools are in the Inspector in the section *Tools for this device*. *Inventory / stock…* appears when the rental module is switched on.
 
@@ -3897,7 +4189,7 @@ The dialog *AI plan generation* creates a draft from a description or completes 
 
 *Tools → Revisions & snapshots…*
 
-A revision stores a complete state of the plan under a name. Restoring keeps the history. The latest revision appears in the title block of the outputs, for an as-built revision with the suffix *(As-Built)*. You compare two states with *File → Compare plan revisions…*, see [Export and Print](#7-export--print).
+A revision stores a complete state of the plan under a name. Restoring keeps the history. The latest revision appears in the title block of the outputs, for an as-built revision with the suffix *(As-Built)*. You compare two states with *File → Compare plan revisions…*, see [Export and Print](#9-export--print).
 
 1. Open *Tools → Revisions & snapshots…*. The section *Commit current state* has *Label* (for example "A" or "Rev 2"), *Note: what changed?* and the checkbox *As-built*. As long as no revision exists it says *No revisions committed yet.*
 
@@ -4186,7 +4478,90 @@ The dialog *GreenGo Intercom planning* plans a Green-GO system: stations, talk g
 
 ---
 
-## 10. Settings
+## 12. Collaboration
+
+Several people can work on one plan. The app has two ways for it: **live collaboration**, where everyone edits the same plan at the same time, and the **sync directory**, through which a plan is handed on in turns. This chapter describes how to use both. All fields of the settings are described in the chapter [Settings](#13-settings), tab *Network sync*.
+
+| Way | When | Working at the same time |
+|---|---|---|
+| Live collaboration | Everyone is at the plan right now: in the same set of windows, on the same network or over the internet. | yes |
+| Sync directory | The plan travels through a network folder from person to person. | no, one person at a time |
+
+### Live collaboration
+
+The changes of all participants are merged without a server, even after a short disconnect. The function is marked *beta*. It is under *Settings → Network sync*.
+
+#### Starting a session
+
+1. Open *Settings → Network sync*. The box *Live collaboration (beta)* shows the state *Off* at the top right.
+2. Under *Your display name* enter how the others see you, and under *Room name* a name for the session, for example `show-2026`. The room name is required: without it *Start session* stays disabled.
+
+   ![Name and room entered](bilder/en/zusammenarbeit-02-name-und-raum.jpg)
+
+3. Under *Mode*, choose where the others sit:
+
+   - *This device (multiple windows)*: only windows on this computer.
+   - *Network (LAN/WAN, P2P)*: other computers, on the same network or over the internet. This mode additionally shows *Signaling server*, *Local only*, *Room password (optional)* and *STUN/TURN servers (optional)*; the fields are explained in the chapter [Settings](#13-settings).
+
+   ![Mode Network](bilder/en/zusammenarbeit-04-modus-netzwerk.jpg)
+
+   In the mode *Network* without a *Room password* the app warns in red: the room is then unencrypted, and anyone who knows the room name and the signaling server or finds the session on the LAN can read the entire project. Set a password and give it only to your team.
+
+4. *Start session* opens the session. The box shows *Connected — changes are shared live*, below it the participants as coloured circles with initials. As long as you are alone, it says *Only you in the room* and the note that others join by using the same room name.
+
+   ![Running session](bilder/en/zusammenarbeit-06-sitzung-laeuft.jpg)
+
+While the session runs, *Mode* and *Room name* are locked.
+
+#### The state in the status bar
+
+As long as a session runs, the green mark *Live · n* is in the status bar at the bottom; *n* is the number of participants. A click on it opens *Settings → Network sync* with participants and invitation.
+
+![Status bar with the mark Live](bilder/en/zusammenarbeit-08-statusleiste-live.jpg)
+
+![A click on Live opens the tab](bilder/en/zusammenarbeit-09-statusleiste-klick.jpg)
+
+#### Joining
+
+There are two ways to join a running session. In both cases **joining replaces your current plan with the host's**; if a plan is already in the window, the app asks first (*Join and replace*).
+
+- **Search the network** (desktop app only): the box *Sessions on the network* has the button *Search the network*. It searches the local network for running sessions. Each one found appears in the list with project name, host and room and has a button *Join*. Without a hit it says *No open session found yet.*
+
+  ![Search of the network without a hit](bilder/en/zusammenarbeit-03-suche-im-netz.jpg)
+
+- **Invitation link**: in the running session the host clicks *Copy invite*; the button briefly reads *Copied*. The clipboard then holds the line *Join the LZ Cable Planner live session:* and a link. Room, mode, signaling server and password are encoded in the part of the link after `#join=`, which is not sent to a server. A room password that is set is in the link as well; hand it on to your team only. Whoever opens the link sees *Join live session “room · host”? Your current plan will be replaced by the host’s.* and joins with *Join*. STUN/TURN credentials are not in the link.
+
+  ![Invitation copied](bilder/en/zusammenarbeit-07-einladung-kopiert.jpg)
+
+#### Leaving the session
+
+*Leave* (red button in the box) ends your participation. The state goes back to *Off*, the fields are free again, and the mark *Live* disappears from the status bar.
+
+![After leaving](bilder/en/zusammenarbeit-10-verlassen.jpg)
+
+### Sync directory
+
+A shared directory (mounted FTP drive, network path or local folder) carries project, library and presets as JSON files. This way needs the desktop app and has no simultaneous working: whoever writes locks the directory.
+
+1. In *Settings → Network sync* enter the *Sync directory* and your *User name (for lock display)* and save.
+2. *Push* and *Pull* appear in the top bar.
+
+   ![Push and Pull in the top bar](bilder/en/zusammenarbeit-12-push-pull-kopfleiste.jpg)
+
+3. *Push* writes your state into the directory: `cable-planner.project.json`, `cable-planner.library.json` and `cable-planner.presets.json`. *Pull* loads these files into your current state. The message says what was loaded (project, library, presets), or that no sync files are in the directory.
+4. A lock file prevents two people from writing at the same time. If the directory is locked, the message says *Directory is locked by: name*. The lock expires after two hours.
+
+*Sync library now* also compares device templates, groups and categories with `cable-planner.library.json` in the directory, by name; local templates are never overwritten.
+
+### Other ways to share a plan
+
+- The plan as a file: *File → Export whole project (.avplan)…* and on the other side *File → Open…*, described in the chapter [File and Import](#8-file-and-import).
+- A phone on the same network: *Phone access* shows the patch list and plug check, described in the chapter [Web edition and tablet](#15-web-edition-and-tablet).
+- The report back to Rentman: [Export & Print](#9-export--print).
+
+---
+
+## 13. Settings
 
 ### Opening the settings
 
@@ -4718,7 +5093,7 @@ Without *Valid until*, a credential does not count as open-ended but as "no expi
 
 ---
 
-## 11. Claude (MCP)
+## 14. Claude (MCP)
 
 Claude can answer questions about the open plan — devices, ports, signal paths,
 cables and the plan check — search the device library and check the plan
@@ -4757,7 +5132,7 @@ Switching commands for ATEM or Videohub are never offered.
 
 ---
 
-## 12. Web edition and tablet
+## 15. Web edition and tablet
 
 - Open **https://larszu.github.io/cable-planner/** and add it to the home
   screen; it runs full-screen with its own icon.
@@ -4770,7 +5145,7 @@ Switching commands for ATEM or Videohub are never offered.
 
 ---
 
-## 13. Data, safety and troubleshooting
+## 16. Data, safety and troubleshooting
 
 - **Projects**: local JSON files. The app writes them atomically with a backup
   copy.

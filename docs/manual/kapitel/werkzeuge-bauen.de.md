@@ -1,6 +1,6 @@
 ## Werkzeuge: Bauen
 
-Das Menü *Werkzeuge* hat fünf Gruppen: *Berechnen*, *Prüfen*, *Planen*, *Erstellen & verwalten* und *Geräte-Konfiguration*. Dieses Kapitel beschreibt die Einträge der Gruppe *Planen* ab *LED-Wand…* sowie die Gruppen *Erstellen & verwalten* und *Geräte-Konfiguration*. Die Rechner, die Prüfungen und die übrigen Einträge der Gruppe *Planen* stehen im Kapitel [Werkzeuge: Planen](#8-werkzeuge-planen). Patch-Liste, Festinstallation, Stage Plot und *Exportieren & Drucken…* stehen im Menü *Datei* und im Kapitel [Exportieren und Drucken](#7-exportieren-und-drucken).
+Das Menü *Werkzeuge* hat fünf Gruppen: *Berechnen*, *Prüfen*, *Planen*, *Erstellen & verwalten* und *Geräte-Konfiguration*. Dieses Kapitel beschreibt die Einträge der Gruppe *Planen* ab *LED-Wand…* sowie die Gruppen *Erstellen & verwalten* und *Geräte-Konfiguration*. Die Rechner, die Prüfungen und die übrigen Einträge der Gruppe *Planen* stehen im Kapitel [Werkzeuge: Planen](#10-werkzeuge-planen). Patch-Liste, Festinstallation, Stage Plot und *Exportieren & Drucken…* stehen im Menü *Datei* und im Kapitel [Exportieren und Drucken](#9-exportieren-und-drucken).
 
 Die Gruppe *Geräte-Konfiguration* erscheint nur, wenn der Plan ein passendes Gerät enthält: *ATEM Multiviewer-Layout…* bei einem ATEM oder Multiviewer, *ATEM Audio-Routing…* und *ATEM Input-Labels…* bei einem ATEM, *Videohub-Routing / Labels…* bei einem Videohub und *GreenGo-Intercom…* bei einem GreenGo-Gerät. Dieselben Werkzeuge stehen im Inspector im Abschnitt *Werkzeuge für dieses Gerät*. *Lager / Bestand…* erscheint, wenn das Modul Vermietung eingeschaltet ist.
 
@@ -436,7 +436,7 @@ Der Dialog *KI-Plan-Generierung* erzeugt einen Entwurf aus einer Beschreibung od
 
 *Werkzeuge → Revisionen & Snapshots…*
 
-Eine Revision speichert einen vollständigen Stand des Plans unter einem Namen. Beim Wiederherstellen bleibt die Historie erhalten. Die letzte Revision erscheint im Titelblock der Ausgaben, bei einer As-Built-Revision mit dem Zusatz *(As-Built)*. Zwei Stände miteinander vergleichen Sie über *Datei → Plan-Stände vergleichen…*, siehe [Exportieren und Drucken](#7-exportieren-und-drucken).
+Eine Revision speichert einen vollständigen Stand des Plans unter einem Namen. Beim Wiederherstellen bleibt die Historie erhalten. Die letzte Revision erscheint im Titelblock der Ausgaben, bei einer As-Built-Revision mit dem Zusatz *(As-Built)*. Zwei Stände miteinander vergleichen Sie über *Datei → Plan-Stände vergleichen…*, siehe [Exportieren und Drucken](#9-exportieren-und-drucken).
 
 1. Öffnen Sie *Werkzeuge → Revisionen & Snapshots…*. Der Abschnitt *Aktuellen Stand festschreiben* hat *Label* (zum Beispiel „A“ oder „Rev 2“), *Notiz: was hat sich geändert?* und das Kästchen *As-Built*. Solange keine Revision existiert, steht *Noch keine Revisionen festgeschrieben.*
 

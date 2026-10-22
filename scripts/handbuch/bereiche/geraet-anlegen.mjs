@@ -459,7 +459,7 @@ await entfernen('Nur Name')
 // Rechtsklick auf freie Fläche
 await a.zu()
 await S('a-rechtsklick', async () => {
-  await win.mouse.click(SLOT.t.x, SLOT.t.y, { button: 'right' })
+  await win.mouse.click(640, 790, { button: "right" })
 }, { ziel: () => win.locator('div.fixed', { hasText: T('canvas.paneMenu.newDevice') }).last() })
 await S('a-neues-geraet-hier', () => a.klick('canvas.paneMenu.newDevice'), { ziel: () => a.dialog() })
 await nameFeld().fill('Beispielgerät Delta')

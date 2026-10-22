@@ -58,12 +58,23 @@ English version: [manual.en.md](manual.en.md)
    - [Kabel](#kabel)
    - [Gruppen](#gruppen)
    - [Racks](#racks)
-5. [Inspector](#5-inspector)
+5. [Gerät anlegen](#5-gerät-anlegen)
+   - [Von Hand](#von-hand)
+   - [Mit Foto](#mit-foto)
+   - [Mit Rentman](#mit-rentman)
+   - [Aus der Bibliothek weiterverarbeiten](#aus-der-bibliothek-weiterverarbeiten)
+6. [Inspector](#6-inspector)
    - [Nichts ausgewählt](#nichts-ausgewählt)
    - [Geräteeigenschaften](#geräteeigenschaften)
    - [Kabeleigenschaften](#kabeleigenschaften)
    - [Rahmen-Eigenschaften](#rahmen-eigenschaften)
-6. [Datei und Import](#6-datei-und-import)
+7. [Rack](#7-rack)
+   - [Gespeicherte Racks](#gespeicherte-racks)
+   - [Ein Rack auf dem Plan platzieren](#ein-rack-auf-dem-plan-platzieren)
+   - [Ein platziertes Rack bearbeiten](#ein-platziertes-rack-bearbeiten)
+   - [Fürs Lager](#fürs-lager)
+   - [Ein Rack löschen](#ein-rack-löschen)
+8. [Datei und Import](#8-datei-und-import)
    - [Neues Projekt](#neues-projekt)
    - [Neu aus Vorlage](#neu-aus-vorlage)
    - [Öffnen](#öffnen)
@@ -78,7 +89,7 @@ English version: [manual.en.md](manual.en.md)
    - [Gesamtprojekt exportieren und importieren (`.avplan`)](#gesamtprojekt-exportieren-und-importieren-avplan)
    - [Identitäts-Karte (`.avsourcemap`)](#identitäts-karte-avsourcemap)
    - [Verknüpfte Venue-Planung ansehen](#verknüpfte-venue-planung-ansehen)
-7. [Exportieren und Drucken](#7-exportieren-und-drucken)
+9. [Exportieren und Drucken](#9-exportieren-und-drucken)
    - [Patch-Liste](#patch-liste)
    - [Festinstallation: Doku & Übergabe](#festinstallation-doku--übergabe)
    - [Stage-Plot](#stage-plot)
@@ -89,11 +100,11 @@ English version: [manual.en.md](manual.en.md)
    - [Plan-Stände vergleichen](#plan-stände-vergleichen)
    - [Ausgegebene Dokumente](#ausgegebene-dokumente)
    - [Rückweg nach Rentman](#rückweg-nach-rentman)
-8. [Werkzeuge: Planen](#8-werkzeuge-planen)
+10. [Werkzeuge: Planen](#10-werkzeuge-planen)
    - [Berechnen](#berechnen)
    - [Prüfen](#prüfen)
    - [Planen](#planen)
-9. [Werkzeuge: Bauen](#9-werkzeuge-bauen)
+11. [Werkzeuge: Bauen](#11-werkzeuge-bauen)
    - [LED-Wand](#led-wand)
    - [Frontplatten-Editor](#frontplatten-editor)
    - [Berichts-Editor](#berichts-editor)
@@ -105,7 +116,11 @@ English version: [manual.en.md](manual.en.md)
    - [Revisionen & Snapshots](#revisionen--snapshots)
    - [Lager / Bestand](#lager--bestand)
    - [Geräte-Konfiguration](#geräte-konfiguration)
-10. [Einstellungen](#10-einstellungen)
+12. [Zusammenarbeit](#12-zusammenarbeit)
+   - [Live-Kollaboration](#live-kollaboration)
+   - [Sync-Verzeichnis](#sync-verzeichnis)
+   - [Weitere Wege, einen Plan zu teilen](#weitere-wege-einen-plan-zu-teilen)
+13. [Einstellungen](#13-einstellungen)
    - [Einstellungen öffnen](#einstellungen-öffnen)
    - [Projekt](#projekt)
    - [Module](#module)
@@ -122,9 +137,9 @@ English version: [manual.en.md](manual.en.md)
    - [Netzwerk-Sync](#netzwerk-sync)
    - [Nachweise](#nachweise)
    - [Erweitert](#erweitert)
-11. [Claude (MCP)](#11-claude-mcp)
-12. [Web-Ausgabe und Tablet](#12-web-ausgabe-und-tablet)
-13. [Daten, Sicherheit und Fehlerbehebung](#13-daten-sicherheit-und-fehlerbehebung)
+14. [Claude (MCP)](#14-claude-mcp)
+15. [Web-Ausgabe und Tablet](#15-web-ausgabe-und-tablet)
+16. [Daten, Sicherheit und Fehlerbehebung](#16-daten-sicherheit-und-fehlerbehebung)
 
 ---
 
@@ -205,7 +220,7 @@ In einem schmalen Fenster rückt die Kopfleiste zusammen; die Menüs bleiben err
 
 #### Menüs Datei und Werkzeuge
 
-Das Menü *Datei* enthält Anlegen, Öffnen, Speichern, die Importe und die Exporte. Die Einträge beschreiben die Kapitel [Datei und Import](#6-datei-und-import) und [Exportieren und Drucken](#7-exportieren-und-drucken).
+Das Menü *Datei* enthält Anlegen, Öffnen, Speichern, die Importe und die Exporte. Die Einträge beschreiben die Kapitel [Datei und Import](#8-datei-und-import) und [Exportieren und Drucken](#9-exportieren-und-drucken).
 
 ![Menü Datei](bilder/de/oberflaeche-07-menue-datei.jpg)
 
@@ -362,6 +377,19 @@ Das Panel *Anmerkungen* erscheint rechts. Es filtert nach *alle*, *offen*, *geba
 | Auf Updates prüfen… | | fragt nach einer neueren Version und meldet das Ergebnis |
 | Über LZ Cable Planner… | | öffnet den Dialog mit Version und Build |
 
+#### Auf Updates prüfen
+
+*Hilfe → Auf Updates prüfen…* fragt nach einer neueren Version und zeigt das Ergebnis als Meldung:
+
+| Meldung | Bedeutung |
+|---|---|
+| *Update-Prüfung nicht möglich* | *Updates sind nur in der installierten Desktop-Version verfügbar.* Im Browser und in einem nicht installierten Lauf gibt es keine Prüfung. |
+| *Update verfügbar* | *Version … wird im Hintergrund geladen und beim Beenden installiert.* Ist der Download fertig, bietet die App einen Neustart an. |
+| *Du verwendest bereits die neueste Version* | Die Meldung nennt die laufende Version. |
+| *Update-Prüfung fehlgeschlagen* | Die Prüfung ist mit einem Fehler abgebrochen. |
+
+Ist ein Update geladen, fragt *Update bereit*: *Version … ist geladen. Jetzt neu starten und aktualisieren?* mit *Jetzt neu starten* und *Später*. Das gilt auch für Updates, die die App von selbst geladen hat; ohne Neustart installiert sie beim Beenden.
+
 #### Befehlspalette
 
 ![Befehlspalette](bilder/de/oberflaeche-84-hilfe-befehlspalette.jpg)
@@ -382,6 +410,21 @@ Synonyme gelten in beiden Sprachen: *qr* findet zum Beispiel *Aufs Handy teilen�
 Passt nichts, steht *Keine Befehle gefunden* in der Liste.
 
 ![Keine Treffer](bilder/de/oberflaeche-89-palette-keine-treffer.jpg)
+
+**Befehle, die es nur in der Palette gibt.** Einige Befehle haben keinen Menüeintrag:
+
+| Befehl | Gruppe | Wirkung |
+|---|---|---|
+| *Zoom zurücksetzen (100%)* | *Ansicht* | stellt den Canvas auf 100 % Zoom |
+| *Neues Projekt aus Vorlage…* | *Datei* | öffnet die Projektvorlagen |
+| *Aus Rentman importieren…* | *Datei* | öffnet den Rentman-Import (nur mit eingeschaltetem Modul *Rentman*) |
+| *Aus NetBox importieren…* | *Datei* | öffnet den NetBox-Import (nur mit Modul *NetBox*) |
+| *Aufs Handy teilen…* | *Datei* | Patchliste und Steck-Check auf einem Handy im selben Netz (nur mit Modul *Mobile*) |
+| *DMX-Adressen vergeben…* | *Werkzeuge* | vergibt DMX-Adressen, siehe unten |
+| *Module ein- oder ausschalten…* | *Hilfe* | öffnet *Einstellungen → Module* |
+| *Einstellungen…* | *Hilfe* | öffnet die Einstellungen |
+
+*DMX-Adressen vergeben…* beginnt bei Universum 1, Adresse 1 und verteilt fortlaufend Adressen an alle Geräte, die ein DMX-Profil haben. Geräte mit festgesetzter Adresse behalten sie. Danach meldet die App *DMX-Adressen vergeben* und nennt, wie vielen Geräten sie eine Adresse gegeben hat und wie viele sie übersprungen hat, weil kein Modus gesetzt ist. Überschneidungen listet der Plan-Check.
 
 #### Tastaturkürzel
 
@@ -517,7 +560,7 @@ Der Knopf *Handy-Zugriff* in der Kopfleiste öffnet den gleichnamigen Dialog. Er
 | *Anlagen-Zugangscodes abrufbar machen* | gibt Intercom-Zugangscodes über einen zweiten Code frei; nur bei Projekten mit Intercom-Konfiguration wählbar |
 | *Hinweise zur Sicherheit* | klappt die Sicherheitshinweise auf |
 
-Der Server stoppt beim Schließen der App oder über den Stop-Knopf. Die mobile Ansicht beschreibt das Kapitel [Web-Ausgabe und Tablet](#12-web-ausgabe-und-tablet).
+Der Server stoppt beim Schließen der App oder über den Stop-Knopf. Die mobile Ansicht beschreibt das Kapitel [Web-Ausgabe und Tablet](#15-web-ausgabe-und-tablet).
 
 ![Hinweise zur Sicherheit](bilder/de/oberflaeche-107-handy-sicherheitshinweise.jpg)
 
@@ -556,7 +599,7 @@ Beim ersten Start mit leerem Projekt erscheint der Dialog *Willkommen — was pl
 
 ## 3. Canvas
 
-Der Canvas ist die Arbeitsfläche, auf der Geräte stehen, Kabel verlaufen und Rahmen Räume bilden. Dieses Kapitel beschreibt die Fläche selbst, die schwebende Werkzeugleiste, die Auswahl, das Zeichnen und Bearbeiten von Kabeln, Rahmen, Etagen, Ebenen, Betriebsarten, Anmerkungen, Hallenplan und Planzeichen. Die Eigenschaften eines markierten Geräts, Kabels oder Rahmens stehen im Kapitel [Inspector](#5-inspector); die Bibliothek links im Kapitel [Bibliothek](#4-bibliothek).
+Der Canvas ist die Arbeitsfläche, auf der Geräte stehen, Kabel verlaufen und Rahmen Räume bilden. Dieses Kapitel beschreibt die Fläche selbst, die schwebende Werkzeugleiste, die Auswahl, das Zeichnen und Bearbeiten von Kabeln, Rahmen, Etagen, Ebenen, Betriebsarten, Anmerkungen, Hallenplan und Planzeichen. Die Eigenschaften eines markierten Geräts, Kabels oder Rahmens stehen im Kapitel [Inspector](#6-inspector); die Bibliothek links im Kapitel [Bibliothek](#4-bibliothek).
 
 ### Der leere Plan und das Beispielprojekt
 
@@ -873,7 +916,7 @@ Ein Klick auf ein Kabel markiert es; der Inspector zeigt seine Eigenschaften, ei
 
 8. *Bezeichnung ändern…* öffnet ein Eingabefeld für die Beschriftung.
 
-9. Ein Doppelklick auf ein Kabel öffnet den Dialog zum Bearbeiten des Kabels; die Felder sind im Kapitel [Inspector](#5-inspector) beschrieben.
+9. Ein Doppelklick auf ein Kabel öffnet den Dialog zum Bearbeiten des Kabels; die Felder sind im Kapitel [Inspector](#6-inspector) beschrieben.
 
    ![Doppelklick auf ein Kabel](bilder/de/canvas-kabeleditor-19-doppelklick.jpg)
 
@@ -899,7 +942,7 @@ Ein Rahmen ist ein farbiges Rechteck, das Geräte zu einem Ort oder Raum zusamme
 
 2. Ein Doppelklick auf den Rahmen fragt *Location umbenennen:*.
 
-3. Ein Klick auf den Rahmen zeigt im Inspector die Rahmen-Eigenschaften (Name, Breite, Tiefe, Fläche, Stockwerk, Farbe, Steigschacht, Raumnummer, Adresse, Notizen); sie sind im Kapitel [Inspector](#5-inspector) beschrieben.
+3. Ein Klick auf den Rahmen zeigt im Inspector die Rahmen-Eigenschaften (Name, Breite, Tiefe, Fläche, Stockwerk, Farbe, Steigschacht, Raumnummer, Adresse, Notizen); sie sind im Kapitel [Inspector](#6-inspector) beschrieben.
 
 4. An den Griffen des markierten Rahmens ändern Sie die Größe.
 
@@ -1293,7 +1336,7 @@ Nach dem Anlegen bietet der Inspector des Kabels *Einsetzen*; es setzt den Adapt
 
 ## 4. Bibliothek
 
-Die Bibliothek ist die Spalte links neben dem Plan. Sie hält die Vorlagen, aus denen der Plan gebaut wird: Geräte (lokal, aus der gemeinsamen Gerätebibliothek und aus Rentman), Kabeltypen, Gerätegruppen und Racks. Vorlagen werden per Klick oder Ziehen auf den [Canvas](#3-canvas) gesetzt; die Eigenschaften eines Eintrags erscheinen im [Inspector](#5-inspector).
+Die Bibliothek ist die Spalte links neben dem Plan. Sie hält die Vorlagen, aus denen der Plan gebaut wird: Geräte (lokal, aus der gemeinsamen Gerätebibliothek und aus Rentman), Kabeltypen, Gerätegruppen und Racks. Vorlagen werden per Klick oder Ziehen auf den [Canvas](#3-canvas) gesetzt; die Eigenschaften eines Eintrags erscheinen im [Inspector](#6-inspector).
 
 ![Bibliothek links neben dem Plan](bilder/de/bibliothek-01-fenster-ueberblick.jpg)
 
@@ -1641,7 +1684,151 @@ Der Reiter *Racks* (*2D Rack Builder: Rack-Slots in HE, als platzierbare Gruppe 
 
 ---
 
-## 5. Inspector
+## 5. Gerät anlegen
+
+Ein Gerät, das die Bibliothek nicht kennt, legen Sie selbst an: von Hand, mit Hilfe eines Fotos der Anschlussseite oder über den Rentman-Import. Dieses Kapitel zeigt, welcher Weg wann passt und wo das neue Gerät danach steht. Die einzelnen Felder des Dialogs *Eigenes Gerät anlegen* beschreibt das Kapitel [Bibliothek](#4-bibliothek); die Anschlüsse eines platzierten Geräts bearbeiten Sie im [Inspector](#6-inspector).
+
+| Weg | Wann | Ergebnis |
+|---|---|---|
+| Von Hand | Sie kennen die Anschlüsse oder brauchen zunächst nur einen Platzhalter. | Gerät in der Bibliothek, im Projekt oder beides |
+| Mit Foto | Sie haben ein Foto der Anschlussseite und einen KI-Anbieter eingerichtet. | Vorschlag für die Port-Gruppen, den Sie prüfen |
+| Mit Rentman | Das Gerät steht in einem Rentman-Projekt. | Vorlagen in der Bibliothek, mit Rentman-ID |
+
+### Von Hand
+
+Der Dialog *Eigenes Gerät anlegen* öffnet sich auf drei Wegen:
+
+- im Menü **+** der Bibliothek mit *Neues Gerät…*,
+- mit einem Rechtsklick auf freie Fläche des Plans und *Neues Gerät hier …* (das Gerät landet an der Klickstelle),
+- mit **Strg/Cmd + Plus** über dem Plan. Dieser Weg fragt nur den Namen; das Gerät erhält die Kategorie *Other* und keine Anschlüsse.
+
+1. Tippen Sie den Namen. Passende Geräte der Bibliothek erscheinen darunter mit *Als Vorlage nutzen*; so übernehmen Sie Kategorie und Port-Gruppen eines ähnlichen Geräts und ändern nur, was abweicht.
+
+   ![Vorschläge beim Tippen](bilder/de/geraet-anlegen-04-a-name-treffer.jpg)
+
+2. Wählen Sie unten, wo das Gerät landen soll:
+
+   | Knopf | Bibliothek | Plan |
+   |---|---|---|
+   | *In Bibliothek speichern* | ja | nein |
+   | *Nur im Projekt platzieren* | nein | ja |
+   | *Speichern + Platzieren* | ja | ja |
+
+   *Nur im Projekt platzieren* eignet sich für Leihgeräte, Platzhalter und Einzelstücke: Es entsteht keine Vorlage, die später in der Bibliothek stehen bleibt.
+
+   ![Formular für ein Leihgerät](bilder/de/geraet-anlegen-22-a-nur-projekt-vorbereitet.jpg)
+
+   ![Das Gerät steht auf dem Plan, nicht in der Bibliothek](bilder/de/geraet-anlegen-23-a-nur-projekt-platziert.jpg)
+
+3. Mit *In Bibliothek speichern* steht die Vorlage in der Bibliothek, der Plan bleibt unverändert. Die Suche der Bibliothek findet sie sofort.
+
+   ![Gerät nur in der Bibliothek](bilder/de/geraet-anlegen-26-a-nur-bibliothek-suche.jpg)
+
+4. Ein Gerät ohne Port-Gruppen ist erlaubt. Die Bibliothek zeigt es mit *0 in / 0 out*, und der Dialog sagt, dass sich Anschlüsse auch später ergänzen lassen.
+
+   ![Gerät ohne Anschlüsse in der Bibliothek](bilder/de/geraet-anlegen-28-a-portlos-platziert.jpg)
+
+#### Anschlüsse später ergänzen
+
+Ein Gerät, das nur mit Namen angelegt wurde, bekommt seine Anschlüsse im Inspector.
+
+1. Platzieren Sie das Gerät und wählen Sie es aus. Im Abschnitt *Inputs & Outputs* steht *0 In · 0 Out*, dazu *Keine* unter *Inputs* und *Outputs*.
+
+   ![Inspector eines Geräts ohne Anschlüsse](bilder/de/geraet-anlegen-30-a-nur-name-inspektor.jpg)
+
+2. *+ Hinzufügen* legt einen Anschluss an. Tragen Sie den Namen ein, wählen Sie den Stecker und tragen Sie bei Bedarf die Funktion ein.
+
+   ![Neuer Anschluss mit Namen](bilder/de/geraet-anlegen-31-a-port-plus.jpg)
+
+   ![Anschluss mit Stecker, Funktion und Geschlecht](bilder/de/geraet-anlegen-37-a-port-ausgefuellt.jpg)
+
+3. Weitere Anschlüsse kommen mit *+ Hinzufügen* dazu; das rote **×** nimmt einen weg. Ein Kabel, das auf das Gerät gezogen wird, legt ebenfalls einen Anschluss an.
+
+### Mit Foto
+
+Der Weg braucht einen KI-Anbieter mit Schlüssel. Das Foto zeigt die Anschlussseite; die App sendet es zur Erkennung an den gewählten Anbieter. Die Vorschläge sind Vermutungen und werden nie ohne Ihre Bestätigung übernommen.
+
+1. Richten Sie den Anbieter unter *Einstellungen → Integrationen* ein. Dort wählen Sie auch, woher der Knopf *Ausfüllen* seine Vorschläge nimmt: aus einer *Web-Suche* (ohne Schlüssel) oder aus dem *KI-Modell* (mit Schlüssel).
+
+   ![Quelle zum Ausfüllen: Web-Suche oder KI-Modell](bilder/de/geraet-anlegen-72-b-quelle-ki.jpg)
+
+   ![Anbieter wählen und Schlüssel hinterlegen](bilder/de/geraet-anlegen-74-b-anbieter-claude.jpg)
+
+   Ohne Schlüssel zeigt der Dialog statt der Fotofunktion den Hinweis, den Anbieter einzutragen, mit dem Knopf *Einstellungen öffnen*. Der Schlüssel lässt sich auch im Dialog selbst hinterlegen; er wird nur lokal gespeichert.
+
+   ![Schlüssel im Dialog eintragen](bilder/de/geraet-anlegen-76-b-schluessel-eingetippt.jpg)
+
+2. Öffnen Sie *Eigenes Gerät anlegen*. Der Abschnitt *Ports aus Foto erkennen* nimmt Fotos mit *Fotos wählen*, per Ziehen oder per Einfügen auf.
+
+   ![Abschnitt Ports aus Foto erkennen](bilder/de/geraet-anlegen-79-b-foto-feld.jpg)
+
+3. Mit einem Foto erscheinen *Erkennen*, die Vorschau und der Haken *Fotos beim Platzieren am Gerät speichern*. Mehrere Fotos desselben Geräts sind möglich; der **×** an der Vorschau entfernt eines.
+
+   ![Foto gewählt](bilder/de/geraet-anlegen-80-b-foto-gewaehlt.jpg)
+
+4. *Erkennen* sendet die Fotos. Während der Anfrage steht *Erkenne…*.
+
+   ![Erkennung läuft](bilder/de/geraet-anlegen-86-b-erkennen-laeuft.jpg)
+
+5. Das Ergebnis ist eine Tabelle: *Gerät:* nennt das erkannte Modell. Gibt es dazu im Katalog ein Gerät mit Datenblatt-Ports, bietet *Katalog-Gerät platzieren* es an. Jede Zeile hat einen Haken, Richtung (*Input*, *Output*, *Beide Richtungen*), Anzahl, Stecker und Beschriftung. Unsichere Zeilen sind abgewählt und mit *unsicher* markiert.
+
+   ![Vorschläge prüfen](bilder/de/geraet-anlegen-87-b-vorschlag.jpg)
+
+6. Haken Sie unsichere Zeilen an oder ab und ändern Sie, was nicht stimmt. *n Port-Gruppe(n) ins Formular übernehmen* trägt die gewählten Zeilen als Port-Gruppen ein.
+
+   ![Zeilen gewählt, bereit zur Übernahme](bilder/de/geraet-anlegen-90-b-zeile-abgewaehlt.jpg)
+
+   ![Port-Gruppen im Formular](bilder/de/geraet-anlegen-92-b-uebernehmen.jpg)
+
+7. Speichern Sie wie gewohnt. Mit dem Haken *Fotos beim Platzieren am Gerät speichern* hängen die Fotos danach unter *Fotos* am Gerät.
+
+   ![Gerät mit den Fotos im Inspector](bilder/de/geraet-anlegen-94-b-inspektor-fotos.jpg)
+
+Zeigt das Foto nichts Lesbares, meldet die App *Nichts erkannt* und rät zu einem schärferen Foto von vorn mit lesbarer Beschriftung. Lehnt der Anbieter die Anfrage ab (zum Beispiel wegen eines ungültigen Schlüssels), steht seine Fehlermeldung unter dem Abschnitt.
+
+![Fehlermeldung des Anbieters](bilder/de/geraet-anlegen-101-b-fehler-anbieter.jpg)
+
+Für ein bereits platziertes Gerät ohne Anschlüsse bietet der Inspector dasselbe als *AI-Port-Vorschlag* mit dem Knopf *Ports vorschlagen*. Die Vorschläge erscheinen als Liste; *Übernehmen* trägt sie ein, *Verwerfen* lässt das Gerät unverändert.
+
+![Vorschlag im Inspector](bilder/de/geraet-anlegen-98-b-inspektor-vorschlag.jpg)
+
+![Vorschlag übernommen](bilder/de/geraet-anlegen-99-b-inspektor-uebernommen.jpg)
+
+Die Beispiele in diesen Bildern verwenden erfundene Antworten und ein Beispielbild, keinen echten Schlüssel.
+
+### Mit Rentman
+
+Steht das Gerät in einem Rentman-Projekt, legen Sie es nicht selbst an, sondern importieren es. Der Ablauf beginnt mit dem Rentman-Token unter *Einstellungen → Integrationen*, danach folgen *Datei → Rentman-Import…*, die Auswahl der Geräte, die *Kategorie-Zuordnung vor Import* und gegebenenfalls ein Konfliktdialog für Geräte, die schon unter diesem Namen existieren. Die Schritte mit allen Bildern stehen im Kapitel [Datei und Import](#rentman-import); die Ansichten des Reiters *Rentman* in der Bibliothek beschreibt [Rentman in der Bibliothek](#rentman-in-der-bibliothek).
+
+![Rentman-Import mit gewähltem Projekt](bilder/de/geraet-anlegen-113-c-projekt-gewaehlt.jpg)
+
+Beim Konflikt entscheiden Sie je Gerät, ob die lokale Version bleibt, das Gerät mit einem anderen lokalen Gerät verknüpft, durch die Rentman-Version überschrieben, in seinen Anschlüssen mit ihr zusammengeführt oder übersprungen wird. Das Zusammenführen öffnet den Dialog [Geräte zusammenführen](#geräte-zusammenführen).
+
+### Aus der Bibliothek weiterverarbeiten
+
+Ein vorhandenes Gerät dient als Ausgangspunkt für ein neues.
+
+1. Ziehen Sie den Bibliothekseintrag auf den Plan oder klicken Sie ihn an. Er erscheint als Gerät mit allen Anschlüssen der Vorlage.
+
+   ![Gerät aus der Bibliothek auf dem Plan](bilder/de/geraet-anlegen-59-d-ziehen.jpg)
+
+2. *Bearbeiten → Duplizieren* (**Strg/Cmd + D**) kopiert das markierte Gerät samt Anschlüssen.
+
+   ![Menü Bearbeiten](bilder/de/geraet-anlegen-62-d-bearbeiten-menue.jpg)
+
+   ![Das Duplikat neben dem Original](bilder/de/geraet-anlegen-63-d-duplizieren.jpg)
+
+3. Im Inspector tauscht der Abschnitt *Gerät ersetzen* ein platziertes Gerät gegen einen Eintrag der Bibliothek. *Anderes Gerät wählen…* öffnet eine Suche; die Rückfrage nennt, wie viele Anschlüsse gemappt werden und wie viele Kabel ihren Port verlieren und gelöscht würden.
+
+   ![Suche im Abschnitt Gerät ersetzen](bilder/de/geraet-anlegen-66-d-ersetzen-suche.jpg)
+
+   ![Rückfrage vor dem Ersetzen](bilder/de/geraet-anlegen-67-d-ersetzen-bestaetigen.jpg)
+
+   ![Das Gerät nach dem Ersetzen](bilder/de/geraet-anlegen-68-d-ersetzen-ergebnis.jpg)
+
+---
+
+## 6. Inspector
 
 Der Inspector ist die rechte Seitenleiste. Er zeigt die Eigenschaften dessen, was ausgewählt ist: eines Geräts, eines Kabels, eines Rahmens oder einer Bibliotheks-Vorlage. Die Kopfzeile nennt die Auswahl, zum Beispiel *Gerät: Camera 1*, *Kabel: CAM 1 → mixer* oder *Rahmen: Regie*.
 
@@ -1856,6 +2043,43 @@ Bei Kameras listet der Abschnitt je Steuerfunktion (Schwenken und Neigen, Zoom, 
 #### Steuerung über
 
 Für Geräte, deren Steuerschnittstellen die App kennt (etwa Kameras mit VISCA oder AW-Protokoll, HyperDeck, KUMO), zeigt dieser Abschnitt nur lesend je Schnittstelle: Protokoll, Übertragung (seriell, SDI oder IP), Anschluss, Baud, Format, Pinbelegung, Flusssteuerung, Mehrpunkt, Netzwerk-Port und für eine Netzwerk-Bridge Modus, Port und Pakete. Angaben, die nicht in der Herstellerdoku stehen, sind als *Nicht in der Herstellerdoku* markiert. *Quelle* verweist auf die Dokumentation.
+
+#### Kamera-Steuerung (Brücke)
+
+Bei Kameras steht dieser Abschnitt unter den Schnittstellen. Gefahren wird ein Kamerakopf von der LZ Camera Bridge, einem Prozess im Regieraum. Der Abschnitt sagt ihr, wie sie den Kopf erreicht, schickt ihr den Raum und zeigt, was sie meldet. Die Zeile neben dem Titel nennt den Stand: *noch nicht auf der Brücke*, *Brücken-Slot n* oder *Brücken-Slot n · online*.
+
+![Der Abschnitt Kamera-Steuerung](bilder/de/kamerasteuerung-02-abschnitt.jpg)
+
+| Feld oder Knopf | Bedeutung |
+|---|---|
+| *Brücke (Raum)* und *Port* | Adresse der Brücke im Raum; der Port steht auf 9700. Sie gelten für das ganze Projekt. |
+| *Verbinden* / *Trennen* | baut die Verbindung auf oder ab; der Zustand steht daneben als *Brücke verbunden* oder *Brücke nicht verbunden*. *Verbinden* bleibt gesperrt, solange keine Adresse eingetragen ist. |
+| *Steuerweg* | wie die Brücke diesen Kopf erreicht: *– nicht erklärt –*, *Not remote-controlled*, *VISCA over IP*, *HTTP-CGI (Vissonic / PTZOptics, Sony SRG)*, *Panasonic AW PTZ*, *BirdDog*, *JVC ConnectedCam*, *Canon CCAPI*, *Blackmagic REST*, *Z CAM*, *Panasonic Lumix*, *Sony Monitor & Control*, *Sony CCU (700PTP)*, *VISCA RS-232 (at the bridge)*, *Sony RS-422 (at the bridge)*, *Sony USB (at the bridge)*, *DJI Ronin gimbal* und *DJI Osmo Pocket gimbal* |
+| *Firmware-Familie* | nur bei *HTTP-CGI*: *Vissonic / PTZOptics* oder *Sony SRG / BRC* |
+| *Steuer-Port* | Port des Kopfs; leer heißt *auto* |
+| Hinweiszeile | die IP-Adresse kommt aus dem Abschnitt *Netzwerk*; ohne sie steht dort *noch keine IP-Adresse — im Abschnitt Netzwerk setzen* |
+
+![Liste der Steuerwege](bilder/de/kamerasteuerung-05-steuerweg-liste.jpg)
+
+![Steuerweg HTTP-CGI mit Firmware-Familie](bilder/de/kamerasteuerung-06-steuerweg-http-cgi.jpg)
+
+*Raum an die Brücke schicken* ist bei bestehender Verbindung bedienbar. Es ersetzt die Kameras der Brücke durch die Kameras dieses Plans mit Adresse, Steuerweg, Stream, Ausrichtung und Shots. Die Brücke verbindet sie selbst und behält sie über Neustarts. Danach steht *n Kamera(s) geschickt*; Kameras ohne IP-Adresse oder ohne Steuerweg erscheinen unter *zurückgeblieben:*. Jede geschickte Kamera erhält ihre Slot-Nummer von der Brücke.
+
+Hat die Kamera einen Slot und ist die Brücke verbunden, kommen dazu:
+
+- *Kopf online* oder *Kopf offline* mit dem Knopf *Kopf verbinden*, das Tally *PGM* oder *PVW*, die Pose (*Pan … ° · Tilt … °*, bei Zoom auch dessen Anteil) und *Pose lesen*;
+- *Livebild von der Brücke zeigen*, sofern der Slot eine Stream-Adresse hat;
+- ein Steuerkreuz: Halten fährt, Loslassen stoppt; *⌂* fährt in die Grundstellung. Dazu kommen Tasten für Zoom und Fokus (*T/W* Zoom, *N/F* Fokus) und *AF*;
+- die *Zoomkurve* mit *Punkt aufnehmen* (Brennweite in mm, am Objektiv abgelesen) und *Kurve löschen*;
+- *Geplante Shots*: je Shot *Abrufen* (das im Kopf gespeicherte Preset), *Anfahren* (die geplante Pose) und *Kopf steht hier* mit anschließender Bestätigung, wodurch die Differenz zum Plan der Offset aller Shots wird. *Alle Shots im Kopf speichern* braucht einen zweiten Klick zur Bestätigung; *Offset löschen* nimmt den Offset wieder weg.
+
+#### Videowand
+
+*Videowand (Livebilder)…* im Abschnitt *Kamera-Steuerung (Brücke)* öffnet den Dialog *Videowand*. Er zeigt die Livebilder aller Kameras dieses Plans, die auf der Brücke einen Slot haben, als Kacheln. Das Fenster hat keinen Menüeintrag.
+
+![Der Dialog Videowand ohne Brücke](bilder/de/kamerasteuerung-03-videowand.jpg)
+
+Oben rechts stehen die Adresse der Brücke mit dem Zustand (ohne Adresse: *keine Brücken-Adresse in diesem Projekt*) und der Knopf *Bilder neu laden*. Ohne Kamera auf der Brücke steht *Noch keine Kamera dieses Plans ist auf der Brücke. Öffne eine Kamera, setze Steuerweg und Stream, und schicke den Raum an die Brücke.* Jede Kachel trägt unten *CAM n*, den Gerätenamen und bei Tally *PGM* oder *PVW*; der obere Rand färbt sich bei Programm und Vorschau. Fehlt der Kamera die Stream-Adresse, steht *keine Stream-Adresse*, fehlt sie auf der Brücke, *nicht auf der Brücke*. Bis zu vier Kacheln stehen in zwei Spalten, bis zu neun in drei, mehr in vier.
 
 #### Stromverbrauch
 
@@ -2098,7 +2322,61 @@ Ein Klick auf einen Rahmen zeigt seine Eigenschaften.
 
 ---
 
-## 6. Datei und Import
+## 7. Rack
+
+Ein Rack fasst Geräte in 19-Zoll-Höheneinheiten (HE) zusammen und verhält sich im Plan wie ein einzelnes Gerät. Dieses Kapitel führt den Weg eines Racks entlang: anlegen, speichern, platzieren, nachträglich bearbeiten, für das Lager übergeben und löschen. Die Einzelheiten des Rack-Builders (Patchblende, Shelf, 3D, STL, Konflikte, Export) stehen im Kapitel [Werkzeuge: Bauen](#11-werkzeuge-bauen), die Karten des Reiters *Racks* im Kapitel [Bibliothek](#4-bibliothek).
+
+| Schritt | Wo | Beschrieben in |
+|---|---|---|
+| Anlegen | *Werkzeuge → Neues Rack erstellen…*, *+ Neues Rack* im Reiter *Racks*, oder markierte Geräte im Rack-Builder anordnen | [Werkzeuge: Bauen](#11-werkzeuge-bauen), [Canvas](#3-canvas) |
+| Speichern | *Rack speichern* im Rack-Builder legt eine Karte im Reiter *Racks* ab | [Werkzeuge: Bauen](#11-werkzeuge-bauen) |
+| Platzieren | Klick auf die Karte | dieses Kapitel |
+| Bearbeiten | *Rack-Editor öffnen* am platzierten Rack, Stift an der Karte | dieses Kapitel |
+| Fürs Lager | *Fürs Lager* im Reiter *Racks* | dieses Kapitel |
+
+### Gespeicherte Racks
+
+Der Reiter *Racks* der Bibliothek (Überschrift *2D Rack Builder*) zeigt jedes gespeicherte Rack als Karte mit der Zahl der Geräte, der HE und der Kabel sowie den Gerätenamen. Ohne gespeicherte Racks steht *Noch kein Rack-Layout gespeichert.*
+
+![Der Reiter Racks mit einer Karte](bilder/de/rack-01-racks-reiter.jpg)
+
+Beim Zeigen auf die Karte erscheinen drei Knöpfe: der Stift (*Im 2D-Rack-Builder bearbeiten*), *Exportieren* (eine Kopie als Datei in den Downloads-Ordner) und das rote **×** (*Rack aus Library entfernen*).
+
+![Die Karte mit ihren Knöpfen](bilder/de/rack-02-karte-hover.jpg)
+
+### Ein Rack auf dem Plan platzieren
+
+1. Öffnen Sie den Reiter *Racks* und klicken Sie die Karte an. Das Rack steht als ein Gerät auf dem Plan, mit dem Zusatz *(Rack)* im Namen.
+
+   ![Das platzierte Rack](bilder/de/rack-06-karte-platziert.jpg)
+
+   Auf dem Plan zeigt das Rack jedes enthaltene Gerät in seiner HE-Reihenfolge samt Anschlüssen. Die gestrichelten Linien im Rack sind die internen Kabel, die beim Speichern mitgenommen wurden. Von außen verbinden Sie die Anschlüsse der enthaltenen Geräte wie die jedes anderen Geräts.
+
+2. Ein Rechtsklick auf die Kopfzeile des Racks öffnet das Kontextmenü. *Rack-Editor öffnen* gibt es nur bei einem Rack; die übrigen Einträge sind die eines Geräts (*Anmerkung hinzufügen…*, *Geräte-Datenblatt…*, *Position sperren*, *Gerät löschen*).
+
+   ![Kontextmenü eines Racks](bilder/de/rack-07-blackbox-kontextmenue.jpg)
+
+### Ein platziertes Rack bearbeiten
+
+*Rack-Editor öffnen* öffnet den Rack-Builder für dieses Rack. Die Kopfzeile nennt den Namen und die Marke *Bearbeiten*. Sie ordnen Geräte neu an, ergänzen oder entfernen welche und ändern *Höhe (HE)* und *Tiefe (mm)*. Rechts zeigt die *Live-Preview*, wie das Rack auf dem Plan aussieht; die Fußzeile zählt Geräte, belegte HE und interne Kabel. *Speichern* übernimmt die Änderung, *Abbrechen* verwirft sie.
+
+![Der Rack-Builder für das platzierte Rack](bilder/de/rack-08-rack-editor-offen.jpg)
+
+### Fürs Lager
+
+*Fürs Lager* im Reiter *Racks* übergibt, was in jedem gespeicherten Rack sitzt, als Datei an den Inventory Planner, der es gegen das Rack-Case prüft. Danach nennt die App, wie viele Racks übergeben wurden (*1 Racks übergeben.*) und, falls es solche gibt, wie viele Geräte außerhalb ihres Racks sitzen und deshalb weggelassen wurden. Ohne gespeicherte Racks steht *Noch kein Rack-Layout zum Übergeben.*
+
+![Meldung nach Fürs Lager](bilder/de/rack-05-lager-meldung.jpg)
+
+### Ein Rack löschen
+
+Das rote **×** an der Karte fragt *Rack „…" löschen?* mit *Abbrechen* und *Löschen*. Das Löschen entfernt die Karte aus der Bibliothek.
+
+![Rückfrage vor dem Löschen](bilder/de/rack-04-karte-loeschen-frage.jpg)
+
+---
+
+## 8. Datei und Import
 
 Das Menü *Datei* hat vier Teile. Oben stehen Projekt anlegen, öffnen und speichern, darunter die Importe (*yEd / GraphML*, *MultiCam-Kameras*, *Equipment aus CSV*, *Rentman-Import*, *NetBox-Import*) und der Austausch ganzer Projekte (*.avplan*, *.avsourcemap*). Darauf folgen die Ausgaben *Patch-Liste…*, *Festinstallation: Doku & Übergabe…*, *Stage-Plot*, *Exportieren & Drucken…*, die Cloud, die Viewer-Datei und die Einträge für Rentman. Diese Ausgaben beschreibt das Kapitel *Exportieren und Drucken*. *Rentman-Import…* und *NetBox-Import…* stehen nur im Menü, wenn die Integration unter *Einstellungen → Integrationen* eingeschaltet ist. *Verknüpfte Venue-Planung ansehen…* erscheint nur, wenn das Projekt eine verknüpfte Venue-Planung enthält.
 
@@ -2424,6 +2702,20 @@ Danach öffnet *Kategorie-Zuordnung vor Import*. Jedem Gerät ordnen Sie eine lo
 
 Gibt es Geräte schon unter demselben Namen, erscheint pro Gerät ein Konflikt-Dialog. Vorgabe ist *Lokale Version beibehalten (empfohlen)*, damit eigene Port-Belegungen erhalten bleiben. Weitere Aktionen sind *Mit anderem lokalem Gerät verknüpfen*, *Mit Rentman-Version überschreiben*, *Ports mergen* und *Überspringen (nicht importieren)*. *Alle setzen:* wendet *Lokal beibehalten*, *Rentman übernehmen* oder *Überspringen* auf alle Zeilen an. Die Meldung am Ende nennt, wie viele Geräte zur Library hinzugefügt wurden.
 
+#### Geräte zusammenführen
+
+Wählen Sie im Konfliktdialog für ein Gerät *Ports mergen*, öffnet sich nach *Weiter* für jedes solche Gerät der Dialog *Geräte zusammenführen*. Er baut aus der lokalen und der Rentman-Fassung eine neue Vorlage. Oben steht *Wählen, welche Inputs/Outputs aus Lokal und Rentman übernommen werden.*
+
+| Element | Bedeutung |
+|---|---|
+| *Zielkategorie* | Kategorie der zusammengeführten Vorlage; Voreinstellung ist die Kategorie aus der Kategorie-Zuordnung |
+| *Gewählte Ports* | Zahl der angehakten Anschlüsse |
+| *Vorschau* | Ergebnis als *n In / m Out* |
+| Spalte *Lokal* | Inputs und Outputs der lokalen Vorlage, je mit Haken, Name und Steckertyp; zu Beginn sind alle angehakt |
+| Spalte *Rentman* | Inputs und Outputs der Rentman-Fassung; zu Beginn ist keiner angehakt |
+
+*Merge speichern* legt die Vorlage an. Sie behält den Namen der lokalen Vorlage. Höhe in HE, Front- und Rückbild übernimmt sie aus der Rentman-Fassung, wenn diese sie kennt; die Notizen beider Fassungen stehen untereinander. Ohne Zielkategorie meldet die App *Kategorie wählen*, ohne angehakten Anschluss *Port wählen*. *Abbrechen* verwirft alle Zusammenführungen und beendet den Import, bevor etwas in die Bibliothek geschrieben wurde. Sind mehrere Geräte zusammenzuführen, folgt der Dialog je Gerät nacheinander; nach dem letzten läuft der Import weiter.
+
 ### NetBox-Import
 
 *Datei → NetBox-Import…* liest eine Site oder ein Rack aus NetBox und legt Geräte, Ports und Verbindungen als Kabelplan an.
@@ -2523,7 +2815,7 @@ Stammt ein Projekt aus einer `.avplan`, die Raum-, Kamera- oder Lichtdaten eines
 
 ---
 
-## 7. Exportieren und Drucken
+## 9. Exportieren und Drucken
 
 Alles, was den Plan als Blatt, Liste oder Datei verlässt, steht im Menü *Datei*. Die Einträge im Überblick:
 
@@ -3046,7 +3338,7 @@ Mit Ausgaben nennt die Kopfzeile die Zahl der Einträge zu diesem Projekt und wi
 
 ---
 
-## 8. Werkzeuge: Planen
+## 10. Werkzeuge: Planen
 
 Das Menü *Werkzeuge* gliedert sich in fünf Gruppen: *Berechnen*, *Prüfen*, *Planen*, *Erstellen & verwalten* und *Geräte-Konfiguration*. Dieses Kapitel beschreibt die Rechner, die Prüfungen und die Werkzeuge zum Erfassen und Planen vor Ort. Die übrigen Einträge der Gruppen *Planen* und *Erstellen & verwalten* stehen im Kapitel „Werkzeuge: Bauen“. Alle Dialoge öffnen sich über *Werkzeuge* und lassen sich mit dem **×** oder Esc schließen.
 
@@ -3485,9 +3777,9 @@ Zu jedem Ziel prüft die App und meldet zum Beispiel *Kein Stream-Key hinterlegt
 
 ---
 
-## 9. Werkzeuge: Bauen
+## 11. Werkzeuge: Bauen
 
-Das Menü *Werkzeuge* hat fünf Gruppen: *Berechnen*, *Prüfen*, *Planen*, *Erstellen & verwalten* und *Geräte-Konfiguration*. Dieses Kapitel beschreibt die Einträge der Gruppe *Planen* ab *LED-Wand…* sowie die Gruppen *Erstellen & verwalten* und *Geräte-Konfiguration*. Die Rechner, die Prüfungen und die übrigen Einträge der Gruppe *Planen* stehen im Kapitel [Werkzeuge: Planen](#8-werkzeuge-planen). Patch-Liste, Festinstallation, Stage Plot und *Exportieren & Drucken…* stehen im Menü *Datei* und im Kapitel [Exportieren und Drucken](#7-exportieren-und-drucken).
+Das Menü *Werkzeuge* hat fünf Gruppen: *Berechnen*, *Prüfen*, *Planen*, *Erstellen & verwalten* und *Geräte-Konfiguration*. Dieses Kapitel beschreibt die Einträge der Gruppe *Planen* ab *LED-Wand…* sowie die Gruppen *Erstellen & verwalten* und *Geräte-Konfiguration*. Die Rechner, die Prüfungen und die übrigen Einträge der Gruppe *Planen* stehen im Kapitel [Werkzeuge: Planen](#10-werkzeuge-planen). Patch-Liste, Festinstallation, Stage Plot und *Exportieren & Drucken…* stehen im Menü *Datei* und im Kapitel [Exportieren und Drucken](#9-exportieren-und-drucken).
 
 Die Gruppe *Geräte-Konfiguration* erscheint nur, wenn der Plan ein passendes Gerät enthält: *ATEM Multiviewer-Layout…* bei einem ATEM oder Multiviewer, *ATEM Audio-Routing…* und *ATEM Input-Labels…* bei einem ATEM, *Videohub-Routing / Labels…* bei einem Videohub und *GreenGo-Intercom…* bei einem GreenGo-Gerät. Dieselben Werkzeuge stehen im Inspector im Abschnitt *Werkzeuge für dieses Gerät*. *Lager / Bestand…* erscheint, wenn das Modul Vermietung eingeschaltet ist.
 
@@ -3923,7 +4215,7 @@ Der Dialog *KI-Plan-Generierung* erzeugt einen Entwurf aus einer Beschreibung od
 
 *Werkzeuge → Revisionen & Snapshots…*
 
-Eine Revision speichert einen vollständigen Stand des Plans unter einem Namen. Beim Wiederherstellen bleibt die Historie erhalten. Die letzte Revision erscheint im Titelblock der Ausgaben, bei einer As-Built-Revision mit dem Zusatz *(As-Built)*. Zwei Stände miteinander vergleichen Sie über *Datei → Plan-Stände vergleichen…*, siehe [Exportieren und Drucken](#7-exportieren-und-drucken).
+Eine Revision speichert einen vollständigen Stand des Plans unter einem Namen. Beim Wiederherstellen bleibt die Historie erhalten. Die letzte Revision erscheint im Titelblock der Ausgaben, bei einer As-Built-Revision mit dem Zusatz *(As-Built)*. Zwei Stände miteinander vergleichen Sie über *Datei → Plan-Stände vergleichen…*, siehe [Exportieren und Drucken](#9-exportieren-und-drucken).
 
 1. Öffnen Sie *Werkzeuge → Revisionen & Snapshots…*. Der Abschnitt *Aktuellen Stand festschreiben* hat *Label* (zum Beispiel „A“ oder „Rev 2“), *Notiz: was hat sich geändert?* und das Kästchen *As-Built*. Solange keine Revision existiert, steht *Noch keine Revisionen festgeschrieben.*
 
@@ -4212,7 +4504,90 @@ Der Dialog *GreenGo Intercom-Planung* plant ein Green-GO-System: Stationen, Komm
 
 ---
 
-## 10. Einstellungen
+## 12. Zusammenarbeit
+
+Mehrere Personen können an einem Plan arbeiten. Die App kennt dafür zwei Wege: die **Live-Kollaboration**, bei der alle denselben Plan gleichzeitig bearbeiten, und das **Sync-Verzeichnis**, über das ein Plan abwechselnd weitergegeben wird. Dieses Kapitel beschreibt, wie Sie beide benutzen. Alle Felder der Einstellungen beschreibt das Kapitel [Einstellungen](#13-einstellungen) im Reiter *Netzwerk-Sync*.
+
+| Weg | Wann | Gleichzeitig arbeiten |
+|---|---|---|
+| Live-Kollaboration | Alle sind gerade am Plan: im selben Fenster-Verbund, im selben Netz oder über das Internet. | ja |
+| Sync-Verzeichnis | Der Plan wandert über einen Netzwerkordner von Person zu Person. | nein, jeweils eine Person |
+
+### Live-Kollaboration
+
+Die Änderungen aller Teilnehmer werden ohne Server zusammengeführt, auch nach einer kurzen Trennung. Die Funktion trägt die Kennzeichnung *Beta*. Sie steht unter *Einstellungen → Netzwerk-Sync*.
+
+#### Eine Session starten
+
+1. Öffnen Sie *Einstellungen → Netzwerk-Sync*. Der Kasten *Live-Kollaboration (Beta)* zeigt oben rechts den Zustand *Aus*.
+2. Tragen Sie unter *Dein Anzeigename* ein, wie die anderen Sie sehen, und unter *Raumname* einen Namen für die Session, zum Beispiel `show-2026`. Der Raumname ist Pflicht: Ohne ihn bleibt *Session starten* gesperrt.
+
+   ![Name und Raum eingetragen](bilder/de/zusammenarbeit-02-name-und-raum.jpg)
+
+3. Wählen Sie bei *Modus*, wo die anderen sitzen:
+
+   - *Dieses Gerät (mehrere Fenster)*: nur Fenster auf diesem Rechner.
+   - *Netzwerk (LAN/WAN, P2P)*: andere Rechner, im selben Netz oder über das Internet. Dieser Modus zeigt zusätzlich *Signaling-Server*, *Nur lokal*, *Raum-Passwort (optional)* und *STUN-/TURN-Server (optional)*; die Felder erklärt das Kapitel [Einstellungen](#13-einstellungen).
+
+   ![Modus Netzwerk](bilder/de/zusammenarbeit-04-modus-netzwerk.jpg)
+
+   Im Modus *Netzwerk* ohne *Raum-Passwort* warnt die App rot: Der Raum ist dann unverschlüsselt, und jeder, der Raumnamen und Signaling-Server kennt oder die Session im LAN findet, kann das ganze Projekt lesen. Setzen Sie ein Passwort und geben Sie es nur an Ihr Team.
+
+4. *Session starten* eröffnet die Session. Der Kasten zeigt *Verbunden — Änderungen werden live geteilt*, darunter die Teilnehmer als farbige Kreise mit Initialen. Solange Sie allein sind, steht dort *Nur du im Raum* und der Hinweis, dass andere mit demselben Raumnamen beitreten.
+
+   ![Laufende Session](bilder/de/zusammenarbeit-06-sitzung-laeuft.jpg)
+
+Während die Session läuft, sind *Modus* und *Raumname* gesperrt.
+
+#### Der Zustand in der Statusleiste
+
+Solange eine Session läuft, steht in der Statusleiste unten das grüne Zeichen *Live · n*; *n* ist die Zahl der Teilnehmer. Ein Klick darauf öffnet *Einstellungen → Netzwerk-Sync* mit Teilnehmern und Einladung.
+
+![Statusleiste mit dem Zeichen Live](bilder/de/zusammenarbeit-08-statusleiste-live.jpg)
+
+![Klick auf Live öffnet den Reiter](bilder/de/zusammenarbeit-09-statusleiste-klick.jpg)
+
+#### Beitreten
+
+Es gibt zwei Wege, einer laufenden Session beizutreten. In beiden Fällen **ersetzt Beitreten Ihren aktuellen Plan durch den des Gastgebers**; steht schon ein Plan im Fenster, fragt die App vorher nach (*Beitreten und ersetzen*).
+
+- **Im Netzwerk suchen** (nur Desktop-App): Der Kasten *Sessions im Netzwerk* hat den Knopf *Im Netzwerk suchen*. Er durchsucht das lokale Netz nach laufenden Sessions. Jede gefundene steht mit Projektname, Gastgeber und Raum in der Liste und hat einen Knopf *Beitreten*. Ohne Treffer steht dort *Noch keine offene Session gefunden.*
+
+  ![Suche im Netz ohne Treffer](bilder/de/zusammenarbeit-03-suche-im-netz.jpg)
+
+- **Einladungslink**: Der Gastgeber klickt in der laufenden Session auf *Einladung kopieren*; das Feld meldet kurz *Kopiert*. In der Zwischenablage liegen die Zeile *Live-Session im LZ Cable Planner beitreten:* und ein Link. Raum, Modus, Signaling-Server und Passwort stecken kodiert im Linkteil nach `#join=`, der nicht an einen Server gesendet wird. Ein gesetztes Raum-Passwort steht ebenfalls im Link; geben Sie ihn nur an Ihr Team weiter. Wer den Link öffnet, sieht *Zur Live-Session „Raum · Gastgeber" beitreten? Dein aktueller Plan wird durch den des Hosts ersetzt.* und tritt mit *Beitreten* bei. STUN-/TURN-Zugangsdaten stehen nicht im Link.
+
+  ![Einladung kopiert](bilder/de/zusammenarbeit-07-einladung-kopiert.jpg)
+
+#### Die Session verlassen
+
+*Verlassen* (roter Knopf im Kasten) beendet Ihre Teilnahme. Der Zustand springt auf *Aus*, die Felder werden wieder frei, das Zeichen *Live* verschwindet aus der Statusleiste.
+
+![Nach dem Verlassen](bilder/de/zusammenarbeit-10-verlassen.jpg)
+
+### Sync-Verzeichnis
+
+Ein gemeinsames Verzeichnis (verbundenes FTP-Laufwerk, Netzwerkpfad oder lokaler Ordner) trägt Projekt, Bibliothek und Presets als JSON-Dateien. Dieser Weg braucht die Desktop-App und kennt kein gleichzeitiges Arbeiten: Wer schreibt, sperrt das Verzeichnis.
+
+1. Tragen Sie in *Einstellungen → Netzwerk-Sync* das *Sync-Verzeichnis* und Ihren *Benutzernamen (für Lock-Anzeige)* ein und speichern Sie.
+2. In der Kopfleiste erscheinen *Push* und *Pull*.
+
+   ![Push und Pull in der Kopfleiste](bilder/de/zusammenarbeit-12-push-pull-kopfleiste.jpg)
+
+3. *Push* schreibt Ihren Stand ins Verzeichnis: `cable-planner.project.json`, `cable-planner.library.json` und `cable-planner.presets.json`. *Pull* lädt diese Dateien in Ihren aktuellen Stand. Die Meldung nennt, was geladen wurde (Projekt, Bibliothek, Presets), oder dass keine Sync-Dateien im Verzeichnis liegen.
+4. Eine Sperrdatei verhindert, dass zwei Personen gleichzeitig schreiben. Ist das Verzeichnis gesperrt, nennt die Meldung *Verzeichnis ist gesperrt von: Name*. Die Sperre verfällt nach zwei Stunden.
+
+*Bibliothek jetzt synchronisieren* gleicht außerdem Gerätevorlagen, Gruppen und Kategorien mit `cable-planner.library.json` im Verzeichnis ab, nach Namen; lokale Vorlagen werden dabei nie überschrieben.
+
+### Weitere Wege, einen Plan zu teilen
+
+- Der Plan als Datei: *Datei → Gesamtprojekt exportieren (.avplan)…* und auf der anderen Seite *Datei → Öffnen…*, beschrieben im Kapitel [Datei und Import](#8-datei-und-import).
+- Das Handy im selben Netz: *Handy-Zugriff* zeigt Patchliste und Steck-Check, beschrieben im Kapitel [Web-Ausgabe und Tablet](#15-web-ausgabe-und-tablet).
+- Die Rückmeldung an Rentman: [Exportieren und Drucken](#9-exportieren-und-drucken).
+
+---
+
+## 13. Einstellungen
 
 ### Einstellungen öffnen
 
@@ -4744,7 +5119,7 @@ Ohne *Gültig bis* gilt ein Nachweis nicht als unbefristet, sondern als „keine
 
 ---
 
-## 11. Claude (MCP)
+## 14. Claude (MCP)
 
 Claude beantwortet Fragen zum offenen Plan — Geräte, Anschlüsse, Signalwege,
 Kabel und Plan-Check —, durchsucht die Gerätebibliothek und prüft den Plan
@@ -4784,7 +5159,7 @@ Schaltbefehle für ATEM oder Videohub werden nie angeboten.
 
 ---
 
-## 12. Web-Ausgabe und Tablet
+## 15. Web-Ausgabe und Tablet
 
 - **https://larszu.github.io/cable-planner/** öffnen und zum Home-Bildschirm
   hinzufügen; sie läuft dann im Vollbild mit eigenem Symbol.
@@ -4797,7 +5172,7 @@ Schaltbefehle für ATEM oder Videohub werden nie angeboten.
 
 ---
 
-## 13. Daten, Sicherheit und Fehlerbehebung
+## 16. Daten, Sicherheit und Fehlerbehebung
 
 - **Projekte**: lokale JSON-Dateien, atomar geschrieben mit Sicherungskopie.
 - **App-Daten** (Bibliothek, letzte Projekte, Einstellungen) liegen im

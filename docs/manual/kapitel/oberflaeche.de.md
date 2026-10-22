@@ -42,7 +42,7 @@ In einem schmalen Fenster rückt die Kopfleiste zusammen; die Menüs bleiben err
 
 #### Menüs Datei und Werkzeuge
 
-Das Menü *Datei* enthält Anlegen, Öffnen, Speichern, die Importe und die Exporte. Die Einträge beschreiben die Kapitel [Datei und Import](#6-datei-und-import) und [Exportieren und Drucken](#7-exportieren-und-drucken).
+Das Menü *Datei* enthält Anlegen, Öffnen, Speichern, die Importe und die Exporte. Die Einträge beschreiben die Kapitel [Datei und Import](#8-datei-und-import) und [Exportieren und Drucken](#9-exportieren-und-drucken).
 
 ![Menü Datei](bilder/de/oberflaeche-07-menue-datei.jpg)
 
@@ -199,6 +199,19 @@ Das Panel *Anmerkungen* erscheint rechts. Es filtert nach *alle*, *offen*, *geba
 | Auf Updates prüfen… | | fragt nach einer neueren Version und meldet das Ergebnis |
 | Über LZ Cable Planner… | | öffnet den Dialog mit Version und Build |
 
+#### Auf Updates prüfen
+
+*Hilfe → Auf Updates prüfen…* fragt nach einer neueren Version und zeigt das Ergebnis als Meldung:
+
+| Meldung | Bedeutung |
+|---|---|
+| *Update-Prüfung nicht möglich* | *Updates sind nur in der installierten Desktop-Version verfügbar.* Im Browser und in einem nicht installierten Lauf gibt es keine Prüfung. |
+| *Update verfügbar* | *Version … wird im Hintergrund geladen und beim Beenden installiert.* Ist der Download fertig, bietet die App einen Neustart an. |
+| *Du verwendest bereits die neueste Version* | Die Meldung nennt die laufende Version. |
+| *Update-Prüfung fehlgeschlagen* | Die Prüfung ist mit einem Fehler abgebrochen. |
+
+Ist ein Update geladen, fragt *Update bereit*: *Version … ist geladen. Jetzt neu starten und aktualisieren?* mit *Jetzt neu starten* und *Später*. Das gilt auch für Updates, die die App von selbst geladen hat; ohne Neustart installiert sie beim Beenden.
+
 #### Befehlspalette
 
 ![Befehlspalette](bilder/de/oberflaeche-84-hilfe-befehlspalette.jpg)
@@ -219,6 +232,21 @@ Synonyme gelten in beiden Sprachen: *qr* findet zum Beispiel *Aufs Handy teilen�
 Passt nichts, steht *Keine Befehle gefunden* in der Liste.
 
 ![Keine Treffer](bilder/de/oberflaeche-89-palette-keine-treffer.jpg)
+
+**Befehle, die es nur in der Palette gibt.** Einige Befehle haben keinen Menüeintrag:
+
+| Befehl | Gruppe | Wirkung |
+|---|---|---|
+| *Zoom zurücksetzen (100%)* | *Ansicht* | stellt den Canvas auf 100 % Zoom |
+| *Neues Projekt aus Vorlage…* | *Datei* | öffnet die Projektvorlagen |
+| *Aus Rentman importieren…* | *Datei* | öffnet den Rentman-Import (nur mit eingeschaltetem Modul *Rentman*) |
+| *Aus NetBox importieren…* | *Datei* | öffnet den NetBox-Import (nur mit Modul *NetBox*) |
+| *Aufs Handy teilen…* | *Datei* | Patchliste und Steck-Check auf einem Handy im selben Netz (nur mit Modul *Mobile*) |
+| *DMX-Adressen vergeben…* | *Werkzeuge* | vergibt DMX-Adressen, siehe unten |
+| *Module ein- oder ausschalten…* | *Hilfe* | öffnet *Einstellungen → Module* |
+| *Einstellungen…* | *Hilfe* | öffnet die Einstellungen |
+
+*DMX-Adressen vergeben…* beginnt bei Universum 1, Adresse 1 und verteilt fortlaufend Adressen an alle Geräte, die ein DMX-Profil haben. Geräte mit festgesetzter Adresse behalten sie. Danach meldet die App *DMX-Adressen vergeben* und nennt, wie vielen Geräten sie eine Adresse gegeben hat und wie viele sie übersprungen hat, weil kein Modus gesetzt ist. Überschneidungen listet der Plan-Check.
 
 #### Tastaturkürzel
 
@@ -354,7 +382,7 @@ Der Knopf *Handy-Zugriff* in der Kopfleiste öffnet den gleichnamigen Dialog. Er
 | *Anlagen-Zugangscodes abrufbar machen* | gibt Intercom-Zugangscodes über einen zweiten Code frei; nur bei Projekten mit Intercom-Konfiguration wählbar |
 | *Hinweise zur Sicherheit* | klappt die Sicherheitshinweise auf |
 
-Der Server stoppt beim Schließen der App oder über den Stop-Knopf. Die mobile Ansicht beschreibt das Kapitel [Web-Ausgabe und Tablet](#12-web-ausgabe-und-tablet).
+Der Server stoppt beim Schließen der App oder über den Stop-Knopf. Die mobile Ansicht beschreibt das Kapitel [Web-Ausgabe und Tablet](#15-web-ausgabe-und-tablet).
 
 ![Hinweise zur Sicherheit](bilder/de/oberflaeche-107-handy-sicherheitshinweise.jpg)
 

@@ -42,7 +42,7 @@ In a narrow window the header contracts; the menus stay available.
 
 #### File and Tools menus
 
-The *File* menu holds new, open, save, the imports and the exports. Its entries are described in the chapters [File and Import](#6-file-and-import) and [Export & Print](#7-export--print).
+The *File* menu holds new, open, save, the imports and the exports. Its entries are described in the chapters [File and Import](#8-file-and-import) and [Export & Print](#9-export--print).
 
 ![File menu](bilder/en/oberflaeche-07-menue-datei.jpg)
 
@@ -199,6 +199,19 @@ The *Annotations* panel appears on the right. It filters by status with *all*, *
 | Check for updates… | | asks for a newer version and reports the result |
 | About LZ Cable Planner… | | opens the dialog with version and build |
 
+#### Check for updates
+
+*Help → Check for updates…* asks for a newer version and shows the result as a message:
+
+| Message | Meaning |
+|---|---|
+| *Update check unavailable* | *Updates are only available in the installed desktop version.* In the browser and in a run that is not installed there is no check. |
+| *Update available* | *Version … is downloading in the background and will install on quit.* When the download is finished, the app offers a restart. |
+| *You are up to date* | The message names the running version. |
+| *Update check failed* | The check ended with an error. |
+
+Once an update is downloaded, *Update ready* asks: *Version … has been downloaded. Restart now to update?* with *Restart now* and *Later*. This also applies to updates the app downloaded by itself; without a restart it installs on quit.
+
 #### Command palette
 
 ![Command palette](bilder/en/oberflaeche-84-hilfe-befehlspalette.jpg)
@@ -219,6 +232,21 @@ Synonyms work in both languages: *qr*, for example, finds *Share to phone…*.
 If nothing matches, the list shows *No commands found*.
 
 ![No matches](bilder/en/oberflaeche-89-palette-keine-treffer.jpg)
+
+**Commands that exist only in the palette.** Some commands have no menu entry:
+
+| Command | Group | Effect |
+|---|---|---|
+| *Reset zoom (100%)* | *View* | sets the canvas to 100 % zoom |
+| *New project from template…* | *File* | opens the project templates |
+| *Import from Rentman…* | *File* | opens the Rentman import (only with the module *Rentman* on) |
+| *Import from NetBox…* | *File* | opens the NetBox import (only with the module *NetBox*) |
+| *Share to phone…* | *File* | patch list and plug check on a phone in the same network (only with the module *Mobile*) |
+| *Assign DMX addresses…* | *Tools* | assigns DMX addresses, see below |
+| *Switch modules on or off…* | *Help* | opens *Settings → Modules* |
+| *Settings…* | *Help* | opens the settings |
+
+*Assign DMX addresses…* starts at universe 1, address 1 and hands out addresses one after another to all devices that have a DMX profile. Devices with a fixed address keep it. Afterwards the app reports *DMX addresses assigned* and says how many devices got an address and how many were skipped because no mode is set. Overlaps are listed by the plan check.
 
 #### Keyboard shortcuts
 
@@ -354,7 +382,7 @@ The *Phone access* button in the header opens the dialog *Mobile access*. It sta
 | *Make system access codes retrievable* | releases intercom access codes via a second code; selectable only for projects with an intercom configuration |
 | *Security notes* | expands the security notes |
 
-The server stops when the app closes or via the Stop button. The mobile view is described in the chapter [Web edition and tablet](#12-web-edition-and-tablet).
+The server stops when the app closes or via the Stop button. The mobile view is described in the chapter [Web edition and tablet](#15-web-edition-and-tablet).
 
 ![Security notes](bilder/en/oberflaeche-107-handy-sicherheitshinweise.jpg)
 
