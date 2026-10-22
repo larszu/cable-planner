@@ -195,7 +195,7 @@ async function lauf(sprache) {
   /** Volltext eines Ziels für die Beschreibung festhalten. */
   const T = async (name, loc = dlg()) => { try { texte[name] = await loc.first().innerText() } catch { texte[name] = '' } }
   const opts = async (name, sel) => { try { listen[name] = (await sel.locator('option').allInnerTexts()).map((s) => s.trim()) } catch { listen[name] = [] } }
-  const gl = (key, o = { exact: true }) => dlg().getByLabel(L(key), o)
+  const gl = (key, o = { exact: false }) => dlg().getByLabel(L(key), o).first()
   const scrollTo = async (loc) => { await loc.first().evaluate((el) => el.scrollIntoView({ block: 'start' })); await pause(250) }
   const scrollTop = async () => {
     await dlg().evaluate((d) => { d.querySelectorAll('*').forEach((e) => { if (e.scrollTop > 0) e.scrollTop = 0 }) })
@@ -250,18 +250,21 @@ async function lauf(sprache) {
   await S('projektion-offen', () => a.menue('app.menu.tools', 'app.menu.tools.projection'))
   await T('projektion-offen')
   await S('projektion-wurf-werte', async () => {
-    await gl('calc.projection.throwRatio').fill('2'); await gl('calc.projection.imageWidth', { exact: false }).fill('5'); await gl('calc.projection.roomDepth', { exact: false }).fill('12')
+    await gl('calc.projection.diagonal').fill('150'); await gl('calc.projection.throwRatio').fill('2'); await gl('calc.projection.roomDepth').fill('12')
   })
   await T('projektion-wurf-werte')
-  await S('projektion-bildgroesse', async () => { await dlg().getByRole('button', { name: L('calc.projection.tab.screen') }).click() })
-  await T('projektion-bildgroesse')
   await opts('projektion-seitenverhaeltnis', gl('calc.projection.aspect'))
-  await S('projektion-bildgroesse-werte', async () => { await gl('calc.projection.diagonal', { exact: false }).fill('200'); await selectByText(gl('calc.projection.aspect'), /21:9/) })
-  await T('projektion-bildgroesse-werte')
-  await S('projektion-led', async () => { await dlg().getByRole('button', { name: L('calc.projection.tab.led') }).click() })
+  await S('projektion-3d', async () => { await dlg().getByRole('radio', { name: L('calc.projection.view3d') }).or(dlg().getByRole('button', { name: L('calc.projection.view3d') })).first().click(); await pause(2500) })
+  await S('projektion-display', async () => {
+    await dlg().getByRole('radio', { name: L('calc.projection.view2d') }).or(dlg().getByRole('button', { name: L('calc.projection.view2d') })).first().click()
+    await dlg().getByRole('radio', { name: L('calc.projection.kind.display') }).or(dlg().getByRole('button', { name: L('calc.projection.kind.display') })).first().click()
+    await pause(500)
+  })
+  await T('projektion-display')
+  await S('projektion-led', async () => { await dlg().getByRole('radio', { name: L('calc.projection.tab.led') }).or(dlg().getByRole('button', { name: L('calc.projection.tab.led') })).first().click() })
   await T('projektion-led')
   await S('projektion-led-werte', async () => {
-    await gl('calc.projection.pitch', { exact: false }).fill('3.9'); await gl('calc.projection.ledWidth', { exact: false }).fill('5'); await gl('calc.projection.ledHeight', { exact: false }).fill('2.5')
+    await gl('calc.projection.pitch').fill('3.9'); await gl('calc.projection.ledWidth').fill('5'); await gl('calc.projection.ledHeight').fill('2.5')
   })
   await T('projektion-led-werte')
   await zuUndFrisch()
@@ -305,7 +308,7 @@ async function lauf(sprache) {
   await S('drum-technik', async () => { await dlg().getByRole('button', { name: /Glyn Johns/ }).click() })
   await T('drum-technik')
   await S('drum-zone', async () => { await dlg().locator('svg g').filter({ hasText: /^Kick/ }).first().click() })
-  await S('drum-mikro-dazu', async () => { await dlg().getByRole('button', { name: L('drum.addMic') }).click() })
+  await S('drum-mikro-dazu', async () => { await dlg().getByRole('button', { name: L('drum.addMic') }).first().click() })
   await S('drum-mikro-modell', async () => {
     const sel = dlg().locator('select').last()
     await opts('drum-mikrofone', sel)
@@ -313,7 +316,7 @@ async function lauf(sprache) {
   })
   await S('drum-phantom', async () => {
     await dlg().locator('svg g').filter({ hasText: /^OH L/ }).first().click()
-    await dlg().getByRole('button', { name: L('drum.addMic') }).click()
+    await dlg().getByRole('button', { name: L('drum.addMic') }).first().click()
     await selectByText(dlg().locator('select').last(), /C ?414|KM ?184|Condenser|MKH|AT4050|CM ?3|DPA/)
   })
   await T('drum-phantom')
@@ -348,7 +351,7 @@ async function lauf(sprache) {
     await opts('funk-kapseln', sel)
     await sel.evaluate((s) => { const o = [...s.options].filter((x) => x.value)[0]; s.value = o.value; s.dispatchEvent(new Event('change', { bubbles: true })) })
   })
-  await S('funk-frequenz', async () => { const i = dlg().locator('tbody tr').first().locator('input[type=number]'); await i.fill('606.4'); await i.blur() })
+  await S('funk-frequenz', async () => { const i = dlg().locator('tbody tr').first().locator('input[type=number]').first(); await i.fill('606.4'); await i.blur() })
   await S('funk-konflikt', async () => {
     await dlg().getByRole('button', { name: L('wireless.addChannel'), exact: true }).click()
     const r = dlg().locator('tbody tr').nth(1)
@@ -358,22 +361,22 @@ async function lauf(sprache) {
   await T('funk-konflikt')
   await S('funk-personen-sitzung', async () => {
     await scrollTo(dlg().getByText(L('micPlot.title')))
-    await dlg().getByRole('button', { name: L('micPlot.addSession') }).click()
+    await dlg().getByRole('button', { name: L('micPlot.addSession') }).first().click()
   })
-  await S('funk-person', async () => { await dlg().getByRole('button', { name: L('micPlot.addPerson') }).click() })
+  await S('funk-person', async () => { await dlg().getByRole('button', { name: L('micPlot.addPerson') }).first().click() })
   await S('funk-person-daten', async () => {
     await dlg().getByPlaceholder(L('micPlot.rolePh')).first().fill('Moderation')
     await dlg().locator('table').last().locator('tbody tr').first().locator('input').first().fill('Anna')
-    await dlg().locator('table').last().locator('tbody tr').first().getByRole('button', { name: L('micPlot.batterySet') }).click()
+    await dlg().locator('table').last().locator('tbody tr').first().getByRole('button', { name: L('micPlot.batterySet') }).first().click()
   })
-  await S('funk-person-doppelt', async () => { await dlg().getByRole('button', { name: L('micPlot.addPerson') }).click() })
+  await S('funk-person-doppelt', async () => { await dlg().getByRole('button', { name: L('micPlot.addPerson') }).first().click() })
   await T('funk-person-doppelt')
   await S('funk-person-zweiter-kanal', async () => {
     const r = dlg().locator('table').last().locator('tbody tr').nth(1)
     await r.locator('select').first().evaluate((s) => { s.value = s.options[1].value; s.dispatchEvent(new Event('change', { bubbles: true })) })
   })
-  await S('funk-zweite-sitzung', async () => { await dlg().getByRole('button', { name: L('micPlot.addSession') }).click() })
-  await S('funk-uebernehmen', async () => { await dlg().getByRole('button', { name: L('micPlot.carry') }).click() })
+  await S('funk-zweite-sitzung', async () => { await dlg().getByRole('button', { name: L('micPlot.addSession') }).first().click() })
+  await S('funk-uebernehmen', async () => { await dlg().getByRole('button', { name: L('micPlot.carry') }).first().click() })
   await T('funk-uebernehmen')
   await zuUndFrisch()
 
@@ -480,66 +483,66 @@ async function lauf(sprache) {
   // 8.3 Kosten
   await S('kosten-leer', () => inTab(2)); await T('kosten-leer')
   await S('kosten-rahmen', async () => {
-    await dlg().getByLabel(L('analysis.cost.currency'), { exact: true }).fill('EUR')
-    await dlg().getByLabel(L('analysis.cost.tolerance'), { exact: true }).fill('10')
+    await dlg().getByLabel(L('analysis.cost.currency'), { exact: false }).first().fill('EUR')
+    await dlg().getByLabel(L('analysis.cost.tolerance'), { exact: false }).first().fill('10')
   })
-  await S('kosten-zeile', async () => { await dlg().getByRole('button', { name: L('analysis.cost.add') }).click() })
+  await S('kosten-zeile', async () => { await dlg().getByRole('button', { name: L('analysis.cost.add') }).first().click() })
   await S('kosten-zeile-werte', async () => {
-    await dlg().getByLabel(L('analysis.cost.label'), { exact: true }).first().fill('Kameras')
-    await selectByText(dlg().getByLabel(L('analysis.cost.anchor'), { exact: true }).first(), /Kamera 1/)
-    await dlg().getByLabel(L('analysis.cost.estimate'), { exact: true }).first().fill('5000')
-    await dlg().getByLabel(L('analysis.cost.actual'), { exact: true }).first().fill('5600')
+    await dlg().getByLabel(L('analysis.cost.label'), { exact: false }).first().first().fill('Kameras')
+    await selectByText(dlg().getByLabel(L('analysis.cost.anchor'), { exact: false }).first().first(), /Kamera 1/)
+    await dlg().getByLabel(L('analysis.cost.estimate'), { exact: false }).first().first().fill('5000')
+    await dlg().getByLabel(L('analysis.cost.actual'), { exact: false }).first().first().fill('5600')
   })
-  await opts('kosten-herkunft', dlg().getByLabel(L('analysis.cost.source'), { exact: true }).first())
+  await opts('kosten-herkunft', dlg().getByLabel(L('analysis.cost.source'), { exact: false }).first().first())
   await S('kosten-zweite', async () => {
-    await dlg().getByRole('button', { name: L('analysis.cost.add') }).click()
-    await dlg().getByLabel(L('analysis.cost.label'), { exact: true }).nth(1).fill('Verkabelung')
-    await dlg().getByLabel(L('analysis.cost.estimate'), { exact: true }).nth(1).fill('800')
+    await dlg().getByRole('button', { name: L('analysis.cost.add') }).first().click()
+    await dlg().getByLabel(L('analysis.cost.label'), { exact: false }).first().nth(1).fill('Verkabelung')
+    await dlg().getByLabel(L('analysis.cost.estimate'), { exact: false }).first().nth(1).fill('800')
   })
   await T('kosten-zweite')
 
   // 8.4 Crew
   await S('crew-leer', () => inTab(3)); await T('crew-leer')
   await S('crew-person', async () => {
-    await dlg().getByLabel(L('analysis.crew.name'), { exact: true }).fill('Max Beispiel')
-    await dlg().getByLabel(L('analysis.crew.company'), { exact: true }).fill('Freelance')
+    await dlg().getByLabel(L('analysis.crew.name'), { exact: false }).first().fill('Max Beispiel')
+    await dlg().getByLabel(L('analysis.crew.company'), { exact: false }).first().fill('Freelance')
     await dlg().getByRole('button', { name: L('analysis.crew.addPerson'), exact: true }).click()
   })
   await S('crew-band', async () => {
-    await dlg().getByLabel(L('analysis.crew.bandName'), { exact: true }).fill('Nacht')
+    await dlg().getByLabel(L('analysis.crew.bandName'), { exact: false }).first().fill('Nacht')
     await dlg().getByRole('button', { name: L('analysis.crew.addBand'), exact: true }).click()
   })
   await S('crew-satz', async () => {
-    await dlg().getByLabel(L('analysis.crew.activity'), { exact: true }).last().fill('Kamera')
-    await dlg().getByLabel(L('analysis.crew.hourly'), { exact: true }).last().fill('60')
+    await dlg().getByLabel(L('analysis.crew.activity'), { exact: false }).first().last().fill('Kamera')
+    await dlg().getByLabel(L('analysis.crew.hourly'), { exact: false }).first().last().fill('60')
     await dlg().getByRole('button', { name: L('analysis.crew.addRate'), exact: true }).click()
   })
   await S('crew-satz-regeln', async () => {
-    const r = dlg().getByLabel(L('analysis.crew.callout'), { exact: true }).first()
+    const r = dlg().getByLabel(L('analysis.crew.callout'), { exact: false }).first().first()
     await r.fill('50')
-    await dlg().getByLabel(L('analysis.crew.otAfter'), { exact: true }).first().fill('8')
-    await dlg().getByLabel(L('analysis.crew.otPercent'), { exact: true }).first().fill('25')
+    await dlg().getByLabel(L('analysis.crew.otAfter'), { exact: false }).first().first().fill('8')
+    await dlg().getByLabel(L('analysis.crew.otPercent'), { exact: false }).first().first().fill('25')
     await dlg().getByRole('checkbox', { name: 'Nacht' }).check()
   })
   await S('crew-schicht', async () => { await dlg().getByRole('button', { name: L('analysis.crew.addEntry'), exact: true }).click() })
   await S('crew-schicht-nacht', async () => {
-    await dlg().getByLabel(L('analysis.crew.end'), { exact: true }).first().fill('23:00')
+    await dlg().getByLabel(L('analysis.crew.end'), { exact: false }).first().first().fill('23:00')
   })
-  await opts('crew-buchungsstand', dlg().getByLabel(L('analysis.crew.booking'), { exact: true }).first())
+  await opts('crew-buchungsstand', dlg().getByLabel(L('analysis.crew.booking'), { exact: false }).first().first())
   await T('crew-schicht-nacht')
   await S('crew-auslage', async () => {
-    await dlg().getByLabel(L('analysis.crew.amount'), { exact: true }).fill('42,50')
-    await dlg().getByLabel(L('analysis.crew.receipt'), { exact: true }).fill('B-17')
+    await dlg().getByLabel(L('analysis.crew.amount'), { exact: false }).first().fill('42,50')
+    await dlg().getByLabel(L('analysis.crew.receipt'), { exact: false }).first().fill('B-17')
     await dlg().getByRole('button', { name: L('analysis.crew.addExpense'), exact: true }).click()
   })
-  await opts('crew-auslagenart', dlg().getByLabel(L('analysis.crew.expenseKind'), { exact: true }))
+  await opts('crew-auslagenart', dlg().getByLabel(L('analysis.crew.expenseKind'), { exact: false }).first())
   await S('crew-beleg-lesen', async () => {
     await scrollTo(dlg().getByText(L('analysis.crew.pasteReceipt')))
     await dlg().locator('#beleg-text').fill('Baumarkt Nord GmbH\n12.09.2026\nGaffa 3 Rollen 17,85\nSumme EUR 21,24\nMwSt 19 %')
   })
   await T('crew-beleg-lesen')
   await S('crew-zusage', async () => {
-    await dlg().getByLabel(L('analysis.crew.paste'), { exact: true }).fill('[09/09/26, 20:14] Max Mustermann: ja, mach die Überstunden')
+    await dlg().getByLabel(L('analysis.crew.paste'), { exact: false }).first().fill('[09/09/26, 20:14] Max Mustermann: ja, mach die Überstunden')
     await dlg().getByRole('button', { name: L('analysis.crew.addApproval') }).click()
   })
   await S('crew-uebergabe', async () => { await scrollBy(4000) })
@@ -549,12 +552,12 @@ async function lauf(sprache) {
   // 8.5 Namensregel
   await S('namen', () => inTab(4)); await T('namen')
   await S('namen-regel', async () => {
-    await dlg().getByLabel(L('analysis.naming.sep'), { exact: true }).first().fill('_')
-    await dlg().getByLabel(L('analysis.naming.case'), { exact: true }).selectOption('upper')
-    await dlg().getByLabel(L('analysis.naming.filter'), { exact: true }).selectOption('Audio')
+    await dlg().getByLabel(L('analysis.naming.sep'), { exact: false }).first().first().fill('_')
+    await dlg().getByLabel(L('analysis.naming.case'), { exact: false }).first().selectOption('upper')
+    await dlg().getByLabel(L('analysis.naming.filter'), { exact: false }).first().selectOption('Audio')
   })
   await T('namen-regel')
-  await opts('namen-schreibweise', dlg().getByLabel(L('analysis.naming.case'), { exact: true }))
+  await opts('namen-schreibweise', dlg().getByLabel(L('analysis.naming.case'), { exact: false }).first())
   await S('namen-anwenden', async () => { await dlg().getByRole('button', { name: L('analysis.naming.apply') }).click() })
   await T('namen-anwenden')
   await S('namen-aufnahme', async () => {
@@ -574,8 +577,8 @@ async function lauf(sprache) {
   await S('gewicht', () => inTab(6)); await T('gewicht')
   await S('strom-offen', async () => { await dlg().getByRole('button', { name: L('app.menu.tools.power') }).click() })
   await T('strom-offen')
-  await opts('strom-anschluss', dlg().getByLabel(L('calc.connectionType'), { exact: true }))
-  await S('strom-reserve', async () => { await dlg().getByLabel(L('calc.safetyReserve'), { exact: true }).fill('30') })
+  await opts('strom-anschluss', dlg().getByLabel(L('calc.connectionType'), { exact: false }).first())
+  await S('strom-reserve', async () => { await dlg().getByLabel(L('calc.safetyReserve'), { exact: false }).first().fill('30') })
   await S('strom-phasen', async () => { await scrollTo(dlg().getByText(L('calc.phaseDistribution'), { exact: false })) })
   await T('strom-phasen')
   await S('strom-phase-fix', async () => {
@@ -685,9 +688,9 @@ async function lauf(sprache) {
   await T('anschluss-offene')
   // 8.14 Blatt prüfen
   await S('blatt', () => inTab(13))
-  await S('blatt-unlesbar', async () => { await dlg().getByPlaceholder(/1a2b3c4d/).fill('xyz'); await dlg().getByRole('button', { name: L('analysis.sheet.check') }).click() })
+  await S('blatt-unlesbar', async () => { await dlg().getByPlaceholder(/1a2b3c4d/).fill('xyz'); await dlg().getByRole('button', { name: L('analysis.sheet.check') }).first().click() })
   await T('blatt-unlesbar')
-  await S('blatt-fremd', async () => { await dlg().getByPlaceholder(/1a2b3c4d/).fill('1a2b3c4d'); await dlg().getByRole('button', { name: L('analysis.sheet.check') }).click() })
+  await S('blatt-fremd', async () => { await dlg().getByPlaceholder(/1a2b3c4d/).fill('1a2b3c4d'); await dlg().getByRole('button', { name: L('analysis.sheet.check') }).first().click() })
   await T('blatt-fremd')
   await zuUndFrisch()
 
