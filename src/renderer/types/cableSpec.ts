@@ -69,6 +69,8 @@ export type SignalStandard =
   | 'Tally'
   | 'GPI/GPO'
   | 'HDBaseT'
+  /** #1095 — analog 4-wire talkback (balanced pairs on an RJ45, NOT Ethernet). */
+  | 'Talkback-4W'
   | 'Generic'
 
 /** All valid signal standard values in display order. */
@@ -85,7 +87,7 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP', 'LTC',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
   'RS-232', 'RS-422', 'RS-485', 'DMX512', 'RDM', 'Art-Net', 'sACN',
-  'CVBS', 'Y/C', 'YPbPr', 'RGBHV', 'MTC', 'Tally', 'GPI/GPO', 'HDBaseT',
+  'CVBS', 'Y/C', 'YPbPr', 'RGBHV', 'MTC', 'Tally', 'GPI/GPO', 'HDBaseT', 'Talkback-4W',
   'Power-230V', 'Fiber-SM', 'Fiber-MM', 'Generic',
 ]
 

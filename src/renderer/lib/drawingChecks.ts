@@ -197,6 +197,40 @@ export const runDrawingChecks = (
     }
   }
 
+  // — Check 2b: gleicher Stecker, andere Signalart (#1095) -------------------
+  // Eine RJ45-Buchse fuer analoges 4-Draht-Talkback passt mechanisch in jede
+  // Netzwerkbuchse — Check 2 sieht deshalb nichts. Die Signalart steht im
+  // Port-Standard; weicht sie ab, ist die Verbindung trotzdem falsch.
+  for (const c of cables) {
+    if (c.wireless || c.needsConverter) continue
+    const from = portById.get(c.fromPortId)
+    const to = portById.get(c.toPortId)
+    if (!from || !to || from.connectorType !== to.connectorType) continue
+    const talkback = (p: Port) => p.standard === 'Talkback-4W'
+    if (talkback(from) === talkback(to)) continue
+    findings.push({
+      id: `signal-mismatch:${c.id}`,
+      severity: 'warning',
+      category: 'Signal mismatch',
+      message:
+        (c.cableNumber ? c.cableNumber + ' · ' : '') +
+        format(
+          tr(
+            'check.signalMismatch',
+            '{from} ({fromSignal}) → {to} ({toSignal}): same connector ({connector}), different signal',
+          ),
+          {
+            from: eqName(c.fromEquipmentId),
+            fromSignal: from.standard ?? from.type,
+            to: eqName(c.toEquipmentId),
+            toSignal: to.standard ?? to.type,
+            connector: from.connectorType,
+          },
+        ),
+      cableId: c.id,
+    })
+  }
+
   // — Check 3: doppelte Kabelnummern (error) ---------------------------------
   const byNumber = new Map<string, Cable[]>()
   for (const c of cables) {
