@@ -56,7 +56,7 @@ export const ZEILEN_ENDE = {
 export type ZeilenAnfang = 'none' | 'stx'
 
 export const ZEILEN_ANFANG = {
-  none: { label: 'nichts', text: '' },
+  none: { label: 'nothing', text: '' },
   stx: { label: 'STX (0x02)', text: '\u0002' },
 } satisfies Record<ZeilenAnfang, { label: string; text: string }>
 

@@ -1,4 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import { translate } from '../src/renderer/lib/i18n'
+import { satzText, type Satz } from '../src/renderer/lib/satz'
+
+// Die Kurzfassung ist ein Satz; geprueft wird die deutsche Bildschirmfassung.
+const de = (s: Satz) => satzText(s, (k, en) => translate('de', k, en))
 import {
   CABLE_FIELD_CLASS,
   EQUIPMENT_FIELD_CLASS,
@@ -78,7 +83,7 @@ describe('planDiff — Verhalten', () => {
     expect(diff.entities).toEqual([])
     expect(diff.sections).toEqual([])
     expect(diff.unclassified).toEqual([])
-    expect(planDiffSummary(diff)).toBe('kein Unterschied')
+    expect(de(planDiffSummary(diff))).toBe('kein Unterschied')
   })
 
   it('trennt inhaltliche von blossen Darstellungs-Aenderungen', () => {
@@ -96,7 +101,7 @@ describe('planDiff — Verhalten', () => {
     expect(fieldOf(diff, 'c1', 'color')?.klass).toBe('cosmetic')
     expect(diff.substantive).toBe(1)
     expect(diff.cosmetic).toBe(1)
-    expect(planDiffSummary(diff)).toBe('1 inhaltlich, 1 nur Darstellung')
+    expect(de(planDiffSummary(diff))).toBe('1 inhaltlich, 1 nur Darstellung')
   })
 
   it('meldet die Aenderung eines Passworts, ohne einen der Werte zu zeigen', () => {
@@ -194,7 +199,7 @@ describe('planDiff — Verhalten', () => {
       klass: 'substantive',
     })
     expect(JSON.stringify(diff)).not.toContain('"alt"')
-    expect(planDiffSummary(diff)).toContain('1 unklassifizierte Felder')
+    expect(de(planDiffSummary(diff))).toContain('1 unklassifizierte Felder')
   })
 
   it('meldet keine Aenderung, wenn nur die Schluessel-Reihenfolge abweicht', () => {

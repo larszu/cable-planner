@@ -1,4 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import { translate } from '../src/renderer/lib/i18n'
+import { satzText, type Satz } from '../src/renderer/lib/satz'
+
+// Die Kurzfassung ist ein Satz; geprueft wird die deutsche Bildschirmfassung.
+const de = (s: Satz) => satzText(s, (k, en) => translate('de', k, en))
 import { changeImpact, changeImpactSummary } from '../src/renderer/lib/changeImpact'
 import {
   DOCUMENT_LABELS,
@@ -70,7 +75,7 @@ describe('changeImpact — die Vorwärts-Frage', () => {
     // Aus dem Register abgeleitet und nicht als Zahl getippt: die Liste der
     // unbeurteilbaren Dokumente WAECHST (Bedarf 26 hat vier dazugelegt), und
     // eine feste Zahl haette hier nur gesagt, dass jemand sie nachtippt.
-    expect(changeImpactSummary(impact)).toBe(
+    expect(de(changeImpactSummary(impact))).toBe(
       `${Object.keys(UNJUDGEABLE_DOCUMENTS).length} nicht beurteilbar`,
     )
   })
@@ -211,7 +216,7 @@ describe('changeImpact — die Vorwärts-Frage', () => {
 
   it('die Zusammenfassung verschweigt das Unbeurteilbare nicht', () => {
     const broken = { metadata: { name: 'x' } } as unknown as CablePlannerProject
-    expect(changeImpactSummary(changeImpact(broken, broken))).toContain('nicht beurteilbar')
+    expect(de(changeImpactSummary(changeImpact(broken, broken)))).toContain('nicht beurteilbar')
   })
 })
 

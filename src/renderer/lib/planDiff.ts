@@ -60,7 +60,7 @@ import { cableLabelId } from './docIds'
 import { csvFromTable, planFingerprint } from './documentStamp'
 import type { CsvCell, CsvTable } from './csv'
 import { kanonisch } from './kanonisch'
-import { satz, satzKanonisch } from './satz'
+import { kommaListe, satz, satzKanonisch, type Satz } from './satz'
 
 /**
  * Was eine Feld-Aenderung fuer die Arbeit bedeutet.
@@ -696,16 +696,21 @@ export const planDiff = (
   }
 }
 
-/** Einzeiler fuer eine Meldung; der Aufrufer uebersetzt (wie `changeImpact`). */
-export const planDiffSummary = (diff: PlanDiff): string => {
-  const parts: string[] = []
-  if (diff.substantive > 0) parts.push(`${diff.substantive} inhaltlich`)
-  if (diff.cosmetic > 0) parts.push(`${diff.cosmetic} nur Darstellung`)
-  if (diff.sections.length > 0) parts.push(`${diff.sections.length} weitere Bereiche`)
+/**
+ * Einzeiler fuer eine Meldung — als Satz, der Aufrufer rendert ihn ueber
+ * `satzText(s, t)`. Vorher kam hier fertiger deutscher Text heraus
+ * („3 inhaltlich, 1 nur Darstellung"), der so auch in der englischen
+ * Oberflaeche stand.
+ */
+export const planDiffSummary = (diff: PlanDiff): Satz => {
+  const parts: Satz[] = []
+  if (diff.substantive > 0) parts.push(satz('planDiff.summary.substantive', '{n} substantive', { n: diff.substantive }))
+  if (diff.cosmetic > 0) parts.push(satz('planDiff.summary.cosmetic', '{n} display only', { n: diff.cosmetic }))
+  if (diff.sections.length > 0) parts.push(satz('planDiff.summary.sections', '{n} other areas', { n: diff.sections.length }))
   if (diff.unclassified.length > 0) {
-    parts.push(`${diff.unclassified.length} unklassifizierte Felder`)
+    parts.push(satz('planDiff.summary.unclassified', '{n} unclassified fields', { n: diff.unclassified.length }))
   }
-  return parts.length > 0 ? parts.join(', ') : 'kein Unterschied'
+  return parts.length > 0 ? kommaListe(parts) : satz('planDiff.summary.none', 'no difference')
 }
 
 const CHANGE_LABEL: Record<EntityChange['change'], string> = {

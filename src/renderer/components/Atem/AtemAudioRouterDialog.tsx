@@ -32,6 +32,7 @@ import {
 import { format, useTranslation } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
 import { getEquipmentById } from '../../lib/equipmentSelectors'
+import { toolsForDevice } from '../../lib/deviceTools'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
 
 /**
@@ -54,8 +55,12 @@ export const AtemAudioRouterDialog = () => {
   const t = useTranslation()
   const { open, deviceId } = useUiStore((s) => s.atemAudioConfig)
   const close = useUiStore((s) => s.closeAtemAudioConfig)
+  // Aus dem Werkzeuge-Menue kommt keine deviceId — dann das erste ATEM im
+  // Plan nehmen, sonst blieb der Dialog zu und der Eintrag tat nichts.
   const equipment = useProjectStore((s) =>
-    getEquipmentById(s.project.equipment, deviceId),
+    deviceId
+      ? getEquipmentById(s.project.equipment, deviceId)
+      : s.project.equipment.find((e) => toolsForDevice(e).includes('atem-audio')),
   )
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const { containerRef, containerStyle, headerProps } = useDraggablePosition(

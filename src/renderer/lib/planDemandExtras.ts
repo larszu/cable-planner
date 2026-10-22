@@ -59,6 +59,7 @@ import type { CablePlannerProject } from '../types/project'
 import type { Port } from '../types/equipment'
 import { resolveDeviceType } from './deviceTypeRegistry'
 import { deriveDrumBom } from './drumMicing'
+import { satz, satzKanonisch } from './satz'
 
 /**
  * Eine Bedarfsposition, die nicht von einem `EquipmentItem` kommt.
@@ -253,7 +254,7 @@ export const zusatzBedarf = (
         label:
           vonTyp && nachTyp && vonTyp !== nachTyp
             ? `Adapter ${vonTyp} ↔ ${nachTyp}`
-            : `Adapter für „${c.name || c.type}"`,
+            : satzKanonisch(satz('rest.demand.adapterFor', 'Adapter for "{name}"', { name: c.name || c.type })),
         quantity: 1,
         herkunft: ADAPTER,
       })

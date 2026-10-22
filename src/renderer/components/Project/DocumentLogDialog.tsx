@@ -1,3 +1,4 @@
+import { satzText } from '../../lib/satz'
 import { useEffect, useState } from 'react'
 import { AlertTriangle, RefreshCw, Trash2 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -113,7 +114,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
     if (b.diff) {
       return (
         <span>
-          {planDiffSummary(b.diff)}
+          {satzText(planDiffSummary(b.diff), t)}
           {b.revisionLabel && (
             <span className="text-cp-text-muted">
               {' '}
@@ -200,7 +201,7 @@ export const DocumentLogDialog = ({ open, onClose }: DocumentLogDialogProps) => 
     >
       <div className="space-y-3 text-cp-sm">
         <div className="border border-cp-border-muted bg-cp-surface-2 p-2 text-cp-xs">
-          {reviewSummary(entries)}
+          {satzText(reviewSummary(entries), t)}
           {entries.length > 0 && (
             <span className="text-cp-text-muted">
               {' '}

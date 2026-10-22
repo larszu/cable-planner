@@ -34,7 +34,7 @@
 import type { AtemMvDefinition, EquipmentItem } from '../types/equipment'
 import { getMvGridSpec, getMvQuadrants, mvWindowIndex } from './atemMvLayout'
 import type { CsvTable } from './csv'
-import { type Satz, befundAls, satz } from './satz'
+import { type Satz, befundAls, kommaListe, satz, satzKanonisch } from './satz'
 import { kanonisch } from './kanonisch'
 
 /** Was auf dem Blatt steht, wo nichts belegt ist. */
@@ -48,13 +48,26 @@ export interface MvWindow {
   windowIndex: number
   /** Wo es auf dem Schirm sitzt, im Klartext („oben links", „unten rechts, Zelle 2"). */
   position: string
+  /** Dieselbe Stelle als Satz — fuer den Bildschirm, der der App-Sprache
+   *  folgt. `position` ist die kanonische (deutsche) Fassung fuers Blatt. */
+  place: Satz
   /** true: eines der grossen Fenster. */
   big: boolean
   /** ATEM-Quell-Id, wie sie im Profil steht. */
   sourceId?: number
 }
 
-const QUADRANT_NAME = ['oben links', 'oben rechts', 'unten links', 'unten rechts'] as const
+// Englische Quelle, Bildschirm ueber t(), Blatt kanonisch (`kanonischDe`).
+// Vorher stand hier der deutsche Klartext fest — und landete so auch in den
+// Befunden der englischen Oberflaeche („Fenster oben links … Zelle 1").
+const QUADRANT_SATZ: readonly Satz[] = [
+  satz('mv.pos.topLeft', 'top left'),
+  satz('mv.pos.topRight', 'top right'),
+  satz('mv.pos.bottomLeft', 'bottom left'),
+  satz('mv.pos.bottomRight', 'bottom right'),
+]
+const zelleSatz = (q: number, c: number): Satz =>
+  satz('mv.pos.cell', '{quadrant}, cell {n}', { quadrant: QUADRANT_SATZ[q], n: c })
 
 /**
  * Die Fenster eines Multiviewers, in Lese-Reihenfolge.
@@ -74,7 +87,8 @@ export function mvWindows(mv: AtemMvDefinition): MvWindow[] {
       const idx = mvWindowIndex(quadIdx)
       out.push({
         windowIndex: idx,
-        position: QUADRANT_NAME[q],
+        position: satzKanonisch(QUADRANT_SATZ[q]),
+        place: QUADRANT_SATZ[q],
         big: true,
         ...(belegt.has(idx) ? { sourceId: belegt.get(idx) } : {}),
       })
@@ -85,7 +99,8 @@ export function mvWindows(mv: AtemMvDefinition): MvWindow[] {
       out.push({
         windowIndex: idx,
         // Die Zelle wird 1-basiert genannt: auf dem Papier zählt niemand ab 0.
-        position: `${QUADRANT_NAME[q]}, Zelle ${c + 1}`,
+        position: satzKanonisch(zelleSatz(q, c + 1)),
+        place: zelleSatz(q, c + 1),
         big: false,
         ...(belegt.has(idx) ? { sourceId: belegt.get(idx) } : {}),
       })
@@ -191,7 +206,7 @@ export function mvFindings(
           kind: 'empty-window',
           severity: 'warning',
           mvIndex: mv.index,
-          ...befundAls('message', satz('mv.finding.empty', 'MV {mv}: window {window} has no source.', { mv: mv.index + 1, window: w.position })),
+          ...befundAls('message', satz('mv.finding.empty', 'MV {mv}: window {window} has no source.', { mv: mv.index + 1, window: w.place })),
         })
         continue
       }
@@ -204,7 +219,7 @@ export function mvFindings(
           ...befundAls('message', satz(
             'mv.finding.unknownSource',
             'MV {mv}: window {window} shows source {source}, for which the plan knows no role.',
-            { mv: mv.index + 1, window: w.position, source: w.sourceId },
+            { mv: mv.index + 1, window: w.place, source: w.sourceId },
           )),
         })
       }
@@ -219,7 +234,7 @@ export function mvFindings(
         ...befundAls('message', satz(
           'mv.finding.duplicate',
           'MV {mv}: {n} windows show "{name}" ({windows}). Then another source is missing from the picture.',
-          { mv: mv.index + 1, n: ws.length, name, windows: ws.map((w) => w.position).join(', ') },
+          { mv: mv.index + 1, n: ws.length, name, windows: kommaListe(ws.map((w) => w.place)) },
         )),
       })
     }

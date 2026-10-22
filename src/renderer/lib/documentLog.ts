@@ -16,6 +16,7 @@ import type { CablePlannerProject } from '../types/project'
 import { cablePlannerApi } from './bridge'
 import type { DocumentLogFile, DocumentLogRecord } from './bridge'
 import { DOCUMENT_LABELS, currentStand } from './documentRegistry'
+import { kommaListe, satz, type Satz } from './satz'
 
 export type { DocumentLogFile, DocumentLogRecord }
 
@@ -112,13 +113,17 @@ export const reviewLog = (
     .sort((a, b) => b.emittedAt.localeCompare(a.emittedAt))
 }
 
-/** Kurzfassung fuer die Menue-Zeile. Der Aufrufer uebersetzt. */
-export const reviewSummary = (entries: ReviewedEntry[]): string => {
+/** Kurzfassung fuer die Menue-Zeile, als Satz — gerendert ueber `satzText(s, t)`. */
+export const reviewSummary = (entries: ReviewedEntry[]): Satz => {
   const stale = entries.filter((e) => e.status === 'superseded').length
   const unknown = entries.filter((e) => e.status === 'unknown').length
-  const parts: string[] = []
-  if (stale > 0) parts.push(`${stale} überholt`)
-  if (unknown > 0) parts.push(`${unknown} nicht beurteilbar`)
-  if (parts.length === 0) return entries.length === 0 ? 'nichts ausgegeben' : 'alle aktuell'
-  return parts.join(', ')
+  const parts: Satz[] = []
+  if (stale > 0) parts.push(satz('documentLog.summary.superseded', '{n} superseded', { n: stale }))
+  if (unknown > 0) parts.push(satz('documentLog.summary.unknown', '{n} cannot be judged', { n: unknown }))
+  if (parts.length === 0) {
+    return entries.length === 0
+      ? satz('documentLog.summary.none', 'nothing issued')
+      : satz('documentLog.summary.allCurrent', 'all current')
+  }
+  return kommaListe(parts)
 }

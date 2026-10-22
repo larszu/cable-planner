@@ -21,6 +21,7 @@ import { cablePlannerApi } from '../../lib/bridge'
 import { parseGraphmlText } from '../../lib/graphml/parser'
 import {
   buildImportPayload,
+  countIncludedCables,
   resolveGraphml,
   type ImportPreview,
   type ResolvedCable,
@@ -137,18 +138,9 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
   // Haken statt aus eigenem Boilerplate. Er steht VOR dem `if (!open)`, weil
   // Haken nicht bedingt aufgerufen werden duerfen — `open` geht als Parameter
   // hinein und schaltet die Wirkung.
-  const { panelRef, titleId, dialogProps } = useDialogA11y(open, onClose)
-
-  // B-44 — der Hintergrund schliesst. Mit Rueckfrage, weil dieser Dialog
-  // eine eingelesene Datei samt Zuordnung haelt: sie wegzuwerfen heisst,
-  // die Datei noch einmal zu suchen und noch einmal zuzuordnen.
-  const backdrop = useBackdropClose(onClose, {
-    schutz: () => true,
-    frage: t('graphml.closeUnsaved', 'Discard import?'),
-  })
-
-  if (!open) return null
-
+  // Jeder Weg hinaus setzt zurueck. Vorher tat das nur der Abbrechen-Knopf:
+  // Esc und der Hintergrund riefen `onClose` direkt, und beim naechsten
+  // Oeffnen stand die alte Vorschau samt Abwahlen noch da.
   const reset = () => {
     setStage({ kind: 'empty' })
     setSkipDevices(new Set())
@@ -156,8 +148,24 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
     setNameOverrides({})
     setCategoryOverrides({})
     setFilterText('')
-    setTab('devices')
+    setTab('preview')
   }
+  const closeDialog = () => {
+    reset()
+    onClose()
+  }
+
+  const { panelRef, titleId, dialogProps } = useDialogA11y(open, closeDialog)
+
+  // B-44 — der Hintergrund schliesst. Mit Rueckfrage, weil dieser Dialog
+  // eine eingelesene Datei samt Zuordnung haelt: sie wegzuwerfen heisst,
+  // die Datei noch einmal zu suchen und noch einmal zuzuordnen.
+  const backdrop = useBackdropClose(closeDialog, {
+    schutz: () => true,
+    frage: t('graphml.closeUnsaved', 'Discard import?'),
+  })
+
+  if (!open) return null
 
   const handlePickFile = async () => {
     setBusy(true)
@@ -349,7 +357,9 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
     const totalDevices = preview.devices.length
     const includedDevices = totalDevices - skipDevices.size
     const totalCables = preview.cables.length
-    const includedCables = totalCables - skipCables.size
+    // Dieselbe Zaehlung wie der Import selbst: ein Kabel an einem abgewaehlten
+    // Geraet faellt dort weg, also darf es auch der Knopf nicht mitzaehlen.
+    const includedCables = countIncludedCables(preview, skipDevices, skipCables)
     return (
       <div className="flex min-h-0 flex-1 flex-col">
         {/* Header summary */}
@@ -658,10 +668,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
         <div className="flex items-center justify-end gap-2 border-t border-cp-border px-4 py-3">
           <button
             type="button"
-            onClick={() => {
-              reset()
-              onClose()
-            }}
+            onClick={closeDialog}
             className="bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5"
           >
             {t('graphml.dialog.cancel', 'Cancel')}
@@ -696,10 +703,7 @@ export const GraphmlImportDialog = ({ open, onClose }: GraphmlImportDialogProps)
           <h3 id={titleId} className="text-cp-base font-semibold">{t('graphml.dialog.heading', 'Import yEd / GraphML')}</h3>
           <button
             type="button"
-            onClick={() => {
-              reset()
-              onClose()
-            }}
+            onClick={closeDialog}
             className="text-cp-text-faint hover:text-cp-text-bright"
             aria-label={t('graphml.dialog.closeAria', 'Close')}
           >

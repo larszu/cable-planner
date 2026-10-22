@@ -1669,7 +1669,12 @@ export const useUiStore = create<UiState>((set) => ({
   closeRackEditor: () => set({ rackEditor: { open: false } }),
   rackBuilderSeedTrigger: null,
   triggerRackBuilderFromSelection: (equipmentIds) =>
-    set({ rackBuilderSeedTrigger: equipmentIds.length > 0 ? equipmentIds : null }),
+    // Ohne Auswahl (Werkzeuge-Menue, Befehlspalette) frueher ein stilles
+    // `null` — der Eintrag tat nichts. Dann den Builder leer oeffnen; dort
+    // laesst sich ein vorhandenes Rack laden.
+    equipmentIds.length > 0
+      ? set({ rackBuilderSeedTrigger: equipmentIds })
+      : set({ rackBuilderSeedTrigger: null, newRackBuilderTrigger: Date.now() }),
   clearRackBuilderSeedTrigger: () => set({ rackBuilderSeedTrigger: null }),
   newRackBuilderTrigger: 0,
   triggerNewRackBuilder: () => set({ newRackBuilderTrigger: Date.now() }),

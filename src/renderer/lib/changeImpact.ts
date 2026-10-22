@@ -35,7 +35,7 @@
 // niemals einen unbestätigten Wert als Tatsache zeigen.
 // ───────────────────────────────────────────────────────────────────────────
 
-import { satz, satzKanonisch, type Satz } from './satz'
+import { kommaListe, satz, satzKanonisch, type Satz } from './satz'
 import type { CablePlannerProject } from '../types/project'
 import {
   DOCUMENT_LABELS,
@@ -170,9 +170,9 @@ export const changeImpact = (
  * Einzeiler für eine Meldung. Bewusst ohne i18n-Abhängigkeit — diese Datei
  * bleibt eine reine Funktion; der Aufrufer übersetzt.
  */
-export const changeImpactSummary = (impact: ChangeImpact): string => {
-  const parts: string[] = []
-  if (impact.invalidated > 0) parts.push(`${impact.invalidated} überholt`)
-  if (impact.unknown > 0) parts.push(`${impact.unknown} nicht beurteilbar`)
-  return parts.length > 0 ? parts.join(', ') : 'keine Auswirkung'
+export const changeImpactSummary = (impact: ChangeImpact): Satz => {
+  const parts: Satz[] = []
+  if (impact.invalidated > 0) parts.push(satz('changeImpact.summary.invalidated', '{n} superseded', { n: impact.invalidated }))
+  if (impact.unknown > 0) parts.push(satz('changeImpact.summary.unknown', '{n} cannot be judged', { n: impact.unknown }))
+  return parts.length > 0 ? kommaListe(parts) : satz('changeImpact.summary.none', 'no impact')
 }

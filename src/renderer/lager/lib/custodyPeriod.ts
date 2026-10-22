@@ -165,8 +165,8 @@ export const custodyPeriodText = (record: CheckoutRecord, heute: string): string
   const seit = record.out.at.slice(0, 10)
   const bis = record.out.dueBack
   const teile = [`ausgegeben ${seit}`]
-  if (!bis) teile.push('Rückgabe offen')
-  else if (record.in) teile.push(`zurück ${record.in.at.slice(0, 10)}`)
+  if (!bis) teile.push(satzKanonisch(satz('rest.custody.returnOpen', 'return open')))
+  else if (record.in) teile.push(satzKanonisch(satz('rest.custody.backOn', 'back {bis}', { bis: record.in.at.slice(0, 10) })))
   else
       teile.push(
         bis < heute

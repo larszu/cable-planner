@@ -36,6 +36,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 import { toCsv, type CsvCell, type CsvTable } from './csv'
 import { kanonisch, spalten } from './kanonisch'
+import { satz, satzKanonisch } from './satz'
 import { expenseTotals, formatHours, labourCosts, labourFindings } from './labourCost'
 import { EXPENSE_KIND_LABEL, type CrewExpense, type CrewPlan } from '../types/labour'
 
@@ -257,7 +258,9 @@ export const crewBillingHandoff = (b: CrewBilling): BillingHandoffLine[] => {
     if (!e.billable) continue
     out.push({
       name: `${kanonisch(`labour.expense.${e.kind}`, EXPENSE_KIND_LABEL[e.kind])}${e.note ? ` — ${e.note}` : ''}`,
-      description: e.receiptRef ? `Beleg ${e.receiptRef}` : 'ohne Beleg',
+      description: e.receiptRef
+        ? satzKanonisch(satz('rest.billing.receipt', 'Receipt {ref}', { ref: e.receiptRef }))
+        : satzKanonisch(satz('rest.billing.noReceipt', 'no receipt')),
       quantity: 1,
       unit: 'Beleg',
       unitPriceNet: e.amount,

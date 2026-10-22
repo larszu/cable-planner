@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Check, Zap, Link, Square, SquareCheck, ChevronDown, ChevronRight} from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { format, useTranslation } from '../../lib/i18n'
+import { rentmanCategoryLabel } from './rentmanImportHelpers'
 
 interface ChecklistItem {
   id: string
@@ -185,7 +186,7 @@ export const EquipmentChecklist = ({
         .sort((a, b) => a[0].localeCompare(b[0]))
         .map(([category, categoryItems]) => (
         <div key={category}>
-          <div className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{category}</div>
+          <div className="mb-1 text-cp-xs font-semibold text-cp-text-secondary">{rentmanCategoryLabel(category, t)}</div>
           <div className="space-y-1">
             {categoryItems.map((item) => {
               const children = childrenByParent[item.id]
