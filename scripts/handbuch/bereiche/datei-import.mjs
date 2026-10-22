@@ -16,14 +16,20 @@
 // - Alle Dateien (GraphML, Kamera-Listen, .avplan, .avsourcemap, CSV) sind
 //   erfundene Beispieldaten.
 
-import { mkdtempSync, writeFileSync, readFileSync, readdirSync } from 'node:fs'
+import { mkdtempSync, writeFileSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
+import http from 'node:http'
 import { join } from 'node:path'
 import { starte } from '../app.mjs'
 import { erststartOverlayWeg } from '../../lib/erststartOverlay.mjs'
 
 const sprache = process.argv[2] ?? 'de'
 const a = await starte({ sprache, hoehe: 1200 })
+// Alte Bilder dieses Kapitels weg: verschobene Nummern lassen sonst Waisen liegen.
+{
+  const dir = new URL('../../../docs/manual/bilder/' + sprache + '/', import.meta.url)
+  if (!process.env.NUR) for (const d of readdirSync(dir)) if (d.startsWith('datei-import-')) rmSync(new URL(d, dir))
+}
 const f = a.folge('datei-import')
 const W = mkdtempSync(join(tmpdir(), 'cp-handbuch-di-'))
 const fakten = { sprache, dateien: {}, gelesen: {} }
@@ -32,7 +38,8 @@ const T = (k) => a.text(k)
 const pause = (ms) => a.win.waitForTimeout(ms)
 a.win.setDefaultTimeout(10_000)
 const abschnitt = async (name, fn) => {
-  try { await fn() } catch (e) { console.log(`!! Abschnitt ${name}: ${e.message.split('\n')[0]}`); (fakten.abschnittFehler ??= []).push(`${name}: ${e.message.split('\n')[0]}`) }
+  if (process.env.NUR && !name.startsWith(process.env.NUR + ' ')) return
+  try { await fn() } catch (e) { console.log(`!! Abschnitt ${name}: ${e.message.split('\n')[0]} @ ${(e.stack.match(/datei-import\.mjs:\d+/) ?? [''])[0]}`); await a.win.screenshot({ path: '/private/tmp/claude-501/-Users-larszumpe/ceacdd93-efce-4876-ad48-3f9bc7cb94a7/scratchpad/di-fehler.png' }).catch(() => {}); (fakten.abschnittFehler ??= []).push(`${name}: ${e.message.split('\n')[0]}`) }
   await a.zu().catch(() => {})
 }
 
@@ -85,7 +92,9 @@ const kameraDatei = datei('.cameras.json,.json')
 const avplanDatei = datei('.avplan,.json')
 const sourceMapDatei = datei('.avsourcemap,.json')
 const einpassen = async () => { await a.menue('app.menu.view', 'app.menu.view.fit'); await pause(700) }
-const schritt = (name, tun, opt) => f.schritt(name, tun, opt)
+// Schritte, die das Kapitel nicht abbildet: sie laufen ohne Bild, weil spätere Schritte auf ihrem Ergebnis aufbauen.
+const KEIN_BILD = new Set(["speichern-unter", "speichern-erneut", "speichern-unter-zweiter-name", "oeffnen-geladen", "oeffnen-ladebericht", "graphml-andere-datei", "graphml-erneut-gewaehlt", "graphml-import-knopf", "graphml-ersetzen-ergebnis", "graphml-bibliothek-hinweis", "csv-abbrechen", "multicam-canvas", "netbox-zurueck", "netbox-hinzufuegen", "netbox-dritter-lauf-nichts-mehr", "avplan-import-kameras-uebernommen", "karte-export", "statusleiste-wieder-normal", "vorlagen-as-built-name", "vorlagen-as-built-gespeichert", "vorlage-ob-van", "vorlage-tv-studio", "vorlage-live-buehne", "vorlage-konferenz", "vorlage-gottesdienst", "neu-projekt-angelegt", "rentman-menue-verknuepft"])
+const schritt = (name, tun, opt) => (KEIN_BILD.has(name) ? Promise.resolve(tun()).catch(() => {}) : f.schritt(name, tun, opt))
 const dlg = () => a.dialog()
 const nurTitel = (key) => a.win.getByRole('dialog').filter({ hasText: T(key) }).last()
 
@@ -95,14 +104,11 @@ let planZ = null
 
 // ── Beispieldaten ──────────────────────────────────────────────────────────
 const graphml = () => {
-  const node = (id, x, y, w, h, labels) =>
-    `<node id="${id}"><data key="d0"><y:ShapeNode><y:Geometry x="${x}" y="${y}" width="${w}" height="${h}"/>` +
-    `<y:Fill color="#DCE6F2" transparent="false"/><y:BorderStyle color="#000000" type="line" width="1.0"/>` +
-    labels.map((l) => `<y:NodeLabel>${l}</y:NodeLabel>`).join('') +
-    `<y:Shape type="rectangle"/></y:ShapeNode></data></node>`
+  const node = (id, x, y, w, h, text) =>
+    `<node id="${id}"><data key="d0"><y:ShapeNode><y:Geometry height="${h}" width="${w}" x="${x}" y="${y}"/>` +
+    (text ? `<y:NodeLabel>${text}</y:NodeLabel>` : '') + `</y:ShapeNode></data></node>`
   const edge = (id, s, t, typ, laenge, signal) =>
-    `<edge id="${id}" source="${s}" target="${t}"><data key="d1"><y:PolyLineEdge><y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>` +
-    `<y:LineStyle color="#000000" type="line" width="1.0"/></y:PolyLineEdge></data>` +
+    `<edge id="${id}" source="${s}" target="${t}"><data key="d1"><y:PolyLineEdge><y:Path sx="0" sy="0" tx="0" ty="0"/></y:PolyLineEdge></data>` +
     (typ ? `<data key="d3">${typ}</data>` : '') + (laenge ? `<data key="d4">${laenge}</data>` : '') +
     (signal ? `<data key="d5">${signal}</data>` : '') + `</edge>`
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -113,19 +119,20 @@ const graphml = () => {
 <key id="d4" for="edge" attr.name="CableLength" attr.type="string"/>
 <key id="d5" for="edge" attr.name="SignalName" attr.type="string"/>
 <graph id="G" edgedefault="directed">
-${node('n1', 0, 0, 200, 100, ['Kamera 1', 'IP: 10.0.0.11'])}
-${node('n1a', 160, 20, 60, 20, ['SDI OUT'])}
-${node('n2', 500, 0, 200, 100, ['Bildmischer', 'IP: 10.0.0.20'])}
-${node('n2a', 460, 20, 60, 20, ['SDI IN 1'])}
-${node('n2b', 460, 60, 60, 20, ['SDI IN 2'])}
-${node('n2c', 660, 20, 60, 20, ['PGM OUT'])}
-${node('n3', 1000, 0, 200, 100, ['Monitor'])}
-${node('n3a', 960, 20, 60, 20, ['HDMI IN'])}
-${node('n4', 500, 250, 200, 100, ['Patchfeld'])}
-${node('n5', 0, 300, 200, 100, ['Legende'])}
-${edge('e1', 'n1a', 'n2a', 'SDI', '25 m', 'CAM1')}
-${edge('e2', 'n2c', 'n3a', 'HDMI', '5 m', 'PGM')}
-${edge('e3', 'n5', 'n1a', '', '', '')}
+${node('cam', 0, 0, 200, 100, 'Kamera 1')}
+${node('camIp', 10, 60, 120, 30, 'IP: 10.0.0.11')}
+${node('camOut', 200, 20, 90, 20, '12G-SDI Out')}
+${node('mix', 500, 0, 300, 140, 'Bildmischer')}
+${node('mixIp', 510, 100, 140, 30, 'IP: 10.0.0.20')}
+${node('mixIn1', 410, 20, 90, 20, '3G/SDI In 1')}
+${node('mixIn2', 410, 40, 90, 20, '3G/SDI In 2')}
+${node('mixOut', 800, 20, 100, 20, '3G/SDI Out 1')}
+${node('mon', 1100, 0, 200, 80, 'Monitor Regie')}
+${node('monIn', 1010, 20, 90, 20, 'HDMI In')}
+${node('legende', 0, 300, 200, 100, 'Legende')}
+${edge('e1', 'camOut', 'mixIn1', 'SDI', '25 m', 'CAM1')}
+${edge('e2', 'mixOut', 'monIn', 'HDMI', '5 m', 'PGM')}
+${edge('e3', 'legende', 'camOut', '', '', '')}
 </graph></graphml>`
 }
 const csvText = [
@@ -198,14 +205,115 @@ await a.app.evaluate(({ ipcMain }, d) => {
   })
 }, nb)
 
+
+// ── Rentman: Beispieldaten über einen Scheinserver auf 127.0.0.1 (nichts geht ins Netz) ──
+const DE = sprache === 'de'
+const win = a.win
+// ─────────────────────────────────────────────────────────────────────────
+const ordner = DE
+  ? { video: 'Video', kabel: 'Kabel', zubehoer: 'Zubehör', audio: 'Audio' }
+  : { video: 'Video', kabel: 'Cables', zubehoer: 'Accessories', audio: 'Audio' }
+const PROJEKTE = [
+  { id: 101, number: 2401, name: 'Beispiel Sommerfest', status: 'Confirmed', usageperiod_start: '2026-07-10T08:00:00', usageperiod_end: '2026-07-12T23:00:00' },
+  { id: 102, number: 2402, name: 'Beispiel Firmenevent', status: 'Requested', usageperiod_start: '2026-09-20T08:00:00', usageperiod_end: '2026-09-21T23:00:00' },
+  { id: 103, number: 2403, name: 'Beispiel Konferenz', status: 'Confirmed', usageperiod_start: '2026-11-05T08:00:00', usageperiod_end: '2026-11-06T23:00:00' },
+]
+const ORDNER = [
+  { id: 1, name: ordner.video }, { id: 2, name: ordner.kabel }, { id: 3, name: ordner.zubehoer }, { id: 4, name: ordner.audio },
+]
+const F = (n) => `/equipmentfolders/${n}`
+const STAMM = [
+  { id: 9001, name: DE ? 'ATEM Mini Pro (Streaming-Mischer)' : 'ATEM Mini Pro (streaming switcher)', equipmentfolder: F(1), weight: 1.4, power_consumption: 20, price: 60 },
+  { id: 9002, name: 'Beispiel Funkstrecke XY-100', equipmentfolder: F(4), weight: 0.8, price: 35 },
+  { id: 9003, name: 'Beispiel Kamerapaket', equipmentfolder: F(1), is_physical: true },
+  { id: 9004, name: 'Beispiel Kamera Body', equipmentfolder: F(1), weight: 2.1, power_consumption: 30 },
+  { id: 9005, name: 'Beispiel Stativ', equipmentfolder: F(3), weight: 3.5 },
+  { id: 9006, name: 'Beispiel Akku', equipmentfolder: F(3) },
+  { id: 9007, name: 'BNC Kabel 5m', equipmentfolder: F(2) },
+  { id: 9008, name: 'HDMI Kabel 10m', equipmentfolder: F(2) },
+  { id: 9009, name: 'Beispielgerät Alpha', equipmentfolder: F(1) },
+  { id: 9011, name: 'Beispiel Lichtset', equipmentfolder: F(3) },
+  { id: 9012, name: 'Beispiel Scheinwerfer', equipmentfolder: F(3) },
+  { id: 9013, name: 'Beispiel Netzteil', equipmentfolder: F(3) },
+  { id: 9014, name: 'Beispielgerät Gamma', equipmentfolder: F(1) },
+]
+const ZEILEN = (id) => {
+  const e = (nr, equipment, quantity, extra = {}) => ({ id: nr, equipment: `/equipment/${equipment}`, quantity, ...extra })
+  if (id === '101') {
+    return [
+      e(5001, 9001, 1),
+      e(5002, 9002, 2),
+      e(5003, 9003, 1, { name: 'Beispiel Kamerapaket' }),
+      e(5004, 9004, 1, { parent: '/projectequipment/5003' }),
+      e(5005, 9005, 1, { parent: '/projectequipment/5003' }),
+      e(5006, 9006, 2, { parent: '/projectequipment/5003' }),
+      e(5007, 9007, 6),
+      e(5008, 9007, 4),
+      e(5009, 9008, 3),
+      e(5010, 9009, 1),
+      e(5015, 9014, 1),
+      { id: 5011, name: DE ? 'Hinweis: Aufbau ab 8 Uhr' : 'Note: setup from 8 am', type: 'remark', quantity: 1 },
+      e(5012, 9011, 1),
+      e(5013, 9012, 2, { parent: '/projectequipment/5012' }),
+      e(5014, 9013, 2, { parent: '/projectequipment/5012' }),
+    ]
+  }
+  if (id === '102') return [e(5101, 9001, 1), e(5102, 9008, 2)]
+  return [e(5201, 9002, 1)]
+}
+const anfragen = []
+const server = http.createServer((req, res) => {
+  const url = new URL(req.url, 'http://127.0.0.1')
+  anfragen.push(`${req.method} ${url.pathname}`)
+  res.setHeader('content-type', 'application/json')
+  if (req.headers.authorization !== 'Bearer demo-token') {
+    res.statusCode = 401
+    return res.end(JSON.stringify({ error: 'Unauthorized (Beispielserver)' }))
+  }
+  if (req.method !== 'GET') {
+    res.statusCode = 422
+    return res.end(JSON.stringify({ error: 'Validation failed (Beispielserver)' }))
+  }
+  const offset = Number(url.searchParams.get('offset') ?? 0)
+  const liste = (x) => res.end(JSON.stringify({ data: offset > 0 ? [] : x }))
+  const p = url.pathname
+  if (p === '/projects') return liste(PROJEKTE)
+  let m
+  if ((m = /^\/projects\/(\d+)\/projectequipment$/.exec(p))) return liste(ZEILEN(m[1]))
+  if ((m = /^\/projects\/(\d+)\/subprojects$/.exec(p))) return liste([{ id: 1, name: 'Initial' }])
+  if (p === '/equipment') return liste(STAMM)
+  if (p === '/equipmentfolders') return liste(ORDNER)
+  return liste([])
+})
+await new Promise((r) => server.listen(0, '127.0.0.1', r))
+const PORT = server.address().port
+
+// Hauptprozess: Schlüsselbund im Speicher, Rentman-Host auf den Scheinserver.
+await a.app.evaluate(async (_e, port) => {
+  const gm = process.getBuiltinModule
+  const req = gm('module').createRequire(process.cwd() + '/x.js')
+  const k = req('keytar')
+  const speicher = new Map()
+  k.getPassword = async (s, n) => speicher.get(s + n) ?? null
+  k.setPassword = async (s, n, p) => { speicher.set(s + n, p) }
+  k.deletePassword = async (s, n) => speicher.delete(s + n)
+  const https = gm('https')
+  const http = gm('http')
+  const orig = https.request
+  https.request = function (o, ...rest) {
+    const host = (o && (o.hostname || o.host)) || ''
+    if (String(host).includes('api.rentman.net')) {
+      return http.request({ ...o, protocol: 'http:', hostname: '127.0.0.1', host: '127.0.0.1', port, agent: undefined, agents: undefined }, ...rest)
+    }
+    return orig.call(this, o, ...rest)
+  }
+}, PORT)
 // ════════════════════════════════════════════════════════════════════════
 // 1  Das Datei-Menü
 // ════════════════════════════════════════════════════════════════════════
 await abschnitt('1  Das Datei-Menü', async () => {
 await schritt('menue-datei-offen', () => a.menue('app.menu.file'), { ziel: () => a.menueFeld() })
 fakten.gelesen.menueDatei = (await a.menueFeld().innerText()).split('\n').filter(Boolean)
-await schritt('menue-eintrag-neu', () => hover('app.menu.file.new'), { ziel: () => a.menueFeld() })
-await schritt('menue-eintrag-speichern', () => hover('app.menu.file.save'), { ziel: () => a.menueFeld() })
 
 })
 // ════════════════════════════════════════════════════════════════════════
@@ -239,7 +347,6 @@ mitZugang.equipment[0].password = 'beispiel'
 mitZugang.metadata.siteAddress = 'Beispielstrasse 1, 12345 Beispielstadt'
 planZ = schreibe('mit-zugangsdaten.cableplan', mitZugang)
 await oeffnenMit(planZ)
-await schritt('oeffnen-menue', () => hover('app.menu.file.open'), { ziel: () => a.menueFeld() })
 await schritt('oeffnen-geladen', async () => { await a.menue('app.menu.file', 'app.menu.file.open'); await pause(1500) }, { ziel: () => canvas() })
 await oeffnenMit(schreibe('kein-plan.cableplan', { hallo: 'welt' }))
 await schritt('oeffnen-kein-plan', async () => { await a.menue('app.menu.file', 'app.menu.file.open'); await pause(1200) }, { ziel: () => dlg() })
@@ -271,7 +378,7 @@ await schritt('graphml-dialog-leer', () => a.menue('app.menu.file', 'app.menu.fi
 await schritt('graphml-vorschau-yed', () => klickKnopf('graphml.dialog.pickFile', false), { ziel: () => dlg() })
 const tab = (schl) => dlg().getByRole('button', { name: new RegExp('^\\s*' + esc(T(schl))) }).first()
 await schritt('graphml-reiter-geraete', () => tab('graphml.dialog.tab.devices').click(), { ziel: () => dlg() })
-await schritt('graphml-geraet-abgewaehlt', () => dlg().getByRole('checkbox', { name: /Patchfeld|Patch/ }).first().uncheck(), { ziel: () => dlg() })
+await schritt('graphml-geraet-abgewaehlt', () => dlg().getByRole('checkbox', { name: /Monitor/ }).first().uncheck(), { ziel: () => dlg() })
 await schritt('graphml-geraet-umbenannt', async () => {
   const zeile = dlg().locator('tr', { hasText: '10.0.0.11' }).first()
   await zeile.locator('input[type=text]').nth(0).fill('Kamera 1 (Buehne)')
@@ -279,7 +386,7 @@ await schritt('graphml-geraet-umbenannt', async () => {
 }, { ziel: () => dlg() })
 await schritt('graphml-reiter-kabel', () => tab('graphml.dialog.tab.cables').click(), { ziel: () => dlg() })
 await schritt('graphml-kabel-abgewaehlt', () => dlg().locator('tbody input[type=checkbox]').nth(1).uncheck(), { ziel: () => dlg() })
-await schritt('graphml-filter', () => dlg().getByPlaceholder(a.muster('graphml.dialog.filterPlaceholder')).fill('SDI'), { ziel: () => dlg() })
+await schritt('graphml-filter', () => dlg().getByPlaceholder(a.muster('graphml.dialog.filterPlaceholder')).fill('HDMI'), { ziel: () => dlg() })
 await schritt('graphml-reiter-uebersprungen', async () => {
   await dlg().getByPlaceholder(a.muster('graphml.dialog.filterPlaceholder')).fill('')
   await tab('graphml.dialog.tab.skipped').click()
@@ -300,25 +407,31 @@ await schritt('graphml-erneut-gewaehlt', async () => {
   await pause(800)
   await dlg().getByRole('button', { name: a.muster('graphml.dialog.appendProject', true) }).first().click()
 }, { ziel: () => dlg() })
+const pickFileNeu = async () => {
+  // Ein per Esc oder Hintergrund geschlossener Import-Dialog behält seine Vorschau; „Andere Datei“ setzt zurück.
+  const anderes = dlg().getByRole('button', { name: a.muster('graphml.dialog.otherFile', true) })
+  if (await anderes.count()) { await anderes.first().click(); await pause(300) }
+  await klickKnopf('graphml.dialog.pickFile', false)
+}
 await schritt('graphml-hintergrund-rueckfrage', async () => { await a.win.mouse.click(5, 5); await pause(600) }, { ziel: () => dlg() })
-await a.win.getByRole('dialog').last().getByRole('button').last().click()
+await a.win.getByRole('button', { name: /^(Verwerfen|Discard)$/ }).last().click()
 await pause(600)
 await a.zu()
 // Import ausführen: Canvas, anhängen
 await a.menue('app.menu.file', 'app.menu.file.importGraphml')
-await klickKnopf('graphml.dialog.pickFile', false)
+await pickFileNeu()
 await pause(800)
 await schritt('graphml-import-knopf', async () => { /* nur Bild */ }, { ziel: () => dlg() })
 await schritt('graphml-import-ergebnis', async () => { await dlg().locator('button').last().click(); await pause(1200) }, { ziel: () => canvas() })
 // Ersetzen
 await a.menue('app.menu.file', 'app.menu.file.importGraphml')
-await klickKnopf('graphml.dialog.pickFile', false)
+await pickFileNeu()
 await pause(800)
 await dlg().getByRole('button', { name: a.muster('graphml.dialog.replaceImport', true) }).first().click()
 await schritt('graphml-ersetzen-ergebnis', async () => { await dlg().locator('button').last().click(); await pause(1200) }, { ziel: () => canvas() })
 // Bibliothek
 await a.menue('app.menu.file', 'app.menu.file.importGraphml')
-await klickKnopf('graphml.dialog.pickFile', false)
+await pickFileNeu()
 await pause(800)
 await dlg().getByRole('button', { name: a.muster('graphml.dialog.library', true) }).first().click()
 await schritt('graphml-bibliothek-hinweis', async () => { /* nur Bild */ }, { ziel: () => dlg() })
@@ -327,7 +440,7 @@ await okS()
 await a.zu()
 // Bibliothek ein zweites Mal: Namen bestehen schon
 await a.menue('app.menu.file', 'app.menu.file.importGraphml')
-await klickKnopf('graphml.dialog.pickFile', false)
+await pickFileNeu()
 await pause(800)
 await dlg().getByRole('button', { name: a.muster('graphml.dialog.library', true) }).first().click()
 await schritt('graphml-bibliothek-zweites-mal', async () => { await dlg().locator('button').last().click(); await pause(1200) }, { ziel: () => dlg() })
@@ -371,8 +484,6 @@ await a.zu()
 // 5  MultiCam-Kameras
 // ════════════════════════════════════════════════════════════════════════
 await abschnitt('5  MultiCam-Kameras', async () => {
-await schritt('multicam-menue', () => hover('app.menu.file.importCameras'), { ziel: () => a.menueFeld() })
-await a.zu()
 await schritt('multicam-erster-import', async () => { await kameraDatei(schreibe('kameras.cameras.json', kameras([kam1, kam2]))); await pause(1200) }, { ziel: () => dlg() })
 await okS()
 await einpassen()
@@ -391,9 +502,6 @@ await a.zu()
 // 6  Rentman (nur der Menüeintrag) und NetBox
 // ════════════════════════════════════════════════════════════════════════
 await abschnitt('6  Rentman (nur der Menüeintrag) und NetBox', async () => {
-await schritt('rentman-menue', () => hover('app.menu.tools.rentmanImport'), { ziel: () => a.menueFeld() })
-await a.zu()
-await schritt('netbox-menue', () => hover('app.menu.tools.netboxImport'), { ziel: () => a.menueFeld() })
 await schritt('netbox-ohne-url', () => a.menue('app.menu.file', 'app.menu.tools.netboxImport'), { ziel: () => dlg() })
 await a.zu()
 // URL in den Einstellungen hinterlegen (Beispieladresse, wird nie aufgerufen)
@@ -449,8 +557,6 @@ await a.zu()
 // 7  Gesamtprojekt (.avplan)
 // ════════════════════════════════════════════════════════════════════════
 await abschnitt('7  Gesamtprojekt (.avplan)', async () => {
-await schritt('avplan-export-menue', () => hover('app.menu.file.exportAvplan'), { ziel: () => a.menueFeld() })
-await a.zu()
 await schritt('avplan-export-zugangsdaten-frage', async () => { await a.menue('app.menu.file', 'app.menu.file.exportAvplan'); await pause(800) }, { ziel: () => dlg() })
 await klickKnopf('cred.strip')
 await pause(1200)
@@ -466,8 +572,6 @@ apMit.domains.cameras = { cameras: [{ id: 'c1', label: 'Kamera Buehne' }, { id: 
 delete apMit.domains.lighting
 apMit.domains.audio = { hinweis: 'Beispiel einer Domaene, die diese App nicht kennt' }
 const avplanDatei1 = schreibe('halle.avplan', apMit)
-await schritt('avplan-import-menue', () => hover('app.menu.file.importAvplan'), { ziel: () => a.menueFeld() })
-await a.zu()
 await schritt('avplan-import-unbekannte-abschnitte', async () => { await avplanDatei(avplanDatei1); await pause(1200) }, { ziel: () => dlg() })
 await schritt('avplan-import-uebernehmen-als', async () => { await dlg().locator('input[type=radio]').nth(1).check(); await pause(400) }, { ziel: () => dlg() })
 await schritt('avplan-import-kameras-frage', async () => { await klickKnopf('common.ok'); await pause(1200) }, { ziel: () => dlg() })
@@ -482,8 +586,6 @@ await a.zu()
 // 8  Verknüpfte Venue-Planung
 // ════════════════════════════════════════════════════════════════════════
 await abschnitt('8  Verknüpfte Venue-Planung', async () => {
-await schritt('venue-menue', () => hover('app.menu.file.viewForeign'), { ziel: () => a.menueFeld() })
-await a.zu()
 await schritt('venue-dialog', () => a.menue('app.menu.file', 'app.menu.file.viewForeign'), { ziel: () => dlg() })
 await a.zu()
 
@@ -498,8 +600,6 @@ const karte = (quellen) => ({
 })
 const q1 = { id: 'src-1', name: 'Kamera 1', number: 1, umdAddress: 3, provenance: { name: 'planned', umdAddress: 'confirmed' }, bindings: [], labels: {}, notiz: 'Beispiel' }
 const q2 = { id: 'src-2', name: 'Kamera 2', number: 2, umdAddress: 200, provenance: {}, bindings: [], labels: {} }
-await schritt('karte-import-menue', () => hover('app.menu.file.importSourceMap'), { ziel: () => a.menueFeld() })
-await a.zu()
 await schritt('karte-import-neu', async () => { await sourceMapDatei(schreibe('karte.avsourcemap', karte([q1, q2]))); await pause(1200) }, { ziel: () => dlg() })
 await okS()
 await schritt('karte-import-konflikt', async () => {
@@ -511,59 +611,11 @@ await schritt('karte-import-nichts', async () => { await sourceMapDatei(schreibe
 await okS()
 await schritt('karte-import-fehler', async () => { await sourceMapDatei(schreibe('falsch.avsourcemap', { kind: 'nein' })); await pause(1200) }, { ziel: () => dlg() })
 await okS()
-await schritt('karte-export-menue', () => hover('app.menu.file.exportSourceMap'), { ziel: () => a.menueFeld() })
-await a.zu()
 await schritt('karte-export', async () => { await a.menue('app.menu.file', 'app.menu.file.exportSourceMap'); await pause(1200) })
 const dl2 = await downloads()
 const sm = dl2.find((d) => d.name.endsWith('.avsourcemap'))
 if (sm) { const m = JSON.parse(sm.text); fakten.gelesen.karteSchluessel = Object.keys(m); fakten.gelesen.karteName = sm.name; fakten.gelesen.karteQuellen = (m.sources ?? []).map((s) => s.name) }
 await a.zu()
-
-})
-// ════════════════════════════════════════════════════════════════════════
-// 10  Revisionen
-// ════════════════════════════════════════════════════════════════════════
-await abschnitt('10  Revisionen', async () => {
-await schritt('revisionen-leer', () => a.menue('app.menu.tools', 'app.menu.tools.revisions'), { ziel: () => dlg() })
-await schritt('revisionen-ausgefuellt', async () => {
-  await dlg().getByPlaceholder(a.muster('revisions.labelPlaceholder')).fill('A')
-  await dlg().getByPlaceholder(a.muster('revisions.notePlaceholder')).fill('Angebotsstand')
-}, { ziel: () => dlg() })
-await schritt('revisionen-festgeschrieben', () => klickKnopf('revisions.commit'), { ziel: () => dlg() })
-await schritt('revisionen-as-built', async () => {
-  await dlg().getByPlaceholder(a.muster('revisions.labelPlaceholder')).fill('AB')
-  await dlg().getByPlaceholder(a.muster('revisions.notePlaceholder')).fill('Nach dem Aufbau')
-  await dlg().getByRole('checkbox').first().check()
-  await klickKnopf('revisions.commit')
-}, { ziel: () => dlg() })
-await schritt('revisionen-wiederherstellen-frage', () => dlg().getByTitle(T('revisions.restore')).first().click(), { ziel: () => a.win.getByRole('dialog').last() })
-await a.zu()
-await a.menue('app.menu.tools', 'app.menu.tools.revisions')
-await schritt('revisionen-loeschen-frage', () => dlg().getByTitle(T('revisions.delete')).last().click(), { ziel: () => a.win.getByRole('dialog').last() })
-await a.zu()
-
-})
-// ════════════════════════════════════════════════════════════════════════
-// 11  Plan-Stände vergleichen
-// ════════════════════════════════════════════════════════════════════════
-await abschnitt('11  Plan-Stände vergleichen', async () => {
-await schritt('vergleich-menue', () => hover('app.menu.file.planCompare'), { ziel: () => a.menueFeld() })
-await a.zu()
-await schritt('vergleich-dialog-leer', () => a.menue('app.menu.file', 'app.menu.file.planCompare'), { ziel: () => dlg() })
-await oeffnenMit(planA)
-await schritt('vergleich-datei', async () => { await klickKnopf('compare.pick', false); await pause(1500) }, { ziel: () => dlg() })
-await schritt('vergleich-revision', async () => {
-  await dlg().locator('select').selectOption({ index: 1 })
-  await pause(1200)
-}, { ziel: () => dlg() })
-await schritt('vergleich-csv', async () => { await klickKnopf('compare.exportCsv', false); await pause(800) }, { ziel: () => dlg() })
-const dl3 = await downloads()
-fakten.gelesen.vergleichCsv = (dl3.find((d) => d.name.endsWith('.csv')) ?? {}).name
-fakten.gelesen.vergleichCsvKopf = ((dl3.find((d) => d.name.endsWith('.csv')) ?? { text: '' }).text.split('\n')[0] ?? '')
-await oeffnenMit(kaputt)
-await schritt('vergleich-keine-plan-datei', async () => { await klickKnopf('compare.pick', false); await pause(1000) }, { ziel: () => dlg() })
-await a.zu()
-await oeffnenMit(planZ)
 
 })
 // ════════════════════════════════════════════════════════════════════════
@@ -648,10 +700,7 @@ for (const [i, name] of ['ob-van', 'tv-studio', 'live-buehne', 'konferenz', 'got
 // 14  Neues Projekt
 // ════════════════════════════════════════════════════════════════════════
 await abschnitt('14  Neues Projekt', async () => {
-await schritt('neu-rueckfrage', () => a.menue('app.menu.file', 'app.menu.file.new'), { ziel: () => a.win.getByRole('dialog').last() })
-await a.win.getByRole('dialog').last().getByRole('button').last().click()
-await pause(800)
-await schritt('neu-dialog-leer', async () => { /* nur Bild */ }, { ziel: () => dlg() })
+await schritt('neu-dialog-mit-warnung', () => a.menue('app.menu.file', 'app.menu.file.new'), { ziel: () => dlg() })
 await schritt('neu-dialog-ausgefuellt', async () => {
   const d = dlg()
   await d.locator('input').nth(0).fill('Sommerfest Halle 2')
@@ -662,39 +711,63 @@ await schritt('neu-dialog-ausgefuellt', async () => {
   await d.locator('textarea').first().fill('Bühne, Saal und Regie')
 }, { ziel: () => dlg() })
 await schritt('neu-projekt-angelegt', async () => { await dlg().getByRole('button', { name: a.muster('project.meta.create', true) }).click(); await pause(1500) })
-await schritt('neu-projekt-menue-ohne-rueckfrage', () => a.menue('app.menu.file', 'app.menu.file.new'), { ziel: () => dlg() })
+await schritt('neu-dialog-ohne-warnung', () => a.menue('app.menu.file', 'app.menu.file.new'), { ziel: () => dlg() })
 await a.zu()
 
 })
 // ════════════════════════════════════════════════════════════════════════
-// 15  Willkommen-Dialog und Menü ohne Module (nach Neuladen)
+// 16  Rentman-Import (Beispieldaten, Scheinserver)
 // ════════════════════════════════════════════════════════════════════════
-await abschnitt('15  Willkommen-Dialog und Menü ohne Module (nach Neuladen)', async () => {
-await a.win.evaluate(() => {
-  const key = 'cable-planner:settings'
-  const st = JSON.parse(localStorage.getItem(key) || '{}')
-  st.enabledModules = { ...(st.enabledModules || {}), rentman: false, netbox: false, festinstallation: false, mobile: false, rental: false }
-  localStorage.setItem(key, JSON.stringify(st))
-})
-await a.win.reload()
-await a.win.waitForLoadState('domcontentloaded')
-await pause(2500)
-await erststartOverlayWeg(a.win, { lautScheitern: false })
-await schritt('menue-datei-ohne-module', () => a.menue('app.menu.file'), { ziel: () => a.menueFeld() })
-fakten.gelesen.menueDateiOhneModule = (await a.menueFeld().innerText()).split('\n').filter(Boolean)
-await a.zu()
-await a.win.evaluate(() => {
-  localStorage.removeItem('cable-planner:welcomed')
-  for (const k of Object.keys(localStorage)) if (/projectAutosave/i.test(k)) localStorage.removeItem(k)
-})
-await a.win.reload()
-await a.win.waitForLoadState('domcontentloaded')
-await pause(3500)
-await schritt('willkommen-dialog', async () => { await pause(600) }, { ziel: () => nurTitel('start.title') })
-
+await abschnitt('16  Rentman-Import', async () => {
+  const nv = (ms = 400) => a.win.waitForTimeout(ms)
+  const still = async (fn) => { try { return await fn() } catch (e) { console.log('  (still) ' + String(e.message).split('\n')[0]) } }
+  const rb = () => a.win.locator('[role="dialog"]').first().locator(':scope > div').first()
+  const karte = (key) => a.dialog().getByText(T(key), { exact: true }).locator('xpath=..')
+  const rbBtn = (key, exact = true) => rb().getByRole('button', { name: T(key), exact })
+  // Token (erfunden) in den Einstellungen hinterlegen; der Schlüsselbund ist im Hauptprozess ersetzt.
+  await a.palette('palette.settings')
+  await still(() => a.dialog().getByRole('button', { name: /^\s*(Integrationen|Integrations)\s*$/ }).first().click())
+  await nv(700)
+  await karte('settings.integrations.rentman').locator('input[type=password]').first().fill('demo-token')
+  await karte('settings.integrations.rentman').getByRole('button', { name: T('settings.integrations.rentman.save') }).click()
+  await nv(700)
+  await a.zu()
+  await schritt('rentman-import-offen', async () => { await a.menue('app.menu.file', 'app.menu.tools.rentmanImport'); await nv(2500) }, { ziel: () => rb() })
+  await schritt('rentman-suche', async () => { await rb().getByPlaceholder(T('rentman.import.searchPlaceholder')).fill('Sommer') }, { ziel: () => rb() })
+  await schritt('rentman-projekt-gewaehlt', async () => {
+    await rb().getByPlaceholder(T('rentman.import.searchPlaceholder')).fill('')
+    await rb().getByRole('option', { name: /Sommerfest/ }).first().click()
+    await nv(2500)
+  }, { ziel: () => rb() })
+  await schritt('rentman-alle-auswaehlen', async () => {
+    await rbBtn('rentman.checklist.selectAll').first().click()
+  }, { ziel: () => rb() })
+  await schritt('rentman-sets-aufgeklappt', async () => { await rbBtn('rentman.checklist.expandAll').click() }, { ziel: () => rb() })
+  await schritt('rentman-kabelmengen', async () => {
+    await rb().getByRole('button', { name: new RegExp(T('rentman.import.cablePlan.headingN').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\{count\\}', '\\d+')) }).first().click()
+    await nv(300)
+    await rbBtn('rentman.import.cablePlan.selectAll').last().click()
+  }, { ziel: () => rb() })
+  await schritt('rentman-kabel-uebernommen', async () => { await rbBtn('rentman.import.cablePlan.apply').click(); await nv(400) }, { ziel: () => rb() })
+  await schritt('rentman-auswahl', async () => {
+    await rbBtn('rentman.checklist.deselectAll').first().click()
+    for (const n of [DE ? 'ATEM Mini Pro (Streaming-Mischer)' : 'ATEM Mini Pro (streaming switcher)', 'Beispielgerät Alpha', 'Beispiel Funkstrecke XY-100']) {
+      await rb().locator('label', { hasText: n }).first().locator('input[type=checkbox]').first().check()
+    }
+  }, { ziel: () => rb() })
+  await schritt('rentman-kategorie-zuordnung', async () => {
+    await rb().getByRole('button', { name: new RegExp('^(' + T('rentman.import.addToLibraryN').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\{count\\}', '\\d+') + ')') }).first().click()
+    await nv(700)
+  }, { ziel: () => rb() })
+  await schritt('rentman-weiter', async () => { await rbBtn('rentman.import.next').click(); await nv(900) }, { ziel: () => a.dialog() })
+  await a.zu()
+  await schritt('rentman-menue-verknuepft', () => a.menue('app.menu.file'), { ziel: () => a.menueFeld() })
+  await a.zu()
 })
 
 f.speichern(new URL(`./datei-import.${sprache}.json`, import.meta.url))
 writeFileSync(new URL(`./datei-import.${sprache}.fakten.json`, import.meta.url), JSON.stringify(fakten, null, 2))
 await a.ende()
+server.close()
 console.log('FERTIG')
+process.exit(0)

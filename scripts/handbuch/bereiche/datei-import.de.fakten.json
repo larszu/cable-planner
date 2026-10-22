@@ -14,9 +14,8 @@
       "beispielplan.cableplan.bak",
       "kaputt.graphml"
     ],
-    "Example_small_studio_setup.avplan": 20211,
-    "Example_small_studio_setup.avsourcemap": 672,
-    "20260930_Example_ small studio setup_001_plan-vergleich.csv": 1251
+    "beispielplan.avplan": 26020,
+    "beispielplan.avsourcemap": 667
   },
   "gelesen": {
     "menueDatei": [
@@ -42,7 +41,9 @@
       "Wer hängt an welchem Ein- und Ausgang",
       "Festinstallation: Doku & Übergabe…",
       "Stage-Plot (SVG)…",
-      "Bühnenaufsicht als Ein-Seiten-Blatt",
+      "Bühnenaufsicht als Ein-Seiten-Blatt, hell oder dunkel wie der Canvas",
+      "Stage-Plot hell (SVG)…",
+      "Weißer Hintergrund, für Druck und E-Mail",
       "Exportieren & Drucken…",
       "Cloud & Lese-Link…",
       "Als Viewer-Datei exportieren…",
@@ -80,14 +81,14 @@
       "deliveryDestinations"
     ],
     "metadata": {
-      "name": "Example: small studio setup",
+      "name": "beispielplan",
       "description": "Demo plan: 2 cameras → vision mixer → multiviewer & control room monitor. Made to be poked at — click or delete any device or cable.",
-      "createdAt": "2026-09-30T10:35:02.995Z",
-      "updatedAt": "2026-09-30T10:35:03.045Z",
+      "createdAt": "2026-10-22T09:05:17.245Z",
+      "updatedAt": "2026-10-22T09:05:31.263Z",
       "defaultVideoFormat": "1080p50",
       "defaultPowerStandard": "eu-230-1ph",
       "defaultLightingControl": "dmx512",
-      "projectId": "20622d38-50d9-4c2c-a9ab-b59baf5380d7"
+      "projectId": "cf241d1b-f59d-4569-8492-dd8371bb0353"
     },
     "ladebericht": "",
     "avplanSchluessel": [
@@ -102,7 +103,7 @@
     "avplanDomains": [
       "cabling"
     ],
-    "avplanDateiname": "Example_small_studio_setup.avplan",
+    "avplanDateiname": "beispielplan.avplan",
     "avplanMetaKeys": {
       "kind": "avplan",
       "formatVersion": 1,
@@ -117,47 +118,14 @@
       "sources",
       "unresolved"
     ],
-    "karteName": "Example_small_studio_setup.avsourcemap",
+    "karteName": "beispielplan.avsourcemap",
     "karteQuellen": [
       "Kamera 1",
       "Kamera 2"
     ],
-    "vergleichCsv": "20260930_Example_ small studio setup_001_plan-vergleich.csv",
-    "vergleichCsvKopf": "Art;Typ;Bezeichnung;Feld;Klasse;Vorher;Nachher\r",
-    "badgeText": "Example: small studio setup\n|\n11 Geräte\n6 Kabel\n1 Rahmen\n0/11 gepackt\nKlein\nOK\nNetz 3\nRentman: Standalone\nZoom: 41%\nv9.1.0-10-gfa0733b6-dirty",
+    "badgeText": "beispielplan\n|\n14 Geräte\n8 Kabel\n1 Rahmen\n0/14 gepackt\nKlein\n1\nNetz 5\nRentman: Standalone\nZoom: 38%\nv9.11.0-27-gd0fa0196",
     "autosaveKey": [
       "cable-planner:projectAutosave"
-    ],
-    "menueDateiOhneModule": [
-      "Neues Projekt",
-      "Strg+N",
-      "Neu aus Vorlage…",
-      "Öffnen…",
-      "Strg+O",
-      "Speichern",
-      "Strg+S",
-      "Speichern unter…",
-      "Strg+Umsch+S",
-      "yEd / GraphML importieren…",
-      "MultiCam-Kameras importieren…",
-      "Equipment aus CSV importieren…",
-      "Gesamtprojekt exportieren (.avplan)…",
-      "Gesamtprojekt importieren (.avplan)…",
-      "Identitäts-Karte exportieren (.avsourcemap)…",
-      "Identitäts-Karte importieren (.avsourcemap)…",
-      "Patch-Liste…",
-      "Wer hängt an welchem Ein- und Ausgang",
-      "Stage-Plot (SVG)…",
-      "Bühnenaufsicht als Ein-Seiten-Blatt",
-      "Exportieren & Drucken…",
-      "Cloud & Lese-Link…",
-      "Als Viewer-Datei exportieren…",
-      "Anmerkungen aus Viewer-Datei importieren…",
-      "Plan-Stände vergleichen…",
-      "Ausgegebene Dokumente…"
     ]
-  },
-  "abschnittFehler": [
-    "3  yEd / GraphML: locator.click: Timeout 10000ms exceeded."
-  ]
+  }
 }

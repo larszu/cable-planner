@@ -1,253 +1,422 @@
 ## File and Import
 
-The *File* menu is the central hub for project management: creating, opening, saving projects, import sources, export formats, and collaboration with external designs.
+The *File* menu has four parts. At the top are creating, opening and saving a project. Below them come the imports (*Import yEd / GraphML*, *Import MultiCam cameras*, *Import equipment from CSV*, *Rentman import*, *NetBox import*) and the exchange of whole projects (*.avplan*, *.avsourcemap*). Next come the outputs *Patch list…*, *Fixed install: docs & handover…*, *Stage plot*, *Export & Print…*, the cloud, the viewer file and the Rentman entries. The chapter *Export & Print* describes these outputs. *Rentman import…* and *NetBox import…* appear in the menu only when the integration is switched on under *Settings → Integrations*. *View linked venue plan…* appears only when the project contains a linked venue plan.
 
-### New Project
+![The File menu](bilder/en/datei-import-01-menue-datei-offen.jpg)
 
-*File → New project*
+### New project
 
-Opens the *New project* form with project name, client and logos. *Create project* replaces the current plan with an empty one. If the current plan already holds devices, cables or locations, the form notes that unsaved changes will be lost.
+*File → New project* (`Ctrl+N`) opens the *New project* form. It needs a project name; without one *Create project* stays disabled. If the current plan contains devices, cables or locations, a notice at the top says that a new project discards the current one and unsaved changes are lost. With an empty plan the notice is absent.
 
-Keyboard: `Ctrl+N`
+![New project form with the warning](bilder/en/datei-import-64-neu-dialog-mit-warnung.jpg)
 
-### New from Template
+Besides the name, the form asks for *Contractor (company)*, *Client*, *Planner / author*, *Project / job no.*, *Event/rental start*, *Event/rental end*, *Description*, *Company logo* and *Client logo*. These entries appear in the title block at the bottom right of the PDF export. You can change them later with *Edit project metadata* in the header bar.
 
-*File → New from template…*
+![Filled-in form](bilder/en/datei-import-65-neu-dialog-ausgefuellt.jpg)
 
-Opens a dialog with all available templates. Project templates are predefined building blocks: room layouts, standard equipment configurations, or wiring patterns that serve as a foundation for new designs. The dialog displays templates grouped by topic; clicking a template creates the new project.
+*Create project* replaces the current plan with an empty one that carries these entries. With an empty plan the form shows no warning.
 
-![Template Dialog](bilder/en/datei-import-templates.jpg)
+![Form without the warning](bilder/en/datei-import-66-neu-dialog-ohne-warnung.jpg)
+
+### New from template
+
+*File → New from template…* opens the *New from template* dialog. It loads a copy of the chosen template as a new project.
+
+![New from template dialog](bilder/en/datei-import-02-vorlagen-dialog.jpg)
+
+Under *Bundled templates* there are five show setups. Each card gives the number of devices, cables and locations.
+
+| Template | Content |
+|---|---|
+| *OB van* | OB van with stage and FOH, separate location frames |
+| *TV-Studio* | Studio with control room and studio floor |
+| *Live stage* | Stage, FOH and monitor world for live events |
+| *Konferenz / Corporate* | Hall and control room for conferences and corporate events |
+| *Houses of Worship* | Sanctuary/stage and tech gallery for church services |
+
+Under *My templates* are the templates you saved yourself. They live in the local storage of this app on this computer, not in the project file.
+
+**Loading a template**
+
+1. Click *Use*. If the current plan has content, *Discard current project?* asks first. *Load template* confirms.
+
+   ![Confirmation before loading](bilder/en/datei-import-61-vorlagen-verwenden-rueckfrage.jpg)
+
+2. Enter the name of the new project. The template name is pre-filled.
+
+   ![Name of the new project](bilder/en/datei-import-62-vorlagen-verwenden-name.jpg)
+
+3. *Template loaded* reports the new project. It is unsaved and has no file path yet.
+
+   ![Template loaded message](bilder/en/datei-import-63-vorlagen-verwenden-geladen.jpg)
+
+If a venue template brings answers for a different venue than the current project carries, *Answers from a different venue* asks before the name. *Load anyway* continues.
+
+**Saving the current project as a template**
+
+*Save current project as template* asks for the template name; the project name is pre-filled.
+
+![Template name](bilder/en/datei-import-57-vorlagen-eigene-speichern-name.jpg)
+
+If the project carries venue-bound entries, that is answers from the venue's IT or the address, *Bind this template to the venue?* asks. *Neutral (shape only)* leaves them out. *For this venue* takes them along and records which venue they apply to. Without venue-bound entries the question is skipped.
+
+![Venue question](bilder/en/datei-import-56-vorlagen-haus-frage.jpg)
+
+*Saved as template* confirms.
+
+![Saved as template message](bilder/en/datei-import-58-vorlagen-eigene-gespeichert.jpg)
+
+The template then appears under *My templates*. A venue template shows *Venue template* with the venue and the number of answers; one made from the as-built shows *Basis*. The bin icon on the card deletes the template after a confirmation.
+
+![My templates](bilder/en/datei-import-59-vorlagen-eigene-liste.jpg)
+
+![Delete confirmation](bilder/en/datei-import-60-vorlagen-eigene-loeschen-frage.jpg)
+
+**As-built as template**
+
+*As-built as template* takes not the current plan but the state committed as "as built". The button is always active; its hint names the difference. The dialog first asks for the template name.
+
+![Template name from the as-built](bilder/en/datei-import-03-vorlagen-as-built-frage.jpg)
+
+If no as-built is committed, *No as-built committed* refuses: commit an as-built revision first, otherwise the template would be the plan from before load-in under another name. The chapter *Tools: Build* describes revisions. With a committed as-built the dialog reports *Template … created from the as-built …*.
+
+![Refusal without an as-built](bilder/en/datei-import-04-vorlagen-as-built-abgelehnt.jpg)
 
 ### Open
 
-*File → Open…*
+*File → Open…* (`Ctrl+O`) opens the operating system's file dialog. It shows files with the extensions `.cableplan`, `.json` and `.cpviewer`. The chosen file replaces the current plan in the window.
 
-Opens an operating system file dialog. Files with extensions `.cableplan`, `.json`, or (when merging annotations) `.cpviewer` are read. The selected file is loaded into the active window.
+The app checks the file before loading it. It rejects valid JSON that contains no equipment and cable list. *This file is not an LZ Cable Planner project* reports this; the open plan stays unchanged.
 
-Keyboard: `Ctrl+O`
+![Message: not a project](bilder/en/datei-import-05-oeffnen-kein-plan.jpg)
 
-### Save
+A `.cpviewer` file, or a project with the mode *viewer*, opens as a review file. First *Viewer file — enter name* asks for your name. It is attached to every annotation you create in this session.
 
-*File → Save*
+![Name prompt for the viewer file](bilder/en/datei-import-06-oeffnen-viewer-name.jpg)
 
-Saves the active project under its current name and path. If the project has never been saved, a "Save As" dialog opens. The file has the extension `.cableplan` and is a JSON document containing all project data: equipment, cables, settings, metadata.
+Without a name the app does not load the file. *Name missing* says that without a name no annotations can be made. The chapter *Export & Print* describes how to create viewer files and bring annotations back.
 
-Keyboard: `Ctrl+S`
+![Name missing message](bilder/en/datei-import-07-oeffnen-viewer-name-leer.jpg)
 
-Contents of `.cableplan` file:
-- Project metadata (name, creator, modification date)
-- All equipment and their positions
-- All cables and their connections
-- Categories and custom equipment templates
-- Print settings and frame arrangements
-- Photo attachments (if present; approximately 40 MB and larger becomes unwieldy for email distribution)
+If the opened project is named *Untitled Project* or has no name, the app takes the file name as the project name.
 
-**Automatic Backup:** The app saves automatically on a regular basis and maintains a `.bak` file alongside the current project file. When the save icon rotates in the status bar, a backup copy is being written.
+### Save and Save as
 
-### Save As
+*File → Save* (`Ctrl+S`) writes the project to its file. If the project has no file path yet, the *Save as* dialog opens first. The app appends `.cableplan` unless you give `.cableplan` or `.json`.
 
-*File → Save as…*
+*File → Save as…* (`Ctrl+Shift+S`) writes the project under a new name or path. The new project is then the active one; the earlier file stays unchanged. The file name becomes the new project name.
 
-Saves the active project under a new name or in a different location. The original version remains unchanged; the new file is loaded as the active project.
+Every write is atomic. The app writes a temporary file first, renames the previous file to `<name>.cableplan.bak` and then puts the temporary file in its place. After the second save the `.bak` file with the previous state therefore sits next to the project file. An interruption in the middle of writing destroys neither the old nor the new file.
 
-Keyboard: `Ctrl+Shift+S`
+### Autosave and status bar
+
+Independently of saving to a file, the app continuously backs up the open plan in the program's local storage. After a change it waits briefly before writing; the default is 400 ms. The interval is under *Settings → Advanced* in the field *Autosave interval (ms)*. At the next start the app loads this backup again if it is valid.
+
+![Settings, Advanced, with the autosave interval](bilder/en/datei-import-55-einstellungen-autosave.jpg)
+
+Local storage holds only about 5 MB. If the plan gets larger, the storage refuses the backup. The status bar at the bottom then shows *No recovery copy*. Hovering over it gives the size of the plan. Nothing is missing from the plan itself; save to a file. As soon as a backup succeeds again, the indicator disappears.
+
+![Status bar in the normal state](bilder/en/datei-import-53-statusleiste-normal.jpg)
+
+![Status bar with the No recovery copy indicator](bilder/en/datei-import-54-statusleiste-ohne-sicherungskopie.jpg)
+
+### The `.cableplan` file format
+
+A `.cableplan` file is a JSON document. The app writes it with two-space indentation. The top-level fields are `metadata` (name, description, timestamps, defaults, `projectId`), `equipment`, `cables`, `locations`, `canvasState`, `floors`, `revisions`, `changelog`, `sourceIdentities`, `tallyPositions`, `patternChecks`, `hubSwitches`, `cableStock`, `ledPanelTypes`, `ledWalls`, `fotos` and further ones for standards, report templates, address layers and delivery destinations. New fields get a default value on load, including in older files. Photos are stored in the file; with many photos it grows accordingly.
+
+Passwords and keys of external services (Rentman, NetBox, device library, stream keys) are not in the file but in the operating system's keychain.
 
 ### Import yEd / GraphML
 
-*File → Import yEd / GraphML…*
+*File → Import yEd / GraphML…* reads a diagram from yEd or another GraphML file. Nodes become devices, connector cells become ports and edges become cables. The dialog first shows a preview; nothing enters the plan until you start the import.
 
-Imports wiring designs from yEd (graph editor by y.Works) or any GraphML files. The dialog loads a `.graphml` file, analyzes it, and displays a preview with three tabs:
+![Dialog without a chosen file](bilder/en/datei-import-08-graphml-dialog-leer.jpg)
 
-![GraphML Import Dialog](bilder/en/datei-import-graphml.jpg)
+*Pick file…* opens the file dialog. The parser needs about 250 ms per MB. Afterwards the dialog header shows the file name, the number of nodes and edges and the counters *Devices*, *Cables*, *Skipped* and *Edges without target*. *Devices: 3/3* means three of three devices are selected for import. *Another file* returns to the file choice.
 
-**Tab 1: Equipment** — Lists all detected nodes. The app attempts to match node names against the equipment library (HIGH = confidently identified, MED = possibly, LOW = gap). The columns are:
+![Preview with the yEd drawing](bilder/en/datei-import-09-graphml-vorschau-yed.jpg)
 
-| Column | Function |
+The *yEd preview* tab shows the drawing as read. The mouse wheel zooms, dragging pans. The *Devices* tab lists the detected devices.
+
+![Devices tab](bilder/en/datei-import-10-graphml-reiter-geraete.jpg)
+
+| Column | Meaning |
 |---|---|
-| ☐ (checkbox) | Checkbox for selecting/deselecting equipment. Checked: will be imported |
-| Name | The node name from the yEd file; can be manually renamed |
-| Category | The detected equipment category (e.g., Camera, Mixer); can be overridden |
-| Confidence | Color-coded detection confidence (HIGH/MED/LOW) |
+| Checkbox | import the device or leave it out |
+| *Name* | name from the diagram; editable in the field |
+| *Category* | detected category; editable in the field |
+| *IP* | the IP address found in the diagram |
+| *In/Out* | number of detected inputs and outputs |
+| *Status* | detection confidence: *HIGH* when a name and at least one port are detected, *MED* when the name is detected but no port, *LOW* when no name could be determined |
 
-Functions:
-- Click a single row to edit the name or category
-- Select multiple rows; then bulk-assign a category via the dropdown at the top
-- The green **Select all** button marks all equipment; **None** deselects all
+A deselected device is greyed out. The import does not take its cables.
 
-**Tab 2: Cables** — Lists all detected connections (edges between nodes).
+![Device deselected](bilder/en/datei-import-11-graphml-geraet-abgewaehlt.jpg)
 
-| Column | Function |
+Name and category can be changed before the import.
+
+![Name and category changed](bilder/en/datei-import-12-graphml-geraet-umbenannt.jpg)
+
+The *Cables* tab shows *Source*, *Target*, *Type*, *Standard* and *Length* for every edge. The app derives the type from the label. If a length is missing, the import sets 1 m. The import takes the bend points of the lines from yEd as waypoints of the cables.
+
+![Cables tab](bilder/en/datei-import-13-graphml-reiter-kabel.jpg)
+
+![Cable deselected](bilder/en/datei-import-14-graphml-kabel-abgewaehlt.jpg)
+
+The field *Filter: name / IP / category / cable type* at the top right hides rows that do not match.
+
+![Filter set to HDMI](bilder/en/datei-import-15-graphml-filter.jpg)
+
+The *Skipped* tab names what is not imported. *Nodes skipped* lists nodes such as legends and decorative shapes, with the reason. *Edges with unresolved ports* lists edges whose ends could not be assigned to a connector.
+
+![Skipped tab](bilder/en/datei-import-16-graphml-reiter-uebersprungen.jpg)
+
+**Target and mode**
+
+*Target* decides where the import writes.
+
+- *Canvas* places the devices with their cables in the plan.
+- *Library* stores the devices only as reusable templates in the local library. Cables and canvas placement are left out.
+
+![Target Library with the hint](bilder/en/datei-import-17-graphml-ziel-bibliothek.jpg)
+
+With *Canvas* the *Mode* also applies. *Append to project* adds the devices and cables to the plan. *Replace GraphML import* replaces only devices that an earlier GraphML import created; devices you added by hand stay untouched.
+
+![Mode Replace GraphML import](bilder/en/datei-import-18-graphml-ziel-canvas-ersetzen.jpg)
+
+The button at the bottom right names what will happen, for example *3 devices & 2 cables onto canvas* or *2 devices into library*. The import onto the canvas is a single step for *Undo*. Afterwards the app selects the first new device and shows the area with the imported devices.
+
+![Plan after the import](bilder/en/datei-import-20-graphml-import-ergebnis.jpg)
+
+When importing into the library, *Added to the library* reports how many devices were created and which names already existed. The import never overwrites existing templates.
+
+![Message after the import into the library](bilder/en/datei-import-21-graphml-bibliothek-ergebnis.jpg)
+
+On a second run with the same file, the import creates nothing and names the existing ones.
+
+![Second import into the library](bilder/en/datei-import-22-graphml-bibliothek-zweites-mal.jpg)
+
+If you click the background outside the dialog, *Discard import?* asks: anything not yet applied here will be lost. *Keep editing* returns, *Discard* closes. The cross at the top right closes the dialog without a question.
+
+![Discard import prompt](bilder/en/datei-import-19-graphml-hintergrund-rueckfrage.jpg)
+
+A file that is not valid XML shows *Import failed* with the file name and the parser's message.
+
+![Error message for an invalid file](bilder/en/datei-import-23-graphml-datei-ohne-inhalt.jpg)
+
+### Import MultiCam cameras
+
+*File → Import MultiCam cameras…* opens the file dialog directly; there is no dialog of its own. It reads the camera list (`camera-list`, version 1 to 3) that the MultiCam planner exports. Each entry becomes a device of the category *Kameras*.
+
+If the model clearly matches a catalog entry, the camera inherits its connectors. If it does not match clearly, the camera stays without ports and counts as "ports unknown". The app does not invent connectors; the plan check then asks for the datasheet values.
+
+A message gives the result: *MultiCam cameras: 2 new, 0 updated, 0 unchanged.*
+
+![Message after the first import](bilder/en/datei-import-30-multicam-erster-import.jpg)
+
+A further import is a reconciliation, not an append. The app recognises cameras by their origin in the MultiCam plan. From the list it takes the name, the optics and, from version 3, the PTZ presets. Position, ports and cables stay as you set them. Cameras that are no longer in the MultiCam plan are marked and not deleted, because cables may hang on them. If the model has changed, ports and cables are kept; you swap the body via *Choose another device…* in the properties.
+
+![Message after the reconciliation](bilder/en/datei-import-31-multicam-zweiter-import.jpg)
+
+A file that is not a valid camera list reports *Camera import failed — not a valid MultiCam camera list.*
+
+![Error message](bilder/en/datei-import-32-multicam-fehler.jpg)
+
+### Import equipment from CSV
+
+*File → Import equipment from CSV…* creates device templates in the local library. Only templates are created; nothing is placed on the canvas.
+
+![Dialog without content](bilder/en/datei-import-24-csv-dialog-leer.jpg)
+
+You paste the CSV text into the field or choose a file with *Choose CSV file…*. The first row holds the column headings. The separator is a semicolon or a comma, whichever occurs more often in the header row. The app reads quotation marks and a BOM at the start of the file.
+
+![Pasted CSV text with the preview](bilder/en/datei-import-25-csv-eingefuegt.jpg)
+
+The app assigns the headings to a field. The whole text is compared in lower case, not a fragment.
+
+| Field | recognised headings |
 |---|---|
-| ☐ (checkbox) | Checkbox for selecting/deselecting cables |
-| From | Source equipment name |
-| Port | Source port (or empty if not specified) |
-| To | Destination equipment name |
-| Port | Destination port (or empty) |
+| Name | `name`, `gerät`, `geraet`, `device`, `bezeichnung`, `artikel` |
+| Category | `kategorie`, `category`, `typ`, `type`, `gruppe` |
+| Power (W) | `watt`, `watts`, `leistung`, `power`, `w` |
+| Weight (kg) | `gewicht`, `weight`, `kg` |
+| Serial number | `seriennummer`, `serial`, `s/n`, `sn` |
+| Asset tag | `asset-tag`, `asset tag`, `assettag`, `asset_tag`, `inventarnummer`, `inventar-nr`, `inventar-nr.` |
+| Internal number | `interne nummer`, `interne nr`, `interne nr.`, `internal number`, `internal no`, `internal no.`, `hausnummer` |
+| IP | `ip`, `ip-adresse`, `ipaddress`, `ip address`, `ip adresse` |
+| Rack units | `he`, `rackunits`, `ru`, `höheneinheiten`, `hoeheneinheiten` |
+| Subtitle | `untertitel`, `subtitle`, `hersteller`, `manufacturer`, `marke`, `brand` |
 
-Functions:
-- Each cable can be individually included or excluded
-- Same bulk procedure as equipment (select multiple rows, then action)
+A device with rack units counts as a rack device. If the category is missing, the app sets *Imported*. If the name column is missing, the first column counts as the name.
 
-**Tab 3: Skipped** — Shows all nodes or edges that cannot be imported (e.g., labels, structural nodes, unassigned categories). The list aids troubleshooting: what was omitted and why?
+The box *What happens to the rest* lays open what does not arrive as a field:
 
-**Options:**
-- **Append** (default) — Imported equipment and cables are added to the existing project
-- **Replace** — The entire project is replaced with the import data
+- Columns without an assignment go into the device's notes, as lines of the form `Heading: value`. Empty cells are dropped.
+- A second column on the same field loses the assignment: the first wins, the second becomes a note.
+- Rows without a name are skipped; the box names their row numbers.
+- Names that already exist in the library stay unchanged. This also applies to names that occur twice in the file: only the first row counts.
 
-**Specifics:**
-- Node positions from yEd are preserved (soft mapping to Cable Planner coordinates)
-- Unknown categories are marked as "unclear" and can be manually corrected
-- Connections without equipment assignment are shown as errors
+The button *Import 2* gives the number of new templates. Afterwards *CSV imported* reports how many devices were created, how many names already existed and how many rows without a name were skipped.
 
-### Import MultiCam Cameras
+![CSV imported message](bilder/en/datei-import-26-csv-import-ergebnis.jpg)
 
-*File → Import MultiCam cameras…*
+![New templates in the library](bilder/en/datei-import-27-csv-in-bibliothek.jpg)
 
-Imports camera definitions from a MultiCam camera list. The file is selected via an operating system file dialog. The format is text-based; the app checks the structure and adds recognized cameras to the equipment library.
+If you repeat the import with the same names, the templates stay unchanged and the dialog lists the existing names.
 
-The dialog does not open — instead, the file dialog is displayed directly (hidden `<input type="file"`). After file selection, the list is imported and a confirmation is shown.
+![Second import with existing names](bilder/en/datei-import-28-csv-zweiter-import-vorhanden.jpg)
 
-### Import Equipment from CSV
+The file can also come through *Choose CSV file…*; the content lands in the same field.
 
-*File → Import equipment from CSV…*
+![Dialog after choosing the file](bilder/en/datei-import-29-csv-datei-gewaehlt.jpg)
 
-Imports equipment catalogs from a CSV file (Comma-Separated Values). The format is flexible: the header (Name, Category, Power, Serial Number, …) is recognized automatically. The dialog supports multilingual column names (DE/EN aliases).
+### Rentman import
 
-![CSV Import Dialog](bilder/en/datei-import-csv.jpg)
+*File → Rentman import…* loads the devices of a Rentman project into the library. The import creates templates but places nothing on the canvas.
 
-**Workflow:**
+**Setting up.** Under *Settings → Integrations* switch on *Enable Rentman integration*. On the card *Rentman API* enter the API token and save it. It is stored in the operating system's keychain.
 
-1. **Load file** — Click *Select CSV file…* opens the operating system file dialog
-2. **Enter/edit CSV text** — The detected text is shown in the text area and can be manually edited
-3. **Preview** — All detected columns and their contents are displayed below; known columns are highlighted in green
-4. **Silent losses visible** — The app counts and displays:
-   - Unknown columns (ignored on import)
-   - Rows without names (skipped)
-   - Duplicate names (only the first row is imported)
-5. **Import** — The green *0 to import* button shows the count of new equipment; clicking it commits the import
+**Choosing a project.** *Load projects* fetches the projects of the account. The list shows number, name, period and status; *Sort:* orders by number or date, the search field filters by name, number or status.
 
-**Column Aliases:**
+![Dialog with the project list](bilder/en/datei-import-67-rentman-import-offen.jpg)
 
-| German | English | Function |
-|---|---|---|
-| Name | Name | Equipment name (required) |
-| Kategorie | Category | Equipment category (e.g., Camera) |
-| Leistung | Power | Power consumption in watts |
-| Gewicht | Weight | Weight for load calculations |
-| Seriennummer | Serial number | Unique equipment ID |
+![Projects after the search](bilder/en/datei-import-68-rentman-suche.jpg)
 
-The app remembers the column mapping for subsequent CSV imports.
+A click on a project loads its equipment. The header shows the project; *change* returns to the list, *Reload & sync* fetches the quantities again.
 
-### Rentman Import
+![Project chosen](bilder/en/datei-import-69-rentman-projekt-gewaehlt.jpg)
 
-*File → Rentman import…* (only if Rentman integration is enabled)
+The box *Plan vs. reservation* compares the plan with the Rentman reservation: devices that are only in the plan, only reserved, or whose quantity differs. It does not count lines without device character (comments, set contents, cancelled). *CSV* saves the comparison.
 
-Connects to the Rentman rental management system and loads equipment from the Rentman classification as an equipment library into LZ Cable Planner. The dialog goes through several steps:
+**Selection.** The list shows the devices grouped by category. Next to each row are the quantity in the Rentman project and the *Link…* choice, which connects a Rentman device to an existing local device. Badges show what the app knows about the device:
 
-**Steps in the Dialog:**
+| Badge | Meaning |
+|---|---|
+| *⊕ catalog* | match in the built-in catalog; the import creates the template from it |
+| *linked* | already connected to a local template by Rentman ID; a repeated import changes only category and project link, the ports stay |
+| *in library* | local template with the same name but no Rentman ID; the import then asks |
 
-1. **Authentication** — Enter the Rentman API token (stored in the OS credential store)
-2. **Project selection** — Lists all Rentman projects; the user selects one
-3. **Category mapping** — Rentman equipment classes are mapped to Cable Planner categories
-4. **Preview** — Shows all equipment to be imported
-5. **Import** — Confirmation and execution
+*Select all* and *Deselect all* set all ticks. Combinations appear as *Physical combi*, *Virtual combi* or *Set*. A physical combination is one stock unit and is taken over as one device. *+ as rack* takes it over as a rack, *+ main device only* leaves out the accessories. *Expand all sets* shows the contents.
 
-The integration is enabled in *Settings → Integrations*. The workflow is non-destructive: existing equipment is not overwritten.
+![All selected](bilder/en/datei-import-70-rentman-alle-auswaehlen.jpg)
 
-### NetBox Import
+![Sets expanded](bilder/en/datei-import-71-rentman-sets-aufgeklappt.jpg)
 
-*File → NetBox import…* (only if NetBox integration is enabled)
+**Cable quantities.** The block *Cable quantities from Rentman* sums up the cable lines by type and length. It can be opened. For each type there are a tick, the length, an editable quantity and the number of Rentman entries.
 
-Loads a network infrastructure inventory image from NetBox (IPAM/DCIM system). The dialog is similar to the Rentman import: authentication, inventory selection, category mapping, preview, and import.
+![Cable quantities opened](bilder/en/datei-import-72-rentman-kabelmengen.jpg)
 
-**Specifics:**
-- NetBox device types are interpreted as categories
-- Interface specifications (e.g., "SFP+") are retained as port names
-- The integration is enabled in *Settings → Integrations*
+*Adopt cable quantities* stores the chosen types with their quantities as the cable plan in the project and links the project to the Rentman project. This also works without a device import. The message reads *2 cable type(s) adopted as plan.* With *Send cables to Rentman…* in the File menu these quantities can later go back; the chapter *Export & Print* describes that.
 
-### Export Whole Project
+![Cable quantities adopted](bilder/en/datei-import-73-rentman-kabel-uebernommen.jpg)
 
-*File → Export whole project (.avplan)…*
+**Adopting.** *Add to library (n)* gives the number of chosen devices.
 
-Saves the project in `.avplan` format — a cross-platform exchange format for AV planning software. The format is transparent (JSON) and contains all project data plus metadata for external tools (e.g., av-control-center).
+![Selection for the library](bilder/en/datei-import-74-rentman-auswahl.jpg)
 
-A click opens a Save dialog; the default filename is `<ProjectName>.avplan`.
+Next, *Category mapping before import* opens. You assign each device a local category. The app recognises and remembers matching categories; you create missing ones with *+ New*. *Back* keeps the selection.
 
-### Import Whole Project
+![Category mapping](bilder/en/datei-import-75-rentman-kategorie-zuordnung.jpg)
 
-*File → Import whole project (.avplan)…*
+*Next* without a complete mapping reports *Category missing*.
 
-Loads a previously exported `.avplan` project. The project is loaded in the active window.
+![Category missing message](bilder/en/datei-import-76-rentman-weiter.jpg)
 
-A click opens an Open dialog; file types are `.avplan` and `.json`.
+If devices already exist under the same name, a conflict dialog appears per device. The default is *Keep local version (recommended)*, so your own port assignments are kept. Further actions are *Link to another local device*, *Overwrite with Rentman version*, *Merge ports* and *Skip (do not import)*. *Set all:* applies *Keep local*, *Take Rentman* or *Skip* to all rows. The message at the end says how many devices were added to the library.
 
-### Export Identity Map
+### NetBox import
 
-*File → Export identity map (.avsourcemap)…*
+*File → NetBox import…* reads a site or a rack from NetBox and creates devices, ports and connections as a cable plan.
 
-The identity map is a lookup table between internal equipment IDs (as referenced in source systems — e.g., ATEM videohub — and equipment names in the Cable Planner design. The file serves for reconciliation with hardware or other software systems.
+**Setting up.** Under *Settings → Integrations* switch on *Enable NetBox integration*. On the card *NetBox API* enter the *Instance URL* and the *API token*. The token is stored in the keychain. *Test connection* checks the connection. Without a URL the dialog shows *Please configure the instance URL and an API token first under Settings → Integrations → NetBox.* The button *Build preview* stays disabled.
 
-A click opens a Save dialog.
+![Dialog without a configured URL](bilder/en/datei-import-33-netbox-ohne-url.jpg)
 
-### Import Identity Map
+**Choosing.** Under *Site* you choose the site, optionally under *Rack (optional)* a single rack. The number in brackets is the number of devices. The icon next to the site reloads the lists. The default *— import the whole site —* takes all racks.
 
-*File → Import identity map (.avsourcemap)…*
+![Choosing site and rack](bilder/en/datei-import-34-netbox-dialog-auswahl.jpg)
 
-Loads a previously exported identity map and applies the mappings to current equipment.
+![Site chosen](bilder/en/datei-import-35-netbox-standort-gewaehlt.jpg)
 
-A click opens an Open dialog.
+![Rack chosen](bilder/en/datei-import-36-netbox-rack-gewaehlt.jpg)
 
-### View Linked Venue Plan
+Under *Options* there are three switches:
 
-*File → View linked venue plan…*
+- *Only import cabled ports* leaves out unused ports. Recommended: a 48-port switch would otherwise bring 48 unused ports.
+- *Import connections* creates the cables.
+- *Create a frame per rack* creates a frame in the plan for each rack.
 
-If the project is linked to a venue planning project (e.g., from light-planner) via the `.avplan` format, this dialog can display the linked file. This function aids coordination between cable and venue planning.
+![Options switched off](bilder/en/datei-import-37-netbox-optionen-aus.jpg)
 
-### Project File Format: `.cableplan`
+![Options switched on](bilder/en/datei-import-38-netbox-optionen-ein.jpg)
 
-The project file is a JSON document with the structure:
+**Preview.** *Build preview* loads the data and computes the reconciliation. Four counters are at the top: *New devices*, *New connections*, *New ports on existing devices* and *Unchanged*. Below, a line gives the numbers from NetBox. *skipped objects* can be expanded and names each object with the reason; in the example one cable end lies outside the imported area. *Devices that will be created* lists name, type and port count.
 
-```json
-{
-  "metadata": {
-    "name": "My Project",
-    "creator": "John Doe",
-    "modified": "2026-09-28T10:00:00Z",
-    "version": "8.1.0"
-  },
-  "equipment": [
-    {"id": "...", "name": "Camera 1", "category": "Camera", "position": {...}},
-    ...
-  ],
-  "cables": [
-    {"id": "...", "from": "...", "to": "...", "type": "SDI"},
-    ...
-  ],
-  "library": [...],
-  "fotos": [...]
-}
-```
+![Preview](bilder/en/datei-import-39-netbox-vorschau.jpg)
 
-Size benchmarks:
-- Small projects (< 50 equipment): 50–200 kB
-- Medium projects (50–200 equipment): 200 kB–2 MB
-- Large projects (> 200 equipment) + photos: > 5 MB
+![Preview with the skipped objects expanded](bilder/en/datei-import-40-netbox-vorschau-uebersprungen.jpg)
 
-**Backup and Data Loss Prevention:**
+*Back* returns to the choice, *Add to project* writes.
 
-- The app saves automatically every 30 seconds
-- A `.bak` file sits beside the `.cableplan` (backup of the previous version)
-- On crash, the automatic backup is restored on next startup
-- Backup errors are indicated in the status bar with a warning icon
+**Reconciliation instead of appending.** The reconciliation only ever adds: existing devices and cables stay with all their adjustments. The project remembers the site. The next time you open the dialog it shows *This project is linked to site "…". Last reconciliation: …*.
 
-### Backup Status in the Status Bar
+![Repeated run, linked project](bilder/en/datei-import-41-netbox-zweiter-lauf-verknuepft.jpg)
 
-At the bottom right of the window, the **status bar** displays the backup status:
+In the example one device has been added in NetBox. The second preview shows only this device as new; the five devices from the first run are under *Unchanged*.
 
-- **Normal icon (☑)** — Project is current, last save less than 5 seconds ago
-- **Rotating icon (⟳)** — Backup copy is running
-- **Warning icon (⚠)** — Backup failed (e.g., disk full, write error)
+![Preview of the second run](bilder/en/datei-import-42-netbox-zweiter-lauf-delta.jpg)
 
-Failed backups are collected and displayed in Settings under *Error Log*.
+### Exporting and importing a whole project (`.avplan`)
 
-The `.bak` file is written atomically: it is never left in a half-written state, and power failures during save destroy neither the current nor the old file.
+*File → Export whole project (.avplan)…* writes the project in the exchange format `.avplan`. The file is JSON with the fields `kind` (*avplan*), `formatVersion`, `app`, `appVersion`, `exportedAt`, `venue` and `domains`. The Cable Planner enters its part under `domains.cabling`. It keeps the parts of other planners (cameras, lighting, venue) unchanged. The file name is `<project name>.avplan`; the app replaces characters other than letters, digits, `_` and `-` with `_`. The file is written as a download of the program window.
+
+If devices carry a user name or password, *Include credentials?* asks: the `.avplan` goes to other trades. *Without credentials* removes them; re-importing into this planner then loses them. *Include* keeps them, *Cancel* aborts the export. The question is skipped when no device carries credentials.
+
+![Credentials prompt](bilder/en/datei-import-43-avplan-export-zugangsdaten-frage.jpg)
+
+*File → Import whole project (.avplan)…* loads an `.avplan` or `.json` file and replaces the current plan. If the file knows sections that this app does not, for example from a newer version, *This file contains unknown sections* asks for each section. The choices are *Carry through (unchanged, preserved on export)*, *Take over as* into a free known section, and *Discard*. *Carry all through* is the cautious default; if you close the dialog without choosing, it applies as well.
+
+![Unknown sections](bilder/en/datei-import-44-avplan-import-unbekannte-abschnitte.jpg)
+
+![Take over a section as](bilder/en/datei-import-45-avplan-import-uebernehmen-als.jpg)
+
+If the file contains the camera list of the MultiCam plan, *This file contains the cameras of the MultiCam plan. Apply them to the signal plan?* asks. The text below gives the reconciliation result as in the MultiCam import. It asks because a camera you deleted on purpose would otherwise come back on every opening.
+
+![Question about the cameras](bilder/en/datei-import-46-avplan-import-kameras-frage.jpg)
+
+A file without a valid `.avplan` format reports *Import failed — not a valid .avplan file.*
+
+![Error message](bilder/en/datei-import-47-avplan-import-fehler.jpg)
+
+### Identity map (`.avsourcemap`)
+
+The identity map is a small, flat format for runtime programs such as a tally computer or a UMD sender. It should not have to read the whole project to learn that "Kamera 1" sits on switcher input 3. The file carries `kind` *av-source-map*, `formatVersion`, `app`, `appVersion`, `exportedAt`, the sources (`sources`) and the open points (`unresolved`). Every value names its origin: *planned* (from the planning), *commanded* (sent to a device) or *confirmed* (reported back by the device). The Cable Planner writes only *planned*.
+
+*File → Export identity map (.avsourcemap)…* writes `<project name>.avsourcemap` as a download in the same way. Two notices appear after writing when they apply. *Map written — with one limitation* names roles with more than one device: the file carries the target label only once per role. *Map written — without a switcher input* names roles that reach a router without the crosspoint to the switcher being planned; for them the file holds no input number.
+
+*File → Import identity map (.avsourcemap)…* reads a map and reconciles it with the sources of the plan. A report *Identity map imported* lists the result:
+
+| Line | Meaning |
+|---|---|
+| *Newly created* | sources the plan did not know yet |
+| *Filled in* | fields that were empty in the plan |
+| *Not applied* | fields where plan and file carry different values; the plan keeps its value |
+| *Discarded* | values the app rejects, with the reason (for example a UMD address outside the range 0 to 126) |
+| *No field for this in this app* | entries that stay only in the file |
+| *Nothing to do* | the map says what the plan already says |
+
+![Report with new sources and a discarded value](bilder/en/datei-import-49-karte-import-neu.jpg)
+
+![Report with a conflict](bilder/en/datei-import-50-karte-import-konflikt.jpg)
+
+![Report: nothing to do](bilder/en/datei-import-51-karte-import-nichts.jpg)
+
+A file that is not an identity map reports *Import failed* with the reason.
+
+![Error message](bilder/en/datei-import-52-karte-import-fehler.jpg)
+
+### View linked venue plan
+
+If a project comes from an `.avplan` that carries room, camera or lighting data of another planner, the menu contains *View linked venue plan…*. The dialog *Linked venue plan (view only)* names the room, the number of walls, persons and stage elements, and the cameras and fixtures. It changes nothing.
+
+![Linked venue plan dialog](bilder/en/datei-import-48-venue-dialog.jpg)
