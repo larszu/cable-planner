@@ -34,7 +34,8 @@ export const RundownDialog = () => {
   const setOpen = useUiStore((s) => s.setRundownOpen)
   const rundown = useProjectStore((s) => s.project.rundown)
   const setRundown = useProjectStore((s) => s.setRundown)
-  const identities = useProjectStore((s) => s.project.sourceIdentities) ?? []
+  const identitiesRaw = useProjectStore((s) => s.project.sourceIdentities)
+  const identities = useMemo(() => identitiesRaw ?? [], [identitiesRaw])
 
   const [text, setText] = useState('')
   const [quelle, setQuelle] = useState('')

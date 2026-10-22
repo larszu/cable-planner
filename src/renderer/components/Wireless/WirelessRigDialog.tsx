@@ -7,6 +7,7 @@ import { WIRELESS_CATALOG, wirelessBodies, wirelessById } from '../../lib/wirele
 import { compatibleCapsules, compatibleBodypackMics } from '../../lib/wirelessCompat'
 import { emptyWirelessRig, deriveRig } from '../../lib/wirelessRig'
 import { collectTransmitters } from '../../lib/spectrumPlan'
+import { rfConflictText } from '../../lib/rfCoordination'
 import type { WirelessRigPlan, WirelessChannel } from '../../types/wirelessRig'
 import { MicPlotPanel } from './MicPlotPanel'
 import { selectableBands, bandId, bandById, type RfBand } from '../../lib/rfBands'
@@ -107,7 +108,7 @@ export const WirelessRigDialog = () => {
           t('wireless.listTitle', 'Wireless channel list'),
           wirelessRigTable(plan),
           undefined,
-          table ? `${table.name} · ${table.regulator}` : undefined,
+          table ? `${t(`wireless.country.${table.code}`, table.name)} · ${table.regulator}` : undefined,
         ),
       ]),
     )
@@ -195,7 +196,7 @@ export const WirelessRigDialog = () => {
           >
             <option value="">{t('wireless.noCountry', '— country —')}</option>
             {RF_COUNTRY_TABLES.map((c) => (
-              <option key={c.code} value={c.code}>{c.name}</option>
+              <option key={c.code} value={c.code}>{t(`wireless.country.${c.code}`, c.name)}</option>
             ))}
           </select>
           <button
@@ -418,7 +419,7 @@ export const WirelessRigDialog = () => {
                     <span className="bg-cp-surface-3 px-1.5 py-0.5 text-cp-xs text-cp-text-muted">
                       {c.kind === 'spacing' ? t('wireless.kindSpacing', 'spacing') : c.kind === 'imd3-2tx' ? 'IMD3·2' : 'IMD3·3'}
                     </span>
-                    <span className="text-cp-text-secondary">{c.message}</span>
+                    <span className="text-cp-text-secondary">{rfConflictText(c, t)}</span>
                   </li>
                 ))}
               </ul>

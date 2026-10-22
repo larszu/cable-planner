@@ -13,6 +13,11 @@ import { BEFUNDE_DE } from './befundeDe'
 export const KANONISCH_DE: Readonly<Record<string, string>> = {
   // Labels, die als verschachtelter Satz in Befunden stehen (#1142).
   'nic.role.control': 'Steuerung',
+  'spectrum.source.rig': 'Funkmikrofon-Rig',
+  'spectrum.source.link': 'Funkstrecke',
+  'rf.conflict.spacing': '{a} ({fa}) ↔ {b} ({fb}): Abstand {d} MHz < {need} MHz',
+  'rf.conflict.imd2': '2·{a} − {b} = {p} MHz trifft {v} ({fv})',
+  'rf.conflict.imd3': '{a} + {b} − {c} = {p} MHz trifft {v} ({fv})',
   'nic.role.management': 'Management',
   'nic.role.mediaPrimary': 'Medien primär',
   'nic.role.mediaSecondary': 'Medien sekundär',
@@ -403,4 +408,5 @@ export const SPALTEN_DE: Readonly<Record<string, string>> = {
   'Devices': 'Geräte',
   'Connection': 'Anschluss',
   'Notice': 'Hinweis',
+  'Who / where': 'Wer / wo',
 }

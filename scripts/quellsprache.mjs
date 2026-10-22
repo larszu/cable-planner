@@ -79,6 +79,9 @@ const DEUTSCH = [
   // keines davon kommt in einem englischen Fallback vor.
   'sonstige', 'sonstiges', 'linie', 'kurve', 'qualifikation', 'versicherung',
   'unterweisung', 'ausweis', 'bezeichnung', 'aussteller', 'abgelaufen',
+  // 2026-10-22 (#B): „Abstand {d} MHz", „… MHz trifft …" (RF-Befund) und
+  // „Was ansteht" (Analyse-Reiter) gingen als „unklar" durch.
+  'abstand', 'trifft', 'ansteht', 'funk', 'kabelwege', 'signalwege',
 ]
 
 /** Woerter, die es nur im Englischen gibt. */
@@ -472,7 +475,7 @@ export const messeSprachmix = (wurzel, quellsprache) => {
  *
  * Grenze NULL (2026-10-21 nachgezogen, #1117).
  */
-const DATEN_BESCHRIFTUNG = /\b(?:label|description|hint):\s*(['"])((?:[^\\]|\\.){4,}?)\1/g
+const DATEN_BESCHRIFTUNG = /\b(?:label|description|hint|fallback):\s*(['"])((?:[^\\]|\\.){4,}?)\1/g
 const MAP_ALS_FALLBACK = /\b(?:t|tr|translate)\([^()]*?,\s*([A-Z][A-Z0-9_]*)\[/g
 // 2026-10-21: Beschriftungs-Maps, die OHNE t() gerendert werden
 // (`{NACHWEIS_ART_LABEL[a]}` im JSX, `NACHWEIS_LAGE_LABEL[z.lage]` in einer

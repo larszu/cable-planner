@@ -127,6 +127,7 @@ import {
   parseFreqMhz,
   spectrumTable,
 } from '../../lib/spectrumPlan'
+import { rfConflictText } from '../../lib/rfCoordination'
 import {
   carrierCheckTable,
   checkCarriers,
@@ -1655,13 +1656,13 @@ const RfTab = ({ projectName }: { projectName: string }) => {
         const wer = conflictParticipants(spectrum, c)
           .map((e) =>
             e.carrier
-              ? `${e.label} (${SPECTRUM_SOURCE_LABEL[e.source]}: ${e.carrier})`
-              : `${e.label} (${SPECTRUM_SOURCE_LABEL[e.source]})`,
+              ? `${e.label} (${t(`spectrum.source.${e.source}`, SPECTRUM_SOURCE_LABEL[e.source])}: ${e.carrier})`
+              : `${e.label} (${t(`spectrum.source.${e.source}`, SPECTRUM_SOURCE_LABEL[e.source])})`,
           )
           .join(' ↔ ')
-        return { kind: c.kind, text: wer ? `${wer} — ${c.message}` : c.message }
+        return { kind: c.kind, text: wer ? `${wer} — ${rfConflictText(c, t)}` : rfConflictText(c, t) }
       }),
-    [spectrum],
+    [spectrum, t],
   )
 
   const suggestion = useMemo(() => {
@@ -2874,25 +2875,25 @@ const DanteTab = ({ projectName }: { projectName: string }) => {
 const TABS: { id: Tab; labelKey: string; fallback: string }[] = [
   // Bedarf 108 zuerst: „users ask to be TOLD something rather than to go and
   // check". Was ansteht, steht vorn — nicht auf Platz zwoelf.
-  { id: 'todo', labelKey: 'analysis.tab.todo', fallback: 'Was ansteht' },
-  { id: 'client', labelKey: 'analysis.tab.client', fallback: 'Kunden-Übersicht' },
-  { id: 'cost', labelKey: 'analysis.tab.cost', fallback: 'Kosten: Plan gegen Ist' },
-  { id: 'crew', labelKey: 'analysis.tab.crew', fallback: 'Crew: Stunden & Auslagen' },
-  { id: 'naming', labelKey: 'analysis.tab.naming', fallback: 'Namensregel' },
-  { id: 'dante', labelKey: 'analysis.tab.dante', fallback: 'Dante-Patch' },
-  { id: 'weight', labelKey: 'analysis.tab.weight', fallback: 'Gewicht & Wärme' },
-  { id: 'network', labelKey: 'analysis.tab.network', fallback: 'Netzwerk' },
-  { id: 'redundancy', labelKey: 'analysis.tab.redundancy', fallback: 'Redundanz' },
-  { id: 'rf', labelKey: 'analysis.tab.rf', fallback: 'RF / Funk' },
-  { id: 'runs', labelKey: 'analysis.tab.runs', fallback: 'Kabelwege' },
+  { id: 'todo', labelKey: 'analysis.tab.todo', fallback: 'To do' },
+  { id: 'client', labelKey: 'analysis.tab.client', fallback: 'Client overview' },
+  { id: 'cost', labelKey: 'analysis.tab.cost', fallback: 'Cost: plan vs. actual' },
+  { id: 'crew', labelKey: 'analysis.tab.crew', fallback: 'Crew: hours & expenses' },
+  { id: 'naming', labelKey: 'analysis.tab.naming', fallback: 'Naming rule' },
+  { id: 'dante', labelKey: 'analysis.tab.dante', fallback: 'Dante patch' },
+  { id: 'weight', labelKey: 'analysis.tab.weight', fallback: 'Weight & heat' },
+  { id: 'network', labelKey: 'analysis.tab.network', fallback: 'Network' },
+  { id: 'redundancy', labelKey: 'analysis.tab.redundancy', fallback: 'Redundancy' },
+  { id: 'rf', labelKey: 'analysis.tab.rf', fallback: 'RF / wireless' },
+  { id: 'runs', labelKey: 'analysis.tab.runs', fallback: 'Cable runs' },
   // #664 — der Weg ueber mehrere Ebenen, direkt neben den Kabelwegen:
   // dort sucht, wer wissen will, wo ein Signal ankommt.
-  { id: 'chain', labelKey: 'analysis.tab.chain', fallback: 'Signalwege' },
+  { id: 'chain', labelKey: 'analysis.tab.chain', fallback: 'Signal paths' },
   // Nutzer-Frage 2026-09-23 — „welches Geraet auf welchem Kabel an welchem
   // Patchfeld auf welchen Switch-Port". Neben den Signalwegen, weil es
   // dieselbe Frage im Netz ist: dort das Signal, hier die Steckverbindung.
-  { id: 'patch', labelKey: 'analysis.tab.patch', fallback: 'Anschlussliste' },
-  { id: 'sheet', labelKey: 'analysis.tab.sheet', fallback: 'Blatt prüfen' },
+  { id: 'patch', labelKey: 'analysis.tab.patch', fallback: 'Connection list' },
+  { id: 'sheet', labelKey: 'analysis.tab.sheet', fallback: 'Check sheet' },
 ]
 
 /**

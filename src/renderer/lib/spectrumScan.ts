@@ -339,7 +339,7 @@ export function carrierCheckTable(checks: readonly CarrierCheck[]): CsvTable {
     headers: spalten(['What transmits', 'Carrier source', 'Frequency (MHz)', 'Verdict', 'Peak level (dBm)']),
     rows: checks.map((c): CsvCell[] => [
       c.entry.label,
-      SPECTRUM_SOURCE_LABEL[c.entry.source],
+      kanonisch(`spectrum.source.${c.entry.source}`, SPECTRUM_SOURCE_LABEL[c.entry.source]),
       c.entry.mhz,
       kanonisch(`scan.verdictLabel.${c.verdict}`, VERDICT_LABEL[c.verdict]),
       c.peakDbm === undefined ? kanonisch('scan.verdictLabel.not-scanned', VERDICT_LABEL['not-scanned']) : c.peakDbm,
