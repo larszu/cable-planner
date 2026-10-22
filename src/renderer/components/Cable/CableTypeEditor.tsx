@@ -54,7 +54,17 @@ interface CableTypeEditorProps {
   onSave: (spec: Omit<CableSpec, 'id'>) => void
 }
 
-export const CableTypeEditor = ({
+/**
+ * Die Felder sind `useState(initial?.…)` — sie lesen `initial` nur beim
+ * Einhaengen. Beide Aufrufer haengen den Editor aber dauerhaft ein und
+ * schalten nur `open`; beim ersten Einhaengen ist `initial` null. Ein
+ * "Bearbeiten" zeigte deshalb ein leeres Formular. Die Huelle haengt das
+ * Formular erst beim Oeffnen ein, je Kabeltyp neu (key).
+ */
+export const CableTypeEditor = (props: CableTypeEditorProps) =>
+  props.open ? <CableTypeEditorForm key={props.initial?.id ?? '__new__'} {...props} /> : null
+
+const CableTypeEditorForm = ({
   open,
   initial,
   existingNames,

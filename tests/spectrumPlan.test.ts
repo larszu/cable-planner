@@ -237,8 +237,8 @@ describe('Bedarf 95 — das Blatt und das Register', () => {
     const tab = spectrumTable(buildSpectrumPlan(p))
     expect(tab.headers).toEqual(['Frequenz (MHz)', 'Was', 'Herkunft', 'Wer / wo'])
     expect(tab.rows.map((r) => r[0])).toEqual([400, 500])
-    expect(tab.rows[0][2]).toBe(SPECTRUM_SOURCE_LABEL.rig)
-    expect(tab.rows[1][2]).toBe(SPECTRUM_SOURCE_LABEL.link)
+    expect(tab.rows[0][2]).toBe('Funkmikrofon-Rig')
+    expect(tab.rows[1][2]).toBe('Funkstrecke')
   })
 
   it('steht im Register mit Stand und Beschriftung', () => {

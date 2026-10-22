@@ -110,7 +110,6 @@ const BESTAND: Record<string, number> = {
   'lib/bridge.ts': 2,
   'lib/graphml/parser.ts': 6,
   'lib/textProtocol.ts': 5,
-  'lib/rfCoordination.ts': 3,
   'lib/exportPdf.ts': 2,
   'lib/receiptRead.ts': 1,
   'lib/portLabel.ts': 1,

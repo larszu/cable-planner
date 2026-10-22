@@ -55,7 +55,7 @@ const US_15236 = 'https://www.ecfr.gov/current/title-47/chapter-I/subchapter-A/p
 export const RF_COUNTRY_TABLES: RfCountryTable[] = [
   {
     code: 'DE',
-    name: 'Deutschland',
+    name: 'Germany',
     regulator: 'Bundesnetzagentur',
     ranges: [
       { fromMHz: 32.475, toMHz: 34.325, maxPower: '10 mW ERP', use: 'general', note: 'bis 31.03.2036', source: DE_VFG37 },
@@ -73,7 +73,7 @@ export const RF_COUNTRY_TABLES: RfCountryTable[] = [
   },
   {
     code: 'AT',
-    name: 'Österreich',
+    name: 'Austria',
     regulator: 'Fernmeldebehörde (BMF)',
     ranges: [
       { fromMHz: 174, toMHz: 216, maxPower: '100 mW EIRP', use: 'general', note: 'FSB-LT015; generelle Bewilligung', source: AT_FSB },
@@ -92,7 +92,7 @@ export const RF_COUNTRY_TABLES: RfCountryTable[] = [
   },
   {
     code: 'CH',
-    name: 'Schweiz',
+    name: 'Switzerland',
     regulator: 'BAKOM',
     ranges: [
       { fromMHz: 174, toMHz: 223, maxPower: '50 mW ERP', use: 'general', note: 'RIR1009-02; konzessionsfrei', source: CH_RIR('02') },
@@ -106,7 +106,7 @@ export const RF_COUNTRY_TABLES: RfCountryTable[] = [
   },
   {
     code: 'NL',
-    name: 'Niederlande',
+    name: 'Netherlands',
     regulator: 'Rijksinspectie Digitale Infrastructuur (RDI)',
     ranges: [
       ...([
@@ -119,7 +119,7 @@ export const RF_COUNTRY_TABLES: RfCountryTable[] = [
   },
   {
     code: 'FR',
-    name: 'Frankreich',
+    name: 'France',
     regulator: 'Arcep / ANFR',
     ranges: [
       { fromMHz: 174, toMHz: 223, use: 'general', note: 'Arcep-Entscheidungen 2010-0849/0850', source: FR_ARCEP },

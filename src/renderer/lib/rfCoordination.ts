@@ -13,6 +13,8 @@
 // hersteller­spezifische Kompatibilitäts-Algorithmus.
 // ───────────────────────────────────────────────────────────────────────────
 
+import { befundAls, satz, satzText, type Satz, type Uebersetzer } from './satz'
+
 export interface RfFreq {
   id: string
   label: string
@@ -28,8 +30,10 @@ export interface RfConflict {
   kind: RfConflictKind
   /** Beteiligte Kanal-Ids (2 oder 3). */
   ids: string[]
-  /** Menschlich lesbare Beschreibung. */
+  /** Kanonische (deutsche) Beschreibung — Blatt, Stand, Tests. */
   message: string
+  /** Derselbe Satz fuer den Bildschirm, in der App-Sprache (`rfConflictText`). */
+  satz?: Satz
   /** Bei Intermod: das störende Produkt (MHz) und die getroffene Frequenz. */
   productMhz?: number
   victimMhz?: number
@@ -84,7 +88,7 @@ export const computeRfConflicts = (
           {
             kind: 'spacing',
             ids: [used[i].id, used[j].id],
-            message: `${used[i].label} (${used[i].mhz}) ↔ ${used[j].label} (${used[j].mhz}): Abstand ${round(d)} MHz < ${need} MHz`,
+            ...befundAls('message', satz('rf.conflict.spacing', '{a} ({fa}) ↔ {b} ({fb}): spacing {d} MHz < {need} MHz', { a: used[i].label, fa: used[i].mhz, b: used[j].label, fb: used[j].mhz, d: round(d), need })),
           },
           key,
         )
@@ -111,7 +115,7 @@ export const computeRfConflicts = (
             ids: [used[i].id, used[j].id, victim.id],
             productMhz: round(product),
             victimMhz: victim.mhz,
-            message: `2·${used[i].label} − ${used[j].label} = ${round(product)} MHz trifft ${victim.label} (${victim.mhz})`,
+            ...befundAls('message', satz('rf.conflict.imd2', '2·{a} − {b} = {p} MHz hits {v} ({fv})', { a: used[i].label, b: used[j].label, p: round(product), v: victim.label, fv: victim.mhz })),
           },
           key,
         )
@@ -135,7 +139,7 @@ export const computeRfConflicts = (
                 ids: [used[i].id, used[j].id, used[k].id, victim.id],
                 productMhz: round(product),
                 victimMhz: victim.mhz,
-                message: `${used[i].label} + ${used[j].label} − ${used[k].label} = ${round(product)} MHz trifft ${victim.label} (${victim.mhz})`,
+                ...befundAls('message', satz('rf.conflict.imd3', '{a} + {b} − {c} = {p} MHz hits {v} ({fv})', { a: used[i].label, b: used[j].label, c: used[k].label, p: round(product), v: victim.label, fv: victim.mhz })),
               },
               key,
             )
@@ -149,3 +153,7 @@ export const computeRfConflicts = (
   conflicts.sort((a, b) => rank[a.kind] - rank[b.kind])
   return conflicts
 }
+
+/** Der Konflikt fuer den Bildschirm, in der Sprache von `tx`. */
+export const rfConflictText = (c: RfConflict, tx: Uebersetzer): string =>
+  c.satz ? satzText(c.satz, tx) : c.message

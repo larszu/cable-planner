@@ -51,6 +51,7 @@
 
 import type { CablePlannerProject } from '../types/project'
 import type { CsvCell, CsvTable } from './csv'
+import { kanonisch, spalten } from './kanonisch'
 import {
   DEFAULT_RF_OPTIONS,
   computeRfConflicts,
@@ -183,8 +184,8 @@ export function buildSpectrumPlan(
 }
 
 export const SPECTRUM_SOURCE_LABEL: Record<SpectrumSource, string> = {
-  rig: 'Funkmikrofon-Rig',
-  link: 'Funkstrecke',
+  rig: 'Wireless mic rig',
+  link: 'Wireless link',
 }
 
 /**
@@ -205,10 +206,10 @@ export function conflictParticipants(
 /** Das Blatt: eine Zeile je Sender, kanonisches Deutsch. */
 export function spectrumTable(plan: SpectrumPlan): CsvTable {
   return {
-    headers: ['Frequenz (MHz)', 'Was', 'Herkunft', 'Wer / wo'],
+    headers: spalten(['Frequency (MHz)', 'What', 'Origin', 'Who / where']),
     rows: [...plan.entries]
       .sort((a, b) => a.mhz - b.mhz)
-      .map((e): CsvCell[] => [e.mhz, e.label, SPECTRUM_SOURCE_LABEL[e.source], e.carrier ?? '']),
+      .map((e): CsvCell[] => [e.mhz, e.label, kanonisch(`spectrum.source.${e.source}`, SPECTRUM_SOURCE_LABEL[e.source]), e.carrier ?? '']),
   }
 }
 
