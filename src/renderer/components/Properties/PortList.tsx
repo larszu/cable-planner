@@ -709,6 +709,21 @@ export const PortList = ({
                 title={t('ports.contentLabelTitle', "What goes through this port? Separates 'content' (PGM/PVW) from the hardware standard (SDI 3G/12G).")}
               />
             </div>
+            {port.pinout && port.pinout.length > 0 && (
+              <div className="mt-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs" data-testid="port-pinout">
+                <div className="font-medium text-cp-text-muted">{t('ports.pinout', 'Pin assignment')}</div>
+                <ul className="grid grid-cols-2 gap-x-2 tabular-nums">
+                  {port.pinout.map((pin) => (
+                    <li key={pin.pin}>{pin.pin} · {pin.signal}</li>
+                  ))}
+                </ul>
+                {port.pinoutSource && (
+                  <div className="mt-0.5 break-all text-cp-text-muted">
+                    {t('ports.pinoutSource', 'Source')}: {port.pinoutSource}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="mt-1 grid grid-cols-2 gap-1">
               <select
                 aria-label={t('ports.aria.direction', 'Port direction')}

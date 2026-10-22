@@ -21,6 +21,29 @@ const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port 
   connectorType,
 })
 
+// #1095 — rear "talkback" RJ45 of the ATEM Constellation family: analog
+// 4-wire talkback (balanced Eng/Prod pairs on the T568 pairs), NOT Ethernet.
+// Belegt im ATEM Production Switchers manual, "Talkback Pin Connections", p. 203.
+const TALKBACK_PINOUT_SOURCE =
+  'https://documents.blackmagicdesign.com/UserManuals/ATEMProductionSwitchersManual.pdf (p. 203, Talkback Pin Connections)'
+const talkbackRj45 = (): Port => ({
+  ...port('Talkback (RJ45, 4-wire)', 'Ethernet/RJ45'),
+  type: 'Talkback-4W',
+  standard: 'Talkback-4W',
+  direction: 'bidirectional',
+  pinout: [
+    { pin: 1, signal: 'Eng TX+' },
+    { pin: 2, signal: 'Eng TX−' },
+    { pin: 3, signal: 'Prod TX+' },
+    { pin: 4, signal: 'Prod RX+' },
+    { pin: 5, signal: 'Prod RX−' },
+    { pin: 6, signal: 'Prod TX−' },
+    { pin: 7, signal: 'Eng RX+' },
+    { pin: 8, signal: 'Eng RX−' },
+  ],
+  pinoutSource: TALKBACK_PINOUT_SOURCE,
+})
+
 const sdiIn = (n: number) =>
   Array.from({ length: n }, (_, i) => port(`SDI In ${i + 1}`, 'BNC'))
 const sdiOut = (n: number) =>
@@ -186,6 +209,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
         ...sdiIn(40),
         port('Ref In', 'BNC'),
         port('Ethernet', 'Ethernet/RJ45'),
+        talkbackRj45(),
         port('Audio In L', 'XLR'),
         port('Audio In R', 'XLR'),
       ],
@@ -219,6 +243,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
         ...sdiIn(20),
         port('Ref In', 'BNC'),
         port('Ethernet', 'Ethernet/RJ45'),
+        talkbackRj45(),
         port('Audio In 1', 'Jack 6.35 mm TRS'),
         port('Audio In 2', 'Jack 6.35 mm TRS'),
         port('Talkback In (XLR 5-pin)', 'XLR'),
@@ -233,7 +258,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       isRackDevice: true,
       rackUnits: 1,
       notes:
-        'Techspecs: 2 x balanced 1/4 inch jack audio in, 1 x 5-pin XLR talkback in and out, multiviews on SDI only (no HDMI), 1 x internal 100-240 V AC supply. RJ45 for third-party talkback systems is listed but not modelled as a separate port.',
+        'Techspecs: 2 x balanced 1/4 inch jack audio in, 1 x 5-pin XLR talkback in and out, multiviews on SDI only (no HDMI), 1 x internal 100-240 V AC supply. The RJ45 for third-party talkback systems is modelled as \'Talkback (RJ45, 4-wire)\' (analog 4-wire, pinout from the ATEM manual p. 203, which names only the Constellation 8K; the techspecs list the same RJ45 talkback for this model).',
       width: 280,
       height: 400,
     },
@@ -253,6 +278,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
         ...sdiIn(20),
         port('Ref In', 'BNC'),
         port('Ethernet', 'Ethernet/RJ45'),
+        talkbackRj45(),
         port('Audio In 1', 'Jack 6.35 mm TRS'),
         port('Audio In 2', 'Jack 6.35 mm TRS'),
         port('Talkback In (XLR 5-pin)', 'XLR'),
@@ -267,7 +293,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
       isRackDevice: true,
       rackUnits: 1,
       notes:
-        'Techspecs: 2 x balanced 1/4 inch jack audio in, 1 x 5-pin XLR talkback in and out, multiviews on SDI only (no HDMI), 1 x internal 100-240 V AC supply. RJ45 for third-party talkback systems is listed but not modelled as a separate port.',
+        'Techspecs: 2 x balanced 1/4 inch jack audio in, 1 x 5-pin XLR talkback in and out, multiviews on SDI only (no HDMI), 1 x internal 100-240 V AC supply. The RJ45 for third-party talkback systems is modelled as \'Talkback (RJ45, 4-wire)\' (analog 4-wire, pinout from the ATEM manual p. 203, which names only the Constellation 8K; the techspecs list the same RJ45 talkback for this model).',
       width: 280,
       height: 400,
     },

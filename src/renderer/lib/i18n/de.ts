@@ -6518,6 +6518,9 @@ export const de: Dict = {
   // WORTSTELLUNG zur Sprache gehoert — eine Sprache, die den Namen hinten
   // fuehrt, braucht hier eine andere Zeile und keine Code-Aenderung.
   'check.connectorMismatch': '{from} ({fromType}) → {to} ({toType})',
+  'check.signalMismatch': '{from} ({fromSignal}) → {to} ({toSignal}): gleicher Stecker ({connector}), andere Signalart',
+  'ports.pinout': 'Pinbelegung',
+  'ports.pinoutSource': 'Quelle',
   'check.onDevice': '{name}: {what}',
   'check.onLink': '{from} → {to}: {what}',
   'check.rfConflict': '{a} ⟷ {b}: {why}',

@@ -360,6 +360,14 @@ export interface Port {
    * Oberflaeche nennt den Anschluss, dem die Nummer fehlt.
    */
   control?: import('./switcherControl').PortControl
+  /**
+   * #1095 — Pin assignment of this connector, as published by the
+   * manufacturer. Only set where the connector carries something other than
+   * its usual signal (e.g. an RJ45 wired for analog talkback instead of
+   * Ethernet). `pinoutSource` names the document it comes from.
+   */
+  pinout?: { pin: number; signal: string }[]
+  pinoutSource?: string
   type: string
   connectorType: ConnectorType
   /** Optional side override on the node (default comes from input/output + mirror). */
