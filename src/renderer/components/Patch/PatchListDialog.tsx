@@ -576,15 +576,17 @@ export const PatchListDialog = () => {
       draggableKey="cable-planner:modal-pos:patchlist"
       scrollBody={false}
       footer={
-        <div className="flex items-center justify-between">
+        // Der Hinweis wurde neben den vielen Knoepfen auf eine schmale Spalte
+        // gequetscht. Jetzt bricht die Zeile um: Hinweis oben, Knoepfe darunter.
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <PanelHint
-            className="text-cp-xs text-cp-text-muted"
+            className="min-w-[16rem] flex-1 basis-full text-cp-xs text-cp-text-muted"
             text={t(
               'patchList.footerHint',
               'Each cable as its own row, sorted for patching order on set. CSV export for Excel/print contains the currently filtered rows.',
             )}
           />
-          <div className="flex gap-1">
+          <div className="flex flex-wrap gap-1">
             <button
               type="button"
               onClick={exportCsv}
@@ -627,7 +629,7 @@ export const PatchListDialog = () => {
               type="button"
               onClick={() => exportLabelCsv(labelCsvFormat)}
               disabled={filtered.length === 0}
-              className="inline-flex items-center gap-1 bg-cp-accent px-3 py-1 text-cp-xs hover:bg-cp-accent-hover disabled:opacity-50"
+              className="inline-flex items-center gap-1 bg-cp-accent text-cp-accent-text px-3 py-1 text-cp-xs hover:bg-cp-accent-hover disabled:opacity-50"
             >
               <Icon icon={Tag} size="xs" />
               {t('patchList.exportLabelCsv', 'Label CSV')}

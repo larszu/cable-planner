@@ -44,6 +44,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { InventoryItem, InventoryOwnership } from '../types/inventory'
+import { satz, satzKanonisch } from '../../lib/satz'
 
 /** Kanonisches Deutsch fuer Blaetter — dieselbe Regel wie `deliveryIssueText`:
  *  der Stand eines Dokuments wird aus seinem Inhalt gerechnet, uebersetzte
@@ -105,10 +106,10 @@ export const ownershipNote = (
   const lieferant = (item.supplier ?? '').trim()
   // Ohne Lieferant steht es DA und wird nicht weggelassen: „es geht zurueck,
   // aber wir wissen nicht wohin" ist die Auskunft, die jemand braucht.
-  teile.push(lieferant || 'Lieferant unbekannt')
-  if (status === 'no-date') teile.push('kein Rückgabedatum')
-  else if (status === 'overdue') teile.push(`zurück seit ${item.returnDue}`)
-  else teile.push(`zurück ${item.returnDue}`)
+  teile.push(lieferant || satzKanonisch(satz('rest.ownership.noSupplier', 'supplier unknown')))
+  if (status === 'no-date') teile.push(satzKanonisch(satz('rest.ownership.noDate', 'no return date')))
+  else if (status === 'overdue') teile.push(satzKanonisch(satz('rest.ownership.backSince', 'back since {bis}', { bis: item.returnDue ?? '' })))
+  else teile.push(satzKanonisch(satz('rest.custody.backOn', 'back {bis}', { bis: item.returnDue ?? '' })))
   return teile.join(' · ')
 }
 

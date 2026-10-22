@@ -566,7 +566,7 @@ export const SwitchingSection = ({ equipment }: { equipment: EquipmentItem }) =>
                   >
                     {(Object.keys(ZEILEN_ANFANG) as ZeilenAnfang[]).map((k) => (
                       <option key={k} value={k}>
-                        {ZEILEN_ANFANG[k].label}
+                        {t(`switching.lineStart.${k}`, ZEILEN_ANFANG[k].label)}
                       </option>
                     ))}
                   </select>

@@ -37,7 +37,7 @@ import { csvFromTable } from '../../lib/documentStamp'
 import { downloadBlob } from '../../lib/downloadBlob'
 import {
   mapProjects, mapEquipment, isRentmanPhysicalFlag,
-  autoDetectCategory, loadRentmanCatMap, saveRentmanCatMap, detectCableRows,
+  autoDetectCategory, loadRentmanCatMap, saveRentmanCatMap, detectCableRows, rentmanCategoryLabel,
 } from './rentmanImportHelpers'
 import type {
   RentmanProject, RentmanEquipment, DetectedCableRow,
@@ -1122,7 +1122,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                   <tr key={c.name} className="border-t border-cp-border-muted align-top">
                     <td className="px-2 py-1.5">
                       <div className="font-medium">{c.name}</div>
-                      <div className="text-cp-xs text-cp-text-muted">{c.category}</div>
+                      <div className="text-cp-xs text-cp-text-muted">{rentmanCategoryLabel(c.category, t)}</div>
                     </td>
                     <td className="px-2 py-1.5">
                       <div className="flex flex-col gap-0.5">
@@ -1317,7 +1317,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                           <option value="">{t('rentman.import.catMap.pickPlaceholder', 'Please select…')}</option>
                           {importCategoryOptions.map((cat) => (
                             <option key={cat} value={cat}>
-                              {cat}
+                              {rentmanCategoryLabel(cat, t)}
                             </option>
                           ))}
                         </select>
@@ -1605,7 +1605,7 @@ export const RentmanImportDialog = ({ open, onClose }: RentmanImportDialogProps)
                         active ? 'bg-cp-accent text-cp-accent-text' : 'bg-cp-surface-4 hover:bg-cp-surface-5'
                       }`}
                     >
-                      {cat}
+                      {rentmanCategoryLabel(cat, t)}
                     </button>
                   )
                 })}

@@ -129,7 +129,7 @@ const SECTION_ICON: Record<Section, LucideIcon> = {
 
 const SECTION_DESC: Record<Section, string> = {
   plan:
-    'Download the canvas plan as a PDF or print it directly. PDF with title block, ready to print. Also PNG/JPEG for email/Slack.',
+    'Download the canvas plan as a PDF or print it directly. The raster PDF carries the title block, the vector PDF keeps text sharp. Also PNG/JPEG for email/Slack.',
   patch:
     'One port assignment list per device, ideal for sticking on the device. Pick devices, then single PDF, combined PDF or print directly. Paper size is asked after the click. Alternatively: compact patch list (one line per cable, sorted by source device) for the technician in the field.',
   bom:
@@ -297,7 +297,7 @@ const PlanSection = ({
   }
 
   const FORMAT_OPTIONS = [
-    { value: 'pdf' as const, icon: FileText, label: 'PDF', hint: t('export.format.pdfHint', 'Vector with title block, printable') },
+    { value: 'pdf' as const, icon: FileText, label: 'PDF', hint: t('export.format.pdfHint', 'Printable — title block with raster, sharp text with vector') },
     { value: 'png' as const, icon: ImageIcon, label: 'PNG', hint: t('export.format.pngHint', 'Transparent possible, sharp') },
     { value: 'jpeg' as const, icon: ImageIcon, label: 'JPEG', hint: t('export.format.jpegHint', 'Smaller, good for email') },
     { value: 'svg' as const, icon: ImageIcon, label: 'SVG', hint: t('export.format.svgHint', 'Scalable, for web / further processing') },

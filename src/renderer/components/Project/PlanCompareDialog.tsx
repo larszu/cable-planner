@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { befundText } from '../../lib/satz'
+import { befundText, satzText } from '../../lib/satz'
 import { AlertTriangle, FileDown, FolderOpen, GitCompare, History } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
@@ -256,9 +256,9 @@ export const PlanCompareDialog = ({ open, onClose }: PlanCompareDialogProps) => 
               <div className="sm:col-span-2">
                 <span className="flex items-center gap-2">
                   <Icon icon={GitCompare} size="sm" />
-                  {planDiffSummary(diff)}
+                  {satzText(planDiffSummary(diff), t)}
                   <span className="text-cp-text-muted">·</span>
-                  {changeImpactSummary(impact)}
+                  {satzText(changeImpactSummary(impact), t)}
                 </span>
               </div>
             </div>

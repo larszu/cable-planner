@@ -80,6 +80,12 @@ export const KANONISCH_DE: Readonly<Record<string, string>> = {
   'planDiff.change.added': 'neu',
   'planDiff.change.modified': 'geändert',
   'planDiff.class.identity': 'Identität',
+  // Multiviewer-Blatt: die Stelle eines Fensters (lib/mvSheet.ts).
+  'mv.pos.topLeft': 'oben links',
+  'mv.pos.topRight': 'oben rechts',
+  'mv.pos.bottomLeft': 'unten links',
+  'mv.pos.bottomRight': 'unten rechts',
+  'mv.pos.cell': '{quadrant}, Zelle {n}',
   'planDiff.class.substantive': 'inhaltlich',
   'planDiff.class.cosmetic': 'Darstellung',
   'planDiff.class.bookkeeping': 'Herkunft',

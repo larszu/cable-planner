@@ -82,6 +82,12 @@ const DEUTSCH = [
   // 2026-10-22 (#B): „Abstand {d} MHz", „… MHz trifft …" (RF-Befund) und
   // „Was ansteht" (Analyse-Reiter) gingen als „unklar" durch.
   'abstand', 'trifft', 'ansteht', 'funk', 'kabelwege', 'signalwege',
+  // 2026-10-22 (#C): Kurzfassungen und Vorlagen, die als „unklar" durchgingen
+  // — „3 inhaltlich, 1 nur Darstellung", „nichts ausgegeben", „Konferenz /
+  // Corporate", „Regie", „Saal", „…, Zelle 1". Gleiche Bedingung:
+  // kein englischer Fallback enthaelt eines davon.
+  'inhaltlich', 'darstellung', 'bereiche', 'nichts', 'ausgegeben', 'aktuell',
+  'konferenz', 'regie', 'saal', 'zelle',
 ]
 
 /** Woerter, die es nur im Englischen gibt. */
@@ -476,13 +482,17 @@ export const messeSprachmix = (wurzel, quellsprache) => {
  * Grenze NULL (2026-10-21 nachgezogen, #1117).
  */
 const DATEN_BESCHRIFTUNG = /\b(?:label|description|hint|fallback):\s*(['"])((?:[^\\]|\\.){4,}?)\1/g
+// 2026-10-22 (#C): `name:` ist im Allgemeinen ein Datenwert (Geraetenamen im
+// Katalog) — aber neben `nameKey:` ist es der FALLBACK von `t(nameKey, name)`.
+// So stand „Konferenz / Corporate" in der englischen Vorlagenliste.
+const NAME_NEBEN_KEY = /\bnameKey:\s*(['"])[^'"]+\1,(?:\s*\w+:\s*(['"])[^'"]*\2,)*?\s*name:\s*(['"])((?:[^\\]|\\.){2,}?)\3/g
 const MAP_ALS_FALLBACK = /\b(?:t|tr|translate)\([^()]*?,\s*([A-Z][A-Z0-9_]*)\[/g
 // 2026-10-21: Beschriftungs-Maps, die OHNE t() gerendert werden
 // (`{NACHWEIS_ART_LABEL[a]}` im JSX, `NACHWEIS_LAGE_LABEL[z.lage]` in einer
 // CSV-Zeile), waren unsichtbar — MAP_ALS_FALLBACK sieht nur Maps INNERHALB
 // eines t(). Jede Map mit Namen `*_LABEL(S)`, die irgendwo indiziert wird,
 // zaehlt deshalb mit.
-const LABEL_MAP_ZUGRIFF = /\b([A-Z][A-Z0-9_]*_LABELS?)\[/g
+const LABEL_MAP_ZUGRIFF = /\b([A-Z][A-Z0-9_]*_(?:LABELS?|NAMES?))\[/g
 // CSV-/Tabellenkoepfe: `headers: ['Art', 'Bezeichnung', …]` — und die
 // englische Quelle gestempelter Blaetter, `spalten(['Kind', …])` (#1128).
 const KOPFZEILE = /\b(?:headers:\s*|spalten\(\s*)\[([^\]]*)\]/g
@@ -493,6 +503,14 @@ export const DATEN_GRENZE = { 'src/renderer': 0, 'src/mobile': 0, 'src/viewer': 
 
 /** Die Zeichenketten-Werte von `const NAME … = { … }` in `quelle`. */
 export const mapWerte = (quelle, name) => {
+  // Auch die LISTE (`const QUADRANT_NAME = ['oben links', …]`), nicht nur
+  // die Map — ein `*_NAME[q]` liest sich gleich, egal welche Klammer.
+  const liste = quelle.search(new RegExp(`\\bconst\\s+${name}\\b[^=]*=\\s*\\[`))
+  if (liste !== -1) {
+    const auf = quelle.indexOf('[', quelle.indexOf('=', liste))
+    const zu = quelle.indexOf(']', auf)
+    return [...quelle.slice(auf, zu).matchAll(KOPF_WERT)].map((m) => m[2])
+  }
   const start = quelle.search(new RegExp(`\\bconst\\s+${name}\\b[^=]*=\\s*\\{`))
   if (start === -1) return []
   const auf = quelle.indexOf('{', quelle.indexOf('=', start))
@@ -533,6 +551,7 @@ export const messeDatenBeschriftungen = (wurzel, quellsprache) => {
     if (rel.startsWith('vendor/')) continue
     const quelle = ohneKommentare(readFileSync(datei, 'utf8'))
     const texte = [...quelle.matchAll(DATEN_BESCHRIFTUNG)].map((m) => m[2])
+    texte.push(...[...quelle.matchAll(NAME_NEBEN_KEY)].map((m) => m[4]))
     const maps = new Set([...quelle.matchAll(MAP_ALS_FALLBACK)].map((m) => m[1]))
     for (const name of maps) {
       const hier = mapWerte(quelle, name)
@@ -592,7 +611,7 @@ export const messeOhneT = (wurzel, quellsprache) => {
  * `+` verketteter oder ein Backtick-Satz). Die Quelle gehoert in `satz(key,
  * 'English', werte)` (lib/satz.ts): Bildschirm ueber t(), Blatt kanonisch.
  */
-const BEFUND_FELD = /\b(?:text|reason|detail|message|grund)\s*:\s*((?:(['"`])(?:[^\\]|\\.)*?\2\s*\+?\s*)+)/g
+const BEFUND_FELD = /\b(?:text|reason|detail|message|grund|position)\s*:\s*((?:(['"`])(?:[^\\]|\\.)*?\2\s*\+?\s*)+)/g
 const LITERAL = /(['"`])((?:[^\\]|\\.)*?)\1/g
 
 // Zwei Formen, die das Feld-Muster nicht sah (#1142, Reste):
@@ -602,6 +621,13 @@ const LITERAL = /(['"`])((?:[^\\]|\\.)*?)\1/g
 //  - Begruendungs-Maps mit Namen `*_DOCUMENTS`, `*_REASONS` oder `*_GRUENDE`
 //    (`UNJUDGEABLE_DOCUMENTS`).
 const RUECKFALL = /(?:\?\?|\?)\s*(?:\n\s*)?((?:(['"`])(?:[^\\\n]|\\.)*?\2\s*\+?\s*)+)/g
+// 2026-10-22 (#C): der ELSE-Zweig eines Ternary (`? 'nichts ausgegeben' :
+// 'alle aktuell'`) und das Literal in `parts.push(`${n} überholt`)` — die
+// beiden Formen, in denen die Kurzfassungen von planDiff/documentLog/
+// changeImpact fertigen deutschen Text bauten. `aufrufSaetze` verlangt drei
+// Woerter, `${n} überholt` hat nach dem Platzhalter nur eines.
+const SONST_ZWEIG = /\?\s*(['"`])(?:[^\\\n]|\\.)*?\1\s*:\s*(?:\n\s*)?(['"`])((?:[^\\\n]|\\.)*?)\2/g
+const PUSH_LITERAL = /\.push\(\s*(['"`])((?:[^\\\n]|\\.)*?)\1\s*\)/g
 const BEGRUENDUNGS_MAP = /\bconst\s+([A-Z][A-Z0-9_]*_(?:DOCUMENTS|REASONS?|GRUENDE))\b/g
 
 // Dritte Form (#1142, letzte Runde): der Satz direkt als ARGUMENT eines
@@ -656,6 +682,12 @@ export const messeBefundtexte = (wurzel, quellsprache) => {
     const quelle = ohneKommentare(readFileSync(datei, 'utf8'))
     const rein = /^(?:lib|types|lager\/lib|lager\/types)\//.test(rel) && !/De\.ts$/.test(rel)
     if (rein) {
+      for (const m of [...quelle.matchAll(SONST_ZWEIG)].map((x) => [x[0], `'${x[3]}'`])
+        .concat([...quelle.matchAll(PUSH_LITERAL)].map((x) => [x[0], `'${x[2]}'`]))) {
+        const text = m[1].slice(1, -1).replace(/\$\{[^}]*\}/g, ' ')
+        if (/^[a-z0-9-]+$/.test(text)) continue
+        if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })
+      }
       for (const m of quelle.matchAll(RUECKFALL)) {
         const text = [...m[1].matchAll(LITERAL)].map((l) => l[2]).join('').replace(/\$\{[^}]*\}/g, ' ')
         // Kennungen (`'ohne-kabel'`) sind keine Saetze.
@@ -677,6 +709,79 @@ export const messeBefundtexte = (wurzel, quellsprache) => {
     for (const m of quelle.matchAll(BEFUND_FELD)) {
       const text = [...m[1].matchAll(LITERAL)].map((l) => l[2]).join('').replace(/\$\{[^}]*\}/g, ' ')
       if (klassifiziere(text) === ziel) funde.push({ datei: rel, text: text.slice(0, 100) })
+    }
+  }
+  return funde
+}
+
+// ── Das Woerterbuch gegen die Quelle (2026-10-22, #C) ─────────────────────
+//
+// Alles oben misst die QUELLE. Ob die Uebersetzung sie traegt, sah keiner der
+// Laeufe — und genau dort lagen drei Fehler, die gruen durchgingen:
+//   - `'rentman.import.shown': '{visible} of {total} shown'` im de-Woerterbuch:
+//     ein Eintrag, der die englische Zeile woertlich kopiert. Die deutsche
+//     Oberflaeche zeigte „15 of 15 shown", „14 selected", „Categories:".
+//   - `'cred.body.many': 'Einträge tragen …'`: der Platzhalter `{n}` der
+//     Quelle fehlte; die Rueckfrage nannte keine Zahl mehr.
+//   - Schluessel ganz ohne Eintrag (die Vorlagen-Namen): dann steht die
+//     englische Quelle in der deutschen Oberflaeche.
+//
+// Geprueft wird nur dort, wo ein Desktop-Woerterbuch liegt (`lib/i18n/de.ts`
+// unter der Wurzel); Mobile und Viewer haben ihr eigenes kleines.
+//
+// Eine woertliche Kopie ist nur dann ein Befund, wenn die Zeile ein
+// kleingeschriebenes Wort ab vier Buchstaben traegt — „PDF", „FOH",
+// „Rentman API" sind in beiden Sprachen dasselbe. Was trotzdem gleich
+// lautet, steht unten mit Schluessel in GLEICHLAUTEND.
+export const GLEICHLAUTEND = new Set([
+  'common.optional', 'collab.optional', 'greengo.system.descriptionPlaceholder',
+  'canvas.hubSwitch.byPlaceholder', 'netbox.import.rack', 'inventory.checkout.show',
+  'canvas.cableMenu.global', 'bericht.scopeGlobal', 'delivery.enc.videoBitrate',
+  'delivery.enc.audioBitrate', 'addrTpl.keyPh', 'patchList.labelCsv.brother',
+  'props.greengoLive.summaryLive', 'props.greengoLive.title', 'eq.field.shortNameAutoBtn',
+  'opt.iconPlaceholder', 'power.auto', 'export.pdf.rendering', 'fallback.field.offline',
+  'scopes.type.wfRgb',
+])
+
+const DICT_EINTRAG = /^\s*(['"])([^'"]+)\1:\s*(?:\n\s*)?(['"])((?:[^\\]|\\.)*?)\3,?\s*$/gm
+const platzhalter = (s) => [...new Set([...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]))].sort().join(',')
+
+export const messeWoerterbuch = (wurzel) => {
+  const dictDatei = join(wurzel, 'lib', 'i18n', 'de.ts')
+  try {
+    statSync(dictDatei)
+  } catch {
+    return null
+  }
+  // de.ts breitet KANONISCH_DE (und darin BEFUNDE_DE) aus — beide gehoeren dazu.
+  const quellen = [dictDatei, ...dateien(join(wurzel, 'lib')).filter((d) => /De\.ts$/.test(d))]
+  const dict = new Map()
+  for (const d of quellen) {
+    for (const m of ohneKommentare(readFileSync(d, 'utf8')).matchAll(DICT_EINTRAG)) dict.set(m[2], m[4])
+  }
+  const funde = []
+  const gesehen = new Set()
+  for (const datei of dateien(wurzel)) {
+    const rel = relative(wurzel, datei).split(sep).join('/')
+    if (rel.includes('i18n') || rel.includes('__tests__') || rel.includes('.test.')) continue
+    if (rel.startsWith('vendor/')) continue
+    for (const m of ohneKommentare(readFileSync(datei, 'utf8')).matchAll(fallbackMuster())) {
+      const key = /\(\s*(?:[A-Za-z]+\s*,\s*)?(['"])([^'"]+)\1/.exec(m[0])[2]
+      const en = m[3]
+      if (gesehen.has(key)) continue
+      gesehen.add(key)
+      const de = dict.get(key)
+      if (de === undefined) {
+        if (/[a-z]/.test(en.replace(/\{\w+\}/g, ''))) funde.push({ datei: rel, text: `fehlt: ${key} — ${en.slice(0, 70)}` })
+        continue
+      }
+      if (platzhalter(de) !== platzhalter(en)) {
+        funde.push({ datei: rel, text: `Platzhalter: ${key} — en {${platzhalter(en)}}, de {${platzhalter(de)}}` })
+        continue
+      }
+      if (de === en && !GLEICHLAUTEND.has(key) && /(^|[^A-Za-z])[a-z]{4,}/.test(en.replace(/\{\w+\}/g, ''))) {
+        funde.push({ datei: rel, text: `Kopie: ${key} — ${en.slice(0, 70)}` })
+      }
     }
   }
   return funde
@@ -805,6 +910,16 @@ if (process.argv[1] && process.argv[1].endsWith('quellsprache.mjs')) {
     for (const f of befunde) console.error(`  ${f.datei}: ${f.text}`)
     console.error("\nBefundtexte ueber satz(key, 'English', werte) schreiben.")
     process.exit(1)
+  }
+
+  const woerterbuch = messeWoerterbuch(wurzel)
+  if (woerterbuch) {
+    console.log(`Woerterbuch: ${woerterbuch.length} Luecke(n) gegen die Quelle.`)
+    if (woerterbuch.length > 0) {
+      for (const f of woerterbuch) console.error(`  ${f.datei}: ${f.text}`)
+      console.error('\nIn lib/i18n/de.ts eintragen bzw. uebersetzen; gleichlautend nur mit Eintrag in GLEICHLAUTEND.')
+      process.exit(1)
+    }
   }
 
   const { funde: mix, gesehen } = messeSprachmix(wurzel, sprache)

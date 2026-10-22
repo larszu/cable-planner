@@ -162,6 +162,19 @@ export const BEFUNDE_DE: Readonly<Record<string, string>> = {
     'Mischer',
   'chain.passThrough.adapter':
     'Adapter',
+  // Kurzfassungen von Plan-Vergleich, Ausgabe-Register und Auswirkung.
+  'planDiff.summary.substantive': '{n} inhaltlich',
+  'planDiff.summary.cosmetic': '{n} nur Darstellung',
+  'planDiff.summary.sections': '{n} weitere Bereiche',
+  'planDiff.summary.unclassified': '{n} unklassifizierte Felder',
+  'planDiff.summary.none': 'kein Unterschied',
+  'documentLog.summary.superseded': '{n} überholt',
+  'documentLog.summary.unknown': '{n} nicht beurteilbar',
+  'documentLog.summary.none': 'nichts ausgegeben',
+  'documentLog.summary.allCurrent': 'alle aktuell',
+  'changeImpact.summary.invalidated': '{n} überholt',
+  'changeImpact.summary.unknown': '{n} nicht beurteilbar',
+  'changeImpact.summary.none': 'keine Auswirkung',
   // Rueckfall-Saetze und Blatt-Zellen (#1142, Reste).
   'rest.asset.unnamed':
     'nicht benannt',
@@ -175,6 +188,22 @@ export const BEFUNDE_DE: Readonly<Record<string, string>> = {
     'überfällig seit {bis}',
   'rest.custody.backOn':
     'zurück {bis}',
+  'rest.custody.returnOpen':
+    'Rückgabe offen',
+  'rest.ownership.noSupplier':
+    'Lieferant unbekannt',
+  'rest.ownership.noDate':
+    'kein Rückgabedatum',
+  'rest.ownership.backSince':
+    'zurück seit {bis}',
+  'rest.billing.receipt':
+    'Beleg {ref}',
+  'rest.billing.noReceipt':
+    'ohne Beleg',
+  'rest.demand.adapterFor':
+    'Adapter für „{name}"',
+  'rest.xpt.fromUnread':
+    'vom aktuellen Stand (ungelesen)',
   'rest.inventory.noLocation':
     'ohne Lagerort',
   'rest.abnahme.statusFault':

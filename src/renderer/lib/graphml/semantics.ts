@@ -1235,6 +1235,23 @@ export interface BuildPayloadOptions {
   nameOverrides?: Record<string, string>
 }
 
+/** Wie viele Kabel `buildImportPayload` mit diesen Abwahlen uebernimmt —
+ *  ohne abgewaehlte Kabel UND ohne Kabel an abgewaehlten Geraeten. Der Dialog
+ *  zeigt diese Zahl; sie muss mit dem Import uebereinstimmen. */
+export const countIncludedCables = (
+  preview: ImportPreview,
+  skipDeviceKeys: ReadonlySet<string>,
+  skipCableKeys: ReadonlySet<string>,
+): number =>
+  preview.cables.filter(
+    (c) =>
+      !skipCableKeys.has(c.importKey) &&
+      !skipDeviceKeys.has(c.sourceDeviceImportKey) &&
+      !skipDeviceKeys.has(c.targetDeviceImportKey) &&
+      preview.devices.some((d) => d.importKey === c.sourceDeviceImportKey) &&
+      preview.devices.some((d) => d.importKey === c.targetDeviceImportKey),
+  ).length
+
 export const buildImportPayload = (
   preview: ImportPreview,
   options: BuildPayloadOptions = {},

@@ -100,8 +100,8 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       name: 'OB van',
       description: 'OB van with stage and FOH — separate location frames.',
       project: base(tr('templates.builtin.obVan.projectName', 'OB van'), tr('templates.builtin.obVan.projectDesc', 'Outside broadcast setup'), [
-        frame('Ü-Wagen', 40, 40, 520, 360, '#38bdf8'),
-        frame('Bühne', 620, 40, 520, 360, '#34d399'),
+        frame(tr('templates.area.obVan', 'OB van'), 40, 40, 520, 360, '#38bdf8'),
+        frame(tr('templates.area.stage', 'Stage'), 620, 40, 520, 360, '#34d399'),
       ]),
     },
     {
@@ -109,11 +109,11 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       builtin: true,
       nameKey: 'templates.builtin.studio.name',
       descKey: 'templates.builtin.studio.desc',
-      name: 'TV-Studio',
+      name: 'TV studio',
       description: 'Studio with control room and studio floor.',
-      project: base('TV-Studio', 'Studio-Setup', [
-        frame('Regie', 40, 40, 520, 360, '#a78bfa'),
-        frame('Studio', 620, 40, 520, 360, '#f472b6'),
+      project: base(tr('templates.builtin.studio.projectName', 'TV studio'), tr('templates.builtin.studio.projectDesc', 'Studio setup'), [
+        frame(tr('templates.area.controlRoom', 'Control room'), 40, 40, 520, 360, '#a78bfa'),
+        frame(tr('templates.area.studioFloor', 'Studio floor'), 620, 40, 520, 360, '#f472b6'),
       ]),
     },
     {
@@ -123,10 +123,10 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       descKey: 'templates.builtin.liveStage.desc',
       name: 'Live stage',
       description: 'Stage, FOH and monitor world for live events.',
-      project: base('Live-Bühne', 'Live-Stage-Setup', [
-        frame('Bühne', 40, 40, 640, 320, '#34d399'),
-        frame('FOH', 40, 400, 300, 260, '#38bdf8'),
-        frame('Monitor', 380, 400, 300, 260, '#fbbf24'),
+      project: base(tr('templates.builtin.liveStage.projectName', 'Live stage'), tr('templates.builtin.liveStage.projectDesc', 'Live stage setup'), [
+        frame(tr('templates.area.stage', 'Stage'), 40, 40, 640, 320, '#34d399'),
+        frame(tr('templates.area.foh', 'FOH'), 40, 400, 300, 260, '#38bdf8'),
+        frame(tr('templates.area.monitor', 'Monitor'), 380, 400, 300, 260, '#fbbf24'),
       ]),
     },
     {
@@ -134,11 +134,11 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       builtin: true,
       nameKey: 'templates.builtin.corporate.name',
       descKey: 'templates.builtin.corporate.desc',
-      name: 'Konferenz / Corporate',
+      name: 'Conference / corporate',
       description: 'Hall and control room for conferences and corporate events.',
-      project: base('Konferenz / Corporate', 'Corporate-Setup', [
-        frame('Saal', 40, 40, 640, 360, '#60a5fa'),
-        frame('Regie', 740, 40, 360, 360, '#a78bfa'),
+      project: base(tr('templates.builtin.corporate.projectName', 'Conference / corporate'), tr('templates.builtin.corporate.projectDesc', 'Corporate setup'), [
+        frame(tr('templates.area.hall', 'Hall'), 40, 40, 640, 360, '#60a5fa'),
+        frame(tr('templates.area.controlRoom', 'Control room'), 740, 40, 360, 360, '#a78bfa'),
       ]),
     },
     {
@@ -148,9 +148,9 @@ export const buildBuiltinTemplates = (): ProjectTemplate[] => {
       descKey: 'templates.builtin.worship.desc',
       name: 'Houses of Worship',
       description: 'Sanctuary/stage and tech gallery for church services.',
-      project: base('Houses of Worship', 'HoW-Setup', [
-        frame('Altarraum', 40, 40, 640, 320, '#fbbf24'),
-        frame('Technik-Empore', 40, 400, 640, 220, '#38bdf8'),
+      project: base(tr('templates.builtin.worship.projectName', 'Houses of Worship'), tr('templates.builtin.worship.projectDesc', 'HoW setup'), [
+        frame(tr('templates.area.sanctuary', 'Sanctuary'), 40, 40, 640, 320, '#fbbf24'),
+        frame(tr('templates.area.techGallery', 'Tech gallery'), 40, 400, 640, 220, '#38bdf8'),
       ]),
     },
   ]

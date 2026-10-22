@@ -367,3 +367,13 @@ export const detectCableRows = (items: RentmanEquipment[]): DetectedCableRow[] =
   }
   return rows
 }
+
+/**
+ * Die Ersatz-Kategorie `'Uncategorized'` ist ein SCHLUESSEL (sie steht in
+ * Filtern und Gruppen), keine Beschriftung. Auf dem Bildschirm folgt sie der
+ * App-Sprache — vorher stand sie in der deutschen Oberflaeche englisch da.
+ */
+export const rentmanCategoryLabel = (
+  category: string,
+  t: (key: string, fallback: string) => string,
+): string => (category === 'Uncategorized' ? t('rentman.uncategorized', 'Uncategorized') : category)

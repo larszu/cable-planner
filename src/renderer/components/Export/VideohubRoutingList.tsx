@@ -83,7 +83,7 @@ export const VideohubRoutingList = ({
                    das Englische an den Anfang ("Select input for output …").
                    Aus Bausteinen laesst sich das nicht bauen. */
                 title={format(
-                  t('export.selectInputForOutput', 'Input for output'),
+                  t('export.selectInputForOutput', 'Select input for output {n} ({label}) — current: {cur} {curLabel}'),
                   { n: oi + 1, label: outLabel, cur: routedIdx + 1, curLabel: routedLabel },
                 )}
               >

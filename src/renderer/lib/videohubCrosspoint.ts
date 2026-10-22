@@ -1,4 +1,4 @@
-import { SatzFehler, satz } from './satz'
+import { SatzFehler, satz, satzKanonisch } from './satz'
 /**
  * Einzelne Kreuzpunkte an eine Kreuzschiene schicken — und NUR diese.
  *
@@ -138,6 +138,8 @@ export const kreuzpunktKlartext = (zeile: {
   const eingang = zeile.inputName.trim()
     ? `Eingang ${zeile.input + 1} (${zeile.inputName.trim()})`
     : `Eingang ${zeile.input + 1}`
-  const von = zeile.vonName?.trim() ? `von ${zeile.vonName.trim()}` : 'vom aktuellen Stand (ungelesen)'
+  const von = zeile.vonName?.trim()
+    ? `von ${zeile.vonName.trim()}`
+    : satzKanonisch(satz('rest.xpt.fromUnread', 'from the current state (not read)'))
   return `${ausgang} ${von} auf ${eingang}`
 }

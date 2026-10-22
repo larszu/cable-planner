@@ -1,4 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import { translate } from '../src/renderer/lib/i18n'
+import { satzText, type Satz } from '../src/renderer/lib/satz'
+
+// Die Kurzfassung ist ein Satz; geprueft wird die deutsche Bildschirmfassung.
+const de = (s: Satz) => satzText(s, (k, en) => translate('de', k, en))
 import { reviewLog, reviewSummary, type DocumentLogFile } from '../src/renderer/lib/documentLog'
 import { DOCUMENT_STANDS, UNJUDGEABLE_DOCUMENTS, currentStand } from '../src/renderer/lib/documentRegistry'
 import type { CablePlannerProject } from '../src/renderer/types/project'
@@ -79,7 +84,7 @@ describe('das Register gegen den offenen Plan halten', () => {
     const reviewed = reviewLog(logWith([entry('pull-liste', stand)]), p)
     expect(reviewed).toHaveLength(1)
     expect(reviewed[0].status).toBe('current')
-    expect(reviewSummary(reviewed)).toBe('alle aktuell')
+    expect(de(reviewSummary(reviewed))).toBe('alle aktuell')
   })
 
   it('nennt es ueberholt, sobald sich die Ableitung geaendert hat', () => {
@@ -90,7 +95,7 @@ describe('das Register gegen den offenen Plan halten', () => {
     const reviewed = reviewLog(logWith([entry('pull-liste', stand)]), after)
     expect(reviewed[0].status).toBe('superseded')
     expect(reviewed[0].standNow).toBe(currentStand('pull-liste', after))
-    expect(reviewSummary(reviewed)).toBe('1 überholt')
+    expect(de(reviewSummary(reviewed))).toBe('1 überholt')
   })
 
   it('fuehrt ein nicht reproduzierbares Dokument als unknown, nicht als aktuell', () => {
@@ -101,11 +106,11 @@ describe('das Register gegen den offenen Plan halten', () => {
     const reviewed = reviewLog(logWith([entry('kabel-bom', 'a1b2c3d4')]), p)
     expect(reviewed[0].status).toBe('unknown')
     expect(reviewed[0].standNow).toBeUndefined()
-    expect(reviewSummary(reviewed)).toBe('1 nicht beurteilbar')
+    expect(de(reviewSummary(reviewed))).toBe('1 nicht beurteilbar')
   })
 
   it('unterscheidet leer von „nichts ausgegeben"', () => {
-    expect(reviewSummary([])).toBe('nichts ausgegeben')
+    expect(de(reviewSummary([]))).toBe('nichts ausgegeben')
   })
 
   it('ordnet ueber den Pfad zu, wo es einen gibt', () => {
