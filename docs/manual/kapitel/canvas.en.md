@@ -1,316 +1,272 @@
 ## Canvas
 
-The canvas is the heart of Cable Planner. Here you plan your wiring system, visualise signal flow and manage the arrangement of all equipment. The floating toolbar in the top left provides direct access to all functions.
+The canvas is the work area in the centre. Devices, cables and frames sit on it. The toolbar floats at the top left, with the search field below it; the zoom buttons are at the bottom left, the overview map at the bottom right.
 
 ### Toolbar
 
-The toolbar is a floating single-line bar in the top left of the canvas; drag the handle to move it. It shows what drawing needs all the time:
+![Toolbar](bilder/en/canvas-leiste-01-leiste-ganz.jpg)
 
-- **Defaults** – presets for new cables and the display
-- **Frame** – new frame, or a frame around the selection
-- **Selection and align buttons** – only while devices are selected
-- **Layer chips** (Video, Audio, Control, Network, Power, Other) – show and hide the cables of a layer; the coloured dot shows the signal type
-- **More** – everything else
+From left to right the toolbar shows:
 
-**More** holds: layer management (create a custom layer, show all again), Lock, signal path, rooms, 3D, Schematic, Circuit, Test pattern, Finalise, Badges, Annotations, Floor plan and Symbols. Floor plan, Symbols and Annotations are also in the *View* menu. A mode that is switched on – signal path, circuit, test pattern – shows up with its status directly in the bar.
+| Element | Effect |
+|---|---|
+| Handle ⠿ | moves the toolbar |
+| × | closes the toolbar; *View → Canvas toolbar* brings it back |
+| Defaults | defaults for new cables and the display |
+| Frame | creates a frame, around the selected devices if any |
+| Voice | creates cables from a spoken or typed sentence |
+| Selection buttons | appear only while devices are selected |
+| Layer chips | Video, Audio, Control, Network, Power, Other and custom layers; show and hide the cables of a layer |
+| More | further functions |
 
-With a test pattern source picked, **Save…** opens a menu with three entries: **Test pattern image (SVG)** for a media player, stills store or laptop – the image carries the device name, the device's connected outputs (e.g. "from SDI OUT 1") and the plan revision –, **Check sheet (CSV)** as the walk-around list of all arrival points, and **Sign-off sheet (CSV)** with what was actually seen on site.
+An active mode (signal path, mains diagram, test pattern) appears with its state directly in the toolbar.
 
-On a phone the bar shows only Defaults and More; layers, frame and selection buttons are under More so the plan gets the width.
+#### More menu
 
-![Toolbar main view](bilder/en/canvas-leiste-01-leiste-ganz.jpg)
+![More menu](bilder/en/canvas-hallenplan-02-panel-leer.jpg)
 
-#### Close and reopen toolbar
+| Entry | Effect |
+|---|---|
+| Layers ⋯ | *Create custom layer…* and *Show all layers again* |
+| Lock | locks against accidental moves |
+| Rooms, 3D | appear once frames exist |
+| Schematic | display of the planned path |
+| Mains diagram | mains diagram with switch positions |
+| Test pattern | test pattern of a source |
+| Finalise | locks the whole plan |
+| Badges | shows and hides the annotation badges; the annotations stay |
+| Annotations | opens the annotations panel |
+| Floor plan | opens the floor plan panel |
+| Symbols | opens the symbols panel |
 
-The **X** button next to the drag handle hides the toolbar. You can reopen it via *View* → *Canvas Toolbar* menu. This is useful on small screens or for uncluttered plans.
+### Defaults
 
-### Settings: Defaults (Default behaviour for new cables)
+![Defaults](bilder/en/canvas-defaults-01-menue-offen.jpg)
 
-The *Defaults* menu combines all standard behaviour settings that apply when creating new cables. Click the Defaults button (gear icon) to open the menu.
+*Defaults* applies to newly drawn cables and to the display of all cables. A dot on the button shows that at least one default has been changed.
 
-#### Routing (Cable path)
+| Group | Options |
+|---|---|
+| Cable routing | Ortho, Direct, Curved |
+| Cable colour | By type (colour from the cable type), By length (length colour code) |
+| Other | Arrow at cable end, Cable bumps at crossings, Hide all cable labels, Cable labels: short form, Colour ports by connector type |
 
-Determines the default shape of new cables:
+*Cable labels: short form* drops the format suffix such as “(1080p50/60)” from the label. Cable bumps can be set differently per cable in the context menu. Colouring by discipline is in *View → Color cables by discipline* and in *Settings → Appearance*.
 
-- **Orthogonal** (grid pattern): Cables run horizontally and vertically
-- **Straight** (direct): Straight lines between connectors
-- **Curved** (smooth): Smooth curves
+With *By length* a *Length colours* legend shows the colour per length; *Close* hides it.
 
-#### Arrows (Signal direction)
+![Length colours](bilder/en/canvas-defaults-07-farbe-legende.jpg)
 
-Activates small arrows on cables to show signal direction.
+### Selecting and arranging devices
 
-#### Cable Bumps
+- A click selects a device. With **Ctrl** (macOS: **Cmd**) more are added; a dragged rectangle selects all devices inside it. **Ctrl+A** selects everything, **Esc** clears the selection.
+- A small bar appears above the selection: for one device *Duplicate*, *Frame around selection*, *Device datasheet (A4 PDF / print)* and *Delete*; from two devices also the align buttons, from three also distribute.
 
-Shows small humps at cable crossings so cables visually pass over each other instead of intersecting.
+![Bar above one device](bilder/en/canvas-stream-07-kachel-fehler.jpg)
 
-#### Colour ports by type
+![Bar above three devices](bilder/en/canvas-inline-04-drei-geraete.jpg)
 
-Colours connectors by type (e.g. SDI, audio, power) differently.
+#### Aligning
 
-#### Cable colours
+The align buttons are also in the toolbar.
 
-Choose the colouring logic for cables:
+| Button | one device | several devices |
+|---|---|---|
+| Left, Right, Top, Bottom | to the edge of the visible area | edges aligned |
+| Centre horizontally / vertically | to the centre of the visible area | centred on each other |
+| Distribute horizontally / vertically | – | equal spacing, from three devices |
 
-- **Manual**: You select the colour for each cable individually
-- **By length**: Automatic colouring based on cable length (with colour legends)
-- **By layer**: Automatic colouring based on signal type (video, audio, control, network, power)
+#### Saving a group and rack from selection
 
-### Location Frames (Frames)
+With devices selected the toolbar has two more buttons:
 
-Frames are coloured rectangles to group equipment — for example all cameras, all mixers or all switch components.
+- *Save as group*: a name field appears; *Save group* stores the group in the library. If the name exists, the app asks whether to overwrite.
+- *Arrange in the 2D rack builder*: opens *New rack from selection* with the selected devices. Devices not marked as rack devices are listed under conflicts. With a rack selected, the button opens that rack for editing.
 
-**Add a new frame:**
-1. Click the **Frame** button in the toolbar
-2. An empty frame is created at the viewport centre
-3. Drag the frame and edges to resize it
-4. Right-click on a frame to open the context menu for editing
+#### Connecting several cables
 
-**Frame around selected equipment:**
-1. Select one or more pieces of equipment
-2. The **Frame** button now shows "Frame around the X devices"
-3. Click it — a new frame will automatically be drawn around all equipment
+With exactly two devices selected, *Connect cables* appears. The *Connect multiple cables* dialog creates N cables at once: source port i to destination port i.
 
-### Selection and bulk connect
+![Connect multiple cables](bilder/en/canvas-auswahl-22-kabel-verbinden-dialog.jpg)
 
-#### Select one piece of equipment
+| Field | Effect |
+|---|---|
+| Source / destination: device, side, start output / start input | device, port list and first port per side |
+| Number of cables | how many cables |
+| Cable type | cable type; the colour comes from the type |
+| Length per cable (m) | length of each cable |
 
-Click on equipment. It is marked with a blue outline. The alignment buttons now appear in the toolbar.
+The preview shows the connections and warns when the number exceeds the free ports; occupied destination ports are skipped. *Create n cables* creates them.
 
-#### Select multiple pieces of equipment
+### Drawing cables
 
-Hold **Ctrl** (Windows/Linux) or **Cmd** (Mac) and click on more equipment. You can also drag a rectangle to select multiple pieces of equipment at once.
+1. Drag from a port to a port of another device. Releasing on the device body picks a free matching port.
+2. The *New cable* dialog shows *From* and *To*. Choose the cable (matching types with ✓, non-matching with ✕, *★ Custom cable…* for your own), signal standard, name, length (m), colour and notes. A hint says whether the type matches the connectors.
 
-#### Bulk connect (Multiple cables at once)
+   ![New cable](bilder/en/canvas-kabel-02-dialog.jpg)
 
-When exactly **two pieces of equipment** are selected, the **Connect cables** button appears in the toolbar.
+3. *Create* creates the cable.
 
-![Two pieces of equipment selected](bilder/en/canvas-06-two-equipment-selected.jpg)
+If a port is already in use, *Port already in use* asks: *Replace* deletes the existing cable and creates the new one, *Cancel* discards the new one. If a drag ends on empty space, the dialog offers a cable with an open end (*To: Open End*).
 
-In the dialog you can create multiple connections at once:
-- Select output ports of the first piece of equipment
-- Select input ports of the second piece of equipment
-- Select cable type and colour
-- Click "Connect" to create all connections at once
+If the connectors do not mate or both have the same gender, the cable shows a notice with *Insert* in the inspector; it puts an adapter or converter into the run, and one undo step removes it again.
 
-### Alignment and arrangement
+![Adapter notice](bilder/en/canvas-adapter-02-adapter-hinweis.jpg)
 
-The alignment buttons appear only when at least one piece of equipment is selected.
+### Cables by voice
 
-![Alignment buttons](bilder/en/canvas-05-align-buttons.jpg)
+*Voice* opens *Cable by voice*. Type a sentence such as “SDI 1 from the ATEM to the NEC in the foyer” into *Sentence* or speak it (*Speak*, where speech recognition is available; otherwise the system dictation). Separate several cables with a full stop. *Preview* shows source, destination and port per cable; with several matches you pick the device, and a device not yet in the plan can come from the library. When a connection needs a converter, the preview offers it; when an input is in use, it asks whether to replace the cable. *Connect n cables* creates everything in one undo step.
 
-| Button | Function |
-|--------|----------|
-| **Left** | 1 item: align to left viewport edge; multiple: align left edges |
-| **Centre horizontal** | 1 item: centre horizontally in viewport; multiple: centre horizontally to each other |
-| **Right** | 1 item: align to right viewport edge; multiple: align right edges |
-| **Top** | 1 item: align to top viewport edge; multiple: align top edges |
-| **Centre vertical** | 1 item: centre vertically in viewport; multiple: centre vertically to each other |
-| **Bottom** | 1 item: align to bottom viewport edge; multiple: align bottom edges |
-| **Distribute horizontal** | (3+ items only) Equal spacing horizontally |
-| **Distribute vertical** | (3+ items only) Equal spacing vertically |
+### Editing cables
 
-#### Save equipment groups
+A selected cable shows handles at its corners and segments and an × at the label that deletes the cable. Segments and corners can be dragged.
 
-Select one or more pieces of equipment and click the **Save group** button (3 rectangles). An input field appears. Enter a name and click the green **Save** button.
+![Selected cable](bilder/en/canvas-kabeleditor-02-segment-ziehen.jpg)
 
-Groups can later be dragged from the library onto the canvas and the arrangement will be preserved.
+A double-click opens the properties in the inspector. A right-click opens the cable menu:
 
-### Arrange equipment in 2D rack builder
+| Entry | Effect |
+|---|---|
+| Change label… | new name |
+| Accept into plan, Remove mobile check | for suggestions and checks from the phone |
+| Measure signal | shows the scopes of the stream at the source device; without a suitable stream the app says what is missing |
+| Add waypoint here, Remove nearest waypoint, Clear all waypoints (n) | bends |
+| Auto-reroute | lays the route anew |
+| Routing: Orthogonal, Direct, Curved | shape of this cable |
+| Cable jumps for this cable | on, off or global |
+| Arrow at start, Arrow at end, Bidirectional | arrows |
+| Create off-page connection… | replaces the line by two arrow connectors with a net name |
+| Delete cable | after confirmation |
 
-If you have selected one or more regular equipment, you can move them with the toolbar's **Rack** button or via right-click → **Arrange in rack builder** to the 2D rack builder to arrange them in rows (e.g. to simulate a rack cabinet). If the selection contains a rack, neither is offered: racks cannot be packed into racks.
+On an off-page connection, the leader line to each connector can be routed through waypoints: drag the handles, *Add waypoint* with +, a double-click deletes a waypoint.
 
-If you select an existing rack (black and white black-box), an **Edit** button appears instead to open the rack builder for that specific rack.
+### Context menus of device, frame and empty area
 
-### Context menus (right-click)
+![Device context menu](bilder/en/canvas-kontext-01-geraet.jpg)
 
-#### Equipment context menu
+| Right-click on | Entries |
+|---|---|
+| Device | Device datasheet…, Arrange in rack builder (for several: n devices), Open rack editor (racks only), Lock / unlock position, Delete device |
+| Frame | Lock / unlock position, Delete frame |
+| Empty area | New device here … |
 
-Right-click on equipment. A menu appears with these options:
+*New device here …* opens *Create custom device* and places the device where you clicked. Deleting a device also deletes its cables; deleting a frame keeps the devices.
 
-- **Rename equipment**: Change the label
-- **Change colour**: Edit frame and background colour of the equipment
-- **Duplicate equipment**: Copy equipment with all connections
-- **Delete equipment**: Remove equipment and all its cables
-- **Hide label**: Show only the symbol without name
-- **Hide connectors**: Show only the equipment symbol without port dots
-- **Arrange in rack builder**: Open the rack builder with the device or the whole selection (like the toolbar's Rack button)
+![Frame context menu](bilder/en/canvas-rahmen-09-rahmen-kontext.jpg)
 
-#### Cable context menu
+### Frames and rooms
 
-Right-click on a cable. The following options are available:
+*Frame* creates a frame; with devices selected it encloses them. Corners and edges change the size. A frame takes the devices inside it along when moved. The properties are described in [Frame properties](#frame-properties).
 
-![Cable context menu](bilder/en/canvas-11-canvas-context-menu.jpg)
+With frames, *More* shows:
 
-- **Rename cable**: Change the label
-- **Switch cable type**: Reassign port types (e.g. SDI ↔ optical)
-- **Change colour**: Override cable colour
-- **Change length**: Enter cable length in metres
-- **Check connection**: Validates cable connection if available
-- **Show waypoints**: Display intermediate points to change routing
-- **Insert adapter**: Dialog to add a gender changer (e.g. XLR M↔F)
-- **Off-page connector**: Route cable out via an off-page connector and back in
-- **Delete cable**: Remove connection
+- *Rooms*: a list by floor with a check box per floor and room. Unchecked rooms and floors disappear from the canvas together with their devices; several can be hidden at once.
 
-#### Canvas context menu (empty area)
+  ![Rooms](bilder/en/canvas-raeume-11-raeume-menue.jpg)
 
-Right-click on an empty area:
+- *3D*: *Building 3D* shows the rooms stacked by floor. Room connections or single cables choose how cables are drawn, labels show names, floor height (m) applies to floors without a height of their own, rooms hides rooms. Devices and floor boxes can be dragged; dragging next to them rotates, the mouse wheel zooms.
 
-- **New equipment here…**: Opens the equipment library filtered for quick selection at click point
-- **Add frame**: Creates a new frame at cursor
-- **Paste**: If you have copied equipment, it is pasted here
+  ![Building 3D](bilder/en/canvas-raeume-17-drei-d-raeume.jpg)
 
-### Layer visibility (Video, Audio, Control, Network, Power)
+### Layers
 
-![Layer visibility](bilder/en/canvas-12-layer-visibility.jpg)
-
-The coloured **chips** after the signal path button filter which cables are visible. They only hide cables — equipment remains always visible.
-
-Click on a **Video**, **Audio**, **Control**, **Network** or **Power** chip to toggle visibility. An **X** in the chip means that layer is hidden.
-
-For custom layers (e.g. "RF", "Intercom") that you have created, additional chips appear.
-
-### Signal flow display (Flow Mode)
-
-The **Flow Mode** chip determines how cables are displayed:
-
-- **Linear**: Direct connections without additional visualisation
-- **Schematic**: Graphical display with signal flow visualisation (arrows and colours show signal direction)
-- **Circuit**: Electrical circuit diagram view (if available)
-
-### Floor plan
-
-![Floor plan panel](bilder/en/canvas-14-floorplan-panel.jpg)
-
-The **Floor plan** button shows or hides a floor plan beneath the canvas to display spatial positions.
-
-**In the floor plan panel you can:**
-- Upload a floor plan (JPG/PNG) or select from file library
-- Adjust scale / calibration
-- **Two-point calibration**: Mark two points on the plan and enter their real distance in metres
-- **Four-corner calibration**: Map a floor plan rectangle to canvas coordinates
-
-### Symbols (Electrical, Alarm, PA, IT, AV)
-
-![Symbols panel](bilder/en/canvas-15-symbols-panel.jpg)
-
-The **Symbols** button opens a panel with plan symbols:
-
-- **Categories**: Electrical, Alarm, PA, IT, Automation, AV
-- **Drag symbol**: Select a symbol and drag it onto the canvas
-- **Import**: Upload external SVG symbols
-- **AI generation**: Create new symbols using description
-- **CSV import**: Import large symbol sets from file
-
-### Room visibility (Rooms)
-
-The **Rooms** ▾ button shows all rooms defined in the project. Click a room to see only equipment in that room. This is useful for larger projects with multiple rooms.
-
-### 3D building view
-
-The **3D** button opens a three-dimensional building view. Here you see the positions of all equipment spatially — useful for visualising cable routes and room layout.
-
-Use the mouse to rotate and zoom the view.
-
-### Show signal path
-
-When equipment is selected, all cables that transport a signal to or from that equipment are highlighted. This quickly shows the complete signal flow.
-
-### Equipment search (Ctrl+F / Cmd+F)
-
-Press **Ctrl+F** (Windows/Linux) or **Cmd+F** (Mac) or click the magnifying glass. A search field appears above the canvas.
-
-![Equipment search](bilder/en/canvas-22-equipment-search.jpg)
-
-Type the name of equipment. Found equipment is highlighted and the canvas zooms in.
-
-### Inline selection toolbar (Multiple selection)
-
-When you select multiple pieces of equipment, a small toolbar appears above the selection with quick options:
-
-- **Colour**: Changes the colour of all selected equipment
-- **Delete**: Removes all selected equipment
-- **More options**: Menu for all actions
+Hovering a layer chip shows how many cables it has. A click hides the layer's cables; devices stay. *Layers ⋯ → Create custom layer…* adds a layer of your own; right-clicking its chip removes it. *Show all layers again* shows everything.
 
 ### Lock
 
-The **Lock** button under *More* combines three protection measures:
+![Lock](bilder/en/canvas-sperren-01-menue.jpg)
 
-| Area | Effect |
-|------|--------|
-| **Lock frames** | Frames cannot be moved or deleted |
-| **Lock equipment** | Equipment cannot be moved or deleted |
-| **Lock cables** | Cables cannot be moved, changed or deleted |
+| Check box | Effect |
+|---|---|
+| Frames | frames cannot be moved |
+| Devices | devices cannot be moved |
+| Cables | waypoints cannot be edited |
 
-The button label shows the number of active locks. If all three are active, the button is greyed out and shows "Lock: 3".
+### Finalise
 
-### Finalize (Plan lock)
+*Finalise* asks *Finalise plan?* and then locks the canvas: no moving, new connections or deletions. The button then reads *Finalised*; a click asks whether to re-enable editing and lifts the lock. In a viewer file it reads *Viewer*, and the plan is read-only.
 
-The **Finalise** entry under *More* locks the entire plan:
+### Signal path
 
-![Finalize button](bilder/en/canvas-17-finalize-button.jpg)
+With a cable selected, *Show signal path* in the inspector highlights the whole chain the cable belongs to and dims the rest. **Esc** or the × on the signal path chip in the toolbar ends it.
 
-- **Editing** (default): You can make all changes
-- **Finalised**: No moving, no new connections, no deletions. A confirmation dialog warns before changes
-- **Viewer**: Read-only file (`.cpviewer`), cannot be edited
+### Schematic, mains diagram, test pattern, switch path
 
-Clicking it toggles between Editing and Finalised. The plan remains in this state in the file.
+| Mode | Effect |
+|---|---|
+| Schematic | shows the planned path with no connection to a live system. A click turns the cable motion on or off. With a system connected, the chip reads *Live* and shows the observed state |
+| Mains diagram | computes the mains diagram: lit luminaires, switch positions and live lines. Switches can be flipped in the toolbar; a reset button sets them back, a suggestions button offers missing entries. Computed, not measured |
+| Test pattern | after choosing a source, the plan shows at every arrival point which picture should be there and counts open, swapped and unchecked arrival points |
+
+![Mains diagram on](bilder/en/canvas-modi-04-schaltbild-an.jpg)
+
+![Test pattern of a source](bilder/en/canvas-modi-08-pruefbild-leiste.jpg)
+
+For the test pattern, *Save…* offers *Test pattern image (SVG)*, *Check sheet (CSV)* as a walk-round list and *Sign-off sheet (CSV)*. *Switch path…* opens a dialog that switches the source's path to a chosen destination through routers. It shows the path and, for each device without a declared control protocol, a notice; without a protocol nothing is sent. A field takes the name of who switches; the switch button is enabled only after the check box confirming that you have read which outputs change and are switching a live system.
 
 ### Annotations
 
-![Annotations buttons](bilder/en/canvas-18-annotations-buttons.jpg)
+*More → Annotations* opens the *Annotations* panel. It filters by status; *+ New annotation* creates one. *Badges* shows and hides the annotation markers on the canvas.
 
-Both entries are under *More*. **Badges** show/hide the coloured circle markers on the canvas without deleting annotations.
+![Annotations](bilder/en/canvas-anmerkungen-02-panel-offen.jpg)
 
-**Annotations** opens the annotations panel with a list of all markings. Here you can add notes, change colours and manage annotations.
+### Floor plan
 
-In **Viewer mode** the entry invites reviewers to leave annotations.
+*More → Floor plan* opens the *Floor plan* panel.
 
-### Zoom and navigation
+1. *Load floor plan image or PDF…* loads the plan; image or PDF can also be dropped on the panel or the canvas. For multi-page PDFs *PDF page* picks the page.
+2. *Crop…*: drag a rectangle over the part to keep, then *Crop plan*.
+3. *Floor* assigns the plan to a floor; each floor can have its own plan. *All floors* shows one plan for all.
+4. Set the scale:
+   - *Two points*: for plans drawn from above (CAD export, scan). Click both ends of a known distance.
+   - *Four corners*: click the four corners of an area of known size, top left first, going round; this gives a perspective scale.
+5. *Recalculate cable lengths* recomputes lengths along the drawn routes.
 
-![Zoom buttons and minimap](bilder/en/canvas-19-zoom-minimap.jpg)
+| Element | Effect |
+|---|---|
+| Opacity | transparency of the plan |
+| Lock position | clicks go through to the devices |
+| Replace image… | loads another plan |
+| Import venue from MultiCam / Light Planner… | takes plan and scale from a venue file of the sister apps |
+| Export venue for MultiCam / Light Planner | writes plan and scale; not possible with a four-corner scale |
+| Remove floor plan | removes the plan |
 
-Bottom left of the canvas:
+Without a scale the app uses “metres per 100 px”. Cable lengths use the scale of the plan for all floors.
 
-- **+** and **−** to zoom
-- **1:1** to reset to original size
-- **Fit** to make all equipment visible
-- **Minimap** shows a bird's eye view, click on it to jump
+### Symbols
 
-You can also **zoom with the mouse wheel** or use the right mouse button (not on equipment!) to pan.
+*More → Symbols* opens the panel with plan symbols in the groups Electrical, Intrusion alarm, Fire alarm, Voice alarm / PA, IT / network, Automation, AV and Custom, with a search field.
 
-### 3D rack view
+![Symbols](bilder/en/canvas-symbole-02-panel-offen.jpg)
 
-When you open a rack or call the rack builder from the canvas, a 3D view of all rack units is displayed. Here you can assign equipment to individual units and see the spatial arrangement.
+- Dragging a symbol onto the canvas places it. Placed symbols have a label, size and rotation (0°, 90°, 180°, 270°) and can be locked and deleted.
+- *Import symbol (SVG, PNG, JPG, WebP)…* adds symbols of your own under *Custom*; the app rejects files that are too large or unreadable.
+- With an AI provider set up, an area in the panel generates symbols from a description.
+- The symbol list button exports the placed symbols as CSV.
 
-The 3D view can be rotated and zoomed with the mouse.
+### Finding devices
 
-### Cable details
+**Ctrl+F** or *View → Find device* shows the search field above the canvas. It finds devices by name and by fields such as IP address, serial number, MAC address, VLAN and note, and shows for each match what is connected. Clicking a match jumps to the device. The field can be moved with ⠿, collapsed with − and closed with ×.
 
-Double-click on a cable or open its context menu to edit details:
+![Search](bilder/en/canvas-suche-03-treffer.jpg)
 
-- **Name/Label**: Description (appears on the cable)
-- **Length**: In metres (used for cable planning and colour coding)
-- **Type**: Port type (SDI, optical, audio, power, etc.)
-- **Colour**: Cable colour (only for manual colouring)
-- **Waypoints**: Bend points to control routing
+### Zoom and overview map
 
-### Stream preview
+Bottom left: zoom in (+), zoom out (−), fit view and the lock that stops panning and selecting on the canvas. The mouse wheel zooms. Bottom right, the overview map shows the whole plan; dragging in it moves the view. *View* also offers *Zoom 100 %* and *Fit to view*.
 
-When you enable stream output of equipment, a small preview tile can be shown on the canvas (e.g. ATEM multiviewer or Videohub output). This displays the live signal.
+### Keyboard shortcuts on the canvas
 
-### Canvas keyboard shortcuts
+| Shortcut | Effect |
+|---|---|
+| Arrow keys | move the selection by one grid cell, with Shift by four |
+| Ctrl+D | duplicates the selection |
+| Ctrl+C, Ctrl+V | copy and paste |
+| Ctrl++ | creates a new device at the mouse position |
+| Del | deletes the selection |
+| Esc | clears the selection, cancels a cable being drawn |
+| Ctrl+A | selects everything |
+| Ctrl+F | search |
+| P | patch list |
+| A | arrows on and off |
 
-| Shortcut | Function |
-|----------|----------|
-| **Click** | Select equipment/cable |
-| **Ctrl+Click** (Cmd+Click) | Add to selection |
-| **Drag** | Move equipment or cable |
-| **Right-click** | Context menu |
-| **Ctrl+F** (Cmd+F) | Equipment search |
-| **Ctrl+D** (Cmd+D) | Duplicate selection |
-| **Delete** | Delete selection |
-| **Ctrl+Z** (Cmd+Z) | Undo |
-| **Ctrl+Y** (Cmd+Y) | Redo |
-| **Mouse wheel** | Zoom |
-| **Right button + Drag** | Pan canvas |
+*Help → Keyboard shortcuts…* lists all shortcuts.

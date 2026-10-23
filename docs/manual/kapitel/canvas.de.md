@@ -1,316 +1,272 @@
 ## Canvas
 
-Die Arbeitsfläche ist das Herzstück von Cable Planner. Hier planen Sie Ihr Verkabelungssystem, visualisieren den Signalfluss und verwalten die Anordnung aller Geräte. Die schwebende Werkzeugleiste oben links bietet direkten Zugriff auf alle Funktionen.
+Der Canvas ist die Arbeitsfläche in der Mitte. Auf ihm stehen Geräte, Kabel und Rahmen. Oben links schwebt die Werkzeugleiste, darunter das Suchfeld; unten links liegen die Zoom-Knöpfe, unten rechts die Übersichtskarte.
 
-### Werkzeugleiste (Toolbar)
+### Werkzeugleiste
 
-Die Toolbar ist eine schwebende Leiste oben links auf dem Canvas, eine Zeile, mit dem Zieh-Griff verschiebbar. Sichtbar ist, was beim Zeichnen ständig gebraucht wird:
+![Werkzeugleiste](bilder/de/canvas-leiste-01-leiste-ganz.jpg)
 
-- **Defaults** – Voreinstellungen für neue Kabel und die Darstellung
-- **Rahmen** – neuer Rahmen bzw. Rahmen um die Auswahl
-- **Auswahl- und Ausrichte-Knöpfe** – nur, solange Geräte ausgewählt sind
-- **Ebenen-Chips** (Video, Audio, Control, Network, Power, Other) – blenden die Kabel einer Ebene ein und aus; der farbige Punkt zeigt die Signalart
-- **Mehr** – alles Weitere
+Die Werkzeugleiste zeigt von links nach rechts:
 
-Unter **Mehr** stehen: Ebenen-Verwaltung (eigene Ebene anlegen, alle wieder einblenden), Sperren, Signalweg, Räume, 3D, Schema, Schaltbild, Prüfbild, Abschließen, Badges, Anmerkungen, Hallenplan und Symbole. Hallenplan, Symbole und Anmerkungen gibt es zusätzlich im Menü *Ansicht*. Eine eingeschaltete Betriebsart – Signalweg, Schaltbild, Prüfbild – erscheint mit ihrem Stand direkt in der Leiste.
+| Element | Wirkung |
+|---|---|
+| Griff ⠿ | verschiebt die Leiste |
+| × | schließt die Leiste; *Ansicht → Werkzeugleiste* holt sie zurück |
+| Defaults | Voreinstellungen für neue Kabel und die Darstellung |
+| Rahmen | legt einen Rahmen an, bei Auswahl um die ausgewählten Geräte |
+| Sprache | legt Kabel aus einem gesprochenen oder getippten Satz an |
+| Auswahl-Knöpfe | erscheinen nur bei ausgewählten Geräten |
+| Ebenen-Chips | Video, Audio, Control, Network, Power, Other und eigene Ebenen; blenden die Kabel einer Ebene ein und aus |
+| Mehr | weitere Funktionen |
 
-Ist beim Prüfbild eine Quelle gewählt, öffnet **Sichern…** ein Menü mit drei Einträgen: **Prüfbild (SVG)** für Mediaplayer, Standbildspeicher oder Laptop – das Bild trägt den Gerätenamen, die belegten Ausgänge des Geräts (z. B. „aus SDI OUT 1“) und den Planstand –, **Prüfblatt (CSV)** als Begehungsliste aller Ankunftsorte und **Abnahmeblatt (CSV)** mit dem, was vor Ort gesehen wurde.
+Eine eingeschaltete Betriebsart (Signalweg, Schaltbild, Prüfbild) erscheint mit ihrem Stand direkt in der Leiste.
 
-Auf dem Telefon zeigt die Leiste nur Defaults und Mehr; Ebenen, Rahmen und Auswahl-Knöpfe stehen dort unter Mehr, damit der Plan die Breite bekommt.
+#### Menü Mehr
 
-![Toolbar-Hauptansicht](bilder/de/canvas-leiste-01-leiste-ganz.jpg)
+![Menü Mehr](bilder/de/canvas-hallenplan-02-panel-leer.jpg)
 
-#### Toolbar schließen und wieder öffnen
+| Eintrag | Wirkung |
+|---|---|
+| Ebenen ⋯ | *Custom-Layer anlegen…* und *Alle Ebenen wieder einblenden* |
+| Sperren | Sperren gegen versehentliches Verschieben |
+| Räume, 3D | erscheinen, sobald Rahmen vorhanden sind |
+| Schema | Darstellung des geplanten Wegs |
+| Schaltbild | Stromschaltbild mit Schalterstellungen |
+| Prüfbild | Prüfbild einer Quelle |
+| Abschließen | sperrt den ganzen Plan |
+| Badges | blendet die Anmerkungs-Marken ein und aus; die Anmerkungen bleiben |
+| Anmerkungen | öffnet das Anmerkungen-Panel |
+| Hallenplan | öffnet das Hallenplan-Panel |
+| Symbole | öffnet das Symbol-Panel |
 
-Der **X**-Button neben dem Zieh-Griff versteckt die Toolbar. Sie können sie über das *Ansicht* → *Canvas-Werkzeugleiste* Menü wieder öffnen. Dies ist nützlich auf kleinen Bildschirmen oder für ungestörte Pläne.
+### Defaults
 
-### Einstellungen: Defaults (Voreinstellungen für neue Kabel)
+![Defaults](bilder/de/canvas-defaults-01-menue-offen.jpg)
 
-Das Menü *Defaults* fasst alle Standard-Verhaltenswerte zusammen, die beim Erstellen neuer Kabel gelten. Klicken Sie auf den Defaults-Button (Zahnrad-Symbol) um das Menü zu öffnen.
+*Defaults* gilt für neu gezogene Kabel und die Darstellung aller Kabel. Ein Punkt am Knopf zeigt, dass mindestens eine Vorgabe geändert ist.
 
-#### Routing (Kabel-Verlauf)
+| Gruppe | Optionen |
+|---|---|
+| Kabel-Routing | Ortho, Direkt, Kurve |
+| Kabelfarbe | Nach Typ (Farbe aus dem Kabeltyp), Nach Länge (Längen-Farbcode) |
+| Sonstiges | Pfeil am Kabel-Ende, Kabelbrücken bei Kreuzungen, Alle Kabel-Labels ausblenden, Kabel-Labels: Kurzform, Ports nach Connector-Typ einfärben |
 
-Bestimmt die Standardform neuer Kabel:
+*Kabel-Labels: Kurzform* lässt den Format-Zusatz wie „(1080p50/60)“ in der Beschriftung weg. Kabelbrücken lassen sich je Kabel im Kontextmenü abweichend setzen. Färbung nach Gewerk steht in *Ansicht → Kabelfarbe nach Gewerk* und in *Einstellungen → Darstellung*.
 
-- **Orthogonal** (rechtwinkliges Gitter): Kabel verlaufen waagerecht und senkrecht
-- **Straight** (direkt): Gerade Linien zwischen den Anschlüssen
-- **Curved** (geschwungen): Sanfte Kurven
+Bei *Nach Länge* zeigt eine Legende *Längenfarben* die Farbe je Länge; *Schließen* blendet sie aus.
 
-#### Pfeile (Signalrichtung)
+![Längenfarben](bilder/de/canvas-defaults-07-farbe-legende.jpg)
 
-Aktiviert kleine Pfeile an den Kabeln, die die Signalrichtung anzeigen.
+### Geräte auswählen und anordnen
 
-#### Kabelbrücken (Cable Bumps)
+- Ein Klick wählt ein Gerät. Mit **Strg** (macOS: **Cmd**) kommen weitere hinzu; ein aufgezogenes Rechteck wählt alle Geräte darin. **Strg+A** wählt alles, **Esc** hebt die Auswahl auf.
+- Über der Auswahl erscheint eine kleine Leiste: bei einem Gerät *Duplizieren*, *Rahmen um Auswahl*, *Geräte-Datenblatt (A4-PDF / Druck)* und *Löschen*; ab zwei Geräten zusätzlich die Ausrichte-Knöpfe, ab drei auch Verteilen.
 
-Zeigt kleine Hügel an Kreuzungspunkten, damit Kabel optisch übereinander gehen, statt sich zu schneiden.
+![Leiste über einem Gerät](bilder/de/canvas-stream-07-kachel-fehler.jpg)
 
-#### Ports nach Typ färben
+![Leiste über drei Geräten](bilder/de/canvas-inline-04-drei-geraete.jpg)
 
-Färbt die Anschlüsse je nach Typ (z. B. SDI, Audio, Power) unterschiedlich.
+#### Ausrichten
 
-#### Kabelfarben
+Die Ausrichte-Knöpfe stehen auch in der Werkzeugleiste.
 
-Wählen Sie die Färbungs-Logik für Kabel:
+| Knopf | ein Gerät | mehrere Geräte |
+|---|---|---|
+| Links, Rechts, Oben, Unten | an den Rand des sichtbaren Bereichs | Kanten bündig |
+| Horizontal / Vertikal zentrieren | in die Mitte des sichtbaren Bereichs | mittig zueinander |
+| Horizontal / Vertikal verteilen | – | gleiche Abstände, ab drei Geräten |
 
-- **Manuell**: Sie wählen die Farbe für jedes Kabel einzeln
-- **Nach Länge**: Automatische Färbung je nach Kabellänge (mit Farblegenden)
-- **Nach Layer**: Automatische Färbung je nach Signaltyp (Video, Audio, Control, Network, Power)
+#### Gruppe speichern und Rack aus Auswahl
 
-### Rahmen (Location Frames)
+Bei ausgewählten Geräten stehen in der Werkzeugleiste zwei weitere Knöpfe:
 
-Rahmen sind farbige Rechtecke, um Gerätegruppen zu kennzeichnen — zum Beispiel alle Kameras, alle Mischer oder alle Switch-Komponenten.
+- *Als Gruppe speichern*: Ein Namensfeld erscheint; *Gruppe speichern* legt die Gruppe in der Bibliothek ab. Gibt es den Namen schon, fragt die App, ob überschrieben werden soll.
+- *Im 2D-Rack-Builder anordnen*: öffnet *Neues Rack aus Auswahl* mit den gewählten Geräten. Geräte, die nicht als Rack-Gerät markiert sind, stehen dort unter *Konflikte*. Ist ein Rack gewählt, öffnet der Knopf dieses Rack zum Bearbeiten.
 
-**Neuen Rahmen hinzufügen:**
-1. Klicken Sie auf den **Frame**-Button in der Toolbar
-2. Ein leerer Rahmen wird am Viewport-Zentrum erstellt
-3. Ziehen Sie den Rahmen und die Ecken, um ihn anzupassen
-4. Rechtsklick auf einen Rahmen öffnet das Kontextmenü zum Bearbeiten
+#### Mehrere Kabel verbinden
 
-**Rahmen um ausgewählte Geräte:**
-1. Wählen Sie ein oder mehrere Geräte
-2. Der **Frame**-Button zeigt jetzt "Frame um die X Geräte"
-3. Klicken Sie ihn an — ein neuer Rahmen wird automatisch um alle Geräte gezogen
+Sind genau zwei Geräte ausgewählt, erscheint *Kabel verbinden*. Der Dialog *Mehrere Kabel verbinden* legt N Kabel auf einmal an: Quelle-Port i zu Ziel-Port i.
 
-### Auswahl und Mehrfach-Verkabelung
+![Mehrere Kabel verbinden](bilder/de/canvas-auswahl-22-kabel-verbinden-dialog.jpg)
 
-#### Ein Gerät auswählen
+| Feld | Wirkung |
+|---|---|
+| Quelle / Ziel: Gerät, Seite, Start-Output / Start-Input | Gerät, Port-Liste und erster Port je Seite |
+| Anzahl Kabel | wie viele Kabel |
+| Kabel-Typ | Kabeltyp; die Farbe kommt aus dem Typ |
+| Länge pro Kabel (m) | Länge jedes Kabels |
 
-Klicken Sie auf ein Gerät. Es wird mit blauem Umriss markiert. Die Ausrichtungs-Buttons erscheinen nun in der Toolbar.
+Die *Vorschau* zeigt die Verbindungen und warnt, wenn die Anzahl die freien Ports übersteigt; belegte Ziel-Ports werden übersprungen. *n Kabel erstellen* legt sie an.
 
-#### Mehrere Geräte auswählen
+### Kabel ziehen
 
-Halten Sie **Strg** (Windows/Linux) oder **Cmd** (Mac) gedrückt und klicken Sie auf weitere Geräte. Sie können auch ein Rechteck ziehen, um mehrere Geräte auf einmal zu erfassen.
+1. Ziehen Sie von einem Port auf einen Port eines anderen Geräts. Lassen Sie auf dem Gerätekörper los, nimmt die App einen freien passenden Port.
+2. Der Dialog *Neues Kabel* zeigt *Von* und *Nach*. Wählen Sie *Kabel* (passende Typen mit ✓, unpassende mit ✕, *★ Custom-Kabel…* für ein eigenes), *Signal-Standard*, *Name*, *Länge (m)*, *Farbe* und *Notizen*. Ein Hinweis sagt, ob der Typ zu den Steckern passt.
 
-#### Mehrfach-Verkabelung (Bulk Connect)
+   ![Neues Kabel](bilder/de/canvas-kabel-02-dialog.jpg)
 
-Wenn genau **zwei Geräte** ausgewählt sind, erscheint der **Connect cables**-Button in der Toolbar.
+3. *Erstellen* legt das Kabel an.
 
-![Zwei Geräte ausgewählt](bilder/de/canvas-06-two-equipment-selected.jpg)
+Ist ein Port schon belegt, fragt *Port bereits belegt*: *Ersetzen* löscht das bestehende Kabel und legt das neue an, *Abbrechen* verwirft das neue. Endet ein Zug auf freier Fläche, bietet der Dialog ein Kabel mit offenem Ende an (*Nach: Open End*).
 
-Im Dialog können Sie mehrere Verbindungen auf einmal erstellen:
-- Wählen Sie Output-Ports des ersten Gerätes
-- Wählen Sie Input-Ports des zweiten Gerätes
-- Wählen Sie den Kabeltyp und die Farbe
-- Klicken Sie "Verbinden", um alle auf einmal anzulegen
+Passen die Stecker nicht zusammen oder haben beide dasselbe Geschlecht, zeigt das Kabel im Inspector einen Hinweis mit *Einsetzen*; das setzt einen Adapter oder Wandler in die Strecke, ein Rückgängig-Schritt nimmt ihn wieder heraus.
 
-### Ausrichtung und Anordnung
+![Adapter-Hinweis](bilder/de/canvas-adapter-02-adapter-hinweis.jpg)
 
-Die Ausrichtungs-Buttons erscheinen nur, wenn mindestens ein Gerät ausgewählt ist.
+### Kabel per Sprache
 
-![Ausrichtungs-Buttons](bilder/de/canvas-05-align-buttons.jpg)
+*Sprache* öffnet *Kabel per Sprache*. Tippen Sie in *Satz* einen Satz wie „SDI 1 vom ATEM zum NEC im Foyer“ oder sprechen Sie ihn (*Sprechen*, wo die Spracherkennung verfügbar ist; sonst die Diktierfunktion des Systems). Mehrere Kabel trennen Sie mit einem Punkt. *Vorschau* zeigt je Kabel Quelle, Ziel und Port; bei mehreren Treffern wählen Sie das Gerät, fehlt ein Gerät, kann es aus der Bibliothek kommen. Braucht eine Verbindung einen Wandler, bietet die Vorschau ihn an; ist ein Eingang belegt, fragt sie, ob das Kabel ersetzt werden soll. *n Kabel verbinden* legt alles in einem Rückgängig-Schritt an.
 
-| Button | Funktion |
-|--------|----------|
-| **Links** | Bei 1 Gerät: am linken Viewport-Rand; bei mehreren: linke Kanten bündig |
-| **Mitte horizontal** | Bei 1 Gerät: horizontal im Viewport zentriert; bei mehreren: mittig aneinander |
-| **Rechts** | Bei 1 Gerät: am rechten Viewport-Rand; bei mehreren: rechte Kanten bündig |
-| **Oben** | Bei 1 Gerät: am oberen Viewport-Rand; bei mehreren: obere Kanten bündig |
-| **Mitte vertikal** | Bei 1 Gerät: vertikal im Viewport zentriert; bei mehreren: mittig aneinander |
-| **Unten** | Bei 1 Gerät: am unteren Viewport-Rand; bei mehreren: untere Kanten bündig |
-| **Verteilen horizontal** | (nur bei 3+ Geräten) Gleiche Abstände horizontal |
-| **Verteilen vertikal** | (nur bei 3+ Geräten) Gleiche Abstände vertikal |
+### Kabel bearbeiten
 
-#### Gerätegruppen speichern
+Ein gewähltes Kabel zeigt Griffe an seinen Ecken und Abschnitten und ein × an der Beschriftung, das das Kabel löscht. Abschnitte und Ecken lassen sich ziehen.
 
-Wählen Sie ein oder mehrere Geräte und klicken Sie den **Gruppen-speichern**-Button (3 Rechtecke). Ein Eingabefeld erscheint. Geben Sie einen Namen ein und klicken Sie den grünen **Speichern**-Button.
+![Gewähltes Kabel](bilder/de/canvas-kabeleditor-02-segment-ziehen.jpg)
 
-Gruppen können Sie später aus der Bibliothek auf den Canvas ziehen und die Anordnung wird beibehalten.
+Ein Doppelklick öffnet die Eigenschaften im Inspector. Ein Rechtsklick öffnet das Kabel-Menü:
 
-### Geräte im 2D-Rack-Builder anordnen
+| Eintrag | Wirkung |
+|---|---|
+| Bezeichnung ändern… | neuer Name |
+| In Plan übernehmen, Mobile-Haken entfernen | bei Vorschlägen und Haken vom Handy |
+| Signal messen | zeigt die Scopes des Streams am Quellgerät; ohne passenden Stream sagt die App, was fehlt |
+| Wegpunkt hier hinzufügen, Nächsten Wegpunkt entfernen, Alle Wegpunkte löschen (n) | Knickpunkte |
+| Automatisch neu routen | legt den Weg neu |
+| Routing: Orthogonal, Direkt, Geschwungen | Form dieses Kabels |
+| Kabelbrücken für dieses Kabel | an, aus oder global |
+| Pfeil am Anfang, Pfeil am Ende, Bidirektional | Pfeile |
+| Off-Page-Verbindung erstellen… | ersetzt die Linie durch zwei Pfeil-Verbinder mit Netznamen |
+| Kabel löschen | nach Rückfrage |
 
-Wenn Sie ein oder mehrere normale Geräte ausgewählt haben, können Sie sie mit dem **Rack**-Button der Werkzeugleiste oder per Rechtsklick → **Im Rack-Builder anordnen** in den 2D-Rack-Builder verschieben, um sie in Reihen anzuordnen (z. B. um einen Schrank zu simulieren). Ist ein Rack in der Auswahl, fehlt beides: Racks lassen sich nicht in Racks packen.
+An einer Off-Page-Verbindung lässt sich die Hilfslinie zu jedem Verbinder über Wegpunkte führen: Griffe ziehen, *Wegpunkt hinzufügen* mit +, Doppelklick löscht einen Wegpunkt.
 
-Wenn Sie ein bestehendes Rack (schwarz-weiße Black-Box) auswählen, erscheint stattdessen ein **Bearbeiten**-Button zum Öffnen des Rack-Builders für dieses spezifische Rack.
+### Kontextmenüs von Gerät, Rahmen und Fläche
 
-### Kontextmenüs (Rechtsklick)
+![Geräte-Kontextmenü](bilder/de/canvas-kontext-01-geraet.jpg)
 
-#### Geräte-Kontextmenü
+| Rechtsklick auf | Einträge |
+|---|---|
+| Gerät | Geräte-Datenblatt…, Im Rack-Builder anordnen (bei mehreren: n Geräte), Rack-Editor öffnen (nur bei Racks), Position sperren / entsperren, Gerät löschen |
+| Rahmen | Position sperren / entsperren, Rahmen löschen |
+| freie Fläche | Neues Gerät hier … |
 
-Klicken Sie mit der rechten Maustaste auf ein Gerät. Ein Menü erscheint mit diesen Optionen:
+*Neues Gerät hier …* öffnet *Eigenes Gerät anlegen* und setzt das Gerät an die Stelle des Klicks. Beim Löschen eines Geräts werden seine Kabel mitgelöscht; beim Löschen eines Rahmens bleiben die Geräte.
 
-- **Gerät umbenennen**: Beschriftung ändern
-- **Farbe ändern**: Rahmen- und Hintergrundfarbe des Geräts
-- **Gerät duplizieren**: Kopiert das Gerät mit allen Verbindungen
-- **Gerät löschen**: Gerät und alle seine Kabel entfernen
-- **Beschriftung verbergen**: Symbol ohne Namen anzeigen
-- **Anschlüsse verbergen**: Nur das Gerätsymbol ohne Port-Punkte
-- **Im Rack-Builder anordnen**: Öffnet den Rack-Builder mit dem Gerät bzw. der ganzen Auswahl (wie der Rack-Button der Werkzeugleiste)
+![Rahmen-Kontextmenü](bilder/de/canvas-rahmen-09-rahmen-kontext.jpg)
 
-#### Kabel-Kontextmenü
+### Rahmen und Räume
 
-Klicken Sie mit der rechten Maustaste auf ein Kabel. Folgende Optionen sind verfügbar:
+*Rahmen* legt einen Rahmen an; sind Geräte ausgewählt, umschließt er sie. Ecken und Kanten ändern die Größe. Ein Rahmen nimmt beim Verschieben die Geräte darin mit. Die Eigenschaften beschreibt [Rahmen-Eigenschaften](#rahmen-eigenschaften).
 
-![Kabel-Kontextmenü](bilder/de/canvas-11-canvas-context-menu.jpg)
+Mit Rahmen erscheinen unter *Mehr*:
 
-- **Kabel umbenennen**: Beschriftung ändern
-- **Kabeltyp wechseln**: Port-Typen neu zuweisen (z. B. SDI ↔ Optical)
-- **Farbe ändern**: Kabelfarbe überschreiben
-- **Länge ändern**: Kabellänge in Metern eintragen
-- **Verbindung prüfen**: Wenn verfügbar, wird die Kabelverbindung validiert
-- **Knickpunkte anzeigen**: Zeichnet Zwischenpunkte sichtbar, um Wegführung zu ändern
-- **Adapter einsetzen**: Dialog zum Hinzufügen eines Gender-Changers (z. B. XLR M↔F)
-- **Seitenverbinder**: Führt das Kabel über einen Off-Page-Connector raus und wieder rein
-- **Kabel löschen**: Verbindung entfernen
+- *Räume*: eine Liste nach Etagen mit Häkchen je Etage und Raum. Abgewählte Räume und Etagen samt ihren Geräten verschwinden vom Canvas; mehrere lassen sich gleichzeitig ausblenden.
 
-#### Canvas-Kontextmenü (Leerefläche)
+  ![Räume](bilder/de/canvas-raeume-11-raeume-menue.jpg)
 
-Klicken Sie mit der rechten Maustaste auf eine leere Fläche:
+- *3D*: *Gebäude 3D* zeigt die Räume nach Etagen gestapelt. *Raumverbindungen* oder *Einzelne Kabel* wählt die Darstellung der Kabel, *Beschriftung* blendet Namen ein, *Geschosshöhe (m)* gilt für Etagen ohne eigene Höhe, *Räume* blendet Räume aus. Geräte und Bodentanks lassen sich ziehen; daneben ziehen dreht, das Mausrad zoomt.
 
-- **Neues Gerät hier…**: Öffnet die Geräte-Bibliothek gefiltert für schnelle Auswahl am Klick-Punkt
-- **Rahmen hinzufügen**: Erstellt einen neuen Rahmen am Cursor
-- **Einfügen**: Wenn Sie ein Gerät kopiert haben, wird es hier eingefügt
+  ![Gebäude 3D](bilder/de/canvas-raeume-17-drei-d-raeume.jpg)
 
-### Layer-Sichtbarkeit (Video, Audio, Control, Network, Power)
+### Ebenen
 
-![Layer-Sichtbarkeit](bilder/de/canvas-12-layer-visibility.jpg)
+Jeder Ebenen-Chip zeigt beim Überfahren, wie viele Kabel er hat. Ein Klick blendet die Kabel der Ebene aus; die Geräte bleiben. *Ebenen ⋯ → Custom-Layer anlegen…* fügt eine eigene Ebene hinzu; ein Rechtsklick auf ihren Chip entfernt sie. *Alle Ebenen wieder einblenden* zeigt alles.
 
-Die farbigen **Chips** nach dem Signalweg-Button filtern, welche Kabel sichtbar sind. Sie verbergen nur die Kabel — die Geräte bleiben immer sichtbar.
+### Sperren
 
-Klicken Sie auf einen **Video**-, **Audio**-, **Control**-, **Network**- oder **Power**-Chip, um diese Kabel ein-/auszublenden. Ein **X** im Chip bedeutet, dass dieser Layer verborgen ist.
+![Sperren](bilder/de/canvas-sperren-01-menue.jpg)
 
-Für benutzerdefinierte Layer (z. B. "RF", "Intercom"), die Sie angelegt haben, erscheinen zusätzliche Chips.
+| Häkchen | Wirkung |
+|---|---|
+| Rahmen | Rahmen lassen sich nicht verschieben |
+| Geräte | Geräte lassen sich nicht verschieben |
+| Kabel | Wegpunkte lassen sich nicht bearbeiten |
 
-### Signalfluss-Darstellung (Flow Mode)
+### Abschließen
 
-Der **Flow Mode**-Chip bestimmt, wie Kabel dargestellt werden:
+*Abschließen* fragt *Planung abschließen?* und sperrt danach den Canvas: keine Verschiebungen, neuen Verbindungen oder Löschungen. Der Knopf heißt dann *Abgeschlossen*; ein Klick fragt *Planung wieder zur Bearbeitung freigeben?* und hebt die Sperre mit *Freigeben* auf. In einer Viewer-Datei steht dort *Viewer*, und der Plan ist nur lesbar.
 
-- **Linear**: Direkte Verbindungen ohne zusätzliche Visualisierung
-- **Schematic**: Grafische Darstellung mit Signalfluss-Visualisierung (Pfeile und Farben zeigen Signal-Richtung)
-- **Circuit**: Elektrotechnische Schaltplan-Ansicht (wenn verfügbar)
+### Signalweg
 
-### Grundriss (Floor Plan)
+Bei gewähltem Kabel hebt *Signalweg zeigen* im Inspector die ganze Kette hervor, in der das Kabel liegt, und dunkelt den Rest ab. **Esc** oder das × am Chip *Signalweg* in der Leiste beenden das.
 
-![Grundriss-Panel](bilder/de/canvas-14-floorplan-panel.jpg)
+### Schema, Schaltbild, Prüfbild, Weg schalten
 
-Der **Floor plan**-Button blendet oder verbirgt einen Grundriss unter der Canvas, um räumliche Positionen zu zeigen.
+| Modus | Wirkung |
+|---|---|
+| Schema | zeigt den geplanten Weg, ohne Verbindung zu einer Anlage. Ein Klick schaltet die Bewegung der Kabel ein oder aus. Ist eine Anlage verbunden, heißt der Chip *Live* und zeigt den beobachteten Zustand |
+| Schaltbild | rechnet das Stromschaltbild: brennende Leuchten, Schalterstellungen und Leitungen unter Spannung. Die Schalter lassen sich in der Leiste umlegen; *Schalter zurück* setzt sie zurück, *Vorschläge* bietet fehlende Einträge an. Gerechnet, nicht gemessen |
+| Prüfbild | nach Wahl einer Quelle zeigt der Plan an jedem Ankunftsort, welches Bild dort stehen müsste, und zählt offene, vertauschte und ungeprüfte Ankunftsorte |
 
-**Im Grundriss-Panel können Sie:**
-- Einen Grundriss hochladen (JPG/PNG) oder aus der Datei-Bibliothek wählen
-- Maßstab / Kalibrierung anpassen
-- **Zwei-Punkt-Kalibrierung**: Zwei Punkte im Plan markieren und deren reale Meter eingeben
-- **Vier-Ecken-Kalibrierung**: Ein Grundriss-Rechteck auf die Canvas-Koordinaten abbilden
+![Schaltbild eingeschaltet](bilder/de/canvas-modi-04-schaltbild-an.jpg)
 
-### Symbole (Electrical, Alarm, PA, IT, AV)
+![Prüfbild einer Quelle](bilder/de/canvas-modi-08-pruefbild-leiste.jpg)
 
-![Symbole-Panel](bilder/de/canvas-15-symbols-panel.jpg)
+Beim Prüfbild bietet *Sichern…* *Prüfbild (SVG)*, *Prüfblatt (CSV)* als Begehungsliste und *Abnahmeblatt (CSV)*. *Weg schalten…* öffnet einen Dialog, der den Weg der Quelle zu einem gewählten Ziel über Kreuzschienen schaltet. Er zeigt den Weg und für jedes Gerät ohne erklärtes Steuer-Protokoll einen Hinweis; ohne Protokoll wird nichts gesendet. *Wer schaltet* nimmt einen Namen auf; *jetzt schalten* ist erst nach dem Häkchen frei, dass man die betroffenen Ausgänge gelesen hat und an der laufenden Anlage schaltet.
 
-Der **Symbols**-Button öffnet ein Panel mit Planzeichen:
+### Anmerkungen
 
-- **Kategorien**: Electrical, Alarm, PA, IT, Automation, AV
-- **Symbol ziehen**: Wählen Sie ein Symbol und ziehen Sie es auf den Canvas
-- **Import**: Externe SVG-Symbole hochladen
-- **KI-Erzeugung**: Mit Beschreibung neue Symbole erzeugen lassen
-- **CSV-Import**: Große Symbolmengen aus Datei importieren
+*Mehr → Anmerkungen* öffnet das Panel *Anmerkungen*. Es filtert nach *alle*, *offen*, *gebaut* und *erledigt*. *+ Neue Anmerkung* legt eine an. *Badges* blendet die Marken der Anmerkungen auf dem Canvas aus und ein.
 
-### Raumsichtbarkeit (Rooms)
+![Anmerkungen](bilder/de/canvas-anmerkungen-02-panel-offen.jpg)
 
-Der **Rooms** ▾-Button zeigt alle definierten Räume des Projekts. Klicken Sie einen Raum an, um nur die Geräte in diesem Raum anzuzeigen. Dies ist nützlich bei größeren Projekten mit mehreren Räumen.
+### Hallenplan
 
-### 3D-Gebäudeansicht
+*Mehr → Hallenplan* öffnet das Panel *Hallenplan*.
 
-Der **3D**-Button öffnet eine dreidimensionale Gebäude-Ansicht. Hier sehen Sie die Positionen aller Geräte räumlich — nützlich, um Kabel-Laufwege und Raumaufteilung zu visualisieren.
+1. *Hallenplan als Bild oder PDF laden…* lädt den Plan; Bild oder PDF lassen sich auch auf das Panel oder den Canvas ziehen. Bei mehrseitigen PDFs wählt *PDF-Seite* die Seite.
+2. *Zuschneiden…*: ein Rechteck über den Teil ziehen, der bleiben soll, dann *Plan zuschneiden*.
+3. *Etage* ordnet den Plan einer Etage zu; je Etage ist ein eigener Plan möglich. *Alle Etagen* zeigt einen Plan für alle.
+4. Maßstab setzen:
+   - *Zwei Punkte*: für Pläne von oben (CAD-Export, Scan). Beide Enden einer bekannten Strecke anklicken.
+   - *Vier Ecken*: die vier Ecken einer Fläche bekannter Größe anklicken, links oben beginnend im Uhrzeigersinn; ergibt einen perspektivischen Maßstab.
+5. *Kabellängen neu berechnen* rechnet die Längen entlang der gezeichneten Wege.
 
-Verwenden Sie die Maus, um die Ansicht zu drehen und zu zoomen.
+| Element | Wirkung |
+|---|---|
+| Deckkraft | Durchsichtigkeit des Plans |
+| Position sperren | Klicks gehen an die Geräte durch |
+| Bild ersetzen… | lädt einen anderen Plan |
+| Venue aus MultiCam / Light Planner importieren… | übernimmt Plan und Maßstab aus einer Venue-Datei der Schwester-Apps |
+| Venue für MultiCam / Light Planner exportieren | gibt Plan und Maßstab aus; mit Vier-Ecken-Maßstab nicht möglich |
+| Hallenplan entfernen | entfernt den Plan |
 
-### Signalweg anzeigen
+Ohne Maßstab rechnet die App mit „Meter pro 100 px“. Kabellängen nutzen den Maßstab des Plans für alle Etagen.
 
-Wenn ein Gerät ausgewählt ist, werden alle Kabel, die ein Signal zu oder von diesem Gerät transportieren, hervorgehoben. So sehen Sie schnell den kompletten Signalfluss.
+### Symbole
 
-### Geräte-Suche (Strg+F / Cmd+F)
+*Mehr → Symbole* öffnet das Panel mit Planzeichen in den Gruppen Elektro, EMA, BMA, SAA / ELA, IT / Netzwerk, Automation, AV und Eigene, mit Suchfeld.
 
-Drücken Sie **Strg+F** (Windows/Linux) oder **Cmd+F** (Mac) oder klicken Sie auf die Lupe. Ein Suchfeld erscheint oben über dem Canvas.
+![Symbole](bilder/de/canvas-symbole-02-panel-offen.jpg)
 
-![Geräte-Suche](bilder/de/canvas-22-equipment-search.jpg)
+- Ein Symbol auf den Canvas ziehen setzt es. Gesetzte Symbole haben Beschriftung, Größe, Drehung (0°, 90°, 180°, 270°) und lassen sich sperren und löschen.
+- *Symbol importieren (SVG, PNG, JPG, WebP)…* legt eigene Symbole unter *Eigene* an; zu große oder unlesbare Dateien lehnt die App ab.
+- Mit eingerichtetem KI-Anbieter erzeugt ein Bereich im Panel Symbole aus einer Beschreibung.
+- *Symbolliste als CSV (n)* exportiert die gesetzten Symbole.
 
-Tippen Sie den Namen eines Geräts ein. Gefundene Geräte werden hervorgehoben und die Canvas zoomt heran.
+### Geräte suchen
 
-### Inline-Auswahl-Toolbar (Multiple Selection)
+**Strg+F** oder *Ansicht → Gerät suchen* zeigt das Suchfeld über dem Canvas. Es findet Geräte nach Name und nach Feldern wie IP-Adresse, Seriennummer, MAC-Adresse, VLAN und Notiz und zeigt je Treffer, was angeschlossen ist. Ein Klick auf einen Treffer springt zum Gerät. Das Feld lässt sich mit ⠿ verschieben, mit − einklappen und mit × schließen.
 
-Wenn Sie mehrere Geräte auswählen, erscheint über der Auswahl eine kleine Werkzeugleiste mit schnellen Optionen:
+![Suche](bilder/de/canvas-suche-03-treffer.jpg)
 
-- **Farbe**: Ändert die Farbe aller ausgewählten Geräte
-- **Löschen**: Entfernt alle ausgewählten Geräte
-- **Weitere Optionen**: Menü für alle Aktionen
+### Zoom und Übersichtskarte
 
-### Sperren (Lock)
-
-Der **Sperren**-Button unter *Mehr* fasst drei Schutzmaßnahmen zusammen:
-
-| Bereich | Effekt |
-|---------|--------|
-| **Rahmen sperren** | Rahmen können nicht verschoben oder gelöscht werden |
-| **Geräte sperren** | Geräte können nicht verschoben oder gelöscht werden |
-| **Kabel sperren** | Kabel können nicht verschoben, geändert oder gelöscht werden |
-
-Das Button-Label zeigt die Anzahl der aktiven Sperren. Wenn alle drei aktiv sind, wird der Button grau und zeigt "Sperren: 3".
-
-### Finalisieren (Plan-Lock)
-
-Der Eintrag **Abschließen** unter *Mehr* sperrt den gesamten Plan:
-
-![Finalize-Button](bilder/de/canvas-17-finalize-button.jpg)
-
-- **Editing** (Standard): Sie können alle Änderungen machen
-- **Finalised**: Kein Verschieben, keine neuen Verbindungen, keine Löschungen. Ein Bestätigungsdialog warnt vor Änderungen
-- **Viewer**: Read-only-Datei (`.cpviewer`), kann nicht bearbeitet werden
-
-Ein Klick toggelt zwischen Editing und Finalised. Der Plan bleibt in dieser Datei gespeichert.
-
-### Anmerkungen (Annotations)
-
-![Anmerkungen-Buttons](bilder/de/canvas-18-annotations-buttons.jpg)
-
-Beide Einträge stehen unter *Mehr*. **Badges** zeigen/verstecken die farbigen Kreis-Marken auf dem Canvas, ohne Anmerkungen zu löschen.
-
-**Annotations** öffnet das Anmerkungs-Panel mit einer Liste aller Markierungen. Hier können Sie Notizen hinzufügen, Farben ändern und Anmerkungen verwalten.
-
-Im **Viewer-Modus** lädt der Eintrag Reviewer ein, Anmerkungen zu hinterlassen.
-
-### Zoom und Navigation
-
-![Zoom-Buttons und Minimap](bilder/de/canvas-19-zoom-minimap.jpg)
-
-Unten links im Canvas:
-
-- **+** und **−** zum Zoomen
-- **1:1** zum Zurücksetzen auf Originalgröße
-- **Fit** um alle Geräte sichtbar zu machen
-- **Minimap** zeigt eine Vogelperspektive, klicken Sie drauf um zu springen
-
-Sie können auch mit dem **Mausrad** zoomen oder die rechte Maustaste (nicht auf Geräten!) zum Verschieben nutzen.
-
-### 3D-Rackansicht
-
-Wenn Sie ein Rack öffnen oder vom Canvas aus den Rack-Builder aufrufen, wird eine 3D-Ansicht aller Rack-Units angezeigt. Hier können Sie Geräte in einzelne Units einordnen und die räumliche Anordnung sehen.
-
-Die 3D-Ansicht kann mit der Maus rotiert und gezoomt werden.
-
-### Kabel-Details
-
-Doppelklicken Sie auf ein Kabel oder öffnen Sie sein Kontextmenü, um Details zu bearbeiten:
-
-- **Name/Label**: Beschriftung (erscheint auf dem Kabel)
-- **Länge**: In Metern (wird zur Kabelplanung und Farb-Kodierung genutzt)
-- **Typ**: Port-Typ (SDI, Optical, Audio, Power, etc.)
-- **Farbe**: Farbe des Kabels (nur bei manueller Färbung)
-- **Waypoints**: Knickpunkte zum Kontrollieren des Verlaufs
-
-### Stream-Vorschau
-
-Wenn Sie einen Stream-Output eines Geräts aktivieren, kann eine kleine Vorschau-Kachel auf dem Canvas angezeigt werden (z. B. ATEM-Multiviewer oder Videohub-Ausgang). Diese zeigt das Live-Signal.
+Unten links: Vergrößern (+), Verkleinern (−), Einpassen und das Schloss, das das Verschieben und Auswählen auf dem Canvas sperrt. Das Mausrad zoomt. Unten rechts zeigt die Übersichtskarte den ganzen Plan; Ziehen darin verschiebt den Ausschnitt. *Ansicht* bietet zusätzlich *Zoom 100 %* und *Einpassen*.
 
 ### Tastenkürzel auf dem Canvas
 
-| Shortcut | Funktion |
-|----------|----------|
-| **Klick** | Gerät/Kabel auswählen |
-| **Strg+Klick** (Cmd+Klick) | Zur Auswahl hinzufügen |
-| **Ziehen** | Gerät oder Kabel verschieben |
-| **Rechtsklick** | Kontextmenü |
-| **Strg+F** (Cmd+F) | Geräte-Suche |
-| **Strg+D** (Cmd+D) | Auswahl duplizieren |
-| **Entf** | Auswahl löschen |
-| **Strg+Z** (Cmd+Z) | Rückgängig |
-| **Strg+Y** (Cmd+Y) | Wiederherstellen |
-| **Mausrad** | Zoomen |
-| **Rechte Taste + Ziehen** | Canvas verschieben |
+| Kürzel | Wirkung |
+|---|---|
+| Pfeiltasten | verschieben die Auswahl um eine Rasterzelle, mit Umschalt um vier |
+| Strg+D | dupliziert die Auswahl |
+| Strg+C, Strg+V | kopiert und fügt ein |
+| Strg++ | legt ein neues Gerät an der Mausposition an |
+| Entf | löscht die Auswahl |
+| Esc | hebt die Auswahl auf, bricht ein begonnenes Kabel ab |
+| Strg+A | wählt alles |
+| Strg+F | Suche |
+| P | Patchliste |
+| A | Pfeile ein und aus |
+
+Alle Kürzel zeigt *Hilfe → Tastaturkürzel…*.

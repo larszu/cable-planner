@@ -3727,6 +3727,40 @@ const speichern = () => {
   out.extra.fehler = [...(out.extra.fehler ?? []).filter((x) => !nur || !nur.includes(x.split(':')[0])), ...extra.fehler]
   writeFileSync(ergebnisDatei, JSON.stringify(out, null, 2))
 }
+// ═══════════════════════════════════════════════════════════════════════════
+// SPRACHE — Kabel per Satz (Vorschau, nichts wird verbunden)
+// ═══════════════════════════════════════════════════════════════════════════
+abschnitt('sprache', async () => {
+  const f = neueFolge('sprache')
+  await f.schritt(
+    'dialog',
+    async () => {
+      await klickMitte(leiste().locator(`button[title="${T('toolbar.voiceCabling.title')}"]`))
+      await pause(700)
+    },
+    { ziel: R_DIALOG },
+  )
+  await f.schritt(
+    'satz',
+    async () => {
+      await R_DIALOG().locator('textarea, input[type="text"]').first().fill(
+        sprache === 'de' ? 'Camera 1 an Vision mixer In 3. Camera 2 an Vision mixer In 4' : 'Camera 1 to Vision mixer In 3. Camera 2 to Vision mixer In 4',
+      )
+      await pause(400)
+    },
+    { ziel: R_DIALOG },
+  )
+  await f.schritt(
+    'vorschau',
+    async () => {
+      await R_DIALOG().getByRole('button', { name: M('voiceCabling.understand') }).first().click()
+      await pause(800)
+    },
+    { ziel: R_DIALOG },
+  )
+  await a.zu()
+})
+
 for (const [name, fn] of abschnitte) {
   if (nur && !nur.includes(name)) continue
   console.log(`── Abschnitt ${name}`)
