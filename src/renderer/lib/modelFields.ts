@@ -294,6 +294,12 @@ export const INSTANCE_FIELDS = [
   'nodeColor',
   'portsFlipped',
   'collapsed',
+  // 2026-10-27 — wie gross der Nutzer DIESE Kachel gezogen hat. Instanz und
+  // nicht Modell: dass ein Artikel 1 HE hoch ist, gehoert dem Typ; dass
+  // jemand ihn in DIESEM Plan auf 150 % gestellt hat, weil dort drei Kabel
+  // dicht beieinander enden, gehoert dem einen Exemplar. Am Modell getragen
+  // zoege das zweite Geraet desselben Typs die Groesse des ersten still mit.
+  'sizeScale',
   'hidden',
   'favorite',
   'positionLocked',

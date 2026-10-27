@@ -116,6 +116,20 @@ Zusätzlich färbt der Eintrag *Kabelfarbe nach Gewerk* im Menü *Ansicht* die K
 
 Sobald Geräte markiert sind, erscheinen in der Leiste die Knöpfe für Auswahl-Aktionen und über der Auswahl die [Auswahlleiste](#auswahlleiste-am-gerät).
 
+### Gerätegröße
+
+Jede Gerätekachel hat unten rechts einen Griff — zwei kurze Striche in der Ecke. Er erscheint, sobald das Gerät markiert ist oder der Zeiger über der Kachel steht.
+
+- **Ziehen** ändert die Größe. Während des Ziehens steht die Prozentzahl über der Kachel. Der Bereich reicht von 60 % bis 300 %.
+- **Doppelklick** setzt das Gerät auf 100 % zurück.
+- **Pfeiltasten** gehen in Stufen von 5 %, sobald der Griff den Fokus hat; mit **Umschalt** in Stufen von 20 %.
+
+Die ganze Kachel wächst mit: Name, Untertitel, Adresszeile, Port-Beschriftungen, Symbole und die Anschlusspunkte. Die Kabel bleiben an ihren Anschlüssen und folgen der neuen Größe.
+
+Sind mehrere Geräte markiert und Sie ziehen an einem davon, bekommen alle dieselbe Größe. Dieselbe Einstellung steht als *Geräte kleiner* und *Geräte größer* in der [Auswahlleiste](#auswahlleiste-am-gerät).
+
+Die Größe gehört zum einzelnen Gerät in diesem Plan und wird mit dem Projekt gespeichert. Im abgeschlossenen Plan und im Betrachter gibt es keinen Griff.
+
 ### Geräte ausrichten
 
 Die Ausrichte-Knöpfe stehen in der Leiste, sobald mindestens ein Gerät markiert ist. Alle Ergebnisse rasten auf das Raster ein, wenn *Am Raster ausrichten* eingeschaltet ist.
@@ -704,11 +718,11 @@ Unten links stehen die Regler *Vergrößern*, *Verkleinern*, *Einpassen* und der
 
 | Auswahl | Knöpfe |
 |---|---|
-| Ein Gerät | *Duplizieren*, *Rahmen um Auswahl*, *Geräte-Datenblatt (A4-PDF / Druck)*, *Löschen* |
+| Ein Gerät | *Duplizieren*, *Rahmen um Auswahl*, *Geräte kleiner*, *Geräte größer*, *Geräte-Datenblatt (A4-PDF / Druck)*, *Löschen* |
 | Zwei Geräte | zusätzlich die sechs Ausrichte-Knöpfe |
 | Drei und mehr Geräte | zusätzlich *Horizontal verteilen* und *Vertikal verteilen* |
 
-Bei Geräten mit lesbaren Strömen kommt *Scopes vergleichen (ein Parade je Quelle)* hinzu.
+Bei Geräten mit lesbaren Strömen kommt *Scopes vergleichen (ein Parade je Quelle)* hinzu. *Gerätegröße auf 100 % zurücksetzen* steht dort, sobald eines der markierten Geräte von 100 % abweicht.
 
 ![Auswahlleiste an einem Gerät](bilder/de/canvas-inline-01-ein-geraet.jpg)
 

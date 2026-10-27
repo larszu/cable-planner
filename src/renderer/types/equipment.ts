@@ -860,6 +860,21 @@ export interface EquipmentItem {
   y: number
   width: number
   height: number
+  /**
+   * Wie gross der Nutzer dieses Geraet auf der Flaeche gezogen hat — ein
+   * FAKTOR auf die Vorgabe-Groesse, Vorgabe 1 (fehlt also an Altdateien und
+   * an jedem nie angefassten Geraet).
+   *
+   * Ausdruecklich ein eigenes Feld neben `width`/`height`: die beiden sind ein
+   * Abbild der zuletzt GEMESSENEN Groesse, das `CanvasArea` nachfuehrt, und
+   * koennen deshalb keine Absicht ausdruecken — die ganze Begruendung steht in
+   * `lib/equipmentLayout.ts`. Dieses Feld entscheidet, jene beiden berichten.
+   *
+   * Grenzen und Stufung in `lib/raster.ts` (`skalaGrenzen`); dort wird daraus
+   * das Layout gerechnet, und zwar so, dass die Buchsen in jeder Groesse auf
+   * Gitterpunkten bleiben.
+   */
+  sizeScale?: number
   /** Optional network/access info for devices that have it (cameras, switches, servers).
    *
    *  **Diese vier Felder SIND Schnittstelle 0** (Bedarf 19, siehe
