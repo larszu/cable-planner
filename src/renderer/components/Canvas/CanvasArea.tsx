@@ -103,6 +103,18 @@ const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode, grund
 const istEigenerKnoten = (id: string, symbolIds: Set<string>) => etageAusKnotenId(id) !== undefined || symbolIds.has(id)
 const edgeTypes = { cable: CableEdge }
 
+/**
+ * Wird gerade eine Linie gezeichnet?
+ *
+ * #1175 — als ABFRAGE und nicht als Abonnement. `uiStore.pendingCable` ist ein
+ * Objekt, das `addPendingWaypoint` bei JEDEM Knick ersetzt; haengt die Canvas
+ * daran, baut sie die `nodes`-Liste neu, ReactFlow haelt daraufhin jeden
+ * Knoten fuer geaendert und zeichnet Geraete, Griffe und Kanten neu. Gemessen
+ * im Auslieferungsbau an 144 Geraeten: 59 ms je Knick bei 100 %, 91 ms bei
+ * 400 % Zoom. Die Begruendung steht in `lib/pendingCableSicht.ts`.
+ */
+const zeichnetLinie = () => !!useUiStore.getState().pendingCable
+
 // Ab dieser Planmenge zeichnet ReactFlow nur, was im Ausschnitt liegt.
 // Darunter lohnt die Sichtbarkeitsrechnung nicht. Ausgaben schalten es ueber
 // `mitAllenElementen` ab; MCP, Pruefen und DXF lesen den Store, nicht das DOM.
@@ -222,7 +234,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const vollansicht = useUiStore((state) => state.vollansicht)
   const pdfExportThemeOverride = useUiStore((state) => state.pdfExportThemeOverride)
   const pdfExportMonochrome = useUiStore((state) => state.pdfExportMonochrome)
-  const pendingCable = useUiStore((state) => state.pendingCable)
   // #1031 — Ein Ziehen laeuft: Kabel geben den Zeiger frei (index.css).
   const [verbindet, setVerbindet] = useState(false)
   const addPendingWaypoint = useUiStore((state) => state.addPendingWaypoint)
@@ -2000,7 +2011,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   }, [])
 
   useCanvasKeyboardShortcuts({
-    pendingCable,
+    zeichnetLinie,
     clearPendingCable,
     copySelectionToClipboard,
     pasteFromClipboard,
@@ -2217,7 +2228,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       </svg>
       <ReactFlow
         proOptions={{ hideAttribution: true }}
-        className={verbindet || pendingCable ? 'cp-verbindet' : undefined}
+        className={verbindet ? 'cp-verbindet' : undefined}
         nodes={rfNodes.map((n) => {
           const node =
             overlapFlashId === n.id
@@ -2297,7 +2308,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         onPaneClick={(event) => {
           // While drawing a cable by clicking, each pane click appends a
           // waypoint. Otherwise treat the pane click as a selection clear.
-          if (pendingCable) {
+          if (zeichnetLinie()) {
             const flow = screenToFlowPosition({ x: event.clientX, y: event.clientY })
             addPendingWaypoint(flow)
             return
