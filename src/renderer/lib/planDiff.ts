@@ -360,6 +360,10 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   y: 'cosmetic',
   width: 'cosmetic',
   height: 'cosmetic',
+  // 2026-10-27 — die gezogene Kachelgroesse. `cosmetic` aus demselben Grund
+  // wie `x`/`y`: groesser gezeichnet ist nicht umgebaut. Es wandert kein
+  // Anschluss und es aendert sich nichts an dem, was gebaut oder gepackt wird.
+  sizeScale: 'cosmetic',
   nodeColor: 'cosmetic',
   portsFlipped: 'cosmetic',
   collapsed: 'cosmetic',

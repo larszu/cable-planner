@@ -7761,4 +7761,10 @@ export const de: Dict = {
   'templates.area.techGallery': 'Technik-Empore',
   'switching.lineStart.none': 'nichts',
   'switching.lineStart.stx': 'STX (0x02)',
+  // Geraete-Groesse auf der Flaeche (2026-10-27)
+  'canvas.deviceSize.grip': 'Gerätegröße',
+  'canvas.deviceSize.gripTitle': 'Ziehen ändert die Größe dieses Geräts ({percent} %). Doppelklick setzt zurück, Pfeiltasten gehen in Stufen.',
+  'inlineToolbar.smaller': 'Geräte kleiner',
+  'inlineToolbar.bigger': 'Geräte größer',
+  'inlineToolbar.resetSize': 'Gerätegröße auf 100 % zurücksetzen',
 }

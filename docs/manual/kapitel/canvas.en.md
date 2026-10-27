@@ -110,6 +110,20 @@ In addition, the entry *Color cables by discipline* in the *View* menu colours t
 
 As soon as devices are selected, the buttons for selection actions appear in the toolbar and the [selection bar](#selection-bar-at-the-device) appears above the selection.
 
+### Device size
+
+Every device tile has a grip in its bottom right corner — two short strokes. It appears as soon as the device is selected or the pointer is over the tile.
+
+- **Drag** changes the size. While dragging, the percentage is shown above the tile. The range is 60 % to 300 %.
+- **Double-click** resets the device to 100 %.
+- **Arrow keys** step by 5 % once the grip has focus; with **Shift** they step by 20 %.
+
+The whole tile grows with it: name, subtitle, address line, port labels, icons and the port dots. Cables stay on their ports and follow the new size.
+
+If several devices are selected and you drag one of them, all of them get the same size. The same setting is available as *Smaller devices* and *Bigger devices* in the [selection bar](#selection-bar-at-the-device).
+
+The size belongs to the individual device in this plan and is saved with the project. There is no grip in a finalized plan or in the viewer.
+
 ### Aligning devices
 
 The align buttons are in the toolbar as soon as at least one device is selected. All results snap to the grid when *Snap to grid* is on.
@@ -680,11 +694,11 @@ Above a selection a small bar with quick actions appears.
 
 | Selection | Buttons |
 |---|---|
-| One device | *Duplicate*, *Frame around selection*, *Device datasheet (A4 PDF / print)*, *Delete* |
+| One device | *Duplicate*, *Frame around selection*, *Smaller devices*, *Bigger devices*, *Device datasheet (A4 PDF / print)*, *Delete* |
 | Two devices | additionally the six align buttons |
 | Three and more devices | additionally *Distribute horizontally* and *Distribute vertically* |
 
-For devices with readable streams, *Compare scopes (one parade per source)* is added.
+For devices with readable streams, *Compare scopes (one parade per source)* is added. *Reset device size to 100 %* appears as soon as one of the selected devices differs from 100 %.
 
 ![Selection bar at a device](bilder/en/canvas-inline-01-ein-geraet.jpg)
 
