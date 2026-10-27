@@ -1,6 +1,6 @@
 # LZ Scopes (vendored)
 
-Source: [larszu/lz-scopes](https://github.com/larszu/lz-scopes), commit `c053465a91025f6d4f2b031c741201868cb89a52` on `main` — the pin: `scopes:check` compares against exactly this commit, `scopes:sync` rewrites it.
+Source: [larszu/lz-scopes](https://github.com/larszu/lz-scopes), commit `b9b6b780f8074ed16ef70709689235fff4b484fb` on `main` — the pin: `scopes:check` compares against exactly this commit, `scopes:sync` rewrites it.
 Licence: proprietary, free to use in Lars Zumpe's own projects (see `LICENSE` upstream).
 
 The folder mirrors the upstream repo root (`src/`, `server/`), because the closure leaves `src/`: `src/clock/tai.ts` imports `../../server/leap.mjs` (with `leap.d.mts`). Relative imports stay untouched that way. Hosts import from `vendor/lz-scopes/src`.

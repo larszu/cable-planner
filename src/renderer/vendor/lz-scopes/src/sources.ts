@@ -239,7 +239,6 @@ export class Source {
   /** timeline panel (history.ts): ten samples per second while a timeline shows this source */
   readonly history = new History();
   private historyAt = 0;
-  private historyCanvas: HTMLCanvasElement | null = null;
   private historySeq = -1;
   /**
    * @param everyFrame one sample per new picture (e.g. video files) instead of ten per second
@@ -253,12 +252,10 @@ export class Source {
     let pts: number[][];
     if (this.data) pts = gridFromData(this.data, this.width, this.height, this.decoder(), gw, gh);
     else {
-      this.historyCanvas ??= document.createElement('canvas');
-      const c = this.historyCanvas; if (c.width !== gw || c.height !== gh) { c.width = gw; c.height = gh; }
-      const ctx = c.getContext('2d', { willReadFrequently: true })!;
-      try { ctx.drawImage(this.element!, 0, 0, gw, gh); } catch { return; }
-      const d = ctx.getImageData(0, 0, gw, gh).data;
-      pts = Array.from({ length: gw * gh }, (_, i) => [d[i * 4] / 255, d[i * 4 + 1] / 255, d[i * 4 + 2] / 255]);
+      // reuse the throttled CPU frame: an own drawImage + getImageData would stall on the GPU again (#127)
+      const f = this.cpuFrame();
+      if (!f) return;
+      pts = gridFromData(f.px, f.w, f.h, f.decode, gw, gh);
     }
     this.history.push(summarise(pts, this.colorspace, now));
   }
@@ -1061,7 +1058,7 @@ export class Source {
     this.statsPerf = { path: 'cpu', ms: performance.now() - t0 };
   }
 
-  /** The current frame as CPU pixels (bridge data, or a 480-px readback of the element). */
+  /** The current frame as CPU pixels (bridge data, or the shared cpuFrame() readback). */
   private readbackFrame() {
     if (!this.ready) return null;
     let px: Uint8Array | Uint8ClampedArray | Uint16Array, w: number, h: number, step: number, scale: number;
@@ -1069,10 +1066,10 @@ export class Source {
       px = this.data; w = this.width; h = this.height; scale = this.depth === 16 ? 65535 : 255;
       step = Math.max(1, Math.round(Math.sqrt((w * h) / 130000)));
     } else {
-      w = Math.min(480, this.width); h = Math.max(1, Math.round((this.height * w) / this.width));
-      const c = this.scratch(w, h), ctx = c.getContext('2d', { willReadFrequently: true })!;
-      ctx.drawImage(this.element!, 0, 0, w, h);
-      px = ctx.getImageData(0, 0, w, h).data; scale = 255; step = 1;
+      // shares the throttled cpuFrame() readback instead of a second GPU stall (#127)
+      const f = this.cpuFrame();
+      if (!f) return null;
+      px = f.px as Uint8ClampedArray; w = f.w; h = f.h; scale = 255; step = Math.max(1, Math.round(w / 480));
     }
     // restrict to the region of interest, scaled to the analysed buffer
     const sx = w / this.width, sy = h / this.height;
