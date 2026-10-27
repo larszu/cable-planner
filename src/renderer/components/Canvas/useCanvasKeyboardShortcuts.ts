@@ -22,7 +22,11 @@ import type { Cable } from '../../types/cable'
  * (selektierte Geräte nudgen, Shift = 4 Zellen) · Delete/Backspace (löschen).
  */
 export interface CanvasKeyboardShortcutsDeps {
-  pendingCable: unknown
+  /** #1175 — eine ABFRAGE, kein Wert: der Wert als Prop hiesse, dass die
+   *  Canvas das `pendingCable`-Objekt abonnieren muss, und dann zeichnet jeder
+   *  Knick den ganzen Plan neu (siehe `lib/pendingCableSicht.ts`). Die
+   *  Funktion muss ueber Renderzyklen hinweg dieselbe sein. */
+  zeichnetLinie: () => boolean
   clearPendingCable: () => void
   copySelectionToClipboard: () => boolean
   pasteFromClipboard: () => void
@@ -44,14 +48,14 @@ export interface CanvasKeyboardShortcutsDeps {
 export function useCanvasKeyboardShortcuts(deps: CanvasKeyboardShortcutsDeps): void {
   const t = useTranslation()
   const {
-    pendingCable, clearPendingCable,
+    zeichnetLinie, clearPendingCable,
     copySelectionToClipboard, pasteFromClipboard, duplicateSelection, deleteSelected,
     getSelectedEquipmentIds, clipboardRef, lastMousePosRef, screenToFlowPosition,
     getNodes, getEdges, setRfNodes, addEquipment, updateEquipment, deleteEquipment, deleteCable,
   } = deps
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && pendingCable) {
+      if (event.key === 'Escape' && zeichnetLinie()) {
         clearPendingCable()
         return
       }
@@ -180,7 +184,7 @@ export function useCanvasKeyboardShortcuts(deps: CanvasKeyboardShortcutsDeps): v
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [
-    pendingCable, clearPendingCable, copySelectionToClipboard, pasteFromClipboard,
+    zeichnetLinie, clearPendingCable, copySelectionToClipboard, pasteFromClipboard,
     duplicateSelection, deleteSelected, getSelectedEquipmentIds, clipboardRef,
     lastMousePosRef, screenToFlowPosition, getNodes, getEdges, setRfNodes,
     addEquipment, updateEquipment, deleteEquipment, deleteCable, t,

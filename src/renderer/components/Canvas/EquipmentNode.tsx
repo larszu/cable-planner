@@ -31,6 +31,7 @@ type EquipmentNodeData = EquipmentItem & {
 // geändert wurde.
 import { useRaster } from '../../lib/aktuellesRaster'
 import { richteVerbindungAus } from '../../lib/connectionDirection'
+import { istStartBuchse, startBuchseAm } from '../../lib/pendingCableSicht'
 import { useTally } from '../../hooks/useCanvasFlow'
 import { useLampLevel } from '../../hooks/useCircuit'
 import { useErwartetesBild } from '../../hooks/usePattern'
@@ -123,7 +124,12 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
   const schalte = useCircuitStore((s) => s.schalte)
   const stellung = useCircuitStore((s) => (data.circuitKind ? s.sim.positions[id] : undefined))
   const t = useTranslation()
-  const pendingCable = useUiStore((s) => s.pendingCable)
+  // #1175 — NUR die eigene Startbuchse abonnieren, nicht das ganze
+  // `pendingCable`-Objekt: `addPendingWaypoint` ersetzt es bei jedem Knick,
+  // und mit dem Objekt am Haken rendert jedes Geraet bei jedem Knick neu
+  // (gemessen 95 ms NodeRenderer je Klick bei 48 Geraeten). Die Begruendung
+  // steht in `lib/pendingCableSicht.ts`.
+  const startBuchse = useUiStore((s) => startBuchseAm(s.pendingCable, id))
   const startPendingCable = useUiStore((s) => s.startPendingCable)
   const clearPendingCable = useUiStore((s) => s.clearPendingCable)
   const rejectPendingCableEnd = useUiStore((s) => s.rejectPendingCableEnd)
@@ -299,6 +305,9 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
       return
     }
     const handleType: 'source' | 'target' = side === 'output' ? 'source' : 'target'
+    // Der ganze Stand wird im Augenblick des Klicks gelesen und nicht
+    // abonniert — siehe `lib/pendingCableSicht.ts`.
+    const pendingCable = useUiStore.getState().pendingCable
     if (!pendingCable) {
       startPendingCable({ nodeId: id, handleId: portId, handleType })
       return
@@ -348,15 +357,8 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
       activatePort(portId, side)
     }
 
-  const isPendingStart = (portId: string, side: 'input' | 'output'): boolean => {
-    if (!pendingCable) return false
-    const handleType: 'source' | 'target' = side === 'output' ? 'source' : 'target'
-    return (
-      pendingCable.nodeId === id &&
-      pendingCable.handleId === portId &&
-      pendingCable.handleType === handleType
-    )
-  }
+  const isPendingStart = (portId: string, side: 'input' | 'output'): boolean =>
+    istStartBuchse(startBuchse, portId, side === 'output' ? 'source' : 'target')
 
   // Hover state for port rows — gives visual feedback before click
   const [hoveredPort, setHoveredPort] = useState<string | null>(null)

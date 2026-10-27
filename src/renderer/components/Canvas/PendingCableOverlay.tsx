@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useReactFlow, useViewport } from 'reactflow'
 import { useUiStore } from '../../store/uiStore'
@@ -60,6 +60,18 @@ export const PendingCableOverlay = () => {
     window.addEventListener('pointermove', handler)
     return () => window.removeEventListener('pointermove', handler)
   }, [pendingCable, screenToFlowPosition])
+
+  // #1031/#1175 — Waehrend des Zeichnens sind Kabel und Beschriftungen fuer
+  // den Zeiger Luft (`.cp-verbindet` in `index.css`). Die Klasse haengt am
+  // `body` und nicht an der Canvas: dort muesste die Canvas das
+  // `pendingCable`-Objekt abonnieren, und dann zeichnet jeder Knick den ganzen
+  // Plan neu (siehe `lib/pendingCableSicht.ts`).
+  const zeichnet = !!pendingCable
+  useEffect(() => {
+    if (!zeichnet) return
+    document.body.classList.add('cp-verbindet')
+    return () => document.body.classList.remove('cp-verbindet')
+  }, [zeichnet])
 
   if (!pendingCable) return null
 
@@ -216,13 +228,17 @@ const PendingCableSuggestions = ({
   const createCableFromPending = useProjectStore((s) => s.createCableFromPending)
   const clearPendingCable = useUiStore((s) => s.clearPendingCable)
   const { screenToFlowPosition } = useReactFlow()
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
+  // #1175 — die Zeigerposition steht in einem Ref und nicht im State. Gelesen
+  // wird sie erst beim Klick auf einen Vorschlag; als State liess sie diese
+  // Liste bei JEDER Zeigerbewegung neu rendern, ohne dass sich etwas
+  // Sichtbares aenderte.
+  const mousePos = useRef<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
-    // #834 — auch hier `pointermove`: sonst bleibt `mousePos` auf einem
+    // #834 — auch hier `pointermove`: sonst bleibt die Zeigerposition auf einem
     // Touchscreen `null`, und `place()` steigt in der ersten Zeile aus. Der
     // Vorschlag sah dann bedienbar aus und tat beim Tippen nichts.
-    const handler = (e: PointerEvent) => setMousePos({ x: e.clientX, y: e.clientY })
+    const handler = (e: PointerEvent) => { mousePos.current = { x: e.clientX, y: e.clientY } }
     window.addEventListener('pointermove', handler)
     return () => window.removeEventListener('pointermove', handler)
   }, [])
@@ -255,8 +271,9 @@ const PendingCableSuggestions = ({
   if (suggestions.length === 0) return null
 
   const place = (template: typeof suggestions[number]) => {
-    if (!mousePos) return
-    const flow = screenToFlowPosition(mousePos)
+    const zeiger = mousePos.current
+    if (!zeiger) return
+    const flow = screenToFlowPosition(zeiger)
     const matchKey = sourceIsOutput ? 'inputs' : 'outputs'
     const matchPort = (template[matchKey] ?? []).find(
       (p) => p.connectorType === sourcePortConnector,
