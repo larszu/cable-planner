@@ -2,9 +2,15 @@
  * v7.9.86 / #197 — Multi-Provider AI Port-Suggestions.
  *
  * Vorher: nur Gemini. Jetzt drei Provider auswählbar:
- *   - gemini  (Google Generative Language API, gemini-2.5-flash)
- *   - claude  (Anthropic Messages API, claude-opus-5-5, mit Websuche)
- *   - openai  (OpenAI Chat Completions, gpt-4o-mini)
+ *   - gemini  (Google Generative Language API)
+ *   - claude  (Anthropic Messages API, mit Websuche)
+ *   - openai  (OpenAI Chat Completions)
+ *
+ * WELCHES Modell jeder davon benutzt, steht nicht mehr hier, sondern im
+ * KI-Modus (`aiModus.ts`): sparsam, ausgewogen oder genau. Dieselbe Datei
+ * legt Denktiefe, Anzahl der Websuchen und den Token-Deckel fest — die vier
+ * Werte, die ueber den Preis einer Abfrage entscheiden. Der Grund dafuer
+ * (gemessen: $0,25 je Geraet im alten Profil) steht im Kopf von `aiModus.ts`.
  *
  * Jeder Provider hat seinen eigenen API-Key (localStorage-Slot). Der
  * `selectedAiProvider` wird ebenfalls in localStorage gespeichert.
@@ -23,8 +29,11 @@ import { ALL_SIGNAL_STANDARDS } from '../types/cableSpec'
 import type { PortGroupHint } from './portSuggestions'
 import { STORAGE_KEYS } from './storageKeys'
 import { format, tr } from './i18n'
+import { aiModell, aiProfil, type AiProvider } from './aiModus'
+import { verbuchen } from './aiKosten'
+import { antwortAusCache, antwortInCache, cacheSchluessel } from './aiAntwortCache'
 
-export type AiProvider = 'gemini' | 'claude' | 'openai'
+export type { AiProvider }
 
 const STORAGE_PROVIDER_SELECTED = 'cable-planner:ai-provider'
 const STORAGE_KEY_GEMINI = STORAGE_KEYS.geminiApiKey
@@ -39,7 +48,6 @@ const STANDARD_VALUES = ALL_SIGNAL_STANDARDS
 
 interface ProviderConfig {
   label: string
-  defaultModel: string
   storageKey: string
   /** URL für API-Key-Verwaltung damit der User direkt zum richtigen
    *  Dashboard navigieren kann. */
@@ -61,7 +69,6 @@ interface ProviderConfig {
 const PROVIDERS: Record<AiProvider, ProviderConfig> = {
   gemini: {
     label: 'Google Gemini',
-    defaultModel: 'gemini-2.5-flash',
     storageKey: STORAGE_KEY_GEMINI,
     consoleUrl: 'https://aistudio.google.com/app/apikey',
     overrideKey: '__CABLE_PLANNER_GEMINI__',
@@ -69,7 +76,6 @@ const PROVIDERS: Record<AiProvider, ProviderConfig> = {
   },
   claude: {
     label: 'Anthropic Claude',
-    defaultModel: 'claude-opus-5-5',
     storageKey: STORAGE_KEY_CLAUDE,
     consoleUrl: 'https://console.anthropic.com/settings/keys',
     overrideKey: '__CABLE_PLANNER_CLAUDE__',
@@ -77,7 +83,6 @@ const PROVIDERS: Record<AiProvider, ProviderConfig> = {
   },
   openai: {
     label: 'OpenAI',
-    defaultModel: 'gpt-4o-mini',
     storageKey: STORAGE_KEY_OPENAI,
     consoleUrl: 'https://platform.openai.com/api-keys',
     overrideKey: '__CABLE_PLANNER_OPENAI__',
@@ -185,12 +190,18 @@ export const setGeminiApiKey = (key: string): void => setApiKey('gemini', key)
 
 // ─── Gemeinsamer Prompt ────────────────────────────────────────────────
 
-const PROMPT_TEMPLATE = (deviceName: string, category: string) => `You are helping populate a cable-planning tool.
-For the device below, list the physical connectors typically found on it based on common datasheets.
+/**
+ * Der unveraenderliche Teil der Port-Frage: Auftrag, Schema, Vokabeln, Regeln.
+ *
+ * Getrennt vom Geraetenamen, weil er bei jedem Geraet Wort fuer Wort derselbe
+ * ist — rund 1500 Token aus den beiden Vokabellisten. Als `system` darf
+ * Claude ihn zwischenspeichern; beim zweiten Geraet derselben Sitzung kostet
+ * er statt des vollen Eingabepreises ein Zehntel.
+ */
+const PORT_ANLEITUNG = `You are helping populate a cable-planning tool.
+For the device named by the user, list the physical connectors typically found on it based on
+common datasheets.
 Return STRICT JSON only (no prose, no markdown, no code fences).
-
-Device name: ${deviceName}
-Category: ${category}
 
 JSON schema:
 {
@@ -212,6 +223,10 @@ Rules:
 - Do not add connectors because they are "typical" for the category. Omit what you cannot confirm.
 - If the model is unknown to you and cannot be found, return { "ports": [] }.
 - Reply with the JSON object only.`
+
+/** Der veraenderliche Teil — nur er wandert in die Nutzer-Nachricht. */
+const PORT_FRAGE = (deviceName: string, category: string) =>
+  `Device name: ${deviceName}\nCategory: ${category}`
 
 // ─── Provider-Implementierungen ────────────────────────────────────────
 
@@ -278,9 +293,12 @@ const callGemini = async (
 ): Promise<string> => {
   const override = overrideFor<{ base?: string; model?: string }>('__CABLE_PLANNER_GEMINI__')
   const base = override?.base ?? 'https://generativelanguage.googleapis.com/v1beta'
-  const model = override?.model ?? PROVIDERS.gemini.defaultModel
+  const profil = aiProfil()
+  const model = override?.model ?? aiModell('gemini')
+  const suchen = opts.webSearch ? profil.webSuchen : 0
   const url = `${base}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`
   const body = {
+    ...(opts.system ? { systemInstruction: { parts: [{ text: opts.system }] } } : {}),
     contents: [
       {
         role: 'user',
@@ -295,10 +313,15 @@ const callGemini = async (
     ],
     // Google-Suche und JSON-Modus schliessen sich bei Gemini aus; das JSON
     // holt dann parseJsonResponse aus dem Text.
-    ...(opts.webSearch ? { tools: [{ google_search: {} }] } : {}),
+    ...(suchen > 0 ? { tools: [{ google_search: {} }] } : {}),
     generationConfig: {
-      ...(opts.webSearch ? {} : { responseMimeType: 'application/json' }),
-      ...(opts.maxTokens ? { maxOutputTokens: opts.maxTokens } : {}),
+      ...(suchen > 0 ? {} : { responseMimeType: 'application/json' }),
+      maxOutputTokens: opts.maxTokens ?? profil.maxTokens,
+      // Denken kostet Ausgabe-Token. 0 schaltet es ab; `gemini-2.5-pro` nimmt
+      // das nicht an, dort steht im Profil -1 und der Schluessel entfaellt.
+      ...(profil.geminiDenkbudget >= 0
+        ? { thinkingConfig: { thinkingBudget: profil.geminiDenkbudget } }
+        : {}),
       temperature: 0.2,
     },
   }
@@ -312,8 +335,29 @@ const callGemini = async (
     throw new Error(`Gemini API ${res.status}: ${text.slice(0, 200)}`)
   }
   const json = (await res.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+    candidates?: Array<{
+      content?: { parts?: Array<{ text?: string }> }
+      groundingMetadata?: unknown
+    }>
+    usageMetadata?: {
+      promptTokenCount?: number
+      candidatesTokenCount?: number
+      thoughtsTokenCount?: number
+      cachedContentTokenCount?: number
+    }
   }
+  const u = json.usageMetadata ?? {}
+  verbuchen({
+    provider: 'gemini',
+    modell: model,
+    ein: u.promptTokenCount ?? 0,
+    aus: (u.candidatesTokenCount ?? 0) + (u.thoughtsTokenCount ?? 0),
+    cache: u.cachedContentTokenCount ?? 0,
+    cacheNeu: 0,
+    // Google nennt die Zahl der Suchen nicht; die Antwort sagt nur, ob
+    // geerdet wurde. Eine geerdete Antwort zaehlt daher als eine Abfrage.
+    suchen: json.candidates?.[0]?.groundingMetadata ? 1 : 0,
+  })
   return json.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
 }
 
@@ -326,15 +370,48 @@ interface AiCallOptions {
    */
   webSearch?: boolean
   /**
-   * Obergrenze der Antwort. Ein ganzer Plan aus mehreren Dokumenten braucht
-   * weit mehr als die 16000 Token einer Port-Liste; Claude streamt dann, weil
-   * eine so lange Antwort ohne Stream in den HTTP-Timeout laeuft.
+   * Obergrenze der Antwort. Ohne Angabe gilt die des KI-Modus; ein ganzer
+   * Plan aus mehreren Dokumenten braucht mehr und nennt sie deshalb selbst.
+   * Claude streamt ueber 16000, weil eine so lange Antwort ohne Stream in den
+   * HTTP-Timeout laeuft.
    */
   maxTokens?: number
+  /**
+   * Der unveraenderliche Teil der Anweisung — Schema, Vokabeln, Regeln.
+   *
+   * Getrennt vom Prompt, weil er bei jeder Abfrage derselbe ist: Claude darf
+   * ihn dann zwischenspeichern (`cache_control`) und liest ihn beim naechsten
+   * Geraet zu einem Zehntel des Preises. Gemini bekommt ihn als
+   * `systemInstruction`, OpenAI als `system`-Nachricht. Wer ihn weglaesst,
+   * schickt wie bisher alles in einer Nutzer-Nachricht.
+   */
+  system?: string
 }
 
 /** Anhang als Data-URI: Bild (`image/*`) oder PDF (`application/pdf`). */
 const istPdf = (mime: string): boolean => mime === 'application/pdf'
+
+/** Die Zahlen, die jede Antwort der Messages-API mitbringt. */
+interface ClaudeUsage {
+  input_tokens?: number
+  output_tokens?: number
+  cache_read_input_tokens?: number
+  cache_creation_input_tokens?: number
+  server_tool_use?: { web_search_requests?: number }
+}
+
+const verbucheClaude = (modell: string, usage?: ClaudeUsage): void => {
+  if (!usage) return
+  verbuchen({
+    provider: 'claude',
+    modell,
+    ein: usage.input_tokens ?? 0,
+    aus: usage.output_tokens ?? 0,
+    cache: usage.cache_read_input_tokens ?? 0,
+    cacheNeu: usage.cache_creation_input_tokens ?? 0,
+    suchen: usage.server_tool_use?.web_search_requests ?? 0,
+  })
+}
 
 const callClaude = async (
   apiKey: string,
@@ -344,19 +421,35 @@ const callClaude = async (
 ): Promise<string> => {
   const override = overrideFor<{ base?: string; model?: string }>('__CABLE_PLANNER_CLAUDE__')
   const base = override?.base ?? 'https://api.anthropic.com/v1'
-  const model = override?.model ?? PROVIDERS.claude.defaultModel
+  const profil = aiProfil()
+  const model = override?.model ?? aiModell('claude')
   const url = `${base}/messages`
   const workspaceId = getClaudeWorkspaceId().trim()
-  const maxTokens = opts.maxTokens ?? 16000
+  const maxTokens = opts.maxTokens ?? profil.maxTokens
   const stream = maxTokens > 16000
+  const suchen = opts.webSearch ? profil.webSuchen : 0
+  // Den Ersatz bei Sicherheitsabsage nur bei Modellen, die ihn kennen —
+  // Haiku 5.5 hat keinen, und ein `fallbacks` ohne Rueckhalt waere eine 400
+  // auf jeder Abfrage im Modus „sparsam".
+  const kennFallback = /^claude-(opus-5|sonnet-5-5|fable-5)/.test(model)
   const body: Record<string, unknown> = {
     model,
     max_tokens: maxTokens,
     ...(stream ? { stream: true } : {}),
+    // Denktiefe ist der zweite Kostenhebel: Sonnet 5.5 steht ohne Angabe auf
+    // `high`. Abschalten geht bei diesen Modellen nicht, `low` schon.
+    output_config: { effort: profil.effort },
     // Verweigert ein Sicherheitsfilter, beantwortet ein anderes Modell.
-    fallbacks: 'default',
-    ...(opts.webSearch
-      ? { tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 5 }] }
+    ...(kennFallback ? { fallbacks: 'default' } : {}),
+    ...(suchen > 0
+      ? { tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: suchen }] }
+      : {}),
+    // Der unveraenderliche Teil der Anweisung wird zwischengespeichert; beim
+    // naechsten Geraet kostet er ein Zehntel. Ist er kuerzer als das
+    // Mindestmass des Modells, speichert die API nichts und berechnet auch
+    // nichts — es gibt also keinen Fall, in dem das teurer wird.
+    ...(opts.system
+      ? { system: [{ type: 'text', text: opts.system, cache_control: { type: 'ephemeral' } }] }
       : {}),
     messages: [
       {
@@ -386,7 +479,7 @@ const callClaude = async (
       // CORS-Safe-Header-Flag damit der Browser ohne Backend-Proxy direkt
       // ansprechen kann (Anthropic erlaubt das mit einem expliziten Opt-In).
       'anthropic-dangerous-direct-browser-access': 'true',
-      'anthropic-beta': 'server-side-fallback-2026-07-01',
+      ...(kennFallback ? { 'anthropic-beta': 'server-side-fallback-2026-07-01' } : {}),
       ...(workspaceId ? { 'anthropic-workspace-id': workspaceId } : {}),
     },
     body: JSON.stringify(body),
@@ -402,11 +495,13 @@ const callClaude = async (
     }
     throw new Error(`Claude API ${res.status}: ${text.slice(0, 200)}`)
   }
-  if (stream) return leseClaudeStream(res)
+  if (stream) return leseClaudeStream(res, model)
   const json = (await res.json()) as {
     stop_reason?: string
     content?: Array<{ type?: string; text?: string }>
+    usage?: ClaudeUsage
   }
+  verbucheClaude(model, json.usage)
   if (json.stop_reason === 'refusal') throw new Error('Claude API: request declined')
   // Mit Websuche kommt die Antwort in mehreren Textbloecken (Zitate teilen
   // sie); die JSON-Antwort steht am Ende.
@@ -416,21 +511,32 @@ const callClaude = async (
     .join('')
 }
 
-/** Text aus einem Server-Sent-Events-Strom der Messages-API zusammensetzen. */
-export const leseClaudeStream = async (res: Response): Promise<string> => {
+/**
+ * Text aus einem Server-Sent-Events-Strom der Messages-API zusammensetzen.
+ *
+ * Mit `modell` wird am Ende auch der Verbrauch verbucht — die Token-Zahlen
+ * kommen im Strom zweimal: die Eingabe in `message_start`, die Ausgabe im
+ * `message_delta` am Schluss.
+ */
+export const leseClaudeStream = async (res: Response, modell?: string): Promise<string> => {
   if (!res.body) throw new Error('Claude API: empty stream')
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
   let puffer = ''
   let text = ''
   let stopReason = ''
+  const usage: ClaudeUsage = {}
   const zeile = (z: string) => {
     if (!z.startsWith('data:')) return
     const ev = JSON.parse(z.slice(5).trim()) as {
       type?: string
+      message?: { usage?: ClaudeUsage }
+      usage?: ClaudeUsage
       delta?: { type?: string; text?: string; stop_reason?: string }
       error?: { message?: string }
     }
+    if (ev.type === 'message_start' && ev.message?.usage) Object.assign(usage, ev.message.usage)
+    if (ev.type === 'message_delta' && ev.usage) Object.assign(usage, ev.usage)
     if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') text += ev.delta.text ?? ''
     if (ev.type === 'message_delta' && ev.delta?.stop_reason) stopReason = ev.delta.stop_reason
     if (ev.type === 'error') throw new Error(`Claude API: ${ev.error?.message ?? 'stream error'}`)
@@ -446,6 +552,7 @@ export const leseClaudeStream = async (res: Response): Promise<string> => {
     if (done) break
   }
   if (puffer.trim()) zeile(puffer.trim())
+  if (modell) verbucheClaude(modell, usage)
   if (stopReason === 'refusal') throw new Error('Claude API: request declined')
   if (stopReason === 'max_tokens') {
     throw new Error('Claude API: the answer was cut off at the token limit — split the documents into smaller batches.')
@@ -461,14 +568,16 @@ const callOpenAI = async (
 ): Promise<string> => {
   const override = overrideFor<{ base?: string; model?: string }>('__CABLE_PLANNER_OPENAI__')
   const base = override?.base ?? 'https://api.openai.com/v1'
-  const model = override?.model ?? PROVIDERS.openai.defaultModel
+  const profil = aiProfil()
+  const model = override?.model ?? aiModell('openai')
   const url = `${base}/chat/completions`
   const body = {
     model,
     temperature: 0.2,
-    ...(opts.maxTokens ? { max_completion_tokens: Math.min(opts.maxTokens, 16384) } : {}),
+    max_completion_tokens: Math.min(opts.maxTokens ?? profil.maxTokens, 16384),
     response_format: { type: 'json_object' },
     messages: [
+      ...(opts.system ? [{ role: 'system', content: opts.system }] : []),
       {
         role: 'user',
         content:
@@ -499,7 +608,22 @@ const callOpenAI = async (
   }
   const json = (await res.json()) as {
     choices?: Array<{ message?: { content?: string } }>
+    usage?: {
+      prompt_tokens?: number
+      completion_tokens?: number
+      prompt_tokens_details?: { cached_tokens?: number }
+    }
   }
+  const cache = json.usage?.prompt_tokens_details?.cached_tokens ?? 0
+  verbuchen({
+    provider: 'openai',
+    modell: model,
+    ein: Math.max(0, (json.usage?.prompt_tokens ?? 0) - cache),
+    aus: json.usage?.completion_tokens ?? 0,
+    cache,
+    cacheNeu: 0,
+    suchen: 0,
+  })
   return json.choices?.[0]?.message?.content ?? ''
 }
 
@@ -509,8 +633,10 @@ export const suggestFromAI = async (
   deviceName: string,
   category: string,
 ): Promise<PortGroupHint[]> => {
-  const prompt = PROMPT_TEMPLATE(deviceName, category)
-  const text = await completeWithAI(prompt, [], { webSearch: true })
+  const text = await completeWithAI(PORT_FRAGE(deviceName, category), [], {
+    webSearch: true,
+    system: PORT_ANLEITUNG,
+  })
   const raw = parseJsonResponse(text)
   return normalizeHints(raw)
 }
@@ -525,7 +651,7 @@ export const suggestFromDatasheetAI = async (
   category: string,
   datasheet: string,
 ): Promise<PortGroupHint[]> => {
-  const prompt = `${PROMPT_TEMPLATE(deviceName || 'see datasheet', category)}
+  const prompt = `${PORT_FRAGE(deviceName || 'see datasheet', category)}
 
 Use ONLY the datasheet text below as the source. If it covers several models, list the connectors of
 the model named above (or, if no name is given, the main model of the datasheet).
@@ -533,7 +659,7 @@ the model named above (or, if no name is given, the main model of the datasheet)
 --- DATASHEET ---
 ${datasheet.slice(0, 40000)}
 --- END ---`
-  const text = await completeWithAI(prompt)
+  const text = await completeWithAI(prompt, [], { system: PORT_ANLEITUNG })
   return normalizeHints(parseJsonResponse(text))
 }
 
@@ -557,12 +683,28 @@ export const completeWithAI = async (
       format(tr('err.ai.noKey', 'No API key for {provider}. Please add one under Settings → AI.'), { provider: PROVIDERS[provider].label }),
     )
   }
-  switch (provider) {
-    case 'gemini':
-      return callGemini(key, prompt, images, opts)
-    case 'claude':
-      return callClaude(key, prompt, images, opts)
-    case 'openai':
-      return callOpenAI(key, prompt, images, opts)
-  }
+  // Dieselbe Frage an dasselbe Modell kostet nur das erste Mal. Der Modus
+  // steckt ueber den Modellnamen im Schluessel: wer auf „genau" umstellt,
+  // bekommt eine neue Antwort und nicht die aus dem sparsamen Lauf.
+  const schluessel = cacheSchluessel(
+    provider,
+    aiModell(provider),
+    prompt,
+    images.length,
+    opts.system ?? '',
+  )
+  const gecacht = antwortAusCache(schluessel)
+  if (gecacht !== undefined) return gecacht
+  const antwort = await (() => {
+    switch (provider) {
+      case 'gemini':
+        return callGemini(key, prompt, images, opts)
+      case 'claude':
+        return callClaude(key, prompt, images, opts)
+      case 'openai':
+        return callOpenAI(key, prompt, images, opts)
+    }
+  })()
+  antwortInCache(schluessel, antwort)
+  return antwort
 }

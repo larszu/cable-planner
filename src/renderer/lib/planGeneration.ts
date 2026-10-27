@@ -105,7 +105,10 @@ const makePort = (name: string, connector: ConnectorType): Port => ({
  * — wenn ein Port-Name nicht existiert — am passenden Gerät neu angelegt).
  */
 export const generatePlanFromPrompt = async (description: string): Promise<GeneratedPlan> => {
-  const text = await completeWithAI(PROMPT(description))
+  // Eigene Obergrenze statt der des KI-Modus: ein ganzer Plan ist laenger als
+  // eine Port-Liste, und abgeschnittenes JSON ist nicht billiger, sondern
+  // unbrauchbar.
+  const text = await completeWithAI(PROMPT(description), [], { maxTokens: 16000 })
   const parsed = extractJson(text) as {
     devices?: unknown
     connections?: unknown

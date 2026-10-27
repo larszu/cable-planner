@@ -6,6 +6,7 @@ import {
   setClaudeWorkspaceId,
   setSelectedAiProvider,
 } from '../src/renderer/lib/aiSuggestions'
+import { cacheLeeren } from '../src/renderer/lib/aiAntwortCache'
 
 /**
  * Claude-Schluessel ohne Workspace brauchen den Header anthropic-workspace-id.
@@ -19,6 +20,10 @@ describe('Claude-Workspace-ID', () => {
     vi.unstubAllGlobals()
     setClaudeWorkspaceId('')
     setApiKey('claude', '')
+    // Seit #1172 beantwortet der Antwort-Cache dieselbe Frage ohne Abfrage.
+    // Drei Tests mit demselben Prompt „hi" wuerden sich sonst gegenseitig die
+    // Antwort wegnehmen — und der zweite saehe gar keinen fetch mehr.
+    cacheLeeren()
   })
 
   const fetchMit = (res: Response) => {
@@ -66,6 +71,7 @@ describe('Port-Vorschlag schlaegt nach', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     setApiKey('claude', '')
+    cacheLeeren()
   })
 
   it('schickt Claude die Websuche mit und liest JSON hinter einem Satz', async () => {

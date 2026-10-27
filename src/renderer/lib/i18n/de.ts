@@ -5496,6 +5496,31 @@ export const de: Dict = {
   'settings.hotkeys.reset': 'Auf Standard zurücksetzen',
   'settings.hotkeys.title': 'Aktive Tastenkürzel',
   'settings.integrations.ai': 'AI-Provider (KI-Port-Vorschläge)',
+  // #1172 — was eine KI-Abfrage kosten darf.
+  'settings.integrations.aiModus': 'KI-Modus (was eine Abfrage kosten darf)',
+  'settings.integrations.aiModusDesc':
+    'Modell, Denktiefe, Anzahl der Websuchen und Token-Deckel für jede KI-Abfrage. Am teuersten sind die Suchergebnisse: jede Suche legt den Seitentext in die Abfrage, und jeder weitere Schritt derselben Antwort zahlt ihn erneut.',
+  'settings.integrations.aiModus.sparsam': 'Sparsam',
+  'settings.integrations.aiModus.sparsamDesc':
+    'Kleines Modell, keine Websuche. Mit Abstand das Günstigste — und es weiß nur, was das Modell ohnehin weiß.',
+  'settings.integrations.aiModus.ausgewogen': 'Ausgewogen',
+  'settings.integrations.aiModus.ausgewogenDesc':
+    'Mittleres Modell, zwei Websuchen, flaches Denken. Die Vorgabe.',
+  'settings.integrations.aiModus.genau': 'Genau',
+  'settings.integrations.aiModus.genauDesc':
+    'Größtes Modell, fünf Websuchen, tiefes Denken. Rund 25 Cent je Gerät.',
+  'settings.integrations.aiModus.keineSuche': 'ohne Suche',
+  'settings.integrations.aiModus.suchen': '{n} Suchen',
+  'settings.integrations.aiCache': 'Antworten merken',
+  'settings.integrations.aiCacheDesc':
+    'Dasselbe Gerät noch einmal gefragt wird aus der letzten Antwort beantwortet, statt zweimal bezahlt. 30 Tage haltbar, je Modell getrennt. Abfragen mit Foto oder Datenblatt werden nie gespeichert.',
+  'settings.integrations.aiCacheLeeren': 'Gemerkte Antworten löschen ({n})',
+  'settings.integrations.aiVerbrauch': '{n} Abfragen, ca. {usd}',
+  'settings.integrations.aiVerbrauchTokens':
+    '{ein} Eingabe- / {aus} Ausgabe-Token, {cache} aus dem Cache, {suchen} Suchen',
+  'settings.integrations.aiVerbrauchReset': 'Zähler zurücksetzen',
+  'settings.integrations.aiVerbrauchHinweis':
+    'Die Token-Zahlen sind gemessen; die Preise dahinter sind Listenpreise von Oktober 2026 und eine Schätzung, keine Rechnung.',
   // #858 — woher der eine Ausfüllen-Knopf seine Felder holt.
   'settings.integrations.fill': 'Quelle zum Ausfüllen (der „Ausfüllen"-Knopf)',
   'settings.integrations.fillDesc':
