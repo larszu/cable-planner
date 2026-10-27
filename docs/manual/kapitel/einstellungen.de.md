@@ -280,7 +280,25 @@ Beide Quellen raten und ersetzen kein Datenblatt.
 
 ![Ausfüllen-Quelle und KI-Anbieter](bilder/de/einstellungen-22-integrationen-ki.jpg)
 
-*AI-Provider (KI-Port-Vorschläge)* listet Google Gemini, Anthropic Claude und OpenAI mit dem jeweils verwendeten Modell. Der Auswahlpunkt macht einen Anbieter aktiv. Jeder Anbieter hat ein eigenes Schlüsselfeld mit *Anzeigen*/*Ausblenden*, *Speichern* und Löschen; *Key erstellen ↗* öffnet die Seite des Anbieters. Bei Anthropic Claude gibt es zusätzlich das Feld *Workspace-ID*. Diese Schlüssel werden lokal im Speicher der App abgelegt.
+#### KI-Modus
+
+*KI-Modus* bestimmt, was eine KI-Abfrage kosten darf. Dahinter stehen vier Werte, die gemeinsam umgeschaltet werden: Modell, Denktiefe, Anzahl der Websuchen und Token-Deckel.
+
+| Modus | Verhalten |
+|---|---|
+| Sparsam | kleines Modell, keine Websuche; es weiß nur, was das Modell selbst weiß |
+| Ausgewogen | mittleres Modell, zwei Websuchen, flaches Denken — die Vorgabe |
+| Genau | größtes Modell, fünf Websuchen, tiefes Denken; rund 25 Cent je Gerät |
+
+Den Preis treiben die Suchergebnisse: jede Suche legt den Text der gefundenen Seite in die Abfrage, und jeder weitere Schritt derselben Antwort wird dafür erneut berechnet. Ein Modus mit weniger Suchen und kleinerem Modell kostet deshalb nicht ein Stück weniger, sondern eine Größenordnung.
+
+*Antworten merken* beantwortet dasselbe Gerät aus der letzten Antwort, statt es zweimal zu bezahlen — 30 Tage lang, je Modell getrennt. Abfragen mit Foto oder Datenblatt werden nie gespeichert.
+
+Darunter steht, was bisher verbraucht wurde: Zahl der Abfragen, geschätzte Kosten, Token und Suchen. Die Token sind gemessen, die Preise dahinter sind Listenpreise und eine Schätzung — keine Rechnung. *Zähler zurücksetzen* leert die Zählung, *Gemerkte Antworten löschen* den Zwischenspeicher.
+
+#### AI-Provider
+
+*AI-Provider (KI-Port-Vorschläge)* listet Google Gemini, Anthropic Claude und OpenAI mit dem Modell, das der gewählte KI-Modus bei ihnen benutzt. Der Auswahlpunkt macht einen Anbieter aktiv. Jeder Anbieter hat ein eigenes Schlüsselfeld mit *Anzeigen*/*Ausblenden*, *Speichern* und Löschen; *Key erstellen ↗* öffnet die Seite des Anbieters. Bei Anthropic Claude gibt es zusätzlich das Feld *Workspace-ID*. Diese Schlüssel werden lokal im Speicher der App abgelegt.
 
 #### GreenGo Intercom Presets
 

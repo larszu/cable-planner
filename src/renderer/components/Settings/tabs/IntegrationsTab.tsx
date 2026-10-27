@@ -20,6 +20,22 @@ import {
   type AiProvider,
 } from '../../../lib/aiSuggestions'
 import {
+  AI_MODI,
+  AI_MODUS_PROFILE,
+  aiModell,
+  getAiModus,
+  setAiModus,
+  type AiModus,
+} from '../../../lib/aiModus'
+import {
+  AI_VERBRAUCH_EVENT,
+  usdFormat,
+  verbrauchLeeren,
+  verbrauchSumme,
+  type AiVerbrauchSumme,
+} from '../../../lib/aiKosten'
+import { cacheAktiv, cacheGroesse, cacheLeeren, setCacheAktiv } from '../../../lib/aiAntwortCache'
+import {
   deleteGreenGoPreset,
   loadGreenGoPresets,
   saveGreenGoPreset,
@@ -109,6 +125,194 @@ const AusfuellQuelleCard = () => {
             </span>
           </span>
         </label>
+      </div>
+    </SettingsCard>
+  )
+}
+
+/**
+ * KI-Modus — was eine Abfrage kosten darf (#1172).
+ *
+ * Gemeldet 2026-10-27: „api abfragen zum generieren von geraeten kosten ca
+ * 2,50 dollar pro 10 geraete. das ist zu teuer." Die Karte macht die vier
+ * Werte umschaltbar, die den Preis bestimmen (Modell, Denktiefe, Websuchen,
+ * Token-Deckel), und zeigt daneben, was seither tatsaechlich verbraucht wurde
+ * — ohne eigene Zaehlung sieht man die Wirkung erst auf der Abrechnung des
+ * Anbieters.
+ */
+const AiModusCard = () => {
+  const t = useTranslation()
+  const [modus, setModus] = useState<AiModus>(() => getAiModus())
+  const [cache, setCache] = useState(() => cacheAktiv())
+  const [cacheAnzahl, setCacheAnzahl] = useState(() => cacheGroesse())
+  const [summe, setSumme] = useState<AiVerbrauchSumme>(() => verbrauchSumme())
+
+  useEffect(() => {
+    const auffrischen = () => {
+      setSumme(verbrauchSumme())
+      setCacheAnzahl(cacheGroesse())
+    }
+    window.addEventListener(AI_VERBRAUCH_EVENT, auffrischen)
+    return () => window.removeEventListener(AI_VERBRAUCH_EVENT, auffrischen)
+  }, [])
+
+  const waehlen = (m: AiModus) => {
+    setModus(m)
+    setAiModus(m)
+  }
+
+  const beschriftung: Record<AiModus, { name: string; hinweis: string }> = {
+    sparsam: {
+      name: t('settings.integrations.aiModus.sparsam', 'Economical'),
+      hinweis: t(
+        'settings.integrations.aiModus.sparsamDesc',
+        'Small model, no web search. Cheapest by far, and it only knows what the model already knows.',
+      ),
+    },
+    ausgewogen: {
+      name: t('settings.integrations.aiModus.ausgewogen', 'Balanced'),
+      hinweis: t(
+        'settings.integrations.aiModus.ausgewogenDesc',
+        'Mid-size model, two web searches, shallow reasoning. The default.',
+      ),
+    },
+    genau: {
+      name: t('settings.integrations.aiModus.genau', 'Thorough'),
+      hinweis: t(
+        'settings.integrations.aiModus.genauDesc',
+        'Largest model, five web searches, deep reasoning. This was the old behaviour — roughly 25 cents per device.',
+      ),
+    },
+  }
+
+  return (
+    <SettingsCard
+      title={t('settings.integrations.aiModus', 'AI mode (what a request may cost)')}
+      description={t(
+        'settings.integrations.aiModusDesc',
+        'Model, reasoning depth, number of web searches and token ceiling for every AI request. The web search results are what costs the most: each search puts the page text into the request, and every further step of the same answer is billed for it again.',
+      )}
+    >
+      <div className="space-y-3">
+        {AI_MODI.map((m) => {
+          const profil = AI_MODUS_PROFILE[m]
+          const aktiv = modus === m
+          return (
+            <label
+              key={m}
+              className={`block cursor-pointer rounded-cp-card border p-3 transition ${
+                aktiv ? 'border-cp-accent bg-cp-accent-soft' : 'border-cp-border bg-cp-surface-3/40'
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="ai-modus"
+                  checked={aktiv}
+                  onChange={() => waehlen(m)}
+                  className="accent-sky-500"
+                />
+                <span className="font-semibold">{beschriftung[m].name}</span>
+                {aktiv && (
+                  <span className="ml-auto rounded-cp-s bg-cp-accent-soft px-1.5 py-0.5 text-cp-xs text-cp-accent">
+                    {t('settings.integrations.ai.active', 'Active')}
+                  </span>
+                )}
+              </span>
+              <span className="mt-1 block text-cp-xs text-cp-text-muted">
+                {beschriftung[m].hinweis}
+              </span>
+              <span className="mt-1 block font-mono text-cp-xs text-cp-text-faint">
+                {profil.modelle.claude} · {profil.modelle.gemini} · {profil.modelle.openai}
+                {' · '}
+                {profil.webSuchen === 0
+                  ? t('settings.integrations.aiModus.keineSuche', 'no search')
+                  : format(
+                      t('settings.integrations.aiModus.suchen', '{n} searches'),
+                      { n: profil.webSuchen },
+                    )}
+                {` · effort ${profil.effort} · max ${profil.maxTokens}`}
+              </span>
+            </label>
+          )
+        })}
+      </div>
+
+      <label className="mt-3 flex items-start gap-2 text-cp-xs">
+        <input
+          type="checkbox"
+          checked={cache}
+          onChange={(e) => {
+            setCache(e.target.checked)
+            setCacheAktiv(e.target.checked)
+          }}
+          className="mt-0.5 accent-sky-500"
+        />
+        <span>
+          <span className="font-semibold">
+            {t('settings.integrations.aiCache', 'Remember answers')}
+          </span>
+          <span className="block text-cp-text-muted">
+            {t(
+              'settings.integrations.aiCacheDesc',
+              'The same device asked again is answered from the last reply instead of being paid for twice. Kept for 30 days, per model. Requests with a photo or a datasheet attached are never stored.',
+            )}
+          </span>
+        </span>
+      </label>
+
+      <div className="mt-3 border-t border-cp-border-muted pt-3 text-cp-xs">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span className="text-cp-text-secondary">
+            {format(
+              t('settings.integrations.aiVerbrauch', '{n} requests, approx. {usd}'),
+              { n: summe.abfragen, usd: usdFormat(summe.usd) },
+            )}
+          </span>
+          <span className="text-cp-text-muted">
+            {format(
+              t(
+                'settings.integrations.aiVerbrauchTokens',
+                '{ein} in / {aus} out tokens, {cache} from cache, {suchen} searches',
+              ),
+              {
+                ein: summe.ein.toLocaleString(),
+                aus: summe.aus.toLocaleString(),
+                cache: summe.cache.toLocaleString(),
+                suchen: summe.suchen,
+              },
+            )}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              verbrauchLeeren()
+              setSumme(verbrauchSumme())
+            }}
+            className="rounded-cp-control bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-cp-surface-4"
+          >
+            {t('settings.integrations.aiVerbrauchReset', 'Reset counter')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              cacheLeeren()
+              setCacheAnzahl(cacheGroesse())
+            }}
+            className="rounded-cp-control bg-cp-surface-2 px-2 py-1 text-cp-text-muted hover:bg-cp-surface-4"
+          >
+            {format(
+              t('settings.integrations.aiCacheLeeren', 'Clear remembered answers ({n})'),
+              { n: cacheAnzahl },
+            )}
+          </button>
+        </div>
+        <p className="mt-1 text-cp-text-faint">
+          {t(
+            'settings.integrations.aiVerbrauchHinweis',
+            'Token counts are measured; the prices behind them are list prices from October 2026 and an estimate, not an invoice.',
+          )}
+        </p>
       </div>
     </SettingsCard>
   )
@@ -253,7 +457,7 @@ const AiProvidersCard = () => {
               )}
               <div className="mt-1 flex items-center justify-between text-cp-xs text-cp-text-muted">
                 <span>
-                  Model: <span className="font-mono">{config.defaultModel}</span>
+                  Model: <span className="font-mono">{aiModell(id)}</span>
                 </span>
                 <a
                   href={config.consoleUrl}
@@ -986,6 +1190,7 @@ export const IntegrationsTab = ({ onClose }: { onClose: () => void }) => {
       <AusfuellQuelleCard />
 
       {/* v7.9.86 / #197 — Multi-AI-Provider Card (Gemini / Claude / OpenAI). */}
+      <AiModusCard />
       <AiProvidersCard />
 
       <GreenGoPresetsCard />
