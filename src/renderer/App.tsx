@@ -1184,13 +1184,10 @@ export default function App() {
           bgOpacity: exportBgOpacity,
           customPalette: exportCustomPalette,
           pageSize,
+          stamp: stampForPlan(project, new Date()),
           onProgress: (phase, detail) =>
             setPdfProgress({ active: true, phase, detail }),
         })
-        // Auch der Vektor-Weg gibt ein Plan-Blatt aus. Dass ihm der Titelblock
-        // und damit der Stempel fehlt (offengelegt im Export-Dialog), macht die
-        // Ausgabe nicht ungeschehen — ein fehlender Registereintrag saehe aus
-        // wie „nicht ausgegeben".
         recordPlanEmission()
       } else {
         await exportCanvasToPdf(project.metadata.name, project.metadata, 0.85, {

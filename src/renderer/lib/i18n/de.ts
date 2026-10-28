@@ -2700,7 +2700,7 @@ export const de: Dict = {
     'JPEG-Snapshot. Zuverlässig, aber Text wird unscharf bei großem Zoom in der PDF.',
   'export.render.vector': 'Vektor',
   'export.render.vectorHint':
-    'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße. Ohne Titelblock — Revision, Stand-Fingerprint und QR-Code stehen nur im Raster-PDF.',
+    'Chromium printToPDF. Text bleibt selektierbar & scharf bei jedem Zoom. Kleinere Dateigröße.',
   'export.renderMode': 'Render-Modus',
   'export.reset': 'Reset',
   'export.resetLayout': 'Layout zurücksetzen',

@@ -3,20 +3,14 @@ import { toJpeg, toPng } from 'html-to-image'
 import jsPDF from 'jspdf'
 import type { ProjectMetadata } from '../types/project'
 import type { DocumentStamp } from './documentStamp'
-import QRCode from 'qrcode'
-import { buildDocQrPayload } from './qrPayload'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { pdfText } from './pdfHelpers'
 import { hexToRgb, drawVectorBackground } from './pdfBackground'
 import { buildExportFilename } from './exportFilename'
 import { format, tr, translate } from './i18n'
 import { useUiStore } from '../store/uiStore'
-import { satz, satzKanonisch } from './satz'
-import {
-  resolveTitleBlockScale,
-  titleBlockRowVisible,
-  type TitleBlockRow,
-} from './titleBlockScale'
+import { resolveTitleBlockScale } from './titleBlockScale'
+import { titleBlockQr, titleBlockRows } from './titleBlockContent'
 
 // Helper: aus composed-Background-Optionen den Grid-Hex extrahieren.
 // composeExportBackground hat keinen public `gridColor` Output (nur
@@ -56,15 +50,6 @@ export interface ExportPdfOptions {
   stamp?: DocumentStamp
 }
 
-const fmtDate = (iso?: string): string => {
-  if (!iso) return '—'
-  try {
-    return new Date(iso).toLocaleString()
-  } catch {
-    return iso
-  }
-}
-
 /**
  * Draw a DIN-like plan title block in the bottom-right corner. Returns the
  * total height used by the block so we can keep the drawing above it.
@@ -82,30 +67,9 @@ const drawTitleBlock = (
   const boxW = 300 * k
   const rowH = 14 * k
   const tb = meta.titleBlock
-  const on = (row: TitleBlockRow) => titleBlockRowVisible(tb, row)
-  const rows: [string, string | undefined][] = [
-    ...(on('name') ? ([['Projekt', meta.name || '—']] as [string, string][]) : []),
-    ...(on('projectNumber') ? ([['Projekt-Nr.', meta.projectNumber]] as [string, string | undefined][]) : []),
-    ...(on('client') ? ([['Kunde', meta.client]] as [string, string | undefined][]) : []),
-    ...(on('contractor') ? ([['Auftragnehmer', meta.contractor]] as [string, string | undefined][]) : []),
-    ...(on('author') ? ([['Planer', meta.author]] as [string, string | undefined][]) : []),
-    ...(on('createdAt') ? ([['Erstellt', fmtDate(meta.createdAt)]] as [string, string][]) : []),
-    ...(on('updatedAt') ? ([['Geändert', fmtDate(meta.updatedAt)]] as [string, string][]) : []),
-    // #412 — Revisions-Stempel (nur wenn eine Revision festgeschrieben ist).
-    // Initiative 4 — mit Dokument-Stempel sagt die Zeile dazu, ob der Plan seit
-    // dem Festschreiben weitergelaufen ist. „Rev 2" alleine liest sich auf
-    // Papier als *dieser Ausdruck ist Rev 2*, und das stimmt dann nicht mehr.
-    ...(meta.revision && on('revision')
-      ? ([
-          ['Revision', stamp?.drifted ? satzKanonisch(satz('rest.stamp.drifted', '{rev} + changes', { rev: meta.revision })) : meta.revision],
-        ] as [string, string][])
-      : []),
-    ...(stamp && on('stand') ? ([['Stand', `#${stamp.fingerprint}`]] as [string, string][]) : []),
-  ]
-  const visibleRows = rows.filter(([, v]) => !!v || true) // keep all rows, show "—" when missing
+  const visibleRows = titleBlockRows(meta, stamp)
   const logoH = 36 * k
   const hasLogos = tb?.logos !== false && !!(meta.companyLogo || meta.clientLogo)
-  if (standQr && tb?.qr === false) standQr = undefined
   // ADR-004 — der Stand-Code sitzt im Titelblock, weil er zum Blatt gehoert
   // und nicht zur Zeichnung. Quadratisch, so hoch wie die Zeilen daneben.
   const qrSize = standQr ? 54 * k : 0
@@ -579,21 +543,7 @@ const buildCanvasPdfAusschnitt = async (
   onProgress('serialize', `PDF-Stream serialisieren…`)
   await yieldToBrowser()
 
-  // ADR-004, Inkrement 2 — Stand-Code fuer den Rueckweg vom Blatt. Der Stand
-  // steht im Code selbst, nicht in einer Datenbank: das Blatt muss ohne Netz
-  // aussagefaehig sein, sonst nimmt man ihm die Eigenschaft, wegen der es
-  // gedruckt wurde.
-  let standQr: string | undefined
-  if (options?.stamp) {
-    try {
-      standQr = await QRCode.toDataURL(
-        buildDocQrPayload('plan', options.stamp.fingerprint, options.stamp.revision),
-        { margin: 0, width: 128 },
-      )
-    } catch {
-      // Kein QR ist besser als kein PDF; die Stand-Zeile bleibt als Text.
-    }
-  }
+  const standQr = metadata ? await titleBlockQr(metadata, options?.stamp) : undefined
 
   if (metadata && showTb) {
     drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin, options?.stamp, standQr, tbScale)

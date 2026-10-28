@@ -24,11 +24,9 @@ import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { buildExportFilename } from './exportFilename'
 import { tr, format } from './i18n'
-import {
-  resolveTitleBlockScale,
-  titleBlockRowVisible,
-  type TitleBlockRow,
-} from './titleBlockScale'
+import { resolveTitleBlockScale } from './titleBlockScale'
+import { titleBlockQr, titleBlockRows } from './titleBlockContent'
+import type { DocumentStamp } from './documentStamp'
 
 /** v7.9.103 — Standard-Page-Sizes fuer Plotter-/Print-Workflows. 'auto'
  *  kappt auf A0-Landscape (Default, max. Viewer-Kompatibilitaet). 'original'
@@ -56,6 +54,8 @@ export interface ExportPdfVectorOptions {
    *  Groesse fuer Plotter-Drucke (kann in manchen PDF-Viewern wie Edge
    *  weiss erscheinen, aber Acrobat / Adobe / Plotter-Apps drucken's). */
   pageSize?: PdfPageSize
+  /** Initiative 4 — Revision/Stand im Schriftfeld, wie im Raster-PDF. */
+  stamp?: DocumentStamp
   onProgress?: (phase: string, detail?: string) => void
 }
 
@@ -77,15 +77,6 @@ interface CablePlannerWindow {
 // 96 DPI: 1 CSS-px = 1/96 inch = 25400/96 = 264.5833 microns
 const PX_TO_MICRONS = 25400 / 96
 const PX_TO_MM = 25.4 / 96
-
-const fmtDate = (iso?: string): string => {
-  if (!iso) return '—'
-  try {
-    return new Date(iso).toLocaleString()
-  } catch {
-    return iso
-  }
-}
 
 const escapeHtml = (s: string): string =>
   s
@@ -270,21 +261,13 @@ const cloneCanvasForPrint = (
   return clone
 }
 
-const renderTitleBlock = (meta: ProjectMetadata): string => {
+const renderTitleBlock = (
+  meta: ProjectMetadata,
+  stamp?: DocumentStamp,
+  standQr?: string,
+): string => {
   const tb = meta.titleBlock
-  const rows = (
-    [
-      ['name', 'Projekt', meta.name || '—'],
-      ['projectNumber', 'Projekt-Nr.', meta.projectNumber || '—'],
-      ['client', 'Kunde', meta.client || '—'],
-      ['contractor', 'Auftragnehmer', meta.contractor || '—'],
-      ['author', 'Planer', meta.author || '—'],
-      ['createdAt', 'Erstellt', fmtDate(meta.createdAt)],
-      ['updatedAt', 'Geändert', fmtDate(meta.updatedAt)],
-    ] as [TitleBlockRow, string, string][]
-  )
-    .filter(([row]) => titleBlockRowVisible(tb, row))
-    .map(([, k, v]) => [k, v] as [string, string])
+  const rows = titleBlockRows(meta, stamp)
   const hasLogos = tb?.logos !== false && !!(meta.companyLogo || meta.clientLogo)
   const logos = hasLogos
     ? `<div class="pdf-tb-logos">
@@ -298,7 +281,9 @@ const renderTitleBlock = (meta: ProjectMetadata): string => {
         `<div class="pdf-tb-row"><span class="k">${escapeHtml(k)}</span><span class="v">${escapeHtml(v)}</span></div>`,
     )
     .join('')
-  return `<div class="pdf-tb">${logos}${rowsHtml}</div>`
+  // ADR-004 — QR neben den Zeilen, wie im Raster-PDF.
+  const qr = standQr ? `<img class="pdf-tb-qr" src="${escapeHtml(standQr)}" alt="" />` : ''
+  return `<div class="pdf-tb">${logos}<div class="pdf-tb-body"><div class="pdf-tb-rows">${rowsHtml}</div>${qr}</div></div>`
 }
 
 const buildPrintHtml = (params: {
@@ -325,6 +310,8 @@ const buildPrintHtml = (params: {
   textColor: string
   metadata?: ProjectMetadata
   themeDark: boolean
+  stamp?: DocumentStamp
+  standQr?: string
 }): string => {
   const {
     appCss,
@@ -343,6 +330,8 @@ const buildPrintHtml = (params: {
     textColor,
     metadata,
     themeDark,
+    stamp,
+    standQr,
   } = params
   const pageWmm = (pageWidthPx * PX_TO_MM).toFixed(3)
   const pageHmm = (pageHeightPx * PX_TO_MM).toFixed(3)
@@ -422,6 +411,9 @@ ${appCss}
     align-items: center; justify-content: space-around;
     min-height: 36px;
   }
+  .pdf-tb-body { display: flex; align-items: flex-end; }
+  .pdf-tb-rows { flex: 1; min-width: 0; }
+  .pdf-tb-qr { width: 54px; height: 54px; margin: 4px; flex: none; }
   .pdf-tb-logos img { max-height: 32px; max-width: 140px; object-fit: contain; }
 </style>
 </head>
@@ -434,7 +426,7 @@ ${appCss}
   <div class="pdf-canvas-wrap">
     <div class="pdf-canvas-inner">${canvasOuterHtml}</div>
   </div>
-  ${metadata && metadata.titleBlock?.show !== false ? renderTitleBlock(metadata) : ''}
+  ${metadata && metadata.titleBlock?.show !== false ? renderTitleBlock(metadata, stamp, standQr) : ''}
 </div>
 </body>
 </html>`
@@ -577,6 +569,8 @@ const exportCanvasToPdfVectorAusschnitt = async (
     textColor,
     metadata,
     themeDark,
+    stamp: options?.stamp,
+    standQr: metadata ? await titleBlockQr(metadata, options?.stamp) : undefined,
   })
 
   onProgress('render', tr('export.pdf.rendering', 'Chromium printToPDF…'))

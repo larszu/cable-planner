@@ -240,7 +240,7 @@ Das Blatt enthält Zeichnung und Legende aus denselben Objekten. Die Nummer am G
 
 | Format | Eigenschaft |
 |---|---|
-| *PDF* | druckbar; der Titelblock steht nur im Raster-Modus (siehe unten) |
+| *PDF* | druckbar, mit Schriftfeld unten rechts (siehe unten) |
 | *PNG* | transparent möglich, scharf |
 | *JPEG* | kleiner, gut für E-Mail |
 | *SVG* | skalierbar, für Web und Weiterverarbeitung |
@@ -250,7 +250,8 @@ Für PDF kommen diese Einstellungen dazu:
 
 - *PDF-Thema*: *Dunkles Thema (wie Canvas)* oder *Helles Thema (für Ausdruck empfohlen)*.
 - *Monochrom sicher (Ebene im Klartext, eine Strichfarbe)* schreibt die Ebene im Klartext an jedes Kabel und färbt alle Striche gleich. Auf einem Schwarzweiß-Drucker lassen sich sonst Video und Audio kaum unterscheiden.
-- *Render-Modus*: *Raster (klassisch)* ist ein JPEG-Abbild des Canvas, zuverlässig, aber der Text wird bei hohem Zoom unscharf. Es trägt den Titelblock mit den Projektdaten und dem Stempel. *Vektor* nutzt den Druckweg von Chromium: Text bleibt wählbar und scharf bei jedem Zoom, die Datei bleibt klein. Es hat keinen Titelblock; Revision, Stand-Fingerprint und QR-Code stehen nur im Raster-PDF.
+- *Render-Modus*: *Raster (klassisch)* ist ein JPEG-Abbild des Canvas, zuverlässig, aber der Text wird bei hohem Zoom unscharf. *Vektor* nutzt den Druckweg von Chromium: Text bleibt wählbar und scharf bei jedem Zoom, die Datei bleibt klein. Beide tragen dasselbe Schriftfeld mit Projektdaten, Revision, Stand und QR-Code.
+- *Schriftfeld*: an- und abschaltbar; QR-Code, Logos und jede Zeile einzeln wählbar. *Größe* „Auto“ wächst mit dem Blatt (A3 = 100 %), alternativ ein fester Wert von 75 bis 300 %. Die Einstellung wird im Projekt gespeichert.
 - *Page-Size* gibt es nur beim Vektor-PDF: *Auto — A0 Landscape (kompatibel mit allen Viewern)*, *A4 Landscape* bis *A0 Landscape*, *A0+ Plotter* und *Original — volle Canvas-Größe für Plotter*. Seiten über A0 zeigen Edge und Vorschau manchmal weiß an; Acrobat und Plotter-Software drucken sie. Der Canvas wird vektoriell auf die Seite skaliert, Text bleibt scharf.
 - *Ebenen (im PDF enthalten)*: Die Chips Video, Audio, Control, Network, Power und Other schalten eine Ebene für Canvas und PDF um. Für ein PDF nur mit Video schalten Sie die anderen aus, exportieren und schalten sie wieder ein.
 
