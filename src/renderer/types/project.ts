@@ -54,6 +54,8 @@ export interface ProjectMetadata {
    * Speichern traegt sie jede.
    */
   projectId?: string
+  /** Aussehen des Schriftfelds im PDF-Export. */
+  titleBlock?: import('../lib/titleBlockScale').TitleBlockOptions
   name: string
   description: string
   createdAt: string

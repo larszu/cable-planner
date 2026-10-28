@@ -18,3 +18,44 @@ export const titleBlockScale = (
   const byWidth = (pageWidth * 0.45) / baseWidth
   return Math.max(1, Math.min(byArea, byWidth))
 }
+
+/** Zeilen des Schriftfelds, in der Reihenfolge auf dem Blatt. */
+export const TITLE_BLOCK_ROWS = [
+  'name',
+  'projectNumber',
+  'client',
+  'contractor',
+  'author',
+  'createdAt',
+  'updatedAt',
+  'revision',
+  'stand',
+] as const
+export type TitleBlockRow = (typeof TITLE_BLOCK_ROWS)[number]
+
+/** Wie das Schriftfeld im PDF aussieht. Wandert mit dem Projekt. */
+export interface TitleBlockOptions {
+  /** false = kein Schriftfeld. */
+  show?: boolean
+  qr?: boolean
+  logos?: boolean
+  /** Abgewaehlte Zeilen. */
+  hidden?: TitleBlockRow[]
+  /** 'auto' = mit dem Blatt wachsen, sonst fester Faktor (1 = A3-Groesse). */
+  size?: 'auto' | number
+}
+
+export const resolveTitleBlockScale = (
+  opts: TitleBlockOptions | undefined,
+  pageWidth: number,
+  pageHeight: number,
+  baseWidth: number,
+  unitsPerPt = 1,
+): number => {
+  const size = opts?.size ?? 'auto'
+  if (size === 'auto') return titleBlockScale(pageWidth, pageHeight, baseWidth, unitsPerPt)
+  return Math.max(0.5, Math.min(size, (pageWidth * 0.9) / baseWidth))
+}
+
+export const titleBlockRowVisible = (opts: TitleBlockOptions | undefined, row: TitleBlockRow) =>
+  !opts?.hidden?.includes(row)
