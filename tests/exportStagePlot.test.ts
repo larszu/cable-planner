@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { exportStagePlotSvg } from '../src/renderer/lib/exportStagePlot'
 import exportDialogSrc from '../src/renderer/components/Export/ExportDialog.tsx?raw'
+import exportPdfSrc from '../src/renderer/lib/exportPdf.ts?raw'
+import exportPdfVectorSrc from '../src/renderer/lib/exportPdfVector.ts?raw'
 import { rendererQuelltext } from './support/i18nAufrufe'
 import type { CablePlannerProject } from '../src/renderer/types/project'
 import type { EquipmentItem } from '../src/renderer/types/equipment'
@@ -99,24 +101,23 @@ describe('exportStagePlotSvg — was die Unterzeile behauptet', () => {
   })
 })
 
-// Zweiter Fund derselben Flaeche und derselben Klasse (Regel 4): der
-// Vektor-PDF-Hinweis nannte nur Vorteile. Der Vektor-Pfad klont das
-// Canvas-DOM und druckt es via Chromium — einen Titelblock baut er nicht.
-// Revision, Stand-Fingerprint und QR, die der Raster-Pfad mit jsPDF zeichnet,
-// fehlen im Vektor-PDF also. Wer zwischen zwei Wegen waehlt, muss beide
-// Seiten kennen; der Hinweis ist genau die Stelle, an der gewaehlt wird.
-//
-// Den Titelblock im Vektor-Pfad NACHZUBAUEN waere ein Feature, kein
-// Melde-Fix — deshalb hier nur die Zusage geradegerueckt.
-describe('der Vektor-PDF-Hinweis nennt auch, was fehlt', () => {
-  it('sagt im deutschen Fallback, dass der Titelblock fehlt', () => {
-    expect(exportDialogSrc).toContain('No title block')
-    expect(exportDialogSrc).toContain('Stand-Fingerprint')
+// Zweiter Fund derselben Flaeche (Regel 4): der Vektor-PDF-Hinweis darf
+// nichts versprechen und nichts verschweigen. Das Schriftfeld war frueher
+// zweimal gebaut, und dem Vektor-Weg fehlten Revision, Stand und QR. Jetzt
+// lesen beide Wege es aus titleBlockContent — der Unterschied ist weg, und
+// der Hinweis darf ihn auch nicht mehr behaupten.
+describe('Schriftfeld: eine Quelle fuer Raster und Vektor', () => {
+  it('beide PDF-Wege beziehen Zeilen und QR aus titleBlockContent', () => {
+    for (const src of [exportPdfSrc, exportPdfVectorSrc]) {
+      expect(src).toContain("from './titleBlockContent'")
+      expect(src).toContain('titleBlockRows(')
+      expect(src).toContain('titleBlockQr(')
+    }
   })
 
-  it('sagt es auch auf Englisch', () => {
-    expect(rendererQuelltext).toContain('No title block')
-    expect(rendererQuelltext).toContain('state fingerprint')
+  it('der Hinweis behauptet keinen fehlenden Titelblock mehr', () => {
+    expect(exportDialogSrc).not.toContain('No title block')
+    expect(rendererQuelltext).not.toContain('Ohne Titelblock')
   })
 })
 
