@@ -24,6 +24,7 @@ import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { buildExportFilename } from './exportFilename'
 import { tr, format } from './i18n'
+import { titleBlockScale } from './titleBlockScale'
 
 /** v7.9.103 — Standard-Page-Sizes fuer Plotter-/Print-Workflows. 'auto'
  *  kappt auf A0-Landscape (Default, max. Viewer-Kompatibilitaet). 'original'
@@ -392,6 +393,8 @@ ${appCss}
     position: absolute;
     right: ${margin}px; bottom: ${margin}px;
     width: 300px;
+    transform: scale(${titleBlockScale(pageWidthPx, pageHeightPx, 300, 4 / 3)});
+    transform-origin: bottom right;
     border: 1px solid #444;
     font-size: 8px;
     background: ${bgFallback};

@@ -12,6 +12,7 @@ import { buildExportFilename } from './exportFilename'
 import { format, tr, translate } from './i18n'
 import { useUiStore } from '../store/uiStore'
 import { satz, satzKanonisch } from './satz'
+import { titleBlockScale } from './titleBlockScale'
 
 // Helper: aus composed-Background-Optionen den Grid-Hex extrahieren.
 // composeExportBackground hat keinen public `gridColor` Output (nur
@@ -72,9 +73,10 @@ const drawTitleBlock = (
   margin: number,
   stamp?: DocumentStamp,
   standQr?: string,
+  k = 1,
 ): number => {
-  const boxW = 300
-  const rowH = 14
+  const boxW = 300 * k
+  const rowH = 14 * k
   const rows: [string, string | undefined][] = [
     ['Projekt', meta.name || '—'],
     ['Projekt-Nr.', meta.projectNumber],
@@ -95,23 +97,23 @@ const drawTitleBlock = (
     ...(stamp ? ([['Stand', `#${stamp.fingerprint}`]] as [string, string][]) : []),
   ]
   const visibleRows = rows.filter(([, v]) => !!v || true) // keep all rows, show "—" when missing
-  const logoH = 36
+  const logoH = 36 * k
   const hasLogos = !!(meta.companyLogo || meta.clientLogo)
   // ADR-004 — der Stand-Code sitzt im Titelblock, weil er zum Blatt gehoert
   // und nicht zur Zeichnung. Quadratisch, so hoch wie die Zeilen daneben.
-  const qrSize = standQr ? 54 : 0
+  const qrSize = standQr ? 54 * k : 0
   const boxH =
-    Math.max(visibleRows.length * rowH, qrSize) + 8 + (hasLogos ? logoH + 6 : 0)
+    Math.max(visibleRows.length * rowH, qrSize) + 8 * k + (hasLogos ? logoH + 6 * k : 0)
   const x = pageWidth - margin - boxW
   const y = pageHeight - margin - boxH
 
   pdf.setDrawColor(40)
-  pdf.setLineWidth(0.6)
+  pdf.setLineWidth(0.6 * k)
   pdf.rect(x, y, boxW, boxH)
 
   if (standQr) {
     try {
-      pdf.addImage(standQr, 'PNG', x + boxW - qrSize - 4, y + boxH - qrSize - 4, qrSize, qrSize)
+      pdf.addImage(standQr, 'PNG', x + boxW - qrSize - 4 * k, y + boxH - qrSize - 4 * k, qrSize, qrSize)
     } catch {
       // Ein fehlgeschlagener QR darf den Plan-Export nicht kosten; die
       // Stand-Zeile im Block traegt dieselbe Information als Text.
@@ -119,12 +121,12 @@ const drawTitleBlock = (
   }
 
   // Logos row at the top of the box.
-  let rowY = y + 4
+  let rowY = y + 4 * k
   if (hasLogos) {
-    const halfW = boxW / 2 - 4
+    const halfW = boxW / 2 - 4 * k
     try {
       if (meta.companyLogo) {
-        pdf.addImage(meta.companyLogo, 'PNG', x + 4, rowY, halfW, logoH, undefined, 'FAST')
+        pdf.addImage(meta.companyLogo, 'PNG', x + 4 * k, rowY, halfW, logoH, undefined, 'FAST')
       }
     } catch {
       // ignore logo decode errors
@@ -134,7 +136,7 @@ const drawTitleBlock = (
         pdf.addImage(
           meta.clientLogo,
           'PNG',
-          x + halfW + 8,
+          x + halfW + 8 * k,
           rowY,
           halfW,
           logoH,
@@ -146,16 +148,16 @@ const drawTitleBlock = (
       // ignore
     }
     // horizontal separator under logos
-    pdf.line(x, rowY + logoH + 2, x + boxW, rowY + logoH + 2)
-    rowY += logoH + 6
+    pdf.line(x, rowY + logoH + 2 * k, x + boxW, rowY + logoH + 2 * k)
+    rowY += logoH + 6 * k
   }
 
-  pdf.setFontSize(8)
+  pdf.setFontSize(8 * k)
   for (const [label, value] of visibleRows) {
     pdf.setTextColor(100)
-    pdfText(pdf, label, x + 4, rowY + 10)
+    pdfText(pdf, label, x + 4 * k, rowY + 10 * k)
     pdf.setTextColor(15)
-    pdfText(pdf, value ?? '-', x + 85, rowY + 10, { maxWidth: boxW - 90 - qrSize })
+    pdfText(pdf, value ?? '-', x + 85 * k, rowY + 10 * k, { maxWidth: boxW - 90 * k - qrSize })
     pdf.line(x, rowY + rowH, x + boxW, rowY + rowH)
     rowY += rowH
   }
@@ -485,11 +487,13 @@ const buildCanvasPdfAusschnitt = async (
   const PX_TO_PT = 0.75
   const margin = 24
   const headerHeight = 28 // reserved for title + timestamp at the top
-  const titleBlockHeight = metadata ? 160 : 0
-  const titleBlockGap = metadata ? 12 : 0
-
   const drawingW = contentW * PX_TO_PT
   const drawingH = contentH * PX_TO_PT
+
+  // Schriftfeld waechst mit dem Blatt, nicht mit dem Bildschirm-Canvas.
+  const tbScale = titleBlockScale(drawingW + margin * 2, drawingH + margin * 2, 300)
+  const titleBlockHeight = metadata ? 160 * tbScale : 0
+  const titleBlockGap = metadata ? 12 * tbScale : 0
 
   const pageWidth = drawingW + margin * 2
   const pageHeight = drawingH + margin * 2 + headerHeight + titleBlockHeight + titleBlockGap
@@ -579,7 +583,7 @@ const buildCanvasPdfAusschnitt = async (
   }
 
   if (metadata) {
-    drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin, options?.stamp, standQr)
+    drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin, options?.stamp, standQr, tbScale)
   }
 
   return pdf
