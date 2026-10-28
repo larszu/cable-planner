@@ -240,7 +240,7 @@ The sheet contains drawing and legend from the same objects. The number on a dev
 
 | Format | Property |
 |---|---|
-| *PDF* | printable; the title block is only in raster mode (see below) |
+| *PDF* | printable, with a title block bottom right (see below) |
 | *PNG* | transparent possible, sharp |
 | *JPEG* | smaller, good for email |
 | *SVG* | scalable, for web and further processing |
@@ -250,7 +250,8 @@ For PDF these settings are added:
 
 - *PDF theme*: *Dark theme (like canvas)* or *Light theme (recommended for print)*.
 - *Monochrome-safe (layer spelled out, one line colour)* writes the layer in plain text on every cable and gives all lines the same colour. On a black-and-white printer video and audio are otherwise hard to tell apart.
-- *Render mode*: *Raster (classic)* is a JPEG snapshot of the canvas, reliable, but text blurs at high zoom. It carries the title block with the project data and the stamp. *Vector* uses Chromium's print path: text stays selectable and sharp at any zoom, the file stays small. It has no title block; revision, state fingerprint and QR code are only in the raster PDF.
+- *Render mode*: *Raster (classic)* is a JPEG snapshot of the canvas, reliable, but text blurs at high zoom. *Vector* uses Chromium's print path: text stays selectable and sharp at any zoom, the file stays small. Both carry the same title block with project data, revision, state and QR code.
+- *Title block*: can be switched off; QR code, logos and every row can be chosen individually. *Size* “Auto” grows with the sheet (A3 = 100 %), or pick a fixed value from 75 to 300 %. The setting is saved with the project.
 - *Page size* exists only for the vector PDF: *Auto — A0 landscape (compatible with all viewers)*, *A4 Landscape* to *A0 Landscape*, *A0+ Plotter* and *Original — full canvas size for plotter*. Edge and Preview sometimes display pages above A0 as white; Acrobat and plotter software print them. The canvas is scaled vectorially to the page, text stays sharp.
 - *Layers (included in PDF)*: the chips Video, Audio, Control, Network, Power and Other toggle a layer for canvas and PDF. For a PDF with video only, switch the others off, export and switch them on again.
 
