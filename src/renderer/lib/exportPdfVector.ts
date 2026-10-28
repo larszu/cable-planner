@@ -24,7 +24,11 @@ import type { ProjectMetadata } from '../types/project'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { buildExportFilename } from './exportFilename'
 import { tr, format } from './i18n'
-import { titleBlockScale } from './titleBlockScale'
+import {
+  resolveTitleBlockScale,
+  titleBlockRowVisible,
+  type TitleBlockRow,
+} from './titleBlockScale'
 
 /** v7.9.103 — Standard-Page-Sizes fuer Plotter-/Print-Workflows. 'auto'
  *  kappt auf A0-Landscape (Default, max. Viewer-Kompatibilitaet). 'original'
@@ -267,16 +271,21 @@ const cloneCanvasForPrint = (
 }
 
 const renderTitleBlock = (meta: ProjectMetadata): string => {
-  const rows: [string, string][] = [
-    ['Projekt', meta.name || '—'],
-    ['Projekt-Nr.', meta.projectNumber || '—'],
-    ['Kunde', meta.client || '—'],
-    ['Auftragnehmer', meta.contractor || '—'],
-    ['Planer', meta.author || '—'],
-    ['Erstellt', fmtDate(meta.createdAt)],
-    ['Geändert', fmtDate(meta.updatedAt)],
-  ]
-  const hasLogos = !!(meta.companyLogo || meta.clientLogo)
+  const tb = meta.titleBlock
+  const rows = (
+    [
+      ['name', 'Projekt', meta.name || '—'],
+      ['projectNumber', 'Projekt-Nr.', meta.projectNumber || '—'],
+      ['client', 'Kunde', meta.client || '—'],
+      ['contractor', 'Auftragnehmer', meta.contractor || '—'],
+      ['author', 'Planer', meta.author || '—'],
+      ['createdAt', 'Erstellt', fmtDate(meta.createdAt)],
+      ['updatedAt', 'Geändert', fmtDate(meta.updatedAt)],
+    ] as [TitleBlockRow, string, string][]
+  )
+    .filter(([row]) => titleBlockRowVisible(tb, row))
+    .map(([, k, v]) => [k, v] as [string, string])
+  const hasLogos = tb?.logos !== false && !!(meta.companyLogo || meta.clientLogo)
   const logos = hasLogos
     ? `<div class="pdf-tb-logos">
         ${meta.companyLogo ? `<img src="${escapeHtml(meta.companyLogo)}" alt="" />` : '<div></div>'}
@@ -393,7 +402,7 @@ ${appCss}
     position: absolute;
     right: ${margin}px; bottom: ${margin}px;
     width: 300px;
-    transform: scale(${titleBlockScale(pageWidthPx, pageHeightPx, 300, 4 / 3)});
+    transform: scale(${resolveTitleBlockScale(metadata?.titleBlock, pageWidthPx, pageHeightPx, 300, 4 / 3)});
     transform-origin: bottom right;
     border: 1px solid #444;
     font-size: 8px;
@@ -425,7 +434,7 @@ ${appCss}
   <div class="pdf-canvas-wrap">
     <div class="pdf-canvas-inner">${canvasOuterHtml}</div>
   </div>
-  ${metadata ? renderTitleBlock(metadata) : ''}
+  ${metadata && metadata.titleBlock?.show !== false ? renderTitleBlock(metadata) : ''}
 </div>
 </body>
 </html>`

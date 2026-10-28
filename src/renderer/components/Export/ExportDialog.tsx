@@ -17,6 +17,7 @@ import { useDialogA11y } from '../../hooks/useDialogA11y'
 import jsPDF from 'jspdf'
 import { useUiStore } from '../../store/uiStore'
 import { PacketSection } from './PacketSection'
+import { TitleBlockSettings } from './TitleBlockSettings'
 import { useProjectStore } from '../../store/projectStore'
 import { listDeviceTypes } from '../../lib/deviceTypeRegistry'
 import { AlertTriangle, Check, Download, Lightbulb, Package as PackageIcon } from 'lucide-react'
@@ -386,6 +387,7 @@ const PlanSection = ({
               {t('export.monochrome', 'Monochrome-safe (layer spelled out, one line colour)')}
             </span>
           </label>
+          <TitleBlockSettings />
           {/* v7.9.97 — Render-Modus: Raster (klassisch) vs Vektor (Beta).
               Vektor-Pfad nutzt Chromium printToPDF → Text bleibt echter
               Text, scharf bei jedem Zoom, kleinere Dateigröße. Default

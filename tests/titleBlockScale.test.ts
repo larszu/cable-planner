@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { titleBlockScale } from '../src/renderer/lib/titleBlockScale'
+import {
+  resolveTitleBlockScale,
+  titleBlockRowVisible,
+  titleBlockScale,
+} from '../src/renderer/lib/titleBlockScale'
 
 describe('titleBlockScale', () => {
   it('bleibt auf A3 und kleiner bei 1', () => {
@@ -15,5 +19,19 @@ describe('titleBlockScale', () => {
   })
   it('rechnet CSS-px um', () => {
     expect(titleBlockScale(3370 * (4 / 3), 2384 * (4 / 3), 300, 4 / 3)).toBeCloseTo(2.83, 1)
+  })
+})
+
+describe('resolveTitleBlockScale', () => {
+  it('fester Faktor schlaegt Auto', () => {
+    expect(resolveTitleBlockScale({ size: 2 }, 3370, 2384, 300)).toBe(2)
+    expect(resolveTitleBlockScale({ size: 'auto' }, 3370, 2384, 300)).toBeCloseTo(2.83, 1)
+  })
+  it('fester Faktor sprengt das Blatt nicht', () => {
+    expect(300 * resolveTitleBlockScale({ size: 3 }, 600, 400, 300)).toBeLessThanOrEqual(540)
+  })
+  it('abgewaehlte Zeilen sind unsichtbar', () => {
+    expect(titleBlockRowVisible({ hidden: ['client'] }, 'client')).toBe(false)
+    expect(titleBlockRowVisible(undefined, 'client')).toBe(true)
   })
 })

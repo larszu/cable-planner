@@ -12,7 +12,11 @@ import { buildExportFilename } from './exportFilename'
 import { format, tr, translate } from './i18n'
 import { useUiStore } from '../store/uiStore'
 import { satz, satzKanonisch } from './satz'
-import { titleBlockScale } from './titleBlockScale'
+import {
+  resolveTitleBlockScale,
+  titleBlockRowVisible,
+  type TitleBlockRow,
+} from './titleBlockScale'
 
 // Helper: aus composed-Background-Optionen den Grid-Hex extrahieren.
 // composeExportBackground hat keinen public `gridColor` Output (nur
@@ -77,28 +81,31 @@ const drawTitleBlock = (
 ): number => {
   const boxW = 300 * k
   const rowH = 14 * k
+  const tb = meta.titleBlock
+  const on = (row: TitleBlockRow) => titleBlockRowVisible(tb, row)
   const rows: [string, string | undefined][] = [
-    ['Projekt', meta.name || '—'],
-    ['Projekt-Nr.', meta.projectNumber],
-    ['Kunde', meta.client],
-    ['Auftragnehmer', meta.contractor],
-    ['Planer', meta.author],
-    ['Erstellt', fmtDate(meta.createdAt)],
-    ['Geändert', fmtDate(meta.updatedAt)],
+    ...(on('name') ? ([['Projekt', meta.name || '—']] as [string, string][]) : []),
+    ...(on('projectNumber') ? ([['Projekt-Nr.', meta.projectNumber]] as [string, string | undefined][]) : []),
+    ...(on('client') ? ([['Kunde', meta.client]] as [string, string | undefined][]) : []),
+    ...(on('contractor') ? ([['Auftragnehmer', meta.contractor]] as [string, string | undefined][]) : []),
+    ...(on('author') ? ([['Planer', meta.author]] as [string, string | undefined][]) : []),
+    ...(on('createdAt') ? ([['Erstellt', fmtDate(meta.createdAt)]] as [string, string][]) : []),
+    ...(on('updatedAt') ? ([['Geändert', fmtDate(meta.updatedAt)]] as [string, string][]) : []),
     // #412 — Revisions-Stempel (nur wenn eine Revision festgeschrieben ist).
     // Initiative 4 — mit Dokument-Stempel sagt die Zeile dazu, ob der Plan seit
     // dem Festschreiben weitergelaufen ist. „Rev 2" alleine liest sich auf
     // Papier als *dieser Ausdruck ist Rev 2*, und das stimmt dann nicht mehr.
-    ...(meta.revision
+    ...(meta.revision && on('revision')
       ? ([
           ['Revision', stamp?.drifted ? satzKanonisch(satz('rest.stamp.drifted', '{rev} + changes', { rev: meta.revision })) : meta.revision],
         ] as [string, string][])
       : []),
-    ...(stamp ? ([['Stand', `#${stamp.fingerprint}`]] as [string, string][]) : []),
+    ...(stamp && on('stand') ? ([['Stand', `#${stamp.fingerprint}`]] as [string, string][]) : []),
   ]
   const visibleRows = rows.filter(([, v]) => !!v || true) // keep all rows, show "—" when missing
   const logoH = 36 * k
-  const hasLogos = !!(meta.companyLogo || meta.clientLogo)
+  const hasLogos = tb?.logos !== false && !!(meta.companyLogo || meta.clientLogo)
+  if (standQr && tb?.qr === false) standQr = undefined
   // ADR-004 — der Stand-Code sitzt im Titelblock, weil er zum Blatt gehoert
   // und nicht zur Zeichnung. Quadratisch, so hoch wie die Zeilen daneben.
   const qrSize = standQr ? 54 * k : 0
@@ -491,9 +498,15 @@ const buildCanvasPdfAusschnitt = async (
   const drawingH = contentH * PX_TO_PT
 
   // Schriftfeld waechst mit dem Blatt, nicht mit dem Bildschirm-Canvas.
-  const tbScale = titleBlockScale(drawingW + margin * 2, drawingH + margin * 2, 300)
-  const titleBlockHeight = metadata ? 160 * tbScale : 0
-  const titleBlockGap = metadata ? 12 * tbScale : 0
+  const showTb = !!metadata && metadata.titleBlock?.show !== false
+  const tbScale = resolveTitleBlockScale(
+    metadata?.titleBlock,
+    drawingW + margin * 2,
+    drawingH + margin * 2,
+    300,
+  )
+  const titleBlockHeight = showTb ? 160 * tbScale : 0
+  const titleBlockGap = showTb ? 12 * tbScale : 0
 
   const pageWidth = drawingW + margin * 2
   const pageHeight = drawingH + margin * 2 + headerHeight + titleBlockHeight + titleBlockGap
@@ -582,7 +595,7 @@ const buildCanvasPdfAusschnitt = async (
     }
   }
 
-  if (metadata) {
+  if (metadata && showTb) {
     drawTitleBlock(pdf, metadata, pageWidth, pageHeight, margin, options?.stamp, standQr, tbScale)
   }
 
