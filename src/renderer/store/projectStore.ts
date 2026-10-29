@@ -118,6 +118,7 @@ import { normalisiereFrontplatte } from '../types/frontplatte'
 import { MCP_LOG_MAX, normalisiereMcpEintrag } from '../types/mcpLog'
 import { pruefeVorlage } from '../lib/textProtocol'
 import { pruefeCompanion } from '../lib/companionControl'
+import { entdoppelePortIds } from '../lib/portIdsEntdoppeln'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -955,9 +956,11 @@ const newProjectId = (): string =>
     : `show-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 
 const healProjectPositions = (
-  project: CablePlannerProject,
+  geladen: CablePlannerProject,
   onDrop?: (drop: LoadDrop) => void,
 ): CablePlannerProject => {
+  // Doppelte Port-Ids aus Plaenen bis v9.7.0 (siehe lib/portIdsEntdoppeln).
+  const project = entdoppelePortIds(geladen)
   // v7.9.100 — Snap-to-Grid-Heal: alle Equipment-/Location-/Waypoint-
   // Koordinaten + Maße auf gridSize-Vielfache runden. Alte Projekte
   // (vor snapToGrid-Default) haben x=137, width=215 usw. → liegen
