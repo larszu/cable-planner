@@ -92,11 +92,14 @@ export const createEquipmentSlice: StateCreator<ProjectState, [], [], EquipmentS
               // placement — without this, all handles on the node would share
               // the empty string and ReactFlow would always snap new cables to
               // the first handle.
+              // Und: immer FRISCHE Ids. Die Vorlage traegt ihre eigenen; ein
+              // zweites Exemplar mit denselben Ids teilt sich die Handles mit
+              // dem ersten, und das Geraet springt beim Ziehen zurueck.
               inputs: equipment.inputs.map((p) =>
-                sanitizePort(p, p.name ?? 'Input'),
+                sanitizePort({ ...p, id: '' }, p.name ?? 'Input'),
               ),
               outputs: equipment.outputs.map((p) =>
-                sanitizePort(p, p.name ?? 'Output'),
+                sanitizePort({ ...p, id: '' }, p.name ?? 'Output'),
               ),
             },
           ],
