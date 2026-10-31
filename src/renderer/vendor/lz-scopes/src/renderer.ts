@@ -97,6 +97,8 @@ uniform mat3 uToXYZ;
 uniform vec4 uCie;
 ${ROI_GLSL}
 uniform vec4 uSkin;
+uniform int uSmooth; // signal low-pass before the measurement (#179): 0 off, 1 = 3×3, 2 = 5×5
+uniform vec2 uLumaWin; // tonal window Y′ lo…hi (vectorscope by tonal range, #180); everything outside is not drawn
 uniform vec3 uTint;
 out vec3 vColor;
 out float vW;
@@ -107,8 +109,29 @@ ${CUBE_GLSL}
 float waveY(float v) { return (v - uWMin) / (uWMax - uWMin) * 2.0 - 1.0; }
 
 /** Position (clip space) and colour of one trace sample; false = not drawn (hidden channel, no colour). */
+/**
+ * The sample as it is measured: unfiltered, or the mean of its 3×3 / 5×5 neighbourhood when the
+ * panel asks for a low-pass (#179). That changes the reading, not only the picture – noise is
+ * averaged away, and so is a real one-pixel spike. The panel says so when it is on.
+ */
+vec3 fetchMeasured(ivec2 p) {
+  if (uSmooth <= 0) return fetchRGB(p);
+  ivec2 hi = uSize - ivec2(1);
+  vec3 s = vec3(0.0);
+  float n = 0.0;
+  for (int dy = -2; dy <= 2; dy++) {
+    if (abs(dy) > uSmooth) continue;
+    for (int dx = -2; dx <= 2; dx++) {
+      if (abs(dx) > uSmooth) continue;
+      s += fetchRGB(clamp(p + ivec2(dx, dy), ivec2(0), hi));
+      n += 1.0;
+    }
+  }
+  return s / n;
+}
+
 bool plotSample(ivec2 p, int ch, out vec2 pos, out vec3 col) {
-  vec3 rgb = fetchRGB(p);
+  vec3 rgb = fetchMeasured(p);
   float kr = uK.x, kb = uK.y, kg = 1.0 - kr - kb;
   float Y = dot(rgb, vec3(kr, kg, kb));
   float cb = (rgb.b - Y) / (2.0 * (1.0 - kb));
@@ -119,6 +142,8 @@ bool plotSample(ivec2 p, int ch, out vec2 pos, out vec3 col) {
   // the pixel's own colour, brightness normalised so dark pixels stay visible
   vec3 srcCol = clamp(rgb / max(max(rgb.r, max(rgb.g, rgb.b)), 0.05), 0.0, 1.0);
   col = mono;
+  // only one band of the picture (#180): shadows, mids or highlights of the same frame
+  if (Y < uLumaWin.x || Y > uLumaWin.y) return false;
 
   if (uMode == 7) {
     pos = vec2(x * 2.0 - 1.0, waveY(Y));
@@ -396,6 +421,10 @@ export interface ScatterParams {
   view?: [number, number, number];
   /** trace weight factor, so zoomed traces keep their brightness (z² in 2D, z for waveforms) */
   density?: number;
+  /** signal low-pass before the measurement (#179): 0 off, 1 = 3×3, 2 = 5×5 */
+  smooth?: 0 | 1 | 2;
+  /** only samples whose Y′ lies in this window (vectorscope by tonal range, #180) */
+  luma?: [number, number];
 }
 /** How the picture view maps the signal to the screen. */
 export interface DisplayParams {
@@ -754,6 +783,8 @@ export class Renderer {
       gl.uniform4f(this.u(prog, 'uCie'), cv.x0, cv.x1, cv.y0, cv.y1);
       this.setRois(prog, p.roi);
       gl.uniform4f(this.u(prog, 'uSkin'), p.skin.lo, p.skin.hi, p.skin.tol, p.skin.hue ?? 123);
+      gl.uniform1i(this.u(prog, 'uSmooth'), p.smooth ?? 0);
+      gl.uniform2f(this.u(prog, 'uLumaWin'), p.luma?.[0] ?? -1e3, p.luma?.[1] ?? 1e3);
       gl.uniform3fv(this.u(prog, 'uTint'), p.tint);
       if (p.cube) {
         gl.uniform1i(this.u(prog, 'uCube'), p.cube.space);

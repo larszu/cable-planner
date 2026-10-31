@@ -152,8 +152,24 @@ export function hlgInverseOetf(v: number) {
  * γ = 1.2 + 0.42·log10(Lw/1000) for 400–2000 cd/m², outside that range the extended
  * formula γ = 1.2·κ^log2(Lw/1000) with κ = 1.111 (matches the R 167 presets, Tab. 1.1).
  */
-export function hlgGamma(lw = 1000) {
-  return lw >= 400 && lw <= 2000 ? 1.2 + 0.42 * Math.log10(lw / 1000) : 1.2 * Math.pow(1.111, Math.log2(lw / 1000));
+/**
+ * Surround luminance of the viewing environment in cd/m² (#201). BT.2100-3 Note 5f and the
+ * BT.2390 §6.2 formulas are written for the reference environment of 5 cd/m²; a brighter room
+ * asks for a smaller system gamma. One room, one value – hence global, not per source.
+ */
+export const HLG_SURROUND_REF = 5;
+let hlgSurround = HLG_SURROUND_REF;
+export const setHlgSurround = (ls: number) => { hlgSurround = Number.isFinite(ls) && ls > 0 ? Math.min(1000, ls) : HLG_SURROUND_REF; };
+export const getHlgSurround = () => hlgSurround;
+
+/**
+ * HLG system gamma (BT.2100-3 Note 5f, BT.2390 §6.2): γ = γ_ref · κ^log₂(Lw/1000) · μ^log₂(Ls/5)
+ * with κ = 1.111 and μ = 0.98; between 400 and 2000 cd/m² the recommended linear-in-log form
+ * is used for the peak. `ls` defaults to the global surround (reference 5 cd/m²).
+ */
+export function hlgGamma(lw = 1000, ls = hlgSurround) {
+  const peak = lw >= 400 && lw <= 2000 ? 1.2 + 0.42 * Math.log10(lw / 1000) : 1.2 * Math.pow(1.111, Math.log2(lw / 1000));
+  return ls === HLG_SURROUND_REF ? peak : peak * Math.pow(0.98, Math.log2(ls / HLG_SURROUND_REF));
 }
 /** R 167 v1.1 Tab. 1.1 (p6): predefined HLG display peaks in cd/m². */
 export const HLG_PEAKS = [500, 600, 1000, 2000, 3000, 4000, 5000, 10000];

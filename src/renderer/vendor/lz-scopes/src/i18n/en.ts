@@ -11,6 +11,7 @@ import genlock from './en/genlock';
 import lut from './en/lut';
 import main from './en/main';
 import match from './en/match';
+import colormatch from './en/colormatch';
 import menu from './en/menu';
 import output from './en/output';
 import panel from './en/panel';
@@ -34,6 +35,7 @@ import wallcheck from './en/wallcheck';
 import sim from './en/sim';
 import enc from './en/enc';
 import lens from './en/lens';
+import sdi from './en/sdi';
 
 
 import tools from './en/tools';
@@ -57,6 +59,7 @@ export const en = {
   ...lut,
   ...main,
   ...match,
+  ...colormatch,
   ...menu,
   ...output,
   ...panel,
@@ -80,6 +83,7 @@ export const en = {
   ...sim,
   ...enc,
   ...lens,
+  ...sdi,
 };
 
 export type Key = keyof typeof en;

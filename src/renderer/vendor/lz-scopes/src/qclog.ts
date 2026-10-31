@@ -9,11 +9,12 @@ import type { R103Result } from './ycbcr';
 import type { Stats } from './sources';
 import { lang, t } from './i18n';
 
-export type QcType = 'r103' | 'r103total' | 'clip' | 'superwhite' | 'subblack' | 'black' | 'freeze' | 'silence';
-export const QC_TYPES: QcType[] = ['r103', 'r103total', 'clip', 'superwhite', 'subblack', 'black', 'freeze', 'silence'];
+export type QcType = 'r103' | 'r103total' | 'clip' | 'superwhite' | 'subblack' | 'black' | 'freeze' | 'silence' | 'tout' | 'vrep' | 'brng';
+export const QC_TYPES: QcType[] = ['r103', 'r103total', 'clip', 'superwhite', 'subblack', 'black', 'freeze', 'silence', 'tout', 'vrep', 'brng'];
 export const QC_LABELS: Record<QcType, string> = {
   r103: t('tools.qc.r103'), r103total: t('tools.qc.r103total'), clip: t('tools.qc.clip'),
   superwhite: t('tools.qc.superwhite'), subblack: t('tools.qc.subblack'), black: t('tools.qc.black'), freeze: t('tools.qc.freeze'), silence: t('tools.qc.silence'),
+  tout: t('tools.qc.tout'), vrep: t('tools.qc.vrep'), brng: t('tools.qc.brng'),
 };
 
 export interface QcSettings {
@@ -26,11 +27,15 @@ export interface QcSettings {
   silenceDb: number; silenceMs: number;
   /** picture unchanged for this long = frozen */
   freezeMs: number;
+  /** ffmpeg signalstats (#202): share of pixels that are temporal outliers / repeated lines / outside 16–235 */
+  tout: number; vrep: number; brng: number;
 }
-export const DEFAULT_QC: QcSettings = { on: true, clip: 0.005, black: 0.02, silenceDb: -60, silenceMs: 2000, freezeMs: 2000 };
+export const DEFAULT_QC: QcSettings = { on: true, clip: 0.005, black: 0.02, silenceDb: -60, silenceMs: 2000, freezeMs: 2000, tout: 0.0005, vrep: 0.01, brng: 0.02 };
 
 export interface QcInput {
   stats: Stats | null;
+  /** QC metrics of the bridge (#202); null when the source does not deliver them */
+  signal: { tout?: number; vrep?: number; brng?: number } | null;
   r103: R103Result | null;
   /** highest true peak of all channels over `silenceMs` in dBFS; null = no sound */
   peakDb: number | null;
@@ -56,11 +61,17 @@ export function evaluate(i: QcInput, s: QcSettings): Record<QcType, QcCondition>
     black: c(!!st && st.samples > 0 && st.yMax < s.black, st?.yMax ?? 0, st ? `Y′ max ${pct(st.yMax)}` : ''),
     freeze: c(i.freezeApplies && i.unchangedMs >= s.freezeMs, i.unchangedMs, t('tools.qc.unchanged', { s: (i.unchangedMs / 1000).toFixed(1) })),
     silence: c(i.peakDb !== null && i.peakDb < s.silenceDb, i.peakDb ?? 0, i.peakDb !== null ? t('tools.qc.peak', { db: Number.isFinite(i.peakDb) ? i.peakDb.toFixed(1) : '−∞' }) : ''),
+    // from the bridge (#202); without the metrics the conditions simply do not hold
+    tout: c((i.signal?.tout ?? 0) > s.tout, i.signal?.tout ?? 0, i.signal?.tout !== undefined ? t('tools.qc.ofPixels', { v: pct(i.signal.tout) }) : ''),
+    vrep: c((i.signal?.vrep ?? 0) > s.vrep, i.signal?.vrep ?? 0, i.signal?.vrep !== undefined ? t('tools.qc.ofLines', { v: pct(i.signal.vrep) }) : ''),
+    brng: c((i.signal?.brng ?? 0) > s.brng, i.signal?.brng ?? 0, i.signal?.brng !== undefined ? t('tools.qc.ofPixels', { v: pct(i.signal.brng) }) : ''),
   };
 }
 
 export interface QcEvent {
   id: number; type: QcType; source: string;
+  /** id of the source, for the panel alarm frames (#182); the name is what a reader sees */
+  sourceId: string;
   /** Date.now() at start / end (null = still active) */
   start: number; end: number | null;
   /** source time code at start / end, if the source has one */
@@ -81,7 +92,7 @@ export class QcLog {
     for (const type of QC_TYPES) {
       const k = `${sourceId}:${type}`, c = cond[type], ev = this.open.get(k);
       if (c.on && !ev) {
-        const e: QcEvent = { id: this.next++, type, source: sourceName, start: now, end: null, tcStart: tc, tcEnd: null, detail: c.detail, worst: c.value };
+        const e: QcEvent = { id: this.next++, type, source: sourceName, sourceId, start: now, end: null, tcStart: tc, tcEnd: null, detail: c.detail, worst: c.value };
         this.events.push(e); this.open.set(k, e); this.version++;
         if (this.events.length > this.max) this.events.splice(0, this.events.length - this.max);
       } else if (c.on && ev) {
@@ -97,6 +108,39 @@ export class QcLog {
     for (const [k, e] of this.open) if (k.startsWith(`${sourceId}:`)) { e.end = now; this.open.delete(k); this.version++; }
   }
   clear() { this.events = []; this.open.clear(); this.version++; }
+
+  /**
+   * State of a source for a panel's alarm frame (#182): 'alarm' while one of `types` holds,
+   * 'hold' for `holdMs` after the last one ended – a flash that is over before anyone looks up
+   * must still be visible – and 'ok' otherwise.
+   */
+  alarm(sourceId: string, types: readonly QcType[], holdMs: number, now = Date.now()): AlarmState {
+    let state: AlarmState = 'ok';
+    for (let i = this.events.length - 1; i >= 0; i--) {
+      const e = this.events[i];
+      if (e.sourceId !== sourceId || !types.includes(e.type)) continue;
+      if (e.end === null) return 'alarm';
+      if (now - e.end <= holdMs) state = 'hold';
+      // the list is in starting order: older events can only be further in the past
+      else if (state === 'hold') break;
+    }
+    return state;
+  }
+}
+
+/** Panel alarm frame (#182). */
+export type AlarmState = 'ok' | 'hold' | 'alarm';
+
+/** Settings of a panel's alarm frame. */
+export interface AlarmSettings { on: boolean; types?: QcType[]; hold?: number; width?: number; green?: boolean }
+export const DEFAULT_ALARM = { hold: 5000, width: 4 };
+
+/** Colour of the frame, or '' when nothing is to be drawn. */
+export function alarmColor(state: AlarmState, a: AlarmSettings): string {
+  if (!a.on) return '';
+  if (state === 'alarm') return '#ff3b30';
+  if (state === 'hold') return '#ffb300';
+  return a.green === false ? '' : '#1f9d55';
 }
 
 /** The app's log (all sources). */

@@ -2,7 +2,7 @@
 // 2D overlays per panel: graticules, labels, histogram, statistics, probe read-outs.
 
 import {
-  GAMUTS, LUMA, SKIN_LINE_DEG, isGamma, SPECTRAL_LOCUS, barTargets, codeValue, gamutConvert, hlgFromNits, isLog, levelText, nitsToSignal, pqEncode,
+  GAMUTS, HLG_SURROUND_REF, LUMA, SKIN_LINE_DEG, getHlgSurround, isGamma, SPECTRAL_LOCUS, barTargets, codeValue, gamutConvert, hlgFromNits, isLog, levelText, nitsToSignal, pqEncode,
   sceneToSignal, transferLabel, xyToUv, ycbcr,
   type Colorspace, type GamutId, type Transfer,
 } from './color';
@@ -11,17 +11,17 @@ import { CIE_VIEW, CIE_VIEW_UV, WAVE_MAX, WAVE_MIN, type Rect } from './renderer
 import { latencyLines, rtpLines } from './latency';
 import type { Source } from './sources';
 import { CUBE_SPACE_LABELS, SIGNAL_SPACES, cubeProject, cubeRotation, cubeWireframe, qFromChl, qFromHsv, qFromIctcp, qFromLab, qFromRgb, qFromXyz, qFromYcc, type CubeSettings } from './cube';
-import { onLangChange, t, type Key } from './i18n';
+import { num, onLangChange, t, type Key } from './i18n';
 import { bridgeText } from './i18n/bridgeMessage';
 import { stopLabel, stopTicks, stopsOf } from './stops';
 
-export type ScopeType = 'picture' | 'wf-luma' | 'wf-color' | 'wf-skin' | 'wf-green' | 'match' | 'wf-rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'hls' | 'cie' | 'diamond' | 'cube' | 'satlum' | 'chplot' | 'minmax' | 'timeline' | 'qclog' | 'hist' | 'stats' | 'tiles' | 'noise' | 'wshading' | 'skinall' | 'chart' | 'drift' | 'shguide'
-  | 'audio-meter' | 'audio-loudness' | 'audio-spectrum' | 'audio-phase' | 'audio-check' | 'clock' | 'genlock' | 'simulcast' | 'encoder' | 'lens'
+export type ScopeType = 'picture' | 'wf-luma' | 'wf-color' | 'wf-skin' | 'wf-green' | 'match' | 'wf-rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'vector3' | 'hls' | 'cie' | 'diamond' | 'cube' | 'satlum' | 'chplot' | 'minmax' | 'timeline' | 'qclog' | 'hist' | 'stats' | 'tiles' | 'noise' | 'wshading' | 'skinall' | 'chart' | 'drift' | 'shguide'
+  | 'audio-meter' | 'audio-loudness' | 'audio-spectrum' | 'audio-phase' | 'audio-check' | 'clock' | 'genlock' | 'simulcast' | 'encoder' | 'lens' | 'sdi'
   | 'light-cie' | 'light-vector' | 'light-bands' | 'light-trend' | 'light-map' | 'light-spectrum' | 'light-swatch';
 export type Unit = 'percent' | 'bit8' | 'bit10' | 'nits' | 'stop';
 
 const SCOPE_IDS: ScopeType[] = [
-  'picture', 'wf-luma', 'wf-color', 'wf-skin', 'wf-green', 'wf-rgb', 'parade', 'yrgb', 'ycbcr', 'vector', 'hls', 'cie', 'diamond', 'cube', 'satlum', 'chplot', 'minmax', 'qclog', 'timeline', 'hist', 'stats', 'match', 'simulcast', 'encoder', 'lens', 'tiles', 'noise', 'wshading', 'skinall', 'chart', 'drift', 'shguide',
+  'picture', 'wf-luma', 'wf-color', 'wf-skin', 'wf-green', 'wf-rgb', 'parade', 'yrgb', 'ycbcr', 'vector', 'vector3', 'hls', 'cie', 'diamond', 'cube', 'satlum', 'chplot', 'minmax', 'qclog', 'timeline', 'hist', 'stats', 'match', 'simulcast', 'encoder', 'lens', 'sdi', 'tiles', 'noise', 'wshading', 'skinall', 'chart', 'drift', 'shguide',
   'audio-meter', 'audio-loudness', 'audio-spectrum', 'audio-phase', 'audio-check', 'clock', 'genlock',
   // Opple Light Master (src/opple/scopes.ts, LIGHT_LABELS)
   'light-cie', 'light-vector', 'light-bands', 'light-trend', 'light-map', 'light-spectrum', 'light-swatch',
@@ -47,6 +47,8 @@ export function plotRect(scope: ScopeType, w: number, h: number, aspect = 16 / 9
     const s = Math.max(10, Math.min(w, h) - 16);
     return { x: (w - s) / 2, y: (h - s) / 2, w: s, h: s };
   }
+  // three vectorscopes side by side (#180): the whole body, split by vectorBandRects
+  if (scope === 'vector3') return { x: 6, y: 6, w: Math.max(30, w - 12), h: Math.max(30, h - 12) };
   if (scope === 'cie') {
     const s = Math.max(10, Math.min(w - 36, h - 24));
     return { x: (w - s + 24) / 2, y: (h - s - 16) / 2, w: s, h: s };
@@ -218,7 +220,10 @@ export function drawWaveGraticule(ctx: CanvasRenderingContext2D, scope: ScopeTyp
     ctx.textBaseline = 'top';
   }
   ctx.fillStyle = LABEL; ctx.textAlign = 'right';
-  const nits = isLog(transfer) ? t('scope.unitScene') : `cd/m² ${transferLabel(transfer)}${transfer === 'hlg' && (o.lw ?? 1000) !== 1000 ? ` ${o.lw}` : ''}`;
+  // HLG in a room other than the reference 5 cd/m² (#201): the scale says so, because the
+  // reading then rests on an assumption about the surround
+  const surround = transfer === 'hlg' && getHlgSurround() !== HLG_SURROUND_REF ? ` · ${t('scope.surround', { ls: num(getHlgSurround(), 1) })}` : '';
+  const nits = isLog(transfer) ? t('scope.unitScene') : `cd/m² ${transferLabel(transfer)}${transfer === 'hlg' && (o.lw ?? 1000) !== 1000 ? ` ${o.lw}` : ''}${surround}`;
   ctx.fillText(unit === 'nits' ? nits : unit === 'stop' ? t('scope.unitStop', { curve: transferLabel(transfer) }) : unit === 'percent' ? '%' : unit === 'bit8' ? '8 bit' : '10 bit', r.x + r.w - 4, r.y + 2);
 }
 
@@ -365,6 +370,32 @@ export function drawDiamondGraticule(ctx: CanvasRenderingContext2D, r: Rect) {
   ctx.restore();
 }
 
+/**
+ * Vectorscope by tonal range (#180): the picture's Y′ axis split into shadows, mids and
+ * highlights. The lowest band reaches below black and the highest above white, so sub-black and
+ * super-white are measured too – they belong to the picture, however little one wants them.
+ * `limits` are the two boundaries in % Y′.
+ */
+export function vectorBands(limits: [number, number] = [30, 70]): [number, number][] {
+  const lo = Math.min(99, Math.max(1, limits[0])) / 100;
+  const hi = Math.min(100, Math.max(lo * 100 + 1, limits[1])) / 100;
+  return [[-1e3, lo], [lo, hi], [hi, 1e3]];
+}
+
+/**
+ * Where the three circles sit in the plot area. `big` 0 = all three next to each other,
+ * 1…3 = only that one, as large as the panel allows.
+ */
+export function vectorBandRects(r: Rect, big = 0): Rect[] {
+  const one = (x: number, w: number): Rect => {
+    const s = Math.max(10, Math.min(w - 8, r.h - 18));
+    return { x: x + (w - s) / 2, y: r.y + (r.h - 18 - s) / 2 + 12, w: s, h: s };
+  };
+  if (big >= 1 && big <= 3) return [one(r.x, r.w)];
+  const w = r.w / 3;
+  return [0, 1, 2].map((i) => one(r.x + i * w, w));
+}
+
 export function drawVectorGraticule(ctx: CanvasRenderingContext2D, r: Rect, cs: Colorspace, zoom: number, skinTol = 0, targets?: BarTargetSet, green?: { hue: number; tol: number }) {
   const R = r.w / 2, cx = r.x + R, cy = r.y + R;
   ctx.save();
@@ -501,7 +532,10 @@ export function cieToPlot(r: Rect, x: number, y: number, uv = false) {
   return [r.x + ((x - v.x0) / (v.x1 - v.x0)) * r.w, r.y + r.h - ((y - v.y0) / (v.y1 - v.y0)) * r.h] as const;
 }
 
-export function drawCieGraticule(ctx: CanvasRenderingContext2D, r: Rect, cs: Colorspace, o: { uv?: boolean; gamut?: GamutId } = {}) {
+/** Standard white points on the chromaticity diagram (#181): D65, D55 and the DCI white. */
+export const CIE_WHITES: [string, number, number][] = [['D65', 0.3127, 0.329], ['D55', 0.33243, 0.34744], ['DCI', 0.314, 0.351]];
+
+export function drawCieGraticule(ctx: CanvasRenderingContext2D, r: Rect, cs: Colorspace, o: { uv?: boolean; gamut?: GamutId; target?: GamutId } = {}) {
   const uv = !!o.uv;
   ctx.lineWidth = 1; ctx.font = FONT;
   ctx.strokeStyle = GRID_DIM; ctx.fillStyle = LABEL;
@@ -534,9 +568,13 @@ export function drawCieGraticule(ctx: CanvasRenderingContext2D, r: Rect, cs: Col
   const tri: [GamutId, string][] = [['709', 'rgba(255,255,255,0.75)'], ['p3', 'rgba(255,200,60,0.7)'], ['2020', 'rgba(60,220,255,0.7)']];
   // the source primaries as a fourth triangle when they are none of the three (601, camera gamuts, ACES)
   if (!tri.some(([k]) => k === src)) tri.push([src, 'rgba(255,120,200,0.8)']);
+  // the target of the gamut warning (#181) is drawn solid and thicker: that is the line the
+  // percentage below the diagram counts against
+  if (o.target && !tri.some(([k]) => k === o.target)) tri.push([o.target, 'rgba(255,255,255,0.75)']);
   tri.forEach(([k, c], i) => {
     const g = GAMUTS[k];
-    ctx.strokeStyle = c; ctx.setLineDash(k === src ? [] : [4, 3]);
+    ctx.strokeStyle = c; ctx.setLineDash(k === src || k === o.target ? [] : [4, 3]);
+    ctx.lineWidth = k === o.target ? 2 : 1;
     ctx.beginPath();
     [g.r, g.g, g.b].forEach(([x, y], j) => { const [px, py] = cieToPlot(r, x, y, uv); if (j) ctx.lineTo(px, py); else ctx.moveTo(px, py); });
     ctx.closePath();
@@ -547,8 +585,22 @@ export function drawCieGraticule(ctx: CanvasRenderingContext2D, r: Rect, cs: Col
     if (uv) { ctx.textBaseline = 'bottom'; ctx.fillText(g.name, r.x + r.w - 4, r.y + r.h - 4 - (tri.length - 1 - i) * 13); } else ctx.fillText(g.name, r.x + r.w - 4, r.y + 4 + i * 13);
   });
   ctx.setLineDash([]);
-  const [wx, wy] = cieToPlot(r, 0.3127, 0.329, uv);
-  ctx.strokeStyle = '#fff'; ctx.beginPath(); ctx.arc(wx, wy, 3, 0, Math.PI * 2); ctx.stroke();
+  ctx.lineWidth = 1;
+  // D65 as a ring, D55 and the DCI white as small crosses with their names
+  for (const [name, x, y] of CIE_WHITES) {
+    const [px, py] = cieToPlot(r, x, y, uv);
+    ctx.strokeStyle = name === 'D65' ? '#fff' : 'rgba(255,255,255,0.5)';
+    ctx.beginPath();
+    if (name === 'D65') ctx.arc(px, py, 3, 0, Math.PI * 2);
+    else { ctx.moveTo(px - 3, py); ctx.lineTo(px + 3, py); ctx.moveTo(px, py - 3); ctx.lineTo(px, py + 3); }
+    ctx.stroke();
+    // D55 and DCI sit close together: the labels go to opposite sides
+    if (name !== 'D65' && r.w >= 240) {
+      ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.textBaseline = 'middle';
+      ctx.textAlign = name === 'DCI' ? 'right' : 'left';
+      ctx.fillText(name, px + (name === 'DCI' ? -5 : 5), py);
+    }
+  }
   const sw = GAMUTS[src].white;
   if (Math.abs(sw[0] - 0.3127) > 1e-4 || Math.abs(sw[1] - 0.329) > 1e-4) {
     const [ax, ay] = cieToPlot(r, sw[0], sw[1], uv);

@@ -1,5 +1,7 @@
 // @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
-import { LUMA, detectColorspace, detectTransfer, isLog, pqDecode, transferSignalled, type Colorspace, type GamutId, type Transfer } from './color';
+import { GAMUTS, LUMA, detectColorspace, detectTransfer, gamutConvert, isLog, pqDecode, rgbToXyzMatrix, signalToLinear, transferSignalled, type Colorspace, type GamutId, type Transfer } from './color';
+import { gamutShare, type GamutShare } from './gamutShare';
+import type { VancPacket } from './vanc';
 import { LOG_CURVES } from './camera';
 import type { ChainSettings, Compiled } from './chain';
 import { patternById, renderPattern } from './patterns';
@@ -49,6 +51,8 @@ export interface SourceSettings {
   transport: 'tcp' | 'udp';
   /** bridge streams: request the sound as well (protocol 2) */
   audio?: boolean;
+  /** QC metrics of the bridge (TOUT, VREP, broadcast range; #202) – costs CPU in the bridge */
+  signalStats?: boolean;
   /** bridge capture devices (device:…): explicit mode and raw pixel format, e.g. 1920x1080 / 50 / yuv422p10le */
   device?: { size?: string; rate?: string; pixfmt?: string };
   /** bridge: Y′CbCr → R′G′B′ matrix and range of the ffmpeg conversion ('auto' = tags, else BT.709 above SD) */
@@ -64,6 +68,8 @@ export interface SourceSettings {
   ll?: Partial<LowLatencyConfig>;
   /** bridge: keep a ring buffer for "save the last … s" (src/record/record.ts) */
   ring?: boolean;
+  /** file sources (#188): 'bridge' = ffmpeg decodes (up to 16 bit), 'video' = the browser's <video> (8 bit, with transport) */
+  fileRoute?: 'bridge' | 'video';
 }
 
 export interface StreamInfo {
@@ -133,6 +139,21 @@ export function bridgeInputParams(url: string, set: SourceSettings): Record<stri
  * 'window' = live capture of the Resolve viewer (playing), 'none' = playing without a live
  * picture (`why` says why).
  */
+/**
+ * Transport state of a clip the bridge decodes (#191, server/clip.mjs): `pos` is the playhead
+ * at wall time `at`, so the page can run it on itself between two messages.
+ */
+/** One frame's QC metrics from ffmpeg signalstats (#202); shares 0…1, levels as 8-bit codes. */
+export interface SignalStats {
+  frame: number; at: number;
+  yMin?: number; yLow?: number; yAvg?: number; yHigh?: number; yMax?: number;
+  uAvg?: number; vAvg?: number; satAvg?: number; satMax?: number; hueMed?: number;
+  /** temporal outliers, vertical line repetition, share outside the broadcast range */
+  tout?: number; vrep?: number; brng?: number; yDif?: number;
+}
+
+export interface ClipState { state: 'playing' | 'paused'; pos: number; duration: number; fps: number; rate: number; loop: boolean; at: number }
+
 export interface ResolveRoute { route: 'still' | 'window' | 'none'; why?: 'remote' | 'browser' | 'noWindow' | 'noViewer' | 'denied' | 'starting'; playing: boolean }
 
 /** Element sources (camera, capture, files): CPU readbacks per second at most (cpuFrame; debug switch cpuFrameHz). */
@@ -152,6 +173,8 @@ export class Source {
   info: StreamInfo | null = null;
   /** time code of the source (bridge showinfo / Resolve), see src/clock/source.ts */
   tc: SourceTc | null = null;
+  /** SDI ancillary packets of the newest VANC record (DeckLink helper, #160; src/vanc.ts) */
+  vanc: { packets: VancPacket[]; at: number } | null = null;
   width = 0;
   height = 0;
   depth: 8 | 16 = 8;
@@ -225,6 +248,31 @@ export class Source {
     const seq = `${this.cpuSeq}:${this.colorspace}`;
     if (this.extremes.seq !== seq) this.extremes = { seq, v: f ? lineExtremes(f.px, f.w, f.h, f.decode, this.colorspace) : null };
     return this.extremes.v;
+  }
+  private gamutCache: { key: string; set: string; at: number; v: GamutShare | null } = { key: '', set: '', at: 0, v: null };
+  /**
+   * Share of the picture outside `target` (#181, src/gamutShare.ts), computed from the
+   * statistics frame. Recomputed when that frame changes, at most five times a second: it is a
+   * QC number, not a trace, and for browser-decoded sources the frame costs a read-back.
+   */
+  gamutOutside(target: GamutId): GamutShare | null {
+    // what is counted (target, source gamut, curve) – a change here is answered at once
+    const set = `${target}:${this.gamut}:${this.transfer}:${this.hlgLw}`;
+    const key = `${this.cpuSeq}:${set}`;
+    const now = performance.now();
+    if (this.gamutCache.key === key) return this.gamutCache.v;
+    // only a new picture: at most twice a second. It is a QC number, and on a busy machine the
+    // main thread has better things to do than linearise the same frame again.
+    if (this.gamutCache.set === set && now - this.gamutCache.at < 500) return this.gamutCache.v;
+    const f = this.cpuFrame();
+    const ys = rgbToXyzMatrix(GAMUTS[this.gamut]).slice(3, 6);
+    const v = f ? gamutShare(f.px, f.w, f.h, f.decode, gamutConvert(GAMUTS[this.gamut], GAMUTS[target]), (rgb) => signalToLinear(rgb, this.transfer, this.hlgLw, ys)) : null;
+    this.gamutCache = { key, set, at: now, v };
+    return v;
+  }
+  /** The last share counted for `target` (by the CIE panel), without reading the frame. */
+  gamutOutsideCached(target: GamutId): GamutShare | null {
+    return this.gamutCache.set === `${target}:${this.gamut}:${this.transfer}:${this.hlgLw}` ? this.gamutCache.v : null;
   }
   private neutral: { key: string; v: NeutralCast | null } = { key: '', v: null };
   /** Mean cast of the near-neutral pixels (minmax.ts), once per frame and setting. */
@@ -355,6 +403,10 @@ export class Source {
   }
   /** Estimated frame duration of a video file (from presented frames). */
   frameDuration = 1 / 25;
+  /** Transport of a clip through the bridge (#191, server/clip.mjs); null without one. */
+  clip: ClipState | null = null;
+  /** QC metrics of the bridge (#202, server/signalstats.mjs); null when they are not requested */
+  signal: SignalStats | null = null;
   private probeCache = { key: '', rgb: null as [number, number, number] | null };
   onChange: () => void = () => {};
 
@@ -424,7 +476,12 @@ export class Source {
   get ready() { return this.width > 0 && (this.data !== null || this.element !== null); }
 
   private set(status: Source['status'], message = '') {
-    this.status = status; this.message = message; this.onChange();
+    const moved = this.status !== status;
+    this.status = status; this.message = message;
+    // only a changed status rebuilds the card. The bridge reports dropped frames and bitrate with
+    // every statistics message, and a card rebuilt once a second cannot be clicked on a busy
+    // machine. The text itself is written in place by updateSourceText() (src/main.ts).
+    if (moved) this.onChange();
   }
 
   private tick() {
@@ -461,6 +518,8 @@ export class Source {
     if (this.settings.codec === 'h264' && workerAvailable()) q.set('codec', 'h264');
     else if (this.settings.yuv) { q.set('format', 'yuv'); q.set('depth', '16'); }
     if (this.lowLatency && ll.ownRtp) q.set('rtp', 'own');
+    // QC metrics from ffmpeg (#202): costs about 6 ms per 1080p frame in the bridge, so only on request
+    if (this.settings.signalStats) q.set('signal', '1');
     this.rtpStats = null;
     this.phase = null;
     this.connectFrames(`${bridge}/stream?${q}`, false);
@@ -480,14 +539,29 @@ export class Source {
         if (msg.type === 'info') {
           this.info = msg; this.width = msg.width; this.height = msg.height; this.depth = msg.depth;
           this.yuv = yuvOf(msg);
+          // a file through the bridge brings its transport along (server/clip.mjs)
+          this.clip = msg.clip ? { state: 'playing', pos: 0, duration: Number(msg.clip.duration) || 0, fps: Number(msg.clip.fps) || 25, rate: 1, loop: msg.clip.loop !== false, at: performance.now() } : null;
+          if (this.clip) this.frameDuration = 1 / this.clip.fps;
           const a = msg.audio as AudioStreamInfo | null | undefined;
           this.monitor?.close(); this.monitor = null; this.audioAnchor = null;
           this.audio = a ? new AudioAnalysis(a.sampleRate, a.channels, a.layout) : null;
           if (this.audio && a) this.audio.label = `Bridge · ${a.codec ?? ''} ${a.sampleRate / 1000} kHz`.replace('  ', ' ');
           const pic = msg.width ? `${msg.sourceWidth}×${msg.sourceHeight} ${msg.codec ?? ''}`.trim() : t('source.status.soundOnly');
           this.set('live', a ? `${pic} · ${t('source.status.sound', { codec: a.codec ?? '', khz: a.sampleRate / 1000, ch: a.channels })}` : msg.proto === 2 ? `${pic} · ${t('source.status.noSound')}` : pic);
+        } else if (msg.type === 'signal') {
+          // QC metrics of the bridge (server/signalstats.mjs); `at` tells the QC check how old they are
+          this.signal = { ...msg, at: performance.now() };
+        } else if (msg.type === 'clip') {
+          // playhead of the clip; between two messages the page runs it on itself (clipPosition)
+          this.clip = { state: msg.state === 'paused' ? 'paused' : 'playing', pos: Number(msg.pos) || 0, duration: Number(msg.duration) || 0, fps: Number(msg.fps) || 25, rate: Number(msg.rate) || 1, loop: msg.loop !== false, at: performance.now() };
+          this.frameDuration = 1 / this.clip.fps;
+          // no onChange() here: the playhead arrives every second, and rebuilding the source list
+          // that often tears the transport buttons out from under the pointer. updateTransport()
+          // (src/main.ts) keeps slider, time code and the play button up to date on every frame.
         } else if (msg.type === 'tc') {
           this.tc = { ...msg, at: performance.now() };
+        } else if (msg.type === 'vanc') {
+          this.vanc = { packets: Array.isArray(msg.packets) ? msg.packets : [], at: performance.now() };
         } else if (msg.type === 'apts') {
           // PTS anchor of the sound: sample `index` has presentation time `pts` (s)
           this.audioAnchor = { index: msg.index, pts: msg.pts };
@@ -754,6 +828,18 @@ export class Source {
     }
   }
 
+  /**
+   * A file through the bridge (#188): ffmpeg decodes it, so ProRes, DNxHR, v210, 10-bit HEVC
+   * and 16-bit stills arrive with their own depth – the `<video>` element of openFile() hands
+   * out 8-bit R′G′B′ whatever went in. `url` is the `file:<name>` of a released file.
+   */
+  openBridgeFile(url: string, name: string, bridge: string) {
+    this.name = name;
+    this.settings.depth = 16;
+    this.settings.yuv ??= true;
+    this.connectStream(url, bridge);
+  }
+
   /** Play a video from a URL (cached test videos, lzs-media://, #52); CORS keeps WebGL readable. */
   async openVideoUrl(url: string, name: string) {
     this.stop();
@@ -932,23 +1018,79 @@ export class Source {
     if (this.objectUrl) { URL.revokeObjectURL(this.objectUrl); this.objectUrl = null; }
     this.history.clear();
     this.held.clear();
-    this.element = null; this.data = null; this.yuv = null; this.info = null; this.tc = null; this.width = 0; this.height = 0; this.stats = null;
+    this.clip = null;
+    this.signal = null;
+    this.element = null; this.data = null; this.yuv = null; this.info = null; this.tc = null; this.vanc = null; this.width = 0; this.height = 0; this.stats = null;
     this.fps = 0; this.dropped = 0;
     if (this.status !== 'idle') this.set('idle');
   }
 
-  // ---- transport (video files), Resolve-style
+  // ---- transport (video files and clips through the bridge), Resolve-style
   get isVideoFile() { return this.kind === 'file' && this.video !== null; }
-  togglePlay() { const v = this.video; if (!v) return; if (v.paused && !this.reverseTimer) { v.playbackRate = 1; v.play(); } else this.shuttle(0); }
-  pause() { this.video?.pause(); }
-  play() { this.video?.play(); }
+  /** Play, pause and step: a video file in the browser, or a clip the bridge decodes (#191). */
+  get hasTransport() { return this.isVideoFile || this.clip !== null; }
+  /** Length of the open clip (s), 0 when it is not known. */
+  get duration() { return this.clip ? this.clip.duration : this.video?.duration || 0; }
+  get playing() { return this.clip ? this.clip.state === 'playing' : !!this.video && !this.video.paused; }
+  /** Playback rate; reverse runs through reverseSpeed, not through this one. */
+  get rate() { return this.clip ? this.clip.rate : this.video?.playbackRate ?? 1; }
+  /**
+   * Playhead (s). The bridge reports it once a second and at every command, in between the page
+   * runs it on itself – otherwise the time code would step only once a second.
+   */
+  position(now = performance.now()) {
+    const c = this.clip;
+    if (!c) return this.video?.currentTime ?? 0;
+    const t = c.state === 'playing' ? c.pos + ((now - c.at) / 1000) * c.rate : c.pos;
+    return Math.max(0, c.duration ? Math.min(c.duration, t) : t);
+  }
+  /** Transport command to the bridge; the playhead moves at once, the picture follows. */
+  private clipCmd(op: string, extra: Record<string, unknown> = {}, local: Partial<ClipState> = {}) {
+    const c = this.clip;
+    if (!c) return;
+    this.sendBridge({ type: 'clip', op, ...extra });
+    this.clip = { ...c, ...local, at: performance.now() };
+  }
+  togglePlay() {
+    if (this.clip) { if (this.playing || this.reverseTimer) this.shuttle(0); else this.shuttle(1); return; }
+    const v = this.video;
+    if (!v) return;
+    if (v.paused && !this.reverseTimer) { v.playbackRate = 1; v.play(); } else this.shuttle(0);
+  }
+  pause() {
+    if (this.clip) { this.shuttle(0); return; }
+    this.video?.pause();
+  }
+  play() {
+    if (this.clip) { this.clipCmd('play', { pos: this.position(), rate: 1 }, { state: 'playing', rate: 1, pos: this.position() }); return; }
+    this.video?.play();
+  }
   private reverseTimer: ReturnType<typeof setInterval> | null = null;
   /** Resolve J/K/L: dir 1 = forward (repeated: faster), -1 = reverse (repeated: faster), 0 = stop. */
   shuttle(dir: -1 | 0 | 1) {
-    const v = this.video;
-    if (!v) return;
     const reversing = this.reverseTimer !== null;
     if (this.reverseTimer) { clearInterval(this.reverseTimer); this.reverseTimer = null; }
+    if (this.clip) {
+      if (dir === 0) { this.reverseSpeed = 0; this.clipCmd('pause', { pos: this.position() }, { state: 'paused', pos: this.position() }); return; }
+      if (dir === 1) {
+        this.reverseSpeed = 0;
+        const rate = this.playing && this.clip.rate >= 1 ? Math.min(8, this.clip.rate * 2) : 1;
+        this.clipCmd('play', { pos: this.position(), rate }, { state: 'playing', rate, pos: this.position() });
+        return;
+      }
+      // Reverse: ffmpeg decodes forwards only, so the page steps back itself. Each step is a new
+      // decoder start – the pace is what the file allows, not a smooth ×1 (all-intra is quickest).
+      this.reverseSpeed = reversing ? Math.min(8, this.reverseSpeed * 2) : 1;
+      const back = () => {
+        if (this.position() <= 0) { this.shuttle(0); return; }
+        this.step(-this.reverseSpeed);
+      };
+      back();
+      this.reverseTimer = setInterval(back, Math.max(100, this.frameDuration * 1000));
+      return;
+    }
+    const v = this.video;
+    if (!v) return;
     if (dir === 0) { v.pause(); v.playbackRate = 1; this.reverseSpeed = 0; return; }
     if (dir === 1) {
       this.reverseSpeed = 0;
@@ -965,9 +1107,19 @@ export class Source {
     }, this.frameDuration * 1000);
   }
   reverseSpeed = 0;
-  seek(t: number) { const v = this.video; if (v) v.currentTime = Math.max(0, Math.min(v.duration || 0, t)); }
+  seek(t: number) {
+    const to = Math.max(0, this.duration ? Math.min(this.duration, t) : t);
+    if (this.clip) { this.clipCmd('seek', { pos: to }, { pos: to }); return; }
+    const v = this.video;
+    if (v) v.currentTime = to;
+  }
   /** Step n frames (paused). Lands in the middle of the target frame to avoid rounding onto the neighbour. */
   step(n: number) {
+    if (this.clip) {
+      const f = this.frameDuration, pos = Math.max(0, (Math.floor(this.position() / f + 1e-6) + n + 0.5) * f);
+      this.clipCmd('step', { frames: n }, { state: 'paused', pos: this.duration ? Math.min(this.duration, pos) : pos });
+      return;
+    }
     const v = this.video;
     if (!v) return;
     if (this.reverseTimer) this.shuttle(0);
@@ -975,7 +1127,7 @@ export class Source {
     const f = this.frameDuration, idx = Math.round(v.currentTime / f) + n;
     this.seek(idx * f + f / 2);
   }
-  timecode(t = this.video?.currentTime ?? 0) {
+  timecode(t = this.position()) {
     const fps = Math.max(1, Math.round(1 / this.frameDuration));
     const fr = Math.floor(t * fps + 1e-6), ff = fr % fps, s = Math.floor(fr / fps);
     const p2 = (n: number) => String(n).padStart(2, '0');

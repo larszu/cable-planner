@@ -7,7 +7,7 @@ import { drawGenlockPanel, type GenlockOptions } from './genlock';
 import { DISPLAY_LABELS, FALSE_COLOR_PRESETS, GAMUTS, mul3, rgbToXyzMatrix, bandRange, gamutConvert, isLog, logBarTargets, transferLabel, ycbcr, type DisplaySpace, type GamutId, type HdrPreview } from './color';
 import {
   drawChannelPlotGraticule, drawCubeGraticule, drawLutVolume, drawDiamondGraticule, drawSatLumGraticule, diamondPoint, drawVectorExtras, type VectorTarget, drawSkinRange, drawCieGraticule, drawHistogram, drawTextBox, drawVectorGraticule, drawHlsGraticule, hsl, hlsPoint, drawWaveGraticule, drawWaveProbe,
-  WAVE_ZOOMS, channelLayout, isAudio, isWaveform, plotRect, type WaveChannels, type WaveOpts, type WaveZoom, probeLines, statsLines, vectorPoint, type ScopeType, type Unit, type BarTargetSet,
+  WAVE_ZOOMS, channelLayout, isAudio, isWaveform, plotRect, type WaveChannels, type WaveOpts, type WaveZoom, probeLines, statsLines, vectorPoint, vectorBands, vectorBandRects, FONT, LABEL, type ScopeType, type Unit, type BarTargetSet,
 } from './graticule';
 import { drawAudioBar, drawAudioPanel, type AudioPanelOptions } from './audio/panels';
 import type { DisplayParams, PictureMode, PictureParams, Rect, Renderer, ScatterMode, ScatterParams, SkinRange } from './renderer';
@@ -18,7 +18,7 @@ import { lutVolume } from './cube';
 
 /** LUT volume of the last drawn cube panel (recomputed when LUT, version or lattice change). */
 let lutVolCache: { key: string; pts: { inp: number[]; out: number[] }[] } = { key: '', pts: [] };
-import { QC_TYPES, drawQcLog, qcLog, type QcType } from './qclog';
+import { DEFAULT_ALARM, QC_TYPES, alarmColor, drawQcLog, qcLog, type AlarmSettings, type AlarmState, type QcType } from './qclog';
 import { castName, drawMinMax } from './minmax';
 
 const NEUTRAL_RANGES = { all: [0.02, 0.98], shadows: [0.02, 0.3], mids: [0.3, 0.7], highlights: [0.7, 0.98] } as const;
@@ -40,7 +40,8 @@ import { drawLightPanel, isLight, lightSignature, type LightPanelOptions } from 
 import { drawSimulcastPanel, type SimulcastSettings } from './simulcastPanel';
 import { drawEncoderPanel, type EncoderSettings } from './encoderPanel';
 import { drawLensPanel, type LensSettings } from './lensPanel';
-import { t } from './i18n';
+import { drawSdiPanel } from './sdiPanel';
+import { num, t } from './i18n';
 import { IDENTITY, isIdentity, viewRect, waveRange, type View, type ViewLimits } from './view';
 import { GHOST_CSS, GHOST_TINT, deltaRows, ghostChannels, hasGhost, histOf, levelDeltas, traceLevels } from './ghost';
 import { LUMA } from './color';
@@ -58,6 +59,17 @@ export interface PanelState {
   paradeColor?: 'mono' | 'channel' | 'source';
   /** vectorscope: gamut boundaries to show */
   gamuts?: ('709' | 'p3' | '2020')[];
+  /** scale of this panel instead of the global unit (#179) */
+  unit?: Unit;
+  /** signal low-pass before the measurement (#179): 0 off, 1 = 3×3, 2 = 5×5 */
+  smooth?: 0 | 1 | 2;
+  /** CIE diagram: share of the picture outside gamutTarget below the diagram (#181), on by default */
+  gamutShare?: boolean;
+  /** vectorscope by tonal range (#180): the two boundaries in % Y′, and which circle is shown alone (0 = all three) */
+  bands?: [number, number];
+  big?: 0 | 1 | 2 | 3;
+  /** coloured frame while the QC conditions of this source hold (#182) */
+  alarm?: AlarmSettings;
   /** Pinned panels keep their source when another panel switches. */
   pin?: boolean;
   /** waveforms: EBU R 103 −5/105 % lines (off by default) and reference marks (BT.2408 / 18 % grey, on by default) */
@@ -608,6 +620,10 @@ export function panelSignature(p: PanelState, src: Source | null, body: Rect, o:
     : p.scope === 'encoder' ? `|e${Math.floor(Date.now() / 40)}`
     // lens fingerprint: stored prints can change without a new frame
     : p.scope === 'lens' ? `|l${Math.floor(Date.now() / 500)}`
+    // CIE: the share outside the target gamut is counted twice a second (#181)
+    : p.scope === 'cie' && p.gamutShare !== false ? `|c${Math.floor(Date.now() / 500)}`
+    // SDI signal info: VANC records arrive beside the frames and go stale
+    : p.scope === 'sdi' ? `|v${src?.vanc?.at ?? 0}:${Math.floor(Date.now() / 1000)}`
     : p.scope === 'qclog' ? `|q${qcLog.version}:${Math.floor(Date.now() / 1000)}` : '';
   if (p.scope === 'clock') return `C|${src?.id}|${JSON.stringify(p)}|${body.x},${body.y},${body.w},${body.h}${tick}`;
   if (isLight(p.scope)) return `${lightSignature(p.scope, p.light, body.w, body.h)}|${body.x},${body.y}`;
@@ -615,6 +631,8 @@ export function panelSignature(p: PanelState, src: Source | null, body: Rect, o:
     const a = src?.audio;
     return `A|${src?.id}:${a ? `${a.version}:${a.paused}:${a.stale}` : `${src?.status}:${src?.message}`}|${JSON.stringify(p)}|${body.x},${body.y},${body.w},${body.h}`;
   }
+  // the frame has to be redrawn when the state changes, even if nothing else did (#182)
+  const alarm = p.alarm?.on ? `|A${alarmOf(p, src)}` : '';
   if (src) src = stageView(src, p.stage ?? o.stage ?? 'signal');
   const s = src ? `${chainOf(src)?.sig ?? ''}:${src.id}:${src.frameSeq}:${src.status}:${src.message}:${src.width}x${src.height}:${src.colorspace}:${src.transfer}:${src.gamut}:${src.hlgLw}:${src.probe?.x},${src.probe?.y}:${src.roi?.join(',')}:${src.faceMode}:${src.faces.map((f) => f.id + '/' + f.box.join(',')).join(';')}:${[...src.faceSel].join(',')}:${p.scope === 'hist' || p.scope === 'stats' ? src.statsVersion : ''}${p.scope === 'timeline' ? `h${src.history.version}` : ''}${p.scope === 'match' ? matchSignature(p.match, src, matchCtx(o)) : ''}` : '-';
   const bs = p.scope === 'picture' && src && p.ab && p.ab.mode !== 'off' ? abSource(p.ab.b, src, p, o) : null;
@@ -623,17 +641,17 @@ export function panelSignature(p: PanelState, src: Source | null, body: Rect, o:
   // compact level bar on the picture: redraw at 20 Hz of audio time
   const bar = p.scope === 'picture' && p.audioBar !== false && src?.audio ? `${Math.floor(src.audio.frames / (src.audio.fs / 20))}:${src.audio.stale}` : '';
   const refSig = p.ghost && o.ref && hasGhost(p.scope) ? `|R${o.ref.sig}:${src?.statsVersion}` : '';
-  return `${s}|${JSON.stringify(p)}|${body.x},${body.y},${body.w},${body.h}|${JSON.stringify(rest)}|${p.scope === 'stats' ? displayFps : ''}${tick}|${bar}${abSig}${refSig}`;
+  return `${s}|${JSON.stringify(p)}|${body.x},${body.y},${body.w},${body.h}|${JSON.stringify(rest)}|${p.scope === 'stats' ? displayFps : ''}${tick}${alarm}|${bar}${abSig}${refSig}`;
 }
 
 export const defaultPanel = (scope: ScopeType): PanelState => ({
-  scope, sourceId: '', gain: 1, colorize: scope === 'vector' || scope === 'hls' || scope === 'cie' || scope === 'cube' || scope === 'satlum' || scope === 'chplot', zoom: 1, picture: 'normal', hist: 'rgb', log: false,
+  scope, sourceId: '', gain: 1, colorize: scope === 'vector' || scope === 'vector3' || scope === 'hls' || scope === 'cie' || scope === 'cube' || scope === 'satlum' || scope === 'chplot', zoom: 1, picture: 'normal', hist: 'rgb', log: false,
 });
 
 const PARADE: ScopeType[] = ['parade', 'yrgb', 'wf-rgb'];
 
 const SCATTER: Partial<Record<ScopeType, ScatterMode>> = {
-  'wf-luma': 'luma', 'wf-color': 'luma', 'wf-skin': 'skin', 'wf-green': 'skin', 'wf-rgb': 'rgb', parade: 'parade', yrgb: 'yrgb', ycbcr: 'ycbcr', vector: 'vector', hls: 'hls', cie: 'cie', diamond: 'diamond', cube: 'cube', satlum: 'satlum', chplot: 'chplot',
+  'wf-luma': 'luma', 'wf-color': 'luma', 'wf-skin': 'skin', 'wf-green': 'skin', 'wf-rgb': 'rgb', parade: 'parade', yrgb: 'yrgb', ycbcr: 'ycbcr', vector: 'vector', vector3: 'vector', hls: 'hls', cie: 'cie', diamond: 'diamond', cube: 'cube', satlum: 'satlum', chplot: 'chplot',
 };
 
 /**
@@ -641,6 +659,25 @@ const SCATTER: Partial<Record<ScopeType, ScatterMode>> = {
  * @param ctx  2D context of the panel overlay, already scaled to CSS px and cleared
  */
 export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key: string, p: PanelState, src: Source | null, body: Rect, o: DrawOptions) {
+  drawPanelBody(renderer, ctx, key, p, src, body, o);
+  // alarm frame over everything the panel drew (#182)
+  const col = p.alarm?.on ? alarmColor(alarmOf(p, src), p.alarm) : '';
+  if (col) {
+    const w = Math.max(1, Math.min(16, p.alarm?.width ?? DEFAULT_ALARM.width));
+    ctx.save();
+    ctx.strokeStyle = col; ctx.lineWidth = w;
+    ctx.strokeRect(w / 2, w / 2, Math.max(0, body.w - w), Math.max(0, body.h - w));
+    ctx.restore();
+  }
+}
+
+/** State of the panel's source for the alarm frame; 'ok' without a source. */
+export function alarmOf(p: PanelState, src: Source | null, now = Date.now()): AlarmState {
+  if (!src) return 'ok';
+  return qcLog.alarm(src.id, p.alarm?.types ?? QC_TYPES, Math.max(0, p.alarm?.hold ?? DEFAULT_ALARM.hold), now);
+}
+
+function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: string, p: PanelState, src: Source | null, body: Rect, o: DrawOptions) {
   if (isAudio(p.scope)) {
     const empty = src ? (src.kind === 'stream' && src.settings.audio === false ? t('panel.draw.audioOff')
       : src.status === 'live' ? t('panel.draw.noAudio') : (src.message || t('panel.draw.noData'))) : (o.emptyText ?? t('panel.draw.addSource'));
@@ -691,6 +728,11 @@ export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key
     drawChartPanel(ctx, body.w, body.h, p.chart, all, list, o.ref?.source()?.id, o.emptyText ?? t('panel.draw.addSource'));
     return;
   }
+  if (p.scope === 'sdi') {
+    renderer.clearRect(body);
+    drawSdiPanel(ctx, body.w, body.h, src, o.emptyText ?? t('panel.draw.addSource'));
+    return;
+  }
   if (p.scope === 'lens') {
     renderer.clearRect(body);
     drawLensPanel(ctx, body.w, body.h, p.lens, src, o.emptyText ?? t('panel.draw.addSource'));
@@ -721,7 +763,7 @@ export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key
   if (!src || !src.ready) {
     ctx.fillStyle = '#6b7078'; ctx.font = '12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(src ? (src.message || t('panel.draw.noData')) : (o.emptyText ?? t('panel.draw.addSource')), body.w / 2, body.h / 2);
-    if (isWaveform(p.scope)) drawWaveGraticule(ctx, p.scope, r, o.unit, src?.transfer ?? 'sdr', waveOpts(p, src));
+    if (isWaveform(p.scope)) drawWaveGraticule(ctx, p.scope, r, p.unit ?? o.unit, src?.transfer ?? 'sdr', waveOpts(p, src));
     return;
   }
   if (xv) {
@@ -737,7 +779,8 @@ export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key
     const cube = p.scope === 'cube' ? { ...DEFAULT_CUBE, ...p.cube } : null;
     const params = (s: Source): ScatterParams => ({
       ...(crt ? { crt } : {}),
-      ...(!crt && p.persist && !isWaveform(p.scope) ? { persist: p.persist } : {}),
+      ...(!crt && p.persist ? { persist: p.persist } : {}),
+      ...(p.smooth ? { smooth: p.smooth } : {}),
       ...(p.scope === 'chplot' ? { pair: p.pair ?? 0 } : {}),
       ...(cube ? { cube: {
         space: CUBE_SPACE_ID[cube.space], rot: cubeRotation(cube.yaw, cube.pitch), to2020: gamutConvert(GAMUTS[src.gamut], GAMUTS['2020']),
@@ -749,16 +792,31 @@ export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key
       maxSamples: o.maxSamples, roi: s.activeRois(), skin: p.scope === 'wf-green' ? greenOf(o) : o.skin, cieUv: p.scope === 'cie' && !!p.cieUv,
       ...(isWaveform(p.scope) ? { range: waveRangeOf(p), ...(({ sec, n }) => ({ sec, secN: n }))(channelLayout(p.scope, p.channels)) } : {}),
     });
-    renderer.drawScatter(key, src, abs, params(src));
-    if (ref) {
-      // reference trace: same geometry, mono, no beam look or persistence, added on top
-      const { crt: _c, persist: _p, ...rp } = params(ref);
-      renderer.drawScatter(`${key}#ref`, ref, abs, { ...rp, colorize: 0 }, true, o.ref!.opacity, { tint: GHOST_TINT, snapshot: o.ref!.frozen ? o.ref!.snapshot : undefined });
+    if (p.scope === 'vector3') {
+      // one vectorscope per tonal range (#180): same trace, three luma windows, three rects
+      const bands = vectorBands(p.bands);
+      const big = p.big ?? 0;
+      vectorBandRects(r, big).forEach((br, i) => {
+        const band = bands[big ? big - 1 : i];
+        const a = { x: body.x + br.x, y: body.y + br.y, w: br.w, h: br.h };
+        renderer.drawScatter(`${key}#b${i}`, src, a, { ...params(src), luma: band });
+        if (ref) {
+          const { crt: _c, persist: _p, ...rp } = params(ref);
+          renderer.drawScatter(`${key}#b${i}#ref`, ref, a, { ...rp, colorize: 0, luma: band }, true, o.ref!.opacity, { tint: GHOST_TINT, snapshot: o.ref!.frozen ? o.ref!.snapshot : undefined });
+        }
+      });
+    } else {
+      renderer.drawScatter(key, src, abs, params(src));
+      if (ref) {
+        // reference trace: same geometry, mono, no beam look or persistence, added on top
+        const { crt: _c, persist: _p, ...rp } = params(ref);
+        renderer.drawScatter(`${key}#ref`, ref, abs, { ...rp, colorize: 0 }, true, o.ref!.opacity, { tint: GHOST_TINT, snapshot: o.ref!.frozen ? o.ref!.snapshot : undefined });
+      }
     }
   }
   if (isWaveform(p.scope)) {
     const wo = waveOpts(p, src);
-    drawWaveGraticule(ctx, p.scope, r, o.unit, src.transfer, wo);
+    drawWaveGraticule(ctx, p.scope, r, p.unit ?? o.unit, src.transfer, wo);
     if (p.scope === 'wf-skin' && p.skinBand !== false) drawSkinRange(ctx, r, o.skin, wo.range);
     if (p.scope === 'wf-green' && p.greenBand !== false) drawSkinRange(ctx, r, greenOf(o), wo.range, true);
     if (probeRgb) drawWaveProbe(ctx, p.scope, r, src, probeRgb, wo);
@@ -772,6 +830,18 @@ export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key
       ctx.strokeStyle = '#00dcff'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.moveTo(x - 9, y); ctx.lineTo(x + 9, y); ctx.moveTo(x, y - 9); ctx.lineTo(x, y + 9); ctx.stroke();
     }
+  } else if (p.scope === 'vector3') {
+    const bands = vectorBands(p.bands);
+    const big = p.big ?? 0;
+    const names = [t('panel.vec3.low'), t('panel.vec3.mid'), t('panel.vec3.high')];
+    vectorBandRects(r, big).forEach((br, i) => {
+      const n = big ? big - 1 : i;
+      const [lo, hi] = bands[n];
+      drawVectorGraticule(ctx, br, src.colorspace, p.zoom, o.skin.tol, vectorTargets(src));
+      ctx.fillStyle = LABEL; ctx.font = FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      const range = `${Math.max(0, Math.round(lo * 100))}–${Math.min(100, Math.round(hi * 100))} %`;
+      ctx.fillText(`${names[n]} · ${range}`, br.x + br.w / 2, Math.max(10, br.y - 4));
+    });
   } else if (p.scope === 'hls') {
     drawHlsGraticule(ctx, r, src.colorspace, p.zoom);
     if (probeRgb) {
@@ -781,7 +851,19 @@ export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key
       ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.moveTo(x - 9, y); ctx.lineTo(x + 9, y); ctx.moveTo(x, y - 9); ctx.lineTo(x, y + 9); ctx.stroke();
     }
   } else if (p.scope === 'cie') {
-    drawCieGraticule(ctx, r, src.colorspace, { uv: p.cieUv, gamut: src.gamut });
+    const target = p.gamutTarget ?? '709';
+    drawCieGraticule(ctx, r, src.colorspace, { uv: p.cieUv, gamut: src.gamut, target: p.gamutShare === false ? undefined : target });
+    // share of the picture outside the target gamut (#181): the number to the picture's gamut warning
+    if (p.gamutShare !== false) {
+      const g = src.gamutOutside(target);
+      ctx.font = FONT; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+      if (!g) ctx.fillStyle = 'rgba(230, 215, 170, 0.6)';
+      else ctx.fillStyle = g.share > 0.01 ? '#ffb300' : LABEL;
+      const pct = (v: number) => `${(v * 100).toFixed(v >= 0.01 ? 1 : 2)} %`;
+      // the overlay context is relative to the panel body
+      ctx.fillText(g ? t('panel.cie.outside', { pct: pct(g.share), gamut: GAMUTS[target].name }) + (g.far > 0 ? ` · ${pct(g.far)} ${t('panel.cie.far')}` : '') : t('panel.cie.outsideWait'),
+        4, body.h - 4);
+    }
   } else if (p.scope === 'minmax') {
     const lim = p.minmax?.limits === 'legal' ? [0, 1] : [-0.05, 1.05];
     drawMinMax(ctx, r, src.lineExtremes(), { lo: lim[0], hi: lim[1], targets: (p.minmax?.targets ?? []).slice(0, 4).map((t) => t / 100) });
@@ -919,7 +1001,7 @@ export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key
       ctx.strokeStyle = '#00dcff'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(x - 10, y); ctx.lineTo(x - 3, y); ctx.moveTo(x + 3, y); ctx.lineTo(x + 10, y);
       ctx.moveTo(x, y - 10); ctx.lineTo(x, y - 3); ctx.moveTo(x, y + 3); ctx.lineTo(x, y + 10); ctx.stroke();
-      drawTextBox(ctx, frame.x + frame.w - 6, frame.y + 6, [...probeLines(src, probeRgb, o.unit), ...deLines(src, probeRgb, o)], 'right');
+      drawTextBox(ctx, frame.x + frame.w - 6, frame.y + 6, [...probeLines(src, probeRgb, p.unit ?? o.unit), ...deLines(src, probeRgb, o)], 'right');
     }
     if (o.frozen) drawTextBox(ctx, frame.x + 6, frame.y + 6, [t('panel.draw.frozen')]);
     if (p.clockOverlay) drawClockOverlay(ctx, clockOpts(p.clock), src, frame.x + frame.w - 6, frame.y + frame.h - 6);
@@ -934,10 +1016,28 @@ export function drawPanel(renderer: Renderer, ctx: CanvasRenderingContext2D, key
     drawGuidePanel(ctx, p.shguide ?? {}, src, body.w, wrapText);
   } else if (p.scope === 'stats') {
     const lines = statsLines(src, o.displayFps);
-    if (probeRgb) lines.push('', t('settings.stage.point'), ...[...probeLines(src, probeRgb, o.unit), ...deLines(src, probeRgb, o)]);
+    if (probeRgb) lines.push('', t('settings.stage.point'), ...[...probeLines(src, probeRgb, p.unit ?? o.unit), ...deLines(src, probeRgb, o)]);
     ctx.font = '11px ui-monospace, Menlo, monospace'; ctx.fillStyle = '#d6d6d6'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     lines.forEach((l, i) => ctx.fillText(l, 12, 10 + i * 15));
   }
   if (xv) ctx.restore();
+  // smoothing changes what is measured, so the panel says it (#179)
+  const note = smoothNote(p);
+  if (note) {
+    ctx.fillStyle = '#ffb300'; ctx.font = FONT; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    ctx.fillText(note, body.w - 6, body.h - 6);
+  }
   if (ref) drawGhostDeltas(ctx, p.scope === 'hist' ? { ...frame, y: frame.y + 16 } : frame, p.scope, src, ref, o);
+}
+
+/**
+ * What the panel has to admit about its own reading (#179): a signal low-pass averages noise
+ * away – and a real single-pixel spike with it – and a smoothed trace is older than this frame.
+ * Empty when nothing is smoothed; the CRT look is a look, not a filter, and says so itself.
+ */
+export function smoothNote(p: PanelState): string {
+  const parts: string[] = [];
+  if (p.smooth) parts.push(t('panel.sig.noteSignal', { grid: p.smooth === 2 ? '5×5' : '3×3' }));
+  if (p.persist && !p.crt?.on) parts.push(t('panel.sig.noteTrace', { s: p.persist < 0 ? '∞' : num(p.persist / 1000, 1) }));
+  return parts.length ? `${t('panel.sig.note')} ${parts.join(' · ')}` : '';
 }
