@@ -228,7 +228,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - run: pipx install semgrep==1.136.0
+      # Python fest auf 3.12: unter dem 3.14 des Runners bricht protobuf in
+      # Semgrep beim Import ab („Metaclasses with custom tp_new").
+      - run: pipx install uv && uv tool install --python 3.12 semgrep==1.136.0
       - name: Semgrep (Schwere ERROR)
         run: npm run sicherheit:check
 
