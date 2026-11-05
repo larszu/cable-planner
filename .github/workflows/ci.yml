@@ -229,8 +229,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       # Python fest auf 3.12: unter dem 3.14 des Runners bricht protobuf in
-      # Semgrep beim Import ab („Metaclasses with custom tp_new").
-      - run: pipx install uv && uv tool install --python 3.12 semgrep==1.136.0
+      # Semgrep beim Import ab („Metaclasses with custom tp_new"). setuptools
+      # unter 81, weil opentelemetry in Semgrep noch `pkg_resources` importiert.
+      - run: pipx install uv && uv tool install --python 3.12 --with 'setuptools<81' semgrep==1.136.0
       - name: Semgrep (Schwere ERROR)
         run: npm run sicherheit:check
 
