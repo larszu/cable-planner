@@ -42,7 +42,7 @@
 
 /** Die Anbieter. Steht hier und nicht in `aiSuggestions`, damit Modus-Tabelle
  *  und Preisliste den Typ ohne Ringschluss benutzen koennen. */
-export type AiProvider = 'gemini' | 'claude' | 'openai'
+export type AiProvider = 'gemini' | 'claude' | 'openai' | 'lokal'
 
 export type AiModus = 'sparsam' | 'ausgewogen' | 'genau'
 
@@ -74,6 +74,7 @@ export const AI_MODUS_PROFILE: Record<AiModus, AiModusProfil> = {
       claude: 'claude-haiku-5-5',
       gemini: 'gemini-2.5-flash-lite',
       openai: 'gpt-4o-mini',
+      lokal: 'gemma4:e4b',
     },
     webSuchen: 0,
     effort: 'low',
@@ -85,6 +86,7 @@ export const AI_MODUS_PROFILE: Record<AiModus, AiModusProfil> = {
       claude: 'claude-sonnet-5-5',
       gemini: 'gemini-2.5-flash',
       openai: 'gpt-4o-mini',
+      lokal: 'gemma4:26b',
     },
     webSuchen: 2,
     effort: 'low',
@@ -96,6 +98,7 @@ export const AI_MODUS_PROFILE: Record<AiModus, AiModusProfil> = {
       claude: 'claude-opus-5-5',
       gemini: 'gemini-2.5-pro',
       openai: 'gpt-4o',
+      lokal: 'gemma4:26b',
     },
     webSuchen: 5,
     effort: 'high',
@@ -126,9 +129,37 @@ export const setAiModus = (modus: AiModus): void => {
 
 export const aiProfil = (modus: AiModus = getAiModus()): AiModusProfil => AI_MODUS_PROFILE[modus]
 
+// ─── Lokales Modell ────────────────────────────────────────────────────
+//
+// Beim lokalen Anbieter entscheidet nicht der Modus allein: welche Modelle
+// auf dem Rechner liegen, weiss nur `ollama list`. Die Tabelle oben nennt
+// die Vorgabe (Gemma 4 26B A4B — in der Fallstudie Hahn 2026, TH Koeln, das
+// lokale Modell mit dem besten Verhaeltnis aus Qualitaet und Tempo; e4b fuer
+// Rechner mit wenig Speicher). Wer ein anderes geladen hat, traegt es hier ein,
+// und es gilt dann fuer alle drei Modi.
+
+const STORAGE_LOKAL_MODELL = 'cable-planner:lokal-modell'
+
+export const getLokalesModell = (): string => {
+  try {
+    return localStorage.getItem(STORAGE_LOKAL_MODELL)?.trim() ?? ''
+  } catch {
+    return ''
+  }
+}
+
+export const setLokalesModell = (modell: string): void => {
+  try {
+    if (modell.trim()) localStorage.setItem(STORAGE_LOKAL_MODELL, modell.trim())
+    else localStorage.removeItem(STORAGE_LOKAL_MODELL)
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Das Modell, das der gewaehlte Modus bei diesem Anbieter benutzt. */
 export const aiModell = (provider: AiProvider, modus: AiModus = getAiModus()): string =>
-  AI_MODUS_PROFILE[modus].modelle[provider]
+  (provider === 'lokal' && getLokalesModell()) || AI_MODUS_PROFILE[modus].modelle[provider]
 
 // ─── Preise ────────────────────────────────────────────────────────────
 
@@ -164,5 +195,13 @@ export const AI_PREISE: Record<string, ModellPreis> = {
   'gpt-4o': { ein: 2.5, aus: 10, cache: 1.25, suche: 0 },
 }
 
-/** Unbekanntes Modell (eigener Override, neues Modell): lieber nicht raten. */
-export const preisFuer = (modell: string): ModellPreis | undefined => AI_PREISE[modell]
+const KOSTENLOS: ModellPreis = { ein: 0, aus: 0, cache: 0, suche: 0 }
+
+/**
+ * Unbekanntes Modell (eigener Override, neues Modell): lieber nicht raten.
+ * Ausnahme lokal: dort kostet keine Abfrage Geld, gleich welches Modell —
+ * der Strom des eigenen Rechners steht auf keiner Rechnung, die diese App
+ * nachrechnen koennte.
+ */
+export const preisFuer = (modell: string, provider?: AiProvider): ModellPreis | undefined =>
+  provider === 'lokal' ? KOSTENLOS : AI_PREISE[modell]

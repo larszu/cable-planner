@@ -5,6 +5,7 @@
  *   - gemini  (Google Generative Language API)
  *   - claude  (Anthropic Messages API, mit Websuche)
  *   - openai  (OpenAI Chat Completions)
+ *   - lokal   (Ollama auf diesem Rechner oder im Netz; OpenAI-kompatibel)
  *
  * WELCHES Modell jeder davon benutzt, steht nicht mehr hier, sondern im
  * KI-Modus (`aiModus.ts`): sparsam, ausgewogen oder genau. Dieselbe Datei
@@ -23,10 +24,8 @@
  * suggestFromAI() dispatcht intern auf den ausgewählten Provider, der
  * Caller-Code bleibt unverändert.
  */
-import { ALL_CONNECTOR_TYPES } from '../types/equipment'
-import type { ConnectorType } from '../types/equipment'
-import { ALL_SIGNAL_STANDARDS } from '../types/cableSpec'
 import type { PortGroupHint } from './portSuggestions'
+import { normalizeHints, parseJsonResponse, PORT_ANLEITUNG, PORT_FRAGE } from './aiPortFrage'
 import { STORAGE_KEYS } from './storageKeys'
 import { format, tr } from './i18n'
 import { aiModell, aiProfil, type AiProvider } from './aiModus'
@@ -39,10 +38,15 @@ const STORAGE_PROVIDER_SELECTED = 'cable-planner:ai-provider'
 const STORAGE_KEY_GEMINI = STORAGE_KEYS.geminiApiKey
 const STORAGE_KEY_CLAUDE = 'cable-planner:claude-api-key'
 const STORAGE_KEY_OPENAI = 'cable-planner:openai-api-key'
+/**
+ * Beim lokalen Anbieter steht im Schluessel-Platz die SERVER-ADRESSE. Damit
+ * gilt jede vorhandene Abfrage „ist ein Schluessel da?" unveraendert auch fuer
+ * ihn: eingetragene Adresse = bereit. Ein zweites Feld haette an sieben
+ * Aufrufstellen eine zweite Bedingung gebraucht.
+ */
+const STORAGE_KEY_LOKAL = 'cable-planner:lokal-url'
 const STORAGE_KEY_CLAUDE_WORKSPACE = 'cable-planner:claude-workspace-id'
 
-const CONNECTOR_VALUES = ALL_CONNECTOR_TYPES
-const STANDARD_VALUES = ALL_SIGNAL_STANDARDS
 
 // ─── Provider-Konfiguration ────────────────────────────────────────────
 
@@ -88,6 +92,13 @@ const PROVIDERS: Record<AiProvider, ProviderConfig> = {
     overrideKey: '__CABLE_PLANNER_OPENAI__',
     keyHint: 'sk-…',
   },
+  lokal: {
+    label: 'Local (Ollama)',
+    storageKey: STORAGE_KEY_LOKAL,
+    consoleUrl: 'https://ollama.com/download',
+    overrideKey: '__CABLE_PLANNER_LOKAL__',
+    keyHint: 'http://localhost:11434',
+  },
 }
 
 export const listAiProviders = (): Array<{ id: AiProvider; config: ProviderConfig }> =>
@@ -100,7 +111,7 @@ export const getAiProviderConfig = (provider: AiProvider): ProviderConfig => PRO
 export const getSelectedAiProvider = (): AiProvider => {
   try {
     const v = localStorage.getItem(STORAGE_PROVIDER_SELECTED)
-    if (v === 'gemini' || v === 'claude' || v === 'openai') return v
+    if (v === 'gemini' || v === 'claude' || v === 'openai' || v === 'lokal') return v
   } catch {
     /* ignore */
   }
@@ -188,88 +199,7 @@ export const hasAnyAiKey = (): boolean =>
 export const getGeminiApiKey = (): string => getApiKey('gemini')
 export const setGeminiApiKey = (key: string): void => setApiKey('gemini', key)
 
-// ─── Gemeinsamer Prompt ────────────────────────────────────────────────
-
-/**
- * Der unveraenderliche Teil der Port-Frage: Auftrag, Schema, Vokabeln, Regeln.
- *
- * Getrennt vom Geraetenamen, weil er bei jedem Geraet Wort fuer Wort derselbe
- * ist — rund 1500 Token aus den beiden Vokabellisten. Als `system` darf
- * Claude ihn zwischenspeichern; beim zweiten Geraet derselben Sitzung kostet
- * er statt des vollen Eingabepreises ein Zehntel.
- */
-const PORT_ANLEITUNG = `You are helping populate a cable-planning tool.
-For the device named by the user, list the physical connectors typically found on it based on
-common datasheets.
-Return STRICT JSON only (no prose, no markdown, no code fences).
-
-JSON schema:
-{
-  "ports": [
-    { "direction": "in" | "out", "label": "short label", "count": <int>, "connector": <one of: ${CONNECTOR_VALUES.join(', ')}>, "standard": <optional, one of: ${STANDARD_VALUES.join(', ')}> }
-  ]
-}
-
-Rules:
-- Describe THIS exact model, not the product family. Encoder/decoder, transmitter/receiver and
-  variants with a suffix (C, D, E, -IOAV …) differ in their connectors — check which one is meant.
-- If you can search the web, look up the manufacturer datasheet or product page first and list
-  only what it documents.
-- "in" for signal inputs/returns, "out" for signal outputs/sends. Power inputs use direction "in".
-- Group identical ports (e.g. 4x BNC SDI inputs) into ONE entry with count=4.
-- Power: list a mains connector only if the datasheet shows one on the unit. Devices powered via
-  PoE or an external power pack have no mains connector — PoE goes into the Ethernet label.
-- Leave out service-only ports (console/micro-USB for setup) and internal buses.
-- Do not add connectors because they are "typical" for the category. Omit what you cannot confirm.
-- If the model is unknown to you and cannot be found, return { "ports": [] }.
-- Reply with the JSON object only.`
-
-/** Der veraenderliche Teil — nur er wandert in die Nutzer-Nachricht. */
-const PORT_FRAGE = (deviceName: string, category: string) =>
-  `Device name: ${deviceName}\nCategory: ${category}`
-
 // ─── Provider-Implementierungen ────────────────────────────────────────
-
-interface RawSuggestion {
-  direction?: string
-  type?: string
-  label?: string
-  count?: number
-  connector?: string
-  standard?: string
-}
-
-const parseJsonResponse = (text: string): RawSuggestion[] => {
-  // Manche Provider rahmen JSON in ```json ... ``` ein trotz strict-JSON-
-  // Prompt. Strip vor dem Parse.
-  const stripped = text
-    .trim()
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```$/, '')
-  // Nach einer Websuche schreibt das Modell manchmal einen Satz vor das JSON.
-  const start = stripped.indexOf('{')
-  const end = stripped.lastIndexOf('}')
-  const kern = start >= 0 && end > start ? stripped.slice(start, end + 1) : stripped
-  let parsed: { ports?: RawSuggestion[] }
-  try {
-    parsed = JSON.parse(kern) as { ports?: RawSuggestion[] }
-  } catch {
-    throw new Error('AI provider returned invalid JSON')
-  }
-  return Array.isArray(parsed.ports) ? parsed.ports : []
-}
-
-const normalizeHints = (ports: RawSuggestion[]): PortGroupHint[] =>
-  ports.map((p): PortGroupHint => {
-    const dirRaw = (p.direction ?? p.type ?? '').toString().toLowerCase()
-    const direction: 'in' | 'out' = dirRaw.startsWith('out') ? 'out' : 'in'
-    const connector: ConnectorType = CONNECTOR_VALUES.includes(p.connector as ConnectorType)
-      ? (p.connector as ConnectorType)
-      : 'Custom'
-    const count = Math.max(1, Math.min(64, Math.round(Number(p.count) || 1)))
-    const label = (p.label ?? '').toString().slice(0, 40) || (direction === 'in' ? 'Input' : 'Output')
-    return { direction, count, connectorType: connector, label }
-  })
 
 const overrideFor = <T = unknown>(key: string): T | undefined =>
   (globalThis as Record<string, unknown>)[key] as T | undefined
@@ -560,21 +490,32 @@ export const leseClaudeStream = async (res: Response, modell?: string): Promise<
   return text
 }
 
-const callOpenAI = async (
+/**
+ * Chat Completions — OpenAI selbst und alles, was dieselbe Schnittstelle
+ * spricht. Ollama tut das unter `/v1`; der lokale Anbieter ist deshalb kein
+ * eigener Weg, sondern dieser mit anderer Adresse und ohne Schluessel.
+ * `response_format: json_object` versteht Ollama ebenfalls.
+ */
+const callChatCompletions = async (
+  provider: 'openai' | 'lokal',
   apiKey: string,
   prompt: string,
   images: string[] = [],
   opts: AiCallOptions = {},
 ): Promise<string> => {
-  const override = overrideFor<{ base?: string; model?: string }>('__CABLE_PLANNER_OPENAI__')
-  const base = override?.base ?? 'https://api.openai.com/v1'
+  const override = overrideFor<{ base?: string; model?: string }>(PROVIDERS[provider].overrideKey)
+  const base =
+    override?.base ??
+    (provider === 'lokal' ? `${apiKey.replace(/\/+$/, '')}/v1` : 'https://api.openai.com/v1')
   const profil = aiProfil()
-  const model = override?.model ?? aiModell('openai')
+  const model = override?.model ?? aiModell(provider)
   const url = `${base}/chat/completions`
   const body = {
     model,
     temperature: 0.2,
     max_completion_tokens: Math.min(opts.maxTokens ?? profil.maxTokens, 16384),
+    // Ollama liest `max_completion_tokens` nicht, sondern `max_tokens`.
+    ...(provider === 'lokal' ? { max_tokens: Math.min(opts.maxTokens ?? profil.maxTokens, 16384) } : {}),
     response_format: { type: 'json_object' },
     messages: [
       ...(opts.system ? [{ role: 'system', content: opts.system }] : []),
@@ -598,13 +539,21 @@ const callOpenAI = async (
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+      ...(provider === 'openai' ? { Authorization: `Bearer ${apiKey}` } : {}),
     },
     body: JSON.stringify(body),
+  }).catch((e: unknown) => {
+    if (provider !== 'lokal') throw e
+    throw new Error(
+      format(
+        tr('err.ai.lokalUnreachable', 'Local AI server at {url} not reachable. Is Ollama running?'),
+        { url: apiKey },
+      ),
+    )
   })
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    throw new Error(`OpenAI API ${res.status}: ${text.slice(0, 200)}`)
+    throw new Error(`${PROVIDERS[provider].label} API ${res.status}: ${text.slice(0, 200)}`)
   }
   const json = (await res.json()) as {
     choices?: Array<{ message?: { content?: string } }>
@@ -616,7 +565,7 @@ const callOpenAI = async (
   }
   const cache = json.usage?.prompt_tokens_details?.cached_tokens ?? 0
   verbuchen({
-    provider: 'openai',
+    provider,
     modell: model,
     ein: Math.max(0, (json.usage?.prompt_tokens ?? 0) - cache),
     aus: json.usage?.completion_tokens ?? 0,
@@ -702,7 +651,11 @@ export const completeWithAI = async (
       case 'claude':
         return callClaude(key, prompt, images, opts)
       case 'openai':
-        return callOpenAI(key, prompt, images, opts)
+        return callChatCompletions('openai', key, prompt, images, opts)
+      case 'lokal':
+        // Ohne Websuche: ein lokales Modell hat keinen Netzzugang, und genau
+        // das ist der Grund, es zu waehlen.
+        return callChatCompletions('lokal', key, prompt, images, { ...opts, webSearch: false })
     }
   })()
   antwortInCache(schluessel, antwort)

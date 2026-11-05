@@ -52,7 +52,7 @@ export const AI_VERBRAUCH_EVENT = 'cable-planner:ai-verbrauch'
  * der Faktor damit wirkungslos.
  */
 export const kostenSchaetzen = (v: AiVerbrauchRoh): number | undefined => {
-  const p = preisFuer(v.modell)
+  const p = preisFuer(v.modell, v.provider)
   if (!p) return undefined
   return (
     (v.ein / 1e6) * p.ein +

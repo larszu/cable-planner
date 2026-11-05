@@ -5551,6 +5551,12 @@ export const de: Dict = {
   'settings.integrations.ai.claudeWorkspace': 'Workspace-ID (nur wenn die API danach fragt)',
   'settings.integrations.keyStored': 'Schlüssel',
   'settings.integrations.ai.saved': 'gespeichert',
+  'settings.integrations.ai.apiKey': 'API-Key',
+  'settings.integrations.ai.lokal': 'Lokal (Ollama)',
+  'settings.integrations.ai.lokalUrl': 'Serveradresse',
+  'settings.integrations.ai.lokalModell': 'Modell (wie `ollama list` es nennt, leer = Vorgabe)',
+  'settings.integrations.ai.lokalHinweis': 'Läuft auf dem eigenen Rechner: Geräte- und Projektdaten verlassen das Netz nie, und keine Abfrage kostet Geld. Ohne Websuche — die Antwort stammt aus dem Modell und dem angehängten Datenblatt.',
+  'settings.integrations.ai.lokalDownload': 'Ollama herunterladen',
   'settings.integrations.aiDesc':
     'Aktiver Provider für die AI-Buttons im Geräte-Wizard und in der Rentman-Library. Jeder Provider hat seinen eigenen API-Key. Alle Keys werden nur lokal im Browser-localStorage gespeichert.',
   'settings.integrations.gemini.deleteTitle': 'Key löschen',
@@ -7624,6 +7630,7 @@ export const de: Dict = {
   'bridge.mobile.desktopOnly': 'Handy-Zugriff erfordert die Desktop-App.',
   // Fehler- und Hinweistexte aus reinen Modulen (#1142, Aufruf-Muster)
   'err.ai.noKey': 'Kein API-Key für {provider}. Bitte in den Einstellungen → AI hinterlegen.',
+  'err.ai.lokalUnreachable': 'Lokaler KI-Server unter {url} nicht erreichbar. Läuft Ollama?',
   'err.atemAudio.noSection': 'Weder <AudioMapping> noch <AudioMixer> im XML gefunden — die Audio-Sektion fehlt oder das XML ist kein ATEM Profile.',
   'err.atemAudio.unparsable': 'Original-XML lässt sich nicht mehr parsen: {detail}',
   'err.avplan.invalid': 'Keine gültige .avplan-Datei (kind != avplan).',
