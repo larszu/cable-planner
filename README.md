@@ -152,6 +152,13 @@
   and goes in as one undo step; each new device and cable names the document
   it came from. Without documents the dialog builds a new system from a
   plain-language description.
+- **AI without the cloud.** Settings → AI → *Local (Ollama)* sends every AI
+  request to an [Ollama](https://ollama.com) server on your machine or in
+  your network (port 11434) instead of Gemini, Claude or OpenAI: no key, no
+  cost, no data leaving the network, no web search. Default model
+  `gemma4:26b` (`gemma4:e4b` in the *economical* mode); any model from
+  `ollama list` can be entered. For the browser version, start Ollama with
+  `OLLAMA_ORIGINS=https://larszu.github.io`.
 - **Ask Claude.** A local MCP server answers questions about the open plan.
   With write access switched on, Claude can build a system without touching
   the UI: library devices (`search_library`, `add_device`), custom devices
@@ -241,6 +248,23 @@ npm run build   # renderer, main, preload
 npm run dist    # installers for macOS / Windows
 npm run perf:leerlauf  # idle CPU on a 300-device/500-cable plan (CP_URL, CP_CHROME)
 ```
+
+AI and review tools (none of them needs a key when a local Ollama runs):
+
+```bash
+npm run uebersetzung:check   # every t('key','English') has a German entry (CI gate)
+npm run uebersetzen          # fill missing German entries with a local model, placeholders checked
+node scripts/uebersetzer/luecken.mjs --pruefen 50   # chrF of a model on 50 existing entries first
+npm run sicherheit:check     # Semgrep, severity ERROR (CI job `sicherheit`, needs semgrep)
+node scripts/issues/triage.mjs --tage 14            # possible duplicate issues (TF-IDF), --ki for labels
+node --experimental-strip-types --import ./scripts/register-endungen.mjs \
+  scripts/ki-bench/lauf.mjs --modelle lokal:gemma4:26b,claude:claude-haiku-5-5
+                             # port answers of each model vs. 12 datasheet-checked catalog devices
+```
+
+Endpoints and keys are read from the environment (`UEBERSETZER_URL/_MODELL/_KEY`,
+`KI_URL/_MODELL/_KEY`, `OLLAMA_URL`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
+`OPENROUTER_API_KEY`); each script's header lists its options.
 
 In a worktree, symlinking the main checkout's `node_modules` is enough:
 `vitest.config.ts` allows the resolved link target, so `?url` imports (zxing

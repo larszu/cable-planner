@@ -376,10 +376,14 @@ app.whenReady().then(async () => {
               // Websuche „Ports aus dem Namen raten" (`webPortSuggestions`)
               // lief hier gegen die Regel und meldete nur „Failed to fetch".
               //
+              // http://*:11434 (2026-11-05): der lokale KI-Anbieter (Ollama).
+              // Nur dieser Port, damit die Regel nicht zu „jedes http" wird;
+              // ein Server im Netz (Heimserver) liegt auf demselben Port.
+              //
               // nominatim / www.openstreetmap.org (#952): Adresse eines Raums
               // aufloesen und die OSM-Karte im Inspektor einbetten.
               "frame-src https://www.openstreetmap.org; " +
-              "connect-src 'self' https://nominatim.openstreetmap.org https://api.rentman.net https://generativelanguage.googleapis.com https://api.anthropic.com https://api.openai.com https://devices.zumpelars.de https://en.wikipedia.org https://api.duckduckgo.com ws: wss:; " +
+              "connect-src 'self' https://nominatim.openstreetmap.org https://api.rentman.net https://generativelanguage.googleapis.com https://api.anthropic.com https://api.openai.com https://devices.zumpelars.de https://en.wikipedia.org https://api.duckduckgo.com http://localhost:11434 http://127.0.0.1:11434 http://*:11434 ws: wss:; " +
               "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
           ],
           'X-Content-Type-Options': ['nosniff'],

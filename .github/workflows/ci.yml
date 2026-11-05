@@ -85,6 +85,11 @@ jobs:
       # aus demselben Grund wie oben — die Ausgabe nennt Datei und Utility.
       - name: Form (Rundungen/Schatten)
         run: npm run form:check
+      # Jeder Text der Oberflaeche hat eine deutsche Fassung (2026-11-05).
+      # Faellt mit Liste der Schluessel; schliessen mit
+      # `node scripts/uebersetzer/luecken.mjs --uebersetzen` (lokales Modell).
+      - name: Uebersetzung vollstaendig
+        run: npm run uebersetzung:check
       - name: Tests
         run: npm test
       - name: CRDT-Konvergenz
@@ -211,6 +216,21 @@ jobs:
           name: ui-smoke-screenshots
           path: /tmp/cable-planner-ui-shots
           if-no-files-found: ignore
+
+  # Statische Sicherheitspruefung (2026-11-05). Gemergt wird nach gruenen
+  # Tests ohne menschliches Review — diese Pruefung uebernimmt den Teil des
+  # Reviews, den eine Maschine zuverlaessig kann (Muster aus Hahn 2026, TH
+  # Koeln: Semgrep als festes Pipeline-Gate fuer KI-erzeugten Code). Nur
+  # Schwere ERROR faellt; Stand bei Einfuehrung: 0 Treffer, 2 Warnungen,
+  # beide Fehlalarme. Version gepinnt, damit neue Regeln keinen Lauf ueber
+  # Nacht rot machen.
+  sicherheit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: pipx install semgrep==1.136.0
+      - name: Semgrep (Schwere ERROR)
+        run: npm run sicherheit:check
 
   # ---------------------------------------------------------------------------
   # lz-scopes (larszu/lz-scopes#15) ist unter `src/renderer/vendor/lz-scopes/`

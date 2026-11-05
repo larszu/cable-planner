@@ -24,6 +24,8 @@ import {
   AI_MODUS_PROFILE,
   aiModell,
   getAiModus,
+  getLokalesModell,
+  setLokalesModell,
   setAiModus,
   type AiModus,
 } from '../../../lib/aiModus'
@@ -326,7 +328,9 @@ const AiProvidersCard = () => {
     gemini: getApiKey('gemini'),
     claude: getApiKey('claude'),
     openai: getApiKey('openai'),
+    lokal: getApiKey('lokal'),
   }))
+  const [lokalModell, setLokalModellState] = useState(() => getLokalesModell())
   const [workspaceId, setWorkspaceId] = useState(() => getClaudeWorkspaceId())
   const [saved, setSaved] = useState<Partial<Record<AiProvider, boolean>>>({})
   const [revealed, setRevealed] = useState<Partial<Record<AiProvider, boolean>>>({})
@@ -338,6 +342,7 @@ const AiProvidersCard = () => {
   const handleSave = (p: AiProvider) => {
     setApiKey(p, keys[p].trim())
     if (p === 'claude') setClaudeWorkspaceId(workspaceId.trim())
+    if (p === 'lokal') setLokalesModell(lokalModell)
     // Wer einen Schluessel speichert, will diesen Anbieter benutzen — die
     // Auswahl getrennt anklicken zu muessen war die Stolperstelle.
     if (keys[p].trim()) handleSelect(p)
@@ -378,7 +383,9 @@ const AiProvidersCard = () => {
                   onChange={() => handleSelect(id)}
                   className="accent-sky-500"
                 />
-                <span className="font-semibold">{config.label}</span>
+                <span className="font-semibold">
+                  {id === 'lokal' ? t('settings.integrations.ai.lokal', 'Local (Ollama)') : config.label}
+                </span>
                 {hasKey && (
                   <span className="bg-emerald-900/40 px-1.5 py-0.5 text-cp-xs text-emerald-300">
                     <Icon icon={Check} size="xs" className="mr-1 inline" />
@@ -393,22 +400,22 @@ const AiProvidersCard = () => {
               </label>
               <div className="mt-2 flex items-center gap-2">
                 <input
-                  type={revealed[id] ? 'text' : 'password'}
+                  type={revealed[id] || id === 'lokal' ? 'text' : 'password'}
+                  aria-label={
+                    id === 'lokal'
+                      ? t('settings.integrations.ai.lokalUrl', 'Server address')
+                      : t('settings.integrations.ai.apiKey', 'API key')
+                  }
                   value={keys[id]}
                   onChange={(e) => setKeys((k) => ({ ...k, [id]: e.target.value }))}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSave(id)
                   }}
-                  placeholder={
-                    id === 'gemini'
-                      ? 'AIza…'
-                      : id === 'claude'
-                        ? 'sk-ant-…'
-                        : 'sk-proj-…'
-                  }
+                  placeholder={config.keyHint}
                   className="flex-1 border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
                   autoComplete="off"
                 />
+                {id !== 'lokal' && (
                 <button
                   type="button"
                   onClick={() => setRevealed((r) => ({ ...r, [id]: !r[id] }))}
@@ -418,6 +425,7 @@ const AiProvidersCard = () => {
                 >
                   <Icon icon={revealed[id] ? Eye : EyeOff} size="sm" />
                 </button>
+                )}
                 <button
                   type="button"
                   onClick={() => handleSave(id)}
@@ -455,6 +463,31 @@ const AiProvidersCard = () => {
                   />
                 </label>
               )}
+              {id === 'lokal' && (
+                <>
+                  <label className="mt-2 block text-cp-xs text-cp-text-muted">
+                    {t('settings.integrations.ai.lokalModell', 'Model (as listed by `ollama list`, empty = default)')}
+                    <input
+                      type="text"
+                      value={lokalModell}
+                      onChange={(e) => setLokalModellState(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSave(id)
+                      }}
+                      placeholder={AI_MODUS_PROFILE[getAiModus()].modelle.lokal}
+                      className="mt-1 block w-full border border-cp-border bg-cp-surface-3 p-1.5 font-mono text-cp-xs"
+                      autoComplete="off"
+                    />
+                  </label>
+                  <PanelHint
+                    className="mt-1"
+                    text={t(
+                      'settings.integrations.ai.lokalHinweis',
+                      'Runs on your own machine: device and project data never leave the network, and no query costs money. No web search — answers come from the model and the datasheet you attach.',
+                    )}
+                  />
+                </>
+              )}
               <div className="mt-1 flex items-center justify-between text-cp-xs text-cp-text-muted">
                 <span>
                   Model: <span className="font-mono">{aiModell(id)}</span>
@@ -465,7 +498,10 @@ const AiProvidersCard = () => {
                   rel="noopener noreferrer"
                   className="underline hover:text-cp-text-secondary"
                 >
-                  {t('settings.integrations.ai.createKey', 'Create key')} ↗
+                  {id === 'lokal'
+                    ? t('settings.integrations.ai.lokalDownload', 'Download Ollama')
+                    : t('settings.integrations.ai.createKey', 'Create key')}{' '}
+                  ↗
                 </a>
               </div>
               {saved[id] && (
