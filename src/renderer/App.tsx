@@ -97,6 +97,7 @@ import { CommandPalette } from './components/Layout/CommandPalette'
 import { RevisionsDialog } from './components/Project/RevisionsDialog'
 import { AiPlanGenDialog } from './components/Project/AiPlanGenDialog'
 import { CsvImportDialog } from './components/Import/CsvImportDialog'
+import { GdtfMvrImportDialog } from './components/Import/GdtfMvrImportDialog'
 import { TemplatesDialog } from './components/Project/TemplatesDialog'
 import { ProjectMetaDialog } from './components/Project/ProjectMetaDialog'
 import { CableBomDialog } from './components/Project/CableBomDialog'
@@ -1590,6 +1591,7 @@ export default function App() {
       <RevisionsDialog />
       <AiPlanGenDialog />
       <CsvImportDialog />
+      <GdtfMvrImportDialog />
       <TemplatesDialog />
       <CableContextMenu />
       <ScopeDialogHost />

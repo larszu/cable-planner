@@ -105,6 +105,7 @@ export const CommandPalette = () => {
       { id: 'zoomReset', group: gView, title: t('palette.zoomReset', 'Reset zoom (100%)'), run: () => triggerCanvasResetZoom() },
       { id: 'templates', group: gFile, title: t('palette.templates', 'New project from template…'), keywords: 'vorlage template', run: () => ui().openTemplates() },
       { id: 'csvImport', group: gFile, title: t('app.menu.tools.csvImport', 'Import equipment from CSV…'), keywords: 'excel tabelle spreadsheet', run: () => ui().openCsvImport() },
+      { id: 'gdtfImport', group: gFile, title: t('app.menu.file.gdtfImport', 'Import GDTF / MVR…'), keywords: 'mvr gdtf licht lighting fixture scheinwerfer hallenplan', run: () => ui().openGdtfImport() },
       { id: 'rentmanImport', group: gFile, module: 'rentman', title: t('palette.rentmanImport', 'Import from Rentman…'), run: () => ui().openRentmanImport() },
       { id: 'netboxImport', group: gFile, module: 'netbox', title: t('palette.netboxImport', 'Import from NetBox…'), keywords: 'site rack', run: () => ui().openNetboxImport() },
       { id: 'cloud', group: gFile, title: t('app.menu.file.cloud', 'Cloud & share link…'), keywords: 'teilen share link freigeben', run: () => ui().openCloudDialog() },

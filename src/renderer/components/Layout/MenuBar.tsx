@@ -701,6 +701,9 @@ export const MenuBar = ({
           <MenuItem onClick={() => useUiStore.getState().openCsvImport()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.tools.csvImport', 'Import equipment from CSV…')}
           </MenuItem>
+          <MenuItem onClick={() => useUiStore.getState().openGdtfImport()} icon={<Icon icon={ImportIcon} size="sm" />}>
+            {t('app.menu.file.gdtfImport', 'Import GDTF / MVR…')}
+          </MenuItem>
           {/* Rentman-Import nur wenn die Integration aktiv ist (standardmäßig
               aus; Aktivierung in den Einstellungen → Integrationen). */}
           {rentmanEnabled && (

@@ -1188,6 +1188,10 @@ interface UiState extends PersistedUiState {
   closeAiPlanGen: () => void
   /** Generischer Equipment-CSV-Import in die Library (#354). */
   csvImport: { open: boolean }
+  /** #1206 — GDTF/MVR-Import. */
+  gdtfImport: { open: boolean }
+  openGdtfImport: () => void
+  closeGdtfImport: () => void
   openCsvImport: () => void
   closeCsvImport: () => void
   /** "Neu aus Vorlage" — Projekt-Vorlagen-Galerie (#343). */
@@ -1751,6 +1755,9 @@ export const useUiStore = create<UiState>((set) => ({
   openAiPlanGen: () => set({ aiPlanGen: { open: true } }),
   closeAiPlanGen: () => set({ aiPlanGen: { open: false } }),
   csvImport: { open: false },
+  gdtfImport: { open: false },
+  openGdtfImport: () => set({ gdtfImport: { open: true } }),
+  closeGdtfImport: () => set({ gdtfImport: { open: false } }),
   openCsvImport: () => set({ csvImport: { open: true } }),
   closeCsvImport: () => set({ csvImport: { open: false } }),
   templates: { open: false },
