@@ -3420,6 +3420,9 @@ export const de: Dict = {
   'library.photo.useCatalogue': 'Katalog-Gerät platzieren',
   'library.origin.preset': 'Vom Bibliothek-Eintrag „{name}" abgeschrieben',
   'library.newSubcategory': 'Neue Unterkategorie',
+  'check.amp.noImpedance': '{amp} {port}: Last nicht geprüft – keine Nennimpedanz bei {namen}.',
+  'check.amp.underLoad': '{amp} {port}: {n} Lautsprecher parallel ergeben {last} Ω, unter der Mindestlast von {min} Ω.',
+  'check.amp.overPower': '{speaker} bekommt von {amp} {port} bis zu {w} W – mehr als das Doppelte der Belastbarkeit von {rms} W.',
   'app.menu.file.gdtfImport': 'GDTF / MVR importieren…',
   'gdtfImport.title': 'GDTF / MVR importieren',
   'gdtfImport.intro': 'GDTF-Dateien werden zu Bibliotheksvorlagen mit DMX-Modi, Leistung, Gewicht und Anschlüssen. Eine MVR-Datei setzt ihre Scheinwerfer in der Draufsicht mit DMX-Adressen auf die Fläche; Typen, die noch fehlen, entstehen aus den eingebetteten GDTF-Dateien.',
@@ -6773,6 +6776,7 @@ export const de: Dict = {
   'palette.dmxPatchSummary':
     '{n} Geräte haben eine Adresse bekommen, {skipped} wurden übersprungen, weil kein Modus gesetzt ist. Jede Überschneidung steht im Plan-Check.',
   'check.category.dmx-address': 'DMX-Adresse',
+  'check.category.amplifier-load': 'Endstufenlast',
 
   // ── Die Auskunft des Gebaeudes (facility Issue #2, 2026-09-10) ────────────
   'check.haus.punktFehlt':

@@ -30,6 +30,7 @@ import { beurteileBild } from '../types/displayCapability'
 import { gruppenBefunde } from './portGroups'
 import { durchBlenden, gegenendenJePort } from './patchPanel'
 import { pruefeAdressen, type DmxGeraet } from './dmx'
+import { pruefeEndstufen } from './endstufenLast'
 import { tr, format } from './i18n'
 import { adresseMehrdeutig } from '../types/hausAuskunft'
 export type { CheckSeverity, CheckFinding } from '../types/checkFinding'
@@ -1242,6 +1243,17 @@ export const runDrawingChecks = (
       id: `dmx-${b.art}:${b.geraetId}${b.anderesGeraetId ? `:${b.anderesGeraetId}` : ''}`,
       severity: DMX_SCHWERE[b.schwere] ?? 'info',
       category: 'DMX address',
+      message: format(tr(b.schluessel, b.text), b.werte),
+      equipmentId: b.geraetId,
+    })
+  }
+
+  // — Check 25b: Last je Endstufenkanal (#1206) ----------------------------
+  for (const b of pruefeEndstufen(equipment, cables)) {
+    findings.push({
+      id: `amp-${b.art}:${b.geraetId}:${b.portId}`,
+      severity: DMX_SCHWERE[b.schwere] ?? 'info',
+      category: 'Amplifier load',
       message: format(tr(b.schluessel, b.text), b.werte),
       equipmentId: b.geraetId,
     })
