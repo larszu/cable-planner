@@ -13,6 +13,7 @@ import { projectHistory } from '../../store/projectHistory'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
 import { Button } from '../shared/Button'
+import { PanelHint } from '../shared/PanelHint'
 import { infoDialog } from '../../lib/infoDialog'
 import { useTranslation, format } from '../../lib/i18n'
 import { parseGdtf, type GdtfTyp } from '../../lib/gdtf/gdtf'
@@ -169,12 +170,13 @@ export const GdtfMvrImportDialog = () => {
       }
     >
       <div className="space-y-3 p-1 text-cp-base">
-        <p className="text-cp-xs text-cp-text-muted">
-          {t(
+        <PanelHint
+          className="text-cp-xs text-cp-text-muted"
+          text={t(
             'gdtfImport.intro',
             'GDTF files become library templates with their DMX modes, power, weight and connectors. An MVR file places its fixtures in plan view with their DMX addresses; types you do not have yet are created from the embedded GDTF files.',
           )}
-        </p>
+        />
         <label className="inline-flex cursor-pointer items-center gap-1 rounded-cp-control bg-cp-surface-2 px-2 py-1 text-cp-xs hover:bg-cp-surface-3">
           <Icon icon={FileUp} size="xs" /> {t('gdtfImport.pick', 'Choose .gdtf or .mvr file(s)…')}
           <input
@@ -193,7 +195,7 @@ export const GdtfMvrImportDialog = () => {
         )}
 
         {gdtfDateien.length > 0 && (
-          <table className="w-full text-cp-xs">
+          <table className="block w-full overflow-x-auto text-cp-xs">
             <thead className="text-left text-cp-text-muted">
               <tr>
                 <th className="py-1">{t('gdtfImport.col.type', 'Type')}</th>
@@ -239,7 +241,7 @@ export const GdtfMvrImportDialog = () => {
                 <option key={v.name} value={v.name} />
               ))}
             </datalist>
-            <table className="w-full text-cp-xs">
+            <table className="block w-full overflow-x-auto text-cp-xs">
               <thead className="text-left text-cp-text-muted">
                 <tr>
                   <th className="py-1">{t('mvrImport.col.spec', 'GDTF type in the MVR')}</th>

@@ -1951,14 +1951,12 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       .map((n) => n.id)
   }, [rfNodes])
 
-  const copySelectionToClipboard = useCallback(() => {
-    const selectedLocIds = new Set(
-      rfNodes.filter((n) => n.type === 'location' && n.selected).map((n) => n.id),
-    )
+  const copyToClipboard = useCallback((equipmentIds: string[], locationIds: string[]) => {
+    const selectedLocIds = new Set(locationIds)
     const frames = locations.filter((l) => selectedLocIds.has(l.id))
     // Ein Rahmen wird mit seinem Inhalt kopiert — ein leerer Rahmen an neuer
     // Stelle waere nur die halbe Arbeit.
-    const idSet = new Set(getSelectedEquipmentIds())
+    const idSet = new Set(equipmentIds)
     for (const e of project.equipment) {
       if (frames.length && locationForEquipment(e, frames)) idSet.add(e.id)
     }
@@ -1971,7 +1969,16 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     clipboardRef.current = JSON.parse(JSON.stringify({ items, cables, locations: frames })) as CanvasClipboard
     pasteCountRef.current = 0
     return true
-  }, [getSelectedEquipmentIds, rfNodes, locations, project.equipment, project.cables])
+  }, [locations, project.equipment, project.cables])
+
+  const copySelectionToClipboard = useCallback(
+    () =>
+      copyToClipboard(
+        getSelectedEquipmentIds(),
+        rfNodes.filter((n) => n.type === 'location' && n.selected).map((n) => n.id),
+      ),
+    [copyToClipboard, getSelectedEquipmentIds, rfNodes],
+  )
 
   const pasteFromClipboard = useCallback(() => {
     const snap = clipboardRef.current
@@ -1991,10 +1998,19 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       newIds: pasteEquipment(snap.items, snap.cables, offset),
     }))
     if (newIds.length === 0 && newLocIds.length === 0) return
-    pendingSelectIdsRef.current = new Set([...newIds, ...newLocIds])
+    const pending = pendingSelectIdsRef.current
+    pending.clear()
+    for (const id of [...newIds, ...newLocIds]) pending.add(id)
     setRfNodes((current) => current.map((n) => (n.selected ? { ...n, selected: false } : n)))
     if (newIds.length) setSelection(newIds[0], undefined, undefined)
   }, [pasteEquipment, pasteLocations, setSelection, setRfNodes])
+
+  const duplicateFrame = useCallback(
+    (id: string) => {
+      if (copyToClipboard([], [id])) pasteFromClipboard()
+    },
+    [copyToClipboard, pasteFromClipboard],
+  )
 
   const duplicateSelection = useCallback(() => {
     if (!copySelectionToClipboard()) return
@@ -2724,6 +2740,35 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                       })
                     : t('canvas.nodeMenu.arrangeInRack', 'Arrange in rack builder')}
                 </span>
+              </button>
+            )}
+            {isLocation && !projectIsLocked && (
+              <button
+                type="button"
+                onClick={() => {
+                  duplicateFrame(nodeContextMenu.nodeId)
+                  setNodeContextMenu(null)
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '6px 10px',
+                  background: 'transparent',
+                  color: 'inherit',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="5" y="5" width="9" height="9" rx="1" />
+                  <path d="M3 11V3a1 1 0 0 1 1-1h7" />
+                </svg>
+                <span>{t('canvas.nodeMenu.duplicateFrame', 'Duplicate frame with contents')}</span>
               </button>
             )}
             <button

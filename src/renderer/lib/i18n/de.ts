@@ -3420,6 +3420,7 @@ export const de: Dict = {
   'library.photo.useCatalogue': 'Katalog-Gerät platzieren',
   'library.origin.preset': 'Vom Bibliothek-Eintrag „{name}" abgeschrieben',
   'library.newSubcategory': 'Neue Unterkategorie',
+  'canvas.nodeMenu.duplicateFrame': 'Rahmen mit Inhalt duplizieren',
   'check.amp.noImpedance': '{amp} {port}: Last nicht geprüft – keine Nennimpedanz bei {namen}.',
   'check.amp.underLoad': '{amp} {port}: {n} Lautsprecher parallel ergeben {last} Ω, unter der Mindestlast von {min} Ω.',
   'check.amp.overPower': '{speaker} bekommt von {amp} {port} bis zu {w} W – mehr als das Doppelte der Belastbarkeit von {rms} W.',

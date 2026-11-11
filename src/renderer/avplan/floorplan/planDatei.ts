@@ -23,6 +23,15 @@
  *  nicht mehr; ein 12-Megapixel-Foto sprengte sonst die Projektdatei und die
  *  Wiederherstellungskopie im Browser-Speicher. */
 export const PLAN_MAX_KANTE = 3000
+/**
+ * Laengste Kante einer gerenderten PDF-Seite. Ein PDF ist eine Zeichnung:
+ * gerastert wird es einmal beim Laden, und beim Heranzoomen gibt es nur noch
+ * die Pixel von damals. Bei 2000 px war ein A1-Plan nach zwei Zoomstufen
+ * unleserlich (cable-planner #1206); 6000 px sind rund 180 dpi auf A1.
+ */
+export const PLAN_PDF_MAX_KANTE = 6000
+/** Groesste Canvas-Kante, die alle Browser (Safari eingeschlossen) zeichnen. */
+const CANVAS_MAX_KANTE = 8192
 /** Groesste PDF-Datei, die gelesen wird (multicam-Grenze). */
 export const PLAN_PDF_MAX_BYTES = 50 * 1024 * 1024
 /** Groesste Bilddatei vor dem Verkleinern. */
@@ -60,6 +69,8 @@ export interface GeladenerPlan {
 
 export interface PlanLadeOptionen {
   maxKante?: number
+  /** Fuer PDF-Seiten, Vorgabe `PLAN_PDF_MAX_KANTE` — siehe dort. */
+  pdfMaxKante?: number
   pdf?: PdfSeitenRenderer
   seite?: number
 }
@@ -73,12 +84,23 @@ export const istBildDatei = (f: DateiArt): boolean =>
 
 export const istPdfDatei = (f: DateiArt): boolean => f.type === 'application/pdf' || /\.pdf$/i.test(f.name)
 
-/** Taugt die Datei als Plan? PDFs nur, wenn ein Renderer da ist. */
-export const istPlanDatei = (f: DateiArt, o: { pdf?: boolean } = {}): boolean =>
-  istBildDatei(f) || (!!o.pdf && istPdfDatei(f))
+/** `.dxf` kommt oft ohne MIME-Typ an, deshalb auch an der Endung. */
+export const istDxfDatei = (f: DateiArt): boolean =>
+  f.type === 'image/vnd.dxf' || f.type === 'application/dxf' || /\.dxf$/i.test(f.name)
+
+/** Taugt die Datei als Plan? PDF und DXF nur, wenn der Planer sie kann. */
+export const istPlanDatei = (f: DateiArt, o: PlanArten = {}): boolean =>
+  istBildDatei(f) || (!!o.pdf && istPdfDatei(f)) || (!!o.dxf && istDxfDatei(f))
+
+/** Welche Arten der Planer annimmt. */
+export interface PlanArten {
+  pdf?: boolean
+  dxf?: boolean
+}
 
 /** Das `accept`-Attribut fuer ein `<input type="file">`, passend zum Lader. */
-export const planAccept = (o: { pdf?: boolean } = {}): string => (o.pdf ? 'image/*,application/pdf,.pdf' : 'image/*')
+export const planAccept = (o: PlanArten = {}): string =>
+  ['image/*', ...(o.pdf ? ['application/pdf', '.pdf'] : []), ...(o.dxf ? ['.dxf'] : [])].join(',')
 
 type DateiTraeger = { types?: readonly string[] | DOMStringList; files?: FileList | readonly File[] | null } | null | undefined
 
@@ -91,7 +113,7 @@ export const ziehtDateien = (dt: DataTransfer | DateiTraeger): boolean => {
 }
 
 /** Die brauchbaren Plan-Dateien eines Drops, in ihrer Reihenfolge. */
-export const planDateienAus = (dt: DataTransfer | DateiTraeger, o: { pdf?: boolean } = {}): File[] =>
+export const planDateienAus = (dt: DataTransfer | DateiTraeger, o: PlanArten = {}): File[] =>
   Array.from((dt?.files ?? []) as ArrayLike<File>).filter((f) => istPlanDatei(f, o))
 
 /** Zielgroesse nach dem Verkleinern; `faktor` 1 heisst: bleibt, wie es ist. */
@@ -129,7 +151,7 @@ export async function ladePlanDatei(datei: File, o: PlanLadeOptionen = {}): Prom
     const seite = Math.max(0, Math.floor(o.seite ?? 0))
     let r: Awaited<ReturnType<PdfSeitenRenderer>>
     try {
-      r = await o.pdf(new Uint8Array(await datei.arrayBuffer()), seite, maxKante)
+      r = await o.pdf(new Uint8Array(await datei.arrayBuffer()), seite, o.pdfMaxKante ?? PLAN_PDF_MAX_KANTE)
     } catch (e) {
       throw e instanceof PlanDateiFehler ? e : new PlanDateiFehler('pdf', e instanceof Error ? e.message : String(e))
     }
@@ -181,7 +203,7 @@ export const pdfjsRenderer =
       const nr = Math.min(Math.max(0, seite), pdf.numPages - 1) + 1
       const page = await pdf.getPage(nr)
       const basis = page.getViewport({ scale: 1 })
-      const scale = Math.min(zielKante, 2000) / Math.max(basis.width, basis.height, 1)
+      const scale = Math.min(zielKante, CANVAS_MAX_KANTE) / Math.max(basis.width, basis.height, 1)
       const viewport = page.getViewport({ scale })
       const canvas = document.createElement('canvas')
       canvas.width = Math.round(viewport.width)
@@ -210,6 +232,7 @@ export function planAblage(o: {
   onUngeeignet?: (dateien: File[]) => void
   onAktiv?: (aktiv: boolean) => void
   pdf?: boolean
+  dxf?: boolean
 }) {
   type Ereignis = { preventDefault(): void; dataTransfer: DataTransfer | null }
   return {
@@ -226,7 +249,7 @@ export function planAblage(o: {
       if (!ziehtDateien(e.dataTransfer)) return
       e.preventDefault()
       o.onAktiv?.(false)
-      const passend = planDateienAus(e.dataTransfer, { pdf: o.pdf })
+      const passend = planDateienAus(e.dataTransfer, { pdf: o.pdf, dxf: o.dxf })
       if (passend[0]) o.onDatei(passend[0])
       else o.onUngeeignet?.(Array.from((e.dataTransfer?.files ?? []) as ArrayLike<File>))
     },
