@@ -434,7 +434,7 @@ export const builtInSchemaForCategory = (category: string | undefined): Category
   const lc = norm(category)
   const eigen = BY_LC[lc] ?? BY_LC[EN_ALIAS[lc] ?? '']
   if (eigen) return eigen
-  // #1206 — "Audio/Lautsprecher" hat die Felder von "Audio".
+  // #1206 — "Audio > Lautsprecher" hat die Felder von "Audio".
   const ober = oberkategorie(category)
   return ober !== category ? builtInSchemaForCategory(ober) : []
 }

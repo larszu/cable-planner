@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { ChevronDown, ChevronRight, FolderPlus, Pencil, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, Pencil, X } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
@@ -15,7 +15,6 @@ import { DeviceLibrarySubmitDialog } from '../DeviceLibrarySubmitDialog'
 import { mountModal } from '../../../lib/modalRoot'
 import { infoDialog } from '../../../lib/infoDialog'
 import { confirmDialog } from '../../../lib/confirmDialog'
-import { promptDialog } from '../../../lib/promptDialog'
 import {
   kategorieBlatt,
   kategorieTiefe,
@@ -95,6 +94,7 @@ export const LocalEquipmentTab = ({
   // User selber per Klick was offen oder zu ist (Component-State, kein
   // persist).
   const [collapsedCats, setCollapsedCats] = useState<Set<string>>(new Set())
+  const [newGroupParent, setNewGroupParent] = useState('')
   const collapsedInitRef = useRef(false)
   const newGroupInputRef = useRef<HTMLInputElement>(null)
   const librarySearchRef = useRef<HTMLInputElement>(null)
@@ -243,22 +243,25 @@ export const LocalEquipmentTab = ({
 
       {showNewGroup && (
         <form
-          className="mb-2 flex gap-1"
+          className="mb-2 flex flex-wrap gap-1"
           onSubmit={(e) => {
             e.preventDefault()
-            const cat = newGroupName.trim()
-            if (cat) {
-              addKnownCategories([cat])
-              setShowEmpty(true)
-              setCollapsedCats((prev) => {
-                if (!prev.has(cat)) return prev
-                const next = new Set(prev)
-                next.delete(cat)
-                return next
-              })
-              setNewGroupName('')
-              setShowNewGroup(false)
-            }
+            const name = newGroupName.trim()
+            if (!name) return
+            // #1206 — mit Elternauswahl wird daraus eine Unterkategorie.
+            const cat = newGroupParent ? unterkategorieVon(newGroupParent, name) : name
+            addKnownCategories([cat])
+            setShowEmpty(true)
+            setCollapsedCats((prev) => {
+              if (!prev.has(cat) && !prev.has(newGroupParent)) return prev
+              const next = new Set(prev)
+              next.delete(cat)
+              if (newGroupParent) next.delete(newGroupParent)
+              return next
+            })
+            setNewGroupName('')
+            setNewGroupParent('')
+            setShowNewGroup(false)
           }}
         >
           <input
@@ -266,8 +269,25 @@ export const LocalEquipmentTab = ({
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
             placeholder={t('library.newCategoryPlaceholder', 'Category name…')}
-            className="flex-1 border border-cp-surface-5 bg-cp-surface-1 p-1.5 text-cp-xs"
+            className="min-w-24 flex-1 border border-cp-surface-5 bg-cp-surface-1 p-1.5 text-cp-xs"
           />
+          <select
+            value={newGroupParent}
+            onChange={(e) => setNewGroupParent(e.target.value)}
+            title={t('library.newCategoryParent', 'Below which category?')}
+            aria-label={t('library.newCategoryParent', 'Below which category?')}
+            className="min-w-24 flex-1 rounded-cp-control border border-cp-surface-5 bg-cp-surface-1 p-1.5 text-cp-xs"
+          >
+            <option value="">{t('library.newCategoryTopLevel', 'Top level')}</option>
+            {Array.from(new Set([...knownCategories, ...customLibrary.map((tpl) => tpl.category || 'Other')]))
+              .filter(Boolean)
+              .sort((a, b) => a.localeCompare(b))
+              .map((c) => (
+                <option key={c} value={c}>
+                  {categoryDisplay(c, lang, categoryTranslations)}
+                </option>
+              ))}
+          </select>
           <button
             type="submit"
             className="rounded-cp-control bg-cp-accent-soft text-cp-text-bright px-2 text-cp-xs hover:bg-cp-surface-4"
@@ -412,7 +432,7 @@ export const LocalEquipmentTab = ({
                       )
                       if (!result || !result.canonical) return
                       if (result.canonical !== cat) {
-                        // Unterkategorien wandern mit: "Audio/Lautsprecher" folgt "Audio".
+                        // Unterkategorien wandern mit: "Audio > Lautsprecher" folgt "Audio".
                         const neu = tiefe
                           ? unterkategorieVon(kategorieVorfahren(cat)[0], result.canonical)
                           : result.canonical
@@ -430,26 +450,6 @@ export const LocalEquipmentTab = ({
                     aria-label={t('library.renameCategory', 'Rename category')}
                   >
                     <Icon icon={Pencil} size="xs" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={async (e) => {
-                      e.stopPropagation()
-                      const name = await promptDialog(t('library.newSubcategory', 'New subcategory'))
-                      if (!name?.trim()) return
-                      addKnownCategories([unterkategorieVon(cat, name)])
-                      setShowEmpty(true)
-                      setCollapsedCats((prev) => {
-                        const next = new Set(prev)
-                        next.delete(cat)
-                        return next
-                      })
-                    }}
-                    className="hidden bg-cp-surface-4/80 px-1.5 py-0.5 text-cp-xs font-normal normal-case text-cp-text-bright hover:bg-cp-surface-5 group-hover/cat:block"
-                    title={t('library.newSubcategory', 'New subcategory')}
-                    aria-label={t('library.newSubcategory', 'New subcategory')}
-                  >
-                    <Icon icon={FolderPlus} size="xs" />
                   </button>
                   <span className="bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-normal text-cp-text-muted">
                     {imBaum.length}

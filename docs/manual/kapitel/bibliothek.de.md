@@ -106,7 +106,7 @@ Kategorien ordnen die Vorlagen. Beim Zeigen auf den Kategoriestreifen erscheint 
 
 4. Neue Kategorien entstehen über das Menü **+** (siehe unten).
 
-5. Neben dem Stift erscheint ein Ordner-Plus-Knopf, *Neue Unterkategorie*. Er fragt nach einem Namen und legt eine Unterkategorie an, die eingerückt unter ihrer Oberkategorie steht (zum Beispiel Audio → Lautsprecher). Klappt die Oberkategorie zu, verschwinden ihre Unterkategorien; die Zahl an einer Kategorie zählt ihre Unterkategorien mit. Beim Umbenennen einer Kategorie ziehen ihre Unterkategorien mit. Eine Unterkategorie hat die Fachdaten ihrer obersten Kategorie. Intern steht die Kategorie als Pfad `Audio/Lautsprecher`; dieselbe Schreibweise als Kategorie im Inspector der Vorlage funktioniert ebenso.
+5. Neben dem Stift erscheint ein Ordner-Plus-Knopf, *Neue Unterkategorie*. Er fragt nach einem Namen und legt eine Unterkategorie an, die eingerückt unter ihrer Oberkategorie steht (zum Beispiel Audio → Lautsprecher). Klappt die Oberkategorie zu, verschwinden ihre Unterkategorien; die Zahl an einer Kategorie zählt ihre Unterkategorien mit. Beim Umbenennen einer Kategorie ziehen ihre Unterkategorien mit. Eine Unterkategorie hat die Fachdaten ihrer obersten Kategorie. Intern steht die Kategorie als Pfad `Audio > Lautsprecher`; dieselbe Schreibweise als Kategorie im Inspector der Vorlage funktioniert ebenso.
 
    ![Neue, leere Kategorie](bilder/de/bibliothek-55-kategorie-umbenannt.jpg)
 
