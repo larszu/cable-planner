@@ -20,6 +20,7 @@
  * #391 (Netzwerk), #392 (Strom), #393 (Monitore), #394 (Stative/Rigging).
  */
 import type { Lang } from './categoryTranslations'
+import { oberkategorie } from './unterkategorie'
 
 // 'polar-pattern' = Select mit zusätzlichem Polardiagramm-Preview (Mikrofone).
 export type CategoryFieldType = 'text' | 'number' | 'select' | 'boolean' | 'polar-pattern'
@@ -427,7 +428,11 @@ export const canonicalCategoryKey = (category: string): string => {
 export const builtInSchemaForCategory = (category: string | undefined): CategoryFieldDef[] => {
   if (!category) return []
   const lc = norm(category)
-  return BY_LC[lc] ?? BY_LC[EN_ALIAS[lc] ?? ''] ?? []
+  const eigen = BY_LC[lc] ?? BY_LC[EN_ALIAS[lc] ?? '']
+  if (eigen) return eigen
+  // #1206 — "Audio/Lautsprecher" hat die Felder von "Audio".
+  const ober = oberkategorie(category)
+  return ober !== category ? builtInSchemaForCategory(ober) : []
 }
 
 /**
@@ -439,7 +444,8 @@ export const builtInSchemaForCategory = (category: string | undefined): Category
 export const schemaForCategory = (category: string | undefined): CategoryFieldDef[] => {
   if (!category) return []
   const builtIn = builtInSchemaForCategory(category)
-  const extra = userOverlay[canonicalCategoryKey(category)] ?? []
+  const extra =
+    userOverlay[canonicalCategoryKey(category)] ?? userOverlay[canonicalCategoryKey(oberkategorie(category))] ?? []
   if (extra.length === 0) return builtIn
   const seen = new Set(builtIn.map((f) => f.key))
   const merged = [...builtIn]

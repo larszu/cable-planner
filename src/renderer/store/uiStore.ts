@@ -410,7 +410,9 @@ const defaults: PersistedUiState = {
   // Design-Vertrag 2026-10: Auto ist die Voreinstellung — die App folgt dem
   // System, bis jemand Hell oder Dunkel waehlt; die Wahl bleibt gespeichert.
   followSystemTheme: true,
-  colorPortsByType: false,
+  // #1206 — XLR und Cat am selben Geraet sollen auf einen Blick verschieden
+  // aussehen; wer es einfarbig will, schaltet es in der Werkzeugleiste ab.
+  colorPortsByType: true,
   language: detectDefaultLanguage(),
   overrideConnectionWarnings: false,
   libraryViewMode: 'list',

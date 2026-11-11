@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { ChevronDown, ChevronRight, Pencil, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, FolderPlus, Pencil, X } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
@@ -15,6 +15,15 @@ import { DeviceLibrarySubmitDialog } from '../DeviceLibrarySubmitDialog'
 import { mountModal } from '../../../lib/modalRoot'
 import { infoDialog } from '../../../lib/infoDialog'
 import { confirmDialog } from '../../../lib/confirmDialog'
+import { promptDialog } from '../../../lib/promptDialog'
+import {
+  kategorieBlatt,
+  kategorieTiefe,
+  kategorieVorfahren,
+  liegtIn,
+  ordneKategorienBaum,
+  unterkategorieVon,
+} from '../../../lib/unterkategorie'
 import { baueEinreichung } from '../../../lib/vorlagenEinreichung'
 import { eigeneVorlagen } from '../../../lib/deviceLibraryUpload'
 import type { EquipmentTemplate } from '../../../types/equipment'
@@ -295,6 +304,7 @@ export const LocalEquipmentTab = ({
                     return [...head, ...tail]
                   })()
           if (allCats.length === 0) allCats.push('Other')
+          const baumCats = ordneKategorienBaum(allCats)
           const searchQuery = librarySearch.trim().toLowerCase()
           // v7.9.5 — Globaler Empty-State wenn Suche projektweit nichts trifft.
           if (searchQuery) {
@@ -327,21 +337,23 @@ export const LocalEquipmentTab = ({
               )
             }
           }
-          const sectionsList = allCats.map((cat) => {
+          const sichtbar = (t: EquipmentTemplate) =>
+            (showHidden || !t.hidden) &&
+            // Lager-Filter: nur Vorlagen, deren Modell im Eigentum steht.
+            (!onlyOwned || ownedModels.has(t.name.trim().toLowerCase())) &&
+            (!searchQuery ||
+              t.name.toLowerCase().includes(searchQuery) ||
+              (t.category ?? '').toLowerCase().includes(searchQuery))
+          const sectionsList = baumCats.map((cat) => {
+            // #1206 — eine eingeklappte Oberkategorie verbirgt ihre Unterkategorien.
+            if (!searchQuery && kategorieVorfahren(cat).some((v) => collapsedCats.has(v))) return null
             const items = customLibrary.filter(
               (t) => (t.category || 'Other') === cat,
             )
-            const visibleItems = items
-              .filter((t) => showHidden || !t.hidden)
-              // Lager-Filter: nur Vorlagen, deren Modell im Eigentum steht.
-              .filter((t) => !onlyOwned || ownedModels.has(t.name.trim().toLowerCase()))
-              .filter((t) =>
-                !searchQuery
-                  ? true
-                  : t.name.toLowerCase().includes(searchQuery) ||
-                    (t.category ?? '').toLowerCase().includes(searchQuery),
-              )
-            if (!showEmpty && visibleItems.length === 0) return null
+            const visibleItems = items.filter(sichtbar)
+            const imBaum = customLibrary.filter((t) => liegtIn(t.category || 'Other', cat))
+            if (!showEmpty && !imBaum.some(sichtbar)) return null
+            const tiefe = kategorieTiefe(cat)
             // Force-expand categories during a search so matches are
             // visible immediately without manual category clicks.
             const collapsed = !searchQuery && collapsedCats.has(cat)
@@ -365,7 +377,7 @@ export const LocalEquipmentTab = ({
                   } catch { /* ignore */ }
                 }}
               >
-                <div className="group/cat flex items-center gap-1.5 bg-cp-surface-1/60 px-2 py-1.5 text-left text-cp-xs font-semibold text-cp-text-secondary hover:bg-cp-surface-2/80 hover:text-cp-text">
+                <div style={tiefe ? { paddingLeft: 8 + tiefe * 14 } : undefined} className="group/cat flex items-center gap-1.5 bg-cp-surface-1/60 px-2 py-1.5 text-left text-cp-xs font-semibold text-cp-text-secondary hover:bg-cp-surface-2/80 hover:text-cp-text">
                   <button
                     type="button"
                     onClick={() =>
@@ -382,7 +394,7 @@ export const LocalEquipmentTab = ({
                       <Icon icon={collapsed ? ChevronRight : ChevronDown} size="xs" />
                     </span>
                     <span className="flex-1 truncate normal-case tracking-normal">
-                      {categoryDisplay(cat, lang, categoryTranslations)}
+                      {categoryDisplay(tiefe ? kategorieBlatt(cat) : cat, lang, categoryTranslations)}
                     </span>
                   </button>
                   <button
@@ -400,7 +412,14 @@ export const LocalEquipmentTab = ({
                       )
                       if (!result || !result.canonical) return
                       if (result.canonical !== cat) {
-                        renameCustomCategory(cat, result.canonical)
+                        // Unterkategorien wandern mit: "Audio/Lautsprecher" folgt "Audio".
+                        const neu = tiefe
+                          ? unterkategorieVon(kategorieVorfahren(cat)[0], result.canonical)
+                          : result.canonical
+                        for (const kind of baumCats.filter((c) => c !== cat && liegtIn(c, cat))) {
+                          renameCustomCategory(kind, neu + kind.slice(cat.length))
+                        }
+                        renameCustomCategory(cat, neu)
                         setCategoryTranslation(result.canonical, { de: result.de, en: result.en })
                       } else {
                         setCategoryTranslation(cat, { de: result.de, en: result.en })
@@ -412,14 +431,34 @@ export const LocalEquipmentTab = ({
                   >
                     <Icon icon={Pencil} size="xs" />
                   </button>
+                  <button
+                    type="button"
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      const name = await promptDialog(t('library.newSubcategory', 'New subcategory'))
+                      if (!name?.trim()) return
+                      addKnownCategories([unterkategorieVon(cat, name)])
+                      setShowEmpty(true)
+                      setCollapsedCats((prev) => {
+                        const next = new Set(prev)
+                        next.delete(cat)
+                        return next
+                      })
+                    }}
+                    className="hidden bg-cp-surface-4/80 px-1.5 py-0.5 text-cp-xs font-normal normal-case text-cp-text-bright hover:bg-cp-surface-5 group-hover/cat:block"
+                    title={t('library.newSubcategory', 'New subcategory')}
+                    aria-label={t('library.newSubcategory', 'New subcategory')}
+                  >
+                    <Icon icon={FolderPlus} size="xs" />
+                  </button>
                   <span className="bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-normal text-cp-text-muted">
-                    {items.length}
+                    {imBaum.length}
                   </span>
                 </div>
 
                 {/* Items */}
                 {!collapsed && (
-                  <div className="space-y-1 px-1 pb-1">
+                  <div style={tiefe ? { marginLeft: tiefe * 14 } : undefined} className="space-y-1 px-1 pb-1">
                     {visibleItems.length === 0 ? (
                       <div className="px-1 py-1 text-cp-xs italic text-cp-text-muted">
                         {searchQuery
@@ -466,7 +505,7 @@ export const LocalEquipmentTab = ({
           if (librarySortMode === 'manual') {
             return (
               <CategoryDndWrapper
-                cats={allCats}
+                cats={baumCats}
                 onReorder={(newOrder) => reorderCategories(newOrder)}
               >
                 {sectionsList}

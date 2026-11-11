@@ -3419,6 +3419,7 @@ export const de: Dict = {
   'library.photo.unsure': 'unsicher',
   'library.photo.useCatalogue': 'Katalog-Gerät platzieren',
   'library.origin.preset': 'Vom Bibliothek-Eintrag „{name}" abgeschrieben',
+  'library.newSubcategory': 'Neue Unterkategorie',
   'library.renameCategory': 'Kategorie umbenennen',
   'library.rentman.accountAll': 'Alle Rentman-Equipments (Account-Katalog)',
   'library.rentman.accountTitle':
@@ -4329,7 +4330,7 @@ export const de: Dict = {
     "Was geht durch diesen Port? Trennt 'Inhalt' (PGM/PVW) vom Hardware-Standard (SDI 3G/12G).",
   'ports.customSuffix': 'eigen',
   'ports.direction.auto': 'Richtung (auto)',
-  'ports.direction.bi': 'Bidirektional (z.B. Netzwerk)',
+  'ports.direction.bi': 'Ein-/Ausgang (z. B. speakON, etherCON, Netzwerk)',
   'ports.direction.in': 'Nur Input',
   'ports.direction.out': 'Nur Output',
   'ports.directionTitle': 'Richtung - bidirektional ist z.B. für Netzwerk-/RJ45-Ports sinnvoll',

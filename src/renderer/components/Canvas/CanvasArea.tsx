@@ -47,11 +47,11 @@ import {
   MIME_RACK_PRESET,
 } from '../../lib/dragDropMimes'
 import { AnnotationCanvasOverlay } from '../Annotations/AnnotationCanvasOverlay'
-import type { EquipmentItem, EquipmentTemplate } from '../../types/equipment'
-import type { Cable } from '../../types/cable'
+import type { EquipmentTemplate } from '../../types/equipment'
 import { EquipmentNode } from './EquipmentNode'
 import { useCanvasCableRouter } from './useCanvasCableRouter'
-import { useCanvasKeyboardShortcuts } from './useCanvasKeyboardShortcuts'
+import { useCanvasKeyboardShortcuts, type CanvasClipboard } from './useCanvasKeyboardShortcuts'
+import { locationForEquipment } from '../../lib/equipmentLocation'
 import { FLOW_MIN_ZOOM, useFlowPause } from '../../hooks/useCanvasFlow'
 import { useAlleElementeRendern } from '../../lib/alleElementeRendern'
 import { CableEdge } from './CableEdge'
@@ -198,6 +198,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // Rack-Karte einer frischen Installation leer (siehe `lib/demoRack.ts`).
   const loadDemoProjectIntoStore = useProjectStore((state) => state.loadDemoProject)
   const pasteEquipment = useProjectStore((state) => state.pasteEquipment)
+  const pasteLocations = useProjectStore((state) => state.pasteLocations)
   const deleteEquipment = useProjectStore((state) => state.deleteEquipment)
   const deleteLocation = useProjectStore((state) => state.deleteLocation)
   const deleteCable = useProjectStore((state) => state.deleteCable)
@@ -797,7 +798,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // "existing nodes jump when adding from library" bug.
       return nodes.map((n) => {
         const existing = currentById.get(n.id)
-        if (!existing) return n
+        if (!existing) {
+          if (!pendingSelectIdsRef.current.delete(n.id)) return n
+          return { ...n, selected: true }
+        }
         // Track nodes whose data changed so we can call updateNodeInternals
         // below. This tells ReactFlow to re-register handle positions so
         // cable edges re-route to the correct port after port edits (#20).
@@ -1478,11 +1482,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         return
       }
       const contained = project.equipment
-        .filter((e) => {
-          const cx = e.x + (e.width ?? 0) / 2
-          const cy = e.y + (e.height ?? 0) / 2
-          return cx >= loc.x && cx <= loc.x + loc.width && cy >= loc.y && cy <= loc.y + loc.height
-        })
+        .filter((e) => locationForEquipment(e, [loc]))
         .map((e) => e.id)
       locationDragRef.current = {
         locationId: loc.id,
@@ -1937,7 +1937,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   // In-app clipboard for Ctrl+C / Ctrl+V. Snapshots the selected equipment
   // and any cables that connect them at copy time, so paste keeps working
   // even if the source items are later edited or deleted.
-  const clipboardRef = useRef<{ items: EquipmentItem[]; cables: Cable[] } | null>(null)
+  const clipboardRef = useRef<CanvasClipboard | null>(null)
+  // #1206 — eingefuegte Knoten erscheinen erst mit dem naechsten Store-Abgleich
+  // in rfNodes; dort werden sie ausgewaehlt, damit sie gemeinsam weiterziehen.
+  const pendingSelectIdsRef = useRef<Set<string>>(new Set())
   // Number of consecutive pastes from the same clipboard, used to spread
   // copies diagonally instead of stacking them on the same spot.
   const pasteCountRef = useRef(0)
@@ -1949,45 +1952,49 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   }, [rfNodes])
 
   const copySelectionToClipboard = useCallback(() => {
-    const ids = getSelectedEquipmentIds()
-    if (ids.length === 0) return false
-    const idSet = new Set(ids)
+    const selectedLocIds = new Set(
+      rfNodes.filter((n) => n.type === 'location' && n.selected).map((n) => n.id),
+    )
+    const frames = locations.filter((l) => selectedLocIds.has(l.id))
+    // Ein Rahmen wird mit seinem Inhalt kopiert — ein leerer Rahmen an neuer
+    // Stelle waere nur die halbe Arbeit.
+    const idSet = new Set(getSelectedEquipmentIds())
+    for (const e of project.equipment) {
+      if (frames.length && locationForEquipment(e, frames)) idSet.add(e.id)
+    }
     const items = project.equipment.filter((e) => idSet.has(e.id))
-    if (items.length === 0) return false
+    if (items.length === 0 && frames.length === 0) return false
     const cables = project.cables.filter(
       (c) => idSet.has(c.fromEquipmentId) && idSet.has(c.toEquipmentId),
     )
     // Deep-clone via JSON so subsequent edits don't mutate the snapshot.
-    clipboardRef.current = JSON.parse(JSON.stringify({ items, cables })) as {
-      items: EquipmentItem[]
-      cables: Cable[]
-    }
+    clipboardRef.current = JSON.parse(JSON.stringify({ items, cables, locations: frames })) as CanvasClipboard
     pasteCountRef.current = 0
     return true
-  }, [getSelectedEquipmentIds, project.equipment, project.cables])
+  }, [getSelectedEquipmentIds, rfNodes, locations, project.equipment, project.cables])
 
   const pasteFromClipboard = useCallback(() => {
     const snap = clipboardRef.current
-    if (!snap || snap.items.length === 0) return
+    if (!snap || (snap.items.length === 0 && snap.locations.length === 0)) return
     pasteCountRef.current += 1
-    const step = 30 * pasteCountRef.current
-    // v7.9.92 — Paste = ein Undo-Schritt (pasteEquipment + setSelection
-    // sind 2 separate Store-Mutationen).
-    const newIds = projectHistory.transact(() =>
-      pasteEquipment(snap.items, snap.cables, { dx: step, dy: step }),
-    )
-    if (newIds.length === 0) return
-    const newIdSet = new Set(newIds)
-    // Reflect the new selection visually in React Flow.
-    setRfNodes((current) =>
-      current.map((n) => {
-        if (n.type === 'equipment' && newIdSet.has(n.id)) return { ...n, selected: true }
-        if (n.selected) return { ...n, selected: false }
-        return n
-      }),
-    )
-    setSelection(newIds[0], undefined, undefined)
-  }, [pasteEquipment, setSelection, setRfNodes])
+    // Ein Rahmen springt um seine eigene Breite, damit die Kopie neben dem
+    // Original steht statt halb darauf.
+    const rahmenBreite = snap.locations.length
+      ? Math.max(...snap.locations.map((l) => l.x + l.width)) - Math.min(...snap.locations.map((l) => l.x))
+      : 0
+    const offset = rahmenBreite
+      ? { dx: (rahmenBreite + 40) * pasteCountRef.current, dy: 0 }
+      : { dx: 30 * pasteCountRef.current, dy: 30 * pasteCountRef.current }
+    // v7.9.92 — Paste = ein Undo-Schritt.
+    const { newIds, newLocIds } = projectHistory.transact(() => ({
+      newLocIds: pasteLocations(snap.locations, offset),
+      newIds: pasteEquipment(snap.items, snap.cables, offset),
+    }))
+    if (newIds.length === 0 && newLocIds.length === 0) return
+    pendingSelectIdsRef.current = new Set([...newIds, ...newLocIds])
+    setRfNodes((current) => current.map((n) => (n.selected ? { ...n, selected: false } : n)))
+    if (newIds.length) setSelection(newIds[0], undefined, undefined)
+  }, [pasteEquipment, pasteLocations, setSelection, setRfNodes])
 
   const duplicateSelection = useCallback(() => {
     if (!copySelectionToClipboard()) return
@@ -2269,7 +2276,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         // Hold Shift and drag on empty canvas to draw a marquee selection
         // box (issue #66). Plain drag still pans the viewport, so the
         // user's normal pan workflow is untouched.
-        selectionKeyCode={interactionLocked ? null : 'Shift'}
+        // #1206 — Alt (Mac: Option) zieht ebenfalls den Rahmen auf.
+        selectionKeyCode={interactionLocked ? null : ['Shift', 'Alt']}
         // 'Partial' = any node touching the marquee is selected. The
         // alternative ('Full' / SelectionMode.Full) requires the whole
         // node to fit inside the box, which is annoying for big devices.

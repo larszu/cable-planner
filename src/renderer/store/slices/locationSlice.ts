@@ -20,6 +20,7 @@ export type LocationSlice = Pick<
   ProjectState,
   | 'addLocation'
   | 'addLocationAroundEquipment'
+  | 'pasteLocations'
   | 'updateLocation'
   | 'deleteLocation'
   | 'deleteLocationWithContents'
@@ -29,7 +30,25 @@ export type LocationSlice = Pick<
   | 'removeFloor'
 >
 
-export const createLocationSlice: StateCreator<ProjectState, [], [], LocationSlice> = (set) => ({
+export const createLocationSlice: StateCreator<ProjectState, [], [], LocationSlice> = (set, get) => ({
+  pasteLocations: (locations, offset) => {
+    if (locations.length === 0 || isProjectLocked(get())) return []
+    const copies: LocationFrame[] = locations.map((l) => ({
+      ...l,
+      id: uuidv4(),
+      x: l.x + offset.dx,
+      y: l.y + offset.dy,
+      // Eine Kopie ist frei verschiebbar, auch wenn das Original gesperrt war.
+      positionLocked: undefined,
+    }))
+    set((state) => ({
+      project: touchProject({
+        ...state.project,
+        locations: [...(state.project.locations ?? []), ...copies],
+      }),
+    }))
+    return copies.map((l) => l.id)
+  },
   addLocation: (partial) =>
     set((state) => {
       if (isProjectLocked(state)) return state
