@@ -258,6 +258,263 @@ export const CAMERA_CATALOG: CameraEntry[] = [
 
   // ── Blackmagic Cameras ───────────────────────────────────────────────────
 
+  // ── Blackmagic: aus cameraBodyCatalog.ts uebernommen (2026-11) ───────────
+  // Diese neun Bodies standen im erzeugten Katalog mit `portsUnknown` und
+  // 0 Ein-/0 Ausgaengen. Belegt Buchse fuer Buchse gegen die offiziellen
+  // Tech-Specs-Seiten (Abschnitt „Connections"), abgerufen 2026-11-11.
+  // deviceTypeId und Name bleiben unveraendert, damit `katalog:uebernahme`
+  // sie dort weglaesst und gespeicherte Projekte weiter aufloesen.
+  // Ref und Timecode teilen sich bei PYXIS und den URSA-Modellen EINE BNC
+  // (Blackmagic: „BNC timecode input"; Ambient Timecode Cable Guide: „shared
+  // BNC connector for timecode and Trilevel Sync") — deshalb ein Port.
+  // Gefuehrt werden die Buchsen, die man verkabelt (Video, Audio, Ref/TC,
+  // Netz, Objektiv-Steuerung); Speicher-/Update-USB-C nur, wo es zugleich
+  // Kamera-Steuerung oder Sucher ist.
+
+  // URSA Broadcast G2 — 12G-SDI In (Program Return), 12G-SDI Out + Monitor
+  // Out, 2x XLR (Mic/Line/AES), Ref/TC In, 12-pin Hirose Objektiv, LANC,
+  // Kopfhoerer 3.5 mm (Talkback-Headset)
+  {
+    match: ['ursa broadcast', 'g2'],
+    deviceTypeId: '2b3a40b1-55a3-5e5d-b65c-5b7bd35c69f1',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicursabroadcast/techspecs
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicursabroadcast/techspecs',
+      name: 'Blackmagic URSA Broadcast G2',
+      category: CAM,
+      subtitle: 'broadcast',
+      notes: 'BMD 6K (23.1×12.99) · B4 mount · 6K/4K/HD · B4 native, EF/PL via adapter. Broadcast camera with cinema sensor.',
+      inputs: [
+        sdiIn('12G-SDI In (Return)'),
+        sdiIn('Ref/TC In'),
+        xlr('XLR Ch1 In'),
+        xlr('XLR Ch2 In'),
+        port('Lens 12-pin', 'Custom'),
+        port('LANC', 'Jack 2.5 mm TRS'),
+      ],
+      outputs: [
+        sdiOut('12G-SDI Out'),
+        sdiOut('12G-SDI Monitor Out'),
+        port('Headphones', 'Jack 3.5 mm TRRS'),
+      ],
+      width: 240, height: 240,
+    },
+  },
+
+  // Studio Camera 6K Pro — 12G-SDI In (Return), 12G-SDI Out, HDMI Out,
+  // 2x XLR, 3.5 mm Stereo/TC In, 5-pin XLR Talkback, 10G Ethernet
+  {
+    match: ['studio camera', '6k', 'pro'],
+    deviceTypeId: 'f44f3f5e-6dde-5579-ab72-0c84c04470c2',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicstudiocamera/techspecs/W-CST-11
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicstudiocamera/techspecs/W-CST-11',
+      name: 'Blackmagic Studio Camera 6K Pro',
+      category: CAM,
+      subtitle: 'broadcast',
+      notes: 'Super 35 (24.6×13.8) · EF mount · 6K/4K/HD',
+      inputs: [
+        sdiIn('12G-SDI In (Return)'),
+        xlr('XLR Ch1 In'),
+        xlr('XLR Ch2 In'),
+        port('Stereo/TC In', 'Jack 3.5 mm TRS'),
+        eth('10G Ethernet'),
+      ],
+      outputs: [
+        sdiOut('12G-SDI Out'),
+        hdmiOut('HDMI Out'),
+        port('Talkback Headset', 'XLR'),
+        port('Headphones', 'Jack 3.5 mm TRRS'),
+      ],
+      width: 240, height: 240,
+    },
+  },
+
+  // Micro Studio Camera 4K G2 — 12G-SDI In/Out als Micro-BNC, HDMI Out,
+  // 3.5 mm Stereo/TC In
+  {
+    match: ['micro studio camera', '4k'],
+    deviceTypeId: 'b098dca6-ba66-5fe4-88bf-63199fc3c574',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicmicrostudiocamera/techspecs
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicmicrostudiocamera/techspecs',
+      name: 'Blackmagic Micro Studio Camera 4K G2',
+      category: CAM,
+      subtitle: 'broadcast',
+      notes: 'Micro Four Thirds · MFT mount · 4K/HD · Micro form factor, MFT native, EF via adapter or EF Speedbooster',
+      inputs: [
+        port('12G-SDI In (Return)', 'Micro-BNC'),
+        port('Stereo/TC In', 'Jack 3.5 mm TRS'),
+      ],
+      outputs: [
+        port('12G-SDI Out', 'Micro-BNC'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 220, height: 160,
+    },
+  },
+
+  // Pocket Cinema Camera 6K Pro — HDMI Out, 2x Mini-XLR, 3.5 mm Stereo In
+  // (alle Audio-Eingaenge auch TC), Kopfhoerer
+  {
+    match: ['pocket cinema', '6k', 'pro'],
+    deviceTypeId: '061f2b91-763f-5a77-8ff6-280c35179329',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera/techspecs
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera/techspecs',
+      name: 'Blackmagic Pocket Cinema 6K Pro',
+      category: CAM,
+      subtitle: 'cinema',
+      notes: 'Super 35 (24.6×13.8) · EF mount · 6K/4K/HD',
+      inputs: [
+        port('Mini-XLR Ch1 In', 'Mini-XLR'),
+        port('Mini-XLR Ch2 In', 'Mini-XLR'),
+        port('Stereo In', 'Jack 3.5 mm TRS'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out'),
+        port('Headphones', 'Jack 3.5 mm TRS'),
+      ],
+      width: 200, height: 160,
+    },
+  },
+
+  // Cinema Camera 6K — gleiche Anschluesse wie die Pocket 6K Pro
+  {
+    match: ['blackmagic cinema camera', '6k'],
+    deviceTypeId: '9f9b1e0b-7994-5e96-9132-d79e75d7a8a4',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagiccinemacamera/techspecs
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagiccinemacamera/techspecs',
+      name: 'Blackmagic Cinema Camera 6K',
+      category: CAM,
+      subtitle: 'cinema',
+      notes: 'Full Frame (36×24) · L mount · 6K/4K/HD · Full-frame, L-mount native; EF/PL/Nikon F via adapter',
+      inputs: [
+        port('Mini-XLR Ch1 In', 'Mini-XLR'),
+        port('Mini-XLR Ch2 In', 'Mini-XLR'),
+        port('Stereo In', 'Jack 3.5 mm TRS'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out'),
+        port('Headphones', 'Jack 3.5 mm TRS'),
+      ],
+      width: 200, height: 160,
+    },
+  },
+
+  // Cinema Camera 6K L — die L-Mount-Kamera, die Blackmagic heute schlicht
+  // „Cinema Camera 6K" nennt; die Quelle fuehrt sie unter zweitem Namen.
+  // Dieselbe Tech-Specs-Seite, dieselben Buchsen.
+  {
+    match: ['cinema camera', '6k l'],
+    deviceTypeId: 'cf44e80a-a65b-5ef1-8765-aa618181d4be',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagiccinemacamera/techspecs
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagiccinemacamera/techspecs',
+      name: 'Blackmagic Cinema Camera 6K L',
+      category: CAM,
+      subtitle: 'cinema',
+      notes: 'Full Frame (36×24) · L mount · 6K/4K',
+      inputs: [
+        port('Mini-XLR Ch1 In', 'Mini-XLR'),
+        port('Mini-XLR Ch2 In', 'Mini-XLR'),
+        port('Stereo In', 'Jack 3.5 mm TRS'),
+      ],
+      outputs: [
+        hdmiOut('HDMI Out'),
+        port('Headphones', 'Jack 3.5 mm TRS'),
+      ],
+      width: 200, height: 160,
+    },
+  },
+
+  // PYXIS 6K — 12G-SDI Out, Sucher-USB-C (Video/Power/Daten), Mini-XLR,
+  // 3.5 mm Stereo In, eine BNC fuer Ref (Tri-Sync/BB) ODER TC, 1G Ethernet
+  {
+    match: ['pyxis', '6k'],
+    deviceTypeId: '4abf7ac1-0b07-5989-a224-cc92c0ef1505',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicpyxis/techspecs
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicpyxis/techspecs',
+      name: 'Blackmagic PYXIS 6K',
+      category: CAM,
+      subtitle: 'cinema',
+      notes: 'Full Frame (36×24) · L mount · 6K/4K/HD · Full-frame box-style, L-mount native',
+      inputs: [
+        sdiIn('Ref/TC In'),
+        port('Mini-XLR In', 'Mini-XLR'),
+        port('Stereo In', 'Jack 3.5 mm TRS'),
+        eth('Ethernet 1G'),
+      ],
+      outputs: [
+        sdiOut('12G-SDI Out'),
+        port('Viewfinder USB-C', 'USB-C'),
+        port('Headphones', 'Jack 3.5 mm TRS'),
+      ],
+      width: 220, height: 200,
+    },
+  },
+
+  // PYXIS 12K — wie PYXIS 6K, aber 10G Ethernet
+  {
+    match: ['pyxis', '12k'],
+    deviceTypeId: '7e8134ec-792a-55e6-847c-1ed67801f942',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicpyxis/techspecs
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicpyxis/techspecs',
+      name: 'Blackmagic PYXIS 12K',
+      category: CAM,
+      subtitle: 'cinema',
+      notes: 'Full Frame (36×24) · L mount · 12K/8K/4K',
+      inputs: [
+        sdiIn('Ref/TC In'),
+        port('Mini-XLR In', 'Mini-XLR'),
+        port('Stereo In', 'Jack 3.5 mm TRS'),
+        eth('Ethernet 10G'),
+      ],
+      outputs: [
+        sdiOut('12G-SDI Out'),
+        port('Viewfinder USB-C', 'USB-C'),
+        port('Headphones', 'Jack 3.5 mm TRS'),
+      ],
+      width: 220, height: 200,
+    },
+  },
+
+  // URSA Cine 12K LF — 2x 12G-SDI Out, 2x XLR (Mic/Line/AES), Ref/TC In,
+  // Sucher-USB-C + 2x USB-C Monitor, 7-pin Lemo EXT, 3-pin Fischer RS,
+  // 10G Ethernet, Kopfhoerer
+  {
+    match: ['ursa cine', '12k'],
+    deviceTypeId: '8034b39a-46c9-52e8-959c-4d50e10ac229',
+    // Quelle: https://www.blackmagicdesign.com/products/blackmagicursacine
+    template: {
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicursacine',
+      name: 'Blackmagic URSA Cine 12K LF',
+      category: CAM,
+      subtitle: 'cinema',
+      notes: 'Full Frame (36×24) · PL mount · 12K/8K/4K · FF 36×24, RGBW-Sensor',
+      inputs: [
+        sdiIn('Ref/TC In'),
+        xlr('XLR Ch1 In'),
+        xlr('XLR Ch2 In'),
+        eth('Ethernet 10G'),
+      ],
+      outputs: [
+        sdiOut('12G-SDI Out 1'),
+        sdiOut('12G-SDI Out 2'),
+        port('Viewfinder USB-C', 'USB-C'),
+        port('Monitor USB-C 1', 'USB-C'),
+        port('Monitor USB-C 2', 'USB-C'),
+        port('EXT 7-pin Lemo', 'Custom'),
+        port('RS 3-pin Fischer', 'Custom'),
+        port('Headphones', 'Jack 3.5 mm TRS'),
+      ],
+      width: 240, height: 260,
+    },
+  },
+
   // URSA Mini Pro 12K (2020)
   // Output: 12G-SDI Out, HDMI Out; Audio: 2x XLR built-in (+2 via shoulder);
   // Control: Ref In, USB-C

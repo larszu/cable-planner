@@ -5,7 +5,7 @@
 // ║  Pruefen:    npm run katalog:check                                    ║
 // ╚═══════════════════════════════════════════════════════════════════════╝
 //
-// 361 Eintraege, davon 358 mit Datenblatt-Link.
+// 352 Eintraege, davon 349 mit Datenblatt-Link.
 //
 // JEDER EINTRAG TRAEGT `portsUnknown: true`. Die Quelle kennt keine
 // Anschluesse, und eine erfundene Belegung saehe im Plan genauso autoritativ
@@ -16,8 +16,8 @@
 //
 // ─── WARUM ZWEI KAMERA-KATALOGE ────────────────────────────────────────────
 //
-// `cameraCatalog.ts` fuehrt 20 Modelle MIT Datenblatt-Ports — von Hand
-// recherchiert, Buchse fuer Buchse. Diese Datei fuehrt die uebrigen 361
+// `cameraCatalog.ts` fuehrt 29 Modelle MIT Datenblatt-Ports — von Hand
+// recherchiert, Buchse fuer Buchse. Diese Datei fuehrt die uebrigen 352
 // Bodies OHNE. Die beiden zusammenzulegen hiesse, den Unterschied zwischen
 // „nachgesehen" und „noch nicht nachgesehen" zu verwischen — und genau der
 // ist die Auskunft, die jemand vor dem Bestellen braucht.
@@ -428,74 +428,6 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       portsUnknown: true,
     },
   },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagicursabroadcast/techspecs
-  {
-    match: ['blackmagicursabroadcastg2', 'ursabroadcastg2'],
-    deviceTypeId: '2b3a40b1-55a3-5e5d-b65c-5b7bd35c69f1',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicursabroadcast/techspecs',
-      name: 'Blackmagic URSA Broadcast G2',
-      category: CAM,
-      subtitle: 'broadcast',
-      notes: 'BMD 6K (23.1×12.99) · B4 mount · 6K/4K/HD · B4 native, EF/PL via adapter. Broadcast camera with cinema sensor.',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera/techspecs
-  {
-    match: ['blackmagicpocketcinema6kpro', 'pocketcinema6kpro'],
-    deviceTypeId: '061f2b91-763f-5a77-8ff6-280c35179329',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicpocketcinemacamera/techspecs',
-      name: 'Blackmagic Pocket Cinema 6K Pro',
-      category: CAM,
-      subtitle: 'cinema',
-      notes: 'Super 35 (24.6×13.8) · EF mount · 6K/4K/HD',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagiccinemacamera/techspecs
-  {
-    match: ['blackmagiccinemacamera6k', 'cinemacamera6k'],
-    deviceTypeId: '9f9b1e0b-7994-5e96-9132-d79e75d7a8a4',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagiccinemacamera/techspecs',
-      name: 'Blackmagic Cinema Camera 6K',
-      category: CAM,
-      subtitle: 'cinema',
-      notes: 'Full Frame (36×24) · L mount · 6K/4K/HD · Full-frame, L-mount native; EF/PL/Nikon F via adapter',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagicpyxis/techspecs
-  {
-    match: ['blackmagicpyxis6k', 'pyxis6k'],
-    deviceTypeId: '4abf7ac1-0b07-5989-a224-cc92c0ef1505',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicpyxis/techspecs',
-      name: 'Blackmagic PYXIS 6K',
-      category: CAM,
-      subtitle: 'cinema',
-      notes: 'Full Frame (36×24) · L mount · 6K/4K/HD · Full-frame box-style, L-mount native',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
   // Quelle: https://www.blackmagicdesign.com/products/blackmagicstudiocamera
   {
     match: ['blackmagicstudiocamera4kplus', 'studiocamera4kplus'],
@@ -506,40 +438,6 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       category: CAM,
       subtitle: 'broadcast',
       notes: 'Micro Four Thirds · MFT mount · 4K/HD',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagicstudiocamera/techspecs/W-CST-11
-  {
-    match: ['blackmagicstudiocamera6kpro', 'studiocamera6kpro'],
-    deviceTypeId: 'f44f3f5e-6dde-5579-ab72-0c84c04470c2',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicstudiocamera/techspecs/W-CST-11',
-      name: 'Blackmagic Studio Camera 6K Pro',
-      category: CAM,
-      subtitle: 'broadcast',
-      notes: 'Super 35 (24.6×13.8) · EF mount · 6K/4K/HD',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagicmicrostudiocamera/techspecs
-  {
-    match: ['blackmagicmicrostudiocamera4kg2', 'microstudiocamera4kg2'],
-    deviceTypeId: 'b098dca6-ba66-5fe4-88bf-63199fc3c574',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicmicrostudiocamera/techspecs',
-      name: 'Blackmagic Micro Studio Camera 4K G2',
-      category: CAM,
-      subtitle: 'broadcast',
-      notes: 'Micro Four Thirds · MFT mount · 4K/HD · Micro form factor, MFT native, EF via adapter or EF Speedbooster',
       width: 240,
       height: 160,
       inputs: [],
@@ -1645,23 +1543,6 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       category: CAM,
       subtitle: 'cinema',
       notes: 'VistaVision (40.96×21.6) · RF mount · 8K/6K/4K · Global Shutter',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagicursacine
-  {
-    match: ['blackmagicursacine12klf', 'ursacine12klf'],
-    deviceTypeId: '8034b39a-46c9-52e8-959c-4d50e10ac229',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicursacine',
-      name: 'Blackmagic URSA Cine 12K LF',
-      category: CAM,
-      subtitle: 'cinema',
-      notes: 'Full Frame (36×24) · PL mount · 12K/8K/4K · FF 36×24, RGBW-Sensor',
       width: 240,
       height: 160,
       inputs: [],
@@ -3454,23 +3335,6 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       portsUnknown: true,
     },
   },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagicpyxis/techspecs
-  {
-    match: ['blackmagicpyxis12k', 'pyxis12k'],
-    deviceTypeId: '7e8134ec-792a-55e6-847c-1ed67801f942',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicpyxis/techspecs',
-      name: 'Blackmagic PYXIS 12K',
-      category: CAM,
-      subtitle: 'cinema',
-      notes: 'Full Frame (36×24) · L mount · 12K/8K/4K',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
   // Quelle: https://www.nikonusa.com/p/zr/2006/overview
   {
     match: ['nikonzrredcinema', 'zrredcinema'],
@@ -4023,23 +3887,6 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       category: CAM,
       subtitle: 'cinema',
       notes: 'ARRI 65 (54.12×25.59) · XPL mount · 6.5K/4K · 65-mm-Format, XPL',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://www.blackmagicdesign.com/products/blackmagiccinemacamera/techspecs
-  {
-    match: ['blackmagiccinemacamera6kl', 'cinemacamera6kl'],
-    deviceTypeId: 'cf44e80a-a65b-5ef1-8765-aa618181d4be',
-    template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagiccinemacamera/techspecs',
-      name: 'Blackmagic Cinema Camera 6K L',
-      category: CAM,
-      subtitle: 'cinema',
-      notes: 'Full Frame (36×24) · L mount · 6K/4K',
       width: 240,
       height: 160,
       inputs: [],
