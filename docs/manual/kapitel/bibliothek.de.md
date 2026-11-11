@@ -40,7 +40,7 @@ Der Unterreiter *Lokal* zeigt die Vorlagen nach Kategorien. Jede Kategorie ist e
 
 ![Aufgeklappte Kategorie](bilder/de/bibliothek-12-kategorie-aufklappen.jpg)
 
-Jeder Eintrag zeigt den Namen und darunter die Kategorie mit der Zahl der Ein- und Ausgänge. Das **L** vor dem Namen kennzeichnet ein lokales Gerät (nicht aus Rentman). Ein Klick markiert den Eintrag und zeigt seine Vorlage im Inspector; ein Doppelklick oder Ziehen auf den Canvas platziert das Gerät. Beim Zeigen auf einen Eintrag erscheinen vier Knöpfe:
+Jeder Eintrag zeigt den Namen und darunter die Kategorie mit der Zahl der Ein- und Ausgänge. Das **L** vor dem Namen kennzeichnet ein lokales Gerät (nicht aus Rentman). Ein Klick markiert den Eintrag und zeigt seine Vorlage im Inspector; bei einer eigenen Vorlage stehen dort Ein- und Ausgänge als bearbeitbare Port-Listen (derselbe Editor wie am platzierten Gerät: hinzufügen, entfernen, ordnen, Stecker, Signal, Richtung). Änderungen gelten sofort für die Vorlage; bereits platzierte Geräte behalten ihre Ports; ein Doppelklick oder Ziehen auf den Canvas platziert das Gerät. Beim Zeigen auf einen Eintrag erscheinen vier Knöpfe:
 
 | Knopf | Wirkung |
 |---|---|
@@ -105,6 +105,8 @@ Kategorien ordnen die Vorlagen. Beim Zeigen auf den Kategoriestreifen erscheint 
    ![Eintrag in eine Kategorie ziehen](bilder/de/bibliothek-52-eintrag-in-kategorie-ziehen.jpg)
 
 4. Neue Kategorien entstehen über das Menü **+** (siehe unten).
+
+5. Neben dem Stift erscheint ein Ordner-Plus-Knopf, *Neue Unterkategorie*. Er fragt nach einem Namen und legt eine Unterkategorie an, die eingerückt unter ihrer Oberkategorie steht (zum Beispiel Audio → Lautsprecher). Klappt die Oberkategorie zu, verschwinden ihre Unterkategorien; die Zahl an einer Kategorie zählt ihre Unterkategorien mit. Beim Umbenennen einer Kategorie ziehen ihre Unterkategorien mit. Eine Unterkategorie hat die Fachdaten ihrer obersten Kategorie. Intern steht die Kategorie als Pfad `Audio/Lautsprecher`; dieselbe Schreibweise als Kategorie im Inspector der Vorlage funktioniert ebenso.
 
    ![Neue, leere Kategorie](bilder/de/bibliothek-55-kategorie-umbenannt.jpg)
 

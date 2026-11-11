@@ -18,7 +18,7 @@ import { infoDialog } from '../../lib/infoDialog'
 import { useTranslation, format } from '../../lib/i18n'
 import { parseGdtf, type GdtfTyp } from '../../lib/gdtf/gdtf'
 import { parseMvr, type MvrSzene } from '../../lib/gdtf/mvr'
-import { findeVorlage, mvrGeraete, mvrTypen, vorlageAusGdtf } from '../../lib/gdtf/zuordnung'
+import { automatischerMassstab, findeVorlage, mvrGeraete, mvrTypen, vorlageAusGdtf } from '../../lib/gdtf/zuordnung'
 import { pxProMeterAusKalibrierung } from '../../lib/gdtf/massstab'
 import type { EquipmentTemplate } from '../../types/equipment'
 
@@ -46,7 +46,8 @@ export const GdtfMvrImportDialog = () => {
   const [wahl, setWahl] = useState<Record<string, string>>({})
   const planMassstab = grundriss?.kalibrierung ? pxProMeterAusKalibrierung(grundriss.kalibrierung) : null
   const [pxProM, setPxProM] = useState<number | null>(null)
-  const massstab = pxProM ?? planMassstab ?? STANDARD_PX_PRO_M
+  const autoMassstab = useMemo(() => (szene ? automatischerMassstab(szene.szene) : STANDARD_PX_PRO_M), [szene])
+  const massstab = pxProM ?? planMassstab ?? autoMassstab
 
   const typen = useMemo(() => (szene ? mvrTypen(szene.szene, customLibrary) : []), [szene, customLibrary])
   const nachName = useMemo(() => new Map(customLibrary.map((v) => [v.name, v])), [customLibrary])
@@ -297,7 +298,7 @@ export const GdtfMvrImportDialog = () => {
               <span className="text-cp-text-muted">
                 {planMassstab
                   ? t('mvrImport.scaleFromPlan', 'from the calibrated floor plan')
-                  : t('mvrImport.scaleDefault', 'calibrate the floor plan to place the devices true to scale')}
+                  : t('mvrImport.scaleAuto', 'chosen so that no devices overlap — calibrate the floor plan to place them true to scale')}
               </span>
             </label>
           </>

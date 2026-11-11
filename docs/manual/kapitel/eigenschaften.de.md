@@ -70,7 +70,7 @@ Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie,
    | Feld | Werte |
    |---|---|
    | Inhalt / Funktion | freier Text, z. B. „PGM“ |
-   | Richtung | Richtung (auto), Nur Input, Nur Output, Bidirektional (z.B. Netzwerk) |
+   | Richtung | Richtung (auto), Nur Input, Nur Output, *Ein-/Ausgang (z. B. speakON, etherCON, Netzwerk)* (ein solcher Port kann Kabelquelle und Kabelziel sein) |
    | Seite | Seite (auto), Links, Rechts |
    | Geschlecht | Geschlecht (–), ♂ Male / Stecker, ♀ Female / Buchse |
    | Gruppe | — Kein —, vorhandene Gruppen, *+ Neue Gruppe …* |
@@ -97,7 +97,7 @@ Freies Feld für alles, was kein eigenes Feld hat, etwa Web-Oberfläche, Firmwar
 
 #### Rentman-Hinweis und Kategorie
 
-Ist das Modul Rentman eingeschaltet und das Gerät nicht im verknüpften Rentman-Plan, steht dort *Nicht im Rentman-Plan erfasst*. Darunter wählt *Kategorie* die Geräteart; *+ Neue Kategorie…* legt eine eigene an. Der Abschnitt *Fachdaten — <Kategorie>* zeigt die Felder dieser Art, bei Monitoren etwa Panel-Typ, HDR, Helligkeit, Bildrate und Farbraum.
+Ist das Modul Rentman eingeschaltet und das Gerät nicht im verknüpften Rentman-Plan, steht dort *Nicht im Rentman-Plan erfasst*. Darunter wählt *Kategorie* die Geräteart; *+ Neue Kategorie…* legt eine eigene an. Der Abschnitt *Fachdaten — <Kategorie>* zeigt die Felder dieser Art, bei Monitoren etwa Panel-Typ, HDR, Helligkeit, Bildrate und Farbraum. Die Audio-Fachdaten sind *Typ* (Endstufe/Lautsprecher), *Impedanz* (Ω), *Belastbarkeit (RMS/AES)* (W), *Mindestlast je Kanal* (Ω) und *Leistung je Kanal* (W); der Plan-Check *Endstufenlast* nutzt sie.
 
 ![Fachdaten eines Monitors](bilder/de/eigenschaften-147-monitor-spezifikation.jpg)
 

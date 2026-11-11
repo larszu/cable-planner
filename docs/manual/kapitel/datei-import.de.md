@@ -270,6 +270,25 @@ Die Datei kann auch über *CSV-Datei wählen…* kommen; der Inhalt landet im se
 
 ![Dialog nach der Dateiwahl](bilder/de/datei-import-29-csv-datei-gewaehlt.jpg)
 
+### Import GDTF / MVR
+
+*Datei → GDTF / MVR importieren…* (auch in der Befehlspalette) öffnet den Dialog. *.gdtf- oder .mvr-Datei(en) wählen…* nimmt eine MVR-Datei oder mehrere .gdtf-Dateien auf einmal.
+
+**GDTF.** Jede Datei wird eine Bibliotheksvorlage in der Kategorie Lighting. Sie trägt:
+
+- Name (Hersteller + Typ) und Kurzname,
+- DMX-Modi mit Kanalumfang, auch bei Geräten mit mehreren Zellen über Geometrie-Verweise (Quelle „GDTF file"),
+- Leistung (W) und Gewicht (kg),
+- die Anschlüsse aus der Datei (GDTF-1.2-Verdrahtungsobjekte oder die ältere Anschlussliste), abgebildet auf die Anschlussnamen des Planers, etwa NAC3FCA → PowerCON, PowerconTRUE1 → powerCON TRUE1, XLR5 → DMX 5-pol (XLR), RJ45 → Ethernet/RJ45, 16A-CEE → CEE16. Unbekannte Namen bleiben, wie sie in der Datei stehen.
+
+Nennt eine Datei keine Anschlüsse, gelten DMX In und DMX Thru (5-polig) als angenommen; die Notizen der Vorlage sagen das.
+
+Die Tabelle zeigt je Datei Typ, DMX-Modi, Anschlüsse und ob die Vorlage schon in der Bibliothek ist (*schon da: …*) oder *neu*. *In die Bibliothek* legt nur die neuen an; vorhandene Vorlagen werden nicht überschrieben. Zuerst zählt dieselbe FixtureTypeID (Geräte-Typ-ID), dann derselbe Name.
+
+**MVR.** Der Dialog listet jeden GDTF-Typ der Szene mit Anzahl und einem Vorlagenfeld. Es schlägt eine Vorlage aus der Bibliothek vor; leer heißt: neue Vorlage aus dem eingebetteten GDTF. Sie können jede Bibliotheksvorlage eintippen oder wählen. Traversen und Dekorationsobjekte werden übersprungen; der Dialog zeigt ihre Zahl. Geräte werden Fixtures, Videowände, Projektoren und Stützen.
+
+*Geräte platzieren* setzt sie in der Draufsicht (MVR-x nach rechts, y nach oben). Die obere linke Ecke liegt an der oberen linken Ecke des Hallenplans, ohne Hallenplan bei 100/100. Der Maßstab kommt vom kalibrierten Hallenplan oder aus dem Feld *Maßstab (px je Meter)* (ohne kalibrierten Hallenplan so gewählt, dass sich keine Geräte überdecken). Jedes Gerät erhält den MVR-Namen, die FixtureID als Untertitel sowie DMX-Modus, Universum und Startadresse aus dem MVR. Die Adresse gilt als von Hand gesetzt; die automatische Adressvergabe verschiebt sie nicht. Das Platzieren ist ein Rückgängig-Schritt.
+
 ### Rentman-Import
 
 *Datei → Rentman-Import…* lädt die Geräte eines Rentman-Projekts in die Bibliothek. Der Import legt Vorlagen an, platziert aber nichts auf dem Canvas.

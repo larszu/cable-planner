@@ -3448,7 +3448,7 @@ export const de: Dict = {
   'mvrImport.unknownTemplate': 'Nicht in der Bibliothek – es wird eine neue Vorlage angelegt',
   'mvrImport.scale': 'Maßstab (px je Meter)',
   'mvrImport.scaleFromPlan': 'aus dem kalibrierten Hallenplan',
-  'mvrImport.scaleDefault': 'Hallenplan kalibrieren, um maßstäblich zu platzieren',
+  'mvrImport.scaleAuto': 'so gewählt, dass sich keine Geräte überdecken – Hallenplan kalibrieren, um maßstäblich zu platzieren',
   'mvrImport.doneTitle': 'MVR importiert',
   'mvrImport.doneBody': '{n} Gerät(e) platziert. Neue Vorlagen in der Bibliothek: {neu}.',
   'library.renameCategory': 'Kategorie umbenennen',

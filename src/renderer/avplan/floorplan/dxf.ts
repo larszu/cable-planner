@@ -121,7 +121,7 @@ export class DxfFehler extends Error {}
 
 export function dxfLesen(text: string): VektorZeichnung {
   const paare = paareLesen(text)
-  if (!paare.some(([c, v]) => c === 0 && v.trim() === 'SECTION')) throw new DxfFehler('Keine DXF-Datei (ASCII) — binaere DXF und DWG werden nicht gelesen.')
+  if (!paare.some(([c, v]) => c === 0 && v.trim() === 'SECTION')) throw new DxfFehler('Keine DXF-Datei (ASCII) — binäre DXF und DWG werden nicht gelesen.')
   // Abschnitte finden
   const abschnitte = new Map<string, [number, number]>()
   for (let i = 0; i < paare.length; i++) {
@@ -305,7 +305,7 @@ export function dxfLesen(text: string): VektorZeichnung {
     if (p.y > maxY) maxY = p.y
   }
   for (const p of pfade) for (const t of p.teile) for (const q of t) nimm(q)
-  if (!Number.isFinite(minX)) throw new DxfFehler('Die DXF-Datei enthaelt keine lesbare Geometrie.')
+  if (!Number.isFinite(minX)) throw new DxfFehler('Die DXF-Datei enthält keine lesbare Geometrie.')
   return { quelle: 'dxf', breite: maxX - minX, hoehe: maxY - minY, minX, minY, pfade, texte, meterJeEinheit }
 }
 

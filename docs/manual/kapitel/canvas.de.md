@@ -66,7 +66,7 @@ Auf einem Telefon zeigt die Leiste nur den Griff, *Defaults* und *Mehr*; Rahmen,
 | | *Kabelbrücken bei Kreuzungen* | Kreuzungen werden als kleine Brücke gezeichnet. Pro Kabel lässt sich das im Kontextmenü überschreiben. |
 | | *Alle Kabel-Labels ausblenden* | Die Beschriftungen aller Kabel verschwinden; ihre Lage bleibt gespeichert. |
 | | *Kabel-Labels: Kurzform* | Das Format-Suffix (zum Beispiel „(1080p50/60)") wird aus der Anzeige entfernt. Der volle Name bleibt in den Kabel-Eigenschaften. |
-| | *Ports nach Connector-Typ einfärben* | Anschlüsse erhalten die Farbe ihres Steckertyps (SDI amber, HDMI violett, Ethernet grün und so weiter). |
+| | *Ports nach Connector-Typ einfärben* | Standardmäßig an. Anschlüsse erhalten die Farbe ihres Steckertyps (SDI amber, HDMI violett, Ethernet grün und so weiter). |
 
 Das Routing wirkt auf Kabel, die danach entstehen. Bereits gezeichnete Kabel behalten ihre Form (siehe [Kabel bearbeiten](#kabel-bearbeiten)).
 
@@ -86,7 +86,7 @@ Das Routing wirkt auf Kabel, die danach entstehen. Bereits gezeichnete Kabel beh
 
 5. *Alle Kabel-Labels ausblenden* entfernt die Beschriftungen vom Plan.
 
-6. *Ports nach Connector-Typ einfärben* färbt die Anschlüsse nach Steckertyp.
+6. *Ports nach Connector-Typ einfärben* färbt die Anschlüsse nach Steckertyp (standardmäßig an); XLR- und Cat-Ports eines Geräts sehen so verschieden aus.
 
    ![Farbige Anschlüsse](bilder/de/canvas-defaults-16-ports-nach-typ-flaeche.jpg)
 
@@ -96,7 +96,8 @@ Zusätzlich färbt der Eintrag *Kabelfarbe nach Gewerk* im Menü *Ansicht* die K
 
 - **Klick** auf ein Gerät markiert es; der Inspector rechts zeigt seine Eigenschaften.
 - **Umschalt**, **Strg** oder **Cmd** plus Klick fügt weitere Geräte hinzu oder nimmt sie wieder heraus.
-- **Umschalt** gedrückt halten und auf freier Fläche ziehen spannt ein Auswahlrechteck auf.
+- **Umschalt** oder **Alt** (Mac: **Option**) gedrückt halten und auf freier Fläche ziehen spannt ein Auswahlrechteck auf.
+- Nach *Einfügen* (Strg/Cmd+V) oder *Duplizieren* (Strg/Cmd+D) sind die Kopien gemeinsam markiert und lassen sich zusammen verschieben.
 - *Bearbeiten → Alles auswählen* markiert alle Geräte.
 - Ein Klick auf freie Fläche hebt die Auswahl auf.
 
@@ -108,7 +109,7 @@ Zusätzlich färbt der Eintrag *Kabelfarbe nach Gewerk* im Menü *Ansicht* die K
 
    ![Zwei Geräte markiert](bilder/de/canvas-auswahl-04-zwei-geraete.jpg)
 
-3. Ziehen Sie mit gedrückter Umschalt-Taste ein Rechteck über mehrere Geräte.
+3. Ziehen Sie mit gedrückter Umschalt- oder Alt-Taste ein Rechteck über mehrere Geräte.
 
    ![Auswahlrechteck](bilder/de/canvas-auswahl-07-rechteck.jpg)
 
@@ -373,7 +374,9 @@ Ein Rahmen ist ein farbiges Rechteck, das Geräte zu einem Ort oder Raum zusamme
 
 8. *Rahmen löschen* fragt *Rahmen „…" löschen?* — nur der Rahmen verschwindet, die Geräte bleiben.
 
-9. Markieren Sie mehrere Geräte und klicken Sie *Rahmen*, um einen Rahmen um sie zu ziehen.
+9. Strg/Cmd+C, V und D kopieren, fügen ein und duplizieren auch markierte Rahmen. Ein Rahmen wird samt den Geräten darin und den Kabeln zwischen diesen Geräten kopiert; die Kopie erscheint neben dem Original (um die Rahmenbreite versetzt). Das Rechtsklick-Menü bietet dafür *Rahmen mit Inhalt duplizieren*.
+
+10. Markieren Sie mehrere Geräte und klicken Sie *Rahmen*, um einen Rahmen um sie zu ziehen.
 
    ![Rahmen um die Auswahl](bilder/de/canvas-rahmen-13-rahmen-um-auswahl-fertig.jpg)
 
@@ -602,7 +605,7 @@ Den **Maßstab** setzen Sie auf zwei Wegen.
 
 11. Eine Datei, die kein Bild ist, weist die App ab: *Diese Datei ist kein Hallenplan-Bild. Verwende PNG, JPG, WebP, GIF, BMP oder AVIF.*
 
-**PDF.** Ein PDF wird als Bild der Seite geladen. Hat es mehrere Seiten, erscheint im Panel *PDF-Seite* mit der Seitennummer und *von n*; eine andere Seite ersetzt den Plan an derselben Stelle mit derselben Deckkraft.
+**PDF.** Ein PDF wird als Bild der Seite geladen (bis 6000 px an der längsten Kante, damit der Plan beim Hineinzoomen lesbar bleibt). Hat es mehrere Seiten, erscheint im Panel *PDF-Seite* mit der Seitennummer und *von n*; eine andere Seite ersetzt den Plan an derselben Stelle mit derselben Deckkraft.
 
 12. Laden Sie ein PDF.
 

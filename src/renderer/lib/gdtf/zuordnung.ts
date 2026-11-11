@@ -227,6 +227,26 @@ export interface MvrPlatzierung {
   ursprung: { x: number; y: number }
 }
 
+/**
+ * Massstab ohne kalibrierten Hallenplan: so gross, dass keine zwei Geraete
+ * sich ueberdecken (Kachel 200 × 140 plus Luft), hoechstens `max` px/m. Ein
+ * Rig mit 50 cm Abstand auf der Traverse waere bei festem Massstab ein Stapel.
+ */
+export const automatischerMassstab = (szene: MvrSzene, min = 40, max = 400): number => {
+  const o = szene.objekte.filter((x) => KABEL_ARTEN.includes(x.art))
+  let pxProMm = min / 1000
+  for (let i = 0; i < o.length; i++) {
+    for (let j = i + 1; j < o.length; j++) {
+      const dx = Math.abs(o[i].x - o[j].x)
+      const dy = Math.abs(o[i].y - o[j].y)
+      if (dx < 1 && dy < 1) continue
+      const noetig = Math.min(dx >= 1 ? 220 / dx : Infinity, dy >= 1 ? 160 / dy : Infinity)
+      if (noetig > pxProMm) pxProMm = noetig
+    }
+  }
+  return Math.min(max, Math.round(pxProMm * 1000))
+}
+
 const neuePorts = (ports: Port[]): Port[] => ports.map((p) => ({ ...p, id: uuidv4() }))
 
 /**

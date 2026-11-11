@@ -276,6 +276,8 @@ The connection list shows every network connection with device, interface, IP, V
 
 *Tools → Plan check…* finds gaps and contradictions in the plan. The check runs continuously against the current plan, not only on saving. At the top are the counts of findings by severity (errors, warnings, infos) and the total. Each row names the kind (for example *Duplicate cable number*, *Duplicate IP*, *House outlet*, *Fibre breakout*) and the finding. Clicking a row selects the affected object in the plan. In the status bar at the bottom, three coloured counters show the same state.
 
+*Amplifier load* checks every output channel of an amplifier. The loudspeakers connected to it, directly or daisy-chained via the speakers' link sockets, count as parallel: Z = 1/Σ(1/Zi). If Z is below the amplifier's *Minimum load per channel*, that is an error. If a loudspeaker gets more than twice its *Power handling (RMS/AES)*, that is a warning; its share is channel power × Z/Zi. If a connected loudspeaker has no impedance, an info appears. The values come from the Audio specialist data (see [Inspector](#6-inspector)).
+
 ![Plan check](bilder/en/werkzeuge-planen-148-check-offen.jpg)
 
 ![Status bar with counters](bilder/en/werkzeuge-planen-147-statusleiste.jpg)

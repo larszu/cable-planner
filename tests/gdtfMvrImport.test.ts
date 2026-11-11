@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { strToU8, zipSync } from 'fflate'
 import { parseGdtf, parseGdtfXml } from '../src/renderer/lib/gdtf/gdtf'
 import { parseAdresse, parseMvr, parseMvrXml } from '../src/renderer/lib/gdtf/mvr'
-import { findeVorlage, mvrGeraete, mvrTypen, steckerAusGdtf, vorlageAusGdtf } from '../src/renderer/lib/gdtf/zuordnung'
+import { automatischerMassstab, findeVorlage, mvrGeraete, mvrTypen, steckerAusGdtf, vorlageAusGdtf } from '../src/renderer/lib/gdtf/zuordnung'
 import type { EquipmentTemplate } from '../src/renderer/types/equipment'
 
 // Ein Geraet mit 16-bit-Dimmer, Fussabdruck 5, und ein Pixel-Balken mit vier
@@ -161,6 +161,12 @@ describe('MVR lesen (#1206)', () => {
     // Jede Instanz bekommt eigene Port-Ids.
     const b = geraete.find((g) => g.name === 'Bar B')!
     expect(a.inputs[0].id).not.toBe(b.inputs[0].id)
+  })
+
+  it('waehlt den Massstab so, dass sich keine Kacheln ueberdecken', () => {
+    const szene = parseMvr(zipSync({ 'GeneralSceneDescription.xml': strToU8(MVR) }))
+    // Engster Abstand: F1/F3 bzw. F1/F2 je 1000 mm in x → 220 px/m.
+    expect(automatischerMassstab(szene)).toBe(220)
   })
 
   it('findet eine Vorlage ueber die Typ-Id vor dem Namen', () => {

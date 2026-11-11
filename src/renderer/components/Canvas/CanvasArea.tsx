@@ -778,6 +778,11 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   useEffect(() => {
     const changedIds: string[] = []
     const projectChanged = projectVersion !== lastSyncedProjectVersionRef.current
+    // Ausserhalb des Updaters lesen und leeren: StrictMode ruft ihn doppelt
+    // auf, und ein Updater, der die Liste leert, saehe beim zweiten Mal nichts.
+    const neuAuswaehlen = new Set<string>()
+    const pending = pendingSelectIdsRef.current
+    for (const n of nodes) if (pending.delete(n.id)) neuAuswaehlen.add(n.id)
     setRfNodes((current) => {
       const currentById = new Map(current.map((n) => [n.id, n]))
       // When a different project was just loaded, throw away ALL local rfNode
@@ -798,10 +803,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // "existing nodes jump when adding from library" bug.
       return nodes.map((n) => {
         const existing = currentById.get(n.id)
-        if (!existing) {
-          if (!pendingSelectIdsRef.current.delete(n.id)) return n
-          return { ...n, selected: true }
-        }
+        if (!existing) return neuAuswaehlen.has(n.id) ? { ...n, selected: true } : n
         // Track nodes whose data changed so we can call updateNodeInternals
         // below. This tells ReactFlow to re-register handle positions so
         // cable edges re-route to the correct port after port edits (#20).

@@ -70,7 +70,7 @@ The section has two lists, *Inputs* and *Outputs*. The header counts them, e.g. 
    | Field | Values |
    |---|---|
    | Content / function | free text, e.g. “PGM” |
-   | Direction | Direction (auto), Input only, Output only, Bidirectional (e.g. network) |
+   | Direction | Direction (auto), Input only, Output only, *Input / output (e.g. speakON, etherCON, network)* (such a port can be cable source and target) |
    | Side | Side (auto), Left, Right |
    | Gender | Gender (–), ♂ Male / plug, ♀ Female / socket |
    | Group | — None —, existing groups, *+ New group…* |
@@ -97,7 +97,7 @@ Free field for anything that has no field of its own, such as web interface, fir
 
 #### Rentman notice and category
 
-With the Rentman module enabled and the device missing from the linked Rentman plan, the inspector shows *Not tracked in Rentman plan*. Below it, *Category* picks the kind of device; *+ New category…* creates your own. The section *Specs — <category>* shows the fields of that kind, for monitors panel type, HDR, brightness, frame rate and colour space.
+With the Rentman module enabled and the device missing from the linked Rentman plan, the inspector shows *Not tracked in Rentman plan*. Below it, *Category* picks the kind of device; *+ New category…* creates your own. The section *Specs — <category>* shows the fields of that kind, for monitors panel type, HDR, brightness, frame rate and colour space. The Audio specialist data are *Type* (amplifier/loudspeaker), *Impedance* (Ω), *Power handling (RMS/AES)* (W), *Minimum load per channel* (Ω) and *Power per channel* (W); the plan check *Amplifier load* uses them.
 
 ![Category data of a monitor](bilder/en/eigenschaften-147-monitor-spezifikation.jpg)
 

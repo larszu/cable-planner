@@ -5,7 +5,7 @@
   "hinweis": "Kopie eines Suite-Pakets (ADR-015). Nicht hier aendern: in av-planner-suite/packages aendern und mit `npm run pakete:verteilen` neu kopieren.",
   "dateien": {
     "bemassung.ts": "111191d0a2f87db945d4c77c8d7c63fbeb3373453f3881868f79e74ceaadbebb",
-    "dxf.ts": "b01cbfbcd7407ef5e3c5c37adcdb356f1ab19a94fefe0c9f5add5ba6fa0c8437",
+    "dxf.ts": "c3368ec7d89d12b604ad3e53c566b78241b1f381aa436dd4a96f0797b603cebf",
     "einrasten.ts": "b839bc98b6191903c1c27ffdfa321646b64c14d1e4420368774f05f1a8e6d366",
     "index.ts": "159efc656fcb9a52a1860c5ccb0a8a4e0301aece5cbd273ec627d911612de529",
     "kiPlan.ts": "c7fa50be12bcee4229f414da401362792f1cb8fce261e48378b8f5e241db1e2e",

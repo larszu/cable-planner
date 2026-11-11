@@ -40,7 +40,7 @@ The sub-tab *Local* shows the templates by category. Each category is a collapsi
 
 ![Opened category](bilder/en/bibliothek-12-kategorie-aufklappen.jpg)
 
-Each entry shows the name and below it the category with the number of inputs and outputs. The **L** before the name marks a local device (not from Rentman). A click selects the entry and shows its template in the Inspector; a double click or dragging onto the canvas places the device. When you point at an entry, four buttons appear:
+Each entry shows the name and below it the category with the number of inputs and outputs. The **L** before the name marks a local device (not from Rentman). A click selects the entry and shows its template in the Inspector; for an own template its inputs and outputs appear there as editable port lists (the same editor as on a placed device: add, remove, reorder, connector, signal, direction). Changes apply to the template immediately; devices already placed keep their ports; a double click or dragging onto the canvas places the device. When you point at an entry, four buttons appear:
 
 | Button | Effect |
 |---|---|
@@ -105,6 +105,8 @@ Categories order the templates. A pencil appears when you point at the category 
    ![Dragging an entry into a category](bilder/en/bibliothek-52-eintrag-in-kategorie-ziehen.jpg)
 
 4. New categories are created with the **+** menu (see below).
+
+5. Next to the pencil a folder-plus button appears, *New subcategory*. It asks for a name and creates a subcategory shown indented under its parent (for example Audio → Lautsprecher). Collapsing the parent hides its subcategories; the count on a category includes its subcategories. Renaming a category carries its subcategories along. A subcategory has the specialist data of its top category. Internally the category is stored as the path `Audio/Lautsprecher`; typing `Audio/Lautsprecher` as the category in the template inspector works too.
 
    ![New, empty category](bilder/en/bibliothek-55-kategorie-umbenannt.jpg)
 
