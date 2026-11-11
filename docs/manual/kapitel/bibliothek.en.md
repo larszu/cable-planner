@@ -226,6 +226,14 @@ The sub-tab *Shared* shows the shared device library (devices.zumpelars.de), rea
 
 ![Shared device library](bilder/en/bibliothek-58-geteilt-uebersicht.jpg)
 
+**Check, report, change.** Below each entry, *Check, report, change* opens three ways, all of which need a sign-in:
+
+- *Confirm* confirms the revision that is here — not “the device”. After a change in the device library the count starts over. Choose whether you checked *against the datasheet* or *on the device itself*; the firmware is optional. *Verified* needs three confirmations and at least one on the device, which is why the method is asked for instead of a thumbs-up. Nobody can confirm their own entry.
+- *Report an error* objects to the revision. An open objection overrules every confirmation until moderation has settled it, so a reason of at least ten characters is required — what is wrong, and where the correct value comes from.
+- *Propose a change* copies the template into your own templates. There it is editable; at the next upload the device library recognises manufacturer and model and turns it into a change proposal for this device — not a second device of the same name. A change to someone else's data needs a reason.
+
+If an entry comes from an older sync, it says *Update once*: without the revision number there is nothing to rate.
+
 ![Search in the shared library](bilder/en/bibliothek-59-geteilt-suche.jpg)
 
 *Sign in…* opens *Settings → Device library* with the server and the account.

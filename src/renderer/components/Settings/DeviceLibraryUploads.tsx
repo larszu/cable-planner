@@ -4,11 +4,13 @@
 // Trennung dazu. Die Trennung ist keine Formsache: an Hersteller + Modell
 // erkennt die Bibliothek dasselbe Geraet ueber alle Planner hinweg.
 // ───────────────────────────────────────────────────────────────────────────
-import { useMemo } from 'react'
-import { ExternalLink, RefreshCw } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ExternalLink, RefreshCw, ShieldCheck, ShieldOff } from 'lucide-react'
 import { format, useTranslation } from '../../lib/i18n'
 import { deviceUrl } from '../../lib/deviceLibraryClient'
 import { errorText } from '../../lib/deviceLibrary'
+import { consentCurrent } from '../../lib/deviceLibraryConsent'
+import { DeviceLibraryConsentDialog } from './DeviceLibraryConsentDialog'
 import { fingerabdruck, uploadItemAus } from '../../lib/deviceLibraryItem'
 import { eigeneVorlagen, namenFuer, type UploadEintrag } from '../../lib/deviceLibraryUpload'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -25,6 +27,23 @@ export const DeviceLibraryUploads = ({ server, signedIn }: { server: string; sig
   const t = useTranslation()
   const auto = useSettingsStore((s) => s.deviceLibraryAutoUpload)
   const setAuto = useSettingsStore((s) => s.setDeviceLibraryAutoUpload)
+  const consent = useSettingsStore((s) => s.deviceLibraryUploadConsent)
+  const setConsent = useSettingsStore((s) => s.setDeviceLibraryUploadConsent)
+  const erlaubt = consentCurrent(consent)
+  const [fragen, setFragen] = useState(false)
+  const session = useDeviceLibraryStore((s) => s.session)
+
+  // Gefragt wird beim Anmelden — dem einen Moment, in dem jemand gerade
+  // entscheidet, ob er mitmacht. Nicht beim Oeffnen der Einstellungen: ein
+  // Dialog, der ungefragt aufgeht, wird weggeklickt, und weggeklickt heisst
+  // hier „nein" — das soll eine Antwort sein und kein Reflex. Wer schon
+  // angemeldet ist, sieht stattdessen die Zeile darueber.
+  const vorher = useRef(session)
+  useEffect(() => {
+    const frisch = vorher.current !== 'signed-in' && session === 'signed-in'
+    vorher.current = session
+    if (frisch && !consent) setFragen(true)
+  }, [session, consent])
   const customLibrary = useProjectStore((s) => s.customLibrary)
   const uploads = useDeviceLibraryStore((s) => s.uploads)
   const uploading = useDeviceLibraryStore((s) => s.uploading)
@@ -84,8 +103,42 @@ export const DeviceLibraryUploads = ({ server, signedIn }: { server: string; sig
         'Templates you created or changed are uploaded to the device library; unchanged built-in templates are published by the project itself. Uploads go to moderation first.',
       )}
     >
-      <label className="flex items-center gap-2">
-        <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} />
+      {/* Die Zustimmung steht VOR dem Schalter, nicht als Fussnote darunter:
+          ohne sie bedeutet der Schalter nichts. Wer ihn ohne Zustimmung
+          einschaltet, bekommt den Dialog — und der Schalter folgt der
+          Entscheidung, nicht umgekehrt. */}
+      <div
+        className={`flex flex-wrap items-center gap-2 border p-2 ${
+          erlaubt ? 'border-cp-border-muted bg-cp-surface-2' : 'border-cp-warn/40 bg-cp-surface-2'
+        }`}
+      >
+        <Icon icon={erlaubt ? ShieldCheck : ShieldOff} size="xs" />
+        <span className={erlaubt ? 'text-cp-text' : 'text-cp-warn'}>
+          {erlaubt
+            ? format(t('deviceLibrary.consent.granted', 'Uploading allowed on {when}'), {
+                when: consent ? new Date(consent.at).toLocaleDateString() : '',
+              })
+            : consent
+              ? t('deviceLibrary.consent.stale', 'What gets uploaded has changed — nothing leaves until you look at it again.')
+              : t('deviceLibrary.consent.none', 'Not allowed: none of your own templates leave this installation.')}
+        </span>
+        <button type="button" onClick={() => setFragen(true)} className={knopf}>
+          {erlaubt ? t('deviceLibrary.consent.show', 'Show and withdraw') : t('deviceLibrary.consent.ask', 'Read and decide')}
+        </button>
+      </div>
+
+      <label className="mt-2 flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={auto && erlaubt}
+          onChange={(e) => {
+            if (e.target.checked && !erlaubt) {
+              setFragen(true)
+              return
+            }
+            setAuto(e.target.checked)
+          }}
+        />
         <span>
           {t('deviceLibrary.autoUpload', 'Upload my own devices automatically')}
           <span className="ml-1 text-cp-text-muted">
@@ -93,6 +146,20 @@ export const DeviceLibraryUploads = ({ server, signedIn }: { server: string; sig
           </span>
         </span>
       </label>
+
+      <DeviceLibraryConsentDialog
+        open={fragen}
+        server={server}
+        erneut={!!consent && !erlaubt}
+        onClose={() => setFragen(false)}
+        onDecide={(ok) => {
+          setConsent(ok)
+          // Zustimmen schaltet das Automatische ein — danach gefragt zu
+          // werden, ob es jetzt auch laufen darf, waere dieselbe Frage zweimal.
+          if (ok) setAuto(true)
+          setFragen(false)
+        }}
+      />
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <button
           type="button"

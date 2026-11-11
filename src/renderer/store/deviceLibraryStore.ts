@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { cablePlannerApi } from '../lib/bridge'
 import { effectiveServer, loadCache, runSync } from '../lib/deviceLibrary'
+import { consentCurrent } from '../lib/deviceLibraryConsent'
 import { useSettingsStore } from './settingsStore'
 import {
   loadUploadStand,
@@ -95,7 +96,19 @@ export const useDeviceLibraryStore = create<DeviceLibraryState>((set, get) => ({
 
   syncNow: async (server, bibliothek) => {
     if (get().uploading || get().syncing) return
+    // Erst den Stand des Servers laden, dann melden: `loadFor` raeumt bei
+    // einem Serverwechsel die alten Meldungen weg — danach gesetzt, waere
+    // der Grund sofort wieder fort.
     get().loadFor(server)
+    // DIE Sperre fuers Hochladen, und zwar hier und nicht nur beim Aufrufer:
+    // jeder Weg zu eigenen Vorlagen auf einem fremden Server fuehrt durch
+    // diese Funktion. Ohne Zustimmung wird nur geholt, nicht gesendet, und
+    // die Oberflaeche erfaehrt den Grund.
+    if (!consentCurrent(useSettingsStore.getState().deviceLibraryUploadConsent)) {
+      set({ uploadError: { code: 'consent-missing' } })
+      await get().sync(server)
+      return
+    }
     set({ uploading: true, uploadError: null })
     try {
       const r = await runUpload(cablePlannerApi.deviceLibrary, server, bibliothek)

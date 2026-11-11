@@ -263,6 +263,20 @@ const CLASSIFIED: Site[] = [
       'ist eine Beobachtung; was im Plan steht, eine Absicht."',
   },
   {
+    file: 'components/Library/tabs/DeviceLibraryBewerten.tsx',
+    verdict: 'additiv',
+    reason:
+      'Bewerten eines Gemeinschaftsgeraets (bestaetigen, beanstanden, aendern). ' +
+      'Gelesen wird aus der Gerätebibliothek — einem Fremdsystem — und zwar ' +
+      'nur der abgeglichene Stand, der ohnehin schon lokal liegt. In den Plan ' +
+      'schreibt die Datei NICHTS: „Aenderung vorschlagen" legt die Vorlage per ' +
+      '`addCustomTemplate` in die eigene Vorlagenliste, und zwar nur, wenn es ' +
+      'dort noch keine gleichnamige gibt — angehaengt, nie ersetzt. Platzierte ' +
+      'Geraete, Kabel und Routing bleiben unberuehrt; was der Server ueber ' +
+      'Status und Bestaetigungen sagt, kommt ueber den Abgleich in den Cache ' +
+      'und nicht in das Projekt.',
+  },
+  {
     file: 'components/Netbox/NetboxImportDialog.tsx',
     verdict: 'additiv',
     reason:

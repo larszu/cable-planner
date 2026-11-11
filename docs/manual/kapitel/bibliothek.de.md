@@ -226,6 +226,14 @@ Der Unterreiter *Geteilt* zeigt die gemeinsame Gerätebibliothek (devices.zumpel
 
 ![Geteilte Gerätebibliothek](bilder/de/bibliothek-58-geteilt-uebersicht.jpg)
 
+**Prüfen, melden, ändern.** Unter jedem Eintrag öffnet *Prüfen, melden, ändern* drei Wege, für die Sie angemeldet sein müssen:
+
+- *Bestätigen* bestätigt die Fassung, die hier liegt — nicht „das Gerät". Nach einer Änderung in der Gerätebibliothek zählt neu. Zu wählen ist, ob Sie *gegen das Datenblatt* oder *am Gerät selbst* geprüft haben; die Firmware ist freiwillig. *Verifiziert* braucht drei Bestätigungen und mindestens eine am Gerät, deshalb wird nach der Prüfart gefragt und nicht nach einem Daumen. Den eigenen Eintrag kann niemand bestätigen.
+- *Fehler melden* beanstandet die Fassung. Eine offene Beanstandung überstimmt jede Bestätigung, bis die Moderation sie geklärt hat; verlangt wird deshalb ein Grund von mindestens zehn Zeichen — was falsch ist und woher der richtige Wert kommt.
+- *Änderung vorschlagen* kopiert die Vorlage in die eigenen Vorlagen. Dort ist sie bearbeitbar; beim nächsten Hochladen erkennt die Gerätebibliothek Hersteller und Modell wieder und macht daraus einen Änderungsvorschlag für dieses Gerät — kein zweites Gerät gleichen Namens. Eine Änderung an fremden Daten braucht eine Begründung.
+
+Stammt ein Eintrag aus einem älteren Abgleich, steht dort *Einmal aktualisieren*: ohne die Fassungsnummer lässt sich nichts bewerten.
+
 ![Suche in der geteilten Bibliothek](bilder/de/bibliothek-59-geteilt-suche.jpg)
 
 *Anmelden…* öffnet *Einstellungen → Gerätebibliothek* mit dem Server und dem Konto.

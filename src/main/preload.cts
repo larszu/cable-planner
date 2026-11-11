@@ -101,8 +101,18 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     signOut: (server: string) => ipcRenderer.invoke('deviceLibrary:sign-out', server) as Promise<void>,
     sync: (server: string, after: number) =>
       ipcRenderer.invoke('deviceLibrary:sync', server, after) as Promise<unknown>,
-    propose: (server: string, core: Record<string, unknown>, facet: Record<string, unknown>) =>
-      ipcRenderer.invoke('deviceLibrary:propose', server, core, facet) as Promise<unknown>,
+    propose: (
+      server: string,
+      core: Record<string, unknown>,
+      facet: Record<string, unknown>,
+      opts?: { slug?: string; comment?: string },
+    ) => ipcRenderer.invoke('deviceLibrary:propose', server, core, facet, opts) as Promise<unknown>,
+    confirm: (server: string, versionId: number, input: { method: string; firmware?: string; note?: string }) =>
+      ipcRenderer.invoke('deviceLibrary:confirm', server, versionId, input) as Promise<unknown>,
+    unconfirm: (server: string, versionId: number) =>
+      ipcRenderer.invoke('deviceLibrary:unconfirm', server, versionId) as Promise<unknown>,
+    dispute: (server: string, versionId: number, reason: string) =>
+      ipcRenderer.invoke('deviceLibrary:dispute', server, versionId, reason) as Promise<unknown>,
     upload: (server: string, items: unknown[]) =>
       ipcRenderer.invoke('deviceLibrary:upload', server, items) as Promise<unknown>,
   },

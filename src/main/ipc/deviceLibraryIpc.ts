@@ -20,8 +20,19 @@ export const registerDeviceLibraryIpc = () => {
   ipcMain.handle('deviceLibrary:current-user', (_e, server: unknown) => deviceLibraryService.currentUser(server))
   ipcMain.handle('deviceLibrary:sign-out', (_e, server: unknown) => deviceLibraryService.signOut(server))
   ipcMain.handle('deviceLibrary:sync', (_e, server: unknown, after: unknown) => deviceLibraryService.sync(server, after))
-  ipcMain.handle('deviceLibrary:propose', (_e, server: unknown, core: ProposalCore, facet: Record<string, unknown>) =>
-    deviceLibraryService.propose(server, core, facet),
+  ipcMain.handle(
+    'deviceLibrary:propose',
+    (_e, server: unknown, core: ProposalCore, facet: Record<string, unknown>, opts?: { slug?: string; comment?: string }) =>
+      deviceLibraryService.propose(server, core, facet, opts ?? {}),
+  )
+  ipcMain.handle('deviceLibrary:confirm', (_e, server: unknown, versionId: unknown, input: unknown) =>
+    deviceLibraryService.confirm(server, versionId, input),
+  )
+  ipcMain.handle('deviceLibrary:unconfirm', (_e, server: unknown, versionId: unknown) =>
+    deviceLibraryService.unconfirm(server, versionId),
+  )
+  ipcMain.handle('deviceLibrary:dispute', (_e, server: unknown, versionId: unknown, reason: unknown) =>
+    deviceLibraryService.dispute(server, versionId, reason),
   )
   ipcMain.handle('deviceLibrary:upload', (_e, server: unknown, items: unknown) => deviceLibraryService.upload(server, items))
 }

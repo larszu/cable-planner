@@ -1,16 +1,20 @@
 // ───────────────────────────────────────────────────────────────────────────
 // Bibliothek → Geraetebibliothek: die abgeglichenen Geraete, schreibgeschuetzt.
 //
-// Kein Bearbeiten, kein Loeschen, kein Favorit: der Stand gehoert dem Server.
-// Wer ein Geraet anpassen will, setzt es auf den Canvas und speichert es dort
-// als eigene Vorlage — dann ist es seine, und das sieht man auch.
+// Kein Bearbeiten an der Stelle, kein Loeschen, kein Favorit: der Stand
+// gehoert dem Server. Wer ein Geraet anpassen will, nimmt „Aenderung
+// vorschlagen" — das kopiert es in die eigenen Vorlagen, und von dort geht es
+// beim naechsten Hochladen als Aenderungsvorschlag an DIESES Geraet zurueck.
+//
+// Bewerten (bestaetigen, beanstanden) liegt daneben: geprueft wird da, wo das
+// Geraet steht, nicht im Browser (`DeviceLibraryBewerten`).
 //
 // Zu sehen ist, was die Bibliothek ueber ein Geraet weiss: Status und Zahl
 // der Bestaetigungen. WER bestaetigt hat, liefert der Abgleich nicht — und
 // deshalb steht hier auch kein Name.
 // ───────────────────────────────────────────────────────────────────────────
 import { useEffect, useMemo, useState } from 'react'
-import { ExternalLink, RefreshCw } from 'lucide-react'
+import { ExternalLink, RefreshCw, Star } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { format, useTranslation } from '../../../lib/i18n'
 import { deviceUrl } from '../../../lib/deviceLibraryClient'
@@ -24,6 +28,7 @@ import { useSettingsStore } from '../../../store/settingsStore'
 import { useUiStore } from '../../../store/uiStore'
 import { useDeviceLibraryStore } from '../../../store/deviceLibraryStore'
 import { DeviceLibrarySyncReport } from '../../Settings/tabs/DeviceLibraryTab'
+import { DeviceLibraryBewerten } from './DeviceLibraryBewerten'
 import type { DeviceLibraryEntry } from '../../../types/deviceLibrary'
 
 const STATUS_CLASS: Record<DeviceLibraryEntry['status'], string> = {
@@ -49,6 +54,9 @@ export const DeviceLibrarySourceTab = () => {
   const categoryTranslations = useProjectStore((s) => s.categoryTranslations)
   const lang = useUiStore((s) => s.language)
   const [search, setSearch] = useState('')
+  // Nur eine Bewertung auf einmal offen: das Panel ist schmal, und zwei
+  // offene Formulare darin sind nicht mehr zu bedienen.
+  const [bewerten, setBewerten] = useState<string | null>(null)
 
   useEffect(() => {
     loadFor(server)
@@ -184,6 +192,21 @@ export const DeviceLibrarySourceTab = () => {
                     <Icon icon={ExternalLink} size="xs" />
                     {t('deviceLibrary.devicePage', 'Page')}
                   </a>
+                </div>
+                {/* Ausserhalb der klickbaren Flaeche: ein Knopf in einem
+                    Knopf laesst sich weder mit der Tastatur noch zuverlaessig
+                    mit der Maus treffen. */}
+                <div className="px-2">
+                  <button
+                    type="button"
+                    onClick={() => setBewerten(bewerten === e.slug ? null : e.slug)}
+                    aria-expanded={bewerten === e.slug}
+                    className="mt-0.5 inline-flex items-center gap-1 text-cp-text-faint hover:text-cp-accent"
+                  >
+                    <Icon icon={Star} size="xs" />
+                    {t('deviceLibrary.rate.toggle', 'Check, report, change')}
+                  </button>
+                  {bewerten === e.slug && <DeviceLibraryBewerten entry={e} server={server} signedIn={signedIn} />}
                 </div>
               </li>
             ))}
