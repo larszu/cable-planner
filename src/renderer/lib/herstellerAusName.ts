@@ -24,6 +24,25 @@ interface Regel {
 const REGELN: Regel[] = [
   { praefix: 'Blackmagic Design', hersteller: 'Blackmagic Design' },
   { praefix: 'Blackmagic', hersteller: 'Blackmagic Design' },
+  // Zweiwortige Namen, die sonst am ersten Leerzeichen zerfallen. Gemessen
+  // am 11.11.2026 gegen den multicam-Katalog: „Grass Valley LDX 100" wurde
+  // zu Hersteller „Grass" und Modell „Valley LDX 100" — und damit zu einem
+  // zweiten Geraet neben dem, das multicam unter „Grass Valley" einreicht.
+  // Betroffen waren 11 Kameras von Grass Valley, 8 von Z CAM, 8 von OM
+  // System, 3 von SLR Magic und eine von Phase One.
+  { praefix: 'Grass Valley', hersteller: 'Grass Valley' },
+  { praefix: 'Phase One', hersteller: 'Phase One' },
+  { praefix: 'SLR Magic', hersteller: 'SLR Magic' },
+  { praefix: 'OM System', hersteller: 'OM System' },
+  { praefix: 'Z CAM', hersteller: 'Z CAM' },
+  { praefix: 'Clay Paky', hersteller: 'Clay Paky' },
+  // AVerMedia ist die Firma, AVer die Marke auf den Geraeten; die
+  // Bibliothek fuehrt sie unter AVer (av-device-library `hersteller.ts`).
+  { praefix: 'AVerMedia', hersteller: 'AVer' },
+  // „Chauvet Professional" bleibt vollstaendig: Chauvet fuehrt daneben die
+  // Linie „Chauvet DJ", und ein blosses „Chauvet" waere keines von beidem.
+  { praefix: 'Chauvet Professional', hersteller: 'Chauvet Professional' },
+  { praefix: 'Chauvet DJ', hersteller: 'Chauvet DJ' },
   { praefix: 'UniFi', hersteller: 'Ubiquiti', praefixImModell: true },
   { praefix: 'Allen & Heath', hersteller: 'Allen & Heath' },
   { praefix: 'Warm Audio', hersteller: 'Warm Audio' },
