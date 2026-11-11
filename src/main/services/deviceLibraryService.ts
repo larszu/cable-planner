@@ -1,13 +1,17 @@
 import keytar from 'keytar'
 import {
   LibraryError,
+  confirmVersion,
   currentUser,
+  disputeVersion,
   propose,
   signIn,
   signOut,
   syncFrom,
+  unconfirmVersion,
   upload,
   verifySecondFactor,
+  type ConfirmInput,
   type LibraryErrorCode,
   type LibraryUser,
   type ProposalCore,
@@ -140,15 +144,51 @@ export const deviceLibraryService = {
     return mitToken(server, (url, token) => syncFrom(url, token, 'cable', n))
   },
 
+  /** Ohne `opts.slug` ein neues Geraet, mit Slug eine Aenderung an einem
+   *  vorhandenen — derselbe Weg, dieselbe Moderation. */
   propose(
     server: unknown,
     core: ProposalCore,
     facet: Record<string, unknown>,
-  ): Promise<DeviceLibraryResult<{ slug: string; state: string; findings?: unknown[] }>> {
+    opts: { slug?: string; comment?: string } = {},
+  ): Promise<DeviceLibraryResult<{ slug: string; state: string; proposal?: number; findings?: unknown[] }>> {
     if (!core || typeof core !== 'object' || !facet || typeof facet !== 'object') {
       return Promise.resolve({ ok: false, code: 'server', message: 'invalid-proposal' })
     }
-    return mitToken(server, (url, token) => propose(url, token, 'cable', core, facet))
+    const slug = typeof opts?.slug === 'string' && opts.slug.trim() ? opts.slug.trim() : undefined
+    const comment = typeof opts?.comment === 'string' ? opts.comment : ''
+    return mitToken(server, (url, token) => propose(url, token, 'cable', core, facet, { slug, comment }))
+  },
+
+  // ── Bewerten ────────────────────────────────────────────────────────────
+  // Immer mit `versionId` aus dem Abgleich: eine Bestaetigung gilt fuer eine
+  // Version, nicht fuer das Geraet. Liegt der eigene Stand zurueck, sagt der
+  // Server `not-current-version` — besser als eine Beglaubigung fuer Daten,
+  // die der Bestaetigende nie gesehen hat.
+
+  confirm(server: unknown, versionId: unknown, input: unknown): Promise<DeviceLibraryResult<void>> {
+    const id = typeof versionId === 'number' && Number.isInteger(versionId) && versionId > 0 ? versionId : 0
+    const i = input as ConfirmInput | undefined
+    if (!id || !i || (i.method !== 'hands-on' && i.method !== 'datasheet')) {
+      return Promise.resolve({ ok: false, code: 'server', message: 'invalid-confirmation' })
+    }
+    return mitToken(server, (url, token) =>
+      confirmVersion(url, token, id, { method: i.method, firmware: String(i.firmware ?? ''), note: String(i.note ?? '') }),
+    )
+  },
+
+  unconfirm(server: unknown, versionId: unknown): Promise<DeviceLibraryResult<void>> {
+    const id = typeof versionId === 'number' && Number.isInteger(versionId) && versionId > 0 ? versionId : 0
+    if (!id) return Promise.resolve({ ok: false, code: 'server', message: 'invalid-confirmation' })
+    return mitToken(server, (url, token) => unconfirmVersion(url, token, id))
+  },
+
+  dispute(server: unknown, versionId: unknown, reason: unknown): Promise<DeviceLibraryResult<void>> {
+    const id = typeof versionId === 'number' && Number.isInteger(versionId) && versionId > 0 ? versionId : 0
+    const grund = typeof reason === 'string' ? reason.trim() : ''
+    // Der Server verlangt zehn Zeichen; hier scheitert es ohne Rundreise.
+    if (!id || grund.length < 10) return Promise.resolve({ ok: false, code: 'server', message: 'reason-too-short' })
+    return mitToken(server, (url, token) => disputeVersion(url, token, id, grund))
   },
 
   upload(server: unknown, items: unknown): Promise<DeviceLibraryResult<UploadResult[]>> {

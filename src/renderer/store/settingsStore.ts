@@ -15,6 +15,7 @@ import {
   type UserSchemaMap,
   type CategoryFieldDef,
 } from '../lib/categorySchemas'
+import { UPLOAD_CONSENT_VERSION, type UploadConsent } from '../lib/deviceLibraryConsent'
 
 const SETTINGS_KEY = STORAGE_KEYS.settings
 
@@ -100,8 +101,16 @@ interface PersistedSettings {
    *  beim Werksserver, auch wenn sich dessen Adresse einmal aendert. */
   deviceLibraryUrl: string
   /** Eigene Vorlagen beim Start und nach jeder Aenderung hochladen und danach
-   *  abgleichen. Vorgabe an — wirkt nur, solange jemand angemeldet ist. */
+   *  abgleichen. Vorgabe an — wirkt nur, solange jemand angemeldet ist UND
+   *  die Datenschutz-Zustimmung fuer den heutigen Umfang vorliegt. */
   deviceLibraryAutoUpload: boolean
+  /**
+   * Zustimmung zum Hochladen eigener Vorlagen, versioniert
+   * (`lib/deviceLibraryConsent.ts`). `null` = nie gefragt oder abgelehnt:
+   * dann geht NICHTS hinaus, auch nicht mit `deviceLibraryAutoUpload`.
+   * Herunterladen braucht sie nicht — das sind fremde Daten, die hereinkommen.
+   */
+  deviceLibraryUploadConsent: UploadConsent | null
   /**
    * #880 — Berichts-Vorlagen, die fuer ALLE Projekte gelten.
    *
@@ -167,11 +176,22 @@ const defaults: PersistedSettings = {
   netboxUrl: '',
   deviceLibraryUrl: '',
   deviceLibraryAutoUpload: true,
+  // Bewusst `null`: die Vorgabe ist „automatisch, SOBALD erlaubt" — nicht
+  // „erlaubt". Gefragt wird beim ersten Anmelden.
+  deviceLibraryUploadConsent: null,
   berichtsvorlagen: [],
   canvasMotion: true,
   tallyPiUrl: '',
   tallyPiDirekt: false,
   ausfuellQuelle: AUSFUELL_VORGABE,
+}
+
+/** Eine gespeicherte Zustimmung nur dann uebernehmen, wenn sie vollstaendig
+ *  ist. Eine halb geschriebene Zustimmung ist keine. */
+const leseZustimmung = (v: unknown): UploadConsent | null => {
+  const c = v as Partial<UploadConsent> | null
+  if (!c || typeof c.version !== 'string' || typeof c.at !== 'string' || !c.version || !c.at) return null
+  return { version: c.version, at: c.at }
 }
 
 const load = (): PersistedSettings => {
@@ -208,6 +228,11 @@ const load = (): PersistedSettings => {
         typeof parsed.deviceLibraryAutoUpload === 'boolean'
           ? parsed.deviceLibraryAutoUpload
           : defaults.deviceLibraryAutoUpload,
+      // Eine bestehende Installation hat das Feld nicht — sie gilt als NICHT
+      // gefragt. Das haelt eine Installation, die bisher unbemerkt hochgeladen
+      // hat, ab sofort zurueck, bis jemand zustimmt. Lieber eine Frage zu viel
+      // als eine Datenweitergabe, die niemand erlaubt hat.
+      deviceLibraryUploadConsent: leseZustimmung(parsed.deviceLibraryUploadConsent),
       // Bestehende Installationen kennen das Feld nicht — sie bekommen die
       // Vorgabe AN. Das ist keine Aenderung ihrer Entscheidung, sondern die
       // erste: die Bewegung gab es vorher nicht.
@@ -262,6 +287,7 @@ const snapshot = (s: PersistedSettings): PersistedSettings => ({
   netboxUrl: s.netboxUrl,
   deviceLibraryUrl: s.deviceLibraryUrl,
   deviceLibraryAutoUpload: s.deviceLibraryAutoUpload,
+  deviceLibraryUploadConsent: s.deviceLibraryUploadConsent,
   berichtsvorlagen: s.berichtsvorlagen,
   canvasMotion: s.canvasMotion,
   tallyPiUrl: s.tallyPiUrl,
@@ -284,6 +310,7 @@ interface SettingsState {
   netboxUrl: string
   deviceLibraryUrl: string
   deviceLibraryAutoUpload: boolean
+  deviceLibraryUploadConsent: UploadConsent | null
   berichtsvorlagen: import('../types/bericht').Berichtsvorlage[]
   canvasMotion: boolean
   tallyPiUrl: string
@@ -307,6 +334,7 @@ interface SettingsState {
   setNetboxUrl: (value: string) => void
   setDeviceLibraryUrl: (value: string) => void
   setDeviceLibraryAutoUpload: (value: boolean) => void
+  setDeviceLibraryUploadConsent: (accepted: boolean) => void
   /** #880 — die globalen Berichts-Vorlagen ersetzen. */
   setBerichtsvorlagen: (v: import('../types/bericht').Berichtsvorlage[]) => void
   /** Bewegte Darstellung im Canvas ein-/ausschalten. */
@@ -336,6 +364,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   netboxUrl: initial.netboxUrl,
   deviceLibraryUrl: initial.deviceLibraryUrl,
   deviceLibraryAutoUpload: initial.deviceLibraryAutoUpload,
+  deviceLibraryUploadConsent: initial.deviceLibraryUploadConsent,
   berichtsvorlagen: initial.berichtsvorlagen,
   tallyPiUrl: initial.tallyPiUrl,
   tallyPiDirekt: initial.tallyPiDirekt,
@@ -422,6 +451,17 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set((state) => {
       persist(snapshot({ ...state, deviceLibraryAutoUpload: value }))
       return { deviceLibraryAutoUpload: value }
+    }),
+  /** `true` = der heutigen Fassung zugestimmt, `false` = widerrufen. Ein
+   *  Widerruf stoppt das Hochladen sofort; was schon dort ist, holt kein
+   *  Planner zurueck — das steht so im Dialog. */
+  setDeviceLibraryUploadConsent: (accepted) =>
+    set((state) => {
+      const deviceLibraryUploadConsent = accepted
+        ? { version: UPLOAD_CONSENT_VERSION, at: new Date().toISOString() }
+        : null
+      persist(snapshot({ ...state, deviceLibraryUploadConsent }))
+      return { deviceLibraryUploadConsent }
     }),
   // #880 — die globalen Vorlagen. Sie werden GANZ ersetzt und nicht
   // einzeln gepflegt: der Editor hat die vollstaendige Liste ohnehin in der

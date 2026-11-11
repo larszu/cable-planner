@@ -40,6 +40,20 @@ export type LibraryErrorCode =
   | 'guidelines-outdated'
   /** Hersteller und Modell gibt es schon in der Bibliothek. */
   | 'exists'
+  /** Den eigenen Eintrag bestaetigt man nicht selbst. */
+  | 'own-version'
+  /** Diese Beanstandung steht schon offen. */
+  | 'already-disputed'
+  /** Die Version ist nicht mehr die aktuelle: erst neu abgleichen. */
+  | 'not-current-version'
+  /** Es liegt schon ein eigener, ungeprueften Vorschlag an diesem Geraet. */
+  | 'pending-exists'
+  /** Aenderung an fremden Daten ohne Begruendung: mindestens drei Zeichen. */
+  | 'comment-required'
+  /** Nichts geaendert: der Vorschlag waere gleich der aktuellen Version. */
+  | 'unchanged'
+  /** Der Vorschlag ist unvollstaendig; `findings` sagt, was fehlt. */
+  | 'blocked'
   | 'wrong-code'
   | 'rate-limited'
   | 'not-signed-in'
@@ -49,6 +63,12 @@ export type LibraryErrorCode =
 export interface SyncDevice {
   slug: string
   version: number
+  /** Die Id GENAU DIESER Version — die Adresse fuer Bestaetigen und
+   *  Beanstanden (`/api/versions/<id>/…`). Eine Bestaetigung gilt fuer eine
+   *  Version, nicht fuer das Geraet; mit der Versionsnummer allein koennte
+   *  ein Planner sie nicht abschicken. Server ohne dieses Feld (vor 11/2026)
+   *  liefern 0: dann zeigt der Planner den Stand, aber keinen Knopf. */
+  versionId: number
   seq: number
   /** Verborgen oder ohne Ansicht fuer diesen Planner: lokal entfernen. */
   removed: boolean
@@ -116,7 +136,7 @@ export const UPLOAD_TIMEOUT_MS = 120_000
 async function anfrage(
   server: string,
   pfad: string,
-  init: { method?: 'GET' | 'POST'; token?: string; body?: unknown; headers?: Record<string, string>; timeoutMs?: number } = {},
+  init: { method?: 'GET' | 'POST' | 'DELETE'; token?: string; body?: unknown; headers?: Record<string, string>; timeoutMs?: number } = {},
 ): Promise<Response> {
   try {
     return await fetch(`${basis(server)}${pfad}`, {
@@ -127,7 +147,7 @@ async function anfrage(
       credentials: 'omit',
       headers: {
         ...(init.body !== undefined ? { 'content-type': 'application/json' } : {}),
-        ...(init.method === 'POST' ? { 'x-requested-with': 'device-library' } : {}),
+        ...(init.method && init.method !== 'GET' ? { 'x-requested-with': 'device-library' } : {}),
         ...(init.token ? { authorization: `Bearer ${init.token}` } : {}),
         ...init.headers,
       },
@@ -152,6 +172,15 @@ const fehlerAus = (res: Response, body: Record<string, unknown> | null): Library
   // Better Auth antwortet in GROSSBUCHSTABEN, die Bibliotheks-Routen klein.
   if (code === 'EMAIL_NOT_VERIFIED' || code === 'email-not-verified') return 'email-not-verified'
   if (code === 'guidelines-outdated') return 'guidelines-outdated'
+  // Diese fuenf muessen VOR der 409-Pauschale stehen: sie kommen mit 403
+  // oder 409 und bedeuten etwas voellig anderes als „gibt es schon".
+  if (code === 'own-version' || code === 'own-proposal') return 'own-version'
+  if (code === 'already-disputed') return 'already-disputed'
+  if (code === 'not-current-version') return 'not-current-version'
+  if (code === 'pending-exists') return 'pending-exists'
+  if (code === 'comment-required') return 'comment-required'
+  if (code === 'unchanged') return 'unchanged'
+  if (code === 'blocked') return 'blocked'
   if (res.status === 409 || code === 'exists') return 'exists'
   if (code === 'INVALID_CODE' || code === 'INVALID_TWO_FACTOR_CODE' || code === 'OTP_HAS_EXPIRED') return 'wrong-code'
   if (res.status === 401 && code === 'not-signed-in') return 'not-signed-in'
@@ -274,6 +303,12 @@ export async function syncFrom(server: string, token: string, planner: LibraryPl
  * Ein Geraet vorschlagen. Es geht in die Moderation und ist fuer andere erst
  * nach der Freigabe sichtbar. `facet` ist das Objekt im Bibliotheksformat des
  * einreichenden Planners.
+ *
+ * MIT `slug` WIRD DARAUS EINE AENDERUNG an einem Geraet, das es schon gibt —
+ * derselbe Weg, dieselbe Moderation. Ohne `slug` ein neues Geraet. Der
+ * `comment` sagt der Moderation, WAS sich aendert und woher es belegt ist;
+ * bei einer Aenderung an fremden Daten ist das der halbe Vorgang, deshalb
+ * geht er mit.
  */
 export async function propose(
   server: string,
@@ -281,15 +316,20 @@ export async function propose(
   planner: LibraryPlanner,
   core: ProposalCore,
   facet: Record<string, unknown>,
-): Promise<{ slug: string; state: string; findings?: unknown[] }> {
+  opts: { slug?: string; comment?: string } = {},
+): Promise<{ slug: string; state: string; proposal?: number; findings?: unknown[] }> {
   const res = await anfrage(server, '/api/proposals', {
     method: 'POST',
     token,
-    body: { data: { ...core, planners: { [planner]: facet } } },
+    body: {
+      ...(opts.slug ? { slug: opts.slug } : {}),
+      comment: opts.comment ?? '',
+      data: { ...core, planners: { [planner]: facet } },
+    },
   })
   const body = await jsonOderNull(res)
   if (!res.ok) throw new LibraryError(fehlerAus(res, body), res.status, String(body?.error ?? ''))
-  return body as { slug: string; state: string; findings?: unknown[] }
+  return body as { slug: string; state: string; proposal?: number; findings?: unknown[] }
 }
 
 export interface UploadItem {
@@ -339,6 +379,66 @@ export async function upload(
     out.push(...((body?.results ?? []) as UploadResult[]))
   }
   return out
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Bestaetigen und beanstanden — die Bewertung aus dem Planner heraus.
+//
+// WARUM DAS IN DEN PLANNER GEHOERT UND NICHT NUR AUF DIE WEBSITE. Geprueft
+// wird da, wo das Geraet steht: wer im Plan merkt, dass die Vorlage eine
+// Buchse zu viel hat, soll das im selben Fenster sagen koennen. Jeder Umweg
+// ueber den Browser kostet den Hinweis.
+//
+// EINE BESTAETIGUNG GILT FUER EINE VERSION, nicht fuer das Geraet (siehe
+// `shared/status.ts`). Deshalb nimmt jede dieser Funktionen `versionId` aus
+// dem Abgleich und nicht den Slug: nach einer Aenderung zaehlt neu, und eine
+// Bestaetigung, die aus einem alten Stand kaeme, bekommt vom Server ein
+// `not-current-version` statt stillschweigend die neue Version zu
+// beglaubigen, die niemand angesehen hat.
+// ───────────────────────────────────────────────────────────────────────────
+
+/**
+ * NAMEN MIT ENDUNG `Version`, und das ist kein Geschmack: eine exportierte
+ * Funktion namens `confirm` ueberdeckt in jedem Modul, das sie einfuehrt, das
+ * globale `window.confirm`. Ein spaeterer, harmloser Aufruf `confirm('…?')`
+ * landete dann stumm in der Bibliothek statt im Browser-Dialog. Der
+ * cable-planner hat dafuer einen Waechter (`tests/nativeDialogs.test.ts`),
+ * und der hat recht.
+ */
+
+/** „am Geraet" wiegt mehr als „gegen Datenblatt" — verifiziert braucht beides. */
+export type ConfirmMethod = 'hands-on' | 'datasheet'
+
+export interface ConfirmInput {
+  method: ConfirmMethod
+  /** Firmware-Stand, unter dem geprueft wurde; leer erlaubt. */
+  firmware?: string
+  note?: string
+}
+
+export async function confirmVersion(server: string, token: string, versionId: number, input: ConfirmInput): Promise<void> {
+  const res = await anfrage(server, `/api/versions/${versionId}/confirm`, {
+    method: 'POST',
+    token,
+    body: { method: input.method, firmware: input.firmware ?? '', note: input.note ?? '' },
+  })
+  if (!res.ok) throw new LibraryError(fehlerAus(res, await jsonOderNull(res)), res.status)
+}
+
+/** Die eigene Bestaetigung zuruecknehmen. */
+export async function unconfirmVersion(server: string, token: string, versionId: number): Promise<void> {
+  const res = await anfrage(server, `/api/versions/${versionId}/confirm`, { method: 'DELETE', token })
+  if (!res.ok) throw new LibraryError(fehlerAus(res, await jsonOderNull(res)), res.status)
+}
+
+/**
+ * Beanstanden: die Daten sind falsch. Eine offene Beanstandung ueberstimmt
+ * alle Bestaetigungen, bis sie geklaert ist — deshalb verlangt der Server
+ * einen Grund von mindestens zehn Zeichen und nicht bloss einen Klick.
+ */
+export async function disputeVersion(server: string, token: string, versionId: number, reason: string): Promise<void> {
+  const res = await anfrage(server, `/api/versions/${versionId}/disputes`, { method: 'POST', token, body: { reason } })
+  if (!res.ok) throw new LibraryError(fehlerAus(res, await jsonOderNull(res)), res.status)
 }
 
 /** Wo man ein Konto anlegt — die Registrierung laeuft auf der Website

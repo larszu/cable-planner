@@ -59,6 +59,7 @@ const vorlage = (name: string, extra: Partial<EquipmentTemplate> = {}): Equipmen
 const geraet = (slug: string, seq: number, facet: Record<string, unknown> | null, extra: Partial<SyncDevice> = {}): SyncDevice => ({
   slug,
   version: 1,
+  versionId: 1000 + seq,
   seq,
   removed: false,
   status: 'confirmed',

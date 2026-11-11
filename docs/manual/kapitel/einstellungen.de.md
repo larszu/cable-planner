@@ -323,13 +323,19 @@ Die Gerätebibliothek ist ein gemeinsamer Server, mit dem der Planer Gerätevorl
 
 **Meine Geräte:** Selbst angelegte oder geänderte Vorlagen werden hochgeladen und gehen zuerst in die Moderation.
 
-- *Eigene Geräte automatisch hochladen* lädt beim Start und nach jeder Änderung einer Vorlage hoch, solange Sie angemeldet sind.
+Hochgeladen wird erst, wenn Sie es erlaubt haben. Oben im Bereich steht, woran Sie sind: *Nicht erlaubt: keine deiner eigenen Vorlagen verlässt diese Installation* oder *Hochladen erlaubt am <Datum>*. *Lesen und entscheiden* öffnet den Datenschutz-Dialog; er nennt Punkt für Punkt, was hinausgeht (Hersteller, Modell, Kategorie, Beschreibung, Anschlüsse, Leistungsaufnahme, Höheneinheiten, Gewicht, Datenblatt-Link, Ihr Benutzername) und was hierbleibt (keine Pläne, keine Passwörter, keine IP-Adressen, keine Rentman- oder NetBox-IDs, nichts aus Rentman). Die beiden Antworten sind *Hochladen erlauben* und *Nicht hochladen*. Beim ersten Anmelden wird der Dialog von selbst gestellt.
+
+Erlauben lässt sich jederzeit widerrufen (*Ansehen und widerrufen*); dann geht nichts weiter hinaus. Bereits freigegebene Einträge bleiben in der Gerätebibliothek — andere planen damit. Einen Eintrag dort zu löschen ist eine Bitte an die Moderation. Ändert sich, **was** hochgeladen wird, wird erneut gefragt; bis dahin geht nichts hinaus.
+
+Ohne Erlaubnis bleibt die Gerätebibliothek voll nutzbar: Geräte holen und aktualisieren ist davon nicht betroffen.
+
+- *Eigene Geräte automatisch hochladen* lädt beim Start und nach jeder Änderung einer Vorlage hoch, solange Sie angemeldet sind. Der Haken wirkt nur mit erteilter Erlaubnis; ohne sie öffnet er den Datenschutz-Dialog.
 - *Jetzt synchronisieren* lädt Geändertes hoch und holt danach Aktualisierungen. Der Knopf braucht eine Anmeldung.
 - *Eigene Vorlagen (n)* klappt die Liste der eigenen Vorlagen auf. Jede zeigt ihren Stand, z. B. *noch nicht hochgeladen*, *seit dem letzten Hochladen geändert*, *hochgeladen — wartet auf Moderation*, *hochgeladen — live* oder *blockiert — die Punkte unten beheben*. Fehlen Hersteller oder Modell, stehen darunter Felder dafür; ohne beide wird die Vorlage nicht hochgeladen.
 
 ![Liste der eigenen Vorlagen und Abgleich](bilder/de/einstellungen-25-geraetebibliothek-eigene.jpg)
 
-**Abgleich:** *Aus der Gerätebibliothek aktualisieren* holt nur, was sich seit dem letzten Abgleich geändert hat (braucht eine Anmeldung). Die Geräte erscheinen schreibgeschützt in der Bibliothek unter *Geteilt* und bleiben offline verfügbar. Darunter stehen die Zahl der lokal gespeicherten Geräte und der Zeitpunkt des letzten Abgleichs. Der Bericht nennt neue, aktualisierte und entfernte Geräte sowie Einträge, die die Vorlagenprüfung der App nicht bestehen und deshalb übersprungen werden.
+**Abgleich:** Angemeldet aktualisiert der Planer die gemeinsamen Geräte von selbst — beim Start, danach alle sechs Stunden und wenn Sie das Fenster nach einer längeren Pause wieder nach vorn holen. Das braucht keine Erlaubnis: dabei kommen Daten herein, es gehen keine hinaus. *Aus der Gerätebibliothek aktualisieren* holt sofort und nur, was sich seit dem letzten Abgleich geändert hat (braucht eine Anmeldung). Die Geräte erscheinen schreibgeschützt in der Bibliothek unter *Geteilt* und bleiben offline verfügbar. Darunter stehen die Zahl der lokal gespeicherten Geräte und der Zeitpunkt des letzten Abgleichs. Der Bericht nennt neue, aktualisierte und entfernte Geräte sowie Einträge, die die Vorlagenprüfung der App nicht bestehen und deshalb übersprungen werden.
 
 ### MCP
 

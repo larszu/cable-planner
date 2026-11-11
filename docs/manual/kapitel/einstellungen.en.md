@@ -305,13 +305,19 @@ The device library is a shared server the planner syncs device templates with an
 
 **My devices:** templates you created or changed are uploaded and go to moderation first.
 
-- *Upload my own devices automatically* uploads at start and after every change to a template, while you are signed in.
+Nothing is uploaded until you have allowed it. The top of the section says where you stand: *Not allowed: none of your own templates leave this installation* or *Uploading allowed on <date>*. *Read and decide* opens the privacy dialog; it names point by point what is sent (manufacturer, model, category, description, ports, power draw, rack units, weight, datasheet link, your user name) and what stays here (no plans, no passwords, no IP addresses, no Rentman or NetBox ids, nothing from Rentman). The two answers are *Allow uploading* and *Do not upload*. The dialog is shown by itself the first time you sign in.
+
+Allowing can be withdrawn at any time (*Show and withdraw*); nothing further is uploaded then. Entries already released stay in the device library — other people plan with them. Deleting one there is a request to moderation. If **what** gets uploaded changes, you are asked again, and nothing leaves until you have decided.
+
+Without permission the device library stays fully usable: fetching and updating devices is not affected.
+
+- *Upload my own devices automatically* uploads at start and after every change to a template, while you are signed in. The checkbox only takes effect once permission is given; without it, it opens the privacy dialog.
 - *Sync now* uploads what changed, then fetches updates. The button requires a sign-in.
 - *Own templates (n)* expands the list of your own templates. Each shows its state, e.g. *not uploaded yet*, *changed since the last upload*, *uploaded — waiting for moderation*, *uploaded — live* or *blocked — fix the points below*. If manufacturer or model are missing, fields for them appear below; without both the template is not uploaded.
 
 ![List of own templates and sync](bilder/en/einstellungen-25-geraetebibliothek-eigene.jpg)
 
-**Sync:** *Update from device library* fetches only what changed since the last sync (requires a sign-in). The devices appear read-only in the library under *Shared* and stay available offline. Below it are the number of devices stored locally and the time of the last sync. The report names new, updated and removed devices as well as entries skipped because they fail the template check of this app.
+**Sync:** while you are signed in, the planner updates the shared devices by itself — at start, every six hours after that, and when you bring the window back to the front after a longer pause. This needs no permission: data comes in, none goes out. *Update from device library* fetches right away, and only what changed since the last sync (requires a sign-in). The devices appear read-only in the library under *Shared* and stay available offline. Below it are the number of devices stored locally and the time of the last sync. The report names new, updated and removed devices as well as entries skipped because they fail the template check of this app.
 
 ### MCP
 

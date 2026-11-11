@@ -96,7 +96,12 @@ function ladeAblage(storage: KeyValueStorage | null): CacheAblage {
 /** Der Stand fuer DIESEN Server; Sequenznummern zweier Server haben nichts
  *  miteinander zu tun. */
 export function loadCache(server: string, storage = standardSpeicher()): DeviceLibraryCache {
-  return ladeAblage(storage).byServer[server] ?? emptyCache(server)
+  const c = ladeAblage(storage).byServer[server]
+  if (!c) return emptyCache(server)
+  // `versionId` kam erst 11/2026 dazu. Ein Stand von davor hat sie nicht —
+  // dann 0, und die Oberflaeche zeigt den Eintrag ohne Bewerten-Knopf,
+  // statt eine Bestaetigung an die Version 0 zu schicken.
+  return { ...c, entries: c.entries.map((e) => ({ ...e, versionId: Number.isInteger(e.versionId) ? e.versionId : 0 })) }
 }
 
 /** `false`, wenn der Speicher voll ist oder fehlt — dann gilt der Stand nur
@@ -153,6 +158,7 @@ export function mergeSync(
     const entry: DeviceLibraryEntry = {
       slug: d.slug,
       version: d.version,
+      versionId: Number.isInteger(d.versionId) ? d.versionId : 0,
       seq: d.seq,
       status: d.status,
       confirmations: d.confirmations,
@@ -242,6 +248,22 @@ export function errorText(
       return t('deviceLibrary.error.offline', 'The device library cannot be reached. The devices from the last update stay available; check the network connection and the server address.')
     case 'invalid-url':
       return t('deviceLibrary.error.invalidUrl', 'The server address is not a valid http(s) URL.')
+    case 'consent-missing':
+      return t('deviceLibrary.error.consentMissing', 'Nothing was uploaded: sharing your own templates has not been allowed on this installation. The device library settings ask once and explain exactly what leaves.')
+    case 'own-version':
+      return t('deviceLibrary.error.ownVersion', 'You submitted this entry yourself, so you cannot confirm it. A confirmation is a second pair of eyes.')
+    case 'already-disputed':
+      return t('deviceLibrary.error.alreadyDisputed', 'You have already objected to this version. The objection is open until moderation closes it.')
+    case 'not-current-version':
+      return t('deviceLibrary.error.notCurrentVersion', 'This is no longer the current version of the device. Update first, then look at the new data.')
+    case 'pending-exists':
+      return t('deviceLibrary.error.pendingExists', 'You already have a change to this device waiting for review. It has to be decided before the next one.')
+    case 'unchanged':
+      return t('deviceLibrary.error.unchanged', 'Nothing differs from the current version, so there is nothing to propose.')
+    case 'blocked':
+      return t('deviceLibrary.error.blocked', 'The library does not accept the entry yet: something required is missing, e.g. the datasheet link or a connector type.')
+    case 'comment-required':
+      return t('deviceLibrary.error.commentRequired', 'A change to someone else\'s device needs a reason: what changes, and from which source.')
     default:
       if (r.message === 'server-empty') {
         return t('deviceLibrary.error.serverEmpty', 'The server was set up anew and has no devices yet. Your devices from the last update were kept.')

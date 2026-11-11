@@ -1,10 +1,13 @@
 import {
   LibraryError,
+  confirmVersion,
   currentUser,
+  disputeVersion,
   propose,
   signIn,
   signOut,
   syncFrom,
+  unconfirmVersion,
   upload,
   verifySecondFactor,
   type SignInResult,
@@ -99,7 +102,10 @@ export function createWebDeviceLibraryApi(storage: () => KeyValueStorage | null 
       tokenStore.clear()
     },
     sync: (server, after) => mitToken(server, (url, token) => syncFrom(url, token, 'cable', after)),
-    propose: (server, core, facet) => mitToken(server, (url, token) => propose(url, token, 'cable', core, facet)),
+    propose: (server, core, facet, opts) => mitToken(server, (url, token) => propose(url, token, 'cable', core, facet, opts ?? {})),
     upload: (server, items) => mitToken(server, (url, token) => upload(url, token, 'cable', items)),
+    confirm: (server, versionId, input) => mitToken(server, (url, token) => confirmVersion(url, token, versionId, input)),
+    unconfirm: (server, versionId) => mitToken(server, (url, token) => unconfirmVersion(url, token, versionId)),
+    dispute: (server, versionId, reason) => mitToken(server, (url, token) => disputeVersion(url, token, versionId, reason)),
   }
 }
