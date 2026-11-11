@@ -42,6 +42,14 @@ const sag = (zeile = '') => {
   console.log(zeile)
   bericht.push(zeile)
 }
+/** Eine Annotation am Lauf — sichtbar, ohne die Zusammenfassung zu oeffnen.
+ *  Ausserhalb von GitHub Actions eine gewoehnliche Zeile auf stderr. */
+const warnung = (text) => {
+  const eine = text.replace(/\s+/g, ' ').trim()
+  if (process.env.GITHUB_ACTIONS) console.log(`::warning title=Katalog nicht veroeffentlicht::${eine}`)
+  else console.error(`WARNUNG: ${eine}`)
+}
+
 const zusammenfassung = () => {
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${bericht.join('\n')}\n`)
 }
@@ -73,7 +81,19 @@ if (trocken) {
   process.exit(0)
 }
 if (!key) {
-  sag('\nDEVICE_LIBRARY_KEY ist nicht gesetzt — nichts gesendet. (Secret im Repo anlegen, um zu veroeffentlichen.)')
+  // GRUEN BLEIBEN, ABER NICHT STILL. Ein Fork und ein Repo ohne Schluessel
+  // sollen nicht bei jedem Merge rot werden — deshalb Exit 0. Aber genau
+  // dieses gruene Nichts hat monatelang nichts veroeffentlicht und nichts
+  // gesagt: der Lauf stand als „success" in der Liste, der Hinweis lag in
+  // der Zusammenfassung, die niemand oeffnet, wenn der Haken gruen ist. Eine
+  // Annotation erscheint am Lauf selbst, in der Uebersicht.
+  sag(`\nDEVICE_LIBRARY_KEY ist nicht gesetzt — nichts gesendet. (Secret im Repo anlegen, um zu veroeffentlichen.)`)
+  sag(`${items.length} Vorlagen WAEREN hochgegangen.`)
+  warnung(
+    `Kein DEVICE_LIBRARY_KEY: ${items.length} Katalog-Vorlagen wurden NICHT veroeffentlicht. ` +
+      `Ohne das Secret bleibt ${server} leer, egal wie oft dieser Lauf gruen ist. ` +
+      `Schluessel anlegen: Konto -> Sicherheit -> API keys (nur Admin), dann als Repo-Secret DEVICE_LIBRARY_KEY eintragen.`,
+  )
   zusammenfassung()
   process.exit(0)
 }
@@ -94,6 +114,11 @@ for (const [state, liste] of Object.entries(je)) sag(`- ${state}: ${liste.length
 for (const r of [...(je.blocked ?? []), ...(je.error ?? [])]) {
   const warum = r.error ?? JSON.stringify(r.findings ?? '')
   sag(`  - ${r.state} · ${r.localId}: ${warum}`)
+}
+const lebt = (je.created?.length ?? 0) + (je.approved?.length ?? 0) + (je['in-sync']?.length ?? 0)
+sag(`\n${lebt} von ${items.length} Vorlagen sind jetzt in der Bibliothek (oder waren es schon).`)
+if (je.blocked?.length) {
+  warnung(`${je.blocked.length} Katalog-Vorlagen hat die Bibliothek abgelehnt (blocked) — siehe Zusammenfassung des Laufs.`)
 }
 zusammenfassung()
 // Blockierte Eintraege sind ein Befund am Katalog, kein kaputter Lauf; ein
