@@ -64,7 +64,7 @@ On a phone the toolbar shows only the grip, *Defaults* and *More*; frame, layers
 | | *Cable bumps at crossings* | Crossings are drawn as a small bump. This can be overridden per cable in the context menu. |
 | | *Hide all cable labels* | The labels of all cables disappear; their position stays saved. |
 | | *Cable labels: short form* | The format suffix (for example "(1080p50/60)") is removed from the display. The full name stays in the cable properties. |
-| | *Colour ports by connector type* | Ports take the colour of their connector type (SDI amber, HDMI violet, Ethernet green and so on). |
+| | *Colour ports by connector type* | On by default. Ports take the colour of their connector type (SDI amber, HDMI violet, Ethernet green and so on). |
 
 The routing applies to cables created afterwards. Cables already drawn keep their shape (see [Editing cables](#editing-cables)).
 
@@ -80,7 +80,7 @@ The routing applies to cables created afterwards. Cables already drawn keep thei
 
    ![Cable bump at a crossing](bilder/en/canvas-defaults-11-bruecken-flaeche.jpg)
 
-4. *Colour ports by connector type* colours the ports by connector type.
+4. *Colour ports by connector type* colours the ports by connector type (on by default); XLR and Cat ports on one device look different.
 
    ![Coloured ports](bilder/en/canvas-defaults-16-ports-nach-typ-flaeche.jpg)
 
@@ -90,7 +90,8 @@ In addition, the entry *Color cables by discipline* in the *View* menu colours t
 
 - **Click** on a device selects it; the inspector on the right shows its properties.
 - **Shift**, **Ctrl** or **Cmd** plus click adds further devices or removes them again.
-- Holding **Shift** and dragging on empty area draws a selection rectangle.
+- Holding **Shift** or **Alt** (Mac: **Option**) and dragging on empty area draws a selection rectangle.
+- After *Paste* (Ctrl/Cmd+V) or *Duplicate* (Ctrl/Cmd+D) the copies are selected together and can be moved at once.
 - *Edit → Select all* selects all devices.
 - A click on empty area clears the selection.
 
@@ -102,7 +103,7 @@ In addition, the entry *Color cables by discipline* in the *View* menu colours t
 
    ![Two devices selected](bilder/en/canvas-auswahl-04-zwei-geraete.jpg)
 
-3. Drag a rectangle over several devices while holding Shift.
+3. Drag a rectangle over several devices while holding Shift or Alt.
 
    ![Selection rectangle](bilder/en/canvas-auswahl-07-rechteck.jpg)
 
@@ -355,7 +356,9 @@ A frame is a coloured rectangle that groups devices into a place or room. The bu
 
 8. *Delete frame* asks *Delete frame "…"?* — only the frame disappears, the devices stay.
 
-9. Select several devices and click *Frame* to draw a frame around them.
+9. Ctrl/Cmd+C, V and D also copy, paste and duplicate selected frames. A frame is copied together with the devices inside it and the cables between those devices; the copy appears next to the original (offset by the frame width). The right-click menu offers *Duplicate frame with contents*.
+
+10. Select several devices and click *Frame* to draw a frame around them.
 
    ![Frame around the selection](bilder/en/canvas-rahmen-13-rahmen-um-auswahl-fertig.jpg)
 
@@ -580,7 +583,7 @@ You set the **scale** in two ways.
 
 11. A file that is not an image is rejected by the app: *This file is not a floor plan image. Use PNG, JPG, WebP, GIF, BMP or AVIF.*
 
-**PDF.** A PDF is loaded as an image of the page. If it has several pages, the panel shows *PDF page* with the page number and *of n*; another page replaces the plan in the same place with the same opacity.
+**PDF.** A PDF is loaded as an image of the page (up to 6000 px on the longest edge, so the plan stays legible when zooming in). If it has several pages, the panel shows *PDF page* with the page number and *of n*; another page replaces the plan in the same place with the same opacity.
 
 12. Load a PDF.
 

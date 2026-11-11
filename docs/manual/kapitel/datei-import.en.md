@@ -270,6 +270,25 @@ The file can also come through *Choose CSV file…*; the content lands in the sa
 
 ![Dialog after choosing the file](bilder/en/datei-import-29-csv-datei-gewaehlt.jpg)
 
+### Import GDTF / MVR
+
+*File → Import GDTF / MVR…* (also in the command palette) opens the dialog. *Choose .gdtf or .mvr file(s)…* takes one MVR file or several .gdtf files at once.
+
+**GDTF.** Each file becomes a library template in the category Lighting. It carries:
+
+- name (manufacturer + type) and short name,
+- DMX modes with channel footprint, including multi-cell fixtures via geometry references (source "GDTF file"),
+- power (W) and weight (kg),
+- the connectors from the file (GDTF 1.2 wiring objects or the older connector list), mapped to the planner's connector names, for example NAC3FCA → PowerCON, PowerconTRUE1 → powerCON TRUE1, XLR5 → DMX 5-pol (XLR), RJ45 → Ethernet/RJ45, 16A-CEE → CEE16. Unknown names are kept as written.
+
+If a file lists no connectors, DMX In and DMX Thru (5-pin) are assumed; the template notes say so.
+
+The table shows per file the type, DMX modes, connectors and whether the template is already in the library (*already there: …*) or *new*. *Add to library* adds only the new ones; existing templates are not overwritten. The same FixtureTypeID (device type id) matches first, then the same name.
+
+**MVR.** The dialog lists each GDTF type of the scene with its count and a template field. It suggests a template from the library; empty means a new template from the embedded GDTF. You can type or choose any library template. Truss and scenery objects are skipped; the dialog shows their count. Fixtures, video screens, projectors and supports become devices.
+
+*Place devices* places them in plan view (MVR x to the right, y up). The top-left corner sits at the top-left corner of the floor plan, or at 100/100 without a floor plan. The scale comes from the calibrated floor plan or from the field *Scale (px per metre)* (without a calibrated floor plan, chosen so that no devices overlap). Each device gets its MVR name, the FixtureID as subtitle, and DMX mode, universe and start address from the MVR. The address counts as set by hand; automatic addressing does not move it. Placing is one undo step.
+
 ### Rentman import
 
 *File → Rentman import…* loads the devices of a Rentman project into the library. The import creates templates but places nothing on the canvas.

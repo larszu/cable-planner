@@ -741,7 +741,7 @@ export const PortList = ({
                 <option value="">{t('ports.direction.auto', 'Direction (auto)')}</option>
                 <option value="in">{t('ports.direction.in', 'Input only')}</option>
                 <option value="out">{t('ports.direction.out', 'Output only')}</option>
-                <option value="bidirectional">{t('ports.direction.bi', 'Bidirectional (e.g. network)')}</option>
+                <option value="bidirectional">{t('ports.direction.bi', 'Input / output (e.g. speakON, etherCON, network)')}</option>
               </select>
               <select
                 aria-label={t('ports.aria.side', 'Port side')}

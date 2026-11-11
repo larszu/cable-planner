@@ -202,6 +202,8 @@ export const createTemplateSlice: StateCreator<ProjectState, [], [], TemplateSli
           ...optionalText('shortName', patch.shortName),
           ...optionalText('subtitle', patch.subtitle),
           ...optionalText('notes', patch.notes),
+          ...(patch.inputs ? { inputs: patch.inputs } : {}),
+          ...(patch.outputs ? { outputs: patch.outputs } : {}),
         }
       })
       persistCustomLibrary(next)

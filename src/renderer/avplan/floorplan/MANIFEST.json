@@ -4,10 +4,21 @@
   "quelle": "av-planner-suite/packages/floorplan/src",
   "hinweis": "Kopie eines Suite-Pakets (ADR-015). Nicht hier aendern: in av-planner-suite/packages aendern und mit `npm run pakete:verteilen` neu kopieren.",
   "dateien": {
-    "index.ts": "a2fb158adcfd174e278a7cba48990d7022f7b5cb9774c46974309f94b46a21f6",
+    "bemassung.ts": "111191d0a2f87db945d4c77c8d7c63fbeb3373453f3881868f79e74ceaadbebb",
+    "dxf.ts": "c3368ec7d89d12b604ad3e53c566b78241b1f381aa436dd4a96f0797b603cebf",
+    "einrasten.ts": "b839bc98b6191903c1c27ffdfa321646b64c14d1e4420368774f05f1a8e6d366",
+    "index.ts": "159efc656fcb9a52a1860c5ccb0a8a4e0301aece5cbd273ec627d911612de529",
+    "kiPlan.ts": "c7fa50be12bcee4229f414da401362792f1cb8fce261e48378b8f5e241db1e2e",
     "massstab.ts": "9b1c323c21c5f3c18787e2ec78c49376081d8cbd9b7a9c2f1882c678ba004e86",
-    "planDatei.ts": "5b83c71813d644fc0ea3ceb88e3fff3eb477d84100af76657219aaca8fd771d5",
+    "pdfVektor.ts": "e55580898115b288edca18998a58add6c9c8316536e668afc85d8e92e6ab8f3a",
+    "planDatei.ts": "8f4d41e09ea8e6459f4d4dd8b019210651f1bdd708c06ca8274135f66c2766d8",
+    "planErkennung.ts": "5c0e7c04b665eda32047c5e876aa608d52db230fe0c9f86bc95207598e9a991e",
+    "planUebernahme.ts": "6aa11bfc42316baf9bbff8b1f1172870a593ed9dec3fc91d3f3bc9b949fbb4e6",
+    "raum.ts": "94db4de18b2151e54e8bde4bbba3bba13af0302e5bd193ca4ceb01f460fef328",
+    "streckenIndex.ts": "a83a9b9fc7c3c492e803ffd02c5d5908fc3968cedd9fa02d3eee6f7e7cf62a9c",
     "typen.ts": "9f705653b1bc6d4a6a9e26da6dfbf85fd7c86e0b6e4bd8a3e5e312906c5175bc",
-    "venueExchange.ts": "7733256b556755df0eeb97d57984830c5c34e73bcee185428f4412a0876fdace"
+    "vektor.ts": "244968ca1686479440378340b778633a1b6a57173e31c16319992f8562d8516d",
+    "vektorBild.ts": "4f2ff225f3abc62b40b106061c45230d8f2b94ed033f5b3e7797f5128dc6c4b4",
+    "venueExchange.ts": "7393075fa3083383b56df5efeeb9fdbea9bf6e8e2135c7fa5c9348f0f117a492"
   }
 }

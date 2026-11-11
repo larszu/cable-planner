@@ -410,7 +410,9 @@ const defaults: PersistedUiState = {
   // Design-Vertrag 2026-10: Auto ist die Voreinstellung — die App folgt dem
   // System, bis jemand Hell oder Dunkel waehlt; die Wahl bleibt gespeichert.
   followSystemTheme: true,
-  colorPortsByType: false,
+  // #1206 — XLR und Cat am selben Geraet sollen auf einen Blick verschieden
+  // aussehen; wer es einfarbig will, schaltet es in der Werkzeugleiste ab.
+  colorPortsByType: true,
   language: detectDefaultLanguage(),
   overrideConnectionWarnings: false,
   libraryViewMode: 'list',
@@ -1186,6 +1188,10 @@ interface UiState extends PersistedUiState {
   closeAiPlanGen: () => void
   /** Generischer Equipment-CSV-Import in die Library (#354). */
   csvImport: { open: boolean }
+  /** #1206 — GDTF/MVR-Import. */
+  gdtfImport: { open: boolean }
+  openGdtfImport: () => void
+  closeGdtfImport: () => void
   openCsvImport: () => void
   closeCsvImport: () => void
   /** "Neu aus Vorlage" — Projekt-Vorlagen-Galerie (#343). */
@@ -1749,6 +1755,9 @@ export const useUiStore = create<UiState>((set) => ({
   openAiPlanGen: () => set({ aiPlanGen: { open: true } }),
   closeAiPlanGen: () => set({ aiPlanGen: { open: false } }),
   csvImport: { open: false },
+  gdtfImport: { open: false },
+  openGdtfImport: () => set({ gdtfImport: { open: true } }),
+  closeGdtfImport: () => set({ gdtfImport: { open: false } }),
   openCsvImport: () => set({ csvImport: { open: true } }),
   closeCsvImport: () => set({ csvImport: { open: false } }),
   templates: { open: false },

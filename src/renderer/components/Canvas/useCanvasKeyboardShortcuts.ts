@@ -8,6 +8,14 @@ import { aktuellesRaster } from '../../lib/aktuellesRaster'
 import type { ProjectState } from '../../store/projectStore'
 import type { EquipmentItem } from '../../types/equipment'
 import type { Cable } from '../../types/cable'
+import type { LocationFrame } from '../../types/location'
+
+/** Kopierte Auswahl. #1206 — Rahmen reisen mit; ihr Inhalt steht in `items`. */
+export interface CanvasClipboard {
+  items: EquipmentItem[]
+  cables: Cable[]
+  locations: LocationFrame[]
+}
 
 /**
  * #468 — Canvas-Tastatur-Shortcuts aus CanvasArea (CanvasContent) als Hook
@@ -33,7 +41,7 @@ export interface CanvasKeyboardShortcutsDeps {
   duplicateSelection: () => void
   deleteSelected: ProjectState['deleteSelected']
   getSelectedEquipmentIds: () => string[]
-  clipboardRef: MutableRefObject<{ items: EquipmentItem[]; cables: Cable[] } | null>
+  clipboardRef: MutableRefObject<CanvasClipboard | null>
   lastMousePosRef: MutableRefObject<{ x: number; y: number } | null>
   screenToFlowPosition: (p: { x: number; y: number }) => { x: number; y: number }
   getNodes: () => Node[]

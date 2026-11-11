@@ -4,7 +4,8 @@ import { nextPlacementPosition } from '../../lib/library'
 import { CategorySelect } from '../shared/CategorySelect'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { format, useTranslation } from '../../lib/i18n'
-import type { Port } from '../../types/equipment'
+import { useState } from 'react'
+import { PortList } from './PortList'
 
 export const TemplateProperties = () => {
   const t = useTranslation()
@@ -24,6 +25,13 @@ export const TemplateProperties = () => {
   const [shortName, setShortName] = useSyncedState(template?.shortName ?? '')
   const [subtitle, setSubtitle] = useSyncedState(template?.subtitle ?? '')
   const [notes, setNotes] = useSyncedState(template?.notes ?? '')
+  const [zu, setZu] = useState<ReadonlySet<string>>(() => new Set())
+  const umschalten = (id: string) =>
+    setZu((cur) => {
+      const next = new Set(cur)
+      if (!next.delete(id)) next.add(id)
+      return next
+    })
 
   if (!template) {
     return (
@@ -154,8 +162,22 @@ export const TemplateProperties = () => {
         )}
       </div>
 
-      <TemplatePortList label={t('template.field.inputs', 'Inputs')} ports={template.inputs} />
-      <TemplatePortList label={t('template.field.outputs', 'Outputs')} ports={template.outputs} />
+      {/* #1206 — Ports wirken sofort auf die Vorlage; platzierte Geraete
+          behalten ihren Stand, bis man sie neu aus der Bibliothek zieht. */}
+      <PortList
+        title={t('template.field.inputs', 'Inputs')}
+        ports={template.inputs}
+        onChange={(inputs) => updateCustomTemplate(template.name, { inputs })}
+        collapsed={zu}
+        onToggleCollapsed={umschalten}
+      />
+      <PortList
+        title={t('template.field.outputs', 'Outputs')}
+        ports={template.outputs}
+        onChange={(outputs) => updateCustomTemplate(template.name, { outputs })}
+        collapsed={zu}
+        onToggleCollapsed={umschalten}
+      />
 
       <button
         type="button"
@@ -183,21 +205,3 @@ export const TemplateProperties = () => {
     </div>
   )
 }
-
-/** #987 — Ports der Vorlage zum Nachschlagen; bearbeitet werden sie am
- *  platzierten Geraet. */
-const TemplatePortList = ({ label, ports }: { label: string; ports: Port[] }) => (
-  <details className="bg-cp-surface-1 p-2" open={ports.length <= 8}>
-    <summary className="cursor-pointer text-cp-text-muted">
-      {label} <span className="text-cp-text-bright">{ports.length}</span>
-    </summary>
-    <ul className="mt-1 space-y-0.5">
-      {ports.map((port) => (
-        <li key={port.id} className="flex justify-between gap-2">
-          <span className="min-w-0 truncate text-cp-text-bright" title={port.name}>{port.name}</span>
-          <span className="shrink-0 text-cp-text-muted">{port.connectorType}</span>
-        </li>
-      ))}
-    </ul>
-  </details>
-)

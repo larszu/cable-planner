@@ -52,10 +52,15 @@
   between the same connectors; its name stays empty and the label shows the
   type. A cable runs from an output to an input, whichever end you start at;
   input to input or output to output is refused, network ports work both ways.
+  Library categories can have subcategories (Audio → Lautsprecher).
+  The plan check tests the amplifier load per channel from impedance and
+  power data.
 - **Real cable lengths.** Put the floor plan under the canvas, calibrate it, and
   lengths follow the drawn route — split into the stock lengths you own.
   The plan can be an image or a PDF (pick the page), cropped to the part you
   need, and each floor can carry its own plan.
+  GDTF/MVR import brings in fixtures with DMX modes, connectors and
+  addresses from a lighting plan.
 - **Rooms, floors, risers, 3D.** Every cable end reads *floor · room · device ·
   port*; the signal path shows the whole chain through plates and house runs.
   A room carries a room number and an address; with an address set, the

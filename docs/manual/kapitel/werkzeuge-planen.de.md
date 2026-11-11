@@ -276,6 +276,8 @@ Die Anschlussliste führt jeden Netzanschluss mit Gerät, Schnittstelle, IP, VLA
 
 *Werkzeuge → Plan-Check…* findet Lücken und Widersprüche im Plan. Die Prüfung läuft laufend gegen den aktuellen Plan, nicht erst beim Speichern. Oben stehen die Zahlen der Hinweise nach Schwere (Fehler, Warnungen, Infos) und die Gesamtzahl. Jede Zeile nennt die Art (zum Beispiel *Doppelte Kabelnummer*, *Doppelte IP*, *Hausanschluss*, *Adernbündel*, *Stecker-Mismatch*, *Kabellänge*, *Audio sym/unsym*, *Drum-Mikrofonierung*, *Dual-Link*, *Fibre breakout*) und den Befund. Ein Klick auf eine Zeile markiert das betroffene Objekt im Plan. In der Statusleiste unten zeigen drei farbige Zähler denselben Stand.
 
+*Endstufenlast* prüft jeden Ausgangskanal einer Endstufe. Die Lautsprecher, die direkt oder über die Link-Buchsen der Lautsprecher in Reihe daran hängen, gelten als parallel: Z = 1/Σ(1/Zi). Liegt Z unter der *Mindestlast je Kanal* der Endstufe, ist das ein Fehler. Bekommt ein Lautsprecher mehr als das Doppelte seiner *Belastbarkeit (RMS/AES)*, ist das eine Warnung; sein Anteil ist Kanalleistung × Z/Zi. Hat ein angeschlossener Lautsprecher keine Impedanz, steht ein Hinweis. Die Werte kommen aus den Audio-Fachdaten (siehe [Inspector](#6-inspector)).
+
 ![Plan-Check](bilder/de/werkzeuge-planen-148-check-offen.jpg)
 
 ![Statusleiste mit Zählern](bilder/de/werkzeuge-planen-147-statusleiste.jpg)

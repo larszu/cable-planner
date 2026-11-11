@@ -228,6 +228,9 @@ export interface TemplatePatch {
   shortName?: string
   subtitle?: string
   notes?: string
+  /** #1206 — Ports direkt in der Bibliothek bearbeiten. */
+  inputs?: Port[]
+  outputs?: Port[]
 }
 
 export interface ProjectState {
@@ -435,6 +438,8 @@ export interface ProjectState {
   setSelectedTemplateName: (name?: string) => void
   addLocation: (partial?: Partial<LocationFrame>) => void
   addLocationAroundEquipment: (equipmentIds: string[], partial?: Partial<LocationFrame>) => void
+  /** #1206 — kopierte Rahmen mit neuer Id versetzt einfuegen; liefert die neuen Ids. */
+  pasteLocations: (locations: LocationFrame[], offset: { dx: number; dy: number }) => string[]
   updateLocation: (id: string, patch: Partial<LocationFrame>) => void
   /** #911 — die Etagenliste ersetzen (Reihenfolge, Hoehen, neue Etagen). */
   setFloors: (floors: Floor[]) => void

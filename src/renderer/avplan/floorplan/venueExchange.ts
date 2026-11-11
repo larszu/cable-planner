@@ -11,7 +11,12 @@
 // src/utils/venueExchange.ts, dort auch light-planner
 // src/core/venueExchange.ts). Reine Daten, keine DOM-/Store-Abhaengigkeit →
 // headless testbar.
+//
+// Raum-Felder (Decke, Boden, Sitzbloecke, Videowaende) kamen 2026-10 dazu,
+// ebenso Wandstaerke und Oeffnungen — alle optional, Version 1 bleibt,
+// alte Dateien bleiben gueltig.
 // ───────────────────────────────────────────────────────────────────────────
+import type { RaumErweiterung } from './raum'
 
 export const VENUE_EXCHANGE_KIND = 'venue-exchange' as const
 export const VENUE_EXCHANGE_VERSION = 1 as const
@@ -20,9 +25,18 @@ export interface VenueExchangePerson {
   id: string; x: number; y: number; height: number; label: string
   width?: number; objectType?: string; pose?: 'standing' | 'sitting'; facing?: number; color?: string
 }
+/** Oeffnung in einer Wand: Lage ab (x1,y1) entlang der Wand, Bruestung
+ *  (`bottom`) und Sturz (`top`) ueber dem Boden, alles in Metern. */
+export interface VenueWallOpening {
+  offset: number; width: number; bottom: number; top: number
+  kind?: 'door' | 'window' | 'opening'
+}
 export interface VenueExchangeWall {
   id: string; x1: number; y1: number; x2: number; y2: number; height: number
   label?: string; cx?: number; cy?: number; reflectance?: number; color?: string
+  /** Wandstaerke (2026-10, Plan-Erkennung). Ohne Angabe zeichnet jeder Planer seine Vorgabe. */
+  thickness?: number
+  openings?: VenueWallOpening[]
 }
 export interface VenueExchangeStageObject {
   id: string; x: number; y: number; width: number; height: number
@@ -41,7 +55,7 @@ export interface VenueExchange {
   app: string
   appVersion: string
   exportedAt: string
-  venue: {
+  venue: RaumErweiterung & {
     name: string
     widthM?: number
     heightM?: number
