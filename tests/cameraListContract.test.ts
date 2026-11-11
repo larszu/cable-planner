@@ -69,7 +69,12 @@ const entry: CameraListEntry = {
   label: 'Kamera 1',
   manufacturer: 'Blackmagic Design',
   model: 'URSA Broadcast G2',
-  deviceTypeId: 'dt-cam-0001',
+  // Die echte GUID, die der multicam-planner fuer diese Kamera schreibt
+  // (geraetetypIds.ts, `bmd-ursa-broadcast-g2`). Vorher stand hier ein
+  // Platzhalter — der lief nur durch, solange der URSA Broadcast G2 im
+  // Kamera-Katalog fehlte: seit er Datenblatt-Ports hat, loest der Import
+  // eine unbekannte ID ueber den Namen auf und uebernimmt die Katalog-ID.
+  deviceTypeId: '2b3a40b1-55a3-5e5d-b65c-5b7bd35c69f1',
   x: 3.5,
   y: 7.25,
   z: 1.6,
