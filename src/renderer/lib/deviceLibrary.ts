@@ -238,6 +238,8 @@ export function errorText(
       return t('deviceLibrary.error.guidelines', 'The community guidelines have changed. Read and accept them on the device library website, then submit again.')
     case 'exists':
       return t('deviceLibrary.error.exists', 'The library already has a device with this manufacturer and model. Look it up there and confirm or correct it instead.')
+    case 'invalid-username':
+      return t('deviceLibrary.error.invalidUsername', 'That is not a valid user name. Allowed are letters, digits, _ and . — with an @ in it, sign in with the email address instead.')
     case 'wrong-code':
       return t('deviceLibrary.error.wrongCode', 'The two-factor code is wrong or has expired.')
     case 'rate-limited':

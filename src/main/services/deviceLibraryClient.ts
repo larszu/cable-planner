@@ -55,6 +55,17 @@ export type LibraryErrorCode =
   /** Der Vorschlag ist unvollstaendig; `findings` sagt, was fehlt. */
   | 'blocked'
   | 'wrong-code'
+  /**
+   * Der Benutzername hat nicht die erlaubte Form — nur Buchstaben, Ziffern,
+   * `_` und `.`, und eine Hoechstlaenge. Das ist KEIN falsches Passwort:
+   * Better Auth antwortet darauf mit 422 und nicht mit 401, und ohne eigenen
+   * Code landete es in der Oberflaeche als „Serverfehler". Gemessen am
+   * laufenden Server: ein Bindestrich im Namen genuegt. Aufgefallen ist es
+   * ausserdem mit einem 61 Zeichen langen Platzhalter aus einem
+   * Zugangsdaten-Tresor (USERNAME_TOO_LONG) — da sucht man den Fehler sonst
+   * lange auf dem Server.
+   */
+  | 'invalid-username'
   | 'rate-limited'
   | 'not-signed-in'
   | 'offline'
@@ -183,6 +194,7 @@ const fehlerAus = (res: Response, body: Record<string, unknown> | null): Library
   if (code === 'blocked') return 'blocked'
   if (res.status === 409 || code === 'exists') return 'exists'
   if (code === 'INVALID_CODE' || code === 'INVALID_TWO_FACTOR_CODE' || code === 'OTP_HAS_EXPIRED') return 'wrong-code'
+  if (code === 'INVALID_USERNAME' || code === 'USERNAME_TOO_LONG' || code === 'USERNAME_TOO_SHORT') return 'invalid-username'
   if (res.status === 401 && code === 'not-signed-in') return 'not-signed-in'
   if (res.status === 401 || res.status === 403) return 'wrong-credentials'
   return 'server'

@@ -7030,6 +7030,7 @@ export const de: Dict = {
   'deviceLibrary.error.offline':
     'Die Gerätebibliothek ist nicht erreichbar. Die Geräte vom letzten Abgleich bleiben verfügbar; Netzwerkverbindung und Server-Adresse prüfen.',
   'deviceLibrary.error.invalidUrl': 'Die Server-Adresse ist keine gültige http(s)-URL.',
+  'deviceLibrary.error.invalidUsername': 'Das ist kein gültiger Benutzername. Erlaubt sind Buchstaben, Ziffern, _ und . — mit einem @ darin melde dich stattdessen mit der E-Mail-Adresse an.',
   'deviceLibrary.error.ownVersion': 'Diesen Eintrag hast du selbst eingereicht, deshalb kannst du ihn nicht bestätigen. Eine Bestätigung ist das zweite Paar Augen.',
   'deviceLibrary.error.alreadyDisputed': 'Du hast diese Fassung schon beanstandet. Die Beanstandung bleibt offen, bis die Moderation sie klärt.',
   'deviceLibrary.error.notCurrentVersion': 'Das ist nicht mehr die aktuelle Fassung des Geräts. Erst aktualisieren, dann die neuen Daten ansehen.',
