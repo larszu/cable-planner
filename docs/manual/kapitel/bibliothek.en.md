@@ -106,7 +106,7 @@ Categories order the templates. A pencil appears when you point at the category 
 
 4. New categories are created with the **+** menu (see below).
 
-5. Next to the pencil a folder-plus button appears, *New subcategory*. It asks for a name and creates a subcategory shown indented under its parent (for example Audio → Lautsprecher). Collapsing the parent hides its subcategories; the count on a category includes its subcategories. Renaming a category carries its subcategories along. A subcategory has the specialist data of its top category. Internally the category is stored as the path `Audio/Lautsprecher`; typing `Audio/Lautsprecher` as the category in the template inspector works too.
+5. Next to the pencil a folder-plus button appears, *New subcategory*. It asks for a name and creates a subcategory shown indented under its parent (for example Audio → Lautsprecher). Collapsing the parent hides its subcategories; the count on a category includes its subcategories. Renaming a category carries its subcategories along. A subcategory has the specialist data of its top category. Internally the category is stored as the path `Audio > Lautsprecher`; typing `Audio > Lautsprecher` as the category in the template inspector works too.
 
    ![New, empty category](bilder/en/bibliothek-55-kategorie-umbenannt.jpg)
 
