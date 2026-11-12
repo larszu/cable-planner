@@ -9,7 +9,7 @@ import {
 } from '../../lib/cableInheritance'
 import { detectLayerForConnector } from '../../lib/cableLayers'
 import { cablesEndingAt, targetKey } from '../../lib/portOccupancy'
-import { richteVerbindungAus } from '../../lib/connectionDirection'
+import { portRichtung, richteVerbindungAus } from '../../lib/connectionDirection'
 import { computeCableNumbers, nextCableNumber } from '../../lib/cableNumbering'
 import { estimateAllCableLengths, DEFAULT_LENGTH_ESTIMATION } from '../../lib/cableLengthEstimate'
 import { laengenKontext } from '../../lib/laengenKontext'
@@ -113,9 +113,30 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
       // Knicke wurden in Zeichenrichtung aufgenommen und drehen mit.
       const ausrichtung = richteVerbindungAus(state.project.equipment, roh)
       if (!ausrichtung.ok) return state
-      const connection = ausrichtung.connection
-      const waypoints =
-        ausrichtung.umgedreht && rohWaypoints ? [...rohWaypoints].reverse() : rohWaypoints
+      let connection = ausrichtung.connection
+      let umgedreht = ausrichtung.umgedreht
+      // #1212 — Ein bidirektionaler Port traegt ein Kabel herein UND eins
+      // hinaus. Ist er als Ziel schon belegt, darf die neue Verbindung von
+      // ihm ausgehen: Zwischen zwei bidirektionalen Ports ist die Richtung
+      // frei, also drehen wir sie, sofern das andere Ende dann frei ist.
+      const zielRef = { equipmentId: connection.target ?? '', portId: connection.targetHandle ?? '' }
+      const quellRef = { equipmentId: connection.source ?? '', portId: connection.sourceHandle ?? '' }
+      if (
+        portRichtung(state.project.equipment, connection.target, connection.targetHandle) === 'bidirectional' &&
+        portRichtung(state.project.equipment, connection.source, connection.sourceHandle) === 'bidirectional' &&
+        cablesEndingAt(state.project.cables, zielRef).length > 0 &&
+        cablesEndingAt(state.project.cables, quellRef).length === 0
+      ) {
+        connection = {
+          ...connection,
+          source: connection.target,
+          sourceHandle: connection.targetHandle,
+          target: connection.source,
+          targetHandle: connection.sourceHandle,
+        }
+        umgedreht = !umgedreht
+      }
+      const waypoints = umgedreht && rohWaypoints ? [...rohWaypoints].reverse() : rohWaypoints
       // #294 — Port-Konflikt-Check. Wenn am ZIEL-Port bereits ein Kabel
       // steckt, oeffnen wir den PortConflictDialog statt direkt den
       // CableDialog. Source-Ports werden bewusst NICHT geprueft — Outputs
