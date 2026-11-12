@@ -36,6 +36,11 @@ const REGELN: Regel[] = [
   { praefix: 'OM System', hersteller: 'OM System' },
   { praefix: 'Z CAM', hersteller: 'Z CAM' },
   { praefix: 'Clay Paky', hersteller: 'Clay Paky' },
+  // Vom naechtlichen Geraetepruefer gemeldet (12.11.2026): „P+S Technik
+  // Evolution 2x 40mm" wurde zu Hersteller „P+S" und Modell „Technik
+  // Evolution …".
+  { praefix: 'P+S Technik', hersteller: 'P+S Technik' },
+  { praefix: 'J.L. Fisher', hersteller: 'J.L. Fisher' },
   // AVerMedia ist die Firma, AVer die Marke auf den Geraeten; die
   // Bibliothek fuehrt sie unter AVer (av-device-library `hersteller.ts`).
   { praefix: 'AVerMedia', hersteller: 'AVer' },
