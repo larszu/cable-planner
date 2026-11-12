@@ -305,7 +305,23 @@ export const LocalEquipmentTab = ({
         </form>
       )}
 
-      <div className="flex-1 min-h-0 space-y-1 overflow-auto">
+      <div
+        className="flex-1 min-h-0 space-y-1 overflow-auto"
+        // #1227 — beim Ziehen einer Vorlage scrollt der Pool mit, sobald der
+        // Zeiger in die Randzone oben oder unten kommt. Natives HTML5-Drag
+        // scrollt einen inneren overflow-Container sonst nicht (Electron/
+        // Chromium nur fuer das Fenster), und eine weiter unten liegende
+        // Unterkategorie war beim Ziehen nicht erreichbar.
+        onDragOver={(event) => {
+          if (!event.dataTransfer.types.includes(MIME_EQUIPMENT)) return
+          const el = event.currentTarget
+          const rect = el.getBoundingClientRect()
+          const zone = Math.min(48, rect.height / 4)
+          const y = event.clientY
+          if (y < rect.top + zone) el.scrollTop -= Math.ceil((rect.top + zone - y) / 3)
+          else if (y > rect.bottom - zone) el.scrollTop += Math.ceil((y - (rect.bottom - zone)) / 3)
+        }}
+      >
         {(() => {
           const usedCats = new Set(customLibrary.map((t) => t.category || 'Other'))
           // v7.9.5 — Kategorien-Order respektiert den User-gewaehlten Sort-Modus.
