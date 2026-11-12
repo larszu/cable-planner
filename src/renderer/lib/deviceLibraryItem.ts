@@ -22,6 +22,20 @@ export const LOKALE_FELDER = ['rentmanSource', 'rentmanProjectName', 'favorite',
 
 export type Namen = { manufacturer: string; model: string }
 
+// Typen nach av-device-library `src/shared/specs.ts`. Hier und nicht in
+// `deviceLibraryClient.ts`: der Client ist in allen Plannern identisch und
+// wird in der Quelle geaendert, nicht in einer Kopie. Der Server nimmt die
+// Felder im Kern an (`deviceDataSchema`).
+export interface Geraeteschnittstelle {
+  kind: 'lens-mount' | 'head-base' | 'camera-plate' | 'rod' | 'filter-thread'
+  standard: string
+  role: 'provides' | 'requires'
+}
+export type Geraeteeigenschaften =
+  | { kind: 'lens'; focalMinMm?: number; focalMaxMm?: number }
+  | { kind: 'tripod'; heightMinM?: number; heightMaxM?: number; payloadMaxKg?: number }
+export type Fachdaten = { specs?: Geraeteeigenschaften; interfaces?: Geraeteschnittstelle[] }
+
 export function facetAus(template: EquipmentTemplate): Record<string, unknown> {
   const facet: Record<string, unknown> = { ...template }
   for (const k of LOKALE_FELDER) delete facet[k]
@@ -29,7 +43,7 @@ export function facetAus(template: EquipmentTemplate): Record<string, unknown> {
 }
 
 /** `sourceUrl` ist der Datenblattlink der Vorlage. */
-export function coreAus(template: EquipmentTemplate, namen: Namen): ProposalCore {
+export function coreAus(template: EquipmentTemplate, namen: Namen): ProposalCore & Fachdaten {
   return {
     manufacturer: namen.manufacturer.trim(),
     model: namen.model.trim(),
@@ -38,7 +52,97 @@ export function coreAus(template: EquipmentTemplate, namen: Namen): ProposalCore
     ...(template.powerWatts != null ? { powerWatts: template.powerWatts } : {}),
     ...(template.rackUnits != null ? { rackUnits: template.rackUnits } : {}),
     ...(template.weightKg != null ? { weightKg: template.weightKg } : {}),
+    ...specsAus(template),
   }
+}
+
+// ── Eigenschaften und Schnittstellen ────────────────────────────────────────
+//
+// Nur, was die Vorlage BELEGT: die Felder aus `categoryProps` (Formular) und
+// die von `katalog:uebernahme` erzeugten Kurzangaben — Objektiv-Untertitel
+// „9-720 mm · B4", Kamera-Notiz „… · B4 mount · …". Was nicht dasteht, bleibt
+// leer; eine fehlende Brennweite ist keine Brennweite von 0. `estimated`
+// bleibt deshalb leer: hier wird nichts geschaetzt.
+//
+// WARUM BIETET/BRAUCHT (av-device-library `specs.ts`): die Kamera bietet
+// ihren Mount, das Objektiv braucht ihn — so passt eins aufs andere wie
+// Stecker und Buchse. Ein Stativ bietet seinen Kopfsockel.
+//
+// NICHT ABGELEITET: die Hoehen der erzeugten Rigs (`rigCatalog.ts`) sind
+// OBJEKTIVhoehen des Multicam-Plans, keine Arbeitshoehe des Stativs; und
+// Stativkoepfe hat diese App keine eigene Kategorie, an der man sie erkennt.
+
+const KATEGORIE: Record<string, 'lens' | 'camera' | 'tripod'> = {
+  lenses: 'lens', objektive: 'lens',
+  cameras: 'camera', kameras: 'camera',
+  tripods: 'tripod', stative: 'tripod',
+}
+
+/** Mount wie im Katalog („B4", „EF-M") als Normbezeichnung („b4", „ef-m").
+ *  `integrated` ist kein Anschluss: das Objektiv ist fest verbaut. */
+function mountNorm(roh: unknown): string | undefined {
+  if (typeof roh !== 'string') return undefined
+  const m = roh.trim().toLowerCase().replace(/\s+/g, '-')
+  return m && m !== 'integrated' && /^[a-z0-9-]{1,40}$/.test(m) ? m : undefined
+}
+
+const ZAHL = '(\\d+(?:[.,]\\d+)?)'
+const zahl = (s: string) => Number(s.replace(',', '.'))
+
+/** „17-120" bzw. „40" → [min, max]; alles andere → undefined. */
+function bereich(roh: unknown): [number, number] | undefined {
+  if (typeof roh === 'number' && Number.isFinite(roh) && roh >= 0) return [roh, roh]
+  if (typeof roh !== 'string') return undefined
+  const m = new RegExp(`^\\s*${ZAHL}\\s*(?:[-–]\\s*${ZAHL})?\\s*$`).exec(roh)
+  if (!m) return undefined
+  const a = zahl(m[1])
+  const b = m[2] != null ? zahl(m[2]) : a
+  return a <= b ? [a, b] : undefined
+}
+
+/** Kopfsockel aus dem Formularfeld `headType`. „fluid" sagt nichts ueber den
+ *  Sockel, „flat" nicht, WELCHER Flachsockel — beide bleiben leer. Belegte
+ *  Normbezeichnungen (`mitchell`, `flat-4-bolt`, `bowl-150` …) gehen durch. */
+function kopfsockel(roh: unknown): string | undefined {
+  if (typeof roh !== 'string') return undefined
+  const v = roh.trim().toLowerCase()
+  const schale = /^bowl-?(60|75|100|150|175)$/.exec(v)
+  if (schale) return `bowl-${schale[1]}`
+  if (v === 'mitchell' || v === 'flat-4-bolt' || v === 'screw-3/8') return v
+  return undefined
+}
+
+export function specsAus(template: EquipmentTemplate): Fachdaten {
+  const art = KATEGORIE[template.category.trim().toLowerCase()]
+  const props = template.categoryProps ?? {}
+  const interfaces: Geraeteschnittstelle[] = []
+  let specs: Geraeteeigenschaften | undefined
+
+  if (art === 'lens') {
+    // Untertitel aus der Uebernahme: „9-720 mm · B4" / „40 mm · PL".
+    const u = new RegExp(`^${ZAHL}(?:-${ZAHL})? mm · (\\S+)$`).exec((template.subtitle ?? '').trim())
+    const brennweite = bereich(props.focalLength) ?? (u ? bereich(u[2] ? `${u[1]}-${u[2]}` : u[1]) : undefined)
+    const mount = mountNorm(props.mount) ?? mountNorm(u?.[3])
+    if (mount) interfaces.push({ kind: 'lens-mount', standard: mount, role: 'requires' })
+    if (brennweite) specs = { kind: 'lens', focalMinMm: brennweite[0], focalMaxMm: brennweite[1] }
+  } else if (art === 'camera') {
+    const ausNotiz = /(?:^|·)\s*(\S+) mount\b/.exec(template.notes ?? '')?.[1]
+    const mount = mountNorm(props.mount) ?? mountNorm(ausNotiz)
+    if (mount) interfaces.push({ kind: 'lens-mount', standard: mount, role: 'provides' })
+  } else if (art === 'tripod') {
+    const sockel = kopfsockel(props.headType)
+    if (sockel) interfaces.push({ kind: 'head-base', standard: sockel, role: 'provides' })
+    const hoehe = bereich(props.heightRange)
+    const last = typeof props.payloadKg === 'number' && props.payloadKg >= 0 ? props.payloadKg : undefined
+    if (hoehe || last != null) {
+      specs = {
+        kind: 'tripod',
+        ...(hoehe ? { heightMinM: hoehe[0], heightMaxM: hoehe[1] } : {}),
+        ...(last != null ? { payloadMaxKg: last } : {}),
+      }
+    }
+  }
+  return { ...(specs ? { specs } : {}), ...(interfaces.length ? { interfaces } : {}) }
 }
 
 /** Die Vorlage als Upload-Eintrag. `localId` ist der Name — er ist in der
