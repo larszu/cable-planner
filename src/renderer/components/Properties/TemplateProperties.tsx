@@ -108,7 +108,17 @@ export const TemplateProperties = () => {
         <span className="mb-1 block text-cp-text-secondary">
           {t('template.field.category', 'Category')}
         </span>
-        <CategorySelect value={category} onChange={setCategory} />
+        <CategorySelect
+          value={category}
+          onChange={(next) => {
+            // #1227 — die Kategorie wirkt sofort auf die Vorlage, wie die
+            // Ports darunter. Vorher blieb sie nur im Entwurf stehen, bis
+            // jemand "Speichern" drueckte; der Inspector zeigte die neue
+            // Unterkategorie, der Pool behielt das Geraet in der alten.
+            setCategory(next)
+            updateCustomTemplate(template.name, { category: next.trim() || undefined })
+          }}
+        />
       </label>
 
       <label className="block">
