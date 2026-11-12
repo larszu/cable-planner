@@ -69,6 +69,8 @@ interface Props {
  * an einem auf 60 % gestellten Geraet muss er genauso zu treffen sein.
  */
 const FLAECHE = 14
+/** #1226 — so weit steht der Griff ueber die Kachelecke hinaus. */
+const VERSATZ = FLAECHE / 2
 
 export const GeraeteGroessenGriff = ({
   skala,
@@ -188,8 +190,15 @@ export const GeraeteGroessenGriff = ({
       className="nodrag nopan"
       style={{
         position: 'absolute',
-        right: 0,
-        bottom: 0,
+        // #1226 — der Griff ragt halb ueber die Ecke hinaus und liegt ueber
+        // den Port-Griffen. An einem kleinen Geraet sitzt die letzte Buchse
+        // rechts unten direkt auf der Ecke; ihr (beim Herauszoomen noch
+        // vergroesserter, `griffFlaeche.ts`) Treffbereich und die Kachel
+        // selbst fingen den Klick ab, und statt der Groesse aenderte sich
+        // die Lage oder es startete ein Kabel.
+        right: -VERSATZ,
+        bottom: -VERSATZ,
+        zIndex: 20,
         width: FLAECHE,
         height: FLAECHE,
         cursor: 'nwse-resize',
