@@ -1,4 +1,5 @@
-import type { EquipmentItem } from '../types/equipment'
+import type { EquipmentItem, Port } from '../types/equipment'
+import { useUiStore } from '../store/uiStore'
 
 /**
  * #1029 — Signalrichtung einer neuen Verbindung.
@@ -19,6 +20,19 @@ import type { EquipmentItem } from '../types/equipment'
 
 export type PortRichtung = 'in' | 'out' | 'bidirectional'
 
+/**
+ * #1219 — Netzwerk- und Glasfaser-Stecker haben keine Signalrichtung: ein
+ * Switch-Port auf eine Patchblende ist weder Ein- noch Ausgang, sondern
+ * beides. Steht die Richtung eines solchen Ports auf "auto" (kein
+ * `direction`-Feld), gilt er deshalb als bidirektional statt als das, was
+ * die Liste vorgibt, in der er zufaellig angelegt wurde. Eine ausdrueckliche
+ * Richtung am Port gewinnt immer.
+ */
+const RICHTUNGSLOS = /rj ?45|ethercon|cat ?[5-8]|fiber|fibre|opticalcon|sfp|\blc\b|\bsc\b|dante|avb|\bnetwork\b|ethernet/i
+
+const autoRichtung = (port: Port, liste: 'in' | 'out'): PortRichtung =>
+  port.direction ?? (RICHTUNGSLOS.test(port.connectorType ?? '') ? 'bidirectional' : liste)
+
 export const portRichtung = (
   equipment: readonly EquipmentItem[],
   equipmentId: string | null | undefined,
@@ -28,9 +42,9 @@ export const portRichtung = (
   const eq = equipment.find((e) => e.id === equipmentId)
   if (!eq) return undefined
   const input = eq.inputs.find((p) => p.id === portId)
-  if (input) return input.direction ?? 'in'
+  if (input) return autoRichtung(input, 'in')
   const output = eq.outputs.find((p) => p.id === portId)
-  if (output) return output.direction ?? 'out'
+  if (output) return autoRichtung(output, 'out')
   return undefined
 }
 
@@ -52,6 +66,13 @@ export const richteVerbindungAus = <T extends Endpunkte>(
   const von = portRichtung(equipment, connection.source, connection.sourceHandle)
   const nach = portRichtung(equipment, connection.target, connection.targetHandle)
   if (!von || !nach) return { ok: true, connection, umgedreht: false }
+  // #1219 — "Verbindungswarnungen uebergehen" (Einstellungen) gilt auch fuer
+  // die Richtung: wer es eingeschaltet hat, entscheidet selbst und kann
+  // Eingang→Eingang bzw. Ausgang→Ausgang trotzdem anlegen. Die Verbindung
+  // bleibt dann so, wie sie gezogen wurde.
+  if ((von === nach && von !== 'bidirectional') && useUiStore.getState().overrideConnectionWarnings) {
+    return { ok: true, connection, umgedreht: false }
+  }
   if (von === 'in' && nach === 'in') return { ok: false, grund: 'inputToInput' }
   if (von === 'out' && nach === 'out') return { ok: false, grund: 'outputToOutput' }
   if (von === 'in' || nach === 'out') {
