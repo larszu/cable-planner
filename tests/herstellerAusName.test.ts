@@ -49,15 +49,32 @@ describe('zweiwortige Hersteller', () => {
     expect(herstellerAusName('Distro CEE32').manufacturer).toBe('')
   })
 
-  it('laesst im ganzen Katalog kein Ein-Buchstaben-Fragment als Hersteller zurueck', () => {
-    // Der Waechter: ein Hersteller mit zwei Zeichen oder weniger ist fast
-    // immer ein abgeschnittenes Wort („Z", „OM"). Wer einen neuen anlegt,
-    // faellt hier auf, nicht erst in der Bibliothek.
+  it('laesst im ganzen Katalog kein Ein- oder Zwei-Zeichen-Fragment als Hersteller zurueck', () => {
+    // DER WAECHTER, und warum er bei zwei Zeichen aufhoert: ein kurzer
+    // Hersteller ist entweder eine echte Marke oder ein abgeschnittenes
+    // Wort, und ab drei Zeichen ueberwiegen die echten deutlich — JVC, NEC,
+    // AJA, ETC, ADJ, GLP, SGM und gut hundert weitere. Eine Schwelle von
+    // vier Zeichen meldete 132 richtige Namen und waere damit nur Laerm.
+    // Bei zwei Zeichen gibt es im ganzen Katalog keinen echten Fall; dort
+    // ist jeder Treffer ein Fehler („Z" statt Z CAM, „OM" statt OM System).
+    //
+    // Was diese Schwelle NICHT faengt, faengt niemand automatisch: „P+S"
+    // statt P+S Technik und „J.L." statt J.L. Fisher sind drei und vier
+    // Zeichen lang. Beide hat der naechtliche Geraetepruefer gemeldet, und
+    // sie stehen jetzt als Regel in `herstellerAusName.ts`. Wer so etwas
+    // findet, traegt es dort ein.
     const kurz = new Set<string>()
     for (const t of EINGEBAUTER_KATALOG) {
       const h = herstellerAusName(t.name).manufacturer
       if (h && h.length <= 2) kurz.add(`${h} ← ${t.name}`)
     }
     expect([...kurz]).toEqual([])
+  })
+
+  it('kennt die beiden gemeldeten mehrteiligen Namen', () => {
+    expect(herstellerAusName('P+S Technik Evolution 2x 40mm T2.4')).toEqual({
+      manufacturer: 'P+S Technik', model: 'Evolution 2x 40mm T2.4',
+    })
+    expect(herstellerAusName('J.L. Fisher Fisher Model 10').manufacturer).toBe('J.L. Fisher')
   })
 })
