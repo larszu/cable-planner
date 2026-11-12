@@ -64,7 +64,10 @@ export const PropertiesPanel = () => {
         {selectedEquipmentId && <EquipmentProperties />}
         {selectedCableId && <CableProperties />}
         {selectedLocationId && <LocationProperties />}
-        {selectedTemplateName && <TemplateProperties />}
+        {/* #1224 — key erzwingt einen frischen Inspector je Vorlage: kein
+            Port-, Klapp- oder Drag-Zustand der zuvor gewaehlten Vorlage
+            ueberlebt den Wechsel im Pool. */}
+        {selectedTemplateName && <TemplateProperties key={selectedTemplateName} />}
         {!selectedEquipmentId && !selectedCableId && !selectedLocationId && !selectedTemplateName && (
           <div className="space-y-3 text-cp-xs text-cp-text-muted">
             <div className="border border-cp-border-muted bg-cp-surface-1/50 p-3">
