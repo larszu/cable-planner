@@ -8,6 +8,7 @@ import { downloadBlob } from './downloadBlob'
 import { createWebDeviceLibraryApi } from './deviceLibraryWeb'
 import { createWebCloudApi, type CloudBridge } from './cloudWeb'
 import type { DeviceLibraryApi } from '../types/deviceLibrary'
+import { dateiAccept } from './dateiAccept'
 
 export type StreamSnapshotResult =
   | { ok: true; dataUri: string; fetchedAt: string }
@@ -1195,7 +1196,7 @@ const webFallbackApi: CablePlannerApi = {
     openProject: async () => {
       const input = document.createElement('input')
       input.type = 'file'
-      input.accept = '.cableplan,.json,application/json'
+      input.accept = dateiAccept('.cableplan,.json,application/json')
 
       return await new Promise<OpenProjectResponse | null>((resolve) => {
         input.onchange = async () => {
@@ -1223,7 +1224,7 @@ const webFallbackApi: CablePlannerApi = {
     openForCompare: async () => {
       const input = document.createElement('input')
       input.type = 'file'
-      input.accept = '.cableplan,.json,.cpviewer,application/json'
+      input.accept = dateiAccept('.cableplan,.json,.cpviewer,application/json')
       return await new Promise<{ filePath: string; data: unknown } | null>((resolve) => {
         input.onchange = async () => {
           const file = input.files?.[0]
