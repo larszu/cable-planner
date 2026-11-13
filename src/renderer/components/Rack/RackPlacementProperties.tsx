@@ -9,6 +9,7 @@ import { StlPreview } from './StlPreview'
 import { RACK_MOUNT_WIDTH_MM, type RackPlacementDraft } from './rackBuilderTypes'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { NumberInput } from '../shared/NumberInput'
+import { useRackDeleteKey } from './useRackDeleteKey'
 
 /**
  * #310 — RackPlacementProperties aus RackBuilderDialog ausgelagert.
@@ -49,6 +50,9 @@ export const RackPlacementProperties = ({
   onSyncStlToTemplate,
 }: RackPlacementPropertiesProps) => {
   const t = useTranslation()
+  // #1221 — Entf/Backspace entfernt das ausgewaehlte Geraet (nur solange
+  // dieser Eigenschaften-Dialog zu ist; er selbst hat den Knopf).
+  useRackDeleteKey(!open, selectedPlacement.id, onRemove)
   const heightInvalid =
     selectedPlacement.rackUnits + selectedPlacement.startUnit - 1 > totalUnits
   const startMax = Math.max(1, totalUnits - selectedPlacement.rackUnits + 1)
