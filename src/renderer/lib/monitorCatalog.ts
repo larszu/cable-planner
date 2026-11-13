@@ -16,6 +16,10 @@ import type { RecordingCapability } from './recording'
 // 2026-09-27: Marshall V-LCD173HR/V-LCD56MD-3G, TVLogic LVM-075A und SmallHD
 // 2403/1703 auf die echten Herstellermodelle umgestellt und belegt (Ports am
 // Datenblatt korrigiert); V-LCD241, V-LCD70 und LVM-171W bleiben unbelegt.
+// 2026-11-13: Atomos Shogun Connect, Ninja V und Ninja V+ ueber die
+// Handbuch-Artikel auf support.atomos.com belegt (dort 200, anders als
+// atomos.com); Shogun Inferno und Sumo 19 ueber die Atomos-Handbuch-PDFs bei
+// Lensrentals. Sumo 19M bleibt unbelegt: kein eigenes Herstellerdokument.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',
@@ -110,7 +114,7 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
     },
   },
 
-  // ── Atomos ───────────────────────────────────────────────────────────────
+  // ── Atomos ─────────────────────────────────────────────────────────────────────
 
   // Shogun Ultra (2023, 7", 2000 nit, AtomOS 11)
   {
@@ -132,7 +136,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
     match: ['shogun', 'connect'],
     deviceTypeId: '2e9c5687-76b7-4e8f-9262-a50b92bbe064',
     records: 'per-device',
+    // Quelle: https://support.atomos.com/hc/en-us/articles/5109843655695-SHOGUN-CONNECT-USER-MANUAL
     template: {
+      manufacturerUrl: 'https://support.atomos.com/hc/en-us/articles/5109843655695-SHOGUN-CONNECT-USER-MANUAL',
       name: 'Atomos Shogun Connect',
       category: MON,
       inputs:  [sdiIn('12G-SDI In'), hdmiIn('HDMI 2.0 In'), eth('Ethernet 1G')],
@@ -145,7 +151,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
     match: ['shogun', 'inferno'],
     deviceTypeId: 'a37271a6-a807-49f3-ba22-a4486ebed9a7',
     records: 'per-device',
+    // Quelle: https://www.lensrentals.com/product-assets/659626ef-7212-45c3-9bb6-cb829b3377ea/Shogun_Inferno_User_Manual.pdf
     template: {
+      manufacturerUrl: 'https://www.lensrentals.com/product-assets/659626ef-7212-45c3-9bb6-cb829b3377ea/Shogun_Inferno_User_Manual.pdf',
       name: 'Atomos Shogun Inferno',
       category: MON,
       inputs:  [sdiIn('12G-SDI In'), hdmiIn('HDMI In')],
@@ -180,7 +188,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
     match: ['sumo', '19'],
     deviceTypeId: 'e44ee4b8-842c-4bad-a628-e6c0d71ae782',
     records: 'per-device',
+    // Quelle: https://www.lensrentals.com/product-assets/62d76a5c-7c20-452c-bf13-f7a3ef9136ea/sumo-user-manual.pdf
     template: {
+      manufacturerUrl: 'https://www.lensrentals.com/product-assets/62d76a5c-7c20-452c-bf13-f7a3ef9136ea/sumo-user-manual.pdf',
       name: 'Atomos Sumo 19',
       category: MON,
       inputs: [
@@ -200,7 +210,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
     match: ['ninja', 'v+'],
     deviceTypeId: '86bc69fc-7c67-4a72-b454-e3b9be3ed099',
     records: 'per-device',
+    // Quelle: https://support.atomos.com/hc/en-us/articles/5693005558543-NINJA-V-USER-MANUAL
     template: {
+      manufacturerUrl: 'https://support.atomos.com/hc/en-us/articles/5693005558543-NINJA-V-USER-MANUAL',
       name: 'Atomos Ninja V+',
       category: MON,
       inputs:  [hdmiIn('HDMI 2.0 In')],
@@ -213,7 +225,9 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
     match: ['ninja', 'v'],
     deviceTypeId: 'bbf307e6-9e91-4991-822e-9f089ef44e10',
     records: 'per-device',
+    // Quelle: https://support.atomos.com/hc/en-us/articles/5457641192463-NINJA-V-USER-MANUAL
     template: {
+      manufacturerUrl: 'https://support.atomos.com/hc/en-us/articles/5457641192463-NINJA-V-USER-MANUAL',
       name: 'Atomos Ninja V',
       category: MON,
       inputs:  [hdmiIn('HDMI In')],
@@ -222,7 +236,7 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
     },
   },
 
-  // ── SmallHD ──────────────────────────────────────────────────────────────
+  // ── SmallHD ────────────────────────────────────────────────────────────────────
 
   // SmallHD 2403 HDR Production Monitor (24") — 3G, kein Ref-Eingang. Die
   // vorherige Portliste (4x 12G, Ref) war die der Vision/Cine 24. Die
@@ -347,7 +361,7 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
     },
   },
 
-  // ── TVLogic ──────────────────────────────────────────────────────────────
+  // ── TVLogic ────────────────────────────────────────────────────────────────────
 
   // LUM-240G (24", 2x 3G-SDI in/out, Ref)
   {
