@@ -273,7 +273,7 @@ Special cases when dragging:
 
   ![Releasing on the device body](bilder/en/canvas-kabel-09-auf-den-koerper.jpg)
 
-- **Two clicks instead of dragging:** a click on a port starts the cable; clicks on empty area set bends, a click on a port finishes it. The banner says *Draw cable: tap the canvas for a bend, tap a port to finish.* *Undo bend* takes back the last bend, *Cancel* discards the cable; Esc also cancels. An input can only be connected to an output, not to another input. While the cable is pending, the right side shows *Quick suggestions (connector type)*: up to eight library devices with a matching port, those most often connected in the project first. A click on a suggestion places the device at the mouse position and finishes the cable at the first matching port.
+- **Two clicks instead of dragging:** a click on a port starts the cable; clicks on empty area set bends, a click on a port finishes it. The banner says *Draw cable: tap the canvas for a bend, tap a port to finish.* *Undo bend* takes back the last bend, *Cancel* discards the cable; Esc also cancels. A cable runs from an output to an input; if you connect two inputs or two outputs, the cable is still created and the cable dialog points it out. The sockets of a patch panel count as bidirectional, so a switch port can also go onto its front. While the cable is pending, the right side shows *Quick suggestions (connector type)*: up to eight library devices with a matching port, those most often connected in the project first. A click on a suggestion places the device at the mouse position and finishes the cable at the first matching port.
 
   ![Cable with banner and suggestions](bilder/en/canvas-kabel-12-klick-knick.jpg)
 
