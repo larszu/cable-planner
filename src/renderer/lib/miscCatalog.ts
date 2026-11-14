@@ -494,24 +494,30 @@ export const MISC_CATALOG: MiscEntry[] = [
     },
   },
   // BMD Decklink Quad 2
+  // Handbuch („Connector Mapping for DeckLink Quad 2"): 8 unabhaengige
+  // DIN-1.0/2.3-Buchsen, jede wahlweise Eingang ODER Ausgang — also 8
+  // bidirektionale Ports, nicht 8 Ein- plus 8 Ausgaenge (so stand es vorher,
+  // dazu als BNC). Sync-Eingang laut Techspecs (Tri-Sync/Black Burst), ohne
+  // Steckertyp.
   {
     match: ['decklink', 'quad 2'],
     deviceTypeId: '3453db03-4c07-4d3f-af40-34576266be6c',
-    // Quelle: https://www.blackmagicdesign.com/products/decklink
+    // Quelle: https://documents.blackmagicdesign.com/UserManuals/DesktopVideoManual.pdf
     template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/decklink',
+      manufacturerUrl: 'https://documents.blackmagicdesign.com/UserManuals/DesktopVideoManual.pdf',
       name: 'Blackmagic Decklink Quad 2',
       category: 'Converter',
       inputs: [
-        sdiIn('SDI In 1'), sdiIn('SDI In 2'), sdiIn('SDI In 3'), sdiIn('SDI In 4'),
-        sdiIn('SDI In 5'), sdiIn('SDI In 6'), sdiIn('SDI In 7'), sdiIn('SDI In 8'),
+        ...Array.from({ length: 8 }, (_, i) => ({
+          ...port(`3G-SDI ${i + 1} (in/out)`, 'DIN 1.0/2.3'),
+          type: 'SDI',
+          direction: 'bidirectional' as const,
+        })),
+        { ...port('Sync In (Tri-Sync / Black Burst)', 'Generic'), type: SYNC },
       ],
-      outputs: [
-        sdiOut('SDI Out 1'), sdiOut('SDI Out 2'), sdiOut('SDI Out 3'), sdiOut('SDI Out 4'),
-        sdiOut('SDI Out 5'), sdiOut('SDI Out 6'), sdiOut('SDI Out 7'), sdiOut('SDI Out 8'),
-      ],
-      width: 240, height: 360,
-      notes: 'PCIe-Karte — in Sonnet Echo Express oder Mac Pro montieren.',
+      outputs: [],
+      width: 240, height: 260,
+      notes: 'PCIe Gen 2 x8 card — each of the 8 3G-SDI connectors switches between capture and playback. Fits Sonnet Echo Express or Mac Pro.',
     },
   },
   // ── Roland V-Switcher & Teradek Encoder (Beleg: Hersteller-Produktseiten,

@@ -118,6 +118,7 @@ export const DEFAULT_CONNECTOR_TYPE_COLORS: Record<ConnectorType, string> = {
   'TT/Bantam': '#06b6d4',
   'Mini-BNC': '#fbbf24',
   'Micro-BNC': '#fcd34d',
+  'DIN 1.0/2.3': '#fde68a',
   // ─── DIE 69 STECKER, DIE AM 2026-09-24 DAZUKAMEN ────────────────────────
   //
   // 36 davon standen schon im Auswahldialog (`connectorCatalog.ts`) und nur
