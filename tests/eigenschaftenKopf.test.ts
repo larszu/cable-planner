@@ -34,6 +34,7 @@ const STORE = lies('src', 'renderer', 'store', 'uiStore.ts')
 const NETZ = lies('src', 'renderer', 'components', 'Properties', 'sections', 'NetworkAccessSection.tsx')
 
 const PORTS = lies('src', 'renderer', 'components', 'Properties', 'sections', 'PortsSection.tsx')
+const ZIEHEN = lies('src', 'renderer', 'components', 'Properties', 'usePortZiehen.ts')
 
 describe('Eigenschaften-Leiste: der Kopf', () => {
   it('Name, Kurzname, Untertitel — der Katalog-Typ nicht im Kopf', () => {
@@ -124,7 +125,10 @@ describe('Eigenschaften-Leiste: der Kopf', () => {
     // Zwei Listen, ein Zustand: die Reihenfolge im Panel folgt `portsFlipped`,
     // und ein Zug am Griff schaltet genau diese Eigenschaft.
     expect(PORTS).toContain("gespiegelt ? ['out', 'in'] : ['in', 'out']")
-    expect(PORTS).toContain('if (over && active.id !== over.id) setGespiegelt(!gespiegelt)')
+    // #1220 — der Zug am Listen-Griff laeuft jetzt durch den gemeinsamen
+    // Zieh-Kontext (usePortZiehen); der Tausch bleibt `portsFlipped`.
+    expect(PORTS).toContain('() => setGespiegelt(!gespiegelt)')
+    expect(ZIEHEN).toContain('if (ziel !== aktiv && LISTEN_GRIFFE.has(ziel)) onListenTausch?.()')
   })
 
   it('das Gateway der ersten Schnittstelle ist im Netzzugang eintragbar (#961)', () => {

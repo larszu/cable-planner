@@ -5,7 +5,9 @@ import { CategorySelect } from '../shared/CategorySelect'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { format, useTranslation } from '../../lib/i18n'
 import { useMemo, useState } from 'react'
+import { DndContext } from '@dnd-kit/core'
 import { PortList } from './PortList'
+import { usePortZiehen } from './usePortZiehen'
 import { vorlagenPortsMitIds } from '../../lib/vorlagenPortIds'
 
 export const TemplateProperties = () => {
@@ -32,6 +34,10 @@ export const TemplateProperties = () => {
     () => (template ? vorlagenPortsMitIds(template.outputs, `${template.name}:out`) : []),
     [template],
   )
+
+  const ziehen = usePortZiehen({ inputs, outputs }, (listen) => {
+    if (template) updateCustomTemplate(template.name, listen)
+  })
 
   const [name, setName] = useSyncedState(template?.name ?? '')
   const [category, setCategory] = useSyncedState(template?.category ?? '')
@@ -186,22 +192,25 @@ export const TemplateProperties = () => {
 
       {/* #1206 — Ports wirken sofort auf die Vorlage; platzierte Geraete
           behalten ihren Stand, bis man sie neu aus der Bibliothek zieht. */}
-      <PortList
-        title={t('template.field.inputs', 'Inputs')}
-        ports={inputs}
-        seite="in"
-        onChange={(inputs) => updateCustomTemplate(template.name, { inputs })}
-        collapsed={zu}
-        onToggleCollapsed={umschalten}
-      />
-      <PortList
-        title={t('template.field.outputs', 'Outputs')}
-        ports={outputs}
-        seite="out"
-        onChange={(outputs) => updateCustomTemplate(template.name, { outputs })}
-        collapsed={zu}
-        onToggleCollapsed={umschalten}
-      />
+      {/* #1220 — ein Zieh-Kontext: Ports wechseln auch die Seite. */}
+      <DndContext {...ziehen}>
+        <PortList
+          title={t('template.field.inputs', 'Inputs')}
+          ports={inputs}
+          onChange={(inputs) => updateCustomTemplate(template.name, { inputs })}
+          seite="in"
+          collapsed={zu}
+          onToggleCollapsed={umschalten}
+        />
+        <PortList
+          title={t('template.field.outputs', 'Outputs')}
+          ports={outputs}
+          onChange={(outputs) => updateCustomTemplate(template.name, { outputs })}
+          seite="out"
+          collapsed={zu}
+          onToggleCollapsed={umschalten}
+        />
+      </DndContext>
 
       <button
         type="button"
