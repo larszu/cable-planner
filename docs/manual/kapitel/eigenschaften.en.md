@@ -57,7 +57,7 @@ The section has two lists, *Inputs* and *Outputs*. The header counts them, e.g. 
 
 ![Inputs & outputs](bilder/en/eigenschaften-15-ports-abschnitt.jpg)
 
-1. *+ Port* creates a port in the list.
+1. *+ Input* (or *+ Output*) creates a port in the list, *+ Bidirectional* a port that carries signal both ways (network, intercom, etherCON): one cable comes in, further ones go out.
 
    ![Input added](bilder/en/eigenschaften-16-ports-eingang-hinzu.jpg)
 
@@ -70,12 +70,12 @@ The section has two lists, *Inputs* and *Outputs*. The header counts them, e.g. 
    | Field | Values |
    |---|---|
    | Content / function | free text, e.g. “PGM” |
-   | Direction | Direction (auto), Input only, Output only, *Input / output (e.g. speakON, etherCON, network)* (such a port can be cable source and target) |
+   | Kind | *Input* or *Output* (depending on the list) or *Bidirectional (e.g. speakON, etherCON, network)* (such a port can be cable source and target; a cable between two bidirectional ports starts at the device where you begin dragging) |
    | Side | Side (auto), Left, Right |
    | Gender | Gender (–), ♂ Male / plug, ♀ Female / socket |
    | Group | — None —, existing groups, *+ New group…* |
 
-   ![Signal, content and direction](bilder/en/eigenschaften-19-ports-signal-inhalt-richtung.jpg)
+   ![Signal, content and kind](bilder/en/eigenschaften-19-ports-signal-inhalt-richtung.jpg)
 
 4. For SDI ports, *SDI capabilities (port-specific)* expands: *Max single-link* overrides the device value for this port; *Quad-link set* and *Dual-link set* combine ports into a set (*+ New set…*). A new set reports how many ports are already assigned to it.
 

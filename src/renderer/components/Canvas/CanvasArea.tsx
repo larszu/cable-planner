@@ -31,7 +31,7 @@ import {
 import { projectHistory } from '../../store/projectHistory'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
-import { richteVerbindungAus } from '../../lib/connectionDirection'
+import { inZeichenrichtung, richteVerbindungAus } from '../../lib/connectionDirection'
 import { griffAusdehnung } from '../../lib/griffFlaeche'
 import { useRaster } from '../../lib/aktuellesRaster'
 import { planAblage, ziehtDateien } from '../../avplan/floorplan/planDatei'
@@ -1598,7 +1598,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // v7.9.128 — Flag setzen damit onConnectEnd weiss: hier wurde
       // eine echte Verbindung gemacht, KEIN Open-End-Stub mehr noetig.
       connectMadeRef.current = true
-      queueConnection(connection)
+      // #1228 — in Zeichenrichtung uebergeben: zwischen zwei bidirektionalen
+      // Ports beginnt das Kabel dort, wo man angefangen hat zu ziehen.
+      queueConnection(inZeichenrichtung(connection, connectStartRef.current))
     },
     [queueConnection],
   )
@@ -1739,14 +1741,22 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       const zielGeraet =
         zielId && zielId !== start.nodeId ? project.equipment.find((e) => e.id === zielId) : undefined
       if (zielGeraet) {
+        // #1228 — Losgelassen auf der ZEILE eines vorhandenen Ports (Name,
+        // Steckertyp), nicht auf seinem Punkt: das meint diesen Port. Vorher
+        // galt das als Koerper und legte daneben einen neuen an — zwei
+        // bidirektionale Eingaenge verbunden ergab am zweiten Geraet einen
+        // frischen Ausgang.
+        const zeile = target?.closest('[data-port-id]') as HTMLElement | null
+        const zeilenPort = zeile && zielEl?.contains(zeile) ? zeile.getAttribute('data-port-id') : null
+        if (zeilenPort) {
+          queueConnection({ source: start.nodeId, sourceHandle: start.handleId, target: zielGeraet.id, targetHandle: zeilenPort })
+          return
+        }
         const neu = portAmKoerper(zielGeraet, stubSide, srcPort)
         if (neu) {
           updateEquipment(zielGeraet.id, neu.patch)
-          if (start.handleType === 'source') {
-            queueConnection({ source: start.nodeId, sourceHandle: start.handleId, target: zielGeraet.id, targetHandle: neu.portId })
-          } else {
-            queueConnection({ source: zielGeraet.id, sourceHandle: neu.portId, target: start.nodeId, targetHandle: start.handleId })
-          }
+          // In Zeichenrichtung; queueConnection dreht auf Ausgang -> Eingang.
+          queueConnection({ source: start.nodeId, sourceHandle: start.handleId, target: zielGeraet.id, targetHandle: neu.portId })
           return
         }
       }

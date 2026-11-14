@@ -29,10 +29,15 @@ export const darfPortAmKoerperAnlegen = (ziel: Pick<EquipmentItem, 'deviceTypeId
 
 export const portAmKoerper = (
   ziel: EquipmentItem,
-  seite: 'input' | 'output',
-  quelle: Pick<Port, 'connectorType' | 'type' | 'standard'>,
+  gewuenscht: 'input' | 'output',
+  quelle: Pick<Port, 'connectorType' | 'type' | 'standard' | 'direction'>,
 ): { portId: string; patch: Partial<EquipmentItem> } | null => {
   if (!darfPortAmKoerperAnlegen(ziel)) return null
+  // #1228 — Kommt das Kabel von einem bidirektionalen Port (RJ45, Intercom),
+  // ist auch die Gegenseite einer. Vorher wurde ein Ausgang daraus, wenn man
+  // an einem bidirektionalen EINGANG zu ziehen begann.
+  const bidi = quelle.direction === 'bidirectional'
+  const seite = bidi ? 'input' : gewuenscht
   const liste = seite === 'input' ? ziel.inputs : ziel.outputs
   const port: Port = {
     id: uuidv4(),
@@ -40,6 +45,7 @@ export const portAmKoerper = (
     type: quelle.type ?? quelle.connectorType,
     connectorType: quelle.connectorType,
     ...(quelle.standard ? { standard: quelle.standard } : {}),
+    ...(bidi ? { direction: 'bidirectional' as const } : {}),
   }
   const patch: Partial<EquipmentItem> =
     seite === 'input' ? { inputs: [...ziel.inputs, port] } : { outputs: [...ziel.outputs, port] }

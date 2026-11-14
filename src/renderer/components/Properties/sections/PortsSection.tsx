@@ -220,6 +220,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
                   <PortList
                     title={t('ports.title.inputs', 'Inputs')}
                     ports={equipment.inputs}
+                    seite="in"
                     onChange={(inputs) => applyPorts({ inputs })}
                     hideTitle
                     showAtemSourceId={isAtem}
@@ -237,6 +238,7 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
                   <PortList
                     title={t('ports.title.outputs', 'Outputs')}
                     ports={equipment.outputs}
+                    seite="out"
                     onChange={(outputs) => applyPorts({ outputs })}
                     hideTitle
                     showAtemSourceId={isAtem}

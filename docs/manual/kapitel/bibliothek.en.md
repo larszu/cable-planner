@@ -40,7 +40,7 @@ The sub-tab *Local* shows the templates by category. Each category is a collapsi
 
 ![Opened category](bilder/en/bibliothek-12-kategorie-aufklappen.jpg)
 
-Each entry shows the name and below it the category with the number of inputs and outputs. The **L** before the name marks a local device (not from Rentman). A click selects the entry and shows its template in the Inspector; for an own template its inputs and outputs appear there as editable port lists (the same editor as on a placed device: add, remove, reorder, connector, signal, direction). Changes apply to the template immediately; devices already placed keep their ports; a double click or dragging onto the canvas places the device. When you point at an entry, four buttons appear:
+Each entry shows the name and below it the category with the number of inputs and outputs. The **L** before the name marks a local device (not from Rentman). A click selects the entry and shows its template in the Inspector; for an own template its inputs and outputs appear there as editable port lists (the same editor as on a placed device: add, remove, reorder, connector, signal, kind). Changes apply to the template immediately; devices already placed keep their ports; a double click or dragging onto the canvas places the device. When you point at an entry, four buttons appear:
 
 | Button | Effect |
 |---|---|
