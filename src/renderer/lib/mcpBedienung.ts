@@ -35,7 +35,9 @@ export type UiBefehl = (typeof UI_BEFEHLE)[number]
 export const uiBefehl = (args: Record<string, unknown>): { daten: Record<string, unknown>; text: string } => {
   const action = args.action as UiBefehl
   if (!(UI_BEFEHLE as readonly string[]).includes(action)) {
-    return { daten: { ok: false, known: UI_BEFEHLE }, text: `Unknown action "${String(action)}".` }
+    // Antwort an den MCP-Client (Companion), kein Oberflaechen-Text.
+    const text = `Unknown action "${String(action)}".`
+    return { daten: { ok: false, known: UI_BEFEHLE }, text }
   }
   const tun: Record<Exclude<UiBefehl, 'status'>, () => void> = {
     undo: () => projectHistory.undo(),
@@ -57,5 +59,6 @@ export const uiBefehl = (args: Record<string, unknown>): { daten: Record<string,
     warnings: warningCount,
     planCheckOpen: useUiStore.getState().planCheck.open,
   }
-  return { daten, text: `${action}: ${errorCount} errors, ${warningCount} warnings` }
+  const text = `${action}: ${errorCount} errors, ${warningCount} warnings`
+  return { daten, text }
 }
