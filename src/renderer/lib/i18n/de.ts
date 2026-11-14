@@ -4762,6 +4762,8 @@ export const de: Dict = {
   'rack.props.heightOverflow': 'Höhe + Start-HE überschreitet Rack ({total} HE).',
   'rack.props.maxHint': 'max {max} (Höhe {he} HE)',
   'rack.props.name': 'Name',
+  'rack.props.portColumns': 'Ports nebeneinander',
+  'rack.props.portRows': 'Port-Reihen untereinander',
   'rack.props.removeFromRack': 'Aus Rack entfernen',
   'rack.props.startHe': 'Start-HE',
   'rack.props.title': 'Eigenschaften · {name}',

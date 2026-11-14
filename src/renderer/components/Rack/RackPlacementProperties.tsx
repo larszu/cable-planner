@@ -9,6 +9,7 @@ import { StlPreview } from './StlPreview'
 import { RACK_MOUNT_WIDTH_MM, type RackPlacementDraft } from './rackBuilderTypes'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { NumberInput } from '../shared/NumberInput'
+import { portsImRaster, rasterAusPorts, rasterFuer } from '../../lib/portRaster'
 
 /**
  * #310 — RackPlacementProperties aus RackBuilderDialog ausgelagert.
@@ -212,6 +213,44 @@ export const RackPlacementProperties = ({
             </label>
           )}
         </div>
+        {/* #1221 — Patchfeld: Port-Raster. Von Hand verschieben ging schon
+            (PortDots2D); hier wird es eine Einstellung. Gesetzt wird
+            dieselbe `panelPosX/Y` wie beim Ziehen, fuer Vorder- und
+            Rueckseite gleich, weil ein Patchfeld durchgeht. */}
+        {selectedPlacement.isPatchPanel && selectedPlacement.inputs.length > 1 && (() => {
+          const raster = rasterAusPorts(selectedPlacement.inputs)
+          const setze = (vorgabe: { spalten?: number; reihen?: number }) => {
+            const r = rasterFuer(selectedPlacement.inputs.length, vorgabe)
+            onUpdate(selectedPlacement.id, {
+              inputs: portsImRaster(selectedPlacement.inputs, r),
+              outputs: portsImRaster(selectedPlacement.outputs, rasterFuer(selectedPlacement.outputs.length, vorgabe)),
+            })
+          }
+          return (
+            <div className="grid grid-cols-2 gap-2">
+              <label className="block">
+                {t('rack.props.portColumns', 'Ports side by side')}
+                <NumberInput
+                  min={1}
+                  max={selectedPlacement.inputs.length}
+                  value={raster.spalten}
+                  onChange={(spalten) => setze({ spalten })}
+                  className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
+                />
+              </label>
+              <label className="block">
+                {t('rack.props.portRows', 'Rows of ports')}
+                <NumberInput
+                  min={1}
+                  max={selectedPlacement.inputs.length}
+                  value={raster.reihen}
+                  onChange={(reihen) => setze({ reihen })}
+                  className="mt-1 w-full border border-cp-border bg-cp-surface-3 p-1.5"
+                />
+              </label>
+            </div>
+          )
+        })()}
         {/* STL-Upload für 3D-Modell. */}
         <div className="block">
           <div className="mb-1 text-cp-xs text-cp-text-secondary">{t('rack.stl.header', '3D model (STL, optional)')}</div>
