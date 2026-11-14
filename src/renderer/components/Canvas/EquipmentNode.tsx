@@ -1,4 +1,4 @@
-import { Handle, Position, useUpdateNodeInternals, type NodeProps } from 'reactflow'
+import { Handle, Position, useReactFlow, useUpdateNodeInternals, type NodeProps } from 'reactflow'
 import { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react'
 import { Headphones, Lock, Check } from 'lucide-react'
 import type { EquipmentItem } from '../../types/equipment'
@@ -29,7 +29,7 @@ type EquipmentNodeData = EquipmentItem & {
 // Vorher waren diese Werte zwischen EquipmentNode.tsx und
 // equipmentLayout.ts dupliziert — Bug-Garantie wenn einer der beiden
 // geändert wurde.
-import { useRaster } from '../../lib/aktuellesRaster'
+import { useRasterFuer } from '../../lib/aktuellesRaster'
 import { richteVerbindungAus } from '../../lib/connectionDirection'
 import { useTally } from '../../hooks/useCanvasFlow'
 import { useLampLevel } from '../../hooks/useCircuit'
@@ -43,6 +43,8 @@ import { hatAdressZeile } from '../../lib/equipmentLayout'
 import { StreamPreviewTile } from './StreamPreviewTile'
 import { ScopeBadge } from './ScopeBadge'
 import { portZielUeberstand } from '../../lib/griffFlaeche'
+import { GeraeteGroessenGriff } from './GeraeteGroessenGriff'
+import { SKALA_STUFE, skalaGrenzen } from '../../lib/raster'
 // 2026-09-12 — Diese fuenf Zahlen standen hier als Modul-Konstanten und waren
 // damit fuer die Lebensdauer des Moduls festgenagelt. Sie folgen jetzt der im
 // Menue eingestellten Rastergroesse und werden deshalb IN der Komponente
@@ -88,6 +90,18 @@ const KEINE_GERAETE: readonly EquipmentItem[] = []
 
 const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>) => {
   const projektApi = useCanvasProjectStoreInstance()
+  // Das Raster in der Groesse DIESES Geraets. `data.sizeScale` ist der vom
+  // Nutzer am Griff unten rechts gezogene Faktor; die Masse rasten danach
+  // genauso ein wie immer, damit die Buchsen auf Gitterpunkten bleiben
+  // (Begruendung in `lib/raster.ts`).
+  // Waehrend am Griff gezogen wird, gilt dieser Zwischenstand statt des
+  // gespeicherten Faktors. Lokal und nur fuer die Dauer der Geste: so folgt
+  // die Kachel dem Finger, ohne dass 60 Mal je Sekunde ein Projektzustand,
+  // ein Undo-Eintrag und ein Autosave entstehen (Begruendung im Kopf von
+  // `GeraeteGroessenGriff`). Es ist kein zwischengespeicherter Projektwert —
+  // beim Loslassen gilt wieder allein der Store.
+  const [skalaVorschau, setSkalaVorschau] = useState<number | null>(null)
+  const [ueberfahren, setUeberfahren] = useState(false)
   const {
     HEADER_HEIGHT,
     HEADER_HEIGHT_WITH_IP,
@@ -96,7 +110,14 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
     PADDING,
     GRID_SIZE,
     DEFAULT_WIDTH,
-  } = useRaster()
+    EXTRA_LINE,
+    SKALA,
+  } = useRasterFuer(skalaVorschau ?? data.sizeScale)
+  // Schriftgroessen sind keine Rastermasse — sie rasten nicht ein, muessen
+  // aber mitwachsen, sonst steht in einer doppelt grossen Karte dieselbe
+  // 9-px-Schrift. Eine Stelle hinterm Komma: ganze Pixel liessen 9 px und
+  // 10 px bei Faktor 1,05 auf denselben Wert fallen.
+  const sk = (n: number): number => Math.round(n * SKALA * 10) / 10
   const portUeberstand = portZielUeberstand(PORT_ROW)
   // Tally aus dem Mischer — `null`, solange nichts bekannt ist.
   const tally = useTally(id)
@@ -194,6 +215,7 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
     ? new Set(hoveredEndpointKey.split('|'))
     : null
   const updateNodeInternals = useUpdateNodeInternals()
+  const flowApi = useReactFlow()
 
   // v7.9.1 — Rack-internal port detection (User-Request).
   // Wenn dieses Gerät zu einem Rack gehört (rackInstanceId gesetzt),
@@ -258,8 +280,14 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
   // ReactFlow re-measured the OLD layout. Calling it from inside EquipmentNode
   // guarantees the call happens *after* this component has committed the new
   // handle DOM, so existing cables snap to the moved ports.
+  // Die gezogene Groesse gehoert in diesen Schluessel: sie verschiebt JEDE
+  // Buchse (Kopfhoehe und Reihenhoehe wachsen mit). Ohne sie bliebe ReactFlow
+  // auf den alten Handle-Positionen stehen, und die bestehenden Kabel endeten
+  // nach dem Vergroessern neben ihren Anschluessen — derselbe Fehler, den der
+  // Absatz darueber fuer `portsFlipped` beschreibt.
   const portsLayoutKey = JSON.stringify({
     flipped: !!data.portsFlipped,
+    skala: SKALA,
     inputs: data.inputs.map((p) => `${p.id}:${p.side ?? ''}`),
     outputs: data.outputs.map((p) => `${p.id}:${p.side ?? ''}`),
   })
@@ -365,7 +393,7 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
   // erweitern den Header um 11 px (1 Grid-Step) statt 14, sodass der
   // headerHeight immer ein Vielfaches von gridSize bleibt und die
   // Ports auf Dot-Reihen landen.
-  const EXTRA_HEADER_LINE = GRID_SIZE
+  const EXTRA_HEADER_LINE = EXTRA_LINE
   const beltpackLine = greengoUser ? EXTRA_HEADER_LINE : 0
   // #910 — die Optik einer MultiCam-Kamera steht als eigene Header-Zeile.
   const optikZeile = optikKurz(data.optik)
@@ -480,6 +508,83 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
     }
   }
 
+  // v7.9.26 — Width rastet auf gridSize-Vielfache ein, sodass die Aussenkanten
+  // der Karte mit Dot-Spalten zusammenfallen. Steht hier oben, weil die
+  // eingeklappte Ansicht unten frueher zurueckkehrt und dasselbe Mass braucht.
+  const snapUp = (n: number) => Math.ceil(n / GRID_SIZE) * GRID_SIZE
+
+  /**
+   * Die gezogene Groesse festschreiben — auf dieses Geraet, und wenn es Teil
+   * einer Mehrfachauswahl ist, auf alle markierten. Geschrieben wird in
+   * `sizeScale`, nie in `width`/`height`: die beiden sind das Abbild der
+   * Messung (`lib/equipmentLayout.ts`).
+   */
+  const legeSkalaFest = (wert: number) => {
+    const { updateEquipment } = projektApi.getState()
+    const markiert = flowApi
+      .getNodes()
+      .filter((n) => n.selected && n.type === 'equipment')
+      .map((n) => n.id)
+    const ziele = markiert.includes(id) ? markiert : [id]
+    for (const zielId of ziele) updateEquipment(zielId, { sizeScale: wert })
+  }
+
+  /**
+   * Eine Stufe weiter — ausgehend vom STORE-Stand, nicht von `data`.
+   *
+   * Der Unterschied ist nicht theoretisch: auf gedrueckter Pfeiltaste laufen
+   * die Tastendruecke schneller ein, als React neu rendert. Aus `data` gelesen
+   * rechneten dann alle vom selben alten Wert, und 24 Druecke ergaeben eine
+   * einzige Stufe (gemessen am 2026-10-27).
+   */
+  const stufeSkala = (richtung: number, grob: boolean) => {
+    const stand = projektApi.getState().project.equipment.find((e) => e.id === id)
+    const schritt = (grob ? SKALA_STUFE * 4 : SKALA_STUFE) * richtung
+    legeSkalaFest(skalaGrenzen(skalaGrenzen(stand?.sizeScale) + schritt))
+  }
+
+  /** Griff + Prozentanzeige, in beiden Kachel-Formen identisch. Die
+   *  gerenderte Groesse kommt als Argument: sie ist in der eingeklappten und
+   *  in der vollen Kachel eine andere, und der Griff rechnet das gezogene
+   *  Verhaeltnis daran. */
+  const groessenGriff = (breite: number, hoehe: number) => isProjectLocked ? null : (
+    <>
+      <GeraeteGroessenGriff
+        skala={data.sizeScale}
+        breite={breite}
+        hoehe={hoehe}
+        sichtbar={!!selected || ueberfahren}
+        farbe={selected ? 'var(--cp-accent)' : tokens.border}
+        onVorschau={setSkalaVorschau}
+        onFestlegen={legeSkalaFest}
+        onStufe={stufeSkala}
+      />
+      {/* Die Prozentzahl steht NUR waehrend des Ziehens. Ein Dauer-Etikett an
+          jedem Geraet waere eine Angabe, die im Plan niemand braucht. */}
+      {skalaVorschau != null && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: -20,
+            padding: '1px 6px',
+            borderRadius: 'var(--cp-r-s)',
+            background: 'var(--cp-accent)',
+            color: '#fff',
+            fontSize: 11,
+            fontWeight: 600,
+            lineHeight: '16px',
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+          }}
+        >
+          {Math.round(skalaVorschau * 100)} %
+        </div>
+      )}
+    </>
+  )
+
   // Collapsed view (issue #37): render a small label-only badge with port
   // dots evenly distributed on the edges. No port labels, just the icon and
   // name. Useful for converters / passive devices where the full port list
@@ -492,8 +597,10 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
     const outRight = data.outputs.filter((p) => resolvePortSide(p, 'right', !!data.portsFlipped) === 'right')
     const leftPorts = [...inLeft, ...outLeft]
     const rightPorts = [...inRight, ...outRight]
-    const cWidth = 130
-    const cHeight = Math.max(36, Math.max(leftPorts.length, rightPorts.length) * 12 + 14)
+    // Auch die eingeklappte Kachel folgt der gezogenen Groesse — sonst waere
+    // sie das einzige Geraet im Plan, das den Faktor ignoriert.
+    const cWidth = snapUp(130 * SKALA)
+    const cHeight = Math.max(sk(36), Math.max(leftPorts.length, rightPorts.length) * sk(12) + sk(14))
     return (
       <div
         style={{
@@ -506,17 +613,20 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
           // statt l — die Kacheln sind klein und dicht gepackt).
           borderRadius: 'var(--cp-r-m)',
           color: tokens.text,
-          fontSize: portLabelFontSize,
+          fontSize: sk(portLabelFontSize),
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 4,
-          padding: '4px 12px',
+          gap: sk(4),
+          padding: `${sk(4)}px ${sk(12)}px`,
         }}
         title={`${data.name}${data.subtitle ? ' — ' + data.subtitle : ''}`}
+        onPointerEnter={() => setUeberfahren(true)}
+        onPointerLeave={() => setUeberfahren(false)}
       >
         {effectiveNodeColor && <GeraeteKante farbe={effectiveNodeColor} />}
-        {icon && <span style={{ fontSize: 14, flexShrink: 0 }}>{icon}</span>}
+        {groessenGriff(cWidth, cHeight)}
+        {icon && <span style={{ fontSize: sk(14), flexShrink: 0 }}>{icon}</span>}
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 600 }}>
           {data.name}
         </span>
@@ -582,16 +692,15 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
     (max, p) => Math.max(max, (p.name?.length ?? 0) + (p.connectorType?.length ?? 0) + 3),
     0,
   )
-  const labelWidth = longestPortText * 7 + 32
+  const labelWidth = longestPortText * 7 * SKALA + 32 * SKALA
   // #588 — Auch der Geräte-Name (Header) muss auf EINE Zeile passen, sonst
   // umbricht der Titel und schiebt die Port-Positionen (die aus der fixen
   // headerHeight berechnet werden) gegen die gerenderten Handles. Reserve
   // ~44 px für führendes Icon/R-Badge + Padding.
-  const nameWidth = (data.name?.length ?? 0) * 7 + 44
+  const nameWidth = (data.name?.length ?? 0) * 7 * SKALA + 44 * SKALA
   // v7.9.26 — Width rastet auf gridSize-Vielfache (11 px) ein, sodass
   // die Außenkanten der Karte mit Dot-Spalten zusammenfallen. Auto-
   // Expand für lange Port-Labels rundet entsprechend AUF.
-  const snapUp = (n: number) => Math.ceil(n / GRID_SIZE) * GRID_SIZE
   // ─── `data.width`/`data.height` ENTSCHEIDEN NICHTS MEHR ───────────────────
   //
   // Nutzer-Meldung 2026-09-11: ein langer Port-Name machte das Geraet breit,
@@ -616,6 +725,8 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
 
   return (
     <div
+      onPointerEnter={() => setUeberfahren(true)}
+      onPointerLeave={() => setUeberfahren(false)}
       style={{
         position: 'relative',
         width,
@@ -630,7 +741,7 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
           // statt l — die Kacheln sind klein und dicht gepackt).
           borderRadius: 'var(--cp-r-m)',
         color: tokens.text,
-        fontSize: 12,
+        fontSize: sk(12),
         // Tally-Ring (Eigentuemer-Entscheidung 2026-09-08). Als AUSSENRING
         // und nicht als Rahmenfarbe: der Rahmen traegt bereits die
         // Geraetefarbe und die Auswahl, und ihn zu ueberschreiben liesse
@@ -664,6 +775,7 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
       }}
     >
       {effectiveNodeColor && <GeraeteKante farbe={effectiveNodeColor} />}
+      {groessenGriff(width, height)}
       {/* Header */}
       <div style={{
         borderRadius: 'var(--cp-r-m) var(--cp-r-m) 0 0',
@@ -671,7 +783,7 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
         borderBottom: `1px solid ${tokens.border}`,
         background: tokens.header,
       }}>
-        <div style={{ fontWeight: 600, lineHeight: '16px', display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+        <div style={{ fontWeight: 600, lineHeight: `${sk(16)}px`, display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
           {/*
             Schaltbild-Marke. Sie steht NUR, wenn die Anzeige eingeschaltet ist
             und das Geraet eine angegebene Bauart hat — nicht als stiller
@@ -714,10 +826,10 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
                 style={{
                   background: schaltbar ? '#1d4ed8' : '#334155',
                   color: '#fff',
-                  fontSize: 9,
+                  fontSize: sk(9),
                   fontWeight: 700,
                   padding: '0 3px',
-                  lineHeight: '13px',
+                  lineHeight: `${sk(13)}px`,
                   flexShrink: 0,
                   cursor: schaltbar ? 'pointer' : 'default',
                 }}
@@ -738,10 +850,10 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
                 style={{
                   background: '#c2410c',
                   color: '#fff',
-                  fontSize: 9,
+                  fontSize: sk(9),
                   fontWeight: 700,
                   padding: '0 3px',
-                  lineHeight: '13px',
+                  lineHeight: `${sk(13)}px`,
                   flexShrink: 0,
                 }}
                 title={`Rentman-ID: ${data.rentmanId}`}
@@ -753,17 +865,17 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
                 style={{
                   background: '#92400e',
                   color: '#fef3c7',
-                  fontSize: 9,
+                  fontSize: sk(9),
                   fontWeight: 700,
                   padding: '0 3px',
-                  lineHeight: '13px',
+                  lineHeight: `${sk(13)}px`,
                   flexShrink: 0,
                   display: 'inline-flex',
                   alignItems: 'center',
                 }}
                 title={t('eqNode.rentmanRemoved', 'No longer in Rentman!')}
               >
-                <Icon icon={AlertTriangle} size={12} />
+                <Icon icon={AlertTriangle} size={sk(12)} />
               </span>
             ) : (
               <span
@@ -785,7 +897,7 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
             const icon = data.icon ?? defaultIconForEquipment(data)
             if (!icon) return null
             return (
-              <span style={{ fontSize: 14, lineHeight: '16px', flexShrink: 0 }} title={`Icon: ${icon}`}>
+              <span style={{ fontSize: sk(14), lineHeight: `${sk(16)}px`, flexShrink: 0 }} title={`Icon: ${icon}`}>
                 {icon}
               </span>
             )
@@ -806,10 +918,10 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
                 gap: 2,
                 background: '#065f46',
                 color: '#d1fae5',
-                fontSize: 9,
+                fontSize: sk(9),
                 fontWeight: 700,
                 padding: '0 3px',
-                lineHeight: '13px',
+                lineHeight: `${sk(13)}px`,
               }}
               title={format(
                 t('eqNode.verified', 'Verified by {n}: {names}'),
@@ -825,21 +937,21 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
                 marginLeft: 4,
                 background: '#10b981',
                 color: '#022c22',
-                fontSize: 9,
+                fontSize: sk(9),
                 fontWeight: 700,
                 padding: '0 4px',
-                lineHeight: '14px',
+                lineHeight: `${sk(14)}px`,
                 display: 'inline-flex',
                 alignItems: 'center',
               }}
               title={t('eqNode.packed', 'Packed — ready to ship')}
             >
-              <Icon icon={Check} size={12} />
+              <Icon icon={Check} size={sk(12)} />
             </span>
           )}
         </div>
         <div
-          style={{ fontSize: 11, color: tokens.subtext, lineHeight: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+          style={{ fontSize: sk(11), color: tokens.subtext, lineHeight: `${sk(14)}px`, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
           title={kennung ? `${data.category} · ${kennung}` : undefined}
         >
           {data.category}
@@ -850,11 +962,11 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
           )}
         </div>
         {data.subtitle && (
-          <div style={{ fontSize: 11, color: tokens.subtext, lineHeight: '14px', fontStyle: 'italic' }}>{data.subtitle}</div>
+          <div style={{ fontSize: sk(11), color: tokens.subtext, lineHeight: `${sk(14)}px`, fontStyle: 'italic' }}>{data.subtitle}</div>
         )}
         {optikZeile && (
           <div
-            style={{ fontSize: 10, color: tokens.subtext, lineHeight: `${EXTRA_HEADER_LINE}px`, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+            style={{ fontSize: sk(10), color: tokens.subtext, lineHeight: `${EXTRA_HEADER_LINE}px`, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
             title={optikZeile}
           >
             {optikZeile}
@@ -863,15 +975,15 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
         {greengoUser && (
           <div
             style={{
-              fontSize: 10,
+              fontSize: sk(10),
               color: isLight ? '#047857' : '#34d399',
-              lineHeight: '13px',
+              lineHeight: `${sk(13)}px`,
               fontWeight: 600,
               marginTop: 1,
             }}
             title={`${t('eqNode.intercomStation', 'Intercom station')}${greengoUser.number !== undefined ? ` #${greengoUser.number}` : ''}${greengoUser.channelNames.length > 0 ? ` · ${t('eqNode.greengoGroups', 'Groups')}: ${greengoUser.channelNames.join(', ')}` : ''}`}
           >
-            <Icon icon={Headphones} size="xs" className="mr-1 inline-block align-text-bottom" />{greengoUser.station.name}
+            <Icon icon={Headphones} size={sk(12)} className="mr-1 inline-block align-text-bottom" />{greengoUser.station.name}
           </div>
         )}
         {hatAdressZeile(data) && (
@@ -879,9 +991,9 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
             style={{
               fontFamily:
                 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-              fontSize: 10,
+              fontSize: sk(10),
               color: isLight ? '#0369a1' : '#38bdf8',
-              lineHeight: '12px',
+              lineHeight: `${sk(12)}px`,
               marginTop: 2,
             }}
             title={[
@@ -916,11 +1028,11 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
           <div style={{ marginTop: 4 }}>
             <div
               style={{
-                fontSize: 9,
+                fontSize: sk(9),
                 letterSpacing: '0.04em',
                 textTransform: 'uppercase',
                 color: isLight ? '#a16207' : '#fbbf24',
-                lineHeight: '12px',
+                lineHeight: `${sk(12)}px`,
               }}
             >
               {t('canvas.pattern.expected', 'Expected per plan')}
@@ -1020,7 +1132,7 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
               alignItems: 'center',
               justifyContent: isLeft ? 'flex-start' : 'flex-end',
               textAlign: isLeft ? 'left' : 'right',
-              fontSize: portLabelFontSize,
+              fontSize: sk(portLabelFontSize),
               cursor: isRackInternal ? 'not-allowed' : 'crosshair',
               opacity: isRackInternal ? 0.55 : 1,
               background: isActive
@@ -1066,10 +1178,10 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
                   title={t('eqNode.mobileChecked', 'Checked on site (mobile viewer) — click removes the check')}
                   aria-label={t('eqNode.mobileChecked', 'Checked on site (mobile viewer) — click removes the check')}
                 >
-                  <Icon icon={Check} size="xs" />
+                  <Icon icon={Check} size={sk(12)} />
                 </span>
               )}
-              {isRackInternal && <span style={{ marginRight: 3 }} className="inline-flex align-middle"><Icon icon={Lock} size="xs" /></span>}
+              {isRackInternal && <span style={{ marginRight: 3 }} className="inline-flex align-middle"><Icon icon={Lock} size={sk(12)} /></span>}
               {isLeft ? (
                 <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}{genderSymbol(port.gender) && ` ${genderSymbol(port.gender)}`}</span></>
               ) : (
@@ -1182,7 +1294,7 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
               alignItems: 'center',
               justifyContent: isLeft ? 'flex-start' : 'flex-end',
               textAlign: isLeft ? 'left' : 'right',
-              fontSize: portLabelFontSize,
+              fontSize: sk(portLabelFontSize),
               cursor: isRackInternal ? 'not-allowed' : 'crosshair',
               opacity: isRackInternal ? 0.55 : 1,
               background: isActive
@@ -1228,10 +1340,10 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
                   title={t('eqNode.mobileChecked', 'Checked on site (mobile viewer) — click removes the check')}
                   aria-label={t('eqNode.mobileChecked', 'Checked on site (mobile viewer) — click removes the check')}
                 >
-                  <Icon icon={Check} size="xs" />
+                  <Icon icon={Check} size={sk(12)} />
                 </span>
               )}
-              {isRackInternal && <span style={{ marginRight: 3 }} className="inline-flex align-middle"><Icon icon={Lock} size="xs" /></span>}
+              {isRackInternal && <span style={{ marginRight: 3 }} className="inline-flex align-middle"><Icon icon={Lock} size={sk(12)} /></span>}
               {isLeft ? (
                 <>{portDisplayLabel(port)}<span style={{ color: isLight ? '#94a3b8' : '#64748b' }}> · {port.connectorType}{genderSymbol(port.gender) && ` ${genderSymbol(port.gender)}`}</span></>
               ) : (
