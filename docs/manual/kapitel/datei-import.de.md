@@ -106,6 +106,8 @@ Trägt das geöffnete Projekt den Namen *Untitled Project* oder gar keinen, übe
 
 *Datei → Speichern unter…* (`Strg+Umschalt+S`) schreibt das Projekt unter einem neuen Namen oder Pfad. Das neue Projekt ist danach das aktive; die Datei davor bleibt unverändert. Der Dateiname wird zum neuen Projektnamen.
 
+*Datei → Kopie zum Weitergeben speichern…* schreibt eine `.cableplan`-Kopie als Download, etwa für einen Kollegen. Die offene Datei und ihr Pfad bleiben, wie sie sind. Tragen Geräte oder die Intercom-Anlage Zugangsdaten, fragt *Zugangsdaten mitgeben?* nach: Das Kästchen *Benutzernamen und Passwörter mitgeben* steht aus; so entfernt die Kopie sie. Angekreuzt gehen sie mit.
+
 Jede Schreibung ist atomar. Die App schreibt zuerst eine temporäre Datei, benennt die bisherige Datei in `<name>.cableplan.bak` um und setzt dann die temporäre Datei an ihre Stelle. Nach dem zweiten Speichern liegt neben der Projektdatei darum die `.bak`-Datei mit dem Stand davor. Ein Abbruch mitten im Schreiben zerstört weder die alte noch die neue Datei.
 
 ### Autosave und Statusleiste
@@ -403,7 +405,7 @@ Im Beispiel ist in NetBox ein Gerät hinzugekommen. Die zweite Vorschau zeigt nu
 
 *Datei → Gesamtprojekt exportieren (.avplan)…* schreibt das Projekt im Austauschformat `.avplan`. Die Datei ist JSON mit den Feldern `kind` (*avplan*), `formatVersion`, `app`, `appVersion`, `exportedAt`, `venue` und `domains`. Der Cable Planner trägt seinen Teil unter `domains.cabling` ein. Teile anderer Planer (Kameras, Licht, Venue) bewahrt er unverändert. Der Dateiname ist `<Projektname>.avplan`; Zeichen außer Buchstaben, Ziffern, `_` und `-` ersetzt die App durch `_`. Die Datei wird als Download des Programmfensters geschrieben.
 
-Tragen Geräte Benutzername oder Passwort, fragt *Zugangsdaten mitgeben?* nach: Die `.avplan` geht an andere Gewerke. *Ohne Zugangsdaten* entfernt sie; ein Rück-Import in diesen Planer verliert sie dann. *Mitgeben* behält sie, *Abbrechen* bricht den Export ab. Die Frage entfällt, wenn kein Gerät Zugangsdaten trägt.
+Tragen Geräte Benutzername oder Passwort oder die Intercom-Anlage ihre Codes, fragt *Zugangsdaten mitgeben?* nach: Die `.avplan` geht an andere Gewerke. Ohne Häkchen bei *Benutzernamen und Passwörter mitgeben* entfernt der Export sie (*Ohne Zugangsdaten*); ein Rück-Import in diesen Planer verliert sie dann. Angekreuzt behält *Mitgeben* sie, *Abbrechen* bricht den Export ab. Die Frage entfällt, wenn nichts Zugangsdaten trägt. Dieselbe Frage stellen die Kopie zum Weitergeben, der Geräte-Export und der geteilte Ordner.
 
 ![Rückfrage zu den Zugangsdaten](bilder/de/datei-import-43-avplan-export-zugangsdaten-frage.jpg)
 
