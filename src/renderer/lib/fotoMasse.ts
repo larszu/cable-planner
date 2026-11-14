@@ -35,7 +35,7 @@
 //
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
-import type { Foto } from '../types/foto'
+import type { Foto, FotoZiel } from '../types/foto'
 
 /**
  * Was ein Foto beim Aufnehmen höchstens werden darf.
@@ -101,7 +101,7 @@ export const mitBilddaten = (
 /** Die Fotos zu einem Gerät oder Kabel. */
 export const fotosZu = (
   fotos: readonly Foto[] | undefined,
-  ziel: { equipmentId?: string; cableId?: string; deviceTypeId?: string },
+  ziel: { equipmentId?: string; cableId?: string; deviceTypeId?: string; locationId?: string },
 ): Foto[] =>
   (fotos ?? []).filter((f) =>
     ziel.equipmentId
@@ -110,12 +110,54 @@ export const fotosZu = (
         ? f.zeigtAuf?.cableId === ziel.cableId
         : ziel.deviceTypeId
           ? f.zeigtAuf?.deviceTypeId === ziel.deviceTypeId
-          : false,
+          : ziel.locationId
+            ? f.zeigtAuf?.locationId === ziel.locationId
+            : false,
   )
 
-/** Die Fotos, die auf nichts zeigen — sie gehören dem Projekt. */
+/**
+ * Die Fotos, die auf nichts zeigen — sie gehören dem Projekt. Eine Marke im
+ * Plan (`punkt`) ist KEIN Ziel: ein Foto mit nur einer Marke bleibt ein
+ * Projektfoto, es hat lediglich einen Ort auf dem Canvas.
+ */
 export const fotosOhneZiel = (fotos: readonly Foto[] | undefined): Foto[] =>
-  (fotos ?? []).filter((f) => !f.zeigtAuf?.equipmentId && !f.zeigtAuf?.cableId && !f.zeigtAuf?.deviceTypeId)
+  (fotos ?? []).filter(
+    (f) => !f.zeigtAuf?.equipmentId && !f.zeigtAuf?.cableId && !f.zeigtAuf?.deviceTypeId && !f.zeigtAuf?.locationId,
+  )
+
+/** #1187 — die Fotos mit einer Marke im Plan. */
+export const fotosMitPunkt = (fotos: readonly Foto[] | undefined): Foto[] =>
+  (fotos ?? []).filter((f) => !!f.zeigtAuf?.punkt)
+
+/**
+ * #1187 — Schema-Heilung des Ziels: eine Marke ohne endliche Koordinaten
+ * faellt (ReactFlow setzte sie sonst auf NaN und der ganze Canvas springt),
+ * leere Id-Felder fallen ebenso. Ein Ziel ohne Inhalt wird `undefined`.
+ */
+export const heileFotoZiel = (z: unknown): FotoZiel | undefined => {
+  if (!z || typeof z !== 'object') return undefined
+  const r = z as Record<string, unknown>
+  const out: FotoZiel = {}
+  for (const k of ['equipmentId', 'cableId', 'deviceTypeId', 'locationId'] as const) {
+    const v = r[k]
+    if (typeof v === 'string' && v !== '') out[k] = v
+  }
+  const p = r.punkt as { x?: unknown; y?: unknown } | undefined
+  if (p && typeof p.x === 'number' && typeof p.y === 'number' && Number.isFinite(p.x) && Number.isFinite(p.y)) {
+    out.punkt = { x: p.x, y: p.y }
+  }
+  return Object.keys(out).length ? out : undefined
+}
+
+/** #1187 — Knoten-Id der Marke im Plan: ein eigener Raum, damit sie nie mit einem Geraet kollidiert. */
+const FOTO_MARKE_PREFIX = 'foto-marke:'
+export const fotoMarkeId = (fotoId: string): string => `${FOTO_MARKE_PREFIX}${fotoId}`
+export const fotoAusMarkeId = (id: string): string | undefined =>
+  id.startsWith(FOTO_MARKE_PREFIX) ? id.slice(FOTO_MARKE_PREFIX.length) : undefined
+
+/** #1187 — das Datum, das an einem Foto steht: Aufnahme, sonst Eingang. */
+export const fotoDatum = (f: Pick<Foto, 'aufgenommenAm' | 'hinzugefuegtAm'>): string =>
+  (f.aufgenommenAm || f.hinzugefuegtAm || '').slice(0, 10)
 
 /** Die Fotos eines Geraetetyps (#962) — sie gelten fuer jedes Geraet des Typs. */
 export const fotosZumTyp = (fotos: readonly Foto[] | undefined, deviceTypeId: string | undefined): Foto[] =>

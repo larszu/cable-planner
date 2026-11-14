@@ -53,6 +53,7 @@ import { abnahmeprotokollHtml, abnahmeStandTable, maengelTable } from '../../lib
 import { wartungsplanTable } from '../../lib/wartungsplan'
 import { konfigVorgabenTable } from '../../lib/konfigVorgaben'
 import { steckbriefHtml, steckbriefStandTable } from '../../lib/steckbrief'
+import { fotoBerichtHtml, fotoBerichtTable } from '../../lib/fotoBericht'
 import { bedienUebersichtHtml, bedienUebersichtStandTable } from '../../lib/bedienUebersicht'
 import { anhaengeTable } from '../../lib/anhaenge'
 import { kameraPositionsblattHtml, kameraPositionsblattStandTable } from '../../lib/kameraPositionsblatt'
@@ -277,6 +278,25 @@ export const InstallationDocsDialog = () => {
           suffix: 'konfig-vorgaben',
           ext: 'csv',
           mime: 'text/csv',
+        }),
+      },
+      {
+        // #1187 — die Fotos der Bestandsaufnahme gehen mit in die Uebergabe.
+        key: 'fotos',
+        label: t('docs.photos', 'Photo documentation'),
+        hint: t(
+          'docs.photos.hint',
+          'Every photo in the plan by room, device and cable, with caption and date (HTML, print to PDF)',
+        ),
+        build: () => ({
+          content: fotoBerichtHtml(project, {
+            titel: `${project.metadata.name || t('docs.photos', 'Photo documentation')} — ${t('docs.photos', 'Photo documentation')}`,
+            stempel: stampLine(stampForRows(project, fotoBerichtTable, new Date())),
+            t,
+          }),
+          suffix: 'fotobericht',
+          ext: 'html',
+          mime: 'text/html',
         }),
       },
       {

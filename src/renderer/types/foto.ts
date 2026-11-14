@@ -41,6 +41,15 @@ export interface FotoZiel {
    * Datensatz an beiden Stellen — die Bilddaten liegen nur einmal im Plan.
    */
   deviceTypeId?: string
+  /** #1187 — der RAUM (`LocationFrame.id`): „so sah der Deckendurchbruch in 2.14 aus". */
+  locationId?: string
+  /**
+   * #1187 — die Stelle im Plan (Canvas-Koordinaten), an der das Foto
+   * aufgenommen wurde. Steht unabhaengig von den Zielen oben: ein Foto kann
+   * einem Geraet gehoeren UND eine Marke im Plan haben. Die Marke zeigt sich
+   * auf dem Canvas, ein Klick oeffnet das Foto.
+   */
+  punkt?: { x: number; y: number }
 }
 
 /** Woher das Foto kam. Kein Freitext: davon hängt ab, wem man glaubt. */
@@ -68,5 +77,6 @@ export interface Foto {
   aufgenommenAm?: string
   /** Wann es in den Plan kam. Das ist eine andere Zahl als oben. */
   hinzugefuegtAm: string
+  /** Bildunterschrift (#1187 — im Bericht unter dem Bild). */
   notiz?: string
 }

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Check, ClipboardList, X } from 'lucide-react'
+import { Check, ClipboardList, FileImage, X } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
 import { PanelHint } from '../shared/PanelHint'
@@ -10,6 +10,11 @@ import { format, useTranslation } from '../../lib/i18n'
 import { hasDesktopBridge } from '../../lib/bridge'
 import { nextPlacementPosition } from '../../lib/library'
 import { eintragAusMeldung, erfasstesGeraet, offeneErfassungen } from '../../lib/erfassung'
+import { fotoBerichtHtml, fotoBerichtTable } from '../../lib/fotoBericht'
+import { stampForRows, stampLine } from '../../lib/documentStamp'
+import { downloadBlob } from '../../lib/downloadBlob'
+import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
+import { recordEmission } from '../../lib/documentLog'
 
 /**
  * #906 — Bestandsaufnahme: vorhandene Technik im Raum erfassen.
@@ -43,6 +48,21 @@ export const SurveyDialog = () => {
   const nameFeld = useRef<HTMLInputElement>(null)
 
   const offen = offeneErfassungen(equipment)
+  const fotoAnzahl = useProjectStore((s) => s.project.fotos?.length ?? 0)
+
+  // #1187 — der Bestandsbericht: dasselbe Blatt wie in der Uebergabe, damit
+  // es nur EINE Fassung der Fotodokumentation gibt.
+  const berichtAusgeben = () => {
+    const { project, filePath } = useProjectStore.getState()
+    const titel = t('survey.report', 'Survey report with photos')
+    const html = fotoBerichtHtml(project, {
+      titel: `${project.metadata.name || titel} — ${titel}`,
+      stempel: stampLine(stampForRows(project, fotoBerichtTable, new Date())),
+      t,
+    })
+    downloadBlob(buildExportFilenameWithSuffix(project.metadata.name || 'anlage', 'fotobericht', 'html'), html, 'text/html')
+    void recordEmission(project, 'fotobericht', filePath, '')
+  }
   const vomTelefon = pending.filter((p) => p.kind === 'new-device')
 
   const erfassen = () => {
@@ -90,6 +110,16 @@ export const SurveyDialog = () => {
             'Walk through the room and write down what you see. Each entry becomes a device in the plan right away — without connectors, marked as unfinished, with room, assumed connection and note in its notes. Add the ports, cables and photos later, or tick it off here.',
           )}
         />
+
+        <button
+          type="button"
+          onClick={berichtAusgeben}
+          disabled={fotoAnzahl === 0 && equipment.length === 0}
+          className="inline-flex items-center gap-1 border border-cp-border px-2 py-1 text-cp-xs text-cp-text-secondary hover:text-cp-text disabled:opacity-50"
+        >
+          <Icon icon={FileImage} className="h-3 w-3" />
+          {format(t('survey.reportButton', 'Survey report with photos ({n})'), { n: fotoAnzahl })}
+        </button>
 
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <label className="block">

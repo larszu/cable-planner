@@ -296,7 +296,7 @@ Die Anschlussliste führt jeden Netzanschluss mit Gerät, Schnittstelle, IP, VLA
 
 *Werkzeuge → Bestandsaufnahme (Vorhandenes erfassen)…* ist für den Gang durch den Raum: aufschreiben, was man sieht. Die Felder: *Gerät* (Pflicht), *Raum* (bleibt für den nächsten Eintrag stehen), *Verbunden mit (vermutet)* und *Notiz*. *Erfassen (Enter)* legt den Eintrag an; steht ein Gerät gleichen Namens schon im Plan, sagt die App das („…“ steht im Plan.).
 
-Zwei Listen: *Vom Telefon (n)* zeigt Einträge, die ein Telefon gemeldet hat (am Telefon *Mitschreiben* einstellen, *Melden* → *Neues Gerät*; vorher muss der Telefonzugriff eingeschaltet sein). Ein Haken übernimmt den Eintrag, **×** verwirft ihn. *Erfasst, noch nicht ausgearbeitet (n)* sammelt die erfassten Einträge; *Erledigt* nimmt einen Eintrag aus der Liste. Am Eintrag lässt sich unter *Fotos* mit *Foto hinzufügen…* ein Foto anhängen („Ein Foto beantwortet Fragen, für die es kein Feld gibt.“).
+Zwei Listen: *Vom Telefon (n)* zeigt Einträge, die ein Telefon gemeldet hat (am Telefon *Mitschreiben* einstellen, *Melden* → *Neues Gerät*; vorher muss der Telefonzugriff eingeschaltet sein). Ein Haken übernimmt den Eintrag, **×** verwirft ihn. *Erfasst, noch nicht ausgearbeitet (n)* sammelt die erfassten Einträge; *Erledigt* nimmt einen Eintrag aus der Liste. Am Eintrag lässt sich unter *Fotos* mit *Foto hinzufügen…* ein Foto anhängen („Ein Foto beantwortet Fragen, für die es kein Feld gibt.“). *Bestandsbericht mit Fotos (n)* gibt alle Fotos des Plans als HTML-Blatt aus, nach Raum, Gerät und Kabel geordnet, mit Bildunterschrift und Datum. Dasselbe Blatt steht als *Fotodokumentation* in der Übergabe.
 
 ![Bestandsaufnahme](bilder/de/werkzeuge-planen-14-bestand-offen.jpg)
 

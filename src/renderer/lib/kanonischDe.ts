@@ -325,6 +325,13 @@ export const SPALTEN_DE: Readonly<Record<string, string>> = {
   'Essence': 'Essenz',
   'Leg': 'Bein',
   'Group': 'Gruppe',
+  // #1187 — Fotodokumentation
+  'Target': 'Ziel',
+  'Photo': 'Foto',
+  'Caption': 'Bildunterschrift',
+  'Mark in plan': 'Marke im Plan',
+  'Date': 'Datum',
+  'Size': 'Größe',
   'UDP port': 'UDP-Port',
   'L2 MAC': 'L2-MAC',
   'Receivers': 'Empfänger',

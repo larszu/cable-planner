@@ -10,6 +10,7 @@ import type { Cable } from '../types/cable'
 import type { EquipmentItem, EquipmentTemplate, GroupPreset, Port } from '../types/equipment'
 import type { Floor, LocationFrame } from '../types/location'
 import { etageVon, heileEtagen } from '../lib/etagen'
+import { heileFotoZiel } from '../lib/fotoMasse'
 import { geraeteUmbenannt, kabelUmbenannt, type StammdatenArt } from '../lib/stammdaten'
 import type { CablePlannerProject } from '../types/project'
 import { useUiStore } from './uiStore'
@@ -1094,6 +1095,14 @@ const healProjectPositions = (
       Number.isFinite(f.hoehe) &&
       typeof f.dataUri === 'string',
   )
+    // #1187 — Raum und Marke im Plan: das Ziel wird geheilt, nicht verworfen.
+    .map((f) => {
+      const zeigtAuf = heileFotoZiel(f.zeigtAuf)
+      if (zeigtAuf) return { ...f, zeigtAuf }
+      if (!f.zeigtAuf) return f
+      const { zeigtAuf: _weg, ...rest } = f
+      return rest
+    })
   if ((project.fotos?.length ?? 0) !== fotos.length) {
     onDrop?.({ kind: 'foto', reason: 'invalid-value', label: '' })
   }

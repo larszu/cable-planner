@@ -9,7 +9,7 @@ The inspector is the right-hand side panel. It shows the properties of the selec
 With nothing selected the inspector shows:
 
 - *Nothing selected* with the hint to pick a device, cable, frame or library template.
-- *Photos of the project*: photos that belong to the whole plan rather than to one device. *Add photo…* opens the file picker. Each photo shows its size and source (*from the planner* or *from the phone*) and has a *Note* field.
+- *Photos of the project*: photos that belong to the whole plan rather than to one device. *Add photo…* opens the file picker. *Take photo* opens the camera directly on phones and tablets. Each photo shows its date, size and source (*from the planner* or *from the phone*) and has a *Caption* field. Clicking the image shows it large. *Mark in plan*, then a click in the plan, places a camera mark at that spot; clicking the mark opens the photo, dragging moves it, *Remove mark from plan* in the large view removes it.
 - *Quick orientation* with four hints: drop devices from the library on the canvas, connect ports to create cables, select multiple devices and save them as a group from the canvas, Rentman actions live in the Equipment tab under Rentman.
 
 ![Project photo added](bilder/en/eigenschaften-02-projektfoto-hinzugefuegt.jpg)
@@ -504,5 +504,7 @@ Clicking a frame shows its properties.
 | Export BOM | opens the room's BOM with devices, internal cables and external connections; *Combine cables*, *Embed plan* and *Export PDF* |
 | Delete frame only | deletes the frame, the devices stay |
 | Delete frame + contents | deletes, after confirmation, the frame with all its devices and their cables |
+
+Below it is *Photos of the room*: the same photo list as on a device, for pictures that belong to the room (ceiling penetration, floor box, cable tray).
 
 ![BOM](bilder/en/eigenschaften-206-rahmen-stueckliste-dialog.jpg)

@@ -296,7 +296,7 @@ The connection list shows every network connection with device, interface, IP, V
 
 *Tools → Survey (capture existing)…* is for the walk through the room: write down what you see. The fields: *Device* (required), *Room* (stays for the next entry), *Connected to (assumed)* and *Note*. *Capture (Enter)* creates the entry; if a device of the same name is already in the plan, the app says so.
 
-Two lists: *From the phone (n)* shows entries a phone has reported (on the phone set "Contribute" and choose "Report" → "New device"; phone access must be on beforehand). A tick adopts the entry, **×** discards it. *Captured, not worked out yet (n)* gathers the captured entries; *Done* takes an entry off the list. On an entry, *Photos* with *Add photo…* attaches a photo.
+Two lists: *From the phone (n)* shows entries a phone has reported (on the phone set "Contribute" and choose "Report" → "New device"; phone access must be on beforehand). A tick adopts the entry, **×** discards it. *Captured, not worked out yet (n)* gathers the captured entries; *Done* takes an entry off the list. On an entry, *Photos* with *Add photo…* attaches a photo. *Survey report with photos (n)* outputs every photo in the plan as an HTML sheet, ordered by room, device and cable, with caption and date. The same sheet is in the handover as *Photo documentation*.
 
 ![Survey](bilder/en/werkzeuge-planen-14-bestand-offen.jpg)
 
