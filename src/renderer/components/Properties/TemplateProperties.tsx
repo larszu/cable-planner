@@ -18,6 +18,7 @@ export const TemplateProperties = () => {
   const equipmentCount = useProjectStore((state) => state.project.equipment.length)
   const equipmentItems = useProjectStore((state) => state.project.equipment)
   const setSelectedTemplateName = useProjectStore((state) => state.setSelectedTemplateName)
+  const setCustomTemplateCategory = useProjectStore((state) => state.setCustomTemplateCategory)
 
   const template = customLibrary.find((tpl) => tpl.name === selectedTemplateName)
 
@@ -120,7 +121,16 @@ export const TemplateProperties = () => {
         <span className="mb-1 block text-cp-text-secondary">
           {t('template.field.category', 'Category')}
         </span>
-        <CategorySelect value={category} onChange={setCategory} />
+        <CategorySelect
+          value={category}
+          onChange={(cat) => {
+            // #1227 — gilt sofort, wie die Ports: der Speichern-Knopf steht
+            // unter allen Ports, und wer ihn nicht fand, sah die neue
+            // (Unter-)Kategorie nur, bis er etwas anderes anklickte.
+            setCategory(cat)
+            if (cat.trim()) setCustomTemplateCategory(template.name, cat)
+          }}
+        />
       </label>
 
       <label className="block">

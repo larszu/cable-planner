@@ -56,7 +56,11 @@ export const LibraryItem = ({
     // gegen den dann aktuellen Folder-Stand.
     const payload = JSON.stringify(stampDeviceLibraryRef(item))
     event.dataTransfer.setData(MIME_EQUIPMENT, payload)
-    event.dataTransfer.effectAllowed = 'copy'
+    // #1227 — 'copyMove' und nicht 'copy': die Leinwand legt eine KOPIE ab
+    // (dropEffect 'copy'), die Kategorien der Bibliothek VERSCHIEBEN die
+    // Vorlage (dropEffect 'move'). Mit nur 'copy' verwarf der Browser jeden
+    // Abwurf auf eine Kategorie still — das Geraet blieb, wo es war.
+    event.dataTransfer.effectAllowed = 'copyMove'
   }
 
   const addFromClick = () => {

@@ -100,7 +100,7 @@ Kategorien ordnen die Vorlagen. Beim Zeigen auf den Kategoriestreifen erscheint 
 
    ![Kategorie am Griff ziehen](bilder/de/bibliothek-35-kategorie-ziehen-griff.jpg)
 
-3. Einträge lassen sich auf eine andere Kategorie ziehen; eine leere Kategorie sagt dazu *Gerät hierher ziehen zum Verschieben*.
+3. Einträge lassen sich auf eine andere Kategorie oder Unterkategorie ziehen; eine leere Kategorie sagt dazu *Gerät hierher ziehen zum Verschieben*. Ziehen Sie an den oberen oder unteren Rand der Liste, läuft sie mit. Ebenso wechselt die Kategorie im Inspector der Vorlage den Platz sofort, ohne *Speichern*.
 
    ![Eintrag in eine Kategorie ziehen](bilder/de/bibliothek-52-eintrag-in-kategorie-ziehen.jpg)
 
