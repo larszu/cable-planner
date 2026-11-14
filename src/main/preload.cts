@@ -353,6 +353,8 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       ipcRenderer.invoke('attachment:present', projectPath, storedAs) as Promise<unknown>,
     reveal: (projectPath: string | undefined, storedAs: string) =>
       ipcRenderer.invoke('attachment:reveal', projectPath, storedAs) as Promise<boolean>,
+    preview: (projectPath: string | undefined, storedAs: string) =>
+      ipcRenderer.invoke('attachment:preview', projectPath, storedAs) as Promise<unknown>,
   },
   /**
    * E-23 — der eingehende OSC-Lauscher.

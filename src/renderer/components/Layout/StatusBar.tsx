@@ -164,6 +164,22 @@ const AufgabenBadge = () => {
   )
 }
 
+/** #1186 — Zaehlzeile: die Dokumente am Projekt, Klick oeffnet die Ablage. */
+const DokumenteZahl = () => {
+  const t = useTranslation()
+  const n = useProjectStore((s) => s.project.anhaenge?.length ?? 0)
+  return (
+    <button
+      type="button"
+      onClick={() => useUiStore.getState().setDokumenteOpen(true)}
+      title={t('statusbar.documents.title', 'Open the documents of the project')}
+      className="hidden whitespace-nowrap hover:text-[var(--cp-text)] lg:inline"
+    >
+      {format(t('statusbar.documents', '{count} documents'), { count: n })}
+    </button>
+  )
+}
+
 export const StatusBar = ({
   projectName,
   zoom,
@@ -260,6 +276,7 @@ export const StatusBar = ({
         <span className="whitespace-nowrap">{format(t('statusbar.equipment', '{count} devices'), { count: equipmentCount })}</span>
         <span className="whitespace-nowrap">{format(t('statusbar.cables', '{count} cables'), { count: cableCount })}</span>
         <span className="hidden whitespace-nowrap lg:inline">{format(t('statusbar.locations', '{count} frames'), { count: locationCount })}</span>
+        <DokumenteZahl />
         {packedCount !== undefined && equipmentCount > 0 && (
           <span
             className={`hidden shrink-0 items-center gap-1 whitespace-nowrap xl:inline-flex ${

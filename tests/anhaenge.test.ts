@@ -2,7 +2,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { ATTACHMENT_MAX_BYTES, attachFile, attachmentsPresent } from '../src/main/services/attachmentStore'
+import { ATTACHMENT_MAX_BYTES, attachFile, attachmentPreview, attachmentsPresent } from '../src/main/services/attachmentStore'
 import mainSrc from '../src/main/services/attachmentStore.ts?raw'
 import ablageSrc from '../src/main/util/projektAblage.ts?raw'
 import ipcSrc from '../src/main/ipc/attachmentIpc.ts?raw'
@@ -10,7 +10,7 @@ import rendererSrc from '../src/renderer/types/anhang.ts?raw'
 import type { CablePlannerProject } from '../src/renderer/types/project'
 import type { Cable } from '../src/renderer/types/cable'
 import type { ProjektAnhang } from '../src/renderer/types/anhang'
-import { anhaengeTable, messungenOhneProtokoll, normaliseAnhaenge } from '../src/renderer/lib/anhaenge'
+import { anhaengeTable, hatVorschau, messungenOhneProtokoll, normaliseAnhaenge, normaliseSchlagworte, zielName } from '../src/renderer/lib/anhaenge'
 import { DOCUMENT_LABELS, DOCUMENT_STANDS } from '../src/renderer/lib/documentRegistry'
 import { stripComments } from './support/stripComments'
 
@@ -74,14 +74,34 @@ describe('Ablage in main', () => {
     expect(da).toEqual({ [r.file.storedAs]: true, 'Anhaenge/fehlt.pdf': false, '../a.txt': false })
   })
 
-  it('öffnet nie eine Datei — es gibt nur Ablegen, Nachsehen und Zeigen', () => {
+  it('öffnet nie eine Datei — es gibt nur Ablegen, Nachsehen, Zeigen und die Vorschau', () => {
     const c = stripComments(ipcSrc)
     expect(c).not.toMatch(/openPath|openExternal|readFile/)
     expect([...c.matchAll(/ipcMain\.handle\('([^']+)'/g)].map((m) => m[1]).sort()).toEqual([
       'attachment:pick',
       'attachment:present',
+      'attachment:preview',
       'attachment:reveal',
     ])
+  })
+
+  it('#1186 — Vorschau nur fuer Bild und PDF im Projektordner', async () => {
+    const d = await ordner()
+    const projectPath = path.join(d, 'Haus.avplan')
+    const pdf = path.join(d, 'Datenblatt.pdf')
+    const xml = path.join(d, 'Sicherung.xml')
+    await writeFile(pdf, '%PDF-1.7')
+    await writeFile(xml, '<x/>')
+    const a = await attachFile(projectPath, pdf, 'a')
+    const b = await attachFile(projectPath, xml, 'b')
+    if (!a.ok || !b.ok) throw new Error('nicht abgelegt')
+    const v = await attachmentPreview(projectPath, a.file.storedAs)
+    expect(v?.mediaType).toBe('application/pdf')
+    expect(new TextDecoder().decode(v!.daten)).toBe('%PDF-1.7')
+    expect(await attachmentPreview(projectPath, b.file.storedAs)).toBeNull()
+    expect(await attachmentPreview(projectPath, '../Datenblatt.pdf')).toBeNull()
+    expect(hatVorschau(a.file)).toBe(true)
+    expect(hatVorschau(b.file)).toBe(false)
   })
 })
 
@@ -160,7 +180,7 @@ const haus = (anhaenge: ProjektAnhang[]): CablePlannerProject =>
 describe('Anhänge-Verzeichnis', () => {
   const liste: ProjektAnhang[] = [
     { id: '1', art: 'messprotokoll', titel: 'Messung K-1', datei: datei('Anhaenge/k1.pdf') as ProjektAnhang['datei'], ziel: { type: 'cable', id: 'K-1' } },
-    { id: '2', art: 'herstellerunterlage', titel: '', datei: datei('Anhaenge/atem.pdf') as ProjektAnhang['datei'], ziel: { type: 'equipment', id: 'atem' } },
+    { id: '2', art: 'herstellerunterlage', titel: '', datei: datei('Anhaenge/atem.pdf') as ProjektAnhang['datei'], ziel: { type: 'equipment', id: 'atem' }, schlagworte: ['Rack A', 'Abnahme'] },
     { id: '3', art: 'konfig-backup', titel: 'Alt', datei: datei('Anhaenge/alt.xml') as ProjektAnhang['datei'], ziel: { type: 'equipment', id: 'weg' } },
   ]
 
@@ -170,10 +190,29 @@ describe('Anhänge-Verzeichnis', () => {
 
   it('führt jeden Anhang mit Ziel und Prüfsumme, die fehlenden Protokolle und verlorene Ziele', () => {
     const t = anhaengeTable(haus(liste))
-    expect(t.headers).toEqual(['Art', 'Titel', 'Betrifft', 'Datei', 'Größe (KB)', 'SHA-256', 'Angehängt', 'Befund'])
-    expect(t.rows).toContainEqual(['Herstellerunterlage', 'atem.pdf', 'ATEM', 'Anhaenge/atem.pdf', 2, 'ab'.repeat(32), '2026-09-27', ''])
-    expect(t.rows).toContainEqual(['Messprotokoll', '', 'K-3', '', '', '', '', 'Messung eingetragen, Protokoll fehlt'])
-    expect(t.rows.find((r) => r[1] === 'Alt')![7]).toBe('Ziel nicht mehr im Plan')
+    expect(t.headers).toEqual(['Art', 'Titel', 'Betrifft', 'Datei', 'Größe (KB)', 'SHA-256', 'Angehängt', 'Schlagworte', 'Befund'])
+    expect(t.rows).toContainEqual(['Herstellerunterlage', 'atem.pdf', 'ATEM', 'Anhaenge/atem.pdf', 2, 'ab'.repeat(32), '2026-09-27', 'Rack A, Abnahme', ''])
+    expect(t.rows).toContainEqual(['Messprotokoll', '', 'K-3', '', '', '', '', '', 'Messung eingetragen, Protokoll fehlt'])
+    expect(t.rows.find((r) => r[1] === 'Alt')![8]).toBe('Ziel nicht mehr im Plan')
+  })
+
+  it('#1186 — Raum und Geraetetyp als Ziel, Schlagworte geheilt', () => {
+    const p = {
+      ...haus([]),
+      equipment: [{ id: 'atem', name: 'ATEM', subtitle: 'ATEM 2 M/E', deviceTypeId: 'bm-atem2', inputs: [], outputs: [], x: 0, y: 0 }],
+      locations: [{ id: 'r1', name: 'Regie', x: 0, y: 0, width: 1, height: 1, color: '#fff' }],
+    } as unknown as CablePlannerProject
+    expect(zielName(p, { type: 'location', id: 'r1' })).toBe('Regie')
+    expect(zielName(p, { type: 'deviceType', id: 'bm-atem2' })).toBe('ATEM 2 M/E')
+    expect(zielName(p, { type: 'location', id: 'weg' })).toBeNull()
+    const r = normaliseAnhaenge([
+      { id: 'a', art: 'sonstiges', titel: '', datei: datei('Anhaenge/a.pdf'), ziel: { type: 'location', id: 'r1' }, schlagworte: [' Angebot ', '', 'angebot', 'v2'] },
+      { id: 'b', art: 'sonstiges', titel: '', datei: datei('Anhaenge/b.pdf'), ziel: { type: 'weg', id: 'x' } },
+    ])!
+    expect(r[0]).toMatchObject({ ziel: { type: 'location', id: 'r1' }, schlagworte: ['Angebot', 'v2'] })
+    expect(r[1]).not.toHaveProperty('ziel')
+    expect(r[1]).not.toHaveProperty('schlagworte')
+    expect(normaliseSchlagworte('Rack A, , Abnahme')).toEqual(['Rack A', 'Abnahme'])
   })
 
   it('hängt nicht an der Reihenfolge der Anhänge', () => {

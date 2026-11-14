@@ -152,7 +152,7 @@ Drei Knöpfe schreiben CSV: *Kanäle* (die gelesenen Kanäle), *Zuordnung* und, 
 | *Geräte-Steckbrief* | HTML, als PDF druckbar | eine Karte je Gerät: Standort, Kennung, Netz, Mischer-Eingang, Kabel, Service-Historie |
 | *Bedien-Kurzübersicht* | HTML, als PDF druckbar | welche Quelle auf welchem Mischer-Eingang liegt, wohin die Ausgänge gehen, Kontakte, Web-Oberflächen |
 | *Kamera-Positionsblatt* | HTML, als PDF druckbar | je Kamera: Standort, Höhe, Ausrichtung, Optik, Mischer-Eingang und die PTZ-Presets aus dem Kameraplan |
-| *Anhänge-Verzeichnis* | CSV | jeder Anhang mit Art, Ziel, abgelegter Datei und SHA-256, dazu Kabel, deren Messergebnis kein Protokoll hat |
+| *Anhänge-Verzeichnis* | CSV | jeder Anhang mit Art, Ziel, abgelegter Datei, SHA-256 und Schlagworten, dazu Kabel, deren Messergebnis kein Protokoll hat |
 | *Signalwege* | CSV | jede Kette von der Quelle bis zum Ziel, mit Etage und Raum an jeder Station |
 | *Trassenplan je Etage* | HTML, als PDF druckbar | Draufsicht je Etage: Räume, Steigschacht, die Verbindungen dazwischen und die Durchgangsliste |
 | *Durchgänge (Brandschutz)* | CSV | jede Raumgrenze, jeder Schachtzugang und jede Geschossdecke, die ein Kabel passiert, mit Mantel-/Brandklasse und Trasse |
@@ -198,7 +198,7 @@ Die Dateien der Karten werden im Dialog ohne Bild gezeigt; eine Auswahl zeigen d
 
 ![Überschreiben vorhandener Namen](bilder/de/export-124-doku-ueberschreiben.jpg)
 
-**Anhänge.** Der Abschnitt *Anhänge* verwaltet Dateien, die dem Plan angehängt sind, und füttert das *Anhänge-Verzeichnis*. Wählen Sie die *Art* (*Messprotokoll*, *Herstellerunterlage*, *Konfigurations-Sicherung*, *Sonstiges*) und wozu die Datei gehört (*Ganze Anlage*, *Kabel*, *Geräte*) und klicken Sie *Dateien anhängen …*. Das gibt es nur in der Desktop-App. Die Dateien liegen in einem Ordner beim Projekt; ein noch nicht gespeichertes Projekt hat keinen. Dateien über 100 MB nimmt die App nicht an. Ein Eintrag zeigt die Datei im Ordner (*Im Ordner zeigen*) oder wird entfernt, wobei die Datei im Ordner bleibt. Kabel mit Messergebnis, aber ohne Protokoll, nennt der Abschnitt.
+**Anhänge.** Der Abschnitt *Anhänge* verwaltet Dateien, die dem Plan angehängt sind, und füttert das *Anhänge-Verzeichnis*. Wählen Sie die *Art* (*Messprotokoll*, *Herstellerunterlage*, *Konfigurations-Sicherung*, *Sonstiges*) und wozu die Datei gehört (*Ganze Anlage*, *Kabel*, *Geräte*, *Gerätetypen*, *Räume*) und klicken Sie *Dateien anhängen …*. Ein Datenblatt hängt am Gerätetyp und gilt damit für jedes Gerät dieses Typs. Das gibt es nur in der Desktop-App. Die Dateien liegen in einem Ordner beim Projekt; ein noch nicht gespeichertes Projekt hat keinen. Dateien über 100 MB nimmt die App nicht an. Jeder Eintrag hat einen Titel und *Schlagworte, mit Komma getrennt*; ab vier Einträgen sucht ein Feld über Titel, Datei, Schlagwort und Ziel. Bei PDF und Bildern zeigt das Auge eine *Vorschau* (beim PDF die erste Seite). Ein Eintrag zeigt die Datei im Ordner (*Im Ordner zeigen*) oder wird entfernt, wobei die Datei im Ordner bleibt. Derselbe Abschnitt steht unter *Werkzeuge → Dokumente…*, auch ohne das Modul Festinstallation; die Fußleiste zählt die Dokumente (*n Dokumente*), ein Klick darauf öffnet sie. Kabel mit Messergebnis, aber ohne Protokoll, nennt der Abschnitt.
 
 ![Abschnitt Anhänge](bilder/de/export-125-doku-anhaenge.jpg)
 

@@ -20,7 +20,15 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { CablePlannerProject } from '../types/project'
-import { ANHANG_ARTEN, ANHANG_ART_LABEL, type AnhangArt, type AnhangDatei, type ProjektAnhang } from '../types/anhang'
+import {
+  ANHANG_ARTEN,
+  ANHANG_ART_LABEL,
+  ANHANG_ZIEL_ARTEN,
+  type AnhangArt,
+  type AnhangDatei,
+  type AnhangZielArt,
+  type ProjektAnhang,
+} from '../types/anhang'
 import type { CsvCell, CsvTable } from './csv'
 import { vergleich } from './druckblatt'
 import { kanonisch, spalten } from './kanonisch'
@@ -50,6 +58,22 @@ const heileDatei = (roh: unknown): AnhangDatei | null => {
   }
 }
 
+/** #1186 — Schlagworte: getrimmt, ohne Leere und Doppelte, Reihenfolge bleibt. */
+export const normaliseSchlagworte = (roh: unknown): string[] => {
+  const liste = typeof roh === 'string' ? roh.split(',') : Array.isArray(roh) ? roh : []
+  const out: string[] = []
+  for (const s of liste) {
+    if (typeof s !== 'string') continue
+    const w = s.trim()
+    if (w && !out.some((x) => x.toLowerCase() === w.toLowerCase())) out.push(w)
+  }
+  return out
+}
+
+/** #1186 — eine Datei, die die Vorschau zeigen kann (dieselbe Liste wie in main). */
+export const hatVorschau = (datei: Pick<AnhangDatei, 'storedAs'>): boolean =>
+  /\.(pdf|jpe?g|png|webp)$/i.test(datei.storedAs)
+
 /** Schema-Heilung für `healProjectPositions`. Leer → `undefined`, damit ein unverändertes Projekt keinen Unterschied zeigt. */
 export function normaliseAnhaenge(roh: unknown): ProjektAnhang[] | undefined {
   if (!Array.isArray(roh)) return undefined
@@ -64,10 +88,18 @@ export function normaliseAnhaenge(roh: unknown): ProjektAnhang[] | undefined {
     const art = ANHANG_ARTEN.includes(a.art as AnhangArt) ? (a.art as AnhangArt) : 'sonstiges'
     const z = a.ziel as Record<string, unknown> | undefined
     const ziel =
-      z && (z.type === 'cable' || z.type === 'equipment') && text(z.id)
-        ? { type: z.type as 'cable' | 'equipment', id: z.id }
+      z && ANHANG_ZIEL_ARTEN.includes(z.type as AnhangZielArt) && text(z.id)
+        ? { type: z.type as AnhangZielArt, id: z.id }
         : undefined
-    out.push({ id: a.id, art, titel: typeof a.titel === 'string' ? a.titel : '', datei, ...(ziel ? { ziel } : {}) })
+    const schlagworte = normaliseSchlagworte(a.schlagworte)
+    out.push({
+      id: a.id,
+      art,
+      titel: typeof a.titel === 'string' ? a.titel : '',
+      datei,
+      ...(ziel ? { ziel } : {}),
+      ...(schlagworte.length ? { schlagworte } : {}),
+    })
   }
   return out.length ? out : undefined
 }
@@ -86,6 +118,11 @@ export const zielName = (project: CablePlannerProject, ziel: ProjektAnhang['ziel
   if (ziel.type === 'cable') {
     const c = project.cables.find((x) => x.id === ziel.id)
     return c ? c.cableNumber || c.name || c.id : null
+  }
+  if (ziel.type === 'location') return (project.locations ?? []).find((x) => x.id === ziel.id)?.name ?? null
+  if (ziel.type === 'deviceType') {
+    const e = project.equipment.find((x) => x.deviceTypeId === ziel.id)
+    return e ? e.subtitle || e.name : null
   }
   return project.equipment.find((x) => x.id === ziel.id)?.name ?? null
 }
@@ -112,13 +149,14 @@ export const anhaengeTable = (project: CablePlannerProject): CsvTable => {
       Math.ceil(a.datei.bytes / 1024),
       a.datei.sha256,
       a.datei.addedAt.slice(0, 10),
+      (a.schlagworte ?? []).join(', '),
       name === null ? kanonisch('rest.attach.targetGone', 'target no longer in the plan') : '',
     ]
   })
   const kabel = new Map(project.cables.map((c) => [c.id, c]))
   for (const id of messungenOhneProtokoll(project)) {
     const c = kabel.get(id)!
-    zeilen.push([kanonisch('anhang.kind.messprotokoll', ANHANG_ART_LABEL.messprotokoll), '', c.cableNumber || c.name || c.id, '', '', '', '', 'Messung eingetragen, Protokoll fehlt'])
+    zeilen.push([kanonisch('anhang.kind.messprotokoll', ANHANG_ART_LABEL.messprotokoll), '', c.cableNumber || c.name || c.id, '', '', '', '', '', 'Messung eingetragen, Protokoll fehlt'])
   }
   zeilen.sort(
     (a, b) =>
@@ -128,7 +166,7 @@ export const anhaengeTable = (project: CablePlannerProject): CsvTable => {
       vergleich(String(a[5]), String(b[5])),
   )
   return {
-    headers: spalten(['Kind', 'Title', 'Concerns', 'File', 'Size (KB)', 'SHA-256', 'Attached', 'Finding']),
+    headers: spalten(['Kind', 'Title', 'Concerns', 'File', 'Size (KB)', 'SHA-256', 'Attached', 'Tags', 'Finding']),
     rows: zeilen,
   }
 }
