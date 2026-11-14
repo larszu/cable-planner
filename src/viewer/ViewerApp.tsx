@@ -6,6 +6,7 @@ import { stampForPlan } from '../renderer/lib/documentStamp'
 import { Icon } from '../renderer/components/shared/Icon'
 import { format, uebersetzer } from './i18n'
 import { isSharedPlan, savedDate, shareUrlFromHash } from './share'
+import { acceptFuerGeraet } from '../renderer/lib/pickFile'
 
 // #143 — Zero-Install-Web-Viewer (Stage 1). Lädt eine .cpviewer/.json und
 // rendert den Plan read-only als SVG plus die Anmerkungen. Der Reviewer kann
@@ -397,7 +398,7 @@ export const ViewerApp = () => {
           <label className="flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-cp-border bg-cp-surface-2/40 p-6 text-center text-sm text-cp-text-muted hover:border-cp-accent hover:text-cp-text">
             <span className="font-medium">{t('viewer.drop', 'Drag a plan file here or click')}</span>
             <span className="text-xs">{t('viewer.drop.kinds', '.cpviewer or .json')}</span>
-            <input type="file" accept=".cpviewer,.json,application/json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void loadFile(f) }} />
+            <input type="file" accept={acceptFuerGeraet('.cpviewer,.json,application/json')} className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void loadFile(f) }} />
           </label>
 
           {/* Umschaltbar: Live vom Desktop laden (lokal ODER über Mobilfunk) */}

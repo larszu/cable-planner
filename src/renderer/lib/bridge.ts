@@ -1,4 +1,5 @@
 import { tr, format } from './i18n'
+import { acceptFuerGeraet } from './pickFile'
 import type { CablePlannerProject } from '../types/project'
 import type { NetboxRack, NetboxSite, NetboxSnapshot } from '../types/netbox'
 import type { AttachResult, ReceiptContent } from '../types/receipt'
@@ -1195,7 +1196,7 @@ const webFallbackApi: CablePlannerApi = {
     openProject: async () => {
       const input = document.createElement('input')
       input.type = 'file'
-      input.accept = '.cableplan,.json,application/json'
+      input.accept = acceptFuerGeraet('.cableplan,.json,application/json')
 
       return await new Promise<OpenProjectResponse | null>((resolve) => {
         input.onchange = async () => {
@@ -1223,7 +1224,7 @@ const webFallbackApi: CablePlannerApi = {
     openForCompare: async () => {
       const input = document.createElement('input')
       input.type = 'file'
-      input.accept = '.cableplan,.json,.cpviewer,application/json'
+      input.accept = acceptFuerGeraet('.cableplan,.json,.cpviewer,application/json')
       return await new Promise<{ filePath: string; data: unknown } | null>((resolve) => {
         input.onchange = async () => {
           const file = input.files?.[0]
@@ -1300,7 +1301,7 @@ const webFallbackApi: CablePlannerApi = {
     openFile: async () => {
       const input = document.createElement('input')
       input.type = 'file'
-      input.accept = '.graphml,application/xml,text/xml'
+      input.accept = acceptFuerGeraet('.graphml,application/xml,text/xml')
       return await new Promise<{ filePath: string; fileName: string; xml: string } | null>((resolve) => {
         input.onchange = async () => {
           const file = input.files?.[0]

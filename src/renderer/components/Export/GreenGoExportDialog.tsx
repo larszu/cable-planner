@@ -31,6 +31,7 @@ import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
 import { useTranslation, format } from '../../lib/i18n'
 import { useDialogA11y } from '../../hooks/useDialogA11y'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
+import { acceptFuerGeraet } from '../../lib/pickFile'
 
 interface Props {
   onClose: () => void
@@ -809,7 +810,7 @@ export const GreenGoExportDialog = ({ onClose }: Props) => {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".gg5,.json"
+              accept={acceptFuerGeraet('.gg5,.json')}
               className="hidden"
               onChange={handleFileSelected}
             />

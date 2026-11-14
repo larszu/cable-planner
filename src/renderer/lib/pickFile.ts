@@ -34,6 +34,44 @@ export interface PickedDataUriFile {
   mimeType: string
 }
 
+/**
+ * Dateiendungen, die iOS/iPadOS einem eigenen Typ (UTI) zuordnet. Nur die
+ * darf ein `accept` auf einem iPhone nennen: Safari uebersetzt `accept` in
+ * UTIs, und eine Endung ohne UTI (`.cableplan`, `.cpviewer`, `.avplan`,
+ * `.gg5` …) faellt dabei still heraus. Die Datei selbst traegt dann nur
+ * einen dynamischen Typ, der zu keinem der uebrigen Eintraege passt — die
+ * Dateien-App graut sie aus, „Oeffnen" nimmt sie nicht (#1197).
+ */
+export const IOS_BEKANNTE_ENDUNGEN = new Set([
+  '.json', '.csv', '.txt', '.xml', '.pdf', '.png', '.jpg', '.jpeg', '.gif',
+  '.webp', '.svg', '.heic', '.html', '.htm', '.xlsx', '.zip',
+])
+
+/** iPhone, iPod oder iPad — auch das iPad, das sich als Mac ausgibt. */
+export const istIos = (
+  nav: Pick<Navigator, 'userAgent' | 'platform' | 'maxTouchPoints'> | undefined =
+    typeof navigator === 'undefined' ? undefined : navigator,
+): boolean => {
+  if (!nav) return false
+  if (/iPad|iPhone|iPod/.test(nav.userAgent)) return true
+  return nav.platform === 'MacIntel' && nav.maxTouchPoints > 1
+}
+
+/**
+ * Das `accept`, das dieses Geraet wirklich anwenden kann. Auf iOS ohne
+ * Filter, sobald eine eigene Endung darin steht — sonst waere genau die
+ * eigene Datei nicht waehlbar. Was gewaehlt wurde, pruefen die Aufrufer
+ * ohnehin beim Lesen (JSON.parse, Formatpruefung).
+ */
+export const acceptFuerGeraet = (accept: string, ios: boolean = istIos()): string => {
+  if (!ios) return accept
+  const eigene = accept
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .some((s) => s.startsWith('.') && !IOS_BEKANNTE_ENDUNGEN.has(s))
+  return eigene ? '' : accept
+}
+
 /** Open a hidden file picker. Resolves with the picked File or null
  *  (auf Cancel oder Browser-Quirk wo onchange nie feuert; in dem Fall
  *  bleibt die Promise hängen — caller sollte nicht auf Cleanup hoffen). */
@@ -41,7 +79,7 @@ export const openFilePicker = (accept = '*/*'): Promise<File | null> =>
   new Promise((resolve) => {
     const input = document.createElement('input')
     input.type = 'file'
-    input.accept = accept
+    input.accept = acceptFuerGeraet(accept)
     input.onchange = () => {
       const file = input.files?.[0]
       resolve(file ?? null)
