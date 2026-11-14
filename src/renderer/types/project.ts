@@ -417,6 +417,12 @@ export interface CablePlannerProject {
    */
   cableStock?: CableStockEntry[]
   /**
+   * #1178 — lichter Innendurchmesser (mm) des Rohrs/Kanals je Trasse, nach
+   * dem Trassennamen (`Cable.pathway`). Fehlt der Eintrag, gibt es fuer die
+   * Trasse keinen Fuellgrad — nur Buendeldurchmesser und Querschnitt.
+   */
+  pathwayDuctMm?: Record<string, number>
+  /**
    * #881 — die Panel-TYPEN, mit denen dieses Projekt rechnet.
    *
    * Sie stehen am Projekt und nicht app-weit: welche Kacheln im Haus liegen,

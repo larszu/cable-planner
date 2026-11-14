@@ -129,6 +129,8 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   steckerVon: 'substantive',
   steckerNach: 'substantive',
   aderAwg: 'substantive',
+  // #1178 — der Durchmesser entscheidet, ob das Buendel ins Rohr passt.
+  outerDiameterMm: 'substantive',
   isTieLine: 'substantive',
   // Welche Hausstrecke und Ader belegt wird, ist die Arbeit des Anschliessens.
   hausStreckeId: 'substantive',

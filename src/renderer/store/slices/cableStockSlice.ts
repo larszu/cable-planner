@@ -29,12 +29,25 @@ import type { LedPanelType, LedWall } from '../../types/ledWall'
  * wie bei den Farbnormen. Zwei Stellen, die dasselbe pruefen, sind eine
  * Stelle zu viel.
  */
-export type CableStockSlice = Pick<ProjectState, 'setCableStock' | 'setLedPanelTypes' | 'setLedWalls'>
+export type CableStockSlice = Pick<ProjectState, 'setCableStock' | 'setPathwayDuct' | 'setLedPanelTypes' | 'setLedWalls'>
 
 export const createCableStockSlice: StateCreator<ProjectState, [], [], CableStockSlice> = (set) => ({
   setCableStock: (cableStock: CableStockEntry[]) =>
     set((state) => {
       const updated = { ...state.project, cableStock }
+      scheduleProjectAutosave(updated)
+      return { project: updated }
+    }),
+
+  // #1178 — das Rohr der Trasse gehoert zum selben Belang: WOMIT gebaut wird.
+  setPathwayDuct: (pathway, innerDiameterMm) =>
+    set((state) => {
+      const name = pathway.trim()
+      if (!name) return {}
+      const next = { ...(state.project.pathwayDuctMm ?? {}) }
+      if (innerDiameterMm && innerDiameterMm > 0) next[name] = innerDiameterMm
+      else delete next[name]
+      const updated = { ...state.project, pathwayDuctMm: Object.keys(next).length > 0 ? next : undefined }
       scheduleProjectAutosave(updated)
       return { project: updated }
     }),

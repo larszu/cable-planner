@@ -46,11 +46,12 @@ export const PlanCheckPanel = () => {
   // Die Auskunft des Gebaeudes speist die Haus-Checks (facility Issue #2).
   // Fehlt sie, schweigen sie vollstaendig.
   const hausAuskunft = useProjectStore((s) => s.project.hausAuskunft)
+  const pathwayDuctMm = useProjectStore((s) => s.project.pathwayDuctMm)
   const setSelection = useProjectStore((s) => s.setSelection)
 
   const result = useMemo(
-    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, ledWalls, ledPanelTypes, defaultVideoFormat, hausAuskunft }),
-    [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, ledWalls, ledPanelTypes, defaultVideoFormat],
+    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, ledWalls, ledPanelTypes, defaultVideoFormat, hausAuskunft, pathwayDuctMm }),
+    [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, ledWalls, ledPanelTypes, defaultVideoFormat, pathwayDuctMm],
   )
 
   if (!open) return null

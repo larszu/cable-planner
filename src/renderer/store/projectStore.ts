@@ -864,6 +864,8 @@ export interface ProjectState {
   /** B-45 — die Farbnormen des Projekts ersetzen. */
   /** #875 — die verfuegbaren Lagerlaengen je Kabeltyp, als ganze Liste. */
   setCableStock: (cableStock: import('../types/cable').CableStockEntry[]) => void
+  /** #1178 — lichter Innendurchmesser des Rohrs einer Trasse; undefined entfernt ihn. */
+  setPathwayDuct: (pathway: string, innerDiameterMm: number | undefined) => void
   /** #881 — die Panel-Typen des Projekts, als ganze Liste. */
   setLedPanelTypes: (typen: import('../types/ledWall').LedPanelType[]) => void
   /** #881 — die geplanten LED-Waende, als ganze Liste. */
@@ -1044,6 +1046,13 @@ const healProjectPositions = (
   if ((project.cableStock?.length ?? 0) !== cableStock.length) {
     onDrop?.({ kind: 'cable-stock', reason: 'invalid-value', label: '' })
   }
+
+  // #1178 — Rohrmasse je Trasse. Nur positive, endliche Zahlen bleiben; ein
+  // leeres Ergebnis wird `undefined`, damit alte Projekte unveraendert bleiben.
+  const pathwayDuctEntries = Object.entries(
+    project.pathwayDuctMm && typeof project.pathwayDuctMm === 'object' ? project.pathwayDuctMm : {},
+  ).filter(([k, v]) => k.trim() !== '' && typeof v === 'number' && Number.isFinite(v) && v > 0)
+  const pathwayDuctMm = pathwayDuctEntries.length > 0 ? Object.fromEntries(pathwayDuctEntries) : undefined
 
   // #881 — die Panel-Typen und die Waende. Die TYPEN zuerst: eine Wand, die
   // auf einen geloeschten Typ zeigt, hat keine Kachel und damit keine
@@ -1710,6 +1719,11 @@ const healProjectPositions = (
       if (patched.aderAwg !== undefined && !(Number.isInteger(patched.aderAwg) && patched.aderAwg > 0 && patched.aderAwg <= 40)) {
         patched = { ...patched, aderAwg: undefined }
       }
+      // #1178 — ein Aussendurchmesser, der keine positive Zahl ist, faellt weg:
+      // er ginge sonst als Kreis mit Radius 0 oder NaN in den Buendelquerschnitt.
+      if (patched.outerDiameterMm !== undefined && !(Number.isFinite(patched.outerDiameterMm) && patched.outerDiameterMm > 0)) {
+        patched = { ...patched, outerDiameterMm: undefined }
+      }
       // Ein Anschluss-Zeiger ins Leere faellt WEG. Er saehe in der Anzeige aus
       // wie eine Zugehoerigkeit — und die Pruefung, die das fehlende
       // Gegenstueck finden soll, faende ein Anschluss, das es nicht gibt.
@@ -1786,6 +1800,7 @@ const healProjectPositions = (
         : undefined,
     // #875 — dito: leere Liste, nicht `undefined`.
     cableStock,
+    pathwayDuctMm,
     // #881 — dito.
     ledPanelTypes,
     ledWalls,

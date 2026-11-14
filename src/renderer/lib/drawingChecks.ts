@@ -33,6 +33,7 @@ import { pruefeAdressen, type DmxGeraet } from './dmx'
 import { pruefeEndstufen } from './endstufenLast'
 import { tr, format } from './i18n'
 import { adresseMehrdeutig } from '../types/hausAuskunft'
+import { trassenBuendel } from './buendel'
 export type { CheckSeverity, CheckFinding } from '../types/checkFinding'
 import type { CheckSeverity, CheckFinding } from '../types/checkFinding'
 
@@ -103,6 +104,8 @@ export interface DrawingCheckInput {
    * kann, ist die schnellste Art, eine Liste unlesbar zu machen.
    */
   hausAuskunft?: import('../types/hausAuskunft').HausAuskunft
+  /** #1178 — lichter Rohrdurchmesser je Trasse; ohne ihn kein Fuellgrad-Check. */
+  pathwayDuctMm?: Record<string, number>
 }
 
 export interface DrawingCheckResult {
@@ -130,6 +133,7 @@ export const runDrawingChecks = (
     ledPanelTypes,
     defaultVideoFormat,
     hausAuskunft,
+    pathwayDuctMm,
   }: DrawingCheckInput,
 ): DrawingCheckResult => {
   const findings: CheckFinding[] = []
@@ -1556,6 +1560,32 @@ export const runDrawingChecks = (
           ),
         })
       }
+    }
+  }
+
+  // — #1178: Fuellgrad je Trasse (warning) ------------------------------------
+  // Nur, wo ein Rohr eingetragen ist und Kabel mit Durchmesser darin liegen.
+  // Kabel ohne Durchmesser werden genannt: der Fuellgrad ist dann zu klein.
+  if (pathwayDuctMm) {
+    for (const b of trassenBuendel(cables, pathwayDuctMm)) {
+      const g = b.fuellgrad
+      if (!g || g.passt) continue
+      findings.push({
+        id: `duct-fill:${b.trasse}`,
+        severity: 'warning',
+        category: 'Duct fill',
+        message: format(
+          tr('check.ductFill', 'Pathway {pathway}: {count} cables fill {fill} % of the duct (limit {limit} %), bundle Ø {diameter} mm'),
+          {
+            pathway: b.trasse,
+            count: b.kabel.length,
+            fill: Math.round(g.anteil * 100),
+            limit: Math.round(g.grenze * 100),
+            diameter: b.aussendurchmesserMm,
+          },
+        ),
+        cableId: b.kabel[0]?.id,
+      })
     }
   }
 

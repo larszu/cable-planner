@@ -195,6 +195,7 @@ export const StatusBar = ({
   // Die Auskunft des Gebaeudes speist die Haus-Checks (facility Issue #2).
   // Fehlt sie, schweigen sie vollstaendig.
   const hausAuskunft = useProjectStore((s) => s.project.hausAuskunft)
+  const pathwayDuctMm = useProjectStore((s) => s.project.pathwayDuctMm)
   const networkSegments = useProjectStore((s) => s.project.networkSegments)
   const togglePlanCheck = useUiStore((s) => s.togglePlanCheck)
   // Beim Rendern gefragt und nicht abonniert: die Fussleiste rendert ohnehin
@@ -213,8 +214,8 @@ export const StatusBar = ({
   // den Kabelgraph). Abhaengigkeiten sind Store-Referenzen, wechseln also nur
   // bei echter Projekt-Aenderung.
   const { errorCount, warningCount } = useMemo(
-    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, ledWalls, ledPanelTypes, defaultVideoFormat, hausAuskunft }),
-    [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, ledWalls, ledPanelTypes, defaultVideoFormat],
+    () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, ledWalls, ledPanelTypes, defaultVideoFormat, hausAuskunft, pathwayDuctMm }),
+    [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, ledWalls, ledPanelTypes, defaultVideoFormat, pathwayDuctMm],
   )
   // ── DIE NETZ-BEFUNDE, NEBEN DEN PLAN-CHECK (2026-09-07) ────────────────
   //

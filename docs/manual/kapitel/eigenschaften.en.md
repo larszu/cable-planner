@@ -428,6 +428,7 @@ Clicking a cable shows its properties.
 | Field | Values |
 |---|---|
 | Status | — no status —, Planned, Installed, Tested, Operational, Fault, Retired |
+| Outer diameter (mm) | diameter of this cable; empty takes the value of the cable type |
 | Pathway / route | text |
 | Jacket/fire rating | text |
 | Term. A, Term. B | termination at both ends |
@@ -435,6 +436,8 @@ Clicking a cable shows its properties.
 | Measurement/test result | — not tested —, PASS, FAIL; plus *Margin dB*, *Standard/limit* and *Report file*; *Clear* empties the result |
 
 ![Cable lifecycle](bilder/en/eigenschaften-167-kabel-messergebnis.jpg)
+
+With a pathway set, the section shows the bundle of that pathway: *Pathway …: n cables · Ø … mm · … mm²* and a cross-section with every cable as a circle (this cable outlined) and the dashed outline of the bundle. Cables without a diameter are named and not counted. *Duct inner diameter (mm)* applies to the whole pathway; with it come *Fill … % (limit … %)* and the outline of the duct. The limit follows NEC Chapter 9 Table 1: 53 % for one cable, 31 % for two, 40 % for more. Above the limit the plan check reports *Duct fill*. The bundle diameter comes from a dense packing of the circles and is on the safe side: it can come out slightly larger than the tightest possible packing.
 
 #### Conductors (power)
 

@@ -141,6 +141,16 @@ export interface CableSpec {
   standards: SignalStandard[]
   /** Typical maximum cable length in meters (signal integrity). */
   maxLengthMeters?: number
+  /**
+   * #1178 — Aussendurchmesser des Kabels in mm, laut Datenblatt.
+   *
+   * Die eingebauten Eintraege sind GATTUNGEN („SDI 12G"), keine Produkte:
+   * ein 12G-Koax gibt es von 4 bis ueber 8 mm. Sie tragen den Wert deshalb
+   * nicht — eine geratene Zahl saehe im Fuellgrad aus wie eine gemessene.
+   * Gesetzt wird er an eigenen Kabeltypen oder am Kabel selbst
+   * (`Cable.outerDiameterMm`); `lib/buendel.ts` loest beides auf.
+   */
+  outerDiameterMm?: number
   color: string
   /**
    * User-supplied notes (free text). Used for custom CableSpec definitions the
