@@ -311,7 +311,7 @@ await S('ports-abschnitt', async () => {
 }, portsBild)
 const neuerPort = () => insp().locator('details').filter({ hasText: /./ }).locator('li').last()
 await S('ports-eingang-hinzu', async () => {
-  await insp().getByRole('button', { name: T('ports.add'), exact: true }).first().click()
+  await insp().getByRole('button', { name: T('ports.addInput'), exact: true }).first().click()
   await pause(600)
   await portsBild.vorbereiten()
 }, portsBild)
@@ -324,7 +324,7 @@ await S('ports-nummer-name', async () => {
 }, () => karte())
 await still(() => optionen('anschlusstyp', karte().locator(`select[aria-label="${T('ports.aria.connector')}"]`)))
 await still(() => optionen('signalstandard', karte().locator(`select[aria-label="${T('ports.aria.signal')}"]`)))
-await still(() => optionen('portrichtung', karte().locator(`select[aria-label="${T('ports.aria.direction')}"]`)))
+await still(() => optionen('portrichtung', karte().locator(`select[aria-label="${T('ports.aria.kind')}"]`)))
 await still(() => optionen('portseite', karte().locator(`select[aria-label="${T('ports.aria.side')}"]`)))
 await still(() => optionen('portgeschlecht', karte().locator(`select[aria-label="${T('ports.aria.gender')}"]`)))
 await S('ports-anschlusstyp-bnc', async () => {
@@ -335,7 +335,6 @@ await S('ports-signal-inhalt-richtung', async () => {
   const k = karte()
   await k.locator(`select[aria-label="${T('ports.aria.signal')}"]`).selectOption('SDI-3G')
   await k.getByPlaceholder(a.muster('ports.contentLabelPlaceholder')).fill('PGM')
-  await k.locator(`select[aria-label="${T('ports.aria.direction')}"]`).selectOption('in')
   await k.locator(`select[aria-label="${T('ports.aria.side')}"]`).selectOption('left')
   await k.locator(`select[aria-label="${T('ports.aria.gender')}"]`).selectOption('female')
   await pause(500)

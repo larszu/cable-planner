@@ -52,7 +52,8 @@ const makePort = (
   name,
   type: connectorType,
   connectorType,
-  direction,
+  // #1228 — Eingang/Ausgang sagt die Liste; das Feld traegt nur bidirektional.
+  ...(direction === 'bidirectional' ? { direction } : {}),
 })
 
 const normalize = (value: string): string =>

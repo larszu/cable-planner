@@ -403,13 +403,13 @@ await S('a-nur-name-inspektor', () => nv(600), { ziel: () => inspektor() })
 // Anschlüsse nachträglich im Inspektor ergänzen (am Gerät „Nur Name")
 const portSel = (key) => inspektor().locator(`[aria-label="${T(key)}"]`)
 await S('a-port-plus', async () => {
-  await inspektor().getByRole('button', { name: T('ports.add') }).first().click()
+  await inspektor().getByRole('button', { name: T('ports.addInput') }).first().click()
   await nv(300)
   await inspektor().getByPlaceholder(T('ports.namePlaceholder')).last().fill('Videoeingang')
 }, { ziel: () => inspektor() })
 await auswahlListe('a-port-stecker-liste', portSel('ports.aria.connector').last(), () => inspektor(), 80)
 await auswahlListe('a-port-signal-liste', portSel('ports.aria.signal').last(), () => inspektor(), 80)
-await auswahlListe('a-port-richtung-liste', portSel('ports.aria.direction').last(), () => inspektor())
+await auswahlListe('a-port-richtung-liste', portSel('ports.aria.kind').last(), () => inspektor())
 await auswahlListe('a-port-seite-liste', portSel('ports.aria.side').last(), () => inspektor())
 await auswahlListe('a-port-gender-liste', portSel('ports.aria.gender').last(), () => inspektor())
 await S('a-port-ausgefuellt', async () => {
@@ -429,13 +429,13 @@ await S('a-port-gruppe-neu', async () => {
 await auswahlListe('a-port-gruppe-art-liste', portSel('ports.group.kindAria').last(), () => inspektor())
 await auswahlListe('a-port-gruppe-rolle-liste', portSel('ports.group.roleAria').last(), () => inspektor())
 await S('a-port-zweiter', async () => {
-  await inspektor().getByRole('button', { name: T('ports.add') }).first().click()
+  await inspektor().getByRole('button', { name: T('ports.addInput') }).first().click()
   await nv(300)
   await portSel('ports.aria.connector').last().selectOption('SFP+')
   await nv(300)
 }, { ziel: () => inspektor() })
 await S('a-port-ausgang', async () => {
-  await inspektor().getByRole('button', { name: T('ports.add') }).last().click()
+  await inspektor().getByRole('button', { name: T('ports.addOutput') }).last().click()
   await nv(300)
 }, { ziel: () => inspektor() })
 await S('a-port-entfernt', async () => {
