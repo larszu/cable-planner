@@ -630,6 +630,7 @@ export const de: Dict = {
   'app.menu.file.planCompare': 'Plan-Stände vergleichen…',
   'app.menu.file.save': 'Speichern',
   'app.menu.file.saveAs': 'Speichern unter…',
+  'app.menu.file.exportPlanCopy': 'Kopie zum Weitergeben speichern…',
   'app.menu.file.viewForeign': 'Verknüpfte Venue-Planung ansehen…',
   'app.menu.file.viewForeignRoom': 'Raum',
   'app.connector.newPrompt': 'Neuer Stecker-Typ (z. B. „Speakon NL4“):',
@@ -1887,6 +1888,8 @@ export const de: Dict = {
     'Sie würden in den geteilten Ordner geschrieben und wären für das ganze Team lesbar.',
   'cred.dest.sharedSync':
     'in den geteilten Ordner — jeder im Team, der Pull drückt, bekommt die Datei.',
+  'cred.checkbox': 'Benutzernamen und Passwörter mitgeben',
+  'cred.dest.planCopy': 'Die Kopie ist zum Weitergeben gedacht — per USB-Stick, E-Mail oder Filesharing.',
   'cred.include': 'Mitgeben',
   'cred.strip': 'Ohne Zugangsdaten',
   'cred.title': 'Zugangsdaten mitgeben?',

@@ -90,7 +90,7 @@ import {
   KNOWN_DOMAIN_SLOTS,
 } from '../../lib/avplan'
 import { unknownDomainsDialog } from '../../lib/unknownDomainsDialog'
-import { countCredentialBearers, stripCredentials } from '../../lib/credentialKeys'
+import { projectCredentialBearers, stripCredentials } from '../../lib/credentialKeys'
 import { credentialChoiceDialog, type CredentialChoice } from '../../lib/credentialChoiceDialog'
 import { buildSourceMap, mergeSourceMap, parseSourceMap } from '../../lib/sourceMap'
 import { summarizeForeign, hasForeign } from '../../lib/foreignView'
@@ -240,6 +240,34 @@ export const MenuBar = ({
   // nativ und bewahrt geteilten Raum + Kamera-/Licht-Domaenen 1:1 (in der
   // .avplan UND im eigenen Projektfile via project.avForeign).
   const avplanImportRef = useRef<HTMLInputElement | null>(null)
+
+  // #1171 — EINE Frage fuer jeden Ausgang, der ein ganzes Projekt aus der
+  // Hand gibt: dieselbe Zaehlung (Geraete + Intercom-Anlage), derselbe
+  // Dialog mit dem Kaestchen, dieselbe Streich-Regel. Ist nichts dabei,
+  // wird nicht gefragt und nichts gestrichen.
+  const zugangsdatenFrage = async (
+    project: CablePlannerProject,
+    destination: string,
+  ): Promise<CredentialChoice | null> => {
+    const n = projectCredentialBearers(project)
+    return n > 0 ? credentialChoiceDialog(n, destination) : 'strip'
+  }
+
+  // #1171 — „Plan mit und ohne Passwoerter exportieren". Speichern und
+  // Speichern unter bleiben beim Eigentuemer und behalten alles; diese Kopie
+  // ist zum Weitergeben, aendert den Pfad der offenen Datei nicht und fragt,
+  // ob die Zugangsdaten mitgehen.
+  const handleExportPlanCopy = async () => {
+    const project = useProjectStore.getState().project
+    const choice = await zugangsdatenFrage(
+      project,
+      t('cred.dest.planCopy', 'The copy is meant to be passed on — by USB stick, email or file sharing.'),
+    )
+    if (choice === null) return
+    const payload = choice === 'strip' ? stripCredentials(project) : project
+    downloadBlob(buildExportFilename(project.metadata?.name || 'project', 'cableplan'), JSON.stringify(payload, null, 2), 'application/json')
+  }
+
   const handleExportAvplan = async () => {
     const project = useProjectStore.getState().project
 
@@ -248,19 +276,14 @@ export const MenuBar = ({
     // Cable-Planner, der seine eigene Datei zurueckliest, will es behalten.
     // Deshalb wird gefragt statt pauschal entschieden — und nur dann, wenn
     // ueberhaupt etwas dabei ist.
-    const withCredentials = countCredentialBearers(project.equipment ?? [])
-    let choice: CredentialChoice = 'strip'
-    if (withCredentials > 0) {
-      const answer = await credentialChoiceDialog(
-        withCredentials,
-        t(
-          'cred.dest.avplan',
-          'The .avplan goes to other trades. Without credentials, re-importing it into this app loses them.',
-        ),
-      )
-      if (answer === null) return
-      choice = answer
-    }
+    const choice = await zugangsdatenFrage(
+      project,
+      t(
+        'cred.dest.avplan',
+        'The .avplan goes to other trades. Without credentials, re-importing it into this app loses them.',
+      ),
+    )
+    if (choice === null) return
 
     const avplan = cableToAvPlan(project, { appVersion: __APP_VERSION__, exportedAt: new Date().toISOString() })
     const payload = choice === 'strip' ? stripCredentials(avplan) : avplan
@@ -681,6 +704,9 @@ export const MenuBar = ({
           </MenuItem>
           <MenuItem onClick={onSaveProjectAs} icon={<Icon icon={SaveAll} size="sm" />} shortcut={t('shortcut.ctrlShiftS', 'Ctrl+Shift+S')}>
             {t('app.menu.file.saveAs', 'Save as…')}
+          </MenuItem>
+          <MenuItem onClick={() => void handleExportPlanCopy()} icon={<Icon icon={SaveAll} size="sm" />}>
+            {t('app.menu.file.exportPlanCopy', 'Save a copy to pass on…')}
           </MenuItem>
           {onOpenGraphmlImport && (
             <>

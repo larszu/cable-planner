@@ -32,6 +32,9 @@
 // gelesen haben muss.
 // ---------------------------------------------------------------------------
 
+import { ZUGANGSCODE_PFADE, anlagenZugangscodes } from './anlagenZugangscodes'
+import type { CablePlannerProject } from '../types/project'
+
 /** Muss zeichengleich zur Menge in `src/main/util/stripSecrets.ts` sein. */
 export const SECRET_KEYS = new Set([
   'password',
@@ -42,14 +45,42 @@ export const SECRET_KEYS = new Set([
   'token',
 ])
 
-/** Rekursiv alle Felder aus `SECRET_KEYS` entfernen. Arrays bleiben Arrays. */
+/**
+ * Das Roh-Dokument der Intercom-Anlage (`basePreset`) traegt seine
+ * Zugangsdaten unter Herstellernamen, die nicht in `SECRET_KEYS` stehen
+ * (`AdminPassword`, `Security.Pincode` …). Im Hauptprozess geht es deshalb als
+ * Ganzes nicht mit (`OPAQUE_KEYS`) — dort liest es kein Empfaenger. Eine
+ * Plan-Kopie und die `.avplan` behalten es, denn der Empfaenger exportiert
+ * daraus vielleicht die Anlage; nur die Codes fallen heraus, und zwar genau
+ * die Pfade, die `anlagenZugangscodes` als Zugangsmittel fuehrt — EINE
+ * Liste, nicht eine zweite hier (#1171).
+ */
+const ohneAnlagenCodes = (preset: Record<string, unknown>): Record<string, unknown> => {
+  // `stripCredentials` baut jedes Objekt neu — die Kopie gehoert uns, das
+  // Loeschen trifft den Plan im Speicher nicht.
+  const kopie = stripCredentials(preset)
+  for (const { pfad } of ZUGANGSCODE_PFADE) {
+    let knoten: unknown = kopie
+    for (const teil of pfad.slice(0, -1)) {
+      knoten = knoten && typeof knoten === 'object' ? (knoten as Record<string, unknown>)[teil] : undefined
+    }
+    if (knoten && typeof knoten === 'object') delete (knoten as Record<string, unknown>)[pfad[pfad.length - 1]]
+  }
+  return kopie
+}
+
+const istObjekt = (v: unknown): v is Record<string, unknown> =>
+  !!v && typeof v === 'object' && !Array.isArray(v)
+
+/** Rekursiv alle Felder aus `SECRET_KEYS` entfernen, dazu die Codes im
+ *  Intercom-Roh-Dokument. Arrays bleiben Arrays. */
 export const stripCredentials = <T>(value: T): T => {
   if (Array.isArray(value)) return value.map(stripCredentials) as unknown as T
   if (value && typeof value === 'object') {
     const out: Record<string, unknown> = {}
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
       if (SECRET_KEYS.has(k)) continue
-      out[k] = stripCredentials(v)
+      out[k] = k === 'basePreset' && istObjekt(v) ? ohneAnlagenCodes(v) : stripCredentials(v)
     }
     return out as T
   }
@@ -78,8 +109,18 @@ export const hasCredential = (value: unknown): boolean => {
         if (typeof v === 'string' ? v.trim() !== '' : v !== undefined && v !== null) return true
         continue
       }
+      if (k === 'basePreset' && anlagenZugangscodes(v).length > 0) return true
       if (hasCredential(v)) return true
     }
   }
   return false
 }
+
+/**
+ * Wie viele Eintraege eines PROJEKTS Zugangsdaten tragen: jedes Geraet mit
+ * Benutzername/Passwort und die Intercom-Anlage mit ihren Codes. Die eine
+ * Zaehlung fuer jeden Ausgang, der ein ganzes Projekt hinausgibt
+ * (`.avplan`, Plan-Kopie) — vorher sah die `.avplan` nur die Geraete.
+ */
+export const projectCredentialBearers = (project: Pick<CablePlannerProject, 'equipment' | 'intercom'>): number =>
+  countCredentialBearers([...(project.equipment ?? []), project.intercom])

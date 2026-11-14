@@ -3,6 +3,7 @@ import {
   SECRET_KEYS,
   countCredentialBearers,
   hasCredential,
+  projectCredentialBearers,
   stripCredentials,
 } from '../src/renderer/lib/credentialKeys'
 import rendererSrc from '../src/renderer/lib/credentialKeys.ts?raw'
@@ -108,15 +109,43 @@ describe('die beiden Ausgaenge fragen wirklich', () => {
     expect(syncSrc).toContain('const merged = unionByName(after.customLibrary, sDevices)')
   })
 
-  it('der .avplan-Export fragt und strippt die Nutzlast', () => {
-    expect(menuSrc).toContain('countCredentialBearers(project.equipment ?? [])')
+  it('der .avplan-Export und die Plan-Kopie fragen ueber dieselbe Zaehlung und strippen die Nutzlast', () => {
+    expect(menuSrc).toContain('projectCredentialBearers(project)')
     expect(menuSrc).toContain("choice === 'strip' ? stripCredentials(avplan) : avplan")
+    expect(menuSrc).toContain("choice === 'strip' ? stripCredentials(project) : project")
   })
 
   it('ein Abbruch gibt nichts heraus', () => {
     // Bei einer Frage nach Zugangsdaten ist „ich habe nicht geantwortet" kein
     // Grund, sie mitzugeben — beide Aufrufer kehren auf `null` zurueck.
-    expect(menuSrc).toMatch(/if \(answer === null\) return/)
+    expect(menuSrc).toMatch(/if \(choice === null\) return/)
     expect(syncSrc.length).toBeGreaterThan(0)
+  })
+})
+
+// #1171 — die Codes der Intercom-Anlage stehen unter Herstellernamen im
+// Roh-Dokument. Die Plan-Kopie „ohne Passwoerter" darf sie nicht tragen, das
+// Dokument selbst aber schon (der Empfaenger exportiert daraus die Anlage).
+describe('Intercom-Roh-Dokument', () => {
+  const preset = {
+    Security: { Pincode: '4711', Mode: 'on' },
+    AdminPassword: 'geheim',
+    TechPincode: 1234,
+    ConfigPassword: 'auch',
+    Name: 'Anlage',
+  }
+  const projekt = { equipment: [], intercom: { vendor: { greengo: { basePreset: preset } } } }
+
+  it('streicht genau die Zugangscodes und behaelt den Rest', () => {
+    const ohne = stripCredentials(projekt) as typeof projekt
+    expect(ohne.intercom.vendor.greengo.basePreset).toEqual({ Security: { Mode: 'on' }, Name: 'Anlage' })
+    // Der Plan im Speicher bleibt unangetastet.
+    expect(preset.Security.Pincode).toBe('4711')
+  })
+
+  it('zaehlt die Anlage als Traeger, damit gefragt wird', () => {
+    expect(hasCredential(projekt)).toBe(true)
+    expect(projectCredentialBearers(projekt as never)).toBe(1)
+    expect(projectCredentialBearers({ equipment: [], intercom: undefined } as never)).toBe(0)
   })
 })
