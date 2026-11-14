@@ -348,6 +348,8 @@ Mit gewählten Geräten bieten drei Knöpfe die Ausgabe an: *Einzel-PDF (n)* ein
 
 Die Tabelle nennt je Zeile *Typ*, *Länge (m)*, *Verbaut*, *Gesamt (m)*, die Rentman-Planung (*Rentman geplant*, editierbar) und die *Differenz*. Die Spalte *Stückelung* kommt hinzu, sobald Lagerlängen hinterlegt sind. Die Differenz zeigt, ob mehr oder weniger verbaut ist als geplant. Darunter steht die Summe je Gewerk und die Zahl der Steckverbinder nach Typ.
 
+Tragen Kabelenden einen Stecker aus dem Steckerkatalog (*Steckerteile* in den Kabeleigenschaften), folgt der Abschnitt *Steckerteile*: jedes Teil mit *Art*, *Teilenummer*, *Hersteller*, *Beschreibung*, *Anzahl* und *Summe*, über alle Kabel zusammengezählt. Eine Gesamtsumme steht nur, wenn jedes Teil einen Preis hat. Die CSV führt den Abschnitt als eigenen Block.
+
 ![Eingabe der Rentman-Planung](bilder/de/export-44-bom-rentman-eingabe.jpg)
 
 Eine geänderte Planung bleibt ein Entwurf. *Rentman-Planung speichern* übernimmt sie ins Projekt, *Verwerfen* nimmt sie zurück. Die Planungsmengen stammen aus dem Rentman-Import; das Kapitel *Datei und Import* beschreibt ihn.

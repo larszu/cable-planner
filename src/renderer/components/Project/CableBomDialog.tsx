@@ -16,6 +16,7 @@ import {
   locationNameForEquipment,
 } from '../../lib/equipmentLocation'
 import { format, useTranslation } from '../../lib/i18n'
+import { steckerStueckliste, type SteckerStuecklistenZeile } from '../../lib/steckerKatalog'
 
 export interface CableBomDialogProps {
   open: boolean
@@ -176,6 +177,22 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
     draftPlan,
   ])
 
+  // #1181 — Kleinteile der gewaehlten Stecker. Leer, solange kein Kabelende
+  // einen Stecker aus dem Katalog traegt; dann erscheint der Abschnitt nicht.
+  const steckerTeile = useMemo(() => (open ? steckerStueckliste(project.cables) : []), [open, project.cables])
+  const artLabel = (art: SteckerStuecklistenZeile['art']): string =>
+    ({
+      connector: t('stecker.art.connector', 'Connector'),
+      contact: t('stecker.art.contact', 'Contact'),
+      lock: t('stecker.art.lock', 'Lock'),
+      seal: t('stecker.art.seal', 'Seal'),
+      backshell: t('stecker.art.backshell', 'Backshell'),
+      other: t('stecker.art.other', 'Other'),
+    })[art]
+  const steckerSumme = steckerTeile.every((z) => z.summe !== undefined)
+    ? steckerTeile.reduce((s, z) => s + (z.summe ?? 0), 0)
+    : undefined
+
   // #875 — fuehrt dieses Projekt ueberhaupt Lagerlaengen? Danach richtet
   // sich, ob die Spalte ueberhaupt erscheint.
   const mitStueckelung = rows.some((r) => r.split)
@@ -253,6 +270,34 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
         '',
       ].join(';'),
     )
+    // #1181 — die Kleinteile als eigener Block unter einer Leerzeile.
+    if (steckerTeile.length > 0) {
+      lines.push('')
+      lines.push(
+        [
+          t('stecker.col.kind', 'Kind'),
+          t('stecker.col.partNumber', 'Part number'),
+          t('stecker.col.manufacturer', 'Manufacturer'),
+          t('stecker.col.description', 'Description'),
+          t('stecker.col.qty', 'Qty'),
+          t('stecker.col.price', 'Unit price'),
+          t('stecker.col.sum', 'Sum'),
+        ].join(';'),
+      )
+      for (const z of steckerTeile) {
+        lines.push(
+          [
+            artLabel(z.art),
+            z.teilenummer,
+            z.hersteller ?? '',
+            `"${(z.beschreibung ?? '').replace(/"/g, '""')}"`,
+            String(z.anzahl),
+            z.preis !== undefined ? z.preis.toFixed(2) : '',
+            z.summe !== undefined ? z.summe.toFixed(2) : '',
+          ].join(';'),
+        )
+      }
+    }
     downloadBlob(
       // v7.9.116 — Einheitlicher Stempel: YYYYMMDD_<name>_NNN_kabel-bom.csv
       buildExportFilenameWithSuffix(project.metadata.name || 'cable-planner', 'kabel-bom', 'csv'),
@@ -604,6 +649,42 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               </tfoot>
             )}
           </table>
+          {steckerTeile.length > 0 && (
+            <div className="mt-4 mb-2">
+              <div className="mb-1 font-semibold text-cp-text-secondary">
+                {t('stecker.bomTitle', 'Connector parts')}
+              </div>
+              <table className="w-full text-cp-xs">
+                <thead className="bg-cp-surface-3 text-cp-text-secondary">
+                  <tr>
+                    <th className="px-3 py-1 text-left">{t('stecker.col.kind', 'Kind')}</th>
+                    <th className="px-3 py-1 text-left">{t('stecker.col.partNumber', 'Part number')}</th>
+                    <th className="px-3 py-1 text-left">{t('stecker.col.manufacturer', 'Manufacturer')}</th>
+                    <th className="px-3 py-1 text-left">{t('stecker.col.description', 'Description')}</th>
+                    <th className="px-3 py-1 text-right">{t('stecker.col.qty', 'Qty')}</th>
+                    <th className="px-3 py-1 text-right">{t('stecker.col.sum', 'Sum')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {steckerTeile.map((z) => (
+                    <tr key={`${z.hersteller}|${z.teilenummer}`} className="border-t border-cp-border-muted">
+                      <td className="px-3 py-1">{artLabel(z.art)}</td>
+                      <td className="px-3 py-1 font-mono">{z.teilenummer}</td>
+                      <td className="px-3 py-1">{z.hersteller}</td>
+                      <td className="px-3 py-1 text-cp-text-muted">{z.beschreibung}</td>
+                      <td className="px-3 py-1 text-right font-mono">{z.anzahl}</td>
+                      <td className="px-3 py-1 text-right font-mono">{z.summe !== undefined ? z.summe.toFixed(2) : '–'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="mt-1 text-cp-text-muted">
+                {steckerSumme !== undefined
+                  ? format(t('stecker.bomTotal', 'Total for connector parts: {sum}'), { sum: steckerSumme.toFixed(2) })
+                  : t('stecker.bomNoPrice', 'No total: not every part has a price.')}
+              </div>
+            </div>
+          )}
         </div>
 
       </div>

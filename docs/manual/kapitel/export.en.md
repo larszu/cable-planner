@@ -348,6 +348,8 @@ With devices selected, three buttons offer the output: *Individual PDF (n)* one 
 
 The table gives per row *Type*, *Length (m)*, *Installed*, *Total (m)*, the Rentman planning (*Rentman planned*, editable) and the *Difference*. The column *Pieces* is added as soon as stock lengths are stored. The difference shows whether more or less is installed than planned. Below are the sum per discipline and the number of connectors by type.
 
+When cable ends carry a connector from the connector catalogue (*Connector parts* in the cable properties), the section *Connector parts* follows: every part with *Kind*, *Part number*, *Manufacturer*, *Description*, *Qty* and *Sum*, added up over all cables. A total appears only when every part has a price. The CSV carries the section as its own block.
+
 ![Entering the Rentman planning](bilder/en/export-44-bom-rentman-eingabe.jpg)
 
 A changed planning stays a draft. *Save Rentman plan* adopts it into the project, *Discard* takes it back. The planned quantities come from the Rentman import; the chapter *File and Import* describes it.

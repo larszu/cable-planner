@@ -76,6 +76,10 @@
   list out three ways from the same table: CSV as backup, a laid-out PDF
   with bookmarks and a linked table of contents, and an Excel workbook with
   styled header, column widths, frozen header row and filters.
+- **Connectors as parts, not names.** A cable end can carry a connector from
+  the connector catalogue (part number, manufacturer, poles, gender,
+  datasheet); its assembly — contacts per pole chosen by conductor size,
+  locks — lands in the BOM, so the small parts are on the order.
 - **Patch panel labels.** The network analysis prints label strips for every
   patch panel at 1:1 (RJ45 24-port, blocks of 12, D-series 16) showing the
   device behind each port, exports them for Brother P-touch or Dymo, and

@@ -124,6 +124,11 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   // verschweigt genau die Aenderung, wegen der jemand nachts sucht.
   faserVon: 'substantive',
   faserNach: 'substantive',
+  // #1181 — welcher Stecker samt Konfektion am Ende sitzt: das ist die
+  // Bestellung und der Loettisch, keine Kosmetik.
+  steckerVon: 'substantive',
+  steckerNach: 'substantive',
+  aderAwg: 'substantive',
   isTieLine: 'substantive',
   // Welche Hausstrecke und Ader belegt wird, ist die Arbeit des Anschliessens.
   hausStreckeId: 'substantive',

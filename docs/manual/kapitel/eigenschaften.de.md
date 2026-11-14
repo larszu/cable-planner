@@ -415,6 +415,10 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 
 ![Signalweg im Canvas](bilder/de/eigenschaften-175-kabel-signalweg-canvas.jpg)
 
+#### Steckerteile
+
+*Steckerteile* legt je Ende fest, welcher Stecker aus dem Steckerkatalog sitzt: *Ende A* und *Ende B*, dazu der *Aderquerschnitt (AWG)*. Die Auswahl zeigt zuerst die Stecker, die zum Port passen. Hat ein Stecker mehrere Konfektionen, wählt die App die zum Aderquerschnitt passende; eine andere lässt sich wählen. Darunter stehen die Teile mit Teilenummer und Anzahl — Gehäuse, Kontakte je Pol, Verriegelung — und der Link zum Datenblatt. Jeder Stecker im Katalog trägt sein Herstellerdatenblatt.
+
 #### Festinstallation / Lebenszyklus
 
 | Feld | Werte |
