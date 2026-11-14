@@ -150,7 +150,7 @@ export const LANG_BROADCAST_CATALOG: LangBroadcastEntry[] = [
         port('HDMI Out', 'HDMI', 'HDMI'),
       ],
       isRackDevice: false,
-      notes: '6–36 V DC',
+      notes: '6–36 V DC · 12 V PSU supplied · 5 W',
       width: 280,
       height: H(5),
     },

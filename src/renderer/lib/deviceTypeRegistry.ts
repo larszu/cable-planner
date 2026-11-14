@@ -33,6 +33,7 @@ import { PROJEKTION_NACHTRAG_CATALOG } from './projektionNachtragCatalog'
 import { LED_NACHTRAG_CATALOG } from './ledNachtragCatalog'
 import { ROUTING_NACHTRAG_CATALOG } from './routingNachtragCatalog'
 import { BROADCAST_NACHTRAG_B_CATALOG } from './broadcastNachtragBCatalog'
+import { GERAETE_NACHTRAG_1199_CATALOG } from './geraeteNachtrag1199Catalog'
 import { LANG_PROJ_DISPLAY_CATALOG } from './langProjDisplayCatalog'
 import { LANG_BROADCAST_CATALOG } from './langBroadcastCatalog'
 import { CLEARCOM_CATALOG } from './clearcomCatalog'
@@ -132,6 +133,7 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
     LED_NACHTRAG_CATALOG,
     ROUTING_NACHTRAG_CATALOG,
     BROADCAST_NACHTRAG_B_CATALOG,
+    GERAETE_NACHTRAG_1199_CATALOG,
     LANG_PROJ_DISPLAY_CATALOG,
     LANG_BROADCAST_CATALOG,
   ]) {
@@ -270,6 +272,7 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
     LED_NACHTRAG_CATALOG,
     ROUTING_NACHTRAG_CATALOG,
     BROADCAST_NACHTRAG_B_CATALOG,
+    GERAETE_NACHTRAG_1199_CATALOG,
     LANG_PROJ_DISPLAY_CATALOG,
     LANG_BROADCAST_CATALOG,
   ]) {

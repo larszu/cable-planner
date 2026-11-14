@@ -537,6 +537,23 @@ export const cableCatalog: CableSpec[] = [
     notesSource:
       'SMPTE 304M hybrid camera cable with Neutrik opticalCON Dragonfly connector — ruggedised touring/stage variant compatible with LEMO 3K.93C via adapter.',
   },
+  // #1199 — Neutrik opticalCON DUO SMPTE: vormontiertes Hybridkabel, 2
+  // Singlemode-Fasern + 4 Kupferadern, opticalCON-DUO-Kabelstecker (LC-Duplex
+  // innen). Laut Neutrik ausdruecklich NICHT SMPTE 304M — deshalb kein
+  // 'SMPTE-304M'-Standard und kein gebuendelter Dienst. Keine Reichweite
+  // angegeben, also keine maxLengthMeters.
+  // Quelle: https://www.neutrik.com/de/produkt/opticalcon-duo-smpte
+  {
+    id: 'opticalcon-duo-smpte',
+    name: 'Neutrik opticalCON DUO SMPTE (hybrid)',
+    connectorType: 'Neutrik opticalCON DUO',
+    compatibleConnectors: ['opticalCON DUO'],
+    standards: ['Fiber-SM'],
+    color: '#ca8a04',
+    notesKey: 'catalog.cable.opticalcon-duo-smpte.notes',
+    notesSource:
+      'Neutrik opticalCON DUO SMPTE: pre-assembled hybrid camera cable, 2 single-mode fibres (PC or APC) + 4 copper contacts (2 x 24 AWG + 4 x 20 AWG), black PUR jacket. Not SMPTE 304M compliant. Copper rated 65 V AC/DC, 6 A (signal 50 V, 3 A); indoor (studio) use, outdoors up to 65 V. Mates with chassis NO2-4FDW-A / NO2-4FDW-1-A. IP65 when mated.',
+  },
   {
     id: 'triax-dh',
     name: 'Triax (Damar & Hagen)',

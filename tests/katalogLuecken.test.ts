@@ -34,7 +34,8 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // 1837: +1 ATEM 2 M/E Constellation HD (#1032).
     // 1842: +5 Crestron (#1067).
     // 1842 -> 2067 -> 2114 am 2026-10-21: Event-/Verleih-Kataloge (PixelHue, Barco, PIXERA, Projektoren, LANG AG).
-    expect(b.eintraegeGesamt).toBe(2114)
+    // 2114 -> 2140 am 2026-11-14: #1199.
+    expect(b.eintraegeGesamt).toBe(2140)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.
@@ -74,19 +75,19 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     expect(stand('kameras').eintraege).toBe(384)
     // 2026-09-27 aus #907: +2 Lightware, +1 Decimator (MD-DUCC; MD-QUAD
     // steht unter „Video"), +5 Luminex, +5 NETGEAR, +4 Clear-Com, +4 Brompton.
-    expect(stand('konverter').eintraege).toBe(62) // +AJA FS2; +28 Konverter aus PixelHue und LANG AG (2026-10-21)
+    expect(stand('konverter').eintraege).toBe(68) // +AJA FS2; +28 Konverter aus PixelHue und LANG AG (2026-10-21); +6 aus #1199 (2026-11-14)
     // 90 -> 96 am 2026-09-28: drei Cisco-Switches (C9300-24U, C9300X-48HXN,
     // Nexus 93108TC-EX) und drei Crestron-Streamer, die unter „Networking"
     // laufen (DM-NVX-350/-351/-D30).
     // 96 -> 97 am 2026-10-20: Crestron DM-NVX-E30 (#1067).
-    expect(stand('netzwerk').eintraege).toBe(116) // +19 aus LANG AG (2026-10-21)
+    expect(stand('netzwerk').eintraege).toBe(133) // +19 aus LANG AG (2026-10-21); +17 IP/NDI aus #1199 (2026-11-14)
     expect(stand('intercom').eintraege).toBe(14) // +FreeSpeak II Base; +Clear-Com Arcadia (2026-10-21)
     // 6 -> 16 am 2026-10-21: PixelHue, NovaStar, ROE Evision.
     expect(stand('led-prozessoren').eintraege).toBe(16)
     // 528 -> 524: dieselben vier Kameras wie oben.
     // 524 -> 530: die sechs neuen Netzwerk-Eintraege (drei Cisco, drei Crestron).
     // 530 -> 531: DM-NVX-E30 (#1067).
-    expect(katalogLuecken().eintraegeInBereichen).toBe(592) // +61 aus den Event-/Verleih-Katalogen (2026-10-21)
+    expect(katalogLuecken().eintraegeInBereichen).toBe(615) // +61 aus den Event-/Verleih-Katalogen (2026-10-21); +23 aus #1199 (2026-11-14)
 
     // Und die Breite, nicht nur die Menge: Kameras hingen und haengen an
     // EINEM Katalog. Ein Bereich mit einem Hersteller ist kein bestueckter

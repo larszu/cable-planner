@@ -5,7 +5,7 @@
 // ║  Pruefen:    npm run katalog:check                                    ║
 // ╚═══════════════════════════════════════════════════════════════════════╝
 //
-// 352 Eintraege, davon 349 mit Datenblatt-Link.
+// 351 Eintraege, davon 348 mit Datenblatt-Link.
 //
 // JEDER EINTRAG TRAEGT `portsUnknown: true`. Die Quelle kennt keine
 // Anschluesse, und eine erfundene Belegung saehe im Plan genauso autoritativ
@@ -16,8 +16,8 @@
 //
 // ─── WARUM ZWEI KAMERA-KATALOGE ────────────────────────────────────────────
 //
-// `cameraCatalog.ts` fuehrt 29 Modelle MIT Datenblatt-Ports — von Hand
-// recherchiert, Buchse fuer Buchse. Diese Datei fuehrt die uebrigen 352
+// `cameraCatalog.ts` fuehrt 30 Modelle MIT Datenblatt-Ports — von Hand
+// recherchiert, Buchse fuer Buchse. Diese Datei fuehrt die uebrigen 351
 // Bodies OHNE. Die beiden zusammenzulegen hiesse, den Unterschied zwischen
 // „nachgesehen" und „noch nicht nachgesehen" zu verwischen — und genau der
 // ist die Auskunft, die jemand vor dem Bestellen braucht.
@@ -268,23 +268,6 @@ export const CAMERA_BODY_CATALOG: CameraBodyEntry[] = [
       category: CAM,
       subtitle: 'ptz',
       notes: '1/2.5" (5.76×4.29) · integrated mount · 4K/HD',
-      width: 240,
-      height: 160,
-      inputs: [],
-      outputs: [],
-      portsUnknown: true,
-    },
-  },
-  // Quelle: https://pro.sony/ue_US/products/ptz-network-cameras/brc-h800
-  {
-    match: ['sonybrch800', 'brch800'],
-    deviceTypeId: '022910f2-5d5e-5086-b2c7-fa3d1450eb36',
-    template: {
-      manufacturerUrl: 'https://pro.sony/ue_US/products/ptz-network-cameras/brc-h800',
-      name: 'Sony BRC-H800',
-      category: CAM,
-      subtitle: 'ptz',
-      notes: '1" (13.2×8.8) · integrated mount · HD · 1.0-type Exmor R CMOS (Quelle: pro.sony BRC-H800)',
       width: 240,
       height: 160,
       inputs: [],
