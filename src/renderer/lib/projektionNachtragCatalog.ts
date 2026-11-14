@@ -34,12 +34,15 @@ interface W4aEntry {
 }
 
 export const PROJEKTION_NACHTRAG_CATALOG: W4aEntry[] = [
-  // Quelle: https://www.novelty.fr/wp-content/uploads/downloaded/downloads/materiel_fiches_techniques/sony_pvm-a250_ft-uk.pdf
+  // Quelle: https://www.sony.jp/pro/products/PVM-A250/spec.html
+  // #1199: Herstellerblatt (sony.jp) statt Verleiher-Spiegel; Anschluesse,
+  // Leistung und Masse stimmen ueberein. „v2.0" ist der Firmwarestand
+  // (Fussnote *1 dort), keine andere Hardware.
   {
-    match: ['sonypvm-a250', 'pvm-a250', 'pvma250'],
+    match: ['sonypvm-a250', 'pvm-a250', 'pvma250', 'pvm-a250v2.0', 'pvma250v20'],
     deviceTypeId: 'ac82c6f1-c916-400c-9ab0-3c77e97e2775',
     template: {
-      manufacturerUrl: 'https://www.novelty.fr/wp-content/uploads/downloaded/downloads/materiel_fiches_techniques/sony_pvm-a250_ft-uk.pdf',
+      manufacturerUrl: 'https://www.sony.jp/pro/products/PVM-A250/spec.html',
       name: 'Sony PVM-A250',
       category: 'Monitors',
       inputs: [

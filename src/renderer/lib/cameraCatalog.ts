@@ -754,6 +754,38 @@ export const CAMERA_CATALOG: CameraEntry[] = [
       width: 220, height: 180,
     },
   },
+
+  // ── Sony PTZ: aus cameraBodyCatalog.ts uebernommen (#1199, 2026-11) ───────
+  // Ports nach dem Sony-Spezifikationsblatt (bei ADI Global gespiegelt;
+  // pro.sony antwortet aus dieser Umgebung mit 403). deviceTypeId und Name
+  // bleiben, damit `katalog:uebernahme` den portlosen Eintrag weglaesst.
+  // Das Blatt nennt fuer VISCA RS-422 „RJ45 (In/Out)" und fuer VISCA over IP
+  // „RJ45" — je eine Buchse; die Strombuchse ist IEC 60130-10 (JEITA
+  // RC-5320A, TYPE4), also ein DC-Hohlstecker.
+  // Quelle: https://cdn.adiglobaldistribution.us/pim/Original/10001/1039026762_1.pdf
+  {
+    match: ['sonybrch800', 'brch800'],
+    deviceTypeId: '022910f2-5d5e-5086-b2c7-fa3d1450eb36',
+    template: {
+      manufacturerUrl: 'https://cdn.adiglobaldistribution.us/pim/Original/10001/1039026762_1.pdf',
+      name: 'Sony BRC-H800',
+      category: CAM,
+      subtitle: 'ptz',
+      notes: '1" (13.2×8.8) · integrated mount · HD · 1.0-type Exmor R CMOS · 12x optical zoom · DC 10.8–13.2 V or PoE+ (IEEE 802.3at) · 19.0 W max (DC), 23.0 W max (PoE+)',
+      inputs: [
+        sdiIn('External Sync In (BNC, tri-level / black burst)'),
+        { ...port('VISCA RS-422 (RJ45, in/out)', 'Ethernet/RJ45'), type: 'RS-422', direction: 'bidirectional' },
+        { ...eth('LAN (VISCA over IP, PoE+)'), direction: 'bidirectional' },
+        { ...port('DC In (IEC 60130-10, 12 V)', 'DC Barrel'), type: 'Power' },
+      ],
+      outputs: [
+        sdiOut('3G-SDI Out 1'),
+        sdiOut('3G-SDI Out 2'),
+        hdmiOut('HDMI Out'),
+      ],
+      width: 240, height: 200,
+    },
+  },
 ]
 
 /** Flat list of all built-in camera templates (seeded into the library). */

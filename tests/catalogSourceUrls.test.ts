@@ -132,7 +132,8 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // 1737 -> 1738 am 2026-10-08: ATEM 2 M/E Constellation HD (#1032), Techspecs W-APS-20.
     // 1738 -> 1743 am 2026-10-20: fuenf Crestron-Geraete (#1067).
     // 1743 -> 1968 -> 2015 am 2026-10-21: PixelHue, Barco, PIXERA, Christie, Panasonic, Epson und LANG-AG-Bestand.
-    expect(pairs().length).toBe(2015)
+    // 2015 -> 2041 am 2026-11-14: Kramer, Blackmagic 2110/DeckLink/Teranex/HyperDeck, Magewell, Sony (#1199).
+    expect(pairs().length).toBe(2041)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -158,6 +159,7 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
       'eventNachtragCatalog.ts',
       // Uebernahme aus dem light-planner (2026-09-24, erzeugt).
       'fixtureCatalog.ts',
+      'geraeteNachtrag1199Catalog.ts',
       'greengoCatalog.ts',
       'langBroadcastCatalog.ts',
       'langImageCatalog.ts',
@@ -311,6 +313,7 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
     // Ohne diese Zusicherung waere der Haendler-Test auch dann gruen, wenn
     // `pairs()` nichts mehr faende.
     // 1743 -> 1968 -> 2015 am 2026-10-21: PixelHue, Barco, PIXERA, Christie, Panasonic, Epson und LANG-AG-Bestand.
-    expect(pairs().filter((p) => p.field).length).toBe(2015)
+    // 2015 -> 2041 am 2026-11-14 (#1199).
+    expect(pairs().filter((p) => p.field).length).toBe(2041)
   })
 })

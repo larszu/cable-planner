@@ -6461,6 +6461,8 @@ export const de: Dict = {
     'Serielle Gerätesteuerung. RS-232 ~15 m Punkt-zu-Punkt; RS-422/485 differenziell bis ~1200 m (VTR Sony 9-Pin, PTZ/VISCA, Router-/Matrix-Steuerung).',
   'catalog.cable.smpte-297.notes':
     'SMPTE ST 297: serielles digitales Video (SDI) optisch über Glasfaser übertragen. Kein Strom — eine reine optische SDI-Strecke mit großer Reichweite.',
+  'catalog.cable.opticalcon-duo-smpte.notes':
+    'Neutrik opticalCON DUO SMPTE: vormontiertes Hybrid-Kamerakabel, 2 Singlemode-Fasern (PC oder APC) + 4 Kupferkontakte (2 x 24 AWG + 4 x 20 AWG), schwarzer PUR-Mantel. Entspricht nicht SMPTE 304M. Kupfer 65 V AC/DC, 6 A (Signal 50 V, 3 A); innen (Studio), außen bis 65 V. Passt zu den Einbaubuchsen NO2-4FDW-A / NO2-4FDW-1-A. IP65 im gesteckten Zustand.',
   'catalog.cable.smpte-304m-dragonfly.notes':
     'SMPTE-304M-Hybrid-Kamerakabel mit Neutrik opticalCON Dragonfly — robuste Touring-/Stage-Variante, via Adapter kompatibel zu LEMO 3K.93C.',
   'catalog.cable.smpte-304m-lemo.notes':

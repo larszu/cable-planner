@@ -64,6 +64,7 @@ import { PROJEKTION_NACHTRAG_CATALOG } from './projektionNachtragCatalog'
 import { LED_NACHTRAG_CATALOG } from './ledNachtragCatalog'
 import { ROUTING_NACHTRAG_CATALOG } from './routingNachtragCatalog'
 import { BROADCAST_NACHTRAG_B_CATALOG } from './broadcastNachtragBCatalog'
+import { GERAETE_NACHTRAG_1199_CATALOG } from './geraeteNachtrag1199Catalog'
 import { LANG_PROJ_DISPLAY_CATALOG } from './langProjDisplayCatalog'
 import { LANG_BROADCAST_CATALOG } from './langBroadcastCatalog'
 import { CLEARCOM_CATALOG } from './clearcomCatalog'
@@ -137,6 +138,7 @@ export const CATALOGUES: ReadonlyArray<{ name: string; entries: readonly Evidenc
   { name: 'ledNachtrag', entries: LED_NACHTRAG_CATALOG },
   { name: 'routingNachtrag', entries: ROUTING_NACHTRAG_CATALOG },
   { name: 'broadcastNachtragB', entries: BROADCAST_NACHTRAG_B_CATALOG },
+  { name: 'geraeteNachtrag1199', entries: GERAETE_NACHTRAG_1199_CATALOG },
   { name: 'langProjDisplay', entries: LANG_PROJ_DISPLAY_CATALOG },
   { name: 'langBroadcast', entries: LANG_BROADCAST_CATALOG },
   { name: 'clearcom', entries: CLEARCOM_CATALOG },

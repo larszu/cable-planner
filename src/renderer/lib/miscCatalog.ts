@@ -870,26 +870,41 @@ export const MISC_CATALOG: MiscEntry[] = [
       width: 260, height: 240,
     },
   },
-  // Quelle: https://www.blackmagicdesign.com/products/ultrastudio-4k-mini
+  // Quelle: https://www.blackmagicdesign.com/products/ultrastudio/techspecs/W-DLUS-11
+  // #1199: Anschluesse nach den Techspecs neu abgeschrieben. Der alte Eintrag
+  // fuehrte die XLR-Eingaenge als Ausgaenge und kannte nur einen SDI-Ausgang.
+  // Den Steckertyp fuer SDI, Sync und RS-422 nennt die Seite nicht ('Generic');
+  // der Analog-Video-Eingang (Component/Composite) steht ohne Buchsenzahl da
+  // und fehlt deshalb.
   {
     match: ['blackmagic', 'ultrastudio', '4k mini'],
     deviceTypeId: 'd93e7465-15e3-4a8f-b697-5e804ec976e2',
     template: {
-      manufacturerUrl: 'https://www.blackmagicdesign.com/products/ultrastudio-4k-mini',
+      manufacturerUrl: 'https://www.blackmagicdesign.com/products/ultrastudio/techspecs/W-DLUS-11',
       name: 'Blackmagic UltraStudio 4K Mini',
       category: 'Video',
       inputs: [
-        sdiIn('SDI In'),
-        hdmiIn('HDMI In'),
-        custom('Thunderbolt 3'),
+        { ...port('12G-SDI In', 'Generic'), type: 'SDI' },
+        { ...port('HDMI 2.0b In', 'HDMI'), type: 'HDMI' },
+        { ...port('Analog Audio In 1 (1/4" jack, balanced)', 'Jack 6.35 mm TRS'), type: AUDIO },
+        { ...port('Analog Audio In 2 (1/4" jack, balanced)', 'Jack 6.35 mm TRS'), type: AUDIO },
+        { ...port('Mic In (XLR, 48 V)', 'XLR'), type: AUDIO },
+        { ...port('Sync In (Tri-Sync / Black Burst)', 'Generic'), type: SYNC },
+        { ...port('RS-422 Deck Control', 'Generic'), type: 'RS-422', direction: 'bidirectional' as const },
+        { ...port('USB-C 3.1 Gen 1', 'USB-C'), type: 'USB' },
+        { ...port('Thunderbolt 3 (to computer, 45 W charging)', 'Thunderbolt'), type: 'Thunderbolt', direction: 'bidirectional' as const },
+        { ...port('AC In (100–240 V, internal PSU)', 'Generic'), type: 'Power' },
       ],
       outputs: [
-        sdiOut('SDI Out'),
-        hdmiOut('HDMI Out'),
-        xlrIn('XLR Audio In 1'),
-        xlrIn('XLR Audio In 2'),
+        { ...port('12G-SDI Out 1', 'Generic'), type: 'SDI' },
+        { ...port('12G-SDI Out 2', 'Generic'), type: 'SDI' },
+        { ...port('12G-SDI Loop Out', 'Generic'), type: 'SDI' },
+        { ...port('HDMI 2.0b Out', 'HDMI'), type: 'HDMI' },
+        { ...port('Analog Audio Out 1 (1/4" jack, balanced)', 'Jack 6.35 mm TRS'), type: AUDIO },
+        { ...port('Analog Audio Out 2 (1/4" jack, balanced)', 'Jack 6.35 mm TRS'), type: AUDIO },
       ],
-      width: 240, height: 200,
+      notes: 'Thunderbolt 3 capture/playback up to 4K DCI 60p · SD card reader (UHS-I/II) · 75.3 W max',
+      width: 260, height: 300,
     },
   },
   // Quelle: https://www.blackmagicdesign.com/products/ultrastudio-monitor-3g
