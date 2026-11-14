@@ -176,7 +176,7 @@ Der Knopf *N markierte Geräte als Gruppe speichern* legt die Auswahl samt Kabel
 
 ### Auswahl im Rack-Builder anordnen
 
-Der Knopf *N markierte Geräte im 2D-Rack-Builder anordnen* öffnet den Rack-Builder mit der Auswahl (dasselbe steht im Kontextmenü eines Geräts als *Im Rack-Builder anordnen*). Enthält die Auswahl bereits ein Rack, fehlt der Knopf; ist genau ein Rack markiert, öffnet stattdessen der Knopf *Dieses Rack im 2D-Rack-Builder bearbeiten* den Builder für dieses Rack. Der Builder selbst ist im Kapitel [Rack-Builder](#rack-builder) beschrieben.
+Der Knopf *N markierte Geräte im 2D-Rack-Builder anordnen* öffnet den Rack-Builder mit der Auswahl (dasselbe steht im Kontextmenü eines Geräts als *Im Rack-Builder anordnen*). Enthält die Auswahl bereits ein Rack, fehlt der Knopf; ist genau ein Rack markiert, öffnet stattdessen der Knopf *Dieses Rack im 2D-Rack-Builder bearbeiten* den Builder für dieses Rack. Die Geräte stehen im Rack in der Reihenfolge des Canvas: was oben liegt, sitzt oben, nebeneinander Liegendes von links nach rechts. Kabel zwischen markierten Geräten kommen als interne Kabel mit; Kabel nach draußen bleiben im Plan. Der Builder selbst ist im Kapitel [Rack-Builder](#rack-builder) beschrieben.
 
 ![Rack-Builder mit der Auswahl](bilder/de/canvas-auswahl-20-rack-aus-auswahl.jpg)
 

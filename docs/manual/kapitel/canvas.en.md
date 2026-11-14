@@ -170,7 +170,7 @@ The button *Save N selected devices as a group* stores the selection with its ca
 
 ### Arranging the selection in the rack builder
 
-The button *Arrange the N selected devices in the 2D rack builder* opens the rack builder with the selection (the device context menu has the same as *Arrange in rack builder*). If the selection already contains a rack, the button is missing; if exactly one rack is selected, the button *Edit this rack in the 2D rack builder* opens the builder for that rack instead. The builder itself is described in the chapter [Rack Builder](#rack-builder).
+The button *Arrange the N selected devices in the 2D rack builder* opens the rack builder with the selection (the device context menu has the same as *Arrange in rack builder*). If the selection already contains a rack, the button is missing; if exactly one rack is selected, the button *Edit this rack in the 2D rack builder* opens the builder for that rack instead. The devices sit in the rack in canvas order: what lies on top sits on top, devices side by side go from left to right. Cables between selected devices come along as internal cables; cables leading outside stay in the plan. The builder itself is described in the chapter [Rack Builder](#rack-builder).
 
 ![Rack builder with the selection](bilder/en/canvas-auswahl-20-rack-aus-auswahl.jpg)
 

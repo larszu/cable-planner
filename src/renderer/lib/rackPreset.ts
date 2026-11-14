@@ -273,7 +273,8 @@ export const itemFromEquipment = (eq: EquipmentItem): GroupPreset['items'][numbe
 
 /**
  * „Rack Builder aus Auswahl": markierte Canvas-Geraete zu einem Rack-Preset
- * stapeln, von oben nach unten nach HE-Groesse.
+ * stapeln, von oben nach unten in der Reihenfolge des Canvas (#1209), jedes
+ * mit seiner HE-Hoehe.
  *
  * #1037 — Projektkabel, deren BEIDE Enden in der Auswahl liegen, werden als
  * interne Kabel uebernommen (Port-Referenz per Name, wie im Preset ueblich).
@@ -283,13 +284,38 @@ export const itemFromEquipment = (eq: EquipmentItem): GroupPreset['items'][numbe
  * Kabel mit nur einem Ende in der Auswahl sind aussen liegende Anschluesse
  * und bleiben draussen.
  */
+/**
+ * #1209 — die Reihenfolge, in der die Geraete im Canvas stehen: von oben
+ * nach unten, innerhalb einer Zeile von links nach rechts. Vorher kam die
+ * Reihenfolge der Auswahl ins Rack, und die ist die Reihenfolge, in der die
+ * Geraete einmal angelegt wurden — mit dem Plan hatte sie nichts zu tun.
+ *
+ * Zeilen statt reiner y-Sortierung: zwei Geraete nebeneinander liegen selten
+ * pixelgenau auf derselben Hoehe; ohne Toleranz entschiede ein Pixel, wer
+ * oben im Rack sitzt. Als eine Zeile gilt, was weniger als `ZEILEN_TOLERANZ`
+ * unter dem obersten Geraet der Zeile beginnt.
+ */
+const ZEILEN_TOLERANZ = 40
+
+export const inCanvasReihenfolge = <T extends Pick<EquipmentItem, 'x' | 'y'>>(items: readonly T[]): T[] => {
+  const nachHoehe = [...items].sort((a, b) => a.y - b.y)
+  const zeilen: T[][] = []
+  for (const it of nachHoehe) {
+    const zeile = zeilen[zeilen.length - 1]
+    if (zeile && it.y - zeile[0].y < ZEILEN_TOLERANZ) zeile.push(it)
+    else zeilen.push([it])
+  }
+  return zeilen.flatMap((z) => z.sort((a, b) => a.x - b.x))
+}
+
 export const presetFromEquipmentSelection = (
-  items: EquipmentItem[],
+  auswahl: EquipmentItem[],
   presetId: string,
   name: string,
   projectCables: readonly Cable[] = [],
 ): GroupPreset | null => {
-  if (items.length === 0) return null
+  if (auswahl.length === 0) return null
+  const items = inCanvasReihenfolge(auswahl)
   let cursorUnit = 1
   const placements = items.map((eq, index) => {
     const heightUnits = Math.max(1, eq.rackUnits ?? 1)
