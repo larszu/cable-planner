@@ -9,6 +9,7 @@ import { StlPreview } from './StlPreview'
 import { RACK_MOUNT_WIDTH_MM, type RackPlacementDraft } from './rackBuilderTypes'
 import type { EquipmentTemplate } from '../../types/equipment'
 import { NumberInput } from '../shared/NumberInput'
+import { acceptFuerGeraet } from '../../lib/pickFile'
 
 /**
  * #310 — RackPlacementProperties aus RackBuilderDialog ausgelagert.
@@ -226,7 +227,7 @@ export const RackPlacementProperties = ({
                 : t('rack.stl.pick', 'Pick STL…')}</span>
               <input
                 type="file"
-                accept=".stl,application/octet-stream"
+                accept={acceptFuerGeraet('.stl,application/octet-stream')}
                 onChange={async (event) => {
                   const file = event.target.files?.[0]
                   if (!file) return

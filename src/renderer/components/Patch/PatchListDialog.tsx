@@ -52,6 +52,7 @@ import type { EquipmentItem, Port } from '../../types/equipment'
 import { PanelHint } from '../shared/PanelHint'
 import { buildLabelCsv, type LabelCsvFormat, type LabelRow } from '../../lib/labelPrinterCsv'
 import { satzText } from '../../lib/satz'
+import { acceptFuerGeraet } from '../../lib/pickFile'
 
 type SortKey = 'number' | 'fromDevice' | 'toDevice' | 'type' | 'length' | 'color'
 
@@ -685,7 +686,7 @@ export const PatchListDialog = () => {
                   {t('scene.import', 'Read scene file')}
                   <input
                     type="file"
-                    accept=".scn,.txt,.snap,.shw"
+                    accept={acceptFuerGeraet('.scn,.txt,.snap,.shw')}
                     className="hidden"
                     onChange={(e) => {
                       const f = e.target.files?.[0]

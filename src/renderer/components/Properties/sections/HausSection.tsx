@@ -6,6 +6,7 @@ import { hausPunkt, hausRaumLabel } from '../../../types/hausAuskunft'
 import { leseHausDatei } from '../../../lib/hausDatei'
 import { SortableSection } from '../SortableSection'
 import { PanelHint } from '../../shared/PanelHint'
+import { acceptFuerGeraet } from '../../../lib/pickFile'
 
 /**
  * Der Hausanschluss dieses Geraets (larszu-facility-planner Issue #2).
@@ -79,7 +80,7 @@ export const HausSection = ({ equipment }: { equipment: EquipmentItem }) => {
           <input
             ref={feld}
             type="file"
-            accept=".avfacility,application/json"
+            accept={acceptFuerGeraet('.avfacility,application/json')}
             className="hidden"
             onChange={(e) => {
               const datei = e.target.files?.[0]
