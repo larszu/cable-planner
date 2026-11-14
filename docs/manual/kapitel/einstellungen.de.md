@@ -433,7 +433,7 @@ Eigene Einträge lassen sich umbenennen (die App fragt nach dem neuen Namen) und
 
 ### Kategorien & Felder
 
-Hier entstehen eigene Gerätekategorien und Fachfelder (z. B. eine Richtcharakteristik). Eigene Felder erscheinen automatisch in den Geräte-Eigenschaften und in Stückliste und Export. Eingebaute Felder sind gesperrt (*built-in*).
+Hier entstehen eigene Gerätekategorien und Fachfelder (z. B. eine Richtcharakteristik). Eigene Felder erscheinen automatisch in den Geräte-Eigenschaften und in Stückliste und Export. Eingebaute Felder (*Standard*) lassen sich nicht ändern, aber mit dem Augen-Knopf ausblenden, wenn Sie sie nicht brauchen: Sie verschwinden dann aus Eigenschaften, Stückliste und Export der Kategorie und ihrer Unterkategorien. Gelöscht wird dabei nichts – ein ausgeblendetes Feld steht durchgestrichen in der Liste (*ausgeblendet*), ein Klick holt es samt seinen Werten zurück.
 
 ![Reiter Kategorien & Felder](bilder/de/einstellungen-37-schema.jpg)
 

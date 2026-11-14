@@ -422,6 +422,33 @@ export const setUserSchemaOverlay = (map: UserSchemaMap): void => {
   userOverlay = normed
 }
 
+/**
+ * #1223 — Abgewählte Standardfelder je Kategorie (kanonischer Schlüssel →
+ * Feld-Keys). Abwählen löscht nichts: das Feld verschwindet nur aus Inspector
+ * und Export, die Werte bleiben in `equipment.categoryProps` und sind nach
+ * dem Wiederhinzufügen wieder da.
+ */
+export type HiddenFieldMap = Record<string, string[]>
+
+let hiddenOverlay: HiddenFieldMap = {}
+
+/** Vom settingsStore aufgerufen, wie `setUserSchemaOverlay`. */
+export const setHiddenFieldOverlay = (map: HiddenFieldMap): void => {
+  const normed: HiddenFieldMap = {}
+  for (const [k, v] of Object.entries(map ?? {})) normed[norm(k)] = v
+  hiddenOverlay = normed
+}
+
+/** Abgewählte Standardfelder; eine Unterkategorie erbt die ihrer Oberkategorie. */
+export const hiddenBuiltInKeys = (category: string | undefined): ReadonlySet<string> => {
+  if (!category) return new Set()
+  return new Set(
+    hiddenOverlay[canonicalCategoryKey(category)] ??
+      hiddenOverlay[canonicalCategoryKey(oberkategorie(category))] ??
+      [],
+  )
+}
+
 /** Kanonischer (lowercase) Schlüssel einer Kategorie — für Overlay-Zugriff. */
 export const canonicalCategoryKey = (category: string): string => {
   const lc = norm(category)
@@ -447,7 +474,8 @@ export const builtInSchemaForCategory = (category: string | undefined): Category
  */
 export const schemaForCategory = (category: string | undefined): CategoryFieldDef[] => {
   if (!category) return []
-  const builtIn = builtInSchemaForCategory(category)
+  const verborgen = hiddenBuiltInKeys(category)
+  const builtIn = builtInSchemaForCategory(category).filter((f) => !verborgen.has(f.key))
   const extra =
     userOverlay[canonicalCategoryKey(category)] ?? userOverlay[canonicalCategoryKey(oberkategorie(category))] ?? []
   if (extra.length === 0) return builtIn

@@ -12,6 +12,8 @@ import {
 } from '../lib/modules'
 import {
   setUserSchemaOverlay,
+  setHiddenFieldOverlay,
+  type HiddenFieldMap,
   type UserSchemaMap,
   type CategoryFieldDef,
 } from '../lib/categorySchemas'
@@ -21,6 +23,18 @@ const SETTINGS_KEY = STORAGE_KEYS.settings
 
 /** Defensive Validierung einer geladenen User-Schema-Map (localStorage ist
  *  unvertrauenswürdig). Wirft nie — filtert nur Unbrauchbares raus. */
+/** #1223 — Abgewählte Standardfelder: nur Kategorie → Liste von Strings. */
+const sanitizeHiddenFields = (raw: unknown): HiddenFieldMap => {
+  const out: HiddenFieldMap = {}
+  if (!raw || typeof raw !== 'object') return out
+  for (const [cat, keys] of Object.entries(raw as Record<string, unknown>)) {
+    if (!Array.isArray(keys)) continue
+    const clean = Array.from(new Set(keys.filter((k): k is string => typeof k === 'string' && k !== '')))
+    if (clean.length) out[cat] = clean
+  }
+  return out
+}
+
 const sanitizeUserSchema = (raw: unknown): UserSchemaMap => {
   const out: UserSchemaMap = {}
   if (!raw || typeof raw !== 'object') return out
@@ -91,6 +105,8 @@ interface PersistedSettings {
   /** Feld-Builder — user-definierte Fachfelder je Kategorie (kanonischer
    *  lowercase-Key). Overlay über die Built-in-`CATEGORY_SCHEMAS`. */
   userSchema: UserSchemaMap
+  /** #1223 — abgewählte Standardfelder je Kategorie (kanonischer Key). */
+  hiddenSchemaFields: HiddenFieldMap
   /** #597 — Basis-URL der NetBox-Instanz (z. B. https://netbox.firma.de).
    *  Pro Installation, nicht pro Projekt: dieselbe Instanz bedient alle
    *  Projekte. Das zugehörige Token liegt im OS-Schlüsselbund, niemals
@@ -173,6 +189,7 @@ const defaults: PersistedSettings = {
   enabledModules: { ...DEFAULT_ENABLED },
   onboardingDone: false,
   userSchema: {},
+  hiddenSchemaFields: {},
   netboxUrl: '',
   deviceLibraryUrl: '',
   deviceLibraryAutoUpload: true,
@@ -221,6 +238,7 @@ const load = (): PersistedSettings => {
       onboardingDone:
         typeof parsed.onboardingDone === 'boolean' ? parsed.onboardingDone : true,
       userSchema: sanitizeUserSchema(parsed.userSchema),
+      hiddenSchemaFields: sanitizeHiddenFields(parsed.hiddenSchemaFields),
       netboxUrl: typeof parsed.netboxUrl === 'string' ? parsed.netboxUrl : defaults.netboxUrl,
       deviceLibraryUrl:
         typeof parsed.deviceLibraryUrl === 'string' ? parsed.deviceLibraryUrl : defaults.deviceLibraryUrl,
@@ -284,6 +302,7 @@ const snapshot = (s: PersistedSettings): PersistedSettings => ({
   enabledModules: s.enabledModules,
   onboardingDone: s.onboardingDone,
   userSchema: s.userSchema,
+  hiddenSchemaFields: s.hiddenSchemaFields,
   netboxUrl: s.netboxUrl,
   deviceLibraryUrl: s.deviceLibraryUrl,
   deviceLibraryAutoUpload: s.deviceLibraryAutoUpload,
@@ -307,6 +326,7 @@ interface SettingsState {
   enabledModules: Record<ModuleId, boolean>
   onboardingDone: boolean
   userSchema: UserSchemaMap
+  hiddenSchemaFields: HiddenFieldMap
   netboxUrl: string
   deviceLibraryUrl: string
   deviceLibraryAutoUpload: boolean
@@ -330,6 +350,7 @@ interface SettingsState {
   setOnboardingDone: (value: boolean) => void
   /** Feld-Builder — die komplette User-Schema-Map ersetzen. */
   setUserSchema: (map: UserSchemaMap) => void
+  setHiddenSchemaFields: (map: HiddenFieldMap) => void
   /** #597 — Basis-URL der NetBox-Instanz setzen (leer = nicht konfiguriert). */
   setNetboxUrl: (value: string) => void
   setDeviceLibraryUrl: (value: string) => void
@@ -348,6 +369,7 @@ const initial = load()
 // Overlay sofort aktivieren, damit schemaForCategory die User-Felder kennt,
 // bevor die erste Property-Section rendert.
 setUserSchemaOverlay(initial.userSchema)
+setHiddenFieldOverlay(initial.hiddenSchemaFields)
 
 export const useSettingsStore = create<SettingsState>((set) => ({
   tokenStatus: 'No token configured',
@@ -361,6 +383,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   canvasMotion: initial.canvasMotion,
   ausfuellQuelle: initial.ausfuellQuelle,
   userSchema: initial.userSchema,
+  hiddenSchemaFields: initial.hiddenSchemaFields,
   netboxUrl: initial.netboxUrl,
   deviceLibraryUrl: initial.deviceLibraryUrl,
   deviceLibraryAutoUpload: initial.deviceLibraryAutoUpload,
@@ -434,6 +457,13 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       persist(snapshot({ ...state, userSchema }))
       setUserSchemaOverlay(userSchema) // Overlay live nachziehen.
       return { userSchema }
+    }),
+  setHiddenSchemaFields: (map) =>
+    set((state) => {
+      const hiddenSchemaFields = sanitizeHiddenFields(map)
+      persist(snapshot({ ...state, hiddenSchemaFields }))
+      setHiddenFieldOverlay(hiddenSchemaFields)
+      return { hiddenSchemaFields }
     }),
   setNetboxUrl: (value) =>
     set((state) => {

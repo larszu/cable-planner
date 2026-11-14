@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
-import { Plus, Trash2, Lock } from 'lucide-react'
+import { Plus, Trash2, Eye, EyeOff } from 'lucide-react'
 import { useSettingsStore } from '../../../store/settingsStore'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
-import { useTranslation } from '../../../lib/i18n'
+import { format, useTranslation } from '../../../lib/i18n'
 import { SettingsCard } from '../SettingsCard'
 import {
   builtInSchemaForCategory,
@@ -65,6 +65,8 @@ export const SchemaBuilderTab = () => {
   const lang: Lang = useUiStore((s) => s.language) === 'en' ? 'en' : 'de'
   const userSchema = useSettingsStore((s) => s.userSchema)
   const setUserSchema = useSettingsStore((s) => s.setUserSchema)
+  const hiddenSchemaFields = useSettingsStore((s) => s.hiddenSchemaFields)
+  const setHiddenSchemaFields = useSettingsStore((s) => s.setHiddenSchemaFields)
   const knownCategories = useProjectStore((s) => s.knownCategories)
   const catTranslations = useProjectStore((s) => s.categoryTranslations)
   const addKnownCategories = useProjectStore((s) => s.addKnownCategories)
@@ -93,6 +95,18 @@ export const SchemaBuilderTab = () => {
   const canonKey = canonicalCategoryKey(category)
   const builtIn = builtInSchemaForCategory(category)
   const userFields = userSchema[canonKey] ?? []
+  const hiddenKeys = hiddenSchemaFields[canonKey] ?? []
+
+  // #1223 — Standardfelder abwählen statt löschen: sie verschwinden aus
+  // Inspector und Export, die Werte an den Geräten bleiben, und ein Klick
+  // holt das Feld zurück.
+  const toggleBuiltIn = (key: string) => {
+    const next = hiddenKeys.includes(key) ? hiddenKeys.filter((k) => k !== key) : [...hiddenKeys, key]
+    const map = { ...hiddenSchemaFields }
+    if (next.length) map[canonKey] = next
+    else delete map[canonKey]
+    setHiddenSchemaFields(map)
+  }
 
   const resetDraft = () => {
     setDraft(emptyDraft())
@@ -164,7 +178,7 @@ export const SchemaBuilderTab = () => {
         title={t('schemaBuilder.title', 'Categories & fields')}
         description={t(
           'schemaBuilder.desc',
-          'Create your own domain fields (e.g. pickup pattern) and categories. They appear automatically in the device properties and in BOM/export. Built-in fields are locked.',
+          'Create your own domain fields (e.g. pickup pattern) and categories. They appear automatically in the device properties and in BOM/export. Built-in fields you do not need can be hidden and added back at any time; their values are kept.',
         )}
       >
         {/* Kategorie-Wahl + Neu-Anlage */}
@@ -207,15 +221,36 @@ export const SchemaBuilderTab = () => {
 
         {/* Feld-Liste */}
         <div className="space-y-1">
-          {builtIn.map((f) => (
-            <div key={f.key} className="flex items-center gap-2 border border-cp-border-muted bg-cp-surface-3/30 px-2 py-1 text-cp-xs text-cp-text-muted">
-              <Lock size={12} className="text-cp-text-faint" />
-              <span className="flex-1">{f.label[lang] ?? f.label.de}</span>
-              <span className="text-cp-text-faint">{typeLabel(f.type)}</span>
-              {f.unit ? <span className="text-cp-text-faint">· {f.unit}</span> : null}
-              <span className="bg-cp-surface-2 px-1 text-cp-xs text-cp-text-faint">built-in</span>
-            </div>
-          ))}
+          {builtIn.map((f) => {
+            const hidden = hiddenKeys.includes(f.key)
+            const label = f.label[lang] ?? f.label.de
+            return (
+              <div
+                key={f.key}
+                className={`flex items-center gap-2 border border-cp-border-muted bg-cp-surface-3/30 px-2 py-1 text-cp-xs ${hidden ? 'text-cp-text-faint' : 'text-cp-text-muted'}`}
+              >
+                <span className={`flex-1 ${hidden ? 'line-through' : ''}`}>{label}</span>
+                <span className="text-cp-text-faint">{typeLabel(f.type)}</span>
+                {f.unit ? <span className="text-cp-text-faint">· {f.unit}</span> : null}
+                <span className="bg-cp-surface-2 px-1 text-cp-xs text-cp-text-faint">
+                  {hidden ? t('schemaBuilder.hidden', 'hidden') : t('schemaBuilder.builtIn', 'built-in')}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => toggleBuiltIn(f.key)}
+                  className="text-cp-text-muted hover:text-cp-text"
+                  title={hidden ? t('schemaBuilder.showField', 'Add field back') : t('schemaBuilder.hideField', 'Hide field (values are kept)')}
+                  aria-label={
+                    hidden
+                      ? format(t('schemaBuilder.showFieldAria', 'Add back: {name}'), { name: label })
+                      : format(t('schemaBuilder.hideFieldAria', 'Hide: {name}'), { name: label })
+                  }
+                >
+                  {hidden ? <Eye size={13} /> : <EyeOff size={13} />}
+                </button>
+              </div>
+            )
+          })}
           {userFields.map((f) => (
             <div key={f.key} className="flex items-center gap-2 border border-cp-accent/30 bg-cp-accent/5 px-2 py-1 text-cp-xs">
               <span className="flex-1 text-cp-text">{f.label[lang] ?? f.label.de}</span>
