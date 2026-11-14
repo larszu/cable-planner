@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { bomSchluessel } from '../../lib/kabelEnden'
 import { ProvenanceBadge } from '../shared/ProvenanceBadge'
 import { Check, X } from 'lucide-react'
 import { Icon } from '../shared/Icon'
@@ -43,7 +44,8 @@ interface CatalogItem {
   category: string
 }
 
-const keyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.length}`
+// #1222 — Typ samt Steckern je Ende (lib/kabelEnden).
+const keyOf = bomSchluessel
 
 /**
  * Push canvas cable quantities to the linked Rentman project.

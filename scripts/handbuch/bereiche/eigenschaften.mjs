@@ -1142,8 +1142,6 @@ await S('kabel-lebenszyklus-gefuellt', async () => {
   await d.locator('select').first().selectOption({ index: 2 })
   await d.locator('label').filter({ hasText: T('lifecycle.pathway') }).locator('input').fill('Kabelkanal 3')
   await d.getByPlaceholder('CM / CMR / CMP / LSZH').fill('LSZH')
-  await d.locator('label').filter({ hasText: T('lifecycle.termFrom') }).locator('input').fill('BNC')
-  await d.locator('label').filter({ hasText: T('lifecycle.termTo') }).locator('input').fill('BNC')
   await pause(500)
 }, async () => (await sekDetails(T('lifecycle.cableSection'), true)))
 await S('kabel-messergebnis', async () => {

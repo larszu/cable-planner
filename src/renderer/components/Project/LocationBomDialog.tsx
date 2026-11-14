@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { bomTyp } from '../../lib/kabelEnden'
 import jsPDF from 'jspdf'
 import { toJpeg } from 'html-to-image'
 import { useUiStore } from '../../store/uiStore'
@@ -113,7 +114,8 @@ export const LocationBomDialog = () => {
   const aggregateCables = (cables: typeof internalCables): CableGroup[] => {
     const map = new Map<string, CableGroup>()
     for (const c of cables) {
-      const type = c.type ?? '—'
+      // #1222 — Typ samt Steckern je Ende (lib/kabelEnden).
+      const type = c.type ? bomTyp(c) : '—'
       const length = Math.round((c.length ?? 0) * 10) / 10
       const key = `${type}|${length}`
       let g = map.get(key)

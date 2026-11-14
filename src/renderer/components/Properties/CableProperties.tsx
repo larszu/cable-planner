@@ -1,4 +1,5 @@
 import { Pencil, AlertTriangle } from 'lucide-react'
+import { ALL_CONNECTOR_TYPES } from '../../types/equipment'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
 import { Icon } from '../shared/Icon'
 import { cableCatalog } from '../../types/cableSpec'
@@ -33,6 +34,15 @@ import {
 
 const EMPTY_LOCATIONS: LocationFrame[] = []
 const EMPTY_FLOORS: Floor[] = []
+
+
+/** #1222 — Vorschlaege fuer die Stecker je Kabelende: die bekannten
+ *  Anschlusstypen und die Bauformen, die nur als Kabelende vorkommen
+ *  (M8/M12 an Industrie-Ethernet, LC/SC/ST/FC an Glasfaser). Frei
+ *  eintippbar bleibt es trotzdem. */
+const KABEL_STECKER_VORSCHLAEGE: readonly string[] = [
+  ...new Set<string>([...ALL_CONNECTOR_TYPES, 'RJ45', 'M8', 'M12', 'LC', 'SC', 'ST', 'FC', 'E2000', 'MPO', 'T568A', 'T568B']),
+]
 
 export const CableProperties = () => {
   const t = useTranslation()
@@ -278,6 +288,39 @@ export const CableProperties = () => {
           />
         </label>
       )}
+      {/* #1222 — Stecker je Ende. Dieselben Felder wie die Terminierung der
+          Festinstallation (Pull-Liste), nicht ein zweites Paar daneben;
+          die Stueckliste fuehrt das Kabel damit als eigene Zeile. Leer
+          heisst: wie der Anschluss. */}
+      <div className="grid grid-cols-2 gap-2">
+        <label className="block">
+          <span className="mb-1 block text-cp-text-secondary">{t('cable.field.endFrom', 'Connector at start')}</span>
+          <input
+            value={cable.terminationFrom ?? ''}
+            list="cp-kabel-stecker"
+            placeholder={fromPort?.connectorType ?? cable.type}
+            onChange={(e) => updateCable(cable.id, { terminationFrom: e.target.value || undefined })}
+            className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
+            title={t('cable.field.endTitle', 'Connector or termination at this end (e.g. M8, LC, T568B). Empty means the same as the port. The bill of materials lists mixed cables separately.')}
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-cp-text-secondary">{t('cable.field.endTo', 'Connector at end')}</span>
+          <input
+            value={cable.terminationTo ?? ''}
+            list="cp-kabel-stecker"
+            placeholder={toPort?.connectorType ?? cable.type}
+            onChange={(e) => updateCable(cable.id, { terminationTo: e.target.value || undefined })}
+            className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
+            title={t('cable.field.endTitle', 'Connector or termination at this end (e.g. M8, LC, T568B). Empty means the same as the port. The bill of materials lists mixed cables separately.')}
+          />
+        </label>
+        <datalist id="cp-kabel-stecker">
+          {KABEL_STECKER_VORSCHLAEGE.map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
+      </div>
       <ColorField
         label={t('cable.field.color', 'Colour')}
         value={cable.color}
@@ -365,24 +408,6 @@ export const CableProperties = () => {
                 value={cable.jacketRating ?? ''}
                 placeholder="CM / CMR / CMP / LSZH"
                 onChange={(e) => updateCable(cable.id, { jacketRating: e.target.value || undefined })}
-                className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.termFrom', 'Term. A')}</span>
-              <input
-                value={cable.terminationFrom ?? ''}
-                placeholder="T568B / LC / …"
-                onChange={(e) => updateCable(cable.id, { terminationFrom: e.target.value || undefined })}
-                className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.termTo', 'Term. B')}</span>
-              <input
-                value={cable.terminationTo ?? ''}
-                placeholder="T568B / LC / …"
-                onChange={(e) => updateCable(cable.id, { terminationTo: e.target.value || undefined })}
                 className="w-full border border-cp-border bg-cp-surface-1 p-1.5"
               />
             </label>

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { bomSchluessel } from '../../lib/kabelEnden'
 import { Package, AlertTriangle, ArrowRight, Check } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { ModalShell } from '../shared/ModalShell'
@@ -47,7 +48,8 @@ interface BomRow {
   shortfall?: StockShortfall[]
 }
 
-const keyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.length}`
+// #1222 — Typ samt Steckern je Ende (lib/kabelEnden).
+const keyOf = bomSchluessel
 
 const parseKey = (key: string): { type: string; length: number } => {
   const [type, lenStr] = key.split('|')

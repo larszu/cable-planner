@@ -401,6 +401,7 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 | Fotos | Fotos dieses Kabels |
 | Name | Bezeichnung; *↳ aus Quelle → Ziel* bildet sie aus Quelle und Ziel |
 | Länge (m) | Länge des Kabels |
+| Stecker am Anfang, Stecker am Ende | Stecker oder Terminierung je Kabelende, z. B. RJ45 und M8 oder LC und SC; leer heißt: wie der Anschluss. Ein Kabel mit eingetragenen Enden steht in der Stückliste als eigene Zeile, etwa *Ethernet/RJ45 (RJ45 ↔ M8)*, und in Zug- und Auflege-Liste je Ende |
 | Farbe | Farbe im Canvas |
 | Ebene (Layer) | Video, Audio, Control, Network, Power, Other; wirkt mit dem Layer-Filter der Werkzeugleiste |
 | Multicore / Snake | Name des Multicores, zu dem das Kabel gehört |
@@ -431,7 +432,6 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 | Außendurchmesser (mm) | Durchmesser dieses Kabels; leer übernimmt den Wert des Kabeltyps |
 | Trasse / Pfad | Text |
 | Mantel/Brandklasse | Text |
-| Term. A, Term. B | Terminierung an beiden Enden |
 | Faser A, Faser B | bei Glasfaser die belegte Faser je Ende |
 | Mess-/Test-Ergebnis | — nicht getestet —, PASS, FAIL; dazu *Marge dB*, *Standard/Limit* und *Report-Datei*; *Löschen* leert das Ergebnis |
 
