@@ -19,6 +19,7 @@ import type { Port } from '../../types/equipment'
 import { ConnectorSymbol } from '../shared/ConnectorSymbol'
 import { findConnectorEntry, connectorGender } from '../../lib/connectorCatalog'
 import { useTranslation } from '../../lib/i18n'
+import { standardPortPosition } from '../../lib/portRaster'
 
 interface Props {
   /** Ports die auf dieser Face gerendert werden sollen (bereits gefiltert
@@ -50,12 +51,7 @@ const PORT_DOT_COLORS: Record<string, string> = {
   Custom: '#94a3b8',
 }
 
-const computeDefault = (idx: number, total: number): { x: number; y: number } => {
-  if (total <= 1) return { x: 0.5, y: 0.5 }
-  const cols = Math.ceil(Math.sqrt(total * 2.5))
-  const rows = Math.ceil(total / cols)
-  return { x: ((idx % cols) + 0.5) / cols, y: (Math.floor(idx / cols) + 0.5) / rows }
-}
+const computeDefault = standardPortPosition
 
 export const PortDots2D = ({
   ports,
