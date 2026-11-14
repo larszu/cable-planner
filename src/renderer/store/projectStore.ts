@@ -2242,11 +2242,14 @@ const buildProjectStore = (
           notes: draft.notes ?? '',
           standard: draft.standard,
           cableSpecId: draft.cableSpecId,
-          // yEd-imported cables ship their original bend points so the
-          // canvas matches the source diagram 1:1. If there are no
-          // waypoints the auto-routing kicks in via the user's default
-          // routing mode (orthogonal / straight / curved).
-          routing: draft.waypoints && draft.waypoints.length > 0 ? 'straight' : ui.defaultRouting,
+          // #1116: yEd-Kabel kommen immer als „Ortho". Vorher bekamen
+          // Kabel MIT Knickpunkten 'straight' — und der gerade Weg
+          // zeichnet nur Quelle→Ziel, die mitgebrachten Knickpunkte
+          // fielen also gerade dort weg, wo es sie gab. Ohne Knickpunkte
+          // galt die Zeichen-Voreinstellung, die fuer neu gezogene Kabel
+          // gedacht ist, nicht fuer einen Import. Nur der orthogonale Weg
+          // laeuft durch `waypoints`; ohne sie legt er selbst einen.
+          routing: 'orthogonal',
           waypoints: draft.waypoints && draft.waypoints.length > 0 ? draft.waypoints : undefined,
           arrowEnd: ui.defaultArrow,
           strokeWidth: 2.5,
