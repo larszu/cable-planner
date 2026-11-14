@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from './i18n'
 import {
   MODAL_BACKDROP,
@@ -48,9 +49,13 @@ interface Props {
 
 const CredentialChoiceDialog = ({ count, destination, onDone }: Props) => {
   const t = useTranslation()
-  // Escape bricht ab und schickt gar nichts — bei einer Frage nach
-  // Zugangsdaten ist „ich habe nicht geantwortet" kein Grund, sie mitzugeben.
-  useModalKeyboard(() => onDone(null))
+  // #1171 — ein Kaestchen statt zweier Knoepfe: „mit oder ohne Passwoerter
+  // ankreuzbar". Es steht AUS — wer nichts ankreuzt, gibt nichts mit. Das ist
+  // dieselbe Richtung wie bei Escape: bei einer Frage nach Zugangsdaten ist
+  // „ich habe nicht hingesehen" kein Grund, sie mitzugeben.
+  const [mit, setMit] = useState(false)
+  const weiter = () => onDone(mit ? 'include' : 'strip')
+  useModalKeyboard(() => onDone(null), weiter)
 
   return (
     <div style={MODAL_BACKDROP} onMouseDown={backdropMouseDown(() => onDone(null))}>
@@ -58,7 +63,7 @@ const CredentialChoiceDialog = ({ count, destination, onDone }: Props) => {
         <div style={{ marginBottom: 8, fontSize: 14, fontWeight: 600 }}>
           {t('cred.title', 'Include credentials?')}
         </div>
-        <div style={{ marginBottom: 16, fontSize: 13, color: '#cbd5e1' }}>
+        <div style={{ marginBottom: 12, fontSize: 13, color: '#cbd5e1' }}>
           {count === 1
             ? t('cred.body.one', 'One entry carries a device username or password.')
             : t('cred.body.many', '{n} entries carry a device username or password.').replace(
@@ -67,23 +72,16 @@ const CredentialChoiceDialog = ({ count, destination, onDone }: Props) => {
               )}{' '}
           {destination}
         </div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 13, cursor: 'pointer' }}>
+          <input type="checkbox" checked={mit} onChange={(e) => setMit(e.target.checked)} />
+          {t('cred.checkbox', 'Include usernames and passwords')}
+        </label>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
           <button type="button" onClick={() => onDone(null)} style={MODAL_BUTTON_SECONDARY}>
             {t('common.cancel', 'Cancel')}
           </button>
-          <button
-            type="button"
-            onClick={() => onDone('include')}
-            style={MODAL_BUTTON_SECONDARY}
-          >
-            {t('cred.include', 'Include')}
-          </button>
-          <button
-            type="button"
-            onClick={() => onDone('strip')}
-            style={modalButtonPrimary('#10b981')}
-          >
-            {t('cred.strip', 'Without credentials')}
+          <button type="button" onClick={weiter} style={modalButtonPrimary('#10b981')}>
+            {mit ? t('cred.include', 'Include') : t('cred.strip', 'Without credentials')}
           </button>
         </div>
       </div>
