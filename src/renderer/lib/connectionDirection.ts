@@ -69,3 +69,34 @@ export const richteVerbindungAus = <T extends Endpunkte>(
   }
   return { ok: true, connection, umgedreht: false }
 }
+
+/**
+ * #1228 — Die Verbindung in Zeichenrichtung: `source` ist der Griff, an dem
+ * das Ziehen begann.
+ *
+ * ReactFlow 11 nennt im Loose-Modus den Start-Griff nur dann `source`, wenn
+ * er ein `source`-Griff ist. Beginnt man an einem Eingang (dessen
+ * verbindbarer Griff ist ein `target`), vertauscht es die Enden. Fuer
+ * gerichtete Ports ist das gleich, `richteVerbindungAus` dreht ohnehin auf
+ * Ausgang -> Eingang. Zwischen zwei bidirektionalen Ports aber legt nur die
+ * Zeichenrichtung fest, wo das Kabel anfaengt — und die war damit verkehrt:
+ * das Kabel begann am Geraet, an dem man losgelassen hatte.
+ */
+export const inZeichenrichtung = <T extends Endpunkte>(
+  connection: T,
+  start: { nodeId: string | null; handleId: string | null } | null | undefined,
+): T => {
+  if (!start?.nodeId) return connection
+  const startIstZiel =
+    connection.target === start.nodeId && (connection.targetHandle ?? null) === (start.handleId ?? null)
+  const startIstQuelle =
+    connection.source === start.nodeId && (connection.sourceHandle ?? null) === (start.handleId ?? null)
+  if (!startIstZiel || startIstQuelle) return connection
+  return {
+    ...connection,
+    source: connection.target,
+    sourceHandle: connection.targetHandle,
+    target: connection.source,
+    targetHandle: connection.sourceHandle,
+  }
+}

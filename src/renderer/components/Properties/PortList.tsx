@@ -56,6 +56,9 @@ interface PortListProps {
   title: string
   ports: Port[]
   onChange: (ports: Port[]) => void
+  /** #1228 — welche Liste das ist. Eingang/Ausgang sagt die Liste, der Port
+   *  selbst traegt nur noch „bidirektional" (lib/portArt). */
+  seite: 'in' | 'out'
   /** v7.9.63 / #185 — Wenn die PortList in einem details-Wrapper liegt
    *  der bereits Titel + Count zeigt, lassen wir die interne Headline
    *  weg um doppelten Text zu vermeiden. */
@@ -189,6 +192,7 @@ export const PortList = ({
   title,
   ports,
   onChange,
+  seite,
   hideTitle,
   showAtemSourceId,
   collapsed,
@@ -253,6 +257,10 @@ export const PortList = ({
     onChange(ports.map((port) => (port.id === portId ? { ...port, ...finalPatch } : port)))
   }
   const addPort = () => onChange([...ports, makePort(`${title.slice(0, -1)} ${ports.length + 1}`)])
+  // #1228 — die dritte Art gleich beim Anlegen, statt hinterher eine
+  // „Richtung" nachzutragen.
+  const addBidiPort = () =>
+    onChange([...ports, { ...makePort(`I/O ${ports.length + 1}`), direction: 'bidirectional' }])
   const removePort = (portId: string) => onChange(ports.filter((port) => port.id !== portId))
 
   // v7.9.7 — Quad-Link Set Helpers. Ein Set besteht aus 4 BNC-Ports auf
@@ -531,13 +539,23 @@ export const PortList = ({
             steht. Bei direkter Verwendung (ohne Wrapper) bleibt der
             Titel sichtbar. */}
         <span className="text-cp-xs font-semibold text-cp-text-secondary">{hideTitle ? '' : title}</span>
-        <button
-          type="button"
-          onClick={addPort}
-          className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
-        >
-          {t('ports.add', '+ Port')}
-        </button>
+        <span className="flex gap-1">
+          <button
+            type="button"
+            onClick={addPort}
+            className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+          >
+            {seite === 'in' ? t('ports.addInput', '+ Input') : t('ports.addOutput', '+ Output')}
+          </button>
+          <button
+            type="button"
+            onClick={addBidiPort}
+            className="bg-cp-surface-4 px-2 py-0.5 text-cp-xs hover:bg-cp-surface-5"
+            title={t('ports.addBidiTitle', 'A port that carries signal both ways (network, intercom, etherCON): one cable in and cables out on the same socket.')}
+          >
+            {t('ports.addBidi', '+ Bidirectional')}
+          </button>
+        </span>
       </div>
       {ports.length === 0 && <div className="text-cp-xs text-cp-text-muted">{t('ports.none', 'None')}</div>}
       {duplicatePortNumbers.length > 0 && (
@@ -726,22 +744,18 @@ export const PortList = ({
             )}
             <div className="mt-1 grid grid-cols-2 gap-1">
               <select
-                aria-label={t('ports.aria.direction', 'Port direction')}
-                value={port.direction ?? ''}
+                aria-label={t('ports.aria.kind', 'Port kind')}
+                value={port.direction === 'bidirectional' ? 'bidirectional' : 'plain'}
                 onChange={(event) =>
                   updatePort(port.id, {
-                    direction: event.target.value
-                      ? (event.target.value as 'in' | 'out' | 'bidirectional')
-                      : undefined,
+                    direction: event.target.value === 'bidirectional' ? 'bidirectional' : undefined,
                   })
                 }
                 className="w-full border border-cp-border bg-cp-surface-3 p-1 text-cp-xs"
-                title={t('ports.directionTitle', 'Direction — bidirectional is useful for network/RJ45 ports.')}
+                title={t('ports.kindTitle', 'Bidirectional suits network/RJ45 ports: one cable in and cables out on the same socket.')}
               >
-                <option value="">{t('ports.direction.auto', 'Direction (auto)')}</option>
-                <option value="in">{t('ports.direction.in', 'Input only')}</option>
-                <option value="out">{t('ports.direction.out', 'Output only')}</option>
-                <option value="bidirectional">{t('ports.direction.bi', 'Input / output (e.g. speakON, etherCON, network)')}</option>
+                <option value="plain">{seite === 'in' ? t('ports.kind.in', 'Input') : t('ports.kind.out', 'Output')}</option>
+                <option value="bidirectional">{t('ports.kind.bi', 'Bidirectional (e.g. speakON, etherCON, network)')}</option>
               </select>
               <select
                 aria-label={t('ports.aria.side', 'Port side')}

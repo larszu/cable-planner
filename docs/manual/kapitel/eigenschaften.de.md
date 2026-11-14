@@ -57,7 +57,7 @@ Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie,
 
 ![Inputs & Outputs](bilder/de/eigenschaften-15-ports-abschnitt.jpg)
 
-1. *+ Hinzufügen* legt einen Port in der Liste an.
+1. *+ Eingang* (bzw. *+ Ausgang*) legt einen Port in der Liste an, *+ Bidirektional* einen Port, der Signal in beide Richtungen führt (Netzwerk, Intercom, etherCON): ein Kabel kommt herein, weitere gehen hinaus.
 
    ![Eingang hinzugefügt](bilder/de/eigenschaften-16-ports-eingang-hinzu.jpg)
 
@@ -70,12 +70,12 @@ Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie,
    | Feld | Werte |
    |---|---|
    | Inhalt / Funktion | freier Text, z. B. „PGM“ |
-   | Richtung | Richtung (auto), Nur Input, Nur Output, *Ein-/Ausgang (z. B. speakON, etherCON, Netzwerk)* (ein solcher Port kann Kabelquelle und Kabelziel sein) |
+   | Art | *Eingang* bzw. *Ausgang* (je nach Liste) oder *Bidirektional (z. B. speakON, etherCON, Netzwerk)* (ein solcher Port kann Kabelquelle und Kabelziel sein; ein Kabel zwischen zwei bidirektionalen Ports beginnt an dem Gerät, an dem Sie zu ziehen anfangen) |
    | Seite | Seite (auto), Links, Rechts |
    | Geschlecht | Geschlecht (–), ♂ Male / Stecker, ♀ Female / Buchse |
    | Gruppe | — Kein —, vorhandene Gruppen, *+ Neue Gruppe …* |
 
-   ![Signal, Inhalt und Richtung](bilder/de/eigenschaften-19-ports-signal-inhalt-richtung.jpg)
+   ![Signal, Inhalt und Art](bilder/de/eigenschaften-19-ports-signal-inhalt-richtung.jpg)
 
 4. Bei SDI-Ports klappt *SDI-Fähigkeiten (port-spezifisch)* auf: *Max Single-Link* überschreibt den Wert des Geräts für diesen Port; *Quad-Link Set* und *Dual-Link Set* fassen Ports zu einem Set zusammen (*+ Neues Set…*). Ein neues Set meldet, wie viele Ports ihm schon zugewiesen sind.
 

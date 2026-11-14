@@ -1,3 +1,4 @@
+import { ordnePortArten } from '../lib/portArt'
 import { checkProjectSetRate } from './projectRateGuard'
 import { skalaGrenzen } from '../lib/raster'
 import type { LoadDrop, LoadReport } from '../types/loadReport'
@@ -1264,6 +1265,11 @@ const healProjectPositions = (
     ...(intercom ? { intercom } : {}),
     equipment: project.equipment.map((item) => {
       item = clearDanglingIdentity(item, identityIds)
+      // #1228 — die Port-Art steht nur noch an einer Stelle (lib/portArt).
+      item = ordnePortArten(item)
+      if (item.modes?.some((m) => ordnePortArten(m) !== m)) {
+        item = { ...item, modes: item.modes.map(ordnePortArten) }
+      }
       // 2026-09-27 — ein Katalog-Eintrag, der in einem anderen aufgegangen
       // ist (USW-16 -> USW-16-PoE), traegt im Projekt noch die alte Id. Sie
       // loest ueber den Alias weiter auf; hier wird sie auf die heutige
