@@ -100,7 +100,7 @@ Categories order the templates. A pencil appears when you point at the category 
 
    ![Dragging a category by its grip](bilder/en/bibliothek-35-kategorie-ziehen-griff.jpg)
 
-3. Entries can be dragged onto another category; an empty category says *Drag a device here to move it*.
+3. Entries can be dragged onto another category or subcategory; an empty category says *Drag a device here to move it*. Dragging to the top or bottom edge of the list scrolls it along. Likewise, changing the category in the template inspector moves the entry at once, without *Save*.
 
    ![Dragging an entry into a category](bilder/en/bibliothek-52-eintrag-in-kategorie-ziehen.jpg)
 

@@ -23,6 +23,7 @@ import {
   ordneKategorienBaum,
   unterkategorieVon,
 } from '../../../lib/unterkategorie'
+import { randScrollSchritt } from '../../../lib/randScroll'
 import { baueEinreichung } from '../../../lib/vorlagenEinreichung'
 import { eigeneVorlagen } from '../../../lib/deviceLibraryUpload'
 import type { EquipmentTemplate } from '../../../types/equipment'
@@ -305,7 +306,17 @@ export const LocalEquipmentTab = ({
         </form>
       )}
 
-      <div className="flex-1 min-h-0 space-y-1 overflow-auto">
+      <div
+        className="flex-1 min-h-0 space-y-1 overflow-auto"
+        // #1227 — beim Ziehen eines Geraets laeuft die Liste am Rand mit,
+        // damit auch eine Unterkategorie weiter unten erreichbar ist.
+        onDragOver={(event) => {
+          if (!event.dataTransfer.types.includes(MIME_EQUIPMENT)) return
+          const r = event.currentTarget.getBoundingClientRect()
+          const schritt = randScrollSchritt(event.clientY, r.top, r.bottom)
+          if (schritt) event.currentTarget.scrollTop += schritt
+        }}
+      >
         {(() => {
           const usedCats = new Set(customLibrary.map((t) => t.category || 'Other'))
           // v7.9.5 — Kategorien-Order respektiert den User-gewaehlten Sort-Modus.
