@@ -125,6 +125,8 @@ export type ConnectorType =
   | 'TT/Bantam'
   | 'Mini-BNC'
   | 'Micro-BNC'
+  /** 75-Ohm-Kleinkoax ("mini DIN"), z. B. DeckLink Quad 2 — nicht dasselbe wie Micro-BNC. */
+  | 'DIN 1.0/2.3'
   /**
    * ─── DIE 36 STECKER, DIE DER AUSWAHLDIALOG SCHON KANNTE (2026-09-24) ─────
    *
@@ -270,7 +272,7 @@ export const ALL_CONNECTOR_TYPES: ConnectorType[] = [
   'LEMO 3K.93C (SMPTE 304M)', 'Neutrik Dragonfly (SMPTE 304M)',
   'Neutrik opticalCON DUO', 'Neutrik opticalCON QUAD',
   'F-Connector', 'DB9', 'DB25', 'Wireless/RF',
-  'DMX 5-pol (XLR)', 'DMX 3-pol (XLR)', 'Cinch/RCA', 'SCART', 'S-Video', 'TT/Bantam', 'Mini-BNC', 'Micro-BNC',
+  'DMX 5-pol (XLR)', 'DMX 3-pol (XLR)', 'Cinch/RCA', 'SCART', 'S-Video', 'TT/Bantam', 'Mini-BNC', 'Micro-BNC', 'DIN 1.0/2.3',
   'IEC 230V', 'PowerCON', 'Schuko 230V', 'C7 Eurostecker',
   'CEE16', 'CEE32', 'CEE63', 'Powerlock', 'Socapex', 'Harting', 'Kleeblatt',
   // 2026-09-24 — Gleichstand mit `connectorCatalog.ts` (36) und die
