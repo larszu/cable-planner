@@ -253,7 +253,8 @@ Für PDF kommen diese Einstellungen dazu:
 - *Render-Modus*: *Raster (klassisch)* ist ein JPEG-Abbild des Canvas, zuverlässig, aber der Text wird bei hohem Zoom unscharf. *Vektor* nutzt den Druckweg von Chromium: Text bleibt wählbar und scharf bei jedem Zoom, die Datei bleibt klein. Beide tragen dasselbe Schriftfeld mit Projektdaten, Revision, Stand und QR-Code.
 - *Schriftfeld*: an- und abschaltbar; QR-Code, Logos und jede Zeile einzeln wählbar. *Größe* „Auto“ wächst mit dem Blatt (A3 = 100 %), alternativ ein fester Wert von 75 bis 300 %. Die Einstellung wird im Projekt gespeichert.
 - *Page-Size* gibt es nur beim Vektor-PDF: *Auto — A0 Landscape (kompatibel mit allen Viewern)*, *A4 Landscape* bis *A0 Landscape*, *A0+ Plotter* und *Original — volle Canvas-Größe für Plotter*. Seiten über A0 zeigen Edge und Vorschau manchmal weiß an; Acrobat und Plotter-Software drucken sie. Der Canvas wird vektoriell auf die Seite skaliert, Text bleibt scharf.
-- *Ebenen (im PDF enthalten)*: Die Chips Video, Audio, Control, Network, Power und Other schalten eine Ebene für Canvas und PDF um. Für ein PDF nur mit Video schalten Sie die anderen aus, exportieren und schalten sie wieder ein.
+- *Ebenen (im PDF enthalten)*: Die Chips Video, Audio, Control, Network, Power und Other schalten eine Ebene für Canvas und PDF um. Für ein PDF nur mit Video schalten Sie *Video* per Doppelklick einsam, exportieren und schalten mit einem zweiten Doppelklick alle wieder ein.
+- *Ein Blatt je Ebene (dazu ein Gesamtblatt mit allen Ebenen)* (nur Raster) schreibt eine Datei mit mehreren Seiten: zuerst alle Ebenen übereinander, dann je Ebene, die Kabel trägt, ein eigenes Blatt. Jede Seite nennt im Kopf ihre Ebene und trägt eine Legende mit Farbe und Zahl der Kabel; das Gesamtblatt listet alle Ebenen. Die Ebenen-Chips stehen danach wieder wie vorher.
 
 ![Thema Dunkel](bilder/de/export-09-plan-thema-dunkel.jpg)
 

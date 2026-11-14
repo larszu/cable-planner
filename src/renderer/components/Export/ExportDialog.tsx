@@ -101,6 +101,7 @@ interface ExportDialogProps {
     vector?: boolean,
     pageSize?: PdfPageSizeOpt,
     monochrom?: boolean,
+    jeEbene?: boolean,
   ) => Promise<void> | void
   /** Triggert OS-Druckdialog mit dem Plan-PDF. */
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
@@ -251,6 +252,7 @@ const PlanSection = ({
     vector?: boolean,
     pageSize?: PdfPageSizeOpt,
     monochrom?: boolean,
+    jeEbene?: boolean,
   ) => Promise<void> | void
   onPrintPdf: (theme: 'dark' | 'light') => Promise<void> | void
   onExportImage: (format: 'png' | 'jpeg' | 'svg' | 'dxf') => Promise<void> | void
@@ -270,13 +272,15 @@ const PlanSection = ({
   // = A0-Cap fuer Viewer-Kompatibilitaet. 'original' = volle Groesse
   // fuer Plotter-Drucke.
   const [pdfPageSize, setPdfPageSize] = useState<PdfPageSizeOpt>('auto')
+  // #1189 — Druck je Ebene: Gesamtblatt + ein Blatt je Ebene mit Wegen.
+  const [pdfJeEbene, setPdfJeEbene] = useState(false)
   const [busy, setBusy] = useState(false)
   const projectName = useProjectStore((s) => s.project.metadata.name)
 
   const handleExport = async () => {
     setBusy(true)
     try {
-      if (format === 'pdf') await onExportPdf(pdfTheme, pdfVector, pdfPageSize, pdfMonochrom)
+      if (format === 'pdf') await onExportPdf(pdfTheme, pdfVector, pdfPageSize, pdfMonochrom, pdfJeEbene && !pdfVector)
       else await onExportImage(format)
       onClose()
     } finally {
@@ -476,6 +480,16 @@ const PlanSection = ({
             <p className="text-cp-xs text-cp-text-muted">
               {t('export.layersHint', 'Click a chip to toggle that layer for canvas AND PDF.')}
             </p>
+            {!pdfVector && (
+              <label className="flex items-center gap-2 text-cp-xs text-cp-text">
+                <input
+                  type="checkbox"
+                  checked={pdfJeEbene}
+                  onChange={(e) => setPdfJeEbene(e.target.checked)}
+                />
+                {t('export.layerSheets.option', 'One sheet per layer (plus an overall sheet with all layers)')}
+              </label>
+            )}
           </fieldset>
         </>
       )}

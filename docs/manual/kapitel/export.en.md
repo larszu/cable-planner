@@ -253,7 +253,8 @@ For PDF these settings are added:
 - *Render mode*: *Raster (classic)* is a JPEG snapshot of the canvas, reliable, but text blurs at high zoom. *Vector* uses Chromium's print path: text stays selectable and sharp at any zoom, the file stays small. Both carry the same title block with project data, revision, state and QR code.
 - *Title block*: can be switched off; QR code, logos and every row can be chosen individually. *Size* “Auto” grows with the sheet (A3 = 100 %), or pick a fixed value from 75 to 300 %. The setting is saved with the project.
 - *Page size* exists only for the vector PDF: *Auto — A0 landscape (compatible with all viewers)*, *A4 Landscape* to *A0 Landscape*, *A0+ Plotter* and *Original — full canvas size for plotter*. Edge and Preview sometimes display pages above A0 as white; Acrobat and plotter software print them. The canvas is scaled vectorially to the page, text stays sharp.
-- *Layers (included in PDF)*: the chips Video, Audio, Control, Network, Power and Other toggle a layer for canvas and PDF. For a PDF with video only, switch the others off, export and switch them on again.
+- *Layers (included in PDF)*: the chips Video, Audio, Control, Network, Power and Other toggle a layer for canvas and PDF. For a PDF with video only, solo *Video* with a double click, export and show all again with a second double click.
+- *One sheet per layer (plus an overall sheet with all layers)* (raster only) writes one file with several pages: first all layers on top of each other, then one sheet for each layer that carries cables. Each page names its layer in the header and carries a legend with colour and number of cables; the overall sheet lists all layers. The layer chips are back as they were afterwards.
 
 ![Dark theme](bilder/en/export-09-plan-thema-dunkel.jpg)
 

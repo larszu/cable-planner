@@ -103,6 +103,7 @@ import { STORAGE_KEYS } from '../lib/storageKeys'
 import { PANEL_LIMITS } from '../lib/layoutConstants'
 import { RASTER_DEFAULT, rasterGrenzen } from '../lib/raster'
 import { kabeltypenUmbenannt } from '../lib/stammdaten'
+import { STANDARD_LAYERS, soloLayerVisibility } from '../lib/cableLayers'
 
 const KEY = STORAGE_KEYS.ui
 
@@ -961,6 +962,8 @@ interface UiState extends PersistedUiState {
   layerVisibility: Record<string, boolean>
   setLayerVisibility: (layer: string, visible: boolean) => void
   resetLayerVisibility: () => void
+  /** #1189 — nur diese Ebene zeigen; nochmal = alle wieder sichtbar. */
+  soloLayer: (layer: string) => void
   /** v7.9.85 / #123 — User-definierte Custom-Layer (z.B. "intercom",
    *  "lighting"). Werden in der Toolbar-Chip-Strip mit angezeigt und
    *  in der Cable-Properties-Dropdown auswählbar. */
@@ -1593,6 +1596,14 @@ export const useUiStore = create<UiState>((set) => ({
         other: true,
       },
     }),
+  soloLayer: (layer) =>
+    set((state) => ({
+      layerVisibility: soloLayerVisibility(
+        [...STANDARD_LAYERS, ...state.customLayers],
+        state.layerVisibility,
+        layer,
+      ),
+    })),
   customLayers: [],
   addCustomLayer: (name) =>
     set((state) => {

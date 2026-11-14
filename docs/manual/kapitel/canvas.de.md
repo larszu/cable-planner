@@ -422,7 +422,7 @@ Geräte lassen sich in der 3D-Ansicht ziehen. Bodentanks erscheinen als flache P
 
 ### Ebenen
 
-Die Ebenen-Chips blenden die Kabel einer Ebene ein und aus. Nur die Kabel werden gefiltert, die Geräte bleiben. Ein farbiger Punkt kennzeichnet die Signalart; der Tooltip nennt die Zahl der Kabel (zum Beispiel *Video — 4 Kabel · sichtbar (klick: ausblenden)*).
+Die Ebenen-Chips blenden die Kabel einer Ebene ein und aus. Nur die Kabel werden gefiltert, die Geräte bleiben. Ein farbiger Punkt kennzeichnet die Signalart, die Zahl im Chip die Kabel auf dieser Ebene. Unterebenen wie *video.backup* zählen bei ihrer Hauptebene, Kabel ohne Ebene bei *Other*. So fällt auf, wenn eine Ebene leer ist, obwohl der Plan sie braucht.
 
 1. Die Leiste zeigt *Video*, *Audio*, *Control*, *Network*, *Power* und *Other*.
 
@@ -431,6 +431,8 @@ Die Ebenen-Chips blenden die Kabel einer Ebene ein und aus. Nur die Kabel werden
 2. Klicken Sie auf *Video*: Die Videokabel verschwinden.
 
    ![Ebene Video ausgeblendet](bilder/de/canvas-ebenen-02-video-aus.jpg)
+
+   Ein Doppelklick (oder Alt-Klick) auf einen Chip schaltet die Ebene einsam: Nur ihre Kabel bleiben sichtbar. Derselbe Griff noch einmal blendet alle Ebenen wieder ein.
 
 3. *Mehr → Ebenen ⋯* öffnet das Verwaltungsmenü: *Custom-Layer anlegen…* und *Alle Ebenen wieder einblenden*.
 
