@@ -101,7 +101,7 @@ const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
 export function drawGenlockPanel(ctx: CanvasRenderingContext2D, o: Partial<GenlockOptions> | undefined, src: Source | null, w: number, h: number) {
   const ui = lang();
   const st = referenceStatus(o?.device ?? 0);
-  const live = src && (src.url.startsWith('decklink:') || src.url.startsWith('ndi:')) && src.status === 'live';
+  const live = src && /^(decklink|aja|ndi):/.test(src.url) && src.status === 'live';
   const phase = live ? src.phase : null;
   const tc = live ? (src as unknown as { tc?: { tc?: string } | null }).tc?.tc ?? null : null;
   const L = genlockLines(st, phase, tc, ui);

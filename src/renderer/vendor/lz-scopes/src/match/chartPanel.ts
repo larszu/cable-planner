@@ -6,6 +6,7 @@ import type { Source } from '../sources';
 import type { Pt } from '../led/analysis';
 import { grabFrame } from '../led/ui';
 import { CLASSIC_24, matchMatrix, patchMedians, suggestMatrix, toPixels, type CameraPatches, type MatrixRow } from './chart';
+import { chartReference, normaliseExposure } from './chartRef';
 import { deVerdict } from './core';
 import { spaceOf } from './panel';
 import { num, t } from '../i18n';
@@ -13,6 +14,8 @@ import { num, t } from '../i18n';
 export interface ChartSettings {
   /** sources (empty = first eight) */
   sources?: string[];
+  /** reference: another camera (default) or the reference values of the chart (#200) */
+  reference?: 'camera' | 'values';
   /** chart corners TL, TR, BR, BL per source id, as fractions of the picture */
   corners?: Record<string, Pt[]>;
   /** ΔE tolerance (default 3) */
@@ -58,19 +61,27 @@ export function drawChartPanel(ctx: CanvasRenderingContext2D, w: number, h: numb
   const withData = cams.filter((x) => x.p);
   const ref = withData.find((x) => x.s.id === refId) ?? withData[0];
   if (!ref) { ctx.fillText(t('chart.noData'), 10, 10); ctx.restore(); return; }
-  const rows = matchMatrix(withData.map((x) => x.p!), ref.s.id);
+  // reference: another camera, or the reference values of the chart itself (#200). Against
+  // absolute values the exposure has to be taken out first, otherwise ΔE measures the stop.
+  const values = c?.reference === 'values' ? chartReference(ref.p!.space, VALUES_ID) : null;
+  if (values) for (const x of withData) x.p = normaliseExposure(x.p!, values).cam;
+  const refPatches = values ?? ref.p!;
+  const refName = values ? t('chart.refValues') : ref.s.name;
+  const refKey = values ? VALUES_ID : ref.s.id;
+  const rows = matchMatrix([...withData.map((x) => x.p!), ...(values ? [values] : [])], refKey);
   const rowOf = (id: string) => rows.find((r) => r.id === id);
-  ctx.fillText(t('chart.head', { ref: ref.s.name, metric: rows[0]?.metric ?? 'ΔE00', tol: num(tol, 1) }), 10, 8);
+  ctx.fillText(t('chart.head', { ref: refName, metric: rows[0]?.metric ?? 'ΔE00', tol: num(tol, 1) }), 10, 8);
   // one block per camera: name, mean/max, 6 × 4 cells coloured by verdict, matrix suggestion
   const cellW = Math.max(22, Math.min(46, (w - 20) / 6)), cellH = 16, blockW = cellW * 6 + 16;
-  const perRow = Math.max(1, Math.floor((w - 10) / blockW)), blockH = 4 * cellH + 72;
+  // the 3×3 suggestion is printed row by row: one long line ran into the next camera's block
+  const perRow = Math.max(1, Math.floor((w - 10) / blockW)), blockH = 4 * cellH + 98;
   cams.forEach((x, i) => {
     const bx = 10 + (i % perRow) * blockW, by = 28 + Math.floor(i / perRow) * blockH;
     if (by > h) return;
     const r: MatrixRow | undefined = rowOf(x.s.id);
     ctx.fillStyle = '#d6d6d6';
     const name = `${all.indexOf(x.s) + 1} ${x.s.name}`.slice(0, 18);
-    ctx.fillText(x.s.id === ref.s.id ? `${name} · ${t('chart.reference')}` : name, bx, by);
+    ctx.fillText(x.s.id === refKey ? `${name} · ${t('chart.reference')}` : name, bx, by);
     if (!r) { ctx.fillText(t('chart.noPicture'), bx, by + 16); return; }
     const mean = r.mean ?? 0;
     ctx.fillStyle = VERDICT[deVerdict(mean, tol).level];
@@ -79,23 +90,31 @@ export function drawChartPanel(ctx: CanvasRenderingContext2D, w: number, h: numb
       const cx = bx + (k % 6) * cellW, cy = by + 30 + Math.floor(k / 6) * cellH;
       ctx.fillStyle = d == null ? '#333' : VERDICT[deVerdict(d, tol).level];
       ctx.globalAlpha = 0.85; ctx.fillRect(cx, cy, cellW - 2, cellH - 2); ctx.globalAlpha = 1;
+      // a patch the target gamut cannot hold: its ΔE is limited by the gamut, not by the camera
+      if (values?.outside[k]) {
+        ctx.fillStyle = '#111';
+        ctx.beginPath(); ctx.moveTo(cx + cellW - 9, cy); ctx.lineTo(cx + cellW - 2, cy); ctx.lineTo(cx + cellW - 2, cy + 7); ctx.closePath(); ctx.fill();
+      }
       ctx.fillStyle = '#111'; ctx.textAlign = 'center';
       ctx.fillText(d == null ? '–' : num(d, cellW > 30 ? 1 : 0), cx + (cellW - 2) / 2, cy + 2);
       ctx.textAlign = 'left';
     });
-    if (x.s.id !== ref.s.id) {
-      const sug = suggestMatrix(x.p!, ref.p!);
+    if (x.s.id !== refKey) {
+      const sug = suggestMatrix(x.p!, refPatches);
       ctx.fillStyle = '#bdbdbd';
       const y = by + 32 + 4 * cellH;
       if (sug) {
         const m = sug.m.map((v) => num(v, 3));
         ctx.fillText(t('chart.matrix', { before: num(sug.before, 1), after: num(sug.after, 1) }), bx, y);
-        ctx.fillText(`${m.slice(0, 3).join(' ')} | ${m.slice(3, 6).join(' ')} | ${m.slice(6).join(' ')}`, bx, y + 13);
+        for (let k = 0; k < 3; k++) ctx.fillText(m.slice(k * 3, k * 3 + 3).join('  '), bx, y + 13 + k * 13);
       } else ctx.fillText(t('chart.noMatrix'), bx, y);
     }
   });
   ctx.restore();
 }
+
+/** id of the synthetic reference built from the chart's own values. */
+const VALUES_ID = 'chart-values';
 
 export function chartSignature(c: ChartSettings | undefined, list: Source[], refId: string | undefined) {
   return `C|${list.map((s) => `${s.id}:${s.name}:${s.frameSeq}:${s.statsVersion}:${s.status}:${s.roi?.join(',')}`).join(';')}|${JSON.stringify(c)}|${refId ?? ''}`;

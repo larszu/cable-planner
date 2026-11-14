@@ -19,6 +19,7 @@ import genlock from './de/genlock';
 import lut from './de/lut';
 import main from './de/main';
 import match from './de/match';
+import colormatch from './de/colormatch';
 import menu from './de/menu';
 import output from './de/output';
 import panel from './de/panel';
@@ -42,6 +43,7 @@ import wallcheck from './de/wallcheck';
 import sim from './de/sim';
 import enc from './de/enc';
 import lens from './de/lens';
+import sdi from './de/sdi';
 import type { Key } from './en';
 import type { Msg } from './types';
 
@@ -60,6 +62,7 @@ export const de: Record<Key, Msg> = {
   ...lut,
   ...main,
   ...match,
+  ...colormatch,
   ...menu,
   ...output,
   ...panel,
@@ -83,4 +86,5 @@ export const de: Record<Key, Msg> = {
   ...sim,
   ...enc,
   ...lens,
+  ...sdi,
 };
