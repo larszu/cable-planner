@@ -51,6 +51,8 @@ Abschnitte mit dem Griff ⠿ lassen sich mit der Maus an eine andere Stelle zieh
 
 ![Kurzname bearbeiten](bilder/de/eigenschaften-10-kopf-kurzname-stift.jpg)
 
+**Kennungen nach Gattung und Raum.** Rechtsklick auf einen Rahmen → *Kennungen neu vergeben (CAM 101 …)* nummeriert alle Geräte darin; am Gerät gilt der Eintrag für die Auswahl. Die Kennung ist der Kurzname: Kürzel der Gattung (*CAM* Kameras, *MIX* Mischer/Mischpult, *MON* Monitore, *MIC* Mikrofone, *LX* Licht, *RTR* Kreuzschiene, *VMX* Bildmischer, *PP* Patchfelder …; sonst die ersten drei Buchstaben der Kategorie), Hunderterblock des Raums (erster Rahmen 101, zweiter 201 …, Steigschächte zählen nicht) und laufende Nummer von oben nach unten, links nach rechts. Ein Gerät außerhalb jedes Raums bekommt keinen Block (*CAM 1*). Nummern, die andere Geräte schon tragen, bleiben belegt; neue Geräte füllen die erste Lücke. Ein von Hand gesetzter Kurzname wird nie überschrieben – die App nennt, wie viele Geräte deshalb ausgelassen wurden. Wer den Kurznamen im Feld ändert, macht ihn zu seinem eigenen. Weil die Kennung der Kurzname ist, steht sie an den Kabelenden, auf dem Kabeletikett und im Patchblatt; am Knoten zeigt sie *Einstellungen → Darstellung → Kennung am Geräteknoten → Kennung / Kurzname*.
+
 #### Inputs & Outputs
 
 Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie, z. B. *0 In · 1 Out*.

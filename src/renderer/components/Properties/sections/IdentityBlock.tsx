@@ -55,7 +55,9 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
               value={equipment.shortName ?? ''}
               placeholder={autoSuggestion || t('eq.field.shortNamePlaceholder', 'Short form…')}
               onChange={(event) =>
-                updateEquipment(equipment.id, { shortName: event.target.value || undefined })
+                // #1188 — von Hand getippt: die Kennung gehoert ab jetzt dem
+                // Nutzer und wird von „Kennungen neu vergeben" nicht mehr angefasst.
+                updateEquipment(equipment.id, { shortName: event.target.value || undefined, shortNameAuto: undefined })
               }
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === 'Escape') setKurznameOffen(false)
@@ -68,7 +70,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
               // Vor dem Blur greifen: sonst schliesst das Feld, bevor der
               // Klick ankommt.
               onMouseDown={(event) => event.preventDefault()}
-              onClick={() => updateEquipment(equipment.id, { shortName: undefined })}
+              onClick={() => updateEquipment(equipment.id, { shortName: undefined, shortNameAuto: undefined })}
               disabled={!manuell}
               title={t('eq.field.shortNameAuto', 'Regenerate from name')}
               className="inline-flex shrink-0 items-center gap-1 border border-cp-border bg-cp-surface-2 px-2 text-cp-xs text-cp-text-bright hover:bg-cp-surface-4 disabled:cursor-not-allowed disabled:opacity-50"
@@ -82,7 +84,7 @@ export const IdentityBlock = ({ equipment }: { equipment: EquipmentItem }) => {
         <div className="flex items-center gap-2 px-1 text-cp-xs">
           <span className="text-cp-text-secondary">{t('eq.field.shortName', 'Short name')}</span>
           <span className="font-mono text-cp-text">{wirksam || '—'}</span>
-          {!manuell && wirksam && (
+          {(!manuell || equipment.shortNameAuto) && wirksam && (
             <span className="text-cp-text-faint">{t('eq.field.shortNameAutoBadge', 'auto')}</span>
           )}
           <button

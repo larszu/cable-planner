@@ -38,6 +38,9 @@ export const MODEL_FIELDS = [
   // Identitaet des Typs
   'name',
   'shortName',
+  // #1188 — reist mit dem Kurznamen: ein vergebener „CAM 101" in einer
+  // Vorlage bleibt so als vergeben erkennbar und wird neu nummeriert.
+  'shortNameAuto',
   'subtitle',
   'category',
   'deviceTypeId',

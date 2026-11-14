@@ -382,11 +382,12 @@ export const AppearanceTab = () => {
       >
         <select
           value={kennungAmKnoten}
-          onChange={(e) => setKennungAmKnoten(e.target.value as 'assetTag' | 'internalNumber' | 'none')}
+          onChange={(e) => setKennungAmKnoten(e.target.value as 'assetTag' | 'internalNumber' | 'shortName' | 'none')}
           className="border border-cp-border bg-cp-surface-1 p-1 text-cp-xs"
         >
           <option value="assetTag">{t('settings.kennung.assetTag', 'Asset tag')}</option>
           <option value="internalNumber">{t('settings.kennung.internalNumber', 'Internal number')}</option>
+          <option value="shortName">{t('settings.kennung.shortName', 'Identifier / short name (e.g. CAM 101)')}</option>
           <option value="none">{t('settings.kennung.none', 'None')}</option>
         </select>
       </SettingsCard>
