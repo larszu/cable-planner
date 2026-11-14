@@ -2822,6 +2822,37 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                 </span>
               </button>
             )}
+            {/* #1210 — die Raumdokumentation (Stueckliste mit Planausschnitt)
+                stand nur im Eigenschaften-Panel des Rahmens. */}
+            {isLocation && mode === 'main' && (
+              <button
+                type="button"
+                onClick={() => {
+                  useUiStore.getState().openLocationBom(nodeContextMenu.nodeId)
+                  setNodeContextMenu(null)
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '6px 10px',
+                  background: 'transparent',
+                  color: 'inherit',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3" y="2" width="10" height="12" rx="1" />
+                  <path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3" />
+                </svg>
+                <span>{t('canvas.nodeMenu.roomDocs', 'Export room documentation…')}</span>
+              </button>
+            )}
             {isLocation && !projectIsLocked && (
               <button
                 type="button"

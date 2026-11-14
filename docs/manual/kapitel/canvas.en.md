@@ -356,7 +356,7 @@ A frame is a coloured rectangle that groups devices into a place or room. The bu
 
 8. *Delete frame* asks *Delete frame "…"?* — only the frame disappears, the devices stay.
 
-9. Ctrl/Cmd+C, V and D also copy, paste and duplicate selected frames. A frame is copied together with the devices inside it and the cables between those devices; the copy appears next to the original (offset by the frame width). The right-click menu offers *Duplicate frame with contents*.
+9. Ctrl/Cmd+C, V and D also copy, paste and duplicate selected frames. A frame is copied together with the devices inside it and the cables between those devices; the copy appears next to the original (offset by the frame width). The right-click menu offers *Duplicate frame with contents*. The same menu opens the room's BOM with *Export room documentation…* (see chapter *Properties*).
 
 10. Select several devices and click *Frame* to draw a frame around them.
 

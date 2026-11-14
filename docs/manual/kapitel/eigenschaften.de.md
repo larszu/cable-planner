@@ -504,7 +504,7 @@ Ein Klick auf einen Rahmen zeigt seine Eigenschaften.
 
 | Knopf | Wirkung |
 |---|---|
-| Stückliste exportieren | öffnet die Stückliste des Raums mit Geräten, internen Kabeln und externen Verbindungen; *Kabel zusammenfassen*, *Plan einbetten* und *PDF exportieren* |
+| Stückliste exportieren | öffnet die Stückliste des Raums mit Geräten, internen Kabeln und externen Verbindungen; *Kabel zusammenfassen*, *Plan einbetten* und *PDF exportieren*. Der eingebettete Plan zeigt keine Auswahl-Markierung; die Auswahl im Canvas wird dafür aufgehoben. |
 | Nur Rahmen löschen | löscht den Rahmen, die Geräte bleiben |
 | Rahmen + Inhalt löschen | löscht nach Rückfrage den Rahmen mit allen Geräten und deren Kabeln |
 

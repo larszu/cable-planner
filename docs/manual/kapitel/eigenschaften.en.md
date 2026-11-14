@@ -504,7 +504,7 @@ Clicking a frame shows its properties.
 
 | Button | Effect |
 |---|---|
-| Export BOM | opens the room's BOM with devices, internal cables and external connections; *Combine cables*, *Embed plan* and *Export PDF* |
+| Export BOM | opens the room's BOM with devices, internal cables and external connections; *Combine cables*, *Embed plan* and *Export PDF*. The embedded plan shows no selection highlight; the canvas selection is cleared for it. |
 | Delete frame only | deletes the frame, the devices stay |
 | Delete frame + contents | deletes, after confirmation, the frame with all its devices and their cables |
 
