@@ -59,6 +59,7 @@ import {
   LayoutGrid,
   ChevronDown,
   ClipboardList,
+  FileStack,
 } from 'lucide-react'
 import { Icon } from '../shared/Icon'
 import { setThemeChoice, useThemeChoice } from '../../lib/themeChoice'
@@ -1025,6 +1026,13 @@ export const MenuBar = ({
             note={t('app.menu.tools.survey.note', 'Capture existing equipment on site: name, room, assumed connection, photo')}
           >
             {t('app.menu.tools.survey', 'Survey (capture existing)…')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => useUiStore.getState().setDokumenteOpen(true)}
+            icon={<Icon icon={FileStack} size="sm" />}
+            note={t('app.menu.tools.documents.note', 'Datasheets, reports, quotes and configuration files with the project')}
+          >
+            {t('app.menu.tools.documents', 'Documents…')}
           </MenuItem>
           <MenuItem
             onClick={() => useUiStore.getState().setDrumMicingOpen(true)}

@@ -14,6 +14,7 @@ The menu entries and their hint lines:
 | | *Plan check…* | Finds gaps and contradictions in the plan |
 | | *Plan vs. found…* | Compares the plan with what is on site |
 | *Plan* | *Survey (capture existing)…* | Capture existing equipment on site: name, room, assumed connection, photo |
+| | *Documents…* | Datasheets, reports, quotes and configuration files with the project |
 | | *Drum micing…* | Place and name microphones on the kit |
 | | *Wireless / vocals…* | Frequencies, transmitters, receivers in the spectrum |
 | | *Rundown and camera assignments…* | Read in segments, assign a shot per camera position |

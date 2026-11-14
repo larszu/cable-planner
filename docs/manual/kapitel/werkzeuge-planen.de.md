@@ -14,6 +14,7 @@ Die Menüeinträge mit Hinweiszeile sind:
 | | *Plan-Check…* | Findet Lücken und Widersprüche im Plan |
 | | *Plan gegen Vorgefundenes…* | Vergleicht den Plan mit dem, was vor Ort steht |
 | *Planen* | *Bestandsaufnahme (Vorhandenes erfassen)…* | Vorhandene Technik vor Ort erfassen: Name, Raum, vermutete Verbindung, Foto |
+| | *Dokumente…* | Datenblätter, Protokolle, Angebote und Konfigurationsdateien am Projekt |
 | | *Drum-Mikrofonierung…* | Mikrofone am Schlagzeug setzen und benennen |
 | | *Funkstrecken / Gesang…* | Frequenzen, Sender, Empfänger im Spektrum |
 | | *Ablauf und Kamera-Aufträge…* | Abschnitte einlesen, Aufträge je Kameraposition |

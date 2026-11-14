@@ -18,14 +18,15 @@
  *
  * Das ist vertretbar, weil die Datei NIE geöffnet wird: es gibt kein
  * `attachment:read` und kein `openPath`, nur `reveal` — den Dateimanager an
- * der Stelle. Ein fremder Inhalt wird so nicht ausgeführt, auch wenn jemand
+ * der Stelle — und die Vorschau fuer Bild und PDF (`attachmentPreview`). Ein fremder Inhalt wird so nicht ausgeführt, auch wenn jemand
  * eine ausführbare Datei als „Konfiguration" anhängt.
  *
  * 100 MB: ein Handbuch mit Bildern oder ein Messprotokoll-Export über ein
  * ganzes Gebäude liegt darunter, ein Firmware-Abbild nicht immer — das
  * gehört dann auch nicht in den Projektordner.
  */
-import { stat } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
+import { extname } from 'node:path'
 import { dateiAblegen, imProjektordner, type AblageAblehnung, type AblageRegel } from '../util/projektAblage.js'
 
 export const ATTACHMENT_DIR = 'Anhaenge'
@@ -86,6 +87,38 @@ export const attachFile = async (
  * Anhang zu führen, hinter dem nichts liegt. Ein Pfad ausserhalb des
  * Projektordners gilt als nicht da — er wird nicht einmal angesehen.
  */
+/**
+ * #1186 — Vorschau. Die EINE Ausnahme von „nie geoeffnet": Bilder und PDF
+ * gehen als Bytes an den Renderer, der sie als <img> bzw. ueber pdf.js als
+ * Bild der ersten Seite zeigt. Ausgefuehrt wird damit nichts — ein Bild ist
+ * kein Programm, und pdf.js laeuft ohne Skripte. Welche Art es ist, entscheidet
+ * die ENDUNG der abgelegten Datei, nicht der Renderer; alles andere bleibt
+ * beim Dateimanager. 20 MB reichen fuer ein Handbuch, und mehr gehoert nicht
+ * ueber IPC.
+ */
+export const VORSCHAU_ARTEN: Readonly<Record<string, string>> = {
+  '.pdf': 'application/pdf',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+}
+export const VORSCHAU_MAX_BYTES = 20 * 1024 * 1024
+
+export const attachmentPreview = async (
+  projectPath: string | undefined,
+  storedAs: string,
+): Promise<{ mediaType: string; daten: Uint8Array } | null> => {
+  const abs = projectPath ? imProjektordner(projectPath, storedAs) : null
+  if (!abs) return null
+  const endung = extname(abs).toLowerCase()
+  const mediaType = VORSCHAU_ARTEN[endung]
+  if (!mediaType) return null
+  const info = await stat(abs).catch(() => null)
+  if (!info?.isFile() || info.size > VORSCHAU_MAX_BYTES) return null
+  return { mediaType, daten: new Uint8Array(await readFile(abs)) }
+}
+
 export const attachmentsPresent = async (
   projectPath: string | undefined,
   storedAs: readonly string[],

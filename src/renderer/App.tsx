@@ -33,6 +33,7 @@ import { WirelessRigDialog } from './components/Wireless/WirelessRigDialog'
 import { RundownDialog } from './components/Rundown/RundownDialog'
 import { SurveyDialog } from './components/Survey/SurveyDialog'
 import { FotoAnsicht } from './components/Properties/sections/FotoAnsicht'
+import { DokumenteDialog } from './components/Export/DokumenteDialog'
 import { LocationBomDialog } from './components/Project/LocationBomDialog'
 
 import { CableContextMenu } from './components/Canvas/CableContextMenu'
@@ -1593,6 +1594,7 @@ export default function App() {
       <RundownDialog />
       <SurveyDialog />
       <FotoAnsicht />
+      <DokumenteDialog />
       <DeliveryDialog />
       <AdernDialog />
       <BerichtEditorDialog />

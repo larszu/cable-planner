@@ -44,9 +44,18 @@ export interface ProjektAnhang {
   /** Wie der Anhang in der Liste heißen soll. Leer → der Dateiname. */
   titel: string
   datei: AnhangDatei
-  /** Das Kabel oder Gerät, zu dem die Datei gehört. Ohne → zur Anlage. */
-  ziel?: { type: 'cable' | 'equipment'; id: string }
+  /**
+   * Wozu die Datei gehört. Ohne → zur Anlage. #1186: auch ein RAUM
+   * (`LocationFrame.id`) und ein GERÄTETYP (`deviceTypeId`) — ein Datenblatt
+   * gilt für jedes Gerät des Typs, ein Foto vom Bodentank für den Raum.
+   */
+  ziel?: { type: AnhangZielArt; id: string }
+  /** #1186 — Schlagworte zum Wiederfinden („Rack A", „Abnahme", „Angebot"). */
+  schlagworte?: string[]
 }
+
+export type AnhangZielArt = 'cable' | 'equipment' | 'location' | 'deviceType'
+export const ANHANG_ZIEL_ARTEN: readonly AnhangZielArt[] = ['cable', 'equipment', 'location', 'deviceType']
 
 /** Warum eine Datei nicht angenommen wurde — dieselben Gründe wie in main. */
 export type AnhangAblehnung =

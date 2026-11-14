@@ -12,12 +12,20 @@
  */
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { FolderOpen, Paperclip, Trash2 } from 'lucide-react'
+import { Eye, FolderOpen, Paperclip, Trash2 } from 'lucide-react'
 import { useProjectStore } from '../../store/projectStore'
 import { format, useTranslation } from '../../lib/i18n'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
-import { messungenOhneProtokoll, neuerAnhang, zielName } from '../../lib/anhaenge'
-import { ANHANG_ARTEN, type AnhangAblehnung, type AnhangArt, type ProjektAnhang } from '../../types/anhang'
+import { hatVorschau, messungenOhneProtokoll, neuerAnhang, normaliseSchlagworte, zielName } from '../../lib/anhaenge'
+import {
+  ANHANG_ARTEN,
+  ANHANG_ZIEL_ARTEN,
+  type AnhangAblehnung,
+  type AnhangArt,
+  type AnhangZielArt,
+  type ProjektAnhang,
+} from '../../types/anhang'
+import { AnhangVorschau } from './AnhangVorschau'
 import type { Uebersetzen } from '../../lib/druckblatt'
 import { Icon } from '../shared/Icon'
 import { PanelHint } from '../shared/PanelHint'
@@ -52,13 +60,13 @@ const ablehnungText = (r: AnhangAblehnung, t: Uebersetzen): string => {
   }
 }
 
-/** `''` = zur Anlage, sonst `cable:<id>` oder `equipment:<id>`. */
+/** `''` = zur Anlage, sonst `<art>:<id>` (Kabel, Geraet, Raum, Geraetetyp). */
 const zielAus = (wert: string): ProjektAnhang['ziel'] => {
   const i = wert.indexOf(':')
   if (i < 0) return undefined
-  const type = wert.slice(0, i)
+  const type = wert.slice(0, i) as AnhangZielArt
   const id = wert.slice(i + 1)
-  return type === 'cable' || type === 'equipment' ? { type, id } : undefined
+  return ANHANG_ZIEL_ARTEN.includes(type) ? { type, id } : undefined
 }
 
 const zielWert = (z: ProjektAnhang['ziel']): string => (z ? `${z.type}:${z.id}` : '')
@@ -76,8 +84,21 @@ export const AnhaengeSection = () => {
   const [ziel, setZiel] = useState('')
   const [fehler, setFehler] = useState<string | null>(null)
   const [vorhanden, setVorhanden] = useState<Record<string, boolean>>({})
+  const [vorschau, setVorschau] = useState<ProjektAnhang | null>(null)
+  const [suche, setSuche] = useState('')
 
-  const anhaenge = useMemo(() => project.anhaenge ?? [], [project.anhaenge])
+  const alleAnhaenge = useMemo(() => project.anhaenge ?? [], [project.anhaenge])
+  // #1186 — wiederfinden: Titel, Dateiname, Schlagwort und Ziel durchsuchen.
+  const anhaenge = useMemo(() => {
+    const q = suche.trim().toLowerCase()
+    if (!q) return alleAnhaenge
+    return alleAnhaenge.filter((a) =>
+      [a.titel, a.datei.fileName, ...(a.schlagworte ?? []), zielName(project, a.ziel) ?? '']
+        .join(' ')
+        .toLowerCase()
+        .includes(q),
+    )
+  }, [alleAnhaenge, suche, project])
   const ohneProtokoll = useMemo(() => messungenOhneProtokoll(project), [project])
   const kabel = useMemo(
     () =>
@@ -90,16 +111,26 @@ export const AnhaengeSection = () => {
     () => project.equipment.map((e) => ({ id: e.id, name: e.name })).sort((a, b) => vergleich(a.name, b.name)),
     [project.equipment],
   )
+  const raeume = useMemo(
+    () => (project.locations ?? []).map((l) => ({ id: l.id, name: l.name })).sort((a, b) => vergleich(a.name, b.name)),
+    [project.locations],
+  )
+  // Ein Geraetetyp je `deviceTypeId`, benannt nach seinem ersten Geraet.
+  const typen = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const e of project.equipment) if (e.deviceTypeId && !m.has(e.deviceTypeId)) m.set(e.deviceTypeId, e.subtitle || e.name)
+    return [...m].map(([id, name]) => ({ id, name })).sort((a, b) => vergleich(a.name, b.name))
+  }, [project.equipment])
 
   // Liegt jede Datei im Ordner? Eine Frage an DIESEN Rechner, deshalb live
   // und nicht im Projekt.
   useEffect(() => {
-    if (!hasDesktopBridge || !filePath || anhaenge.length === 0) return
+    if (!hasDesktopBridge || !filePath || alleAnhaenge.length === 0) return
     let aktiv = true
     void cablePlannerApi.attachment
       .present(
         filePath,
-        anhaenge.map((a) => a.datei.storedAs),
+        alleAnhaenge.map((a) => a.datei.storedAs),
       )
       .then((r) => {
         if (aktiv) setVorhanden(r)
@@ -107,7 +138,7 @@ export const AnhaengeSection = () => {
     return () => {
       aktiv = false
     }
-  }, [filePath, anhaenge])
+  }, [filePath, alleAnhaenge])
 
   const kabelName = new Map(kabel.map((k) => [k.id, k.name]))
 
@@ -137,6 +168,24 @@ export const AnhaengeSection = () => {
           ))}
         </optgroup>
       )}
+      {typen.length > 0 && (
+        <optgroup label={t('attachments.target.types', 'Device types')}>
+          {typen.map((g) => (
+            <option key={g.id} value={`deviceType:${g.id}`}>
+              {g.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+      {raeume.length > 0 && (
+        <optgroup label={t('attachments.target.rooms', 'Rooms')}>
+          {raeume.map((g) => (
+            <option key={g.id} value={`location:${g.id}`}>
+              {g.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
     </select>
   )
 
@@ -145,7 +194,7 @@ export const AnhaengeSection = () => {
       <h3 className="mb-2 flex items-center gap-1.5 font-semibold text-cp-text-bright">
         <Icon icon={Paperclip} size="sm" />
         {t('attachments.title', 'Attachments')}{' '}
-        <span className="text-cp-text-muted">({anhaenge.length})</span>
+        <span className="text-cp-text-muted">({alleAnhaenge.length})</span>
       </h3>
       <PanelHint
         className="mb-2 text-cp-xs text-cp-text-muted"
@@ -209,6 +258,16 @@ export const AnhaengeSection = () => {
         </p>
       )}
 
+      {alleAnhaenge.length > 3 && (
+        <input
+          value={suche}
+          onChange={(e) => setSuche(e.target.value)}
+          placeholder={t('attachments.search', 'Search title, file, tag, target…')}
+          aria-label={t('attachments.search', 'Search title, file, tag, target…')}
+          className="mb-2 w-full border border-cp-border bg-cp-surface-1 px-1.5 py-1 text-cp-xs"
+        />
+      )}
+
       {anhaenge.length > 0 && (
         <ul className="max-h-64 space-y-1.5 overflow-y-auto text-cp-xs">
           {anhaenge.map((a) => {
@@ -240,6 +299,17 @@ export const AnhaengeSection = () => {
                   aria-label={t('attachments.titleField', 'Title')}
                   className="min-w-[10rem] flex-1 border border-cp-border bg-cp-surface-1 px-1.5 py-0.5"
                 />
+                <input
+                  key={`${a.id}:tags:${(a.schlagworte ?? []).join(',')}`}
+                  defaultValue={(a.schlagworte ?? []).join(', ')}
+                  placeholder={t('attachments.tags', 'Tags, comma-separated')}
+                  onBlur={(e) => {
+                    const neu = normaliseSchlagworte(e.target.value)
+                    if (neu.join('\u0000') !== (a.schlagworte ?? []).join('\u0000')) updateAnhang(a.id, { schlagworte: neu })
+                  }}
+                  aria-label={t('attachments.tags', 'Tags, comma-separated')}
+                  className="min-w-[8rem] border border-cp-border bg-cp-surface-1 px-1.5 py-0.5"
+                />
                 {zielAuswahl(
                   zielWert(a.ziel),
                   (v) => updateAnhang(a.id, { ziel: zielAus(v) }),
@@ -251,6 +321,16 @@ export const AnhaengeSection = () => {
                 <span className="text-cp-text-faint">{Math.ceil(a.datei.bytes / 1024)} KB</span>
                 {hasDesktopBridge && filePath && da === false && (
                   <span className="text-cp-danger">{t('attachments.fileMissing', 'File not in the folder')}</span>
+                )}
+                {hasDesktopBridge && filePath && hatVorschau(a.datei) && da !== false && (
+                  <button
+                    type="button"
+                    onClick={() => setVorschau(a)}
+                    title={t('attachments.preview', 'Preview')}
+                    className="p-1 hover:bg-cp-surface-2"
+                  >
+                    <Icon icon={Eye} size="xs" />
+                  </button>
                 )}
                 {hasDesktopBridge && (
                   <button
@@ -275,6 +355,7 @@ export const AnhaengeSection = () => {
           })}
         </ul>
       )}
+      {vorschau && <AnhangVorschau anhang={vorschau} projectPath={filePath ?? undefined} onClose={() => setVorschau(null)} />}
     </section>
   )
 }

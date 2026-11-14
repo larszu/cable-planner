@@ -992,6 +992,9 @@ interface UiState extends PersistedUiState {
   rundownOpen: boolean
   /** #906 — Bestandsaufnahme: vorhandene Technik vor Ort erfassen. */
   surveyOpen: boolean
+  /** #1186 — die Dokumentenablage am Projekt. */
+  dokumenteOpen: boolean
+  setDokumenteOpen: (open: boolean) => void
   setSurveyOpen: (open: boolean) => void
   /** #1187 — das Foto, das gerade gross gezeigt wird (Klick auf die Marke im Plan). */
   fotoAnsicht: string | null
@@ -1652,6 +1655,8 @@ export const useUiStore = create<UiState>((set) => ({
   setWirelessRigOpen: (open) => set({ wirelessRigOpen: open }),
   rundownOpen: false,
   surveyOpen: false,
+  dokumenteOpen: false,
+  setDokumenteOpen: (open) => set({ dokumenteOpen: open }),
   setSurveyOpen: (open) => set({ surveyOpen: open }),
   fotoAnsicht: null,
   setFotoAnsicht: (id) => set({ fotoAnsicht: id }),

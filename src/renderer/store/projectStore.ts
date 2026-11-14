@@ -887,7 +887,7 @@ export interface ProjectState {
   /** Anhänge — Titel, Art oder Ziel ändern. `ziel: undefined` = zur Anlage. */
   updateAnhang: (
     id: string,
-    patch: Partial<Pick<import('../types/anhang').ProjektAnhang, 'titel' | 'art' | 'ziel'>>,
+    patch: Partial<Pick<import('../types/anhang').ProjektAnhang, 'titel' | 'art' | 'ziel' | 'schlagworte'>>,
   ) => void
   /** Anhänge — den Verweis entfernen. Die Datei bleibt im Ordner. */
   removeAnhang: (id: string) => void

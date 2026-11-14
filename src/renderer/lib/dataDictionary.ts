@@ -427,7 +427,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Nummer: 'Die redaktionelle Nummer der Rolle — die Zahl, die in der Regie gesprochen wird.',
   'Schätzung': 'Der geschätzte Betrag dieser Position.',
   Schaden: 'Was an der Einheit beschädigt ist.',
-  Schlagworte: 'Die Schlagworte für die Plattform-Formulare.',
+  Schlagworte: 'Die Schlagworte: bei Aufnahmen für die Plattform-Formulare, bei Anhängen zum Wiederfinden der Datei.',
   Schnittstelle: 'Die Netzwerk-Schnittstelle des Geräts (erste, Dante-Sekundär, ST 2110 blau …).',
   'Schwelle niedrig (kbit/s)': 'Ab welcher Bitrate der Wächter „niedrig" annehmen soll.',
   'Schwelle offline (kbit/s)': 'Ab welcher Bitrate der Wächter „offline" annehmen soll.',

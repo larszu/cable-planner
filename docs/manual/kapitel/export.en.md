@@ -152,7 +152,7 @@ Three buttons write CSV: *Channels* (the channels read), *Match* and, from the s
 | *Device cards* | HTML, printable as PDF | one card per device: location, identity, network, switcher input, cables, service history |
 | *Operator overview* | HTML, printable as PDF | which source lies on which switcher input, where the outputs go, contacts, web interfaces |
 | *Camera positions* | HTML, printable as PDF | per camera: location, height, aim, optics, switcher input and the PTZ presets from the camera plan |
-| *Attachment index* | CSV | every attachment with kind, target, stored file and SHA-256, plus cables whose test result has no report |
+| *Attachment index* | CSV | every attachment with kind, target, stored file, SHA-256 and tags, plus cables whose test result has no report |
 | *Signal paths* | CSV | every chain from source to target with floor and room at each station |
 | *Route plan per floor* | HTML, printable as PDF | top view per floor: rooms, riser, the connections between them, and the crossings list |
 | *Crossings (fire protection)* | CSV | every room boundary, riser entry and floor slab a cable passes, with jacket rating and pathway |
@@ -198,7 +198,7 @@ The dialog shows no preview of the files; the following captures show a selectio
 
 ![Overwriting existing names](bilder/en/export-124-doku-ueberschreiben.jpg)
 
-**Attachments.** The section *Attachments* manages files attached to the plan and feeds the *Attachment index*. Choose the *Kind* (*Test report*, *Manufacturer document*, *Configuration backup*, *Other*) and what the file belongs to (*Whole installation*, *Cables*, *Devices*) and click *Attach files…*. This exists only in the desktop app. The files live in a folder beside the project; a project not yet saved has none. The app does not accept files over 100 MB. An entry shows the file in its folder (*Show in folder*) or is removed, the file staying in the folder. The section names cables that have a test result but no report.
+**Attachments.** The section *Attachments* manages files attached to the plan and feeds the *Attachment index*. Choose the *Kind* (*Test report*, *Manufacturer document*, *Configuration backup*, *Other*) and what the file belongs to (*Whole installation*, *Cables*, *Devices*, *Device types*, *Rooms*) and click *Attach files…*. A datasheet attached to a device type applies to every device of that type. This exists only in the desktop app. The files live in a folder beside the project; a project not yet saved has none. The app does not accept files over 100 MB. Each entry has a title and *Tags, comma-separated*; from four entries on, a field searches title, file, tag and target. For PDFs and images the eye shows a *Preview* (the first page of a PDF). An entry shows the file in its folder (*Show in folder*) or is removed, the file staying in the folder. The same section is under *Tools → Documents…*, also without the fixed-install module; the status bar counts the documents (*n documents*), and a click opens them. The section names cables that have a test result but no report.
 
 ![Attachments section](bilder/en/export-125-doku-anhaenge.jpg)
 

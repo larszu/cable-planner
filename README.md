@@ -140,6 +140,11 @@
   into the processor so the source fills the wall undistorted; tap a value to
   copy it. The crop idea follows
   [LedCropCalc](https://github.com/fiverecords/LedCropCalc).
+- **Documents.** *Tools → Documents…* keeps datasheets, test reports, quotes
+  and configuration files with the project, in a folder beside it. Each file
+  belongs to the installation, a cable, a device, a device type or a room,
+  carries tags, and PDFs and images have a preview. The status bar counts
+  them; the attachment index goes into the handover.
 - **On site.** Phones join by QR code, tick off work and send photos back into
   the plan. Photos attach to a single device or to its device type (shown on
   every device of that type), to a room, or to a mark in the plan that opens

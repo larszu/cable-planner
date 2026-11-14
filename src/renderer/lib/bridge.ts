@@ -317,6 +317,8 @@ export type CablePlannerApi = {
     pick: (projectPath?: string) => Promise<{ canceled: boolean; results: AnhangErgebnis[] }>
     present: (projectPath: string | undefined, storedAs: string[]) => Promise<Record<string, boolean>>
     reveal: (projectPath: string | undefined, storedAs: string) => Promise<boolean>
+    /** #1186 — Bild oder PDF fuer die Vorschau; `null` fuer alles andere. */
+    preview: (projectPath: string | undefined, storedAs: string) => Promise<{ mediaType: string; daten: Uint8Array } | null>
   }
   /**
    * E-23 — der eingehende OSC-Lauscher.
@@ -1173,6 +1175,7 @@ const webFallbackApi: CablePlannerApi = {
     pick: async () => ({ canceled: false, results: [{ ok: false as const, reason: 'no-project-path' as const }] }),
     present: async (_p: string | undefined, storedAs: string[]) => Object.fromEntries(storedAs.map((s) => [s, false])),
     reveal: async () => false,
+    preview: async () => null,
   },
   documentLog: (() => {
     // Sitzungs-Register: im Browser gibt es kein userData-Verzeichnis. Es

@@ -32,7 +32,7 @@ export const createAnhangSlice: StateCreator<ProjectState, [], [], AnhangSlice> 
       return { project: updated }
     }),
 
-  updateAnhang: (id: string, patch: Partial<Pick<ProjektAnhang, 'titel' | 'art' | 'ziel'>>) =>
+  updateAnhang: (id: string, patch: Partial<Pick<ProjektAnhang, 'titel' | 'art' | 'ziel' | 'schlagworte'>>) =>
     set((state) => {
       if (isProjectLocked(state)) return state
       const updated = touchProject({
@@ -42,6 +42,7 @@ export const createAnhangSlice: StateCreator<ProjectState, [], [], AnhangSlice> 
           const next = { ...a, ...patch }
           // `ziel: undefined` im Patch heisst „zur Anlage" — dann fällt das Feld weg.
           if ('ziel' in patch && !patch.ziel) delete next.ziel
+          if ('schlagworte' in patch && !patch.schlagworte?.length) delete next.schlagworte
           return next
         }),
       })
