@@ -362,7 +362,9 @@ Der Entwurf eines neuen Racks wird laufend zwischengespeichert; die Fußzeile ze
 
 #### Eigenschaften eines Geräts im Rack
 
-Ein Doppelklick auf ein Gerät im Rack öffnet *Eigenschaften · Gerätename*. Das Fenster hat *Name*, *Kategorie*, *Höhe (HE)*, *Start-HE* (mit dem Höchstwert), *Tiefe (mm)*, *Montage* (*Full-Depth*, *Nur vorne*, *Nur hinten*), bei halbbreiten Geräten *Hälfte (Vorderansicht)* (*Links* oder *Rechts*), *3D-Modell (STL, optional)*, die Abschnitte *Tiefen-Position (Z)* und *Port-Seite (Front/Rear)* sowie *Panel-Bilder (Import + Zuschneiden)*. Unten stehen *Aus Rack entfernen* (mit Rückfrage) und *Schließen*.
+Ein Doppelklick auf ein Gerät im Rack öffnet *Eigenschaften · Gerätename*. Das Fenster hat *Name*, *Kategorie*, *Höhe (HE)*, *Start-HE* (mit dem Höchstwert), *Tiefe (mm)*, *Montage* (*Full-Depth*, *Nur vorne*, *Nur hinten*), bei halbbreiten Geräten *Hälfte (Vorderansicht)* (*Links* oder *Rechts*), *3D-Modell (STL, optional)*, die Abschnitte *Tiefen-Position (Z)* und *Port-Seite (Front/Rear)* sowie *Panel-Bilder (Import + Zuschneiden)*. Bei einer Patchblende kommen *Ports nebeneinander* und *Port-Reihen untereinander* dazu: Eine Zahl genügt, die andere ergibt sich aus der Anzahl der Ports; Vorder- und Rückseite folgen gleich. Einzelne Ports lassen sich danach weiter von Hand verschieben. Unten stehen *Aus Rack entfernen* (mit Rückfrage) und *Schließen*.
+
+Ein Rechtsklick auf ein Gerät im Rack nimmt es mit derselben Rückfrage aus dem Rack.
 
 ![Eigenschaften eines Geräts im Rack](bilder/de/werkzeuge-bauen-rack-17-eigenschaften.jpg)
 
