@@ -1,19 +1,9 @@
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core'
+import { useDroppable } from '@dnd-kit/core'
 import {
   SortableContext,
-  arrayMove,
-  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
@@ -32,6 +22,7 @@ import { FaserEditor } from './sections/FaserEditor'
 import { Icon } from '../shared/Icon'
 import { PORT_GROUP_INFO, gruppenBefunde, naechsteGruppenId, portGruppen } from '../../lib/portGroups'
 import { vorschlagBeiVorgabename } from '../../lib/portDefaultName'
+import { listenZiel, type PortSeite } from '../../lib/portVerschieben'
 
 /**
  * #306 — PortList + SortablePortItem + makePort aus EquipmentProperties
@@ -39,7 +30,8 @@ import { vorschlagBeiVorgabename } from '../../lib/portDefaultName'
  *
  * SortablePortItem implementiert die per-Port-Drag-Handle-Logik mit
  * dnd-kit's useSortable; rendert die Drag-Grip-Geometrie + listeners auf
- * dem Children-Wrapper. PortList umschliesst die List mit DndContext +
+ * dem Children-Wrapper. PortList umschliesst die List mit (#1220: ohne eigenen
+ * DndContext, den stellt der Aufrufer via usePortZiehen)
  * SortableContext und kapselt die ganze Edit-Logik fuer Connector-Type,
  * Signal-Standard, Direction, Port-Number, Content-Label und ATEM-
  * Source-ID-Override.
@@ -57,8 +49,11 @@ interface PortListProps {
   ports: Port[]
   onChange: (ports: Port[]) => void
   /** #1228 — welche Liste das ist. Eingang/Ausgang sagt die Liste, der Port
-   *  selbst traegt nur noch „bidirektional" (lib/portArt). */
-  seite: 'in' | 'out'
+   *  selbst traegt nur noch „bidirektional" (lib/portArt).
+   *  #1220 — Den Zieh-Kontext stellt der Aufrufer (`usePortZiehen`), EINEN
+   *  fuer Eingaenge und Ausgaenge, damit ein Port die Seite wechseln kann;
+   *  die ganze Liste ist dabei Ablageziel, auch leer. */
+  seite: PortSeite
   /** v7.9.63 / #185 — Wenn die PortList in einem details-Wrapper liegt
    *  der bereits Titel + Count zeigt, lassen wir die interne Headline
    *  weg um doppelten Text zu vermeiden. */
@@ -199,10 +194,9 @@ export const PortList = ({
   onToggleCollapsed,
 }: PortListProps) => {
   const t = useTranslation()
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  )
+  const { setNodeRef: setListenRef, isOver: portSchwebtDarueber } = useDroppable({
+    id: listenZiel(seite),
+  })
   // v7.9.3 — gleiche Custom-Stecker/Signal-Logik wie im Kabeltyp-Editor.
   // Beides nutzt jetzt die gleiche Quelle: useUiStore.customConnectorTypes
   // und customSignalStandards (User-Request: "das greift ja alles auf die
@@ -510,15 +504,6 @@ export const PortList = ({
   const vorhandeneGruppen = portGruppen(ports).map((g) => g.id)
   const gruppenFehler = gruppenBefunde(ports)
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const oldIndex = ports.findIndex((port) => port.id === active.id)
-    const newIndex = ports.findIndex((port) => port.id === over.id)
-    if (oldIndex < 0 || newIndex < 0) return
-    onChange(arrayMove(ports, oldIndex, newIndex))
-  }
-
   // Issue #251 — Doppelte Anzeige-Nummern erkennen damit der User
   // sich nicht versehentlich zwei "Port 3" anlegt (passiert leicht wenn
   // er manuell ueberschreibt). Anzeige als Warnbox oben in der Liste.
@@ -532,7 +517,10 @@ export const PortList = ({
   void effectivePortNumber
 
   return (
-    <div className="border border-cp-border p-2">
+    <div
+      ref={setListenRef}
+      className={`border p-2 ${portSchwebtDarueber ? 'border-cp-accent' : 'border-cp-border'}`}
+    >
       <div className="mb-2 flex items-center justify-between">
         {/* v7.9.63 / #185 — Wrapper-Details liefert eigene Headline mit
             Count; PortList-Title hier ausgeblendet damit's nicht doppelt
@@ -589,7 +577,6 @@ export const PortList = ({
           {format(t(f.schluessel, f.text), f.werte)}
         </div>
       ))}
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={ports.map((port) => port.id)} strategy={verticalListSortingStrategy}>
           <ul className="space-y-2">
         {ports.map((port, portIdx) => (
@@ -1156,7 +1143,6 @@ export const PortList = ({
         ))}
           </ul>
         </SortableContext>
-      </DndContext>
     </div>
   )
 }

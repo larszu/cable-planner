@@ -1,18 +1,6 @@
 import { useState, type ReactNode } from 'react'
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core'
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
+import { DndContext } from '@dnd-kit/core'
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { ProvenanceBadge } from '../../shared/ProvenanceBadge'
@@ -22,10 +10,8 @@ import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
 import { PortList } from '../PortList'
 import { PortAiSuggestButton } from './PortAiSuggestButton'
+import { usePortZiehen } from '../usePortZiehen'
 import type { EquipmentItem } from '../../../types/equipment'
-
-const SENSOR_ZEIGER = { activationConstraint: { distance: 6 } } as const
-const SENSOR_TASTATUR = { coordinateGetter: sortableKeyboardCoordinates } as const
 
 /**
  * Eine der beiden Listen (Inputs / Outputs) als ziehbares `<details>`.
@@ -105,10 +91,6 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
       if (!neu.delete(id)) neu.add(id)
       return neu
     })
-  const listenSensoren = useSensors(
-    useSensor(PointerSensor, SENSOR_ZEIGER),
-    useSensor(KeyboardSensor, SENSOR_TASTATUR),
-  )
   // Gespiegelt heisst: Outputs links am Knoten — und damit auch zuerst hier.
   const reihenfolge: Array<'in' | 'out'> = gespiegelt ? ['out', 'in'] : ['in', 'out']
 
@@ -140,6 +122,12 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
         : {}),
     })
   }
+
+  const ziehen = usePortZiehen(
+    { inputs: equipment.inputs, outputs: equipment.outputs },
+    (listen) => applyPorts(listen),
+    () => setGespiegelt(!gespiegelt),
+  )
 
   return (
     <SortableSection
@@ -201,13 +189,9 @@ export const PortsSection = ({ equipment }: { equipment: EquipmentItem }) => {
             </button>
           )}
         </div>
-        <DndContext
-          sensors={listenSensoren}
-          collisionDetection={closestCenter}
-          onDragEnd={({ active, over }) => {
-            if (over && active.id !== over.id) setGespiegelt(!gespiegelt)
-          }}
-        >
+        {/* #1220 — EIN Kontext fuer Listen-Tausch (#958) und Ports: ein Port
+            laesst sich so auch von den Eingaengen zu den Ausgaengen ziehen. */}
+        <DndContext {...ziehen}>
           <SortableContext items={reihenfolge} strategy={verticalListSortingStrategy}>
             {reihenfolge.map((seite) =>
               seite === 'in' ? (

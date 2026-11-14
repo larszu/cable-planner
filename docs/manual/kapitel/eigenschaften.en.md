@@ -87,6 +87,8 @@ Fibre ports additionally show *Breakout* (DUO (2), QUAD (4)) with one row per fi
 
 An entry at the end of the connector type list creates a new connector type; the app asks for its name. The × deletes a port.
 
+Drag a port by its ≡ handle to another position – also into the other list, from *Inputs* to *Outputs* and back, including an empty list. The port keeps all its settings and its cables. The same works in the inspector of a library template.
+
 The ≡ handle in front of *Inputs* and *Outputs* swaps the two lists; *Flip ports (inputs on right, outputs on left)* puts the inputs on the right side of the node.
 
 ![Mirrored node on the canvas](bilder/en/eigenschaften-33-ports-spiegeln-canvas.jpg)

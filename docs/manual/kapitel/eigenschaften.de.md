@@ -87,6 +87,8 @@ Bei Glasfaser-Ports erscheinen zusätzlich *Breakout* (*DUO (2)*, *QUAD (4)*) mi
 
 Am Ende der Steckertyp-Liste legt ein eigener Eintrag einen neuen Stecker-Typ an; die App fragt nach dem Namen. Das × löscht einen Port.
 
+Mit dem Griff ≡ eines Ports ziehen Sie ihn an eine andere Stelle – auch in die andere Liste, von *Inputs* zu *Outputs* und zurück, ebenso in eine leere Liste. Der Port behält dabei alle Angaben und seine Kabel. Dasselbe gilt im Inspector einer Bibliotheks-Vorlage.
+
 Der Griff ≡ vor *Inputs* und *Outputs* tauscht die beiden Listen; *Ports spiegeln (Inputs rechts, Outputs links)* setzt die Eingänge an die rechte Seite des Knotens.
 
 ![Gespiegelter Knoten im Canvas](bilder/de/eigenschaften-33-ports-spiegeln-canvas.jpg)
