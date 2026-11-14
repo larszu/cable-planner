@@ -2018,10 +2018,12 @@ const RunsTab = ({ projectName }: { projectName: string }) => {
   const equipment = useProjectStore((s) => s.project.equipment)
   const grundriss = useProjectStore((s) => s.project.grundriss)
   const intercom = useProjectStore((s) => s.project.intercom)
+  const locations = useProjectStore((s) => s.project.locations)
+  const floors = useProjectStore((s) => s.project.floors)
 
   const findings = useMemo(
-    () => cableRunFindings(cables, equipment, laengenKontext({ grundriss, intercom })),
-    [cables, equipment, grundriss, intercom],
+    () => cableRunFindings(cables, equipment, laengenKontext({ grundriss, intercom, equipment, cables, locations, floors })),
+    [cables, equipment, grundriss, intercom, locations, floors],
   )
 
   // Ausgeschriebener switch, ein Schluessel je Fall. Einen Schluessel aus dem

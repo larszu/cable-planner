@@ -25,6 +25,7 @@ import { etagenIndex, etageVon } from './etagen'
 import { styleForLayer } from './cableLayers'
 import { istBodentank } from '../types/frontplatte'
 import { effectiveShortName } from './shortName'
+import { punktAusFuehrung, streckenLaengeM } from './kabelFuehrung'
 
 export interface Punkt3D {
   x: number
@@ -89,6 +90,14 @@ export interface SzeneKabel {
   schachtId?: string
   /** Die Enden liegen auf verschiedenen Etagen. */
   etagenwechsel: boolean
+  /** #1190 — Farbe der Signalart (Ebene), fuer den Schlauch. */
+  signalFarbe: string
+  /** #1190 — der Weg kommt aus gesetzten Stuetzpunkten (`Cable.fuehrung3d`). */
+  gefuehrt: boolean
+  /** #1190 — Laenge des gezeichneten Wegs in m, ohne Zuschlag. */
+  laengeM: number
+  /** #1190 — Luftlinie zwischen den Enden in m, zum Vergleich. */
+  luftlinieM: number
 }
 
 /**
@@ -140,6 +149,9 @@ export interface SzenenOptionen {
   /** Kabel, deren Ebene ausgeblendet ist, fehlen ebenfalls. */
   kabelSichtbar?: (c: Cable) => boolean
 }
+
+/** Geschosshoehe fuer Etagen ohne Hoehenangabe, solange niemand eine andere waehlt (m). */
+export const STANDARD_GESCHOSSHOEHE_M = 4
 
 /** Sichtbare Raumhoehe: etwas unter der Geschosshoehe, damit die Etagen getrennt bleiben. */
 const raumHoehe = (geschoss: number) => Math.max(1, geschoss * 0.75)
@@ -252,17 +264,26 @@ export function gebaeudeSzene(
     const nach = geraetById.get(c.toEquipmentId)
     if (!von || !nach) continue
     const raumuebergreifend = !!von.raumId && !!nach.raumId && von.raumId !== nach.raumId
-    const weg = wegUeberSchacht(von.pos, von.trasseY, nach.pos, nach.trasseY, schaechte)
+    const gefuehrt = (c.fuehrung3d?.length ?? 0) > 0
+    // #1190 — gesetzte Stuetzpunkte gehen vor: dann ist der Weg bekannt und
+    // nicht mehr aus Trasse und Schacht abgeleitet.
+    const weg = gefuehrt
+      ? { punkte: [von.pos, ...c.fuehrung3d!.map((p) => punktAusFuehrung(p, opt.metersPer100px)), nach.pos] }
+      : wegUeberSchacht(von.pos, von.trasseY, nach.pos, nach.trasseY, schaechte)
     kabel.push({
       id: c.id,
       name: c.cableNumber || c.name,
       farbe: c.color || styleForLayer(c.layer).color,
+      signalFarbe: styleForLayer(c.layer).color,
+      gefuehrt,
+      laengeM: streckenLaengeM(weg.punkte),
+      luftlinieM: streckenLaengeM([von.pos, nach.pos]),
       von: von.pos,
       nach: nach.pos,
       tieLine: !!c.isTieLine,
       raumuebergreifend,
       punkte: weg.punkte,
-      ...(weg.schachtId ? { schachtId: weg.schachtId } : {}),
+      ...('schachtId' in weg && weg.schachtId ? { schachtId: weg.schachtId } : {}),
       etagenwechsel: Math.abs(von.trasseY - nach.trasseY) >= 0.01,
     })
     if (raumuebergreifend) {

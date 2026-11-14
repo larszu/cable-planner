@@ -998,6 +998,8 @@ Every frame is a room. Frames can be assigned to floors; floors determine visibi
 
     ![Single cables in 3D](bilder/en/canvas-raeume-18-drei-d-kabel.jpg)
 
+    Under *Single cables* every cable is a tube in the colour of its signal type, with a grey end piece for each connector. The thickness follows the outer diameter from the cable type or the cable (exaggerated so it stays visible); without one, a default of 6 mm applies. Clicking a cable selects it: the line above the view gives the length along the route and the straight line. Clicking the floor or a wall adds a support point — it lands between the points whose stretch it lies on, so the order of the clicks does not matter. Clicking a support point removes it, *Clear route* removes all. For a routed cable, *Estimate cable lengths* (Settings → Project) uses this distance instead of the path on the canvas; that is the length in the BOM and the assembly list.
+
 12. *Labels* shows or hides the names. Every device then carries a sign with its identifier (the short name from the properties); the sign always faces you and keeps its size when you zoom. *See inside* makes the walls see-through and removes the ceiling, so you look into the rooms from above; without it the rooms are closed. *Storey height (m)* applies only to floors without an entered height; the view points out that this is an assumption.
 
 Devices can be dragged in the 3D view. Floor boxes appear as a flat plate in the floor, other devices as cubes. Dragging beside a device rotates the view, the mouse wheel zooms.
@@ -1615,7 +1617,7 @@ The tab *Cables* (*Cable library*) lists the cable types, grouped by connector t
 
    ![Custom cable type in the list](bilder/en/bibliothek-69-kabel-eigener-typ.jpg)
 
-3. The pencil opens *Edit cable type*. The form has the fields *Name*, *Connector type* (with **+** for a new connector type), *Cable colour*, *Also compatible with (optional)*, *Signal standards* (with *+ Standard* for a new standard), *Max. length (m) — optional* and *Note (optional)*. *Save* is only possible when a name and at least one standard are set. For a built-in type the change is saved as a local adjustment (*Adjusted*); the button with the arrow (*Remove override*) asks *Reset override for "…"?* and restores the original values with *Reset*.
+3. The pencil opens *Edit cable type*. The form has the fields *Name*, *Connector type* (with **+** for a new connector type), *Cable colour*, *Also compatible with (optional)*, *Signal standards* (with *+ Standard* for a new standard), *Max. length (m) — optional*, *Outer diameter (mm) — optional, from the datasheet* and *Note (optional)*. *Save* is only possible when a name and at least one standard are set. For a built-in type the change is saved as a local adjustment (*Adjusted*); the button with the arrow (*Remove override*) asks *Reset override for "…"?* and restores the original values with *Reset*.
 
    ![Dialog Edit cable type](bilder/en/bibliothek-64-kabel-eintrag-bearbeiten.jpg)
 
@@ -2236,6 +2238,7 @@ Clicking a cable shows its properties.
 | Photos | photos of this cable |
 | Name | label; *from source → destination* builds it from source and destination |
 | Length (m) | length of the cable |
+| Connector at start, Connector at end | connector or termination per cable end, e.g. RJ45 and M8 or LC and SC; empty means the same as the port. A cable with ends entered gets its own line in the bill of materials, e.g. *Ethernet/RJ45 (RJ45 ↔ M8)*, and appears per end in the pull and termination lists |
 | Colour | colour on the canvas |
 | Layer | Video, Audio, Control, Network, Power, Other; works with the layer filter in the toolbar |
 | Multicore / snake | name of the multicore the cable belongs to |
@@ -2258,18 +2261,26 @@ Clicking a cable shows its properties.
 
 *Connector parts* sets per end which connector from the connector catalogue is fitted: *End A* and *End B*, plus the *Conductor size (AWG)*. The list shows the connectors that match the port first. When a connector has several assemblies, the app picks the one that fits the conductor size; another can be chosen. Below are the parts with part number and quantity — housing, contacts per pole, lock — and the link to the datasheet. Every connector in the catalogue carries its manufacturer datasheet.
 
+#### Pinout
+
+*Pinout* sets which wire goes to which pin. *Standard pinout* takes a template — XLR 3-pin balanced (AES14), DMX512 XLR 5-pin (ANSI E1.11), RJ45 T568A and T568B (ANSI/TIA-568) — filtered by the connector type of the port and the pole count of the connector at end A. The cable may deviate afterwards; the line below the choice then says *From …, modified for this cable.*, otherwise it names the standard. Each row has *Pin A*, *Pin B* (empty means the same pin as at A), *Wire* and *Signal*; *+ Pin* adds a row, the bin removes it. Clicking a row marks its pin in the pin picture, a pin marks its row. The pin picture is schematic — number of pins and numbering; the real position is in the connector datasheet. Only for RJ45 the contacts sit side by side as in the standard.
+
+*Assembly sheet* prints one sheet per connector end: cable and destination, connector with datasheet, the parts of the assembly, pin picture and pinout with the source of the template.
+
 #### Fixed install / lifecycle
 
 | Field | Values |
 |---|---|
 | Status | — no status —, Planned, Installed, Tested, Operational, Fault, Retired |
+| Outer diameter (mm) | diameter of this cable; empty takes the value of the cable type |
 | Pathway / route | text |
 | Jacket/fire rating | text |
-| Term. A, Term. B | termination at both ends |
 | Fibre A, Fibre B | for fibre, the strand used at each end |
 | Measurement/test result | — not tested —, PASS, FAIL; plus *Margin dB*, *Standard/limit* and *Report file*; *Clear* empties the result |
 
 ![Cable lifecycle](bilder/en/eigenschaften-167-kabel-messergebnis.jpg)
+
+With a pathway set, the section shows the bundle of that pathway: *Pathway …: n cables · Ø … mm · … mm²* and a cross-section with every cable as a circle (this cable outlined) and the dashed outline of the bundle. Cables without a diameter are named and not counted. *Duct inner diameter (mm)* applies to the whole pathway; with it come *Fill … % (limit … %)* and the outline of the duct. The limit follows NEC Chapter 9 Table 1: 53 % for one cable, 31 % for two, 40 % for more. Above the limit the plan check reports *Duct fill*. The bundle diameter comes from a dense packing of the circles and is on the safe side: it can come out slightly larger than the tightest possible packing.
 
 #### Conductors (power)
 
@@ -4498,6 +4509,8 @@ The dialog *Configure Videohub · Labels + Routing* plans labels and crosspoints
 
 4. *Smart routing* suggests a routing from the cables in the plan: per output the input with the most similar device name, otherwise diagonal. *Reset* restores the diagonal (output n to input n).
 
+   *Quick patch* takes a code instead of clicks: `i1o4o7o11` routes input 1 to outputs 4, 7 and 11, several blocks follow one another (`i1o4o7 i2o5`). The numbers are those of the matrix (from 1). Below the field the preview shows the port names; an error (unknown port, output without input, typo) is named, and then nothing is patched, not even partly. If an output appears twice, the later block wins. Enter or *Apply to plan* takes the crosspoints into the planned routing. *Patch live* (desktop app only) sends only these crosspoints to the hub under *Send to Videohub*; the command is shown in the preview beforehand. Afterwards the dialog reads the hub routing back and writes to the *Activity log* whether the hub carries the crosspoints (*confirmed*) or not. Outputs that another client has locked according to *Load status* are not patched. Live patching leaves the plan unchanged.
+
    ![After smart routing](bilder/en/werkzeuge-bauen-videohub-05-smart-routing.jpg)
 
 5. *Salvos (routing snapshots)*: *+ Save current routing* asks *Salvo name (= save routing snapshot):* and stores the state; a click on the name recalls it, **×** (*Delete salvo*) removes it. Salvos belong to the device and the model and are stored locally.
@@ -4731,7 +4744,7 @@ Automatic, collision-free cable IDs from a fixed scheme; they appear on the canv
 
 #### Estimate cable lengths
 
-Estimates lengths from the distance between devices on the canvas: straight line × scale plus slack. The estimate overwrites existing lengths; wireless links are left alone.
+Estimates lengths from the cable's path on the canvas (through its bend points) × scale plus slack. A cable routed through the room in the 3D plan counts with the distance along its support points, heights included. The estimate overwrites existing lengths; wireless links are left alone.
 
 | Option | Effect |
 |---|---|

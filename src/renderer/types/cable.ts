@@ -33,6 +33,18 @@ export interface CableWaypoint {
   y: number
 }
 
+/**
+ * #1190 — ein Stuetzpunkt der Kabelfuehrung im Raum (3D-Plan). Grundriss in
+ * Canvas-Koordinaten wie `CableWaypoint` (folgt damit demselben Massstab),
+ * dazu die Hoehe in Metern ueber Null des Gebaeudes — dieselbe Hoehe, die die
+ * 3D-Ansicht zeichnet (Etagenhoehe + Hoehe im Raum).
+ */
+export interface Fuehrungspunkt {
+  x: number
+  y: number
+  hoeheM: number
+}
+
 export interface Cable {
   id: string
   name: string
@@ -111,6 +123,13 @@ export interface Cable {
   bidirectional?: boolean
   /** Optional user-placed bend points (flow coordinates). */
   waypoints?: CableWaypoint[]
+  /**
+   * #1190 — Fuehrung im Raum: Stuetzpunkte, im 3D-Plan gesetzt (an der
+   * Traverse entlang, am Boden, durch den Kanal). Gesetzt, rechnet die
+   * Laengen-Schaetzung die Strecke Geraet → Stuetzpunkte → Geraet in 3D statt
+   * des Wegs auf dem Canvas. Leer/fehlend = wie bisher.
+   */
+  fuehrung3d?: Fuehrungspunkt[]
   /** Where to show the cable label. Defaults to 'center'.
    *  v7.9.112: 'none' hinzugefuegt — Label garnicht rendern. Ersetzt den
    *  separaten labelHidden-Toggle. labelHidden=true wird beim Laden
@@ -317,4 +336,7 @@ export interface DerivedLengthOrigin {
   weg?: CableWaypoint[]
   /** Die Hallenplan-Kalibrierung, mit der gerechnet wurde. */
   massstabSchluessel?: string
+  /** #1190 — die Stuetzpunkte im Raum, ueber die gerechnet wurde. Eine
+   *  geaenderte Fuehrung macht die Laenge ebenso ueberholt. */
+  fuehrung3d?: Fuehrungspunkt[]
 }

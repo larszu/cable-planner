@@ -98,7 +98,7 @@ Automatische, kollisionsfreie Kabel-IDs nach festem Schema; sie erscheinen auf d
 
 #### Kabellängen schätzen
 
-Schätzt die Längen aus dem Abstand der Geräte auf dem Canvas: Luftlinie × Maßstab plus Reserve. Die Schätzung überschreibt vorhandene Längen; Funkverbindungen bleiben unberührt.
+Schätzt die Längen aus dem Weg des Kabels auf dem Canvas (über seine Knickpunkte) × Maßstab plus Reserve. Ein Kabel, das im 3D-Plan durch den Raum geführt ist, zählt mit der Strecke über seine Stützpunkte, samt Höhen. Die Schätzung überschreibt vorhandene Längen; Funkverbindungen bleiben unberührt.
 
 | Option | Wirkung |
 |---|---|

@@ -1017,6 +1017,8 @@ Jeder Rahmen ist ein Raum. Rahmen lassen sich Etagen zuordnen; sie bestimmen die
 
     ![Einzelne Kabel in 3D](bilder/de/canvas-raeume-18-drei-d-kabel.jpg)
 
+    Unter *Einzelne Kabel* ist jedes Kabel ein Schlauch in der Farbe seiner Signalart, mit einem grauen Endstück je Stecker. Die Dicke folgt dem Außendurchmesser aus dem Kabeltyp oder dem Kabel (überhöht, damit er sichtbar bleibt); ohne Angabe gilt ein Standard von 6 mm. Ein Klick auf ein Kabel wählt es: Die Zeile über der Ansicht nennt die Länge entlang der Führung und die Luftlinie. Ein Klick auf den Boden oder eine Wand setzt einen Stützpunkt — er landet zwischen den Punkten, an deren Strecke er liegt, die Reihenfolge der Klicks ist also gleich. Ein Klick auf einen Stützpunkt nimmt ihn heraus, *Führung löschen* alle. Für ein geführtes Kabel rechnet *Kabellängen schätzen* (Einstellungen → Projekt) diese Strecke statt des Wegs auf dem Canvas; damit steht sie in Stückliste und Konfektionsliste.
+
 12. *Beschriftung* blendet die Namen ein oder aus. Jedes Gerät trägt dann ein Schild mit seiner Kennung (dem Kürzel aus den Eigenschaften); das Schild zeigt immer zu Ihnen und bleibt beim Zoomen gleich groß. *Durchsicht* macht die Wände durchsichtig und nimmt die Decke weg, sodass Sie von schräg oben in die Räume schauen; ohne Durchsicht sind die Räume geschlossen. *Geschosshöhe (m)* gilt nur für Etagen ohne eingetragene Höhe; die Ansicht weist darauf hin, dass dies eine Annahme ist.
 
 Geräte lassen sich in der 3D-Ansicht ziehen. Bodentanks erscheinen als flache Platte im Boden, andere Geräte als Würfel. Ziehen neben ein Gerät dreht die Ansicht, das Mausrad zoomt.
@@ -1641,7 +1643,7 @@ Der Reiter *Kabel* (*Kabel-Library*) listet die Kabeltypen, gruppiert nach Steck
 
    ![Eigener Kabeltyp in der Liste](bilder/de/bibliothek-69-kabel-eigener-typ.jpg)
 
-3. Der Stift öffnet *Kabeltyp bearbeiten*. Das Formular hat die Felder *Name*, *Stecker-Typ* (mit **+** für einen neuen Steckertyp), *Kabel-Farbe*, *Auch kompatibel mit (optional)*, *Signal-Standards* (mit *+ Standard* für einen neuen Standard), *Max. Länge (m) – optional* und *Notiz (optional)*. *Speichern* ist erst möglich, wenn ein Name und mindestens ein Standard gesetzt sind. Bei einem eingebauten Typ wird die Änderung als lokale Anpassung gespeichert (*Angepasst*); der Knopf mit dem Pfeil (*Override entfernen*) fragt *Override für „…" zurücksetzen?* und stellt mit *Zurücksetzen* die ursprünglichen Werte wieder her.
+3. Der Stift öffnet *Kabeltyp bearbeiten*. Das Formular hat die Felder *Name*, *Stecker-Typ* (mit **+** für einen neuen Steckertyp), *Kabel-Farbe*, *Auch kompatibel mit (optional)*, *Signal-Standards* (mit *+ Standard* für einen neuen Standard), *Max. Länge (m) – optional*, *Außendurchmesser (mm) — optional, aus dem Datenblatt* und *Notiz (optional)*. *Speichern* ist erst möglich, wenn ein Name und mindestens ein Standard gesetzt sind. Bei einem eingebauten Typ wird die Änderung als lokale Anpassung gespeichert (*Angepasst*); der Knopf mit dem Pfeil (*Override entfernen*) fragt *Override für „…" zurücksetzen?* und stellt mit *Zurücksetzen* die ursprünglichen Werte wieder her.
 
    ![Dialog Kabeltyp bearbeiten](bilder/de/bibliothek-64-kabel-eintrag-bearbeiten.jpg)
 
@@ -2262,6 +2264,7 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 | Fotos | Fotos dieses Kabels |
 | Name | Bezeichnung; *↳ aus Quelle → Ziel* bildet sie aus Quelle und Ziel |
 | Länge (m) | Länge des Kabels |
+| Stecker am Anfang, Stecker am Ende | Stecker oder Terminierung je Kabelende, z. B. RJ45 und M8 oder LC und SC; leer heißt: wie der Anschluss. Ein Kabel mit eingetragenen Enden steht in der Stückliste als eigene Zeile, etwa *Ethernet/RJ45 (RJ45 ↔ M8)*, und in Zug- und Auflege-Liste je Ende |
 | Farbe | Farbe im Canvas |
 | Ebene (Layer) | Video, Audio, Control, Network, Power, Other; wirkt mit dem Layer-Filter der Werkzeugleiste |
 | Multicore / Snake | Name des Multicores, zu dem das Kabel gehört |
@@ -2284,18 +2287,26 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 
 *Steckerteile* legt je Ende fest, welcher Stecker aus dem Steckerkatalog sitzt: *Ende A* und *Ende B*, dazu der *Aderquerschnitt (AWG)*. Die Auswahl zeigt zuerst die Stecker, die zum Port passen. Hat ein Stecker mehrere Konfektionen, wählt die App die zum Aderquerschnitt passende; eine andere lässt sich wählen. Darunter stehen die Teile mit Teilenummer und Anzahl — Gehäuse, Kontakte je Pol, Verriegelung — und der Link zum Datenblatt. Jeder Stecker im Katalog trägt sein Herstellerdatenblatt.
 
+#### Steckerbelegung
+
+*Steckerbelegung* legt fest, welche Ader auf welchen Pin geht. *Standardbelegung* übernimmt eine Vorlage — XLR 3-pol symmetrisch (AES14), DMX512 XLR 5-pol (ANSI E1.11), RJ45 T568A und T568B (ANSI/TIA-568) —, gefiltert nach dem Steckertyp des Ports und der Polzahl des Steckers an Ende A. Danach darf das Kabel abweichen; die Zeile unter der Auswahl sagt dann *Aus …, für dieses Kabel geändert.*, sonst nennt sie die Norm. Je Zeile stehen *Pin A*, *Pin B* (leer heißt derselbe Pin wie an A), *Ader* und *Signal*; *+ Pin* fügt eine Zeile an, der Papierkorb entfernt sie. Eine Zeile anklicken markiert ihren Pin im Pinbild, ein Pin markiert seine Zeile. Das Pinbild ist schematisch — Anzahl und Nummerierung; die echte Lage steht im Datenblatt des Steckers. Nur beim RJ45 stehen die Kontakte wie in der Norm nebeneinander.
+
+*Konfektionsblatt* druckt ein Blatt je Steckerende: Kabel und Ziel, Stecker mit Datenblatt, die Teile der Konfektion, Pinbild und Belegung samt Quelle der Vorlage.
+
 #### Festinstallation / Lebenszyklus
 
 | Feld | Werte |
 |---|---|
 | Status | — kein Status —, Geplant, Installiert, Getestet, In Betrieb, Störung, Außer Betrieb |
+| Außendurchmesser (mm) | Durchmesser dieses Kabels; leer übernimmt den Wert des Kabeltyps |
 | Trasse / Pfad | Text |
 | Mantel/Brandklasse | Text |
-| Term. A, Term. B | Terminierung an beiden Enden |
 | Faser A, Faser B | bei Glasfaser die belegte Faser je Ende |
 | Mess-/Test-Ergebnis | — nicht getestet —, PASS, FAIL; dazu *Marge dB*, *Standard/Limit* und *Report-Datei*; *Löschen* leert das Ergebnis |
 
 ![Lebenszyklus des Kabels](bilder/de/eigenschaften-167-kabel-messergebnis.jpg)
+
+Mit gesetzter Trasse zeigt der Abschnitt das Bündel dieser Trasse: *Trasse …: n Kabel · Ø … mm · … mm²* und einen Schnitt mit jedem Kabel als Kreis (dieses Kabel umrandet) und der gestrichelten Hülle des Bündels. Kabel ohne Durchmesser werden genannt und zählen nicht mit. *Rohr/Kanal innen (mm)* gilt für die ganze Trasse; damit kommen *Füllgrad … % (Grenze … %)* und der Umriss des Rohrs dazu. Die Grenze folgt NEC Chapter 9 Table 1: 53 % bei einem Kabel, 31 % bei zwei, 40 % bei mehr. Darüber meldet der Plan-Check *Rohrfüllung*. Der Bündeldurchmesser stammt aus einer dichten Packung der Kreise und liegt auf der sicheren Seite: er kann etwas größer ausfallen als die engste mögliche Packung.
 
 #### Adern (Strom)
 
@@ -4526,6 +4537,8 @@ Der Dialog *Videohub konfigurieren · Labels + Routing* plant Beschriftung und K
 
    ![Nach dem Smart-Routing](bilder/de/werkzeuge-bauen-videohub-05-smart-routing.jpg)
 
+   *Schnellpatch* nimmt ein Kürzel statt Klicks: `i1o4o7o11` legt Input 1 auf die Outputs 4, 7 und 11, mehrere Blöcke stehen hintereinander (`i1o4o7 i2o5`). Die Nummern sind die der Matrix (ab 1). Unter dem Feld steht die Vorschau mit den Namen der Ports; ein Fehler (unbekannter Port, Output ohne Input, Tippfehler) wird genannt, und dann wird nichts geschaltet, auch nicht teilweise. Kommt ein Output zweimal vor, gilt der spätere Block. Enter oder *In den Plan* übernimmt die Kreuzpunkte ins geplante Routing. *Live schalten* (nur Desktop-App) schickt nur diese Kreuzpunkte an den Hub unter *An Videohub senden*, der Befehl steht vorher in der Vorschau. Danach liest der Dialog das Routing des Hubs zurück und trägt ins *Activity-Log* ein, ob der Hub die Kreuzpunkte trägt (*bestätigt*) oder nicht. Outputs, die laut *Status laden* ein anderer Client gesperrt hat, schaltet er nicht. Der Plan bleibt beim Live-Schalten unverändert.
+
 5. *Salvos (Routing-Snapshots)*: *+ Aktuelles Routing speichern* fragt *Salvo-Name (= Routing-Snapshot speichern):* und legt den Stand ab; ein Klick auf den Namen holt ihn zurück, **×** (*Salvo löschen*) entfernt ihn. Salvos gehören zum Gerät und zum Modell und liegen im lokalen Speicher.
 
    ![Name für den Salvo](bilder/de/werkzeuge-bauen-videohub-06-salvo.jpg)
@@ -4757,7 +4770,7 @@ Automatische, kollisionsfreie Kabel-IDs nach festem Schema; sie erscheinen auf d
 
 #### Kabellängen schätzen
 
-Schätzt die Längen aus dem Abstand der Geräte auf dem Canvas: Luftlinie × Maßstab plus Reserve. Die Schätzung überschreibt vorhandene Längen; Funkverbindungen bleiben unberührt.
+Schätzt die Längen aus dem Weg des Kabels auf dem Canvas (über seine Knickpunkte) × Maßstab plus Reserve. Ein Kabel, das im 3D-Plan durch den Raum geführt ist, zählt mit der Strecke über seine Stützpunkte, samt Höhen. Die Schätzung überschreibt vorhandene Längen; Funkverbindungen bleiben unberührt.
 
 | Option | Wirkung |
 |---|---|

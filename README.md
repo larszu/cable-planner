@@ -73,7 +73,10 @@
   panel: socket on top, house run below. In *Building 3D* they lie on the
   floor, and every device or floor box can be dragged there; the move lands
   on the canvas. *See inside* opens the walls and ceiling, and every device
-  carries a sign with its short name that faces the camera.
+  carries a sign with its short name that faces the camera. Under *Single
+  cables* each cable is a tube in its signal colour with its catalogue
+  diameter; click it, then the floor or a wall, to route it through the room
+  — the length along that route is what the length estimate and the BOM use.
 - **Every list for the build day.** Pull list, patch list, termination list,
   BOM, patch sheets, faceplates, acceptance record, QR labels — one report
   editor, preview equals export. The installation handover hands every

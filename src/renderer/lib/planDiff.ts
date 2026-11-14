@@ -161,6 +161,9 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   // Steht auf dem Etikett und loest den Scan auf: aendert sich das, findet ein
   // gedrucktes Etikett seinen Datensatz nicht mehr.
   qrId: 'substantive',
+  // #1190 — die Fuehrung im Raum bestimmt die Laenge, die geschnitten wird;
+  // anders als die Knickpunkte auf dem Schaltbild ist sie kein Aussehen.
+  fuehrung3d: 'substantive',
 
   // Darstellung. `offPage` sagt es im eigenen Docstring: „Die Verbindung
   // bleibt logisch/datentechnisch dieselbe — nur die Darstellung entfaellt."
