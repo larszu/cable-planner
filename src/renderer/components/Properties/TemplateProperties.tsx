@@ -167,6 +167,7 @@ export const TemplateProperties = () => {
       <PortList
         title={t('template.field.inputs', 'Inputs')}
         ports={template.inputs}
+        seite="in"
         onChange={(inputs) => updateCustomTemplate(template.name, { inputs })}
         collapsed={zu}
         onToggleCollapsed={umschalten}
@@ -174,6 +175,7 @@ export const TemplateProperties = () => {
       <PortList
         title={t('template.field.outputs', 'Outputs')}
         ports={template.outputs}
+        seite="out"
         onChange={(outputs) => updateCustomTemplate(template.name, { outputs })}
         collapsed={zu}
         onToggleCollapsed={umschalten}

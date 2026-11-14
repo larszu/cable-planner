@@ -1110,6 +1110,7 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
         return (
           <div
             key={port.id}
+            data-port-id={isRackInternal ? undefined : port.id}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={handlePortClick(port.id, 'input')}
             onMouseEnter={() => setHoveredPort(`in-${port.id}`)}
@@ -1272,6 +1273,7 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
         return (
           <div
             key={port.id}
+            data-port-id={isRackInternal ? undefined : port.id}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={handlePortClick(port.id, 'output')}
             onMouseEnter={() => setHoveredPort(`out-${port.id}`)}

@@ -40,7 +40,7 @@ Der Unterreiter *Lokal* zeigt die Vorlagen nach Kategorien. Jede Kategorie ist e
 
 ![Aufgeklappte Kategorie](bilder/de/bibliothek-12-kategorie-aufklappen.jpg)
 
-Jeder Eintrag zeigt den Namen und darunter die Kategorie mit der Zahl der Ein- und Ausgänge. Das **L** vor dem Namen kennzeichnet ein lokales Gerät (nicht aus Rentman). Ein Klick markiert den Eintrag und zeigt seine Vorlage im Inspector; bei einer eigenen Vorlage stehen dort Ein- und Ausgänge als bearbeitbare Port-Listen (derselbe Editor wie am platzierten Gerät: hinzufügen, entfernen, ordnen, Stecker, Signal, Richtung). Änderungen gelten sofort für die Vorlage; bereits platzierte Geräte behalten ihre Ports; ein Doppelklick oder Ziehen auf den Canvas platziert das Gerät. Beim Zeigen auf einen Eintrag erscheinen vier Knöpfe:
+Jeder Eintrag zeigt den Namen und darunter die Kategorie mit der Zahl der Ein- und Ausgänge. Das **L** vor dem Namen kennzeichnet ein lokales Gerät (nicht aus Rentman). Ein Klick markiert den Eintrag und zeigt seine Vorlage im Inspector; bei einer eigenen Vorlage stehen dort Ein- und Ausgänge als bearbeitbare Port-Listen (derselbe Editor wie am platzierten Gerät: hinzufügen, entfernen, ordnen, Stecker, Signal, Art). Änderungen gelten sofort für die Vorlage; bereits platzierte Geräte behalten ihre Ports; ein Doppelklick oder Ziehen auf den Canvas platziert das Gerät. Beim Zeigen auf einen Eintrag erscheinen vier Knöpfe:
 
 | Knopf | Wirkung |
 |---|---|
