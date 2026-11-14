@@ -8,6 +8,7 @@
 //     "Öffnen…"-Schaltfläche mehr)
 //   - Print-Tab entfernt — Drucken passiert jetzt pro Sektion
 
+import { bomSchluessel } from '../../lib/kabelEnden'
 import { useMemo, useState } from 'react'
 import {
   FileText, Cable as CableIcon, Calculator, Image as ImageIcon, Printer,
@@ -800,7 +801,8 @@ interface BomRow {
   shortfall?: StockShortfall[]
 }
 
-const bomKeyOf = (c: Pick<Cable, 'type' | 'length'>): string => `${c.type}|${c.length}`
+// #1222 — Typ samt Steckern je Ende (lib/kabelEnden).
+const bomKeyOf = bomSchluessel
 const parseBomKey = (key: string): { type: string; length: number } => {
   const [type, lenStr] = key.split('|')
   return { type, length: Number(lenStr) || 0 }

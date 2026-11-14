@@ -401,6 +401,7 @@ Clicking a cable shows its properties.
 | Photos | photos of this cable |
 | Name | label; *from source → destination* builds it from source and destination |
 | Length (m) | length of the cable |
+| Connector at start, Connector at end | connector or termination per cable end, e.g. RJ45 and M8 or LC and SC; empty means the same as the port. A cable with ends entered gets its own line in the bill of materials, e.g. *Ethernet/RJ45 (RJ45 ↔ M8)*, and appears per end in the pull and termination lists |
 | Colour | colour on the canvas |
 | Layer | Video, Audio, Control, Network, Power, Other; works with the layer filter in the toolbar |
 | Multicore / snake | name of the multicore the cable belongs to |
@@ -430,7 +431,6 @@ Clicking a cable shows its properties.
 | Status | — no status —, Planned, Installed, Tested, Operational, Fault, Retired |
 | Pathway / route | text |
 | Jacket/fire rating | text |
-| Term. A, Term. B | termination at both ends |
 | Fibre A, Fibre B | for fibre, the strand used at each end |
 | Measurement/test result | — not tested —, PASS, FAIL; plus *Margin dB*, *Standard/limit* and *Report file*; *Clear* empties the result |
 

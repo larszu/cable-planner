@@ -12,6 +12,7 @@
  * Spaltennamen orientieren sich an TIA-568-Pull-Schedule / Cable-Schedule.
  * Alles ist seiteneffektfrei und damit headless testbar.
  */
+import { kabelEnden } from './kabelEnden'
 import { ortVonGeraet } from './kabelOrt'
 import type { CablePlannerProject } from '../types/project'
 import type { Cable } from '../types/cable'
@@ -377,6 +378,8 @@ export const cableScheduleCsv = (
 
 export interface CableBomRow {
   type: string
+  /** #1222 — Stecker je Ende („RJ45 ↔ M8"), wenn eingetragen. */
+  ends?: string
   lengthM: number
   qty: number
   qtyWithReserve: number
@@ -424,7 +427,8 @@ export const buildCableBomRows = (
       countedBundles.add(bundleKey)
     }
     const len = c.length ?? 0
-    const key = `${c.type}|${len}|${c.isTieLine ? 'tie' : 'show'}`
+    const ends = kabelEnden(c)
+    const key = `${c.type}|${ends ?? ''}|${len}|${c.isTieLine ? 'tie' : 'show'}`
     const existing = buckets.get(key)
     if (existing) {
       existing.qty += 1
@@ -433,6 +437,7 @@ export const buildCableBomRows = (
     } else {
       buckets.set(key, {
         type: c.type,
+        ...(ends ? { ends } : {}),
         lengthM: len,
         qty: 1,
         qtyWithReserve: Math.ceil(1 * factor),
@@ -456,7 +461,7 @@ export const buildCableBomRows = (
   }
 
   return Array.from(buckets.values()).sort(
-    (a, b) => a.type.localeCompare(b.type) || a.lengthM - b.lengthM,
+    (a, b) => a.type.localeCompare(b.type) || (a.ends ?? '').localeCompare(b.ends ?? '') || a.lengthM - b.lengthM,
   )
 }
 
@@ -479,7 +484,7 @@ export const cableBomTable = (
     ...(mitStueckelung ? ['Stückelung', 'Kupplungen', 'Fehlbestand'] : []),
   ]
   const body: CsvCell[][] = rows.map((r) => [
-    r.type,
+    r.ends ? `${r.type} (${r.ends})` : r.type,
     r.lengthM,
     r.qty,
     r.qtyWithReserve,
