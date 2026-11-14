@@ -2264,6 +2264,9 @@ Clicking a cable shows its properties.
 *Pinout* sets which wire goes to which pin. *Standard pinout* takes a template — XLR 3-pin balanced (AES14), DMX512 XLR 5-pin (ANSI E1.11), RJ45 T568A and T568B (ANSI/TIA-568) — filtered by the connector type of the port and the pole count of the connector at end A. The cable may deviate afterwards; the line below the choice then says *From …, modified for this cable.*, otherwise it names the standard. Each row has *Pin A*, *Pin B* (empty means the same pin as at A), *Wire* and *Signal*; *+ Pin* adds a row, the bin removes it. Clicking a row marks its pin in the pin picture, a pin marks its row. The pin picture is schematic — number of pins and numbering; the real position is in the connector datasheet. Only for RJ45 the contacts sit side by side as in the standard.
 
 *Assembly sheet* prints one sheet per connector end: cable and destination, connector with datasheet, the parts of the assembly, pin picture and pinout with the source of the template.
+#### Coverings
+
+*Coverings* records what sits around the cable: *Braided sleeve*, *Corrugated conduit*, *Cloth tape* or *Heat shrink*, per section with *From A (m)*, *Length (m)* and *Material*. Left empty, a section starts at A and runs to B. *+ Covering* adds a section, the bin removes it. On the canvas each section lies as a band under the cable, at its place along the route; the cable BOM lists kind, material, pieces and length.
 
 #### Fixed install / lifecycle
 
@@ -3212,6 +3215,8 @@ The table gives per row *Type*, *Length (m)*, *Installed*, *Total (m)*, the Rent
 
 When cable ends carry a connector from the connector catalogue (*Connector parts* in the cable properties), the section *Connector parts* follows: every part with *Kind*, *Part number*, *Manufacturer*, *Description*, *Qty* and *Sum*, added up over all cables. A total appears only when every part has a price. The CSV carries the section as its own block.
 
+When a cable has *Coverings*, the section *Coverings* follows: per kind and material the number of *Pieces* and the *Length (m)*. Pieces on a cable without a length that run to B are shown as *+n without length*.
+
 ![Entering the Rentman planning](bilder/en/export-44-bom-rentman-eingabe.jpg)
 
 A changed planning stays a draft. *Save Rentman plan* adopts it into the project, *Discard* takes it back. The planned quantities come from the Rentman import; the chapter *File and Import* describes it.
@@ -3786,9 +3791,11 @@ The app points out gaps: when the battery change was not recorded, and two peopl
 
    ![Assignments entered](bilder/en/werkzeuge-planen-52-ablauf-auftrag.jpg)
 
-5. When the rundown is read in again, the assignments of matching segments are kept.
+5. When the rundown is read in again, the assignments and links of matching segments are kept.
 
    ![Read in again](bilder/en/werkzeuge-planen-54-ablauf-neu-einlesen.jpg)
+
+**Devices and paths per segment.** The table *Devices and paths per segment* links each segment to the devices (*Add device…*) and paths (*Add path…*) it needs; **×** removes a link. The column *Check* shows *OK* when every linked device and path is in the plan, each path has both ends and the plan check reports no error or warning on them. Otherwise the findings are listed; a click selects the device or cable on the canvas and closes the window. A segment without links shows *not linked*. When a segment has findings, the status bar shows *Rundown n*; a click opens the window at the first affected segment. *Sheet for the gallery* outputs the rundown as a landscape HTML sheet: number, segment with note, devices, paths and check.
 
 #### Delivery
 

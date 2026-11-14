@@ -419,6 +419,10 @@ export const SPALTEN_DE: Readonly<Record<string, string>> = {
   'Observed by': 'Beobachtet von',
   'Question to the venue': 'Frage an das Haus',
   'Devices': 'Geräte',
+  // #1182 — Regie-Blatt
+  'Segment': 'Abschnitt',
+  'Paths': 'Wege',
+  'Check': 'Prüfung',
   'Connection': 'Anschluss',
   'Notice': 'Hinweis',
   'Who / where': 'Wer / wo',

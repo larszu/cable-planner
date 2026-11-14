@@ -2290,6 +2290,9 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 *Steckerbelegung* legt fest, welche Ader auf welchen Pin geht. *Standardbelegung* übernimmt eine Vorlage — XLR 3-pol symmetrisch (AES14), DMX512 XLR 5-pol (ANSI E1.11), RJ45 T568A und T568B (ANSI/TIA-568) —, gefiltert nach dem Steckertyp des Ports und der Polzahl des Steckers an Ende A. Danach darf das Kabel abweichen; die Zeile unter der Auswahl sagt dann *Aus …, für dieses Kabel geändert.*, sonst nennt sie die Norm. Je Zeile stehen *Pin A*, *Pin B* (leer heißt derselbe Pin wie an A), *Ader* und *Signal*; *+ Pin* fügt eine Zeile an, der Papierkorb entfernt sie. Eine Zeile anklicken markiert ihren Pin im Pinbild, ein Pin markiert seine Zeile. Das Pinbild ist schematisch — Anzahl und Nummerierung; die echte Lage steht im Datenblatt des Steckers. Nur beim RJ45 stehen die Kontakte wie in der Norm nebeneinander.
 
 *Konfektionsblatt* druckt ein Blatt je Steckerende: Kabel und Ziel, Stecker mit Datenblatt, die Teile der Konfektion, Pinbild und Belegung samt Quelle der Vorlage.
+#### Ausstattung
+
+*Ausstattung* hält fest, was um das Kabel herum sitzt: *Geflechtschlauch*, *Wellrohr*, *Gewebeband* oder *Schrumpfschlauch*, je Abschnitt mit *Ab A (m)*, *Länge (m)* und *Material*. Leer gelassen beginnt der Abschnitt bei A und reicht bis B. *+ Ausstattung* fügt einen Abschnitt an, der Papierkorb entfernt ihn. Im Canvas liegt jeder Abschnitt als Band unter dem Kabel, an seiner Stelle entlang des Wegs; die Kabel-Stückliste führt Art, Material, Stück und Länge.
 
 #### Festinstallation / Lebenszyklus
 
@@ -3238,6 +3241,8 @@ Die Tabelle nennt je Zeile *Typ*, *Länge (m)*, *Verbaut*, *Gesamt (m)*, die Ren
 
 Tragen Kabelenden einen Stecker aus dem Steckerkatalog (*Steckerteile* in den Kabeleigenschaften), folgt der Abschnitt *Steckerteile*: jedes Teil mit *Art*, *Teilenummer*, *Hersteller*, *Beschreibung*, *Anzahl* und *Summe*, über alle Kabel zusammengezählt. Eine Gesamtsumme steht nur, wenn jedes Teil einen Preis hat. Die CSV führt den Abschnitt als eigenen Block.
 
+Trägt ein Kabel eine *Ausstattung*, folgt der Abschnitt *Ausstattung*: je Art und Material die Zahl der *Stück* und die *Länge (m)*. Stücke an einem Kabel ohne Länge, die bis B reichen, stehen als *+n ohne Länge* daneben.
+
 ![Eingabe der Rentman-Planung](bilder/de/export-44-bom-rentman-eingabe.jpg)
 
 Eine geänderte Planung bleibt ein Entwurf. *Rentman-Planung speichern* übernimmt sie ins Projekt, *Verwerfen* nimmt sie zurück. Die Planungsmengen stammen aus dem Rentman-Import; das Kapitel *Datei und Import* beschreibt ihn.
@@ -3812,7 +3817,9 @@ Die App weist auf Lücken hin: *Akku-Wechsel nicht festgehalten* (steht nicht, w
 
    ![Aufträge eingetragen](bilder/de/werkzeuge-planen-52-ablauf-auftrag.jpg)
 
-5. Liest man den Ablauf neu ein, bleiben die Aufträge zu gleichen Abschnitten erhalten.
+5. Liest man den Ablauf neu ein, bleiben die Aufträge und Verknüpfungen zu gleichen Abschnitten erhalten.
+
+**Geräte und Wege je Abschnitt.** Die Tabelle *Geräte und Wege je Abschnitt* verknüpft jeden Abschnitt mit den Geräten (*Gerät hinzufügen…*) und Wegen (*Weg hinzufügen…*), die er braucht; **×** löst eine Verknüpfung. Die Spalte *Prüfung* zeigt *OK*, wenn alle verknüpften Geräte und Wege im Plan stehen, jeder Weg beide Enden hat und der Plan-Check an ihnen keinen Fehler und keine Warnung meldet. Sonst stehen dort die Befunde; ein Klick wählt das betroffene Gerät oder Kabel auf dem Canvas aus und schließt das Fenster. Ein Abschnitt ohne Verknüpfung zeigt *nicht verknüpft*. Hat ein Abschnitt Befunde, zeigt die Fußleiste *Ablauf n*; ein Klick öffnet das Fenster am ersten betroffenen Abschnitt. *Blatt für die Regie* gibt den Ablauf als HTML-Blatt im Querformat aus: Nummer, Abschnitt mit Notiz, Geräte, Wege und Prüfung.
 
    ![Neu eingelesen](bilder/de/werkzeuge-planen-54-ablauf-neu-einlesen.jpg)
 

@@ -8,6 +8,7 @@ import { useCollabStore } from '../../store/collabStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useTranslation, format } from '../../lib/i18n'
 import { runDrawingChecks } from '../../lib/drawingChecks'
+import { ablaufPruefung, ablaufWarnungen } from '../../lib/ablaufPruefung'
 import { autosaveFehlschlag } from '../../store/projectAutosave'
 import { cablePlannerApi, hasDesktopBridge } from '../../lib/bridge'
 import { fotoMasse } from '../../lib/fotoMasse'
@@ -229,10 +230,18 @@ export const StatusBar = ({
   // Check-Engine aber ueber den ganzen Plan laeuft (seit ADR-001 auch ueber
   // den Kabelgraph). Abhaengigkeiten sind Store-Referenzen, wechseln also nur
   // bei echter Projekt-Aenderung.
-  const { errorCount, warningCount } = useMemo(
+  const { errorCount, warningCount, findings } = useMemo(
     () => runDrawingChecks({ equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, ledWalls, ledPanelTypes, defaultVideoFormat, hausAuskunft, pathwayDuctMm }),
     [equipment, cables, drumKit, sourceIdentities, anschlussListe, farbnormen, polaritaetsnormen, polaritaetsnormId, ledWalls, ledPanelTypes, defaultVideoFormat, pathwayDuctMm],
   )
+  // #1182 — der Ablauf: dieselben Befunde, auf die verknuepften Geraete und
+  // Wege je Abschnitt bezogen. Kein zweiter Plan-Check.
+  const rundown = useProjectStore((s) => s.project.rundown)
+  const ablauf = useMemo(
+    () => ablaufPruefung({ rundown, equipment, cables, befunde: findings }),
+    [rundown, equipment, cables, findings],
+  )
+  const ablaufZahl = ablaufWarnungen(ablauf)
   // ── DIE NETZ-BEFUNDE, NEBEN DEN PLAN-CHECK (2026-09-07) ────────────────
   //
   // Der Plan-Check steht seit #411 hier; die Befunde der ANALYSEN standen
@@ -315,6 +324,17 @@ export const StatusBar = ({
             ? format(t('statusbar.planCheck.counts', '{errors}'), { errors: errorCount + warningCount })
             : t('statusbar.planCheck.ok', 'OK')}
         </button>
+        {ablaufZahl > 0 && (
+          <button
+            type="button"
+            onClick={() => useUiStore.getState().openRundownAt(ablauf.find((p) => p.befunde.length > 0)?.segment.id ?? null)}
+            className="inline-flex shrink-0 items-center gap-1 bg-amber-600 px-1.5 py-0.5 text-cp-xs font-bold text-amber-50"
+            title={t('statusbar.runOfShow.title', 'Segments of the rundown whose devices or paths are not in order. Click jumps to the first one.')}
+          >
+            <Icon icon={AlertTriangle} size="xs" />
+            {format(t('statusbar.runOfShow.label', 'Rundown {n}'), { n: ablaufZahl })}
+          </button>
+        )}
         {netzBefunde > 0 && (
           <button
             type="button"

@@ -397,7 +397,9 @@ Die App weist auf Lücken hin: *Akku-Wechsel nicht festgehalten* (steht nicht, w
 
    ![Aufträge eingetragen](bilder/de/werkzeuge-planen-52-ablauf-auftrag.jpg)
 
-5. Liest man den Ablauf neu ein, bleiben die Aufträge zu gleichen Abschnitten erhalten.
+5. Liest man den Ablauf neu ein, bleiben die Aufträge und Verknüpfungen zu gleichen Abschnitten erhalten.
+
+**Geräte und Wege je Abschnitt.** Die Tabelle *Geräte und Wege je Abschnitt* verknüpft jeden Abschnitt mit den Geräten (*Gerät hinzufügen…*) und Wegen (*Weg hinzufügen…*), die er braucht; **×** löst eine Verknüpfung. Die Spalte *Prüfung* zeigt *OK*, wenn alle verknüpften Geräte und Wege im Plan stehen, jeder Weg beide Enden hat und der Plan-Check an ihnen keinen Fehler und keine Warnung meldet. Sonst stehen dort die Befunde; ein Klick wählt das betroffene Gerät oder Kabel auf dem Canvas aus und schließt das Fenster. Ein Abschnitt ohne Verknüpfung zeigt *nicht verknüpft*. Hat ein Abschnitt Befunde, zeigt die Fußleiste *Ablauf n*; ein Klick öffnet das Fenster am ersten betroffenen Abschnitt. *Blatt für die Regie* gibt den Ablauf als HTML-Blatt im Querformat aus: Nummer, Abschnitt mit Notiz, Geräte, Wege und Prüfung.
 
    ![Neu eingelesen](bilder/de/werkzeuge-planen-54-ablauf-neu-einlesen.jpg)
 
