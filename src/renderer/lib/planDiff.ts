@@ -131,6 +131,8 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   aderAwg: 'substantive',
   // #1178 — der Durchmesser entscheidet, ob das Buendel ins Rohr passt.
   outerDiameterMm: 'substantive',
+  // #1179 — Ader auf Pin: vertauscht ist das Kabel kaputt, sieht aber gleich aus.
+  belegung: 'substantive',
   isTieLine: 'substantive',
   // Welche Hausstrecke und Ader belegt wird, ist die Arbeit des Anschliessens.
   hausStreckeId: 'substantive',

@@ -423,6 +423,12 @@ Clicking a cable shows its properties.
 
 *Connector parts* sets per end which connector from the connector catalogue is fitted: *End A* and *End B*, plus the *Conductor size (AWG)*. The list shows the connectors that match the port first. When a connector has several assemblies, the app picks the one that fits the conductor size; another can be chosen. Below are the parts with part number and quantity — housing, contacts per pole, lock — and the link to the datasheet. Every connector in the catalogue carries its manufacturer datasheet.
 
+#### Pinout
+
+*Pinout* sets which wire goes to which pin. *Standard pinout* takes a template — XLR 3-pin balanced (AES14), DMX512 XLR 5-pin (ANSI E1.11), RJ45 T568A and T568B (ANSI/TIA-568) — filtered by the connector type of the port and the pole count of the connector at end A. The cable may deviate afterwards; the line below the choice then says *From …, modified for this cable.*, otherwise it names the standard. Each row has *Pin A*, *Pin B* (empty means the same pin as at A), *Wire* and *Signal*; *+ Pin* adds a row, the bin removes it. Clicking a row marks its pin in the pin picture, a pin marks its row. The pin picture is schematic — number of pins and numbering; the real position is in the connector datasheet. Only for RJ45 the contacts sit side by side as in the standard.
+
+*Assembly sheet* prints one sheet per connector end: cable and destination, connector with datasheet, the parts of the assembly, pin picture and pinout with the source of the template.
+
 #### Fixed install / lifecycle
 
 | Field | Values |

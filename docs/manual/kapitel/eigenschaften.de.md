@@ -423,6 +423,12 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 
 *Steckerteile* legt je Ende fest, welcher Stecker aus dem Steckerkatalog sitzt: *Ende A* und *Ende B*, dazu der *Aderquerschnitt (AWG)*. Die Auswahl zeigt zuerst die Stecker, die zum Port passen. Hat ein Stecker mehrere Konfektionen, wählt die App die zum Aderquerschnitt passende; eine andere lässt sich wählen. Darunter stehen die Teile mit Teilenummer und Anzahl — Gehäuse, Kontakte je Pol, Verriegelung — und der Link zum Datenblatt. Jeder Stecker im Katalog trägt sein Herstellerdatenblatt.
 
+#### Steckerbelegung
+
+*Steckerbelegung* legt fest, welche Ader auf welchen Pin geht. *Standardbelegung* übernimmt eine Vorlage — XLR 3-pol symmetrisch (AES14), DMX512 XLR 5-pol (ANSI E1.11), RJ45 T568A und T568B (ANSI/TIA-568) —, gefiltert nach dem Steckertyp des Ports und der Polzahl des Steckers an Ende A. Danach darf das Kabel abweichen; die Zeile unter der Auswahl sagt dann *Aus …, für dieses Kabel geändert.*, sonst nennt sie die Norm. Je Zeile stehen *Pin A*, *Pin B* (leer heißt derselbe Pin wie an A), *Ader* und *Signal*; *+ Pin* fügt eine Zeile an, der Papierkorb entfernt sie. Eine Zeile anklicken markiert ihren Pin im Pinbild, ein Pin markiert seine Zeile. Das Pinbild ist schematisch — Anzahl und Nummerierung; die echte Lage steht im Datenblatt des Steckers. Nur beim RJ45 stehen die Kontakte wie in der Norm nebeneinander.
+
+*Konfektionsblatt* druckt ein Blatt je Steckerende: Kabel und Ziel, Stecker mit Datenblatt, die Teile der Konfektion, Pinbild und Belegung samt Quelle der Vorlage.
+
 #### Festinstallation / Lebenszyklus
 
 | Feld | Werte |

@@ -24,6 +24,7 @@ import { SignalwegSection } from './SignalwegSection'
 import { HausStreckeSection } from './HausStreckeSection'
 import { SteckerKonfektionSection } from './SteckerKonfektionSection'
 import { BuendelSection } from './BuendelSection'
+import { SteckerBelegungSection } from './SteckerBelegungSection'
 import type { Floor, LocationFrame } from '../../types/location'
 import {
   INSTALL_STATUSES,
@@ -319,6 +320,12 @@ export const CableProperties = () => {
         cable={cable}
         connectorFrom={fromPort?.connectorType}
         connectorTo={toPort?.connectorType}
+      />
+      <SteckerBelegungSection
+        cable={cable}
+        connectorType={fromPort?.connectorType ?? toPort?.connectorType}
+        von={`${fromDev?.name ?? ''} · ${fromPort?.name ?? ''}`}
+        nach={`${toDev?.name ?? ''} · ${toPort?.name ?? ''}`}
       />
 
       {/* Festinstallation — Lebenszyklus: Status, Trasse, Mantel,

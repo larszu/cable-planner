@@ -278,6 +278,12 @@ export interface Cable {
    * Buendelquerschnitt als „ohne Durchmesser" und wird nicht geschaetzt.
    */
   outerDiameterMm?: number
+  /**
+   * #1179 — Belegung Ader → Pin mit Signalname (`lib/steckerBelegung.ts`).
+   * Fehlt = nicht festgelegt. Aus einer Standardbelegung uebernommen und
+   * danach frei abweichend; `vorlageId` sagt, woher sie kam.
+   */
+  belegung?: import('./stecker').KabelBelegung
 }
 
 /**

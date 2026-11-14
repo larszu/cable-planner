@@ -1716,6 +1716,23 @@ const healProjectPositions = (
           (wahl as { steckerId: string }).steckerId !== ''
         if (!ok) patched = { ...patched, [feld]: undefined }
       }
+      // #1179 — Belegung: Zeilen ohne Pin fallen weg, ein Eintrag ohne
+      // brauchbare Zeile faellt ganz. Texte werden auf Zeichenketten geheilt.
+      if (patched.belegung !== undefined) {
+        const b = patched.belegung as unknown as { vorlageId?: unknown; zeilen?: unknown }
+        const zeilen = (Array.isArray(b?.zeilen) ? b.zeilen : [])
+          .filter((z): z is Record<string, unknown> => !!z && typeof z === 'object' && typeof (z as { pin?: unknown }).pin === 'string' && (z as { pin: string }).pin !== '')
+          .map((z) => ({
+            pin: z.pin as string,
+            ...(typeof z.pinB === 'string' && z.pinB ? { pinB: z.pinB } : {}),
+            ...(typeof z.ader === 'string' && z.ader ? { ader: z.ader } : {}),
+            ...(typeof z.signal === 'string' && z.signal ? { signal: z.signal } : {}),
+          }))
+        patched = {
+          ...patched,
+          belegung: zeilen.length > 0 ? { ...(typeof b.vorlageId === 'string' ? { vorlageId: b.vorlageId } : {}), zeilen } : undefined,
+        }
+      }
       if (patched.aderAwg !== undefined && !(Number.isInteger(patched.aderAwg) && patched.aderAwg > 0 && patched.aderAwg <= 40)) {
         patched = { ...patched, aderAwg: undefined }
       }
