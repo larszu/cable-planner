@@ -21,6 +21,7 @@
  * STL-Support: wenn placement.stlDataUri gesetzt, wird die Geometrie mit
  * STLLoader geladen und in die HE-Box eingepasst. Sonst prozedurale Box.
  */
+import { standardPortPosition } from '../../lib/portRaster'
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber'
 import { OrbitControls, Edges, Html } from '@react-three/drei'
@@ -100,18 +101,7 @@ const portDotColor = (connectorType: string): string =>
  *  keine manuelle Position gesetzt hat. Ports werden in einer Spalten-
  *  Grid auf der Panel-Face verteilt. Vermeidet Überlapp bei vielen Ports.
  */
-const computeDefaultPortPosition = (index: number, total: number): { x: number; y: number } => {
-  if (total <= 1) return { x: 0.5, y: 0.5 }
-  // Choose column count so layout stays ungefähr square-ish.
-  const cols = Math.ceil(Math.sqrt(total * 2.5)) // mehr Spalten als Zeilen weil Panel breit ist
-  const rows = Math.ceil(total / cols)
-  const col = index % cols
-  const row = Math.floor(index / cols)
-  return {
-    x: (col + 0.5) / cols,
-    y: (row + 0.5) / rows,
-  }
-}
+const computeDefaultPortPosition = standardPortPosition
 
 interface Rack3DViewProps {
   totalUnits: number

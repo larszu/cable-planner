@@ -362,7 +362,9 @@ Above the rack are the tabs *2D* and *3D*. In the tab *2D* the buttons *Front*, 
 
 #### Properties of a device in the rack
 
-A double-click on a device in the rack opens *Properties · device name*. The window has *Name*, *Category*, *Height (RU)*, *Start RU* (with the maximum), *Depth (mm)*, *Mount* (*Full-depth*, *Front only*, *Rear only*), for half-width devices *Half (front view)* (*Left* or *Right*), *3D model (STL, optional)*, the sections *Depth position (Z)* and *Port side (front/rear)* and *Panel images (import + crop)*. At the bottom are *Remove from rack* (with a question) and *Close*.
+A double-click on a device in the rack opens *Properties · device name*. The window has *Name*, *Category*, *Height (RU)*, *Start RU* (with the maximum), *Depth (mm)*, *Mount* (*Full-depth*, *Front only*, *Rear only*), for half-width devices *Half (front view)* (*Left* or *Right*), *3D model (STL, optional)*, the sections *Depth position (Z)* and *Port side (front/rear)* and *Panel images (import + crop)*. A patch panel adds *Ports side by side* and *Rows of ports*: one number is enough, the other follows from the port count; front and rear follow alike. Single ports can still be dragged by hand afterwards. At the bottom are *Remove from rack* (with a question) and *Close*.
+
+A right-click on a device in the rack removes it from the rack with the same question.
 
 ![Properties of a device in the rack](bilder/en/werkzeuge-bauen-rack-17-eigenschaften.jpg)
 

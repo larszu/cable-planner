@@ -1492,6 +1492,15 @@ export const RackBuilderDialog = ({ open, templates, initialPreset, onClose, onS
                             setSelectedPlacementId(item.id)
                             setPlacementPropsOpen(true)
                           }}
+                          // #1221 — Rechtsklick nimmt das Geraet aus dem Rack,
+                          // mit derselben Rueckfrage wie der Knopf in den
+                          // Eigenschaften (Doppelklick).
+                          onContextMenu={(event) => {
+                            event.preventDefault()
+                            event.stopPropagation()
+                            setSelectedPlacementId(item.id)
+                            void removePlacement(item.id)
+                          }}
                         >
                           {image ? (
                             <img
