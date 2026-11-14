@@ -1,4 +1,5 @@
 import { endeText, kabelEnden } from '../../lib/kabelOrt'
+import { hinterlegeWeg, vergissWeg } from '../../lib/wegpunktEinfuegen'
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   BaseEdge,
@@ -425,6 +426,11 @@ const CableEdgeInner = ({
         : [],
     [cable, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, orthogonalWaypoints, collisionShiftOn, meideRechtecke],
   )
+  // #1204 — das Kontextmenue reiht „Wegpunkt hier" nach diesem Weg ein.
+  useEffect(() => {
+    hinterlegeWeg(id, gezeichneterWeg)
+    return () => vergissWeg(id)
+  }, [id, gezeichneterWeg])
   // Nutzer-Meldung 2026-09-09: „Das manuelle Kabel verschieben im Cable
   // planner canvas ist schlechter geworden."
   //

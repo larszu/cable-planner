@@ -21,6 +21,7 @@
 //   • Bidirektional umschalten
 //   • Kabel löschen
 
+import { gezeichneterWegVon, wegpunktEinfuegen } from '../../lib/wegpunktEinfuegen'
 import { useEffect, useRef, useState } from 'react'
 import { Pencil, Pin, X, Plus, Minus, RotateCcw, Navigation, CornerDownRight, Check, Milestone, ChevronDown, ChevronRight, Activity, MessageSquare } from 'lucide-react'
 import { hasDesktopBridge } from '../../lib/bridge'
@@ -55,43 +56,6 @@ const nearestWaypoint = (
     if (d < best.distance) best = { index: i, distance: d }
   }
   return best
-}
-
-/** Insert a new waypoint at the position closest to the click. We pick
- *  the insertion index by finding the segment whose perpendicular
- *  projection of (px, py) is closest, so the new bend lands on the
- *  cable's current path. */
-const insertWaypointAt = (cable: Cable, px: number, py: number): Cable['waypoints'] => {
-  const wps = cable.waypoints ?? []
-  // No existing waypoints → just append the click point.
-  if (wps.length === 0) return [{ x: px, y: py }]
-  // Try to project onto each segment between consecutive waypoints.
-  // For each segment find the t in [0,1] that minimises distance; the
-  // segment with the smallest such distance wins, and we insert at
-  // index = segment+1.
-  let bestSeg = 0
-  let bestDist = Infinity
-  for (let i = 0; i < wps.length - 1; i++) {
-    const ax = wps[i].x
-    const ay = wps[i].y
-    const bx = wps[i + 1].x
-    const by = wps[i + 1].y
-    const dx = bx - ax
-    const dy = by - ay
-    const lenSq = dx * dx + dy * dy
-    if (lenSq === 0) continue
-    const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq))
-    const cx = ax + t * dx
-    const cy = ay + t * dy
-    const d = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
-    if (d < bestDist) {
-      bestDist = d
-      bestSeg = i + 1
-    }
-  }
-  const next = wps.slice()
-  next.splice(bestSeg, 0, { x: px, y: py })
-  return next
 }
 
 const MENU_WIDTH = 240
@@ -187,7 +151,9 @@ export const CableContextMenu = () => {
   }
 
   const addWaypointHere = () => {
-    const next = insertWaypointAt(cable, menu.flowX, menu.flowY)
+    // #1204 — eingereiht nach der Lage auf dem GEZEICHNETEN Weg, damit auch
+    // die gerade Strecke an der Buchse und hinter dem letzten Knick zaehlt.
+    const next = wegpunktEinfuegen(cable.waypoints ?? [], gezeichneterWegVon(cable.id), { x: menu.flowX, y: menu.flowY })
     doUpdate({ waypoints: next })
   }
 
