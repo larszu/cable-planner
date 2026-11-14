@@ -1017,6 +1017,8 @@ Jeder Rahmen ist ein Raum. Rahmen lassen sich Etagen zuordnen; sie bestimmen die
 
     ![Einzelne Kabel in 3D](bilder/de/canvas-raeume-18-drei-d-kabel.jpg)
 
+    Unter *Einzelne Kabel* ist jedes Kabel ein Schlauch in der Farbe seiner Signalart, mit einem grauen Endstück je Stecker. Die Dicke folgt dem Außendurchmesser aus dem Kabeltyp oder dem Kabel (überhöht, damit er sichtbar bleibt); ohne Angabe gilt ein Standard von 6 mm. Ein Klick auf ein Kabel wählt es: Die Zeile über der Ansicht nennt die Länge entlang der Führung und die Luftlinie. Ein Klick auf den Boden oder eine Wand setzt einen Stützpunkt — er landet zwischen den Punkten, an deren Strecke er liegt, die Reihenfolge der Klicks ist also gleich. Ein Klick auf einen Stützpunkt nimmt ihn heraus, *Führung löschen* alle. Für ein geführtes Kabel rechnet *Kabellängen schätzen* (Einstellungen → Projekt) diese Strecke statt des Wegs auf dem Canvas; damit steht sie in Stückliste und Konfektionsliste.
+
 12. *Beschriftung* blendet die Namen ein oder aus. Jedes Gerät trägt dann ein Schild mit seiner Kennung (dem Kürzel aus den Eigenschaften); das Schild zeigt immer zu Ihnen und bleibt beim Zoomen gleich groß. *Durchsicht* macht die Wände durchsichtig und nimmt die Decke weg, sodass Sie von schräg oben in die Räume schauen; ohne Durchsicht sind die Räume geschlossen. *Geschosshöhe (m)* gilt nur für Etagen ohne eingetragene Höhe; die Ansicht weist darauf hin, dass dies eine Annahme ist.
 
 Geräte lassen sich in der 3D-Ansicht ziehen. Bodentanks erscheinen als flache Platte im Boden, andere Geräte als Würfel. Ziehen neben ein Gerät dreht die Ansicht, das Mausrad zoomt.
@@ -4769,7 +4771,7 @@ Automatische, kollisionsfreie Kabel-IDs nach festem Schema; sie erscheinen auf d
 
 #### Kabellängen schätzen
 
-Schätzt die Längen aus dem Abstand der Geräte auf dem Canvas: Luftlinie × Maßstab plus Reserve. Die Schätzung überschreibt vorhandene Längen; Funkverbindungen bleiben unberührt.
+Schätzt die Längen aus dem Weg des Kabels auf dem Canvas (über seine Knickpunkte) × Maßstab plus Reserve. Ein Kabel, das im 3D-Plan durch den Raum geführt ist, zählt mit der Strecke über seine Stützpunkte, samt Höhen. Die Schätzung überschreibt vorhandene Längen; Funkverbindungen bleiben unberührt.
 
 | Option | Wirkung |
 |---|---|

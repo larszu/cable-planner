@@ -398,6 +398,8 @@ Every frame is a room. Frames can be assigned to floors; floors determine visibi
 
     ![Single cables in 3D](bilder/en/canvas-raeume-18-drei-d-kabel.jpg)
 
+    Under *Single cables* every cable is a tube in the colour of its signal type, with a grey end piece for each connector. The thickness follows the outer diameter from the cable type or the cable (exaggerated so it stays visible); without one, a default of 6 mm applies. Clicking a cable selects it: the line above the view gives the length along the route and the straight line. Clicking the floor or a wall adds a support point — it lands between the points whose stretch it lies on, so the order of the clicks does not matter. Clicking a support point removes it, *Clear route* removes all. For a routed cable, *Estimate cable lengths* (Settings → Project) uses this distance instead of the path on the canvas; that is the length in the BOM and the assembly list.
+
 12. *Labels* shows or hides the names. Every device then carries a sign with its identifier (the short name from the properties); the sign always faces you and keeps its size when you zoom. *See inside* makes the walls see-through and removes the ceiling, so you look into the rooms from above; without it the rooms are closed. *Storey height (m)* applies only to floors without an entered height; the view points out that this is an assumption.
 
 Devices can be dragged in the 3D view. Floor boxes appear as a flat plate in the floor, other devices as cubes. Dragging beside a device rotates the view, the mouse wheel zooms.

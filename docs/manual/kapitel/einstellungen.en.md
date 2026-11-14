@@ -98,7 +98,7 @@ Automatic, collision-free cable IDs from a fixed scheme; they appear on the canv
 
 #### Estimate cable lengths
 
-Estimates lengths from the distance between devices on the canvas: straight line × scale plus slack. The estimate overwrites existing lengths; wireless links are left alone.
+Estimates lengths from the cable's path on the canvas (through its bend points) × scale plus slack. A cable routed through the room in the 3D plan counts with the distance along its support points, heights included. The estimate overwrites existing lengths; wireless links are left alone.
 
 | Option | Effect |
 |---|---|

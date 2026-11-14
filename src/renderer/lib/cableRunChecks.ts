@@ -177,7 +177,18 @@ export const cableRunFindings = (
     const massstabGeaendert =
       herkunft.massstabSchluessel !== massstabSchluessel(ctx.grundriss?.kalibrierung) &&
       (herkunft.massstabSchluessel !== undefined || ctx.grundriss?.kalibrierung !== undefined)
-    if (versatz <= MOVE_TOLERANCE_PX && !wegGeaendert && !massstabGeaendert) continue
+    // #1190 — ebenso eine geaenderte Fuehrung im Raum (gesetzt, verschoben,
+    // geloescht). Ohne Spur von damals und ohne Fuehrung heute: nichts.
+    const fuehrungJetzt = c.fuehrung3d ?? []
+    const fuehrungDamals = herkunft.fuehrung3d ?? []
+    const fuehrungGeaendert =
+      fuehrungJetzt.length !== fuehrungDamals.length ||
+      fuehrungJetzt.some(
+        (p, i) =>
+          Math.hypot(p.x - fuehrungDamals[i].x, p.y - fuehrungDamals[i].y) > MOVE_TOLERANCE_PX ||
+          Math.abs(p.hoeheM - fuehrungDamals[i].hoeheM) > 0.05,
+      )
+    if (versatz <= MOVE_TOLERANCE_PX && !wegGeaendert && !massstabGeaendert && !fuehrungGeaendert) continue
 
     // Was die Schaetzung HEUTE ergaebe, mit dem Zuschlag von damals: sonst
     // vermischte die Meldung zwei Aenderungen und benennt keine.

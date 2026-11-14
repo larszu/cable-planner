@@ -25,6 +25,9 @@ import { meterAbbildung, wegLaengeM } from './grundriss/massstab'
 export interface LaengenKontext {
   grundriss?: Grundriss
   buchse?: (eq: EquipmentItem, portId: string, richtung: 'source' | 'target') => PlanPunkt | null
+  /** #1190 — Laenge der Fuehrung im Raum (m, ohne Zuschlag) fuer ein Kabel
+   *  mit `fuehrung3d`. Fehlt sie oder liefert null, gilt der Canvas-Weg. */
+  fuehrungM?: (cable: Cable, metersPer100px: number) => number | null
 }
 
 export const DEFAULT_LENGTH_ESTIMATION: LengthEstimationScheme = {
@@ -73,16 +76,29 @@ export const estimateCableLength = (
   const from = eqById.get(cable.fromEquipmentId)
   const to = eqById.get(cable.toEquipmentId)
   if (!from || !to) return null
-  const weg = kabelWeg(cable, from, to, ctx)
-  const kal = ctx.grundriss?.kalibrierung
-  const abbildung = kal ? meterAbbildung(kal) : null
-  const roh = abbildung
-    ? wegLaengeM(abbildung, weg)
-    : wegLaengeM((p) => ({ x: (p.x / 100) * scheme.metersPer100px, y: (p.y / 100) * scheme.metersPer100px }), weg)
+  // #1190 — ein im Raum gefuehrtes Kabel: die Strecke ueber seine
+  // Stuetzpunkte, mit Hoehen, statt des Wegs auf dem Schaltbild.
+  const gefuehrt = cable.fuehrung3d?.length && ctx.fuehrungM ? ctx.fuehrungM(cable, scheme.metersPer100px) : null
+  const roh = gefuehrt ?? canvasWegM(cable, from, to, scheme, ctx)
   if (roh == null) return null
   const meters = roh * (1 + scheme.slackPercent / 100)
   if (scheme.roundUp) return Math.max(1, Math.ceil(meters))
   return Math.max(0.1, Math.round(meters * 10) / 10)
+}
+
+const canvasWegM = (
+  cable: Cable,
+  from: EquipmentItem,
+  to: EquipmentItem,
+  scheme: LengthEstimationScheme,
+  ctx: LaengenKontext,
+): number | null => {
+  const weg = kabelWeg(cable, from, to, ctx)
+  const kal = ctx.grundriss?.kalibrierung
+  const abbildung = kal ? meterAbbildung(kal) : null
+  return abbildung
+    ? wegLaengeM(abbildung, weg)
+    : wegLaengeM((p) => ({ x: (p.x / 100) * scheme.metersPer100px, y: (p.y / 100) * scheme.metersPer100px }), weg)
 }
 
 export interface EstimateResult {
@@ -125,6 +141,7 @@ export const estimateAllCableLengths = (
       metersPer100px: scheme.metersPer100px,
       slackPercent: scheme.slackPercent,
       weg: (c.waypoints ?? []).map((p) => ({ x: p.x, y: p.y })),
+      ...(c.fuehrung3d?.length ? { fuehrung3d: c.fuehrung3d.map((p) => ({ ...p })) } : {}),
       ...(ctx.grundriss?.kalibrierung ? { massstabSchluessel: massstabSchluessel(ctx.grundriss.kalibrierung) } : {}),
     })
   }
