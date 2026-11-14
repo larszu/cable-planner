@@ -350,6 +350,8 @@ The table gives per row *Type*, *Length (m)*, *Installed*, *Total (m)*, the Rent
 
 When cable ends carry a connector from the connector catalogue (*Connector parts* in the cable properties), the section *Connector parts* follows: every part with *Kind*, *Part number*, *Manufacturer*, *Description*, *Qty* and *Sum*, added up over all cables. A total appears only when every part has a price. The CSV carries the section as its own block.
 
+When a cable has *Coverings*, the section *Coverings* follows: per kind and material the number of *Pieces* and the *Length (m)*. Pieces on a cable without a length that run to B are shown as *+n without length*.
+
 ![Entering the Rentman planning](bilder/en/export-44-bom-rentman-eingabe.jpg)
 
 A changed planning stays a draft. *Save Rentman plan* adopts it into the project, *Discard* takes it back. The planned quantities come from the Rentman import; the chapter *File and Import* describes it.

@@ -18,6 +18,8 @@ import {
 } from '../../lib/equipmentLocation'
 import { format, useTranslation } from '../../lib/i18n'
 import { steckerStueckliste, type SteckerStuecklistenZeile } from '../../lib/steckerKatalog'
+import { ausstattungsStueckliste } from '../../lib/kabelAusstattung'
+import { ausstattungsArtText } from '../../lib/kabelAusstattungText'
 
 export interface CableBomDialogProps {
   open: boolean
@@ -191,6 +193,8 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
       backshell: t('stecker.art.backshell', 'Backshell'),
       other: t('stecker.art.other', 'Other'),
     })[art]
+  // #1180 — Ausstattung (Geflecht, Wellrohr, …) mit Laengen.
+  const ausstattung = useMemo(() => (open ? ausstattungsStueckliste(project.cables) : []), [open, project.cables])
   const steckerSumme = steckerTeile.every((z) => z.summe !== undefined)
     ? steckerTeile.reduce((s, z) => s + (z.summe ?? 0), 0)
     : undefined
@@ -297,6 +301,24 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
             z.preis !== undefined ? z.preis.toFixed(2) : '',
             z.summe !== undefined ? z.summe.toFixed(2) : '',
           ].join(';'),
+        )
+      }
+    }
+    // #1180 — Ausstattung als eigener Block.
+    if (ausstattung.length > 0) {
+      lines.push('')
+      lines.push(
+        [
+          t('ausstattung.col.kind', 'Covering'),
+          t('ausstattung.col.material', 'Material'),
+          t('ausstattung.col.pieces', 'Pieces'),
+          t('ausstattung.col.lengthM', 'Length (m)'),
+          t('ausstattung.col.withoutLength', 'Without length'),
+        ].join(';'),
+      )
+      for (const z of ausstattung) {
+        lines.push(
+          [ausstattungsArtText(z.art, t), `"${z.material.replace(/"/g, '""')}"`, String(z.stueck), String(z.laengeM), String(z.ohneLaenge)].join(';'),
         )
       }
     }
@@ -651,6 +673,40 @@ export const CableBomDialog = ({ open, onClose }: CableBomDialogProps) => {
               </tfoot>
             )}
           </table>
+          {ausstattung.length > 0 && (
+            <div className="mt-4 mb-2">
+              <div className="mb-1 font-semibold text-cp-text-secondary">
+                {t('ausstattung.bomTitle', 'Coverings')}
+              </div>
+              <table className="w-full text-cp-xs">
+                <thead className="bg-cp-surface-3 text-cp-text-secondary">
+                  <tr>
+                    <th className="px-3 py-1 text-left">{t('ausstattung.col.kind', 'Covering')}</th>
+                    <th className="px-3 py-1 text-left">{t('ausstattung.col.material', 'Material')}</th>
+                    <th className="px-3 py-1 text-right">{t('ausstattung.col.pieces', 'Pieces')}</th>
+                    <th className="px-3 py-1 text-right">{t('ausstattung.col.lengthM', 'Length (m)')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ausstattung.map((z) => (
+                    <tr key={`${z.art}|${z.material}`} className="border-t border-cp-border-muted">
+                      <td className="px-3 py-1">{ausstattungsArtText(z.art, t)}</td>
+                      <td className="px-3 py-1 text-cp-text-muted">{z.material || '–'}</td>
+                      <td className="px-3 py-1 text-right font-mono">{z.stueck}</td>
+                      <td className="px-3 py-1 text-right font-mono">
+                        {z.laengeM}
+                        {z.ohneLaenge > 0 && (
+                          <span className="ml-1 text-cp-warn" title={t('ausstattung.withoutLengthTitle', 'Pieces whose length cannot be determined: the cable has no length.')}>
+                            {format(t('ausstattung.withoutLength', '+{count} without length'), { count: z.ohneLaenge })}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
           {steckerTeile.length > 0 && (
             <div className="mt-4 mb-2">
               <div className="mb-1 font-semibold text-cp-text-secondary">

@@ -133,6 +133,8 @@ export const CABLE_FIELD_CLASS: Record<string, FieldClass> = {
   outerDiameterMm: 'substantive',
   // #1179 — Ader auf Pin: vertauscht ist das Kabel kaputt, sieht aber gleich aus.
   belegung: 'substantive',
+  // #1180 — was um das Kabel herum sitzt, ist Bauanleitung und Stueckliste.
+  ausstattung: 'substantive',
   isTieLine: 'substantive',
   // Welche Hausstrecke und Ader belegt wird, ist die Arbeit des Anschliessens.
   hausStreckeId: 'substantive',

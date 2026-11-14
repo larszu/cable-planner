@@ -6,6 +6,20 @@ export type CableType = Exclude<ConnectorType, 'DIN' | 'DisplayPort' | 'USB'> | 
 
 export type CableRouting = 'orthogonal' | 'straight' | 'curved'
 
+/** #1180 — was um ein Kabel herum sitzt. */
+export type AusstattungsArt = 'braid' | 'conduit' | 'tape' | 'shrink'
+
+/** #1180 — ein Abschnitt der Ausstattung, in Metern ab Ende A. */
+export interface KabelAusstattung {
+  art: AusstattungsArt
+  /** Anfang ab Ende A, m. Fehlt = ab A. */
+  vonM?: number
+  /** Laenge, m. Fehlt = bis Ende B. */
+  laengeM?: number
+  /** Produkt/Groesse als Freitext, z. B. „Geflecht 10 mm". */
+  material?: string
+}
+
 /**
  * Eine verfuegbare Lagerlaenge eines Kabeltyps (#875).
  *
@@ -284,6 +298,11 @@ export interface Cable {
    * danach frei abweichend; `vorlageId` sagt, woher sie kam.
    */
   belegung?: import('./stecker').KabelBelegung
+  /**
+   * #1180 — Ausstattung je Abschnitt: Geflecht, Wellrohr, Gewebeband,
+   * Schrumpfschlauch (`lib/kabelAusstattung.ts`). Fehlt = nichts drum.
+   */
+  ausstattung?: KabelAusstattung[]
 }
 
 /**

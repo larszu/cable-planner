@@ -91,6 +91,9 @@
 - **Wire to pin.** Each cable carries its pinout — wire, pin at both ends,
   signal — taken from a standard (XLR3 per AES14, DMX512, RJ45 T568A/B) and
   free to deviate, and prints an assembly sheet per connector end.
+- **What was on that loom.** Braided sleeve, corrugated conduit, cloth tape
+  and heat shrink per section of a cable, drawn along the route and counted
+  with length in the BOM.
 - **Patch panel labels.** The network analysis prints label strips for every
   patch panel at 1:1 (RJ45 24-port, blocks of 12, D-series 16) showing the
   device behind each port, exports them for Brother P-touch or Dymo, and

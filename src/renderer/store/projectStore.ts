@@ -1742,6 +1742,20 @@ const healProjectPositions = (
           belegung: zeilen.length > 0 ? { ...(typeof b.vorlageId === 'string' ? { vorlageId: b.vorlageId } : {}), zeilen } : undefined,
         }
       }
+      // #1180 — Ausstattung: unbekannte Art faellt, Meterangaben nur als
+      // nicht-negative Zahl (Laenge > 0), Material nur als Text.
+      if (patched.ausstattung !== undefined) {
+        const arten = ['braid', 'conduit', 'tape', 'shrink']
+        const liste = (Array.isArray(patched.ausstattung) ? patched.ausstattung : [])
+          .filter((a) => !!a && typeof a === 'object' && arten.includes((a as { art?: unknown }).art as string))
+          .map((a) => ({
+            art: a.art,
+            ...(typeof a.vonM === 'number' && Number.isFinite(a.vonM) && a.vonM >= 0 ? { vonM: a.vonM } : {}),
+            ...(typeof a.laengeM === 'number' && Number.isFinite(a.laengeM) && a.laengeM > 0 ? { laengeM: a.laengeM } : {}),
+            ...(typeof a.material === 'string' && a.material.trim() ? { material: a.material } : {}),
+          }))
+        patched = { ...patched, ausstattung: liste.length > 0 ? liste : undefined }
+      }
       if (patched.aderAwg !== undefined && !(Number.isInteger(patched.aderAwg) && patched.aderAwg > 0 && patched.aderAwg <= 40)) {
         patched = { ...patched, aderAwg: undefined }
       }
