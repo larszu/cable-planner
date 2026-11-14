@@ -136,7 +136,9 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
       ? data.assetTag?.trim()
       : kennungAmKnoten === 'internalNumber'
         ? data.internalNumber?.trim()
-        : undefined
+        : kennungAmKnoten === 'shortName'
+          ? data.shortName?.trim()
+          : undefined
   // Pruefbild: welchen NAMEN muesste das Bild hier tragen? `null` = der Plan
   // sieht hier nichts vor. Ausdruecklich keine Aussage darueber, ob dort ein
   // Bild ankommt — diese App hat keinen Videoeingang.

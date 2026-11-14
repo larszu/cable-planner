@@ -200,6 +200,8 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   // Identitaet und Bestueckung.
   name: 'substantive',
   shortName: 'substantive',
+  // #1188 — nur die Herkunft der Kennung; der Wert selbst steht in shortName.
+  shortNameAuto: 'bookkeeping',
   subtitle: 'substantive',
   category: 'substantive',
   deviceTypeId: 'substantive',

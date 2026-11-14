@@ -67,6 +67,8 @@
   A room carries a room number and an address; with an address set, the
   inspector shows an OpenStreetMap map (no API key; offline it falls back to
   a link that opens the map in the browser).
+  Right-click a room → *Reassign identifiers* numbers its devices by kind
+  and room (*CAM 101*, *MIX 201*); short names set by hand stay.
   Floor boxes come from the library (*Floor boxes*) and connect like a wall
   panel: socket on top, house run below. In *Building 3D* they lie on the
   floor, and every device or floor box can be dragged there; the move lands

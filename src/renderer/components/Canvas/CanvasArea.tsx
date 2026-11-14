@@ -47,7 +47,9 @@ import {
   MIME_RACK_PRESET,
 } from '../../lib/dragDropMimes'
 import { AnnotationCanvasOverlay } from '../Annotations/AnnotationCanvasOverlay'
-import type { EquipmentTemplate } from '../../types/equipment'
+import type { EquipmentItem, EquipmentTemplate } from '../../types/equipment'
+import type { LocationFrame } from '../../types/location'
+import { vergibKennungen } from '../../lib/geraeteKennung'
 import { EquipmentNode } from './EquipmentNode'
 import { useCanvasCableRouter } from './useCanvasCableRouter'
 import { useCanvasKeyboardShortcuts, type CanvasClipboard } from './useCanvasKeyboardShortcuts'
@@ -2530,6 +2532,42 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           useUiStore.getState().triggerRackBuilderFromSelection(rackIds)
           setNodeContextMenu(null)
         }
+        // #1188 — Kennungen neu vergeben: Rahmen = alle Geraete darin,
+        // Geraet = die Auswahl (oder nur es, wenn es nicht darin liegt).
+        const kennungenVergeben = () => {
+          setNodeContextMenu(null)
+          const alle = project.equipment
+          let ziel: EquipmentItem[]
+          if (isLocation) {
+            const raum = target as LocationFrame
+            ziel = alle.filter((e) => locationForEquipment(e, [raum]) === raum)
+          } else {
+            const ausgewaehlt = new Set(
+              getNodes().filter((n) => n.selected && n.type === 'equipment').map((n) => n.id),
+            )
+            ziel = ausgewaehlt.has(nodeContextMenu.nodeId)
+              ? alle.filter((e) => ausgewaehlt.has(e.id))
+              : alle.filter((e) => e.id === nodeContextMenu.nodeId)
+          }
+          const { aenderungen, vonHand } = vergibKennungen(ziel, alle, locations)
+          projectHistory.beginTransaction()
+          try {
+            for (const a of aenderungen) updateEquipment(a.id, { shortName: a.shortName, shortNameAuto: true })
+          } finally {
+            projectHistory.endTransaction()
+          }
+          if (vonHand > 0) {
+            void infoDialog(t('canvas.nodeMenu.renumberIdsTitle', 'Identifiers reassigned'), {
+              body: format(
+                t(
+                  'canvas.nodeMenu.renumberIdsKept',
+                  '{changed} identifier(s) assigned. {kept} device(s) keep the short name set by hand; clear it in the Inspector to include them.',
+                ),
+                { changed: aenderungen.length, kept: vonHand },
+              ),
+            })
+          }
+        }
         const toggle = () => {
           if (isLocation) {
             updateLocation(nodeContextMenu.nodeId, { positionLocked: !isLocked })
@@ -2775,6 +2813,34 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
                   <path d="M3 11V3a1 1 0 0 1 1-1h7" />
                 </svg>
                 <span>{t('canvas.nodeMenu.duplicateFrame', 'Duplicate frame with contents')}</span>
+              </button>
+            )}
+            {/* #1188 — Kennungen nach Gattung und Raum (CAM 101 …). Am
+                Rahmen fuer alle Geraete darin, am Geraet fuer die Auswahl.
+                Von Hand gesetzte Kurznamen bleiben stehen. */}
+            {mode === 'main' && (
+              <button
+                type="button"
+                onClick={kennungenVergeben}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '6px 10px',
+                  background: 'transparent',
+                  color: 'inherit',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M5 2.5 4 13.5M11 2.5l-1 11M2.5 6h11M2 10.5h11" />
+                </svg>
+                <span>{t('canvas.nodeMenu.renumberIds', 'Reassign identifiers (CAM 101 …)')}</span>
               </button>
             )}
             <button

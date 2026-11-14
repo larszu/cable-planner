@@ -167,7 +167,7 @@ Each module has a checkbox *Module enabled*.
 
 | Section | Control | Effect |
 |---|---|---|
-| Identifier on the device node | *Asset tag* / *Internal number* / *None* | which number of the unit is shown next to the category; shown only where one is entered |
+| Identifier on the device node | *Asset tag* / *Internal number* / *Identifier / short name* / *None* | which number of the unit is shown next to the category; shown only where one is entered |
 | Canvas background | *Pattern*: *Dots*, *Lines*, *Crosses*, *No grid*; slider *Opacity* | pattern and opacity of the canvas grid. The grid size is set in the *Editing* tab. |
 
 ![Custom background image and custom palette](bilder/en/einstellungen-12-darstellung-bild-palette.jpg)

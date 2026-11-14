@@ -736,6 +736,11 @@ export interface EquipmentItem {
    *  User kann ihn in den Properties ueberschreiben. Beispiel:
    *  "ATEM Constellation 8K" -> Auto "ATEM8K", User-Override frei. */
   shortName?: string
+  /** #1188 — `shortName` wurde von „Kennungen neu vergeben" gesetzt
+   *  (`lib/geraeteKennung.ts`) und darf beim naechsten Durchlauf neu vergeben
+   *  werden. Fehlt die Marke bei gesetztem Kurznamen, ist er von Hand
+   *  gesetzt und bleibt. */
+  shortNameAuto?: boolean
   /** Optional subtitle shown below the device name (e.g. "PGM Monitor", "Cam 1"). */
   subtitle?: string
   /** Optional background/accent color for the node header (CSS hex, e.g. "#0f4c81"). */

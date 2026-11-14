@@ -133,7 +133,7 @@ interface PersistedUiState {
   /** #960 — welche Kennung des Exemplars am Knoten neben der Kategorie steht:
    *  Asset-Tag (Etikett, Anlagenbuchhaltung) oder interne Nummer (Technik),
    *  oder keine. Anzeige-Wahl des Rechners, nicht des Projekts. */
-  kennungAmKnoten: 'assetTag' | 'internalNumber' | 'none'
+  kennungAmKnoten: 'assetTag' | 'internalNumber' | 'shortName' | 'none'
   /**
    * Schaltbild-Anzeige (Strom): brennende Leuchten, Schalterstellungen und
    * Leitungen unter Spannung (2026-09-08).
@@ -746,7 +746,7 @@ const load = (): PersistedUiState => {
         : defaults.gridSize
     if (typeof merged.libraryWidth !== 'number') merged.libraryWidth = defaults.libraryWidth
     if (typeof merged.propertiesWidth !== 'number') merged.propertiesWidth = defaults.propertiesWidth
-    if (!['assetTag', 'internalNumber', 'none'].includes(merged.kennungAmKnoten))
+    if (!['assetTag', 'internalNumber', 'shortName', 'none'].includes(merged.kennungAmKnoten))
       merged.kennungAmKnoten = defaults.kennungAmKnoten
     if (merged.canvasBgImageDark != null && typeof merged.canvasBgImageDark !== 'string')
       merged.canvasBgImageDark = null
@@ -818,7 +818,7 @@ interface UiState extends PersistedUiState {
   setLibraryWidth: (value: number) => void
   setPropertiesWidth: (value: number) => void
   setCableColorMode: (value: 'manual' | 'byLength' | 'byLayer') => void
-  setKennungAmKnoten: (value: 'assetTag' | 'internalNumber' | 'none') => void
+  setKennungAmKnoten: (value: 'assetTag' | 'internalNumber' | 'shortName' | 'none') => void
   setCircuitOverlay: (value: boolean) => void
   setCanvasTheme: (value: 'dark' | 'light') => void
   setFollowSystemTheme: (value: boolean) => void

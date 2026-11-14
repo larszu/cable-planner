@@ -167,7 +167,7 @@ Jedes Modul hat ein Kästchen *Modul aktiviert*.
 
 | Bereich | Bedienung | Wirkung |
 |---|---|---|
-| Kennung am Geräteknoten | *Asset-Tag* / *Interne Nummer* / *Keine* | welche Nummer des Exemplars neben der Kategorie steht; erscheint nur, wo eine eingetragen ist |
+| Kennung am Geräteknoten | *Asset-Tag* / *Interne Nummer* / *Kennung / Kurzname* / *Keine* | welche Nummer des Exemplars neben der Kategorie steht; erscheint nur, wo eine eingetragen ist |
 | Canvas-Hintergrund | *Muster*: *Punkte*, *Linien*, *Kreuze*, *Kein Raster*; Regler *Deckkraft* | Muster und Deckkraft des Canvas-Rasters. Die Rastergröße stellt der Reiter *Bearbeiten* ein. |
 
 ![Eigenes Hintergrundbild und Custom-Palette](bilder/de/einstellungen-12-darstellung-bild-palette.jpg)

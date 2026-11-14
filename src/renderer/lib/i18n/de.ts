@@ -1178,6 +1178,10 @@ export const de: Dict = {
   'datasheet.firstPhotoEach': 'Erstes Foto jedes Geräts',
   'datasheet.filledOf': 'ausgefüllt bei {n} von {m}',
   'canvas.nodeMenu.datasheet': 'Geräte-Datenblatt…',
+  'canvas.nodeMenu.renumberIds': 'Kennungen neu vergeben (CAM 101 …)',
+  'canvas.nodeMenu.renumberIdsTitle': 'Kennungen vergeben',
+  'canvas.nodeMenu.renumberIdsKept':
+    '{changed} Kennung(en) vergeben. {kept} Gerät(e) behalten ihren von Hand gesetzten Kurznamen; leeren Sie ihn im Inspector, um sie einzubeziehen.',
   'canvas.nodeMenu.arrangeInRack': 'Im Rack-Builder anordnen',
   'canvas.nodeMenu.arrangeInRackMany': '{count} Geräte im Rack-Builder anordnen',
   'inlineToolbar.datasheet': 'Geräte-Datenblatt (A4-PDF / Druck)',
@@ -5415,6 +5419,7 @@ export const de: Dict = {
     'Welche Nummer des Exemplars neben der Kategorie steht: der Asset-Tag vom Etikett oder die interne Nummer des Hauses. Erscheint nur, wo eine eingetragen ist.',
   'settings.kennung.assetTag': 'Asset-Tag',
   'settings.kennung.internalNumber': 'Interne Nummer',
+  'settings.kennung.shortName': 'Kennung / Kurzname (z. B. CAM 101)',
   'settings.kennung.none': 'Keine',
   'settings.canvasBg.variant.lines': 'Linien',
   'settings.canvasBg.variant.none': 'Kein Raster',

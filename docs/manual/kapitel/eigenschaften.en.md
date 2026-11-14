@@ -51,6 +51,8 @@ Sections with the ⠿ handle can be dragged to another position. The order appli
 
 ![Editing the short name](bilder/en/eigenschaften-10-kopf-kurzname-stift.jpg)
 
+**Identifiers by kind and room.** Right-click a frame → *Reassign identifiers (CAM 101 …)* numbers all devices inside it; on a device the entry applies to the selection. The identifier is the short name: a code for the kind (*CAM* cameras, *MIX* mixer/mixing console, *MON* monitors, *MIC* microphones, *LX* lighting, *RTR* video router, *VMX* video mixer, *PP* patch panels …; otherwise the first three letters of the category), the hundreds block of the room (first frame 101, second 201 …, risers do not count) and a running number from top to bottom, left to right. A device outside every room gets no block (*CAM 1*). Numbers other devices already carry stay taken; new devices fill the first gap. A short name set by hand is never overwritten – the app says how many devices were skipped for that reason. Changing the short name in the field makes it your own. Because the identifier is the short name, it appears at the cable ends, on the cable label and in the patch sheet; on the node it is shown via *Settings → Appearance → Identifier on the device node → Identifier / short name*.
+
 #### Inputs & outputs
 
 The section has two lists, *Inputs* and *Outputs*. The header counts them, e.g. *0 In · 1 Out*.
