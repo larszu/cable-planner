@@ -59,7 +59,7 @@ export class ScopeView {
   constructor(container: HTMLElement, options: ScopeViewOptions = {}) {
     if (!styled) { document.head.append(h('style', {}, CSS)); styled = true; }
     if (options.lang) useLang(options.lang);
-    this.opts = { scopes: ['wf-luma', 'vector'], unit: 'percent', tint: 'green', maxSamples: 1_000_000, selectors: true, ...options };
+    this.opts = { scopes: ['wf-luma', 'vector'], unit: 'percent', tint: 'picture', maxSamples: 1_000_000, selectors: true, ...options };
     this.glCanvas = h('canvas', { class: 'lzs-gl' });
     this.root = h('div', { class: 'lzs-root' }, this.glCanvas);
     container.append(this.root);
