@@ -415,7 +415,7 @@ Own entries can be renamed (the app asks for the new name) and removed (after co
 
 ### Categories & fields
 
-This is where you create your own device categories and domain fields (e.g. a polar pattern). Own fields appear automatically in the device properties and in the bill of materials and export. Built-in fields are locked (*built-in*).
+This is where you create your own device categories and domain fields (e.g. a polar pattern). Own fields appear automatically in the device properties and in the bill of materials and export. Built-in fields (*built-in*) cannot be edited, but you can hide the ones you do not need with the eye button: they disappear from the properties, bill of materials and export of that category and its subcategories. Nothing is deleted – a hidden field stays in the list struck through (*hidden*), and one click brings it back together with its values.
 
 ![Categories & fields tab](bilder/en/einstellungen-37-schema.jpg)
 
