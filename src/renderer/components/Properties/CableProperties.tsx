@@ -26,6 +26,7 @@ import { HausStreckeSection } from './HausStreckeSection'
 import { SteckerKonfektionSection } from './SteckerKonfektionSection'
 import { BuendelSection } from './BuendelSection'
 import { SteckerBelegungSection } from './SteckerBelegungSection'
+import { AusstattungSection } from './AusstattungSection'
 import type { Floor, LocationFrame } from '../../types/location'
 import {
   INSTALL_STATUSES,
@@ -370,6 +371,7 @@ export const CableProperties = () => {
         von={`${fromDev?.name ?? ''} · ${fromPort?.name ?? ''}`}
         nach={`${toDev?.name ?? ''} · ${toPort?.name ?? ''}`}
       />
+      <AusstattungSection cable={cable} />
 
       {/* Festinstallation — Lebenszyklus: Status, Trasse, Mantel,
           Terminierung und Mess-/Test-Ergebnis. Nur bei aktivem Modul. */}

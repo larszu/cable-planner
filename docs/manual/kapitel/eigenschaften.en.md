@@ -429,6 +429,9 @@ Clicking a cable shows its properties.
 *Pinout* sets which wire goes to which pin. *Standard pinout* takes a template — XLR 3-pin balanced (AES14), DMX512 XLR 5-pin (ANSI E1.11), RJ45 T568A and T568B (ANSI/TIA-568) — filtered by the connector type of the port and the pole count of the connector at end A. The cable may deviate afterwards; the line below the choice then says *From …, modified for this cable.*, otherwise it names the standard. Each row has *Pin A*, *Pin B* (empty means the same pin as at A), *Wire* and *Signal*; *+ Pin* adds a row, the bin removes it. Clicking a row marks its pin in the pin picture, a pin marks its row. The pin picture is schematic — number of pins and numbering; the real position is in the connector datasheet. Only for RJ45 the contacts sit side by side as in the standard.
 
 *Assembly sheet* prints one sheet per connector end: cable and destination, connector with datasheet, the parts of the assembly, pin picture and pinout with the source of the template.
+#### Coverings
+
+*Coverings* records what sits around the cable: *Braided sleeve*, *Corrugated conduit*, *Cloth tape* or *Heat shrink*, per section with *From A (m)*, *Length (m)* and *Material*. Left empty, a section starts at A and runs to B. *+ Covering* adds a section, the bin removes it. On the canvas each section lies as a band under the cable, at its place along the route; the cable BOM lists kind, material, pieces and length.
 
 #### Fixed install / lifecycle
 

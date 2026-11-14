@@ -350,6 +350,8 @@ Die Tabelle nennt je Zeile *Typ*, *Länge (m)*, *Verbaut*, *Gesamt (m)*, die Ren
 
 Tragen Kabelenden einen Stecker aus dem Steckerkatalog (*Steckerteile* in den Kabeleigenschaften), folgt der Abschnitt *Steckerteile*: jedes Teil mit *Art*, *Teilenummer*, *Hersteller*, *Beschreibung*, *Anzahl* und *Summe*, über alle Kabel zusammengezählt. Eine Gesamtsumme steht nur, wenn jedes Teil einen Preis hat. Die CSV führt den Abschnitt als eigenen Block.
 
+Trägt ein Kabel eine *Ausstattung*, folgt der Abschnitt *Ausstattung*: je Art und Material die Zahl der *Stück* und die *Länge (m)*. Stücke an einem Kabel ohne Länge, die bis B reichen, stehen als *+n ohne Länge* daneben.
+
 ![Eingabe der Rentman-Planung](bilder/de/export-44-bom-rentman-eingabe.jpg)
 
 Eine geänderte Planung bleibt ein Entwurf. *Rentman-Planung speichern* übernimmt sie ins Projekt, *Verwerfen* nimmt sie zurück. Die Planungsmengen stammen aus dem Rentman-Import; das Kapitel *Datei und Import* beschreibt ihn.

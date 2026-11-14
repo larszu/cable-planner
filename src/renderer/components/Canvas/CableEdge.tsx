@@ -33,6 +33,7 @@ import { getEquipmentById } from '../../lib/equipmentSelectors'
 import { useTranslation } from '../../lib/i18n'
 import { useEdgeFlow } from '../../hooks/useCanvasFlow'
 import { useEdgeEnergised } from '../../hooks/useCircuit'
+import { abschnittDash } from '../../lib/kabelAusstattung'
 
 interface CableEdgeData {
   cable: Cable
@@ -1072,6 +1073,27 @@ const CableEdgeInner = ({
           pointerEvents="none"
         />
       )}
+      {/* #1180 — Ausstattung als Band unter der Kante, nur der Abschnitt.
+          `pathLength = 1` macht aus Metern ab A einen Anteil des Pfads. */}
+      {cable?.ausstattung?.map((a, i) => {
+        const st = AUSSTATTUNG_STIL[a.art]
+        const d = abschnittDash(a, cable.length)
+        return (
+          <path
+            key={`aus-${i}`}
+            d={path}
+            pathLength={1}
+            fill="none"
+            stroke={isLight ? st.hell : st.dunkel}
+            strokeWidth={strokeWidth + st.breite}
+            strokeDasharray={d.dasharray}
+            strokeDashoffset={d.offset}
+            strokeLinecap="butt"
+            opacity={st.deckung}
+            pointerEvents="none"
+          />
+        )
+      })}
       <BaseEdge
         id={id}
         path={path}
@@ -1313,4 +1335,12 @@ const CableEdgeInner = ({
 
 // Ohne `memo` rendert ReactFlow bei jeder Aenderung am Knoten- oder
 // Kantenfeld ALLE Kanten neu, auch die unbeteiligten.
+/** #1180 — Zeichenstil je Ausstattung: Breite ueber der Kante, Farbe, Deckung. */
+const AUSSTATTUNG_STIL: Record<import('../../types/cable').AusstattungsArt, { breite: number; hell: string; dunkel: string; deckung: number }> = {
+  braid: { breite: 6, hell: '#64748b', dunkel: '#94a3b8', deckung: 0.45 },
+  conduit: { breite: 9, hell: '#334155', dunkel: '#cbd5e1', deckung: 0.35 },
+  tape: { breite: 4, hell: '#0f172a', dunkel: '#e2e8f0', deckung: 0.5 },
+  shrink: { breite: 8, hell: '#b45309', dunkel: '#f59e0b', deckung: 0.7 },
+}
+
 export const CableEdge = memo(CableEdgeInner)

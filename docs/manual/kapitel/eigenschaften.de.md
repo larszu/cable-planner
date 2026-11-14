@@ -429,6 +429,9 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 *Steckerbelegung* legt fest, welche Ader auf welchen Pin geht. *Standardbelegung* übernimmt eine Vorlage — XLR 3-pol symmetrisch (AES14), DMX512 XLR 5-pol (ANSI E1.11), RJ45 T568A und T568B (ANSI/TIA-568) —, gefiltert nach dem Steckertyp des Ports und der Polzahl des Steckers an Ende A. Danach darf das Kabel abweichen; die Zeile unter der Auswahl sagt dann *Aus …, für dieses Kabel geändert.*, sonst nennt sie die Norm. Je Zeile stehen *Pin A*, *Pin B* (leer heißt derselbe Pin wie an A), *Ader* und *Signal*; *+ Pin* fügt eine Zeile an, der Papierkorb entfernt sie. Eine Zeile anklicken markiert ihren Pin im Pinbild, ein Pin markiert seine Zeile. Das Pinbild ist schematisch — Anzahl und Nummerierung; die echte Lage steht im Datenblatt des Steckers. Nur beim RJ45 stehen die Kontakte wie in der Norm nebeneinander.
 
 *Konfektionsblatt* druckt ein Blatt je Steckerende: Kabel und Ziel, Stecker mit Datenblatt, die Teile der Konfektion, Pinbild und Belegung samt Quelle der Vorlage.
+#### Ausstattung
+
+*Ausstattung* hält fest, was um das Kabel herum sitzt: *Geflechtschlauch*, *Wellrohr*, *Gewebeband* oder *Schrumpfschlauch*, je Abschnitt mit *Ab A (m)*, *Länge (m)* und *Material*. Leer gelassen beginnt der Abschnitt bei A und reicht bis B. *+ Ausstattung* fügt einen Abschnitt an, der Papierkorb entfernt ihn. Im Canvas liegt jeder Abschnitt als Band unter dem Kabel, an seiner Stelle entlang des Wegs; die Kabel-Stückliste führt Art, Material, Stück und Länge.
 
 #### Festinstallation / Lebenszyklus
 
