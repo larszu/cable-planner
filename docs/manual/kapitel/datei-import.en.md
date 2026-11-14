@@ -106,6 +106,8 @@ If the opened project is named *Untitled Project* or has no name, the app takes 
 
 *File → Save as…* (`Ctrl+Shift+S`) writes the project under a new name or path. The new project is then the active one; the earlier file stays unchanged. The file name becomes the new project name.
 
+*File → Save a copy to pass on…* writes a `.cableplan` copy as a download, for a colleague for instance. The open file and its path stay as they are. If devices or the intercom system carry credentials, *Include credentials?* asks: the box *Include usernames and passwords* is off, so the copy drops them. Ticked, they go along.
+
 Every write is atomic. The app writes a temporary file first, renames the previous file to `<name>.cableplan.bak` and then puts the temporary file in its place. After the second save the `.bak` file with the previous state therefore sits next to the project file. An interruption in the middle of writing destroys neither the old nor the new file.
 
 ### Autosave and status bar
@@ -403,7 +405,7 @@ In the example one device has been added in NetBox. The second preview shows onl
 
 *File → Export whole project (.avplan)…* writes the project in the exchange format `.avplan`. The file is JSON with the fields `kind` (*avplan*), `formatVersion`, `app`, `appVersion`, `exportedAt`, `venue` and `domains`. The Cable Planner enters its part under `domains.cabling`. It keeps the parts of other planners (cameras, lighting, venue) unchanged. The file name is `<project name>.avplan`; the app replaces characters other than letters, digits, `_` and `-` with `_`. The file is written as a download of the program window.
 
-If devices carry a user name or password, *Include credentials?* asks: the `.avplan` goes to other trades. *Without credentials* removes them; re-importing into this planner then loses them. *Include* keeps them, *Cancel* aborts the export. The question is skipped when no device carries credentials.
+If devices carry a user name or password, or the intercom system its codes, *Include credentials?* asks: the `.avplan` goes to other trades. Without a tick at *Include usernames and passwords* the export removes them (*Without credentials*); re-importing into this planner then loses them. Ticked, *Include* keeps them, *Cancel* aborts the export. The question is skipped when nothing carries credentials. The copy to pass on, the device export and the shared folder ask the same question.
 
 ![Credentials prompt](bilder/en/datei-import-43-avplan-export-zugangsdaten-frage.jpg)
 
