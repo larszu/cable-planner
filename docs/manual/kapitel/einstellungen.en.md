@@ -321,7 +321,7 @@ Without permission the device library stays fully usable: fetching and updating 
 
 ### MCP
 
-Through the MCP server Claude queries this plan: devices, ports, signal paths, cables and the result of the plan check. The server runs only in the desktop app, listens only on 127.0.0.1 and requires a pairing token.
+Through the MCP server Claude queries this plan: devices, ports, signal paths, cables and the result of the plan check. The server runs only in the desktop app, listens only on 127.0.0.1 and requires a pairing token. When it may change the plan, the tool `ui_command` also operates the window — undo, redo, zoom, fit, select all, duplicate, plan check — and reports the number of errors and warnings; this is how a Stream Deck with Companion drives the plan.
 
 ![MCP tab, server off](bilder/en/einstellungen-26-mcp.jpg)
 

@@ -4,6 +4,7 @@ import { hasMobileDrops } from './types/mobileReport'
 import { v4 as uuidv4 } from 'uuid'
 import { beantworteWerkzeug } from './lib/mcpWerkzeuge'
 import { MCP_SCHREIBWERKZEUGE } from './lib/mcpSchreiben'
+import { uiBefehl } from './lib/mcpBedienung'
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { useIsNarrow } from './hooks/useBreakpoint'
 import { CanvasArea } from './components/Canvas/CanvasArea'
@@ -876,6 +877,11 @@ export default function App() {
     if (!hasDesktopBridge) return
     return cablePlannerApi.mcp.onFrage((frage) => {
       try {
+        // #1183 — Bedienung (Stream Deck/Companion): Tastenkuerzel, kein Plan-Werkzeug.
+        if (frage.werkzeug === 'ui_command') {
+          cablePlannerApi.mcp.beantworten({ id: frage.id, ...uiBefehl(frage.args) })
+          return
+        }
         // #873 — schreibende Werkzeuge gehen durch den Store-Slice (ein
         // Aufruf, ein Undo-Schritt, eine Nachweiszeile). Lesende bleiben
         // rein.

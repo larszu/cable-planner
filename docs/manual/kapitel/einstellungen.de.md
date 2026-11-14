@@ -339,7 +339,7 @@ Ohne Erlaubnis bleibt die Gerätebibliothek voll nutzbar: Geräte holen und aktu
 
 ### MCP
 
-Über den MCP-Server fragt Claude diesen Plan ab: Geräte, Ports, Signalwege, Kabel und das Ergebnis des Plan-Checks. Der Server läuft nur in der Desktop-App, hört nur auf 127.0.0.1 und verlangt ein Paarungs-Token.
+Über den MCP-Server fragt Claude diesen Plan ab: Geräte, Ports, Signalwege, Kabel und das Ergebnis des Plan-Checks. Der Server läuft nur in der Desktop-App, hört nur auf 127.0.0.1 und verlangt ein Paarungs-Token. Darf er ändern, bedient das Werkzeug `ui_command` auch das Fenster — Rückgängig, Wiederholen, Zoom, Einpassen, Alles auswählen, Duplizieren, Plan-Check — und meldet die Zahl der Fehler und Warnungen; darüber steuert ein Stream Deck mit Companion den Plan.
 
 ![Reiter MCP, Server aus](bilder/de/einstellungen-26-mcp.jpg)
 
