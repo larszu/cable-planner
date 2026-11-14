@@ -157,7 +157,7 @@ Name und Kategorie lassen sich vor dem Import ändern.
 
 ![Name und Kategorie geändert](bilder/de/datei-import-12-graphml-geraet-umbenannt.jpg)
 
-Der Reiter *Kabel* zeigt für jede Kante *Quelle*, *Ziel*, *Typ*, *Standard* und *Länge*. Den Typ leitet die App aus der Beschriftung ab. Fehlt eine Länge, setzt der Import 1 m. Knickpunkte der Linien aus yEd übernimmt der Import als Wegpunkte der Kabel.
+Der Reiter *Kabel* zeigt für jede Kante *Quelle*, *Ziel*, *Typ*, *Standard* und *Länge*. Den Typ leitet die App aus der Beschriftung ab. Fehlt eine Länge, setzt der Import 1 m. Jedes Kabel kommt als *Ortho* an; Knickpunkte der Linien aus yEd übernimmt der Import als Wegpunkte.
 
 ![Reiter Kabel](bilder/de/datei-import-13-graphml-reiter-kabel.jpg)
 

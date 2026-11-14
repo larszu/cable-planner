@@ -157,7 +157,7 @@ Name and category can be changed before the import.
 
 ![Name and category changed](bilder/en/datei-import-12-graphml-geraet-umbenannt.jpg)
 
-The *Cables* tab shows *Source*, *Target*, *Type*, *Standard* and *Length* for every edge. The app derives the type from the label. If a length is missing, the import sets 1 m. The import takes the bend points of the lines from yEd as waypoints of the cables.
+The *Cables* tab shows *Source*, *Target*, *Type*, *Standard* and *Length* for every edge. The app derives the type from the label. If a length is missing, the import sets 1 m. Every cable arrives as *Ortho*; the import takes the bend points of the lines from yEd as waypoints.
 
 ![Cables tab](bilder/en/datei-import-13-graphml-reiter-kabel.jpg)
 
