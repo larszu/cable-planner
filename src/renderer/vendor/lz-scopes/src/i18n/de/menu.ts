@@ -7,7 +7,7 @@ export default {
   'menu.guide.control': 'Steuer-API und Companion',
   'menu.guide.cable': 'cable-planner-Anbindung',
   'menu.src.stream': 'RTSP / Netzwerk …',
-  'menu.src.streamTitle': 'RTSP, SRT, HLS, NDI, DeckLink über die Bridge',
+  'menu.src.streamTitle': 'RTSP, SRT, HLS, NDI, DeckLink, AJA über die Bridge',
   'menu.src.resolveTitle': 'Aktuelles Frame aus dem Resolve-Viewer (Scripting-API, Resolve Studio)',
   'menu.src.webcam': 'Kamera / Capture',
   'menu.src.webcamTitle': 'Kamera oder USB-Capture-Gerät',
