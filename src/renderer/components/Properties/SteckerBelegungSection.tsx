@@ -117,7 +117,7 @@ export const SteckerBelegungSection = ({ cable, connectorType, von, nach }: Prop
           </p>
         )}
         {zeilen.length > 0 && (
-          <table className="w-full">
+          <table className="block w-full overflow-x-auto">
             <thead className="text-cp-text-secondary">
               <tr>
                 <th className="text-left">{t('belegung.col.pinA', 'Pin A')}</th>
