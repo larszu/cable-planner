@@ -84,6 +84,10 @@
   the connector catalogue (part number, manufacturer, poles, gender,
   datasheet); its assembly — contacts per pole chosen by conductor size,
   locks — lands in the BOM, so the small parts are on the order.
+- **Does it still fit the duct?** Give cables an outer diameter (per cable
+  type or per cable) and a pathway a duct size: the cable shows the packed
+  cross-section of its pathway, bundle diameter and fill against the NEC
+  limit, and the plan check warns when a pathway is over it.
 - **Patch panel labels.** The network analysis prints label strips for every
   patch panel at 1:1 (RJ45 24-port, blocks of 12, D-series 16) showing the
   device behind each port, exports them for Brother P-touch or Dymo, and

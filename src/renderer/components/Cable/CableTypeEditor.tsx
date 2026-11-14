@@ -85,6 +85,8 @@ const CableTypeEditorForm = ({
   const [color, setColor] = useState(initial?.color ?? '#64748b')
   const [maxLength, setMaxLength] = useState<number | ''>(initial?.maxLengthMeters ?? '')
   const [notes, setNotes] = useState(initial?.notes ?? '')
+  // #1178 — Aussendurchmesser fuer Buendelquerschnitt und Fuellgrad.
+  const [outerDiameter, setOuterDiameter] = useState<number | ''>(initial?.outerDiameterMm ?? '')
   // v7.9.2 — User-defined custom connector types and signal standards
   // are merged with the built-in lists so they can be selected
   // alongside XLR/BNC etc. New entries are created via the "+"
@@ -136,6 +138,7 @@ const CableTypeEditorForm = ({
       standards,
       color,
       maxLengthMeters: typeof maxLength === 'number' && maxLength > 0 ? maxLength : undefined,
+      outerDiameterMm: typeof outerDiameter === 'number' && outerDiameter > 0 ? outerDiameter : undefined,
       notes: notes.trim() || undefined,
     }
     onSave(spec)
@@ -310,6 +313,20 @@ const CableTypeEditorForm = ({
                 setMaxLength(v === '' ? '' : Math.max(0, Number(v)))
               }}
               placeholder={t('cable.field.maxReachPlaceholder', 'e.g. 100')}
+              className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 px-2 py-1"
+            />
+          </label>
+          <label className="block">
+            <span className="text-cp-text-muted">{t('cableLib.outerDiameter', 'Outer diameter (mm) — optional, from the datasheet')}</span>
+            <input
+              type="number"
+              min={0}
+              step={0.1}
+              value={outerDiameter}
+              onChange={(e) => {
+                const v = e.target.value
+                setOuterDiameter(v === '' ? '' : Math.max(0, Number(v)))
+              }}
               className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 px-2 py-1"
             />
           </label>

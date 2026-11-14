@@ -123,6 +123,7 @@ const befunde = (project: Readonly<CablePlannerProject>) =>
     ledPanelTypes: project.ledPanelTypes,
     defaultVideoFormat: project.metadata?.defaultVideoFormat,
     hausAuskunft: project.hausAuskunft,
+    pathwayDuctMm: project.pathwayDuctMm,
   })
 
 const befundZeile = (f: ReturnType<typeof befunde>['findings'][number]) => ({

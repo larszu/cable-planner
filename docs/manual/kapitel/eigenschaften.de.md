@@ -428,6 +428,7 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 | Feld | Werte |
 |---|---|
 | Status | — kein Status —, Geplant, Installiert, Getestet, In Betrieb, Störung, Außer Betrieb |
+| Außendurchmesser (mm) | Durchmesser dieses Kabels; leer übernimmt den Wert des Kabeltyps |
 | Trasse / Pfad | Text |
 | Mantel/Brandklasse | Text |
 | Term. A, Term. B | Terminierung an beiden Enden |
@@ -435,6 +436,8 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 | Mess-/Test-Ergebnis | — nicht getestet —, PASS, FAIL; dazu *Marge dB*, *Standard/Limit* und *Report-Datei*; *Löschen* leert das Ergebnis |
 
 ![Lebenszyklus des Kabels](bilder/de/eigenschaften-167-kabel-messergebnis.jpg)
+
+Mit gesetzter Trasse zeigt der Abschnitt das Bündel dieser Trasse: *Trasse …: n Kabel · Ø … mm · … mm²* und einen Schnitt mit jedem Kabel als Kreis (dieses Kabel umrandet) und der gestrichelten Hülle des Bündels. Kabel ohne Durchmesser werden genannt und zählen nicht mit. *Rohr/Kanal innen (mm)* gilt für die ganze Trasse; damit kommen *Füllgrad … % (Grenze … %)* und der Umriss des Rohrs dazu. Die Grenze folgt NEC Chapter 9 Table 1: 53 % bei einem Kabel, 31 % bei zwei, 40 % bei mehr. Darüber meldet der Plan-Check *Rohrfüllung*. Der Bündeldurchmesser stammt aus einer dichten Packung der Kreise und liegt auf der sicheren Seite: er kann etwas größer ausfallen als die engste mögliche Packung.
 
 #### Adern (Strom)
 

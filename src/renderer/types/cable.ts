@@ -272,6 +272,12 @@ export interface Cable {
   steckerNach?: import('./stecker').SteckerWahl
   /** #1181 — Aderquerschnitt in AWG; waehlt die passende Konfektion (Kontakte). */
   aderAwg?: number
+  /**
+   * #1178 — Aussendurchmesser dieses Kabels in mm. Ueberschreibt
+   * `CableSpec.outerDiameterMm`; fehlt beides, zaehlt das Kabel im
+   * Buendelquerschnitt als „ohne Durchmesser" und wird nicht geschaetzt.
+   */
+  outerDiameterMm?: number
 }
 
 /**

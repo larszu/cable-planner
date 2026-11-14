@@ -23,6 +23,7 @@ import { kabelEnden, ortText } from '../../lib/kabelOrt'
 import { SignalwegSection } from './SignalwegSection'
 import { HausStreckeSection } from './HausStreckeSection'
 import { SteckerKonfektionSection } from './SteckerKonfektionSection'
+import { BuendelSection } from './BuendelSection'
 import type { Floor, LocationFrame } from '../../types/location'
 import {
   INSTALL_STATUSES,
@@ -348,6 +349,7 @@ export const CableProperties = () => {
               ))}
             </select>
           </label>
+          <BuendelSection cable={cable} />
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
               <span className="mb-1 block text-cp-text-secondary">{t('lifecycle.pathway', 'Pathway / route')}</span>
