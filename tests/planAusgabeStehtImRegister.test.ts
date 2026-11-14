@@ -32,8 +32,9 @@ const sources = import.meta.glob('../src/renderer/**/*.{ts,tsx}', {
   import: 'default',
 }) as Record<string, string>
 
-/** Jeder Weg, auf dem ein Plan-PDF entsteht — Raster wie Vektor. */
-const AUSGABE = /\bexportCanvasToPdf(?:Bytes|Vector)?\s*\(/g
+/** Jeder Weg, auf dem ein Plan-PDF entsteht — Raster wie Vektor, und seit
+ *  #1189 das Ebenen-Paket (Gesamtblatt + ein Blatt je Ebene). */
+const AUSGABE = /\bexportCanvasToPdf(?:Bytes|Vector|JeEbene)?\s*\(/g
 const AUFZEICHNUNG = /\brecordPlanEmission\s*\(\s*\)/g
 
 const treffer = (re: RegExp) => {
