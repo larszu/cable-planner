@@ -101,6 +101,7 @@ import { infoDialog } from '../../lib/infoDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { LzmLogo } from '../Brand/LzmLogo'
 import { satzText } from '../../lib/satz'
+import { acceptFuerGeraet } from '../../lib/pickFile'
 
 interface MenuBarProps {
   onNewProject: () => void
@@ -648,9 +649,9 @@ export const MenuBar = ({
   )
   return (
     <header className="cp-topbar justify-between text-cp-xs">
-      <input ref={cameraImportRef} type="file" accept=".cameras.json,.json" className="hidden" onChange={handleImportCameras} />
-      <input ref={avplanImportRef} type="file" accept=".avplan,.json" className="hidden" onChange={handleImportAvplan} />
-      <input ref={sourceMapImportRef} type="file" accept=".avsourcemap,.json" className="hidden" onChange={handleImportSourceMap} />
+      <input ref={cameraImportRef} type="file" accept={acceptFuerGeraet('.cameras.json,.json')} className="hidden" onChange={handleImportCameras} />
+      <input ref={avplanImportRef} type="file" accept={acceptFuerGeraet('.avplan,.json')} className="hidden" onChange={handleImportAvplan} />
+      <input ref={sourceMapImportRef} type="file" accept={acceptFuerGeraet('.avsourcemap,.json')} className="hidden" onChange={handleImportSourceMap} />
       <div className="flex min-w-0 shrink items-center gap-2">
         <LzmLogo variant="signet" />
         <span className="hidden select-none font-semibold tracking-wide text-cp-text-secondary lg:inline">

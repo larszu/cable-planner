@@ -4,6 +4,9 @@
   screen; it runs full-screen with its own icon.
 - Touch: pinch zooms the plan, two fingers pan, a **long press** opens the
   context menu.
+- **Open** on iPhone and iPad lists every file, not only plans: iOS does not
+  know the `.cableplan` extension and would grey it out otherwise. A file that
+  is not a plan is not loaded.
 - Not available in the browser (no socket, listening port or keychain): ATEM,
   Videohub, NetBox, LAN sync, phone access, MCP server, show control,
   switching, Tally-Pi, Rentman export, update check. *Settings → Integrations*

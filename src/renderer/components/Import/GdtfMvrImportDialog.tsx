@@ -21,6 +21,7 @@ import { parseMvr, type MvrSzene } from '../../lib/gdtf/mvr'
 import { automatischerMassstab, findeVorlage, mvrGeraete, mvrTypen, vorlageAusGdtf } from '../../lib/gdtf/zuordnung'
 import { pxProMeterAusKalibrierung } from '../../lib/gdtf/massstab'
 import type { EquipmentTemplate } from '../../types/equipment'
+import { acceptFuerGeraet } from '../../lib/pickFile'
 
 interface GdtfDatei {
   datei: string
@@ -182,7 +183,7 @@ export const GdtfMvrImportDialog = () => {
           <Icon icon={FileUp} size="xs" /> {t('gdtfImport.pick', 'Choose .gdtf or .mvr file(s)…')}
           <input
             type="file"
-            accept=".gdtf,.mvr"
+            accept={acceptFuerGeraet('.gdtf,.mvr')}
             multiple
             className="hidden"
             onChange={(e) => void onFiles(e.target.files)}
