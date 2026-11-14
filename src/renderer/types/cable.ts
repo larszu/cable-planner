@@ -263,6 +263,15 @@ export interface Cable {
    * Undefined = von Hand eingetragen. Das ist der Normalfall und kein Mangel.
    */
   lengthDerivedFrom?: DerivedLengthOrigin
+  /**
+   * #1181 — welches Steckerteil aus dem Steckerkatalog an diesem Ende sitzt
+   * (`lib/steckerKatalog.ts`), samt Konfektion. Fehlt = nicht festgelegt;
+   * die Stueckliste zaehlt dann keine Kleinteile fuer dieses Ende.
+   */
+  steckerVon?: import('./stecker').SteckerWahl
+  steckerNach?: import('./stecker').SteckerWahl
+  /** #1181 — Aderquerschnitt in AWG; waehlt die passende Konfektion (Kontakte). */
+  aderAwg?: number
 }
 
 /**

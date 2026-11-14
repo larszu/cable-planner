@@ -1694,6 +1694,22 @@ const healProjectPositions = (
           patched = { ...patched, [feld]: undefined }
         }
       }
+      // #1181 — Steckerwahl je Ende. Nur die FORM wird geheilt: ein Eintrag
+      // ohne `steckerId` sagt nichts und faellt weg. Eine unbekannte ID bleibt
+      // stehen — sie kann aus einer neueren Katalogversion stammen, und die
+      // Stueckliste uebergeht sie ohnehin.
+      for (const feld of ['steckerVon', 'steckerNach'] as const) {
+        const wahl = patched[feld] as unknown
+        if (wahl === undefined) continue
+        const ok =
+          typeof wahl === 'object' && wahl !== null &&
+          typeof (wahl as { steckerId?: unknown }).steckerId === 'string' &&
+          (wahl as { steckerId: string }).steckerId !== ''
+        if (!ok) patched = { ...patched, [feld]: undefined }
+      }
+      if (patched.aderAwg !== undefined && !(Number.isInteger(patched.aderAwg) && patched.aderAwg > 0 && patched.aderAwg <= 40)) {
+        patched = { ...patched, aderAwg: undefined }
+      }
       // Ein Anschluss-Zeiger ins Leere faellt WEG. Er saehe in der Anzeige aus
       // wie eine Zugehoerigkeit — und die Pruefung, die das fehlende
       // Gegenstueck finden soll, faende ein Anschluss, das es nicht gibt.

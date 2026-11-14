@@ -22,6 +22,7 @@ import { cableTouches } from '../../lib/portOccupancy'
 import { kabelEnden, ortText } from '../../lib/kabelOrt'
 import { SignalwegSection } from './SignalwegSection'
 import { HausStreckeSection } from './HausStreckeSection'
+import { SteckerKonfektionSection } from './SteckerKonfektionSection'
 import type { Floor, LocationFrame } from '../../types/location'
 import {
   INSTALL_STATUSES,
@@ -312,6 +313,12 @@ export const CableProperties = () => {
           )}
         </select>
       </label>
+
+      <SteckerKonfektionSection
+        cable={cable}
+        connectorFrom={fromPort?.connectorType}
+        connectorTo={toPort?.connectorType}
+      />
 
       {/* Festinstallation — Lebenszyklus: Status, Trasse, Mantel,
           Terminierung und Mess-/Test-Ergebnis. Nur bei aktivem Modul. */}

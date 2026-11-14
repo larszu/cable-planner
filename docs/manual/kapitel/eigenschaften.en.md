@@ -415,6 +415,10 @@ Clicking a cable shows its properties.
 
 ![Signal path on the canvas](bilder/en/eigenschaften-175-kabel-signalweg-canvas.jpg)
 
+#### Connector parts
+
+*Connector parts* sets per end which connector from the connector catalogue is fitted: *End A* and *End B*, plus the *Conductor size (AWG)*. The list shows the connectors that match the port first. When a connector has several assemblies, the app picks the one that fits the conductor size; another can be chosen. Below are the parts with part number and quantity — housing, contacts per pole, lock — and the link to the datasheet. Every connector in the catalogue carries its manufacturer datasheet.
+
 #### Fixed install / lifecycle
 
 | Field | Values |
