@@ -54,8 +54,6 @@ describe('die abonnierten Werte aendern sich beim Knicken nicht', () => {
     expect(zeichnet()).toBe(true)
     useUiStore.getState().removeLastPendingWaypoint()
     expect(zeichnet()).toBe(true)
-    useUiStore.getState().rejectPendingCableEnd('inputToInput')
-    expect(zeichnet()).toBe(true)
     useUiStore.getState().clearPendingCable()
     expect(zeichnet()).toBe(false)
   })

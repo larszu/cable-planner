@@ -31,7 +31,7 @@ import {
 import { projectHistory } from '../../store/projectHistory'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { infoDialog } from '../../lib/infoDialog'
-import { inZeichenrichtung, richteVerbindungAus } from '../../lib/connectionDirection'
+import { inZeichenrichtung } from '../../lib/connectionDirection'
 import { griffAusdehnung } from '../../lib/griffFlaeche'
 import { useRaster } from '../../lib/aktuellesRaster'
 import { planAblage, ziehtDateien } from '../../avplan/floorplan/planDatei'
@@ -1605,14 +1605,10 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     [queueConnection],
   )
 
-  // #1029 — Waehrend des Ziehens: ein Eingang rastet nicht an einem Eingang
-  // ein, ein Ausgang nicht an einem Ausgang. ReactFlow zeichnet die Linie
-  // dann als `invalid` (Stil in index.css) und ruft onConnect nicht. Gilt
-  // auch fuer das Umstecken eines Kabelendes.
-  const isValidConnection = useCallback(
-    (connection: Connection) => richteVerbindungAus(project.equipment, connection).ok,
-    [project.equipment],
-  )
+  // #1219 — Kein `isValidConnection` mehr: Eingang auf Eingang (#1029)
+  // rastet wieder ein. Gesperrt wurde damit auch, was gar nicht falsch war
+  // (Switch auf Patchblenden-Front), und man kam nicht weiter. Der Kabel-
+  // Dialog nennt den Widerspruch jetzt, statt ihn zu verbieten.
 
   // Reconnect / drag endpoints (draw.io-like).
   const onEdgeUpdateStart = useCallback(() => {
@@ -1706,10 +1702,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       // erzeugen — z.B. Drop auf inkompatiblen Handle-Typ).
       const target = event.target as HTMLElement | null
       if (target?.closest('.react-flow__handle')) return
-      // #1029 — Losgelassen nahe einem Griff, den isValidConnection
-      // abgelehnt hat (Eingang auf Eingang): das ist ein verworfener
-      // Versuch, kein Wunsch nach einem offenen Ende. ReactFlow setzt den
-      // Status erst nach diesem Rueckruf zurueck.
+      // Losgelassen nahe einem Griff, den ReactFlow abgelehnt hat: das ist
+      // ein verworfener Versuch, kein Wunsch nach einem offenen Ende.
+      // ReactFlow setzt den Status erst nach diesem Rueckruf zurueck.
       if (flowStore.getState().connectionStatus === 'invalid') return
 
       // Resolve clientX/Y for mouse or touch.
@@ -2323,7 +2318,6 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         }}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        isValidConnection={isValidConnection}
         onConnectStart={onConnectStart}
         onConnectEnd={onConnectEnd}
         onEdgeUpdate={onEdgeUpdate}

@@ -1253,11 +1253,7 @@ interface UiState extends PersistedUiState {
     handleId: string
     handleType: 'source' | 'target'
     waypoints: { x: number; y: number }[]
-    /** #1029 — Der letzte Klick traf einen Port derselben Richtung; die
-     *  Leiste sagt es, bis der naechste Klick kommt. */
-    abgelehnt?: 'inputToInput' | 'outputToOutput'
   } | null
-  rejectPendingCableEnd: (grund: 'inputToInput' | 'outputToOutput') => void
   startPendingCable: (start: { nodeId: string; handleId: string; handleType: 'source' | 'target' }) => void
   addPendingWaypoint: (pt: { x: number; y: number }) => void
   /**
@@ -1812,7 +1808,7 @@ export const useUiStore = create<UiState>((set) => ({
   addPendingWaypoint: (pt) =>
     set((state) =>
       state.pendingCable
-        ? { pendingCable: { ...state.pendingCable, abgelehnt: undefined, waypoints: [...state.pendingCable.waypoints, pt] } }
+        ? { pendingCable: { ...state.pendingCable, waypoints: [...state.pendingCable.waypoints, pt] } }
         : state,
     ),
   removeLastPendingWaypoint: () =>
@@ -1821,7 +1817,5 @@ export const useUiStore = create<UiState>((set) => ({
         ? { pendingCable: { ...state.pendingCable, waypoints: state.pendingCable.waypoints.slice(0, -1) } }
         : state,
     ),
-  rejectPendingCableEnd: (grund) =>
-    set((state) => (state.pendingCable ? { pendingCable: { ...state.pendingCable, abgelehnt: grund } } : state)),
   clearPendingCable: () => set({ pendingCable: null }),
 }))
