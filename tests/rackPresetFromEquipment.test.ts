@@ -278,3 +278,30 @@ describe('die Ausschluss-Liste bleibt vollstaendig', () => {
     expect(notFromEquipment.filter((k) => !draftKeys.includes(k))).toEqual([])
   })
 })
+
+// #1209 — „Zu Rack" aus der Auswahl: oben im Canvas ist oben im Rack, und
+// die Kabel zwischen den Geraeten kommen als interne Kabel mit.
+describe('presetFromEquipmentSelection — Reihenfolge wie im Canvas', () => {
+  const g = (id: string, x: number, y: number, rackUnits = 1) =>
+    eq({ id, name: id, x, y, rackUnits, inputs: [port(`${id}-in`, 'IN')], outputs: [port(`${id}-out`, 'OUT')] })
+
+  it('stapelt von oben nach unten und in einer Zeile von links nach rechts', () => {
+    // Auswahl in Anlege-Reihenfolge, nicht in Canvas-Reihenfolge.
+    const auswahl = [g('unten', 0, 600), g('rechts', 400, 12), g('links', 0, 0, 2)]
+    const preset = presetFromEquipmentSelection(auswahl, 'p', 'Rack')!
+    expect(preset.items.map((i) => i.name)).toEqual(['links', 'rechts', 'unten'])
+    expect(preset.rack!.placements.map((p) => p.startUnit)).toEqual([1, 3, 4])
+  })
+
+  it('haengt die Kabel an die umsortierten Geraete', () => {
+    const auswahl = [g('b', 0, 500), g('a', 0, 0)]
+    const kabel = [
+      { id: 'k', name: 'K1', type: 'SDI', length: 2, color: '#fff', fromEquipmentId: 'a', fromPortId: 'a-out', toEquipmentId: 'b', toPortId: 'b-in' },
+    ] as unknown as Cable[]
+    const preset = presetFromEquipmentSelection(auswahl, 'p', 'Rack', kabel)!
+    expect(preset.items.map((i) => i.name)).toEqual(['a', 'b'])
+    expect(preset.cables).toEqual([
+      expect.objectContaining({ fromItemIndex: 0, fromPortName: 'OUT', toItemIndex: 1, toPortName: 'IN', name: 'K1' }),
+    ])
+  })
+})
