@@ -296,6 +296,10 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   Grundlage:
     'Woraus dieses Blatt spricht: aus dem festgeschriebenen As-Built, aus einem veralteten As-Built oder aus dem Plan (also im Zweifel dem Angebot).',
   Gruppe: 'Die vergebene Multicast-Gruppenadresse.',
+  // #1187 — Fotodokumentation
+  Foto: 'Kennung des Fotos im Plan; das Bild selbst steht auf dem Blatt, nicht in der Liste.',
+  Bildunterschrift: 'Der Text unter dem Foto, wie er am Foto eingetragen ist.',
+  'Marke im Plan': 'Die Stelle im Plan (Canvas-Koordinaten x,y), an der das Foto aufgenommen wurde; leer ohne Marke.',
   // Bedarf 112 — der Scan vor Ort.
   'Was funkt': 'Der geplante Träger — ein Rig-Kanal oder eine drahtlose Strecke aus dem Kabelgraph.',
   'Pegel (dBm)': 'Der gemessene Pegel an diesem Punkt.',

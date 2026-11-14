@@ -993,6 +993,12 @@ interface UiState extends PersistedUiState {
   /** #906 — Bestandsaufnahme: vorhandene Technik vor Ort erfassen. */
   surveyOpen: boolean
   setSurveyOpen: (open: boolean) => void
+  /** #1187 — das Foto, das gerade gross gezeigt wird (Klick auf die Marke im Plan). */
+  fotoAnsicht: string | null
+  setFotoAnsicht: (id: string | null) => void
+  /** #1187 — wartet auf einen Klick in den Plan, um die Marke dieses Fotos zu setzen. */
+  fotoPunktFuer: string | null
+  setFotoPunktFuer: (id: string | null) => void
   setRundownOpen: (open: boolean) => void
   setWirelessRigOpen: (open: boolean) => void
   /** Initiative 9 — Register der Ausspielziele. */
@@ -1647,6 +1653,10 @@ export const useUiStore = create<UiState>((set) => ({
   rundownOpen: false,
   surveyOpen: false,
   setSurveyOpen: (open) => set({ surveyOpen: open }),
+  fotoAnsicht: null,
+  setFotoAnsicht: (id) => set({ fotoAnsicht: id }),
+  fotoPunktFuer: null,
+  setFotoPunktFuer: (id) => set({ fotoPunktFuer: id }),
   setRundownOpen: (open) => set({ rundownOpen: open }),
   deliveryOpen: false,
   setDeliveryOpen: (open) => set({ deliveryOpen: open }),

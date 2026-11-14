@@ -9,7 +9,7 @@ Der Inspector ist die rechte Seitenleiste. Er zeigt die Eigenschaften dessen, wa
 Ohne Auswahl zeigt der Inspector:
 
 - *Nichts ausgewählt* mit dem Hinweis, ein Gerät, Kabel, einen Rahmen oder eine Library-Vorlage auszuwählen.
-- *Fotos des Projekts*: Fotos, die dem ganzen Plan gehören und keinem einzelnen Gerät. *Foto hinzufügen…* öffnet die Dateiauswahl. Jedes Foto zeigt Größe und Herkunft (*vom Planer* oder *vom Handy*) und hat ein Feld *Notiz*.
+- *Fotos des Projekts*: Fotos, die dem ganzen Plan gehören und keinem einzelnen Gerät. *Foto hinzufügen…* öffnet die Dateiauswahl. *Foto aufnehmen* öffnet auf Handy und Tablet direkt die Kamera. Jedes Foto zeigt Datum, Größe und Herkunft (*vom Planer* oder *vom Handy*) und hat ein Feld *Bildunterschrift*. Ein Klick auf das Bild zeigt es groß. *Im Plan markieren*, danach ein Klick in den Plan, setzt an dieser Stelle eine Kamera-Marke; ein Klick auf die Marke öffnet das Foto, Ziehen versetzt sie, *Marke aus dem Plan nehmen* in der großen Ansicht entfernt sie.
 - *Schnelle Orientierung* mit vier Hinweisen: Geräte aus der Library auf den Canvas setzen, Ports verbinden, um Kabel zu erstellen, mehrere Geräte auswählen und im Canvas als Gruppe speichern, Rentman-Aktionen im Equipment-Tab unter Rentman.
 
 ![Projektfoto hinzugefügt](bilder/de/eigenschaften-02-projektfoto-hinzugefuegt.jpg)
@@ -495,5 +495,7 @@ Ein Klick auf einen Rahmen zeigt seine Eigenschaften.
 | Stückliste exportieren | öffnet die Stückliste des Raums mit Geräten, internen Kabeln und externen Verbindungen; *Kabel zusammenfassen*, *Plan einbetten* und *PDF exportieren* |
 | Nur Rahmen löschen | löscht den Rahmen, die Geräte bleiben |
 | Rahmen + Inhalt löschen | löscht nach Rückfrage den Rahmen mit allen Geräten und deren Kabeln |
+
+Darunter steht *Fotos vom Raum*: dieselbe Fotoliste wie am Gerät, für Bilder, die zum Raum gehören (Deckendurchbruch, Bodentank, Trasse).
 
 ![Stückliste](bilder/de/eigenschaften-206-rahmen-stueckliste-dialog.jpg)

@@ -16,13 +16,14 @@
 // dazu steht in `lib/fotoMasse.ts`.
 // ───────────────────────────────────────────────────────────────────────────
 import { useRef, useState } from 'react'
-import { Camera, X } from 'lucide-react'
+import { Camera, ImagePlus, MapPin, X } from 'lucide-react'
+import { useUiStore } from '../../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { Icon } from '../../shared/Icon'
 import { useTranslation } from '../../../lib/i18n'
 import { SortableSection } from '../SortableSection'
 import { nimmFoto } from '../../../lib/fotoAufnahme'
-import { fotosOhneZiel, fotosZu } from '../../../lib/fotoMasse'
+import { fotoDatum, fotosOhneZiel, fotosZu } from '../../../lib/fotoMasse'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import type { Foto, FotoZiel } from '../../../types/foto'
 
@@ -50,6 +51,12 @@ export const FotoListe = ({
   const removeFoto = useProjectStore((s) => s.removeFoto)
   const updateFoto = useProjectStore((s) => s.updateFoto)
   const feld = useRef<HTMLInputElement>(null)
+  // #1187 — zweites Feld mit `capture`: auf Handy/Tablet oeffnet es direkt die
+  // Kamera statt der Galerie. Am Rechner verhaelt es sich wie das erste.
+  const kamera = useRef<HTMLInputElement>(null)
+  const setFotoAnsicht = useUiStore((s) => s.setFotoAnsicht)
+  const fotoPunktFuer = useUiStore((s) => s.fotoPunktFuer)
+  const setFotoPunktFuer = useUiStore((s) => s.setFotoPunktFuer)
   const [laeuft, setLaeuft] = useState(false)
 
   // OHNE Ziel ist kein Sonderfall, sondern die dritte Ebene: ein Foto, das
@@ -96,15 +103,14 @@ export const FotoListe = ({
         {fotos.map((f) => (
           <div key={f.id} className="flex items-start gap-2">
             {f.dataUri ? (
-              <a
-                href={f.dataUri}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block max-h-24 max-w-[120px] shrink-0 overflow-hidden border border-cp-border"
+              <button
+                type="button"
+                onClick={() => setFotoAnsicht(f.id)}
+                className="block max-h-24 max-w-[120px] shrink-0 overflow-hidden border border-cp-border p-0"
                 title={t('foto.full', 'Open at full size')}
               >
                 <img src={f.dataUri} alt="" className="max-h-24 max-w-[120px] object-contain" />
-              </a>
+              </button>
             ) : (
               // Der Datensatz OHNE sein Bild: nach einem Absturz steht er da,
               // bis die Ablage nachliefert. Ein leerer Rahmen sagt „hier war
@@ -116,14 +122,28 @@ export const FotoListe = ({
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <input
                 value={f.notiz ?? ''}
-                placeholder={t('foto.note', 'Note')}
+                placeholder={t('foto.caption', 'Caption')}
                 onChange={(e) => updateFoto(f.id, { notiz: e.target.value || undefined })}
                 className="w-full border border-cp-border bg-cp-surface-3 px-1.5 py-1 text-cp-xs"
               />
               <span className="text-cp-xs text-cp-text-faint">
-                {f.breite} × {f.hoehe} ·{' '}
+                {fotoDatum(f)} · {f.breite} × {f.hoehe} ·{' '}
                 {f.quelle === 'handy' ? t('foto.fromPhone', 'from the phone') : t('foto.fromPlanner', 'from the planner')}
               </span>
+              <button
+                type="button"
+                onClick={() => setFotoPunktFuer(fotoPunktFuer === f.id ? null : f.id)}
+                aria-pressed={fotoPunktFuer === f.id}
+                className="inline-flex w-fit items-center gap-1 border border-cp-border px-1.5 py-0.5 text-cp-xs text-cp-text-secondary hover:text-cp-text aria-pressed:bg-cp-accent-soft"
+                title={t('foto.markHint', 'Then click the spot in the plan where the photo was taken')}
+              >
+                <Icon icon={MapPin} className="h-3 w-3" />
+                {fotoPunktFuer === f.id
+                  ? t('foto.markWaiting', 'Click in the plan…')
+                  : f.zeigtAuf?.punkt
+                    ? t('foto.markMove', 'Move mark in plan')
+                    : t('foto.mark', 'Mark in plan')}
+              </button>
             </div>
             <button
               type="button"
@@ -154,14 +174,31 @@ export const FotoListe = ({
           // Gemessen im Browser: 32 px vorher, 44 px hiermit.
           className="inline-flex min-h-11! items-center gap-1 bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
         >
-          <Icon icon={Camera} className="h-3 w-3" />
+          <Icon icon={ImagePlus} className="h-3 w-3" />
           {laeuft ? t('foto.working', 'Scaling…') : t('foto.add', 'Add photo…')}
+        </button>
+        <button
+          type="button"
+          onClick={() => kamera.current?.click()}
+          disabled={laeuft}
+          className="ml-2 inline-flex min-h-11! items-center gap-1 bg-cp-surface-4 px-3 py-1 text-cp-xs hover:bg-cp-surface-5 disabled:opacity-50"
+        >
+          <Icon icon={Camera} className="h-3 w-3" />
+          {t('foto.take', 'Take photo')}
         </button>
       <input
         ref={feld}
         type="file"
         accept="image/*"
         multiple
+        className="hidden"
+        onChange={aufnehmen}
+      />
+      <input
+        ref={kamera}
+        type="file"
+        accept="image/*"
+        capture="environment"
         className="hidden"
         onChange={aufnehmen}
       />

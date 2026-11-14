@@ -134,8 +134,10 @@
   [LedCropCalc](https://github.com/fiverecords/LedCropCalc).
 - **On site.** Phones join by QR code, tick off work and send photos back into
   the plan. Photos attach to a single device or to its device type (shown on
-  every device of that type); adding one to a device asks whether it also
-  applies to the type.
+  every device of that type), to a room, or to a mark in the plan that opens
+  the photo on click; adding one to a device asks whether it also applies to
+  the type. Each photo carries a caption and its date, and the photo
+  documentation (by room, device and cable) goes into the handover.
 - **Together.** Live co-editing over WebRTC, optional cloud copy with revisions,
   a shared device library across the planner suite.
 - **Cable by voice.** The *Voice* button in the canvas toolbar takes a

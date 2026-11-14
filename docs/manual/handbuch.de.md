@@ -1870,7 +1870,7 @@ Der Inspector ist die rechte Seitenleiste. Er zeigt die Eigenschaften dessen, wa
 Ohne Auswahl zeigt der Inspector:
 
 - *Nichts ausgewählt* mit dem Hinweis, ein Gerät, Kabel, einen Rahmen oder eine Library-Vorlage auszuwählen.
-- *Fotos des Projekts*: Fotos, die dem ganzen Plan gehören und keinem einzelnen Gerät. *Foto hinzufügen…* öffnet die Dateiauswahl. Jedes Foto zeigt Größe und Herkunft (*vom Planer* oder *vom Handy*) und hat ein Feld *Notiz*.
+- *Fotos des Projekts*: Fotos, die dem ganzen Plan gehören und keinem einzelnen Gerät. *Foto hinzufügen…* öffnet die Dateiauswahl. *Foto aufnehmen* öffnet auf Handy und Tablet direkt die Kamera. Jedes Foto zeigt Datum, Größe und Herkunft (*vom Planer* oder *vom Handy*) und hat ein Feld *Bildunterschrift*. Ein Klick auf das Bild zeigt es groß. *Im Plan markieren*, danach ein Klick in den Plan, setzt an dieser Stelle eine Kamera-Marke; ein Klick auf die Marke öffnet das Foto, Ziehen versetzt sie, *Marke aus dem Plan nehmen* in der großen Ansicht entfernt sie.
 - *Schnelle Orientierung* mit vier Hinweisen: Geräte aus der Library auf den Canvas setzen, Ports verbinden, um Kabel zu erstellen, mehrere Geräte auswählen und im Canvas als Gruppe speichern, Rentman-Aktionen im Equipment-Tab unter Rentman.
 
 ![Projektfoto hinzugefügt](bilder/de/eigenschaften-02-projektfoto-hinzugefuegt.jpg)
@@ -1911,6 +1911,8 @@ Abschnitte mit dem Griff ⠿ lassen sich mit der Maus an eine andere Stelle zieh
 | Untertitel | optionale Zeile unter dem Namen am Knoten, z. B. „PGM Monitor“ |
 
 ![Kurzname bearbeiten](bilder/de/eigenschaften-10-kopf-kurzname-stift.jpg)
+
+**Kennungen nach Gattung und Raum.** Rechtsklick auf einen Rahmen → *Kennungen neu vergeben (CAM 101 …)* nummeriert alle Geräte darin; am Gerät gilt der Eintrag für die Auswahl. Die Kennung ist der Kurzname: Kürzel der Gattung (*CAM* Kameras, *MIX* Mischer/Mischpult, *MON* Monitore, *MIC* Mikrofone, *LX* Licht, *RTR* Kreuzschiene, *VMX* Bildmischer, *PP* Patchfelder …; sonst die ersten drei Buchstaben der Kategorie), Hunderterblock des Raums (erster Rahmen 101, zweiter 201 …, Steigschächte zählen nicht) und laufende Nummer von oben nach unten, links nach rechts. Ein Gerät außerhalb jedes Raums bekommt keinen Block (*CAM 1*). Nummern, die andere Geräte schon tragen, bleiben belegt; neue Geräte füllen die erste Lücke. Ein von Hand gesetzter Kurzname wird nie überschrieben – die App nennt, wie viele Geräte deshalb ausgelassen wurden. Wer den Kurznamen im Feld ändert, macht ihn zu seinem eigenen. Weil die Kennung der Kurzname ist, steht sie an den Kabelenden, auf dem Kabeletikett und im Patchblatt; am Knoten zeigt sie *Einstellungen → Darstellung → Kennung am Geräteknoten → Kennung / Kurzname*.
 
 #### Inputs & Outputs
 
@@ -2354,6 +2356,8 @@ Ein Klick auf einen Rahmen zeigt seine Eigenschaften.
 | Stückliste exportieren | öffnet die Stückliste des Raums mit Geräten, internen Kabeln und externen Verbindungen; *Kabel zusammenfassen*, *Plan einbetten* und *PDF exportieren* |
 | Nur Rahmen löschen | löscht den Rahmen, die Geräte bleiben |
 | Rahmen + Inhalt löschen | löscht nach Rückfrage den Rahmen mit allen Geräten und deren Kabeln |
+
+Darunter steht *Fotos vom Raum*: dieselbe Fotoliste wie am Gerät, für Bilder, die zum Raum gehören (Deckendurchbruch, Bodentank, Trasse).
 
 ![Stückliste](bilder/de/eigenschaften-206-rahmen-stueckliste-dialog.jpg)
 
@@ -3698,7 +3702,7 @@ Die Anschlussliste führt jeden Netzanschluss mit Gerät, Schnittstelle, IP, VLA
 
 *Werkzeuge → Bestandsaufnahme (Vorhandenes erfassen)…* ist für den Gang durch den Raum: aufschreiben, was man sieht. Die Felder: *Gerät* (Pflicht), *Raum* (bleibt für den nächsten Eintrag stehen), *Verbunden mit (vermutet)* und *Notiz*. *Erfassen (Enter)* legt den Eintrag an; steht ein Gerät gleichen Namens schon im Plan, sagt die App das („…“ steht im Plan.).
 
-Zwei Listen: *Vom Telefon (n)* zeigt Einträge, die ein Telefon gemeldet hat (am Telefon *Mitschreiben* einstellen, *Melden* → *Neues Gerät*; vorher muss der Telefonzugriff eingeschaltet sein). Ein Haken übernimmt den Eintrag, **×** verwirft ihn. *Erfasst, noch nicht ausgearbeitet (n)* sammelt die erfassten Einträge; *Erledigt* nimmt einen Eintrag aus der Liste. Am Eintrag lässt sich unter *Fotos* mit *Foto hinzufügen…* ein Foto anhängen („Ein Foto beantwortet Fragen, für die es kein Feld gibt.“).
+Zwei Listen: *Vom Telefon (n)* zeigt Einträge, die ein Telefon gemeldet hat (am Telefon *Mitschreiben* einstellen, *Melden* → *Neues Gerät*; vorher muss der Telefonzugriff eingeschaltet sein). Ein Haken übernimmt den Eintrag, **×** verwirft ihn. *Erfasst, noch nicht ausgearbeitet (n)* sammelt die erfassten Einträge; *Erledigt* nimmt einen Eintrag aus der Liste. Am Eintrag lässt sich unter *Fotos* mit *Foto hinzufügen…* ein Foto anhängen („Ein Foto beantwortet Fragen, für die es kein Feld gibt.“). *Bestandsbericht mit Fotos (n)* gibt alle Fotos des Plans als HTML-Blatt aus, nach Raum, Gerät und Kabel geordnet, mit Bildunterschrift und Datum. Dasselbe Blatt steht als *Fotodokumentation* in der Übergabe.
 
 ![Bestandsaufnahme](bilder/de/werkzeuge-planen-14-bestand-offen.jpg)
 
@@ -4822,7 +4826,7 @@ Jedes Modul hat ein Kästchen *Modul aktiviert*.
 
 | Bereich | Bedienung | Wirkung |
 |---|---|---|
-| Kennung am Geräteknoten | *Asset-Tag* / *Interne Nummer* / *Keine* | welche Nummer des Exemplars neben der Kategorie steht; erscheint nur, wo eine eingetragen ist |
+| Kennung am Geräteknoten | *Asset-Tag* / *Interne Nummer* / *Kennung / Kurzname* / *Keine* | welche Nummer des Exemplars neben der Kategorie steht; erscheint nur, wo eine eingetragen ist |
 | Canvas-Hintergrund | *Muster*: *Punkte*, *Linien*, *Kreuze*, *Kein Raster*; Regler *Deckkraft* | Muster und Deckkraft des Canvas-Rasters. Die Rastergröße stellt der Reiter *Bearbeiten* ein. |
 
 ![Eigenes Hintergrundbild und Custom-Palette](bilder/de/einstellungen-12-darstellung-bild-palette.jpg)

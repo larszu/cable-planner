@@ -1844,7 +1844,7 @@ The inspector is the right-hand side panel. It shows the properties of the selec
 With nothing selected the inspector shows:
 
 - *Nothing selected* with the hint to pick a device, cable, frame or library template.
-- *Photos of the project*: photos that belong to the whole plan rather than to one device. *Add photo…* opens the file picker. Each photo shows its size and source (*from the planner* or *from the phone*) and has a *Note* field.
+- *Photos of the project*: photos that belong to the whole plan rather than to one device. *Add photo…* opens the file picker. *Take photo* opens the camera directly on phones and tablets. Each photo shows its date, size and source (*from the planner* or *from the phone*) and has a *Caption* field. Clicking the image shows it large. *Mark in plan*, then a click in the plan, places a camera mark at that spot; clicking the mark opens the photo, dragging moves it, *Remove mark from plan* in the large view removes it.
 - *Quick orientation* with four hints: drop devices from the library on the canvas, connect ports to create cables, select multiple devices and save them as a group from the canvas, Rentman actions live in the Equipment tab under Rentman.
 
 ![Project photo added](bilder/en/eigenschaften-02-projektfoto-hinzugefuegt.jpg)
@@ -1885,6 +1885,8 @@ Sections with the ⠿ handle can be dragged to another position. The order appli
 | Subtitle | optional line under the name on the node, e.g. “PGM Monitor” |
 
 ![Editing the short name](bilder/en/eigenschaften-10-kopf-kurzname-stift.jpg)
+
+**Identifiers by kind and room.** Right-click a frame → *Reassign identifiers (CAM 101 …)* numbers all devices inside it; on a device the entry applies to the selection. The identifier is the short name: a code for the kind (*CAM* cameras, *MIX* mixer/mixing console, *MON* monitors, *MIC* microphones, *LX* lighting, *RTR* video router, *VMX* video mixer, *PP* patch panels …; otherwise the first three letters of the category), the hundreds block of the room (first frame 101, second 201 …, risers do not count) and a running number from top to bottom, left to right. A device outside every room gets no block (*CAM 1*). Numbers other devices already carry stay taken; new devices fill the first gap. A short name set by hand is never overwritten – the app says how many devices were skipped for that reason. Changing the short name in the field makes it your own. Because the identifier is the short name, it appears at the cable ends, on the cable label and in the patch sheet; on the node it is shown via *Settings → Appearance → Identifier on the device node → Identifier / short name*.
 
 #### Inputs & outputs
 
@@ -2328,6 +2330,8 @@ Clicking a frame shows its properties.
 | Export BOM | opens the room's BOM with devices, internal cables and external connections; *Combine cables*, *Embed plan* and *Export PDF* |
 | Delete frame only | deletes the frame, the devices stay |
 | Delete frame + contents | deletes, after confirmation, the frame with all its devices and their cables |
+
+Below it is *Photos of the room*: the same photo list as on a device, for pictures that belong to the room (ceiling penetration, floor box, cable tray).
 
 ![BOM](bilder/en/eigenschaften-206-rahmen-stueckliste-dialog.jpg)
 
@@ -3672,7 +3676,7 @@ The connection list shows every network connection with device, interface, IP, V
 
 *Tools → Survey (capture existing)…* is for the walk through the room: write down what you see. The fields: *Device* (required), *Room* (stays for the next entry), *Connected to (assumed)* and *Note*. *Capture (Enter)* creates the entry; if a device of the same name is already in the plan, the app says so.
 
-Two lists: *From the phone (n)* shows entries a phone has reported (on the phone set "Contribute" and choose "Report" → "New device"; phone access must be on beforehand). A tick adopts the entry, **×** discards it. *Captured, not worked out yet (n)* gathers the captured entries; *Done* takes an entry off the list. On an entry, *Photos* with *Add photo…* attaches a photo.
+Two lists: *From the phone (n)* shows entries a phone has reported (on the phone set "Contribute" and choose "Report" → "New device"; phone access must be on beforehand). A tick adopts the entry, **×** discards it. *Captured, not worked out yet (n)* gathers the captured entries; *Done* takes an entry off the list. On an entry, *Photos* with *Add photo…* attaches a photo. *Survey report with photos (n)* outputs every photo in the plan as an HTML sheet, ordered by room, device and cable, with caption and date. The same sheet is in the handover as *Photo documentation*.
 
 ![Survey](bilder/en/werkzeuge-planen-14-bestand-offen.jpg)
 
@@ -4796,7 +4800,7 @@ Each module has a checkbox *Module enabled*.
 
 | Section | Control | Effect |
 |---|---|---|
-| Identifier on the device node | *Asset tag* / *Internal number* / *None* | which number of the unit is shown next to the category; shown only where one is entered |
+| Identifier on the device node | *Asset tag* / *Internal number* / *Identifier / short name* / *None* | which number of the unit is shown next to the category; shown only where one is entered |
 | Canvas background | *Pattern*: *Dots*, *Lines*, *Crosses*, *No grid*; slider *Opacity* | pattern and opacity of the canvas grid. The grid size is set in the *Editing* tab. |
 
 ![Custom background image and custom palette](bilder/en/einstellungen-12-darstellung-bild-palette.jpg)

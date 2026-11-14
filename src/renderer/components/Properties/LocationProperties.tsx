@@ -14,6 +14,7 @@ import { flaecheM2, meterZuPx, pxZuMeter, RAHMEN_MIN_PX } from '../../lib/raumMa
 import type { Floor } from '../../types/location'
 import { useCallback } from 'react'
 import { StandortKarte } from './StandortKarte'
+import { FotoListe } from './sections/FotoSection'
 import type { StandortGeo } from '../../lib/standortKarte'
 
 /** Wert der Auswahl-Option „Neue Etage…" — kann kein Etagenname sein. */
@@ -252,6 +253,12 @@ export const LocationProperties = () => {
         >
           {t('location.action.deleteAll', 'Delete frame + contents')}
         </button>
+      </div>
+
+      {/* #1187 — Fotos am Raum: „so sah der Deckendurchbruch in 2.14 aus". */}
+      <div className="border border-cp-border-muted bg-cp-surface-1/40 p-3">
+        <div className="mb-2 text-cp-xs font-semibold text-cp-text-muted">{t('foto.roomSection', 'Photos of the room')}</div>
+        <FotoListe ziel={{ locationId: location.id }} />
       </div>
 
       <PanelHint

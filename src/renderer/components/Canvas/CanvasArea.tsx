@@ -60,6 +60,8 @@ import { CableEdge } from './CableEdge'
 import { CanvasToolbar } from './CanvasToolbar'
 import { LocationFrameNode } from './LocationFrameNode'
 import { GrundrissNode } from './GrundrissNode'
+import { FotoMarkeNode } from './FotoMarkeNode'
+import { fotoAusMarkeId, fotoDatum, fotoMarkeId, fotosMitPunkt } from '../../lib/fotoMasse'
 import { SymbolNode } from './SymbolNode'
 import { GrundrissKalibrierung } from '../Grundriss/GrundrissKalibrierung'
 import { EINGEBAUTE_SYMBOLE } from '../../lib/symbole/eingebaut'
@@ -98,11 +100,14 @@ import { DRUCK_MS, LangerDruck } from '../../lib/langerDruck'
 import { ansicht } from '../../lib/ansicht'
 import { portAmKoerper } from '../../lib/portAmKoerper'
 
-const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode, grundriss: GrundrissNode, symbol: SymbolNode }
+const nodeTypes = { equipment: EquipmentNode, location: LocationFrameNode, grundriss: GrundrissNode, symbol: SymbolNode, fotomarke: FotoMarkeNode }
 
 /** Knoten, die weder Geraet noch Raum sind und ihre Aenderungen selbst
  *  verbuchen — die Geraete-Logik in `onNodesChange` bekommt sie nie zu sehen. */
-const istEigenerKnoten = (id: string, symbolIds: Set<string>) => etageAusKnotenId(id) !== undefined || symbolIds.has(id)
+const istEigenerKnoten = (id: string, symbolIds: Set<string>) =>
+  etageAusKnotenId(id) !== undefined || symbolIds.has(id) || fotoAusMarkeId(id) !== undefined
+/** Knoten, deren Lage `eigeneKnotenAendern` schreibt (Plan, Symbol, Fotomarke #1187). */
+const istEigenerTyp = (type: string | undefined) => type === 'grundriss' || type === 'symbol' || type === 'fotomarke'
 const edgeTypes = { cable: CableEdge }
 
 /**
@@ -544,13 +549,32 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
       style: { width: sym.groesse, height: sym.groesse },
       draggable: !sym.gesperrt && !projectIsLocked,
     }))
-    return [...grundrissNodes, ...locationNodes, ...symbolNodes, ...equipmentNodes]
-  }, [project.equipment, project.grundriss, project.etagenGrundrisse, ausgeblendeteEtagen, vollansicht, project.symbole, project.symbolDefs, locations, pdfExportThemeOverride, lockFrames, lockEquipment, projectIsLocked])
+    // #1187 — Fotomarken: ganz oben, damit ein Geraet sie nicht verdeckt.
+    const fotoNodes: Node[] = fotosMitPunkt(project.fotos).map((f) => ({
+      id: fotoMarkeId(f.id),
+      type: 'fotomarke',
+      position: { x: f.zeigtAuf!.punkt!.x, y: f.zeigtAuf!.punkt!.y },
+      data: { fotoId: f.id, notiz: f.notiz, datum: fotoDatum(f) },
+      zIndex: 1000,
+      draggable: !projectIsLocked,
+    }))
+    return [...grundrissNodes, ...locationNodes, ...symbolNodes, ...equipmentNodes, ...fotoNodes]
+  }, [project.equipment, project.grundriss, project.etagenGrundrisse, ausgeblendeteEtagen, vollansicht, project.symbole, project.symbolDefs, project.fotos, locations, pdfExportThemeOverride, lockFrames, lockEquipment, projectIsLocked])
   const symbolIds = useMemo(() => new Set((project.symbole ?? []).map((s) => s.id)), [project.symbole])
   const updateGrundriss = useProjectStore((state) => state.updateGrundriss)
   const updateSymbol = useProjectStore((state) => state.updateSymbol)
   const waehleSymbol = useGrundrissUi((s) => s.waehleSymbol)
   const removeSymbol = useProjectStore((state) => state.removeSymbol)
+  const updateFoto = useProjectStore((state) => state.updateFoto)
+  const setFotoAnsicht = useUiStore((s) => s.setFotoAnsicht)
+  const fotoPunktFuer = useUiStore((s) => s.fotoPunktFuer)
+  const setFotoPunktFuer = useUiStore((s) => s.setFotoPunktFuer)
+  /** #1187 — die Marke eines Fotos setzen oder verschieben; die Ziele bleiben. */
+  const setzeFotoPunkt = (fotoId: string, punkt: { x: number; y: number }) => {
+    const f = projectStoreInstance.getState().project.fotos?.find((x) => x.id === fotoId)
+    if (!f) return
+    updateFoto(fotoId, { zeigtAuf: { ...f.zeigtAuf, punkt: { x: Math.round(punkt.x), y: Math.round(punkt.y) } } })
+  }
 
   // Entf/Backspace loescht das gewaehlte Symbol. Eigener Handler, weil die
   // Geraete-Tastatur (`useCanvasKeyboardShortcuts`) nur Geraete und Kabel
@@ -579,12 +603,14 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     for (const c of changes) {
       const planEtage = 'id' in c ? etageAusKnotenId(c.id) : undefined
       const istPlan = planEtage !== undefined
+      const fotoId = 'id' in c ? fotoAusMarkeId(c.id) : undefined
       if (c.type === 'position' && c.position && c.dragging !== true) {
         const pos = c.dragging === false ? { x: snap(c.position.x), y: snap(c.position.y) } : c.position
-        if (istPlan) updateGrundriss(pos, planEtage)
+        if (fotoId) setzeFotoPunkt(fotoId, pos)
+        else if (istPlan) updateGrundriss(pos, planEtage)
         else updateSymbol(c.id, pos)
       }
-      if (c.type === 'dimensions' && c.dimensions && c.resizing !== undefined && c.updateStyle) {
+      if (!fotoId && c.type === 'dimensions' && c.dimensions && c.resizing !== undefined && c.updateStyle) {
         const { width, height } = c.dimensions
         if (istPlan) updateGrundriss({ width, height }, planEtage)
         else updateSymbol(c.id, { groesse: Math.round(Math.max(width, height)) })
@@ -818,7 +844,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
         // ebenfalls aus dem Store — Sperren legt den Plan unter die
         // Klickflaeche, und Groesse/Drehung aendern sich im Panel, nicht nur
         // durch Ziehen auf dem Canvas.
-        if (n.type === 'grundriss' || n.type === 'symbol') {
+        if (istEigenerTyp(n.type)) {
           return { ...existing, data: n.data, draggable: n.draggable, selectable: n.selectable, zIndex: n.zIndex, style: n.style, position: n.position }
         }
         // Rahmen: die Groesse aus dem Eigenschaften-Panel (Breite/Tiefe) muss
@@ -1500,8 +1526,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
 
   const onNodeDragStop = useCallback((_event: React.MouseEvent, node: Node) => {
     setZieht(false)
-    // Plan und Symbole schreiben ihre Lage in `eigeneKnotenAendern`.
-    if (node.type === 'grundriss' || node.type === 'symbol') {
+    // Plan, Symbole und Fotomarken schreiben ihre Lage in `eigeneKnotenAendern`.
+    if (istEigenerTyp(node.type)) {
       draggingIdsRef.current.clear()
       dragStartPositionsRef.current.clear()
       return
@@ -2345,10 +2371,20 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             addPendingWaypoint(flow)
             return
           }
+          // #1187 — „Im Plan markieren": der naechste Klick setzt die Marke.
+          if (fotoPunktFuer) {
+            setzeFotoPunkt(fotoPunktFuer, screenToFlowPosition({ x: event.clientX, y: event.clientY }))
+            setFotoPunktFuer(null)
+            return
+          }
           setSelection(undefined, undefined, undefined)
           waehleSymbol(null)
         }}
         onNodeClick={(_event, node) => {
+          if (node.type === 'fotomarke') {
+            setFotoAnsicht((node.data as { fotoId: string }).fotoId)
+            return
+          }
           waehleSymbol(node.type === 'symbol' ? node.id : null)
           if (node.type === 'symbol' || node.type === 'grundriss') setSelection(undefined, undefined, undefined)
           else if (node.type === 'location') setSelection(undefined, undefined, node.id)
