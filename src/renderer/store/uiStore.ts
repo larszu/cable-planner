@@ -1003,6 +1003,9 @@ interface UiState extends PersistedUiState {
   fotoPunktFuer: string | null
   setFotoPunktFuer: (id: string | null) => void
   setRundownOpen: (open: boolean) => void
+  /** #1182 — der Abschnitt, zu dem der Warnungszaehler springt. */
+  rundownFokus: string | null
+  openRundownAt: (segmentId: string | null) => void
   setWirelessRigOpen: (open: boolean) => void
   /** Initiative 9 — Register der Ausspielziele. */
   deliveryOpen: boolean
@@ -1662,7 +1665,9 @@ export const useUiStore = create<UiState>((set) => ({
   setFotoAnsicht: (id) => set({ fotoAnsicht: id }),
   fotoPunktFuer: null,
   setFotoPunktFuer: (id) => set({ fotoPunktFuer: id }),
-  setRundownOpen: (open) => set({ rundownOpen: open }),
+  setRundownOpen: (open) => set(open ? { rundownOpen: true } : { rundownOpen: false, rundownFokus: null }),
+  rundownFokus: null,
+  openRundownAt: (segmentId) => set({ rundownOpen: true, rundownFokus: segmentId }),
   deliveryOpen: false,
   setDeliveryOpen: (open) => set({ deliveryOpen: open }),
   adernOpen: false,

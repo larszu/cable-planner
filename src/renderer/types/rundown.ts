@@ -80,6 +80,18 @@ export interface SegmentCoverage {
  * aus, auch wenn sie drei Fassungen alt ist — und genau das ist der Zustand,
  * den der Bedarf beschreibt.
  */
+/**
+ * #1182 — welche Geraete und Wege ein Abschnitt braucht („18:40 Band 2,
+ * Kamera 3 auf Kran" braucht Kamera 3 und ihren Weg zum Mischer). Wie der
+ * Auftrag eine ZUORDNUNG zum eingelesenen Abschnitt, kein Teil des Ablaufs:
+ * sie ueberlebt das Neu-Einlesen, soweit der Abschnitt es tut.
+ */
+export interface SegmentLink {
+  segmentId: string
+  equipmentIds: string[]
+  cableIds: string[]
+}
+
 export interface RundownPlan {
   /** Woher der Ablauf kommt. „Von Hand eingetragen" ist auch eine Herkunft. */
   source: string
@@ -89,4 +101,6 @@ export interface RundownPlan {
   importedAt?: string
   segments: RundownSegment[]
   coverage: SegmentCoverage[]
+  /** #1182 — Geraete und Wege je Abschnitt. Fehlt → keine verknuepft. */
+  links?: SegmentLink[]
 }

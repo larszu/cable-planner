@@ -47,6 +47,7 @@ import { steckbriefStandTable } from './steckbrief'
 import { bedienUebersichtStandTable } from './bedienUebersicht'
 import { anhaengeTable } from './anhaenge'
 import { fotoBerichtTable } from './fotoBericht'
+import { regieBlattForProject } from './ablaufPruefung'
 import { kameraPositionsblattStandTable } from './kameraPositionsblatt'
 import type { CsvTable } from './csv'
 
@@ -207,6 +208,8 @@ export const DOCUMENT_STANDS: Record<string, (project: CablePlannerProject) => s
   anhaenge: ofTable(anhaengeTable),
   // #1187 — die Fotos nach Ziel; der Stand traegt alles Gedruckte ausser den Bilddaten.
   fotobericht: ofTable(fotoBerichtTable),
+  // #1182 — der Ablauf mit Geraeten, Wegen und Pruefung je Punkt.
+  regieblatt: ofTable(regieBlattForProject),
   'kamera-positionen': ofTable(kameraPositionsblattStandTable),
 }
 
@@ -291,6 +294,7 @@ export const DOCUMENT_LABELS: Record<string, string> = {
   'bedien-uebersicht': 'Operating quick reference',
   anhaenge: 'Attachment index',
   fotobericht: 'Photo documentation',
+  regieblatt: 'Run of show for the gallery',
   'kamera-positionen': 'Camera position sheet',
 }
 

@@ -41,7 +41,7 @@
 // eine Ableitung zurueck.
 // ───────────────────────────────────────────────────────────────────────────
 
-import type { RundownPlan, RundownSegment, SegmentCoverage } from '../types/rundown'
+import type { RundownPlan, RundownSegment, SegmentCoverage, SegmentLink } from '../types/rundown'
 
 /** Eine Zeile der Karte: ein Abschnitt und mein Auftrag darin. */
 export interface KartenZeile {
@@ -252,6 +252,17 @@ export const normaliseRundown = (raw: unknown): RundownPlan | undefined => {
           bekannt.has(c.segmentId),
       )
     : []
+  // #1182 — Verknuepfungen: dieselbe Regel wie beim Auftrag, ins Leere faellt.
+  const links: SegmentLink[] = Array.isArray(r.links)
+    ? r.links.flatMap((l) => {
+        if (!l || typeof l.segmentId !== 'string' || !bekannt.has(l.segmentId)) return []
+        const ids = (v: unknown) =>
+          Array.isArray(v) ? [...new Set(v.filter((x): x is string => typeof x === 'string' && x !== ''))] : []
+        const equipmentIds = ids(l.equipmentIds)
+        const cableIds = ids(l.cableIds)
+        return equipmentIds.length || cableIds.length ? [{ segmentId: l.segmentId, equipmentIds, cableIds }] : []
+      })
+    : []
   if (segments.length === 0 && coverage.length === 0) return undefined
   return {
     // Eine Herkunft, die niemand genannt hat, wird nicht erfunden — sie wird
@@ -262,6 +273,7 @@ export const normaliseRundown = (raw: unknown): RundownPlan | undefined => {
     ...(typeof r.importedAt === 'string' ? { importedAt: r.importedAt } : {}),
     segments,
     coverage,
+    ...(links.length ? { links } : {}),
   }
 }
 

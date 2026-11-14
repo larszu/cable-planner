@@ -397,9 +397,11 @@ The app points out gaps: when the battery change was not recorded, and two peopl
 
    ![Assignments entered](bilder/en/werkzeuge-planen-52-ablauf-auftrag.jpg)
 
-5. When the rundown is read in again, the assignments of matching segments are kept.
+5. When the rundown is read in again, the assignments and links of matching segments are kept.
 
    ![Read in again](bilder/en/werkzeuge-planen-54-ablauf-neu-einlesen.jpg)
+
+**Devices and paths per segment.** The table *Devices and paths per segment* links each segment to the devices (*Add device…*) and paths (*Add path…*) it needs; **×** removes a link. The column *Check* shows *OK* when every linked device and path is in the plan, each path has both ends and the plan check reports no error or warning on them. Otherwise the findings are listed; a click selects the device or cable on the canvas and closes the window. A segment without links shows *not linked*. When a segment has findings, the status bar shows *Rundown n*; a click opens the window at the first affected segment. *Sheet for the gallery* outputs the rundown as a landscape HTML sheet: number, segment with note, devices, paths and check.
 
 #### Delivery
 

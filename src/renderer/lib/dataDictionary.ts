@@ -170,7 +170,7 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Port (Haus)':
     'Der Stagebox-/Pult-Eingang, in dem das Signal steckt. Gehört dem Haus und ist draußen die einzige Nummer, die etwas bedeutet.',
   'Stecker (Band)': 'Der Steckertyp an diesem Ende.',
-  Abschnitt: 'Der Themenblock des Merkblatts (Zugang, Adressen, Verbote, Ansprechpartner).',
+  Abschnitt: 'Der Themenblock des Merkblatts (Zugang, Adressen, Verbote, Ansprechpartner) bzw. der Programmpunkt des Ablaufs.',
   'Abweichung begründet':
     'Warum dieses Ziel andere Veranstaltungsangaben trägt als das Projekt. „—" heißt: es weicht nicht ab.',
   'Alter Name': 'Wie das Gerät heute heißt.',
@@ -398,6 +398,9 @@ export const COLUMN_GLOSSARY: Readonly<Record<string, string>> = {
   'Niedrige Bitrate': 'Die Szene, auf die bei niedriger Bitrate geschaltet werden soll.',
   Normalbetrieb: 'Die Szene für den Normalbetrieb — der Rückweg aus der Ausweichszene.',
   Notiz: 'Freitext zu diesem Ziel.',
+  // #1182 — Regie-Blatt
+  Wege: 'Die Kabel (Wege), die der Abschnitt des Ablaufs braucht.',
+  Prüfung: 'Stand der Prüfung vor dem Abschnitt: OK, Zahl der Befunde, oder leer, wenn nichts verknüpft ist.',
   'Nr.': 'Die laufende Nummer auf diesem Blatt.',
   Objekt: 'Die Sache, um die es geht — Einheit, Container oder Position.',
   'Offene Fehler':
