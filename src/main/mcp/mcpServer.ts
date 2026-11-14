@@ -285,6 +285,22 @@ const baueServer = (): McpServer => {
   )
 
   if (state.schreibenErlaubt) {
+    // #1183 — Bedienung fuer Stream Deck/Companion: dieselben Befehle wie die
+    // Tastenkuerzel. `status` liefert die Rueckmeldung fuer die Tasten.
+    mcp.registerTool(
+      'ui_command',
+      {
+        title: 'Operate the window',
+        description:
+          'Run a keyboard-shortcut command in the open window: undo, redo, zoom_in, zoom_out, fit_view, select_all, duplicate, toggle_plan_check. "status" changes nothing. Every answer carries the plan-check counts (errors, warnings) for button feedback.',
+        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+        inputSchema: {
+          action: z.enum(['status', 'undo', 'redo', 'zoom_in', 'zoom_out', 'fit_view', 'select_all', 'duplicate', 'toggle_plan_check']),
+        },
+      },
+      async (args) => werkzeugAntwort('ui_command', args as Record<string, unknown>),
+    )
+
     mcp.registerTool(
       'connect_ports',
       {
