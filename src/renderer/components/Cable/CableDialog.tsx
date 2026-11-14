@@ -36,6 +36,8 @@ export interface CableDialogProps {
   toPort?: Port
   fromDev?: EquipmentItem
   toDev?: EquipmentItem
+  /** #1219 — Die Enden haben dieselbe Richtung. Ein Hinweis, keine Sperre. */
+  richtungsHinweis?: 'inputToInput' | 'outputToOutput'
   defaultVideoFormat?: VideoFormatId
   onCancel: () => void
   onCreate: (
@@ -44,7 +46,7 @@ export interface CableDialogProps {
   ) => void
 }
 
-export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoFormat, onCancel, onCreate }: CableDialogProps) => {
+export const CableDialog = ({ fromPort, toPort, fromDev, toDev, richtungsHinweis, defaultVideoFormat, onCancel, onCreate }: CableDialogProps) => {
   const t = useTranslation()
   // Dialog ist gemountet == offen → open=true. Escape/Tab-Trap/Fokus-Rückgabe.
   const { panelRef, titleId, dialogProps } = useDialogA11y(true, onCancel)
@@ -593,6 +595,14 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, defaultVideoForm
                     'adapter.suggest.afterCreate',
                     'This needs a piece in between. Create the cable, then insert it with one click in the cable properties.',
                   )}
+            </div>
+          )}
+          {richtungsHinweis && (
+            <div role="status" className="flex items-center gap-1.5 bg-amber-900/50 p-2 text-amber-100">
+              <Icon icon={AlertTriangle} size="sm" />
+              {richtungsHinweis === 'inputToInput'
+                ? t('cable.direction.inputToInput', 'Both ends are inputs. Usually one of them is an output; if the port is really both, mark it as bidirectional. You can still create the cable.')
+                : t('cable.direction.outputToOutput', 'Both ends are outputs. Usually one of them is an input; if the port is really both, mark it as bidirectional. You can still create the cable.')}
             </div>
           )}
           {lengthWarning && (

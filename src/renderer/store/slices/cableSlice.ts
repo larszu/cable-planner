@@ -108,13 +108,14 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
     set((state) => {
       if (isProjectLocked(state)) return state
       // #1029 — Eine Stelle fuer alle Wege (Ziehen, Klicken, Tastatur,
-      // Eigenschaften): Eingang→Eingang und Ausgang→Ausgang kommen nicht
-      // an, alles andere laeuft danach von sendend nach empfangend. Die
+      // Eigenschaften): alles laeuft danach von sendend nach empfangend. Die
       // Knicke wurden in Zeichenrichtung aufgenommen und drehen mit.
+      // #1219 — Eingang→Eingang und Ausgang→Ausgang sperren nicht mehr: die
+      // Verbindung bleibt in Zeichenrichtung, und der Kabel-Dialog nennt den
+      // Widerspruch (`richtungsWiderspruch`). Hinweis statt Sperre.
       const ausrichtung = richteVerbindungAus(state.project.equipment, roh)
-      if (!ausrichtung.ok) return state
-      let connection = ausrichtung.connection
-      let umgedreht = ausrichtung.umgedreht
+      let connection = ausrichtung.ok ? ausrichtung.connection : roh
+      let umgedreht = ausrichtung.ok ? ausrichtung.umgedreht : false
       // #1212 — Ein bidirektionaler Port traegt ein Kabel herein UND eins
       // hinaus. Ist er als Ziel schon belegt, darf die neue Verbindung von
       // ihm ausgehen: Zwischen zwei bidirektionalen Ports ist die Richtung

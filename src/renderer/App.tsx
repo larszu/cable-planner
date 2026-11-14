@@ -1,4 +1,5 @@
 import { hasDrops, type LoadDropKind, type LoadDropReason } from './types/loadReport'
+import { richtungsWiderspruch } from './lib/connectionDirection'
 import { hasMobileDrops } from './types/mobileReport'
 import { v4 as uuidv4 } from 'uuid'
 import { beantworteWerkzeug } from './lib/mcpWerkzeuge'
@@ -1426,14 +1427,19 @@ export default function App() {
     [cableEdit.cableId, project.cables],
   )
 
-  const { fromPort, toPort, fromDev, toDev } = useMemo(() => {
+  const { fromPort, toPort, fromDev, toDev, richtungsHinweis } = useMemo(() => {
     if (!pendingConnection)
-      return { fromPort: undefined, toPort: undefined, fromDev: undefined, toDev: undefined }
+      return { fromPort: undefined, toPort: undefined, fromDev: undefined, toDev: undefined, richtungsHinweis: undefined }
     const fromDev = getEquipmentById(project.equipment, pendingConnection.source)
     const toDev = getEquipmentById(project.equipment, pendingConnection.target)
-    const fromPort = fromDev?.outputs.find((p) => p.id === pendingConnection.sourceHandle)
-    const toPort = toDev?.inputs.find((p) => p.id === pendingConnection.targetHandle)
-    return { fromPort, toPort, fromDev, toDev }
+    // #1219 — Beide Listen: ein bidirektionaler Port, eine Patchblenden-Front
+    // oder eine Verbindung Ausgang→Ausgang hat sein Ende nicht zwingend in
+    // der Liste, die die Richtung vermuten laesst. Vorher fehlte dem Dialog
+    // dann der Port — und mit ihm Stecker-, Geschlechts- und SDI-Pruefung.
+    const fromPort = fromDev && [...fromDev.outputs, ...fromDev.inputs].find((p) => p.id === pendingConnection.sourceHandle)
+    const toPort = toDev && [...toDev.inputs, ...toDev.outputs].find((p) => p.id === pendingConnection.targetHandle)
+    const richtungsHinweis = richtungsWiderspruch(project.equipment, pendingConnection)
+    return { fromPort, toPort, fromDev, toDev, richtungsHinweis }
   }, [pendingConnection, project.equipment])
 
   return (
@@ -1653,6 +1659,7 @@ export default function App() {
           toPort={toPort}
           fromDev={fromDev}
           toDev={toDev}
+          richtungsHinweis={richtungsHinweis}
           defaultVideoFormat={project.metadata.defaultVideoFormat}
           onCancel={closeCableDialog}
           onCreate={createCableWithPlanCheck}

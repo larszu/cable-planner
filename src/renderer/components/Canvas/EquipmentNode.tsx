@@ -30,7 +30,6 @@ type EquipmentNodeData = EquipmentItem & {
 // equipmentLayout.ts dupliziert — Bug-Garantie wenn einer der beiden
 // geändert wurde.
 import { useRasterFuer } from '../../lib/aktuellesRaster'
-import { richteVerbindungAus } from '../../lib/connectionDirection'
 import { istStartBuchse, startBuchseAm } from '../../lib/pendingCableSicht'
 import { useTally } from '../../hooks/useCanvasFlow'
 import { useLampLevel } from '../../hooks/useCircuit'
@@ -153,7 +152,6 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
   const startBuchse = useUiStore((s) => startBuchseAm(s.pendingCable, id))
   const startPendingCable = useUiStore((s) => s.startPendingCable)
   const clearPendingCable = useUiStore((s) => s.clearPendingCable)
-  const rejectPendingCableEnd = useUiStore((s) => s.rejectPendingCableEnd)
   const canvasTheme = useUiStore((s) => s.canvasTheme)
   const colorPortsByType = useUiStore((s) => s.colorPortsByType)
   // v7.9.59 — User-anpassbare Geräte-Karten-Farben pro Theme. Vorher
@@ -351,18 +349,12 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
     }
     // In Zeichenrichtung uebergeben; queueConnection dreht auf
     // Ausgang -> Eingang und die Knicke mit (#1029). Passt das Paar nicht
-    // zusammen (Eingang auf Eingang, Ausgang auf Ausgang), bleibt die
-    // Zeichnung offen und die Leiste sagt, warum.
+    // zusammen (Eingang auf Eingang), sagt es der Kabel-Dialog (#1219).
     const connection = {
       source: pendingCable.nodeId,
       sourceHandle: pendingCable.handleId,
       target: id,
       targetHandle: portId,
-    }
-    const ausrichtung = richteVerbindungAus(projektApi.getState().project.equipment, connection)
-    if (!ausrichtung.ok) {
-      rejectPendingCableEnd(ausrichtung.grund)
-      return
     }
     clearPendingCable()
     queueConnection(connection, pendingCable.waypoints)

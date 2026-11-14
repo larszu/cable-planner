@@ -4,8 +4,7 @@
  */
 import { describe, expect, it, beforeEach } from 'vitest'
 import { useProjectStore } from '../src/renderer/store/projectStore'
-import { useUiStore } from '../src/renderer/store/uiStore'
-import { richteVerbindungAus } from '../src/renderer/lib/connectionDirection'
+import { richteVerbindungAus, richtungsWiderspruch } from '../src/renderer/lib/connectionDirection'
 import { griffAusdehnung, MIN_SCREEN_PX } from '../src/renderer/lib/griffFlaeche'
 import type { EquipmentItem, Port } from '../src/renderer/types/equipment'
 
@@ -87,10 +86,27 @@ describe('queueConnection richtet aus', () => {
     })
   })
 
-  it('Eingang→Eingang oeffnet keinen Kabeldialog', () => {
-    useProjectStore.getState().queueConnection(verb('atem', 'sdi-in-3', 'kamera', 'sdi-in-return'))
-    expect(useProjectStore.getState().showCableDialog).toBe(false)
-    expect(useProjectStore.getState().pendingConnection).toBeUndefined()
+  it('#1219 — Eingang→Eingang oeffnet den Kabeldialog trotzdem, in Zeichenrichtung, mit Hinweis', () => {
+    const c = verb('atem', 'sdi-in-3', 'kamera', 'sdi-in-return')
+    useProjectStore.getState().queueConnection(c)
+    const s = useProjectStore.getState()
+    expect(s.showCableDialog).toBe(true)
+    expect(s.pendingConnection).toMatchObject(c)
+    expect(richtungsWiderspruch(s.project.equipment, s.pendingConnection!)).toBe('inputToInput')
+  })
+
+  it('#1219 — Switch-Port (Ausgang) auf die Front einer Patchblende ist kein Widerspruch', () => {
+    const sw = geraet('switch', [], [port('p1')])
+    const blende = { ...geraet('blende', [port('rear-1')], [port('front-1')]), category: 'Patch panels' }
+    const r = richteVerbindungAus([sw, blende], verb('switch', 'p1', 'blende', 'front-1'))
+    expect(r).toMatchObject({ ok: true, umgedreht: false })
+    // Andersherum gezogen wird auf Ausgang -> Blende gedreht.
+    expect(richteVerbindungAus([sw, blende], verb('blende', 'front-1', 'switch', 'p1'))).toMatchObject({
+      ok: true,
+      umgedreht: true,
+      connection: { source: 'switch', target: 'blende' },
+    })
+    expect(richtungsWiderspruch([sw, blende], verb('switch', 'p1', 'blende', 'front-1'))).toBeUndefined()
   })
 
   it('Eingang→Ausgang wird gedreht, die Knicke drehen mit', () => {
@@ -100,18 +116,6 @@ describe('queueConnection richtet aus', () => {
     expect(s.showCableDialog).toBe(true)
     expect(s.pendingConnection).toMatchObject({ source: 'kamera', sourceHandle: 'sdi-out', target: 'atem' })
     expect(s.pendingWaypoints).toEqual([{ x: 2, y: 2 }, { x: 1, y: 1 }])
-  })
-})
-
-describe('Klick-Zeichnen: Ablehnung steht in der Leiste', () => {
-  it('rejectPendingCableEnd markiert, der naechste Knick loescht die Markierung', () => {
-    const ui = useUiStore.getState()
-    ui.startPendingCable({ nodeId: 'atem', handleId: 'sdi-in-3', handleType: 'target' })
-    useUiStore.getState().rejectPendingCableEnd('inputToInput')
-    expect(useUiStore.getState().pendingCable?.abgelehnt).toBe('inputToInput')
-    useUiStore.getState().addPendingWaypoint({ x: 0, y: 0 })
-    expect(useUiStore.getState().pendingCable?.abgelehnt).toBeUndefined()
-    useUiStore.getState().clearPendingCable()
   })
 })
 

@@ -1242,6 +1242,10 @@ export const de: Dict = {
   'cable.label.hiddenHint':
     'Label ausgeblendet — Klick auf eine der drei Positionen zeigt es wieder an.',
   'cable.label.start': 'Start',
+  'cable.direction.inputToInput':
+    'Beide Enden sind Eingänge. Meist ist eines davon ein Ausgang; führt der Port wirklich beides, ist er bidirektional. Das Kabel lässt sich trotzdem anlegen.',
+  'cable.direction.outputToOutput':
+    'Beide Enden sind Ausgänge. Meist ist eines davon ein Eingang; führt der Port wirklich beides, ist er bidirektional. Das Kabel lässt sich trotzdem anlegen.',
   'cable.lengthWarning': 'Länge überschreitet die empfohlene Maximallänge von {max} m für {name}.',
   'cable.newConnectorTypeOption': 'Neuer Stecker-Typ',
   'cable.newSignalStandardOption': 'Neuer Signal-Standard',
@@ -4318,10 +4322,6 @@ export const de: Dict = {
   'pendingCable.banner':
     'Kabel zeichnen: Tippen auf die Fläche setzt einen Knick, Tippen auf einen Port beendet.',
   'pendingCable.cancel': 'Abbrechen',
-  'pendingCable.inputToInput':
-    'Ein Eingang verbindet sich mit einem Ausgang, nicht mit einem anderen Eingang. Tippe auf einen Ausgang.',
-  'pendingCable.outputToOutput':
-    'Ein Ausgang verbindet sich mit einem Eingang, nicht mit einem anderen Ausgang. Tippe auf einen Eingang.',
   'pendingCable.undoBend': 'Knick zurück',
   'planCheck.allClear': 'Keine Auffälligkeiten gefunden.',
   'planCheck.footerHint':
