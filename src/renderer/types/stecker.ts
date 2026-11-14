@@ -79,3 +79,35 @@ export interface SteckerWahl {
   /** Fehlt sie, gilt die erste Konfektion bzw. der Vorschlag nach AWG. */
   konfektionId?: string
 }
+
+// ───────────────────────────────────────────────────────────────────────────
+// #1179 — Belegung: welche Ader auf welchen Pin, je Kabel.
+// ───────────────────────────────────────────────────────────────────────────
+
+/** Eine Zeile der Belegung: Pin an Ende A, optional anderer Pin an Ende B. */
+export interface BelegungsZeile {
+  pin: string
+  /** Pin an Ende B; fehlt = derselbe wie an A (1:1). */
+  pinB?: string
+  /** Ader: Farbe oder Nummer. */
+  ader?: string
+  signal?: string
+}
+
+/** Belegung eines Kabels; `vorlageId` nennt die Standardbelegung, aus der sie stammt. */
+export interface KabelBelegung {
+  vorlageId?: string
+  zeilen: BelegungsZeile[]
+}
+
+/** Eine Standardbelegung — nur mit Norm oder Herstellerdoku als `quelle`. */
+export interface Standardbelegung {
+  id: string
+  name: string
+  connectorType?: string
+  polzahl: number
+  /** 'reihe' nur, wo die Norm die Lage vorgibt (RJ45); sonst schematischer Kreis. */
+  anordnung?: 'reihe' | 'kreis'
+  quelle: string
+  zeilen: BelegungsZeile[]
+}
