@@ -1,4 +1,5 @@
 import type { EquipmentItem } from '../types/equipment'
+import { isPatchPanelDevice } from './patchPanel'
 
 /**
  * #1029 — Signalrichtung einer neuen Verbindung.
@@ -15,6 +16,14 @@ import type { EquipmentItem } from '../types/equipment'
  *
  * Ein Endpunkt, der kein bekannter Geraete-Port ist (Stummel, Fremd-Knoten),
  * bleibt unbewertet — die Verbindung geht dann unveraendert durch, wie bisher.
+ *
+ * #1219 — Die Ablehnung ist ein HINWEIS, keine Sperre. Der Canvas legt die
+ * Verbindung trotzdem an (in Zeichenrichtung) und der Kabel-Dialog sagt, was
+ * nicht passt; nur der MCP-Schreibweg lehnt weiterhin ab. Und eine
+ * Patchblende ist passiv: ihre Buchsen leiten in beide Richtungen durch,
+ * ganz gleich, ob sie unter „Eingaenge" (hinten) oder „Ausgaenge" (vorn)
+ * stehen. Vorher galt die Front einer Blende als Ausgang, und ein Switch-Port
+ * (auch ein Ausgang) liess sich nicht auf sie stecken.
  */
 
 export type PortRichtung = 'in' | 'out' | 'bidirectional'
@@ -27,10 +36,11 @@ export const portRichtung = (
   if (!equipmentId || !portId) return undefined
   const eq = equipment.find((e) => e.id === equipmentId)
   if (!eq) return undefined
+  const passiv = isPatchPanelDevice(eq)
   const input = eq.inputs.find((p) => p.id === portId)
-  if (input) return input.direction ?? 'in'
+  if (input) return passiv ? 'bidirectional' : input.direction ?? 'in'
   const output = eq.outputs.find((p) => p.id === portId)
-  if (output) return output.direction ?? 'out'
+  if (output) return passiv ? 'bidirectional' : output.direction ?? 'out'
   return undefined
 }
 
@@ -68,4 +78,16 @@ export const richteVerbindungAus = <T extends Endpunkte>(
     }
   }
   return { ok: true, connection, umgedreht: false }
+}
+
+/**
+ * #1219 — Was an dieser Verbindung der Richtung nach nicht passt, oder
+ * `undefined`. Fuer den Hinweis im Kabel-Dialog; gesperrt wird nicht.
+ */
+export const richtungsWiderspruch = (
+  equipment: readonly EquipmentItem[],
+  connection: Endpunkte,
+): 'inputToInput' | 'outputToOutput' | undefined => {
+  const r = richteVerbindungAus(equipment, connection)
+  return r.ok ? undefined : r.grund
 }

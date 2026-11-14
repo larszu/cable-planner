@@ -51,7 +51,8 @@
   A new cable starts with the type and length of the last cable drawn
   between the same connectors; its name stays empty and the label shows the
   type. A cable runs from an output to an input, whichever end you start at;
-  input to input or output to output is refused, network ports work both ways.
+  input to input or output to output is still created, with a note in the
+  cable dialog; network ports and patch panel sockets work both ways.
   Library categories can have subcategories (Audio → Lautsprecher).
   The plan check tests the amplifier load per channel from impedance and
   power data.

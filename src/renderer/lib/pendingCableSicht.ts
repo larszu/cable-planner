@@ -28,7 +28,6 @@ export interface GezeichneteLinie {
   handleId: string
   handleType: 'source' | 'target'
   waypoints: { x: number; y: number }[]
-  abgelehnt?: 'inputToInput' | 'outputToOutput'
 }
 
 /**
