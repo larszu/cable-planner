@@ -97,7 +97,8 @@
   convention, ±50 % = lens at the image edge) and viewing distances (THX 36°,
   SMPTE 30°, 6 × image height) — with a dimensioned 2D side/front plan and a
   3D view. LED-wall resolution from pixel pitch in the same dialog.
-- **Control at the device.** ATEM multiviewer and audio, Videohub routing,
+- **Control at the device.** ATEM multiviewer and audio, Videohub routing
+  (also typed as a quick patch like `i1o4o7`, live with read-back),
   PTZ cameras through the LZ Camera Bridge (joystick, presets, the shots
   planned in MultiCam driven and stored in the head, one offset on site, live
   picture and a video wall), and Green-GO intercom channels live over OSC —

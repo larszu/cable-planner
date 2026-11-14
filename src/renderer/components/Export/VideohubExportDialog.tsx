@@ -28,6 +28,8 @@ import { pickTextFile } from '../../lib/pickFile'
 import { infoDialog } from '../../lib/infoDialog'
 import { VideohubRoutingMatrix } from './VideohubRoutingMatrix'
 import { VideohubRoutingList } from './VideohubRoutingList'
+import { VideohubQuickPatch } from './VideohubQuickPatch'
+import { quickPatchCommand, quickPatchUnbestaetigt } from '../../lib/videohubQuickPatch'
 import { cablePlannerApi, hasDesktopBridge, type VideohubState } from '../../lib/bridge'
 import { portDisplayLabel } from '../../lib/portLabel'
 import { roleLabelsByPort } from '../../lib/labelDerivation'
@@ -908,6 +910,31 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
     const block = buildVideohubRoutingCommand(routing, preset.outputs)
     await sendBlock(block, 'Routing-Push')
   }
+  /** #1184 — Schnellpatch live: nur die getippten Kreuzpunkte senden, danach
+   *  den Hub zuruecklesen und im Protokoll belegen, ob er sie traegt. Ohne
+   *  Rueckleseprobe gilt der Patch als nicht bestaetigt, nicht als geschaltet. */
+  const handleQuickPatchLive = async (xp: Record<number, number>) => {
+    const block = quickPatchCommand(xp)
+    const ok = await sendBlock(block, `Quick patch [${block.trim().split('\n').slice(1).join(' | ')}]`)
+    if (!ok) return
+    const port = parseInt(vhPort, 10)
+    try {
+      const r = await cablePlannerApi.videohub.readState({ host: vhHost.trim(), port })
+      if (!r.ok || !r.state) {
+        logEvent(t('videohub.quick.logNoReadback', 'Quick patch sent, read-back failed — not confirmed.'), false)
+        return
+      }
+      setHubState(r.state)
+      const offen = quickPatchUnbestaetigt(xp, r.state.routing)
+      if (offen.length === 0) {
+        logEvent(fmt(t('videohub.quick.logConfirmed', 'Quick patch confirmed by read-back ({n} crosspoints).'), { n: Object.keys(xp).length }))
+      } else {
+        logEvent(fmt(t('videohub.quick.logUnconfirmed', 'Quick patch NOT confirmed for output(s) {list}.'), { list: offen.join(', ') }), false)
+      }
+    } catch (e) {
+      logEvent(`${t('videohub.quick.logNoReadback', 'Quick patch sent, read-back failed — not confirmed.')} ${e instanceof Error ? e.message : ''}`, false)
+    }
+  }
   const handleSendLabels = async () => {
     const inLabels = computeEffectiveInputLabels()
     const outLabels = computeEffectiveOutputLabels()
@@ -1183,6 +1210,29 @@ export const VideohubExportDialog = ({ onClose, preselectedDeviceId, initialShow
               {t('export.reset', 'Reset')}
             </button>
           </div>
+          {/* #1184 — Schnellpatch per Kuerzel (i1o4o7). In den Plan per
+              Enter/Knopf, live nur ueber den eigenen Knopf mit Rueckleseprobe. */}
+          {device && (
+            <VideohubQuickPatch
+              totalInputs={preset.inputs}
+              totalOutputs={preset.outputs}
+              inputLabels={computeEffectiveInputLabels()}
+              outputLabels={computeEffectiveOutputLabels()}
+              lockedOutputs={
+                new Set(
+                  Object.entries(hubState?.outputLocks ?? {})
+                    .filter(([, v]) => v === 'locked-other')
+                    .map(([k]) => Number(k)),
+                )
+              }
+              onApplyPlan={(xp) => {
+                setRouting((r) => ({ ...r, ...xp }))
+                logEvent(fmt(t('videohub.quick.logPlan', 'Quick patch applied to the plan ({n} crosspoints).'), { n: Object.keys(xp).length }))
+              }}
+              onPatchLive={hasDesktopBridge ? (xp) => { void handleQuickPatchLive(xp) } : undefined}
+              busy={sendStatus === 'sending'}
+            />
+          )}
           {showMatrix && (() => {
             // v7.9.128/129 — Labels einmal berechnen, an Matrix ODER
             // Liste durchreichen. Hub-Labels gewinnen wenn vom Hub
