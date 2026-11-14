@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { clearCanvasSelection } from './canvasViewport'
 
 // Bei grossen Plaenen zeichnet ReactFlow nur, was im Ausschnitt liegt
 // (`onlyRenderVisibleElements`). Die Ausgaben (Bild, PDF, Vektor-PDF) lesen
@@ -21,7 +22,19 @@ const zweiBilder = () =>
     requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
   })
 
+/**
+ * Vor jeder Ausgabe, die den Plan aus dem DOM liest: alles zeichnen lassen
+ * und die Auswahl aufheben.
+ *
+ * #1210 — die Auswahl gehoert zur Bedienung, nicht zum Plan. Wer einen Raum
+ * markiert und seine Dokumentation als PDF zog, bekam die Markierung mit:
+ * ReactFlow hebt einen markierten Rahmen in der Ebene ueber seine Geraete,
+ * und seine Flaeche lag farbig auf ihnen. Gezeichnet wird, was im DOM steht —
+ * also wird die Auswahl vorher aufgehoben, nicht im Bild nachgebessert. Die
+ * zwei Bilder danach warten den neuen Stand ab.
+ */
 export const mitAllenElementen = async <T>(arbeit: () => Promise<T>): Promise<T> => {
+  clearCanvasSelection()
   useAlleElementeRendern.setState((s) => ({ aktiv: s.aktiv + 1 }))
   try {
     await zweiBilder()

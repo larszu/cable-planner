@@ -374,7 +374,7 @@ Ein Rahmen ist ein farbiges Rechteck, das Geräte zu einem Ort oder Raum zusamme
 
 8. *Rahmen löschen* fragt *Rahmen „…" löschen?* — nur der Rahmen verschwindet, die Geräte bleiben.
 
-9. Strg/Cmd+C, V und D kopieren, fügen ein und duplizieren auch markierte Rahmen. Ein Rahmen wird samt den Geräten darin und den Kabeln zwischen diesen Geräten kopiert; die Kopie erscheint neben dem Original (um die Rahmenbreite versetzt). Das Rechtsklick-Menü bietet dafür *Rahmen mit Inhalt duplizieren*.
+9. Strg/Cmd+C, V und D kopieren, fügen ein und duplizieren auch markierte Rahmen. Ein Rahmen wird samt den Geräten darin und den Kabeln zwischen diesen Geräten kopiert; die Kopie erscheint neben dem Original (um die Rahmenbreite versetzt). Das Rechtsklick-Menü bietet dafür *Rahmen mit Inhalt duplizieren*. Dasselbe Menü öffnet mit *Raumdokumentation exportieren…* die Stückliste des Raums (siehe Kapitel *Eigenschaften*).
 
 10. Markieren Sie mehrere Geräte und klicken Sie *Rahmen*, um einen Rahmen um sie zu ziehen.
 

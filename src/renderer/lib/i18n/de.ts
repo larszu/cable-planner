@@ -3453,6 +3453,7 @@ export const de: Dict = {
   'library.newCategoryParent': 'Unter welcher Kategorie?',
   'library.newCategoryTopLevel': 'Oberste Ebene',
   'canvas.nodeMenu.duplicateFrame': 'Rahmen mit Inhalt duplizieren',
+  'canvas.nodeMenu.roomDocs': 'Raumdokumentation exportieren…',
   'check.amp.noImpedance': '{amp} {port}: Last nicht geprüft – keine Nennimpedanz bei {namen}.',
   'check.amp.underLoad': '{amp} {port}: {n} Lautsprecher parallel ergeben {last} Ω, unter der Mindestlast von {min} Ω.',
   'check.amp.overPower': '{speaker} bekommt von {amp} {port} bis zu {w} W – mehr als das Doppelte der Belastbarkeit von {rms} W.',

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { bomTyp } from '../../lib/kabelEnden'
+import { mitAllenElementen } from '../../lib/alleElementeRendern'
 import jsPDF from 'jspdf'
 import { toJpeg } from 'html-to-image'
 import { useUiStore } from '../../store/uiStore'
@@ -194,7 +195,9 @@ export const LocationBomDialog = () => {
     if (busy) return
     setBusy(true)
     try {
-      const planDataUrl = includePlan ? await capturePlanForLocation() : null
+      // #1210 — derselbe Vorlauf wie Bild- und PDF-Export: alles gezeichnet,
+      // keine Auswahl im Bild.
+      const planDataUrl = includePlan ? await mitAllenElementen(capturePlanForLocation) : null
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
       const pageW = pdf.internal.pageSize.getWidth()
       const pageH = pdf.internal.pageSize.getHeight()
