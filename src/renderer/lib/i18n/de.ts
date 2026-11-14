@@ -3666,6 +3666,8 @@ export const de: Dict = {
     'Kabel zwischen Etagen sind als Luftlinie gezeichnet. Einen Rahmen als Steigschacht markieren (Rahmen-Eigenschaften), dann laufen sie durch ihn.',
   'gebaeude3d.modeRooms': 'Raumverbindungen',
   'gebaeude3d.open': 'Räume nach Etage in 3D zeigen, mit den Verbindungen dazwischen',
+  'gebaeude3d.seeInside': 'Durchsicht',
+  'gebaeude3d.seeInsideTitle': 'Wände durchsichtig, Decke aus — von oben in die Räume schauen',
   'gebaeude3d.storey': 'Geschosshöhe (m)',
   'gebaeude3d.storeyTitle': 'Gilt nur für Etagen ohne Höhe in der Etagenliste',
   'gebaeude3d.title': 'Gebäude 3D',

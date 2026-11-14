@@ -24,6 +24,7 @@ import { locationForEquipment } from './equipmentLocation'
 import { etagenIndex, etageVon } from './etagen'
 import { styleForLayer } from './cableLayers'
 import { istBodentank } from '../types/frontplatte'
+import { effectiveShortName } from './shortName'
 
 export interface Punkt3D {
   x: number
@@ -56,6 +57,8 @@ export interface SzeneRaum {
 export interface SzeneGeraet {
   id: string
   name: string
+  /** #1185 — Kennung fuers Schild: Kuerzel des Geraets (`effectiveShortName`). */
+  kennung: string
   raumId?: string
   pos: Punkt3D
   /** Hoehe der Kabeltrasse ueber dem Geraet: knapp unter der Decke seines Raums. */
@@ -227,6 +230,7 @@ export function gebaeudeSzene(
     geraetById.set(e.id, {
       id: e.id,
       name: e.name,
+      kennung: effectiveShortName(e) || e.name,
       ...(loc ? { raumId: loc.id } : {}),
       pos: {
         x: (e.x + (e.width ?? 0) / 2) * m,

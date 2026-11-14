@@ -26,6 +26,7 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [The toolbar](#the-toolbar)
    - [Defaults](#defaults)
    - [Selecting devices](#selecting-devices)
+   - [Device size](#device-size)
    - [Aligning devices](#aligning-devices)
    - [Saving a device group](#saving-a-device-group)
    - [Arranging the selection in the rack builder](#arranging-the-selection-in-the-rack-builder)
@@ -83,6 +84,7 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [Import yEd / GraphML](#import-yed--graphml)
    - [Import MultiCam cameras](#import-multicam-cameras)
    - [Import equipment from CSV](#import-equipment-from-csv)
+   - [Import GDTF / MVR](#import-gdtf--mvr)
    - [Rentman import](#rentman-import)
    - [NetBox import](#netbox-import)
    - [Exporting and importing a whole project (`.avplan`)](#exporting-and-importing-a-whole-project-avplan)
@@ -662,7 +664,7 @@ On a phone the toolbar shows only the grip, *Defaults* and *More*; frame, layers
 | | *Cable bumps at crossings* | Crossings are drawn as a small bump. This can be overridden per cable in the context menu. |
 | | *Hide all cable labels* | The labels of all cables disappear; their position stays saved. |
 | | *Cable labels: short form* | The format suffix (for example "(1080p50/60)") is removed from the display. The full name stays in the cable properties. |
-| | *Colour ports by connector type* | Ports take the colour of their connector type (SDI amber, HDMI violet, Ethernet green and so on). |
+| | *Colour ports by connector type* | On by default. Ports take the colour of their connector type (SDI amber, HDMI violet, Ethernet green and so on). |
 
 The routing applies to cables created afterwards. Cables already drawn keep their shape (see [Editing cables](#editing-cables)).
 
@@ -678,7 +680,7 @@ The routing applies to cables created afterwards. Cables already drawn keep thei
 
    ![Cable bump at a crossing](bilder/en/canvas-defaults-11-bruecken-flaeche.jpg)
 
-4. *Colour ports by connector type* colours the ports by connector type.
+4. *Colour ports by connector type* colours the ports by connector type (on by default); XLR and Cat ports on one device look different.
 
    ![Coloured ports](bilder/en/canvas-defaults-16-ports-nach-typ-flaeche.jpg)
 
@@ -688,7 +690,8 @@ In addition, the entry *Color cables by discipline* in the *View* menu colours t
 
 - **Click** on a device selects it; the inspector on the right shows its properties.
 - **Shift**, **Ctrl** or **Cmd** plus click adds further devices or removes them again.
-- Holding **Shift** and dragging on empty area draws a selection rectangle.
+- Holding **Shift** or **Alt** (Mac: **Option**) and dragging on empty area draws a selection rectangle.
+- After *Paste* (Ctrl/Cmd+V) or *Duplicate* (Ctrl/Cmd+D) the copies are selected together and can be moved at once.
 - *Edit → Select all* selects all devices.
 - A click on empty area clears the selection.
 
@@ -700,13 +703,27 @@ In addition, the entry *Color cables by discipline* in the *View* menu colours t
 
    ![Two devices selected](bilder/en/canvas-auswahl-04-zwei-geraete.jpg)
 
-3. Drag a rectangle over several devices while holding Shift.
+3. Drag a rectangle over several devices while holding Shift or Alt.
 
    ![Selection rectangle](bilder/en/canvas-auswahl-07-rechteck.jpg)
 
 4. *Edit → Select all* selects all five devices.
 
 As soon as devices are selected, the buttons for selection actions appear in the toolbar and the [selection bar](#selection-bar-at-the-device) appears above the selection.
+
+### Device size
+
+Every device tile has a grip in its bottom right corner — two short strokes. It appears as soon as the device is selected or the pointer is over the tile.
+
+- **Drag** changes the size. While dragging, the percentage is shown above the tile. The range is 60 % to 300 %.
+- **Double-click** resets the device to 100 %.
+- **Arrow keys** step by 5 % once the grip has focus; with **Shift** they step by 20 %.
+
+The whole tile grows with it: name, subtitle, address line, port labels, icons and the port dots. Cables stay on their ports and follow the new size.
+
+If several devices are selected and you drag one of them, all of them get the same size. The same setting is available as *Smaller devices* and *Bigger devices* in the [selection bar](#selection-bar-at-the-device).
+
+The size belongs to the individual device in this plan and is saved with the project. There is no grip in a finalized plan or in the viewer.
 
 ### Aligning devices
 
@@ -753,7 +770,7 @@ The button *Save N selected devices as a group* stores the selection with its ca
 
 ### Arranging the selection in the rack builder
 
-The button *Arrange the N selected devices in the 2D rack builder* opens the rack builder with the selection (the device context menu has the same as *Arrange in rack builder*). If the selection already contains a rack, the button is missing; if exactly one rack is selected, the button *Edit this rack in the 2D rack builder* opens the builder for that rack instead. The builder itself is described in the chapter [Rack Builder](#rack-builder).
+The button *Arrange the N selected devices in the 2D rack builder* opens the rack builder with the selection (the device context menu has the same as *Arrange in rack builder*). If the selection already contains a rack, the button is missing; if exactly one rack is selected, the button *Edit this rack in the 2D rack builder* opens the builder for that rack instead. The devices sit in the rack in canvas order: what lies on top sits on top, devices side by side go from left to right. Cables between selected devices come along as internal cables; cables leading outside stay in the plan. The builder itself is described in the chapter [Rack Builder](#rack-builder).
 
 ![Rack builder with the selection](bilder/en/canvas-auswahl-20-rack-aus-auswahl.jpg)
 
@@ -856,7 +873,7 @@ Special cases when dragging:
 
   ![Releasing on the device body](bilder/en/canvas-kabel-09-auf-den-koerper.jpg)
 
-- **Two clicks instead of dragging:** a click on a port starts the cable; clicks on empty area set bends, a click on a port finishes it. The banner says *Draw cable: tap the canvas for a bend, tap a port to finish.* *Undo bend* takes back the last bend, *Cancel* discards the cable; Esc also cancels. An input can only be connected to an output, not to another input. While the cable is pending, the right side shows *Quick suggestions (connector type)*: up to eight library devices with a matching port, those most often connected in the project first. A click on a suggestion places the device at the mouse position and finishes the cable at the first matching port.
+- **Two clicks instead of dragging:** a click on a port starts the cable; clicks on empty area set bends, a click on a port finishes it. The banner says *Draw cable: tap the canvas for a bend, tap a port to finish.* *Undo bend* takes back the last bend, *Cancel* discards the cable; Esc also cancels. A cable runs from an output to an input; if you connect two inputs or two outputs, the cable is still created and the cable dialog points it out. The sockets of a patch panel count as bidirectional, so a switch port can also go onto its front. While the cable is pending, the right side shows *Quick suggestions (connector type)*: up to eight library devices with a matching port, those most often connected in the project first. A click on a suggestion places the device at the mouse position and finishes the cable at the first matching port.
 
   ![Cable with banner and suggestions](bilder/en/canvas-kabel-12-klick-knick.jpg)
 
@@ -939,7 +956,9 @@ A frame is a coloured rectangle that groups devices into a place or room. The bu
 
 8. *Delete frame* asks *Delete frame "…"?* — only the frame disappears, the devices stay.
 
-9. Select several devices and click *Frame* to draw a frame around them.
+9. Ctrl/Cmd+C, V and D also copy, paste and duplicate selected frames. A frame is copied together with the devices inside it and the cables between those devices; the copy appears next to the original (offset by the frame width). The right-click menu offers *Duplicate frame with contents*.
+
+10. Select several devices and click *Frame* to draw a frame around them.
 
    ![Frame around the selection](bilder/en/canvas-rahmen-13-rahmen-um-auswahl-fertig.jpg)
 
@@ -979,13 +998,13 @@ Every frame is a room. Frames can be assigned to floors; floors determine visibi
 
     ![Single cables in 3D](bilder/en/canvas-raeume-18-drei-d-kabel.jpg)
 
-12. *Labels* shows or hides the names. *Storey height (m)* applies only to floors without an entered height; the view points out that this is an assumption.
+12. *Labels* shows or hides the names. Every device then carries a sign with its identifier (the short name from the properties); the sign always faces you and keeps its size when you zoom. *See inside* makes the walls see-through and removes the ceiling, so you look into the rooms from above; without it the rooms are closed. *Storey height (m)* applies only to floors without an entered height; the view points out that this is an assumption.
 
 Devices can be dragged in the 3D view. Floor boxes appear as a flat plate in the floor, other devices as cubes. Dragging beside a device rotates the view, the mouse wheel zooms.
 
 ### Layers
 
-The layer chips show and hide the cables of a layer. Only the cables are filtered, the devices stay. A coloured dot marks the signal type; the tooltip gives the number of cables (for example *Video — 4 cables · visible (click to hide)*).
+The layer chips show and hide the cables of a layer. Only the cables are filtered, the devices stay. A coloured dot marks the signal type, the number in the chip the cables on that layer. Sub-layers such as *video.backup* count towards their main layer, cables without a layer towards *Other*. That shows when a layer is empty although the plan needs it.
 
 1. The toolbar shows *Video*, *Audio*, *Control*, *Network*, *Power* and *Other*.
 
@@ -994,6 +1013,8 @@ The layer chips show and hide the cables of a layer. Only the cables are filtere
 2. Click *Video*: the video cables disappear.
 
    ![Layer Video hidden](bilder/en/canvas-ebenen-02-video-aus.jpg)
+
+   A double click (or Alt-click) on a chip solos the layer: only its cables stay visible. The same gesture again shows all layers.
 
 3. *More → Layers ⋯* opens the management menu: *Create custom layer…* and *Show all layers again*.
 
@@ -1164,7 +1185,7 @@ You set the **scale** in two ways.
 
 11. A file that is not an image is rejected by the app: *This file is not a floor plan image. Use PNG, JPG, WebP, GIF, BMP or AVIF.*
 
-**PDF.** A PDF is loaded as an image of the page. If it has several pages, the panel shows *PDF page* with the page number and *of n*; another page replaces the plan in the same place with the same opacity.
+**PDF.** A PDF is loaded as an image of the page (up to 6000 px on the longest edge, so the plan stays legible when zooming in). If it has several pages, the panel shows *PDF page* with the page number and *of n*; another page replaces the plan in the same place with the same opacity.
 
 12. Load a PDF.
 
@@ -1278,11 +1299,11 @@ Above a selection a small bar with quick actions appears.
 
 | Selection | Buttons |
 |---|---|
-| One device | *Duplicate*, *Frame around selection*, *Device datasheet (A4 PDF / print)*, *Delete* |
+| One device | *Duplicate*, *Frame around selection*, *Smaller devices*, *Bigger devices*, *Device datasheet (A4 PDF / print)*, *Delete* |
 | Two devices | additionally the six align buttons |
 | Three and more devices | additionally *Distribute horizontally* and *Distribute vertically* |
 
-For devices with readable streams, *Compare scopes (one parade per source)* is added.
+For devices with readable streams, *Compare scopes (one parade per source)* is added. *Reset device size to 100 %* appears as soon as one of the selected devices differs from 100 %.
 
 ![Selection bar at a device](bilder/en/canvas-inline-01-ein-geraet.jpg)
 
@@ -1350,7 +1371,7 @@ The sub-tab *Local* shows the templates by category. Each category is a collapsi
 
 ![Opened category](bilder/en/bibliothek-12-kategorie-aufklappen.jpg)
 
-Each entry shows the name and below it the category with the number of inputs and outputs. The **L** before the name marks a local device (not from Rentman). A click selects the entry and shows its template in the Inspector; a double click or dragging onto the canvas places the device. When you point at an entry, four buttons appear:
+Each entry shows the name and below it the category with the number of inputs and outputs. The **L** before the name marks a local device (not from Rentman). A click selects the entry and shows its template in the Inspector; for an own template its inputs and outputs appear there as editable port lists (the same editor as on a placed device: add, remove, reorder, connector, signal, kind). Changes apply to the template immediately; devices already placed keep their ports; a double click or dragging onto the canvas places the device. When you point at an entry, four buttons appear:
 
 | Button | Effect |
 |---|---|
@@ -1410,11 +1431,13 @@ Categories order the templates. A pencil appears when you point at the category 
 
    ![Dragging a category by its grip](bilder/en/bibliothek-35-kategorie-ziehen-griff.jpg)
 
-3. Entries can be dragged onto another category; an empty category says *Drag a device here to move it*.
+3. Entries can be dragged onto another category or subcategory; an empty category says *Drag a device here to move it*. Dragging to the top or bottom edge of the list scrolls it along. Likewise, changing the category in the template inspector moves the entry at once, without *Save*.
 
    ![Dragging an entry into a category](bilder/en/bibliothek-52-eintrag-in-kategorie-ziehen.jpg)
 
 4. New categories are created with the **+** menu (see below).
+
+5. Next to the pencil a folder-plus button appears, *New subcategory*. It asks for a name and creates a subcategory shown indented under its parent (for example Audio → Lautsprecher). Collapsing the parent hides its subcategories; the count on a category includes its subcategories. Renaming a category carries its subcategories along. A subcategory has the specialist data of its top category. Internally the category is stored as the path `Audio > Lautsprecher`; typing `Audio > Lautsprecher` as the category in the template inspector works too.
 
    ![New, empty category](bilder/en/bibliothek-55-kategorie-umbenannt.jpg)
 
@@ -1533,6 +1556,14 @@ The **datasheet link is mandatory**: a template without a link cannot be submitt
 The sub-tab *Shared* shows the shared device library (devices.zumpelars.de), read-only. Signing in is needed to fetch or update the devices (*Sign in…*); devices already fetched stay usable. *Update* fetches the current state. The line *N devices stored locally* states how many devices are on this computer; they are ordered by category. Each entry carries the name, the status (*verified*, *confirmed*, *unconfirmed* or *disputed*), the number of confirmations and the link *Page* to the detail page. The status is set by the device library, not by the planner.
 
 ![Shared device library](bilder/en/bibliothek-58-geteilt-uebersicht.jpg)
+
+**Check, report, change.** Below each entry, *Check, report, change* opens three ways, all of which need a sign-in:
+
+- *Confirm* confirms the revision that is here — not “the device”. After a change in the device library the count starts over. Choose whether you checked *against the datasheet* or *on the device itself*; the firmware is optional. *Verified* needs three confirmations and at least one on the device, which is why the method is asked for instead of a thumbs-up. Nobody can confirm their own entry.
+- *Report an error* objects to the revision. An open objection overrules every confirmation until moderation has settled it, so a reason of at least ten characters is required — what is wrong, and where the correct value comes from.
+- *Propose a change* copies the template into your own templates. There it is editable; at the next upload the device library recognises manufacturer and model and turns it into a change proposal for this device — not a second device of the same name. A change to someone else's data needs a reason.
+
+If an entry comes from an older sync, it says *Update once*: without the revision number there is nothing to rate.
 
 ![Search in the shared library](bilder/en/bibliothek-59-geteilt-suche.jpg)
 
@@ -1861,7 +1892,7 @@ The section has two lists, *Inputs* and *Outputs*. The header counts them, e.g. 
 
 ![Inputs & outputs](bilder/en/eigenschaften-15-ports-abschnitt.jpg)
 
-1. *+ Port* creates a port in the list.
+1. *+ Input* (or *+ Output*) creates a port in the list, *+ Bidirectional* a port that carries signal both ways (network, intercom, etherCON): one cable comes in, further ones go out.
 
    ![Input added](bilder/en/eigenschaften-16-ports-eingang-hinzu.jpg)
 
@@ -1874,12 +1905,12 @@ The section has two lists, *Inputs* and *Outputs*. The header counts them, e.g. 
    | Field | Values |
    |---|---|
    | Content / function | free text, e.g. “PGM” |
-   | Direction | Direction (auto), Input only, Output only, Bidirectional (e.g. network) |
+   | Kind | *Input* or *Output* (depending on the list) or *Bidirectional (e.g. speakON, etherCON, network)* (such a port can be cable source and target; a cable between two bidirectional ports starts at the device where you begin dragging) |
    | Side | Side (auto), Left, Right |
    | Gender | Gender (–), ♂ Male / plug, ♀ Female / socket |
    | Group | — None —, existing groups, *+ New group…* |
 
-   ![Signal, content and direction](bilder/en/eigenschaften-19-ports-signal-inhalt-richtung.jpg)
+   ![Signal, content and kind](bilder/en/eigenschaften-19-ports-signal-inhalt-richtung.jpg)
 
 4. For SDI ports, *SDI capabilities (port-specific)* expands: *Max single-link* overrides the device value for this port; *Quad-link set* and *Dual-link set* combine ports into a set (*+ New set…*). A new set reports how many ports are already assigned to it.
 
@@ -1891,6 +1922,8 @@ Fibre ports additionally show *Breakout* (DUO (2), QUAD (4)) with one row per fi
 
 An entry at the end of the connector type list creates a new connector type; the app asks for its name. The × deletes a port.
 
+Drag a port by its ≡ handle to another position – also into the other list, from *Inputs* to *Outputs* and back, including an empty list. The port keeps all its settings and its cables. The same works in the inspector of a library template.
+
 The ≡ handle in front of *Inputs* and *Outputs* swaps the two lists; *Flip ports (inputs on right, outputs on left)* puts the inputs on the right side of the node.
 
 ![Mirrored node on the canvas](bilder/en/eigenschaften-33-ports-spiegeln-canvas.jpg)
@@ -1901,7 +1934,7 @@ Free field for anything that has no field of its own, such as web interface, fir
 
 #### Rentman notice and category
 
-With the Rentman module enabled and the device missing from the linked Rentman plan, the inspector shows *Not tracked in Rentman plan*. Below it, *Category* picks the kind of device; *+ New category…* creates your own. The section *Specs — <category>* shows the fields of that kind, for monitors panel type, HDR, brightness, frame rate and colour space.
+With the Rentman module enabled and the device missing from the linked Rentman plan, the inspector shows *Not tracked in Rentman plan*. Below it, *Category* picks the kind of device; *+ New category…* creates your own. The section *Specs — <category>* shows the fields of that kind, for monitors panel type, HDR, brightness, frame rate and colour space. The Audio specialist data are *Type* (amplifier/loudspeaker), *Impedance* (Ω), *Power handling (RMS/AES)* (W), *Minimum load per channel* (Ω) and *Power per channel* (W); the plan check *Amplifier load* uses them.
 
 ![Category data of a monitor](bilder/en/eigenschaften-147-monitor-spezifikation.jpg)
 
@@ -2219,6 +2252,10 @@ Clicking a cable shows its properties.
 
 ![Signal path on the canvas](bilder/en/eigenschaften-175-kabel-signalweg-canvas.jpg)
 
+#### Connector parts
+
+*Connector parts* sets per end which connector from the connector catalogue is fitted: *End A* and *End B*, plus the *Conductor size (AWG)*. The list shows the connectors that match the port first. When a connector has several assemblies, the app picks the one that fits the conductor size; another can be chosen. Below are the parts with part number and quantity — housing, contacts per pole, lock — and the link to the datasheet. Every connector in the catalogue carries its manufacturer datasheet.
+
 #### Fixed install / lifecycle
 
 | Field | Values |
@@ -2458,6 +2495,8 @@ If the opened project is named *Untitled Project* or has no name, the app takes 
 
 *File → Save as…* (`Ctrl+Shift+S`) writes the project under a new name or path. The new project is then the active one; the earlier file stays unchanged. The file name becomes the new project name.
 
+*File → Save a copy to pass on…* writes a `.cableplan` copy as a download, for a colleague for instance. The open file and its path stay as they are. If devices or the intercom system carry credentials, *Include credentials?* asks: the box *Include usernames and passwords* is off, so the copy drops them. Ticked, they go along.
+
 Every write is atomic. The app writes a temporary file first, renames the previous file to `<name>.cableplan.bak` and then puts the temporary file in its place. After the second save the `.bak` file with the previous state therefore sits next to the project file. An interruption in the middle of writing destroys neither the old nor the new file.
 
 ### Autosave and status bar
@@ -2509,7 +2548,7 @@ Name and category can be changed before the import.
 
 ![Name and category changed](bilder/en/datei-import-12-graphml-geraet-umbenannt.jpg)
 
-The *Cables* tab shows *Source*, *Target*, *Type*, *Standard* and *Length* for every edge. The app derives the type from the label. If a length is missing, the import sets 1 m. The import takes the bend points of the lines from yEd as waypoints of the cables.
+The *Cables* tab shows *Source*, *Target*, *Type*, *Standard* and *Length* for every edge. The app derives the type from the label. If a length is missing, the import sets 1 m. Every cable arrives as *Ortho*; the import takes the bend points of the lines from yEd as waypoints.
 
 ![Cables tab](bilder/en/datei-import-13-graphml-reiter-kabel.jpg)
 
@@ -2621,6 +2660,25 @@ If you repeat the import with the same names, the templates stay unchanged and t
 The file can also come through *Choose CSV file…*; the content lands in the same field.
 
 ![Dialog after choosing the file](bilder/en/datei-import-29-csv-datei-gewaehlt.jpg)
+
+### Import GDTF / MVR
+
+*File → Import GDTF / MVR…* (also in the command palette) opens the dialog. *Choose .gdtf or .mvr file(s)…* takes one MVR file or several .gdtf files at once.
+
+**GDTF.** Each file becomes a library template in the category Lighting. It carries:
+
+- name (manufacturer + type) and short name,
+- DMX modes with channel footprint, including multi-cell fixtures via geometry references (source "GDTF file"),
+- power (W) and weight (kg),
+- the connectors from the file (GDTF 1.2 wiring objects or the older connector list), mapped to the planner's connector names, for example NAC3FCA → PowerCON, PowerconTRUE1 → powerCON TRUE1, XLR5 → DMX 5-pol (XLR), RJ45 → Ethernet/RJ45, 16A-CEE → CEE16. Unknown names are kept as written.
+
+If a file lists no connectors, DMX In and DMX Thru (5-pin) are assumed; the template notes say so.
+
+The table shows per file the type, DMX modes, connectors and whether the template is already in the library (*already there: …*) or *new*. *Add to library* adds only the new ones; existing templates are not overwritten. The same FixtureTypeID (device type id) matches first, then the same name.
+
+**MVR.** The dialog lists each GDTF type of the scene with its count and a template field. It suggests a template from the library; empty means a new template from the embedded GDTF. You can type or choose any library template. Truss and scenery objects are skipped; the dialog shows their count. Fixtures, video screens, projectors and supports become devices.
+
+*Place devices* places them in plan view (MVR x to the right, y up). The top-left corner sits at the top-left corner of the floor plan, or at 100/100 without a floor plan. The scale comes from the calibrated floor plan or from the field *Scale (px per metre)* (without a calibrated floor plan, chosen so that no devices overlap). Each device gets its MVR name, the FixtureID as subtitle, and DMX mode, universe and start address from the MVR. The address counts as set by hand; automatic addressing does not move it. Placing is one undo step.
 
 ### Rentman import
 
@@ -2736,7 +2794,7 @@ In the example one device has been added in NetBox. The second preview shows onl
 
 *File → Export whole project (.avplan)…* writes the project in the exchange format `.avplan`. The file is JSON with the fields `kind` (*avplan*), `formatVersion`, `app`, `appVersion`, `exportedAt`, `venue` and `domains`. The Cable Planner enters its part under `domains.cabling`. It keeps the parts of other planners (cameras, lighting, venue) unchanged. The file name is `<project name>.avplan`; the app replaces characters other than letters, digits, `_` and `-` with `_`. The file is written as a download of the program window.
 
-If devices carry a user name or password, *Include credentials?* asks: the `.avplan` goes to other trades. *Without credentials* removes them; re-importing into this planner then loses them. *Include* keeps them, *Cancel* aborts the export. The question is skipped when no device carries credentials.
+If devices carry a user name or password, or the intercom system its codes, *Include credentials?* asks: the `.avplan` goes to other trades. Without a tick at *Include usernames and passwords* the export removes them (*Without credentials*); re-importing into this planner then loses them. Ticked, *Include* keeps them, *Cancel* aborts the export. The question is skipped when nothing carries credentials. The copy to pass on, the device export and the shared folder ask the same question.
 
 ![Credentials prompt](bilder/en/datei-import-43-avplan-export-zugangsdaten-frage.jpg)
 
@@ -3031,7 +3089,7 @@ The sheet contains drawing and legend from the same objects. The number on a dev
 
 | Format | Property |
 |---|---|
-| *PDF* | printable; the title block is only in raster mode (see below) |
+| *PDF* | printable, with a title block bottom right (see below) |
 | *PNG* | transparent possible, sharp |
 | *JPEG* | smaller, good for email |
 | *SVG* | scalable, for web and further processing |
@@ -3041,9 +3099,11 @@ For PDF these settings are added:
 
 - *PDF theme*: *Dark theme (like canvas)* or *Light theme (recommended for print)*.
 - *Monochrome-safe (layer spelled out, one line colour)* writes the layer in plain text on every cable and gives all lines the same colour. On a black-and-white printer video and audio are otherwise hard to tell apart.
-- *Render mode*: *Raster (classic)* is a JPEG snapshot of the canvas, reliable, but text blurs at high zoom. It carries the title block with the project data and the stamp. *Vector* uses Chromium's print path: text stays selectable and sharp at any zoom, the file stays small. It has no title block; revision, state fingerprint and QR code are only in the raster PDF.
+- *Render mode*: *Raster (classic)* is a JPEG snapshot of the canvas, reliable, but text blurs at high zoom. *Vector* uses Chromium's print path: text stays selectable and sharp at any zoom, the file stays small. Both carry the same title block with project data, revision, state and QR code.
+- *Title block*: can be switched off; QR code, logos and every row can be chosen individually. *Size* “Auto” grows with the sheet (A3 = 100 %), or pick a fixed value from 75 to 300 %. The setting is saved with the project.
 - *Page size* exists only for the vector PDF: *Auto — A0 landscape (compatible with all viewers)*, *A4 Landscape* to *A0 Landscape*, *A0+ Plotter* and *Original — full canvas size for plotter*. Edge and Preview sometimes display pages above A0 as white; Acrobat and plotter software print them. The canvas is scaled vectorially to the page, text stays sharp.
-- *Layers (included in PDF)*: the chips Video, Audio, Control, Network, Power and Other toggle a layer for canvas and PDF. For a PDF with video only, switch the others off, export and switch them on again.
+- *Layers (included in PDF)*: the chips Video, Audio, Control, Network, Power and Other toggle a layer for canvas and PDF. For a PDF with video only, solo *Video* with a double click, export and show all again with a second double click.
+- *One sheet per layer (plus an overall sheet with all layers)* (raster only) writes one file with several pages: first all layers on top of each other, then one sheet for each layer that carries cables. Each page names its layer in the header and carries a legend with colour and number of cables; the overall sheet lists all layers. The layer chips are back as they were afterwards.
 
 ![Dark theme](bilder/en/export-09-plan-thema-dunkel.jpg)
 
@@ -3136,6 +3196,8 @@ With devices selected, three buttons offer the output: *Individual PDF (n)* one 
 ![Cable BOM](bilder/en/export-43-bom-oeffnen.jpg)
 
 The table gives per row *Type*, *Length (m)*, *Installed*, *Total (m)*, the Rentman planning (*Rentman planned*, editable) and the *Difference*. The column *Pieces* is added as soon as stock lengths are stored. The difference shows whether more or less is installed than planned. Below are the sum per discipline and the number of connectors by type.
+
+When cable ends carry a connector from the connector catalogue (*Connector parts* in the cable properties), the section *Connector parts* follows: every part with *Kind*, *Part number*, *Manufacturer*, *Description*, *Qty* and *Sum*, added up over all cables. A total appears only when every part has a price. The CSV carries the section as its own block.
 
 ![Entering the Rentman planning](bilder/en/export-44-bom-rentman-eingabe.jpg)
 
@@ -3589,6 +3651,8 @@ The connection list shows every network connection with device, interface, IP, V
 #### Plan check dialog
 
 *Tools → Plan check…* finds gaps and contradictions in the plan. The check runs continuously against the current plan, not only on saving. At the top are the counts of findings by severity (errors, warnings, infos) and the total. Each row names the kind (for example *Duplicate cable number*, *Duplicate IP*, *House outlet*, *Fibre breakout*) and the finding. Clicking a row selects the affected object in the plan. In the status bar at the bottom, three coloured counters show the same state.
+
+*Amplifier load* checks every output channel of an amplifier. The loudspeakers connected to it, directly or daisy-chained via the speakers' link sockets, count as parallel: Z = 1/Σ(1/Zi). If Z is below the amplifier's *Minimum load per channel*, that is an error. If a loudspeaker gets more than twice its *Power handling (RMS/AES)*, that is a warning; its share is channel power × Z/Zi. If a connected loudspeaker has no impedance, an info appears. The values come from the Audio specialist data (see [Inspector](#6-inspector)).
 
 ![Plan check](bilder/en/werkzeuge-planen-148-check-offen.jpg)
 
@@ -4115,7 +4179,9 @@ Above the rack are the tabs *2D* and *3D*. In the tab *2D* the buttons *Front*, 
 
 #### Properties of a device in the rack
 
-A double-click on a device in the rack opens *Properties · device name*. The window has *Name*, *Category*, *Height (RU)*, *Start RU* (with the maximum), *Depth (mm)*, *Mount* (*Full-depth*, *Front only*, *Rear only*), for half-width devices *Half (front view)* (*Left* or *Right*), *3D model (STL, optional)*, the sections *Depth position (Z)* and *Port side (front/rear)* and *Panel images (import + crop)*. At the bottom are *Remove from rack* (with a question) and *Close*.
+A double-click on a device in the rack opens *Properties · device name*. The window has *Name*, *Category*, *Height (RU)*, *Start RU* (with the maximum), *Depth (mm)*, *Mount* (*Full-depth*, *Front only*, *Rear only*), for half-width devices *Half (front view)* (*Left* or *Right*), *3D model (STL, optional)*, the sections *Depth position (Z)* and *Port side (front/rear)* and *Panel images (import + crop)*. A patch panel adds *Ports side by side* and *Rows of ports*: one number is enough, the other follows from the port count; front and rear follow alike. Single ports can still be dragged by hand afterwards. At the bottom are *Remove from rack* (with a question) and *Close*.
+
+A right-click on a device in the rack removes it from the rack with the same question.
 
 ![Properties of a device in the rack](bilder/en/werkzeuge-bauen-rack-17-eigenschaften.jpg)
 
@@ -4868,13 +4934,19 @@ The device library is a shared server the planner syncs device templates with an
 
 **My devices:** templates you created or changed are uploaded and go to moderation first.
 
-- *Upload my own devices automatically* uploads at start and after every change to a template, while you are signed in.
+Nothing is uploaded until you have allowed it. The top of the section says where you stand: *Not allowed: none of your own templates leave this installation* or *Uploading allowed on <date>*. *Read and decide* opens the privacy dialog; it names point by point what is sent (manufacturer, model, category, description, ports, power draw, rack units, weight, datasheet link, your user name) and what stays here (no plans, no passwords, no IP addresses, no Rentman or NetBox ids, nothing from Rentman). The two answers are *Allow uploading* and *Do not upload*. The dialog is shown by itself the first time you sign in.
+
+Allowing can be withdrawn at any time (*Show and withdraw*); nothing further is uploaded then. Entries already released stay in the device library — other people plan with them. Deleting one there is a request to moderation. If **what** gets uploaded changes, you are asked again, and nothing leaves until you have decided.
+
+Without permission the device library stays fully usable: fetching and updating devices is not affected.
+
+- *Upload my own devices automatically* uploads at start and after every change to a template, while you are signed in. The checkbox only takes effect once permission is given; without it, it opens the privacy dialog.
 - *Sync now* uploads what changed, then fetches updates. The button requires a sign-in.
 - *Own templates (n)* expands the list of your own templates. Each shows its state, e.g. *not uploaded yet*, *changed since the last upload*, *uploaded — waiting for moderation*, *uploaded — live* or *blocked — fix the points below*. If manufacturer or model are missing, fields for them appear below; without both the template is not uploaded.
 
 ![List of own templates and sync](bilder/en/einstellungen-25-geraetebibliothek-eigene.jpg)
 
-**Sync:** *Update from device library* fetches only what changed since the last sync (requires a sign-in). The devices appear read-only in the library under *Shared* and stay available offline. Below it are the number of devices stored locally and the time of the last sync. The report names new, updated and removed devices as well as entries skipped because they fail the template check of this app.
+**Sync:** while you are signed in, the planner updates the shared devices by itself — at start, every six hours after that, and when you bring the window back to the front after a longer pause. This needs no permission: data comes in, none goes out. *Update from device library* fetches right away, and only what changed since the last sync (requires a sign-in). The devices appear read-only in the library under *Shared* and stay available offline. Below it are the number of devices stored locally and the time of the last sync. The report names new, updated and removed devices as well as entries skipped because they fail the template check of this app.
 
 ### MCP
 
@@ -4972,7 +5044,7 @@ Own entries can be renamed (the app asks for the new name) and removed (after co
 
 ### Categories & fields
 
-This is where you create your own device categories and domain fields (e.g. a polar pattern). Own fields appear automatically in the device properties and in the bill of materials and export. Built-in fields are locked (*built-in*).
+This is where you create your own device categories and domain fields (e.g. a polar pattern). Own fields appear automatically in the device properties and in the bill of materials and export. Built-in fields (*built-in*) cannot be edited, but you can hide the ones you do not need with the eye button: they disappear from the properties, bill of materials and export of that category and its subcategories. Nothing is deleted – a hidden field stays in the list struck through (*hidden*), and one click brings it back together with its values.
 
 ![Categories & fields tab](bilder/en/einstellungen-37-schema.jpg)
 
@@ -5138,6 +5210,9 @@ Switching commands for ATEM or Videohub are never offered.
   screen; it runs full-screen with its own icon.
 - Touch: pinch zooms the plan, two fingers pan, a **long press** opens the
   context menu.
+- **Open** on iPhone and iPad lists every file, not only plans: iOS does not
+  know the `.cableplan` extension and would grey it out otherwise. A file that
+  is not a plan is not loaded.
 - Not available in the browser (no socket, listening port or keychain): ATEM,
   Videohub, NetBox, LAN sync, phone access, MCP server, show control,
   switching, Tally-Pi, Rentman export, update check. *Settings → Integrations*
