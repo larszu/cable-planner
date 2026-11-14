@@ -679,6 +679,8 @@ Der Dialog *Videohub konfigurieren · Labels + Routing* plant Beschriftung und K
 
    ![Nach dem Smart-Routing](bilder/de/werkzeuge-bauen-videohub-05-smart-routing.jpg)
 
+   *Schnellpatch* nimmt ein Kürzel statt Klicks: `i1o4o7o11` legt Input 1 auf die Outputs 4, 7 und 11, mehrere Blöcke stehen hintereinander (`i1o4o7 i2o5`). Die Nummern sind die der Matrix (ab 1). Unter dem Feld steht die Vorschau mit den Namen der Ports; ein Fehler (unbekannter Port, Output ohne Input, Tippfehler) wird genannt, und dann wird nichts geschaltet, auch nicht teilweise. Kommt ein Output zweimal vor, gilt der spätere Block. Enter oder *In den Plan* übernimmt die Kreuzpunkte ins geplante Routing. *Live schalten* (nur Desktop-App) schickt nur diese Kreuzpunkte an den Hub unter *An Videohub senden*, der Befehl steht vorher in der Vorschau. Danach liest der Dialog das Routing des Hubs zurück und trägt ins *Activity-Log* ein, ob der Hub die Kreuzpunkte trägt (*bestätigt*) oder nicht. Outputs, die laut *Status laden* ein anderer Client gesperrt hat, schaltet er nicht. Der Plan bleibt beim Live-Schalten unverändert.
+
 5. *Salvos (Routing-Snapshots)*: *+ Aktuelles Routing speichern* fragt *Salvo-Name (= Routing-Snapshot speichern):* und legt den Stand ab; ein Klick auf den Namen holt ihn zurück, **×** (*Salvo löschen*) entfernt ihn. Salvos gehören zum Gerät und zum Modell und liegen im lokalen Speicher.
 
    ![Name für den Salvo](bilder/de/werkzeuge-bauen-videohub-06-salvo.jpg)

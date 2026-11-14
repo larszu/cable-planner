@@ -677,6 +677,8 @@ The dialog *Configure Videohub · Labels + Routing* plans labels and crosspoints
 
 4. *Smart routing* suggests a routing from the cables in the plan: per output the input with the most similar device name, otherwise diagonal. *Reset* restores the diagonal (output n to input n).
 
+   *Quick patch* takes a code instead of clicks: `i1o4o7o11` routes input 1 to outputs 4, 7 and 11, several blocks follow one another (`i1o4o7 i2o5`). The numbers are those of the matrix (from 1). Below the field the preview shows the port names; an error (unknown port, output without input, typo) is named, and then nothing is patched, not even partly. If an output appears twice, the later block wins. Enter or *Apply to plan* takes the crosspoints into the planned routing. *Patch live* (desktop app only) sends only these crosspoints to the hub under *Send to Videohub*; the command is shown in the preview beforehand. Afterwards the dialog reads the hub routing back and writes to the *Activity log* whether the hub carries the crosspoints (*confirmed*) or not. Outputs that another client has locked according to *Load status* are not patched. Live patching leaves the plan unchanged.
+
    ![After smart routing](bilder/en/werkzeuge-bauen-videohub-05-smart-routing.jpg)
 
 5. *Salvos (routing snapshots)*: *+ Save current routing* asks *Salvo name (= save routing snapshot):* and stores the state; a click on the name recalls it, **×** (*Delete salvo*) removes it. Salvos belong to the device and the model and are stored locally.
