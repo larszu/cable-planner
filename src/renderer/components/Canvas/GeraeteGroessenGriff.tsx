@@ -188,15 +188,21 @@ export const GeraeteGroessenGriff = ({
       className="nodrag nopan"
       style={{
         position: 'absolute',
-        right: 0,
-        bottom: 0,
+        // #1226 — An einem kleinen Geraet lag der Griff UNTER der letzten
+        // Port-Reihe: er stand im DOM vor Kopf und Ports, ohne z-index, und
+        // die spaeter gemalte Port-Zeile samt Buchsen-Griff fing den Zeiger
+        // ab (Port gewaehlt) oder der Rand ging an die Kachel (verschoben).
+        // Jetzt liegt er obenauf und halb ausserhalb der Ecke — dort, wo
+        // keine Buchse sitzt; deren Mitte liegt eine halbe Reihe hoeher.
+        right: -FLAECHE / 2,
+        bottom: -FLAECHE / 2,
+        zIndex: 20,
         width: FLAECHE,
         height: FLAECHE,
         cursor: 'nwse-resize',
         // Zwei schmale Striche als Ecke — ruhig genug, um neben den
         // Port-Punkten nicht als weiterer Anschluss gelesen zu werden.
         background: `linear-gradient(135deg, transparent 0 52%, ${farbe} 52% 66%, transparent 66% 78%, ${farbe} 78% 92%, transparent 92%)`,
-        borderBottomRightRadius: 'var(--cp-r-s)',
         opacity: sichtbar || ziehend ? 1 : 0,
         transition: 'opacity 120ms ease',
         pointerEvents: sichtbar || ziehend ? 'auto' : 'none',
