@@ -27,6 +27,7 @@ English version: [manual.en.md](manual.en.md)
    - [Die Werkzeugleiste](#die-werkzeugleiste)
    - [Defaults](#defaults)
    - [Geräte auswählen](#geräte-auswählen)
+   - [Gerätegröße](#gerätegröße)
    - [Geräte ausrichten](#geräte-ausrichten)
    - [Gerätegruppe speichern](#gerätegruppe-speichern)
    - [Auswahl im Rack-Builder anordnen](#auswahl-im-rack-builder-anordnen)
@@ -84,6 +85,7 @@ English version: [manual.en.md](manual.en.md)
    - [Import yEd / GraphML](#import-yed--graphml)
    - [Import MultiCam-Kameras](#import-multicam-kameras)
    - [Import Equipment aus CSV](#import-equipment-aus-csv)
+   - [Import GDTF / MVR](#import-gdtf--mvr)
    - [Rentman-Import](#rentman-import)
    - [NetBox-Import](#netbox-import)
    - [Gesamtprojekt exportieren und importieren (`.avplan`)](#gesamtprojekt-exportieren-und-importieren-avplan)
@@ -665,7 +667,7 @@ Auf einem Telefon zeigt die Leiste nur den Griff, *Defaults* und *Mehr*; Rahmen,
 | | *Kabelbrücken bei Kreuzungen* | Kreuzungen werden als kleine Brücke gezeichnet. Pro Kabel lässt sich das im Kontextmenü überschreiben. |
 | | *Alle Kabel-Labels ausblenden* | Die Beschriftungen aller Kabel verschwinden; ihre Lage bleibt gespeichert. |
 | | *Kabel-Labels: Kurzform* | Das Format-Suffix (zum Beispiel „(1080p50/60)") wird aus der Anzeige entfernt. Der volle Name bleibt in den Kabel-Eigenschaften. |
-| | *Ports nach Connector-Typ einfärben* | Anschlüsse erhalten die Farbe ihres Steckertyps (SDI amber, HDMI violett, Ethernet grün und so weiter). |
+| | *Ports nach Connector-Typ einfärben* | Standardmäßig an. Anschlüsse erhalten die Farbe ihres Steckertyps (SDI amber, HDMI violett, Ethernet grün und so weiter). |
 
 Das Routing wirkt auf Kabel, die danach entstehen. Bereits gezeichnete Kabel behalten ihre Form (siehe [Kabel bearbeiten](#kabel-bearbeiten)).
 
@@ -685,7 +687,7 @@ Das Routing wirkt auf Kabel, die danach entstehen. Bereits gezeichnete Kabel beh
 
 5. *Alle Kabel-Labels ausblenden* entfernt die Beschriftungen vom Plan.
 
-6. *Ports nach Connector-Typ einfärben* färbt die Anschlüsse nach Steckertyp.
+6. *Ports nach Connector-Typ einfärben* färbt die Anschlüsse nach Steckertyp (standardmäßig an); XLR- und Cat-Ports eines Geräts sehen so verschieden aus.
 
    ![Farbige Anschlüsse](bilder/de/canvas-defaults-16-ports-nach-typ-flaeche.jpg)
 
@@ -695,7 +697,8 @@ Zusätzlich färbt der Eintrag *Kabelfarbe nach Gewerk* im Menü *Ansicht* die K
 
 - **Klick** auf ein Gerät markiert es; der Inspector rechts zeigt seine Eigenschaften.
 - **Umschalt**, **Strg** oder **Cmd** plus Klick fügt weitere Geräte hinzu oder nimmt sie wieder heraus.
-- **Umschalt** gedrückt halten und auf freier Fläche ziehen spannt ein Auswahlrechteck auf.
+- **Umschalt** oder **Alt** (Mac: **Option**) gedrückt halten und auf freier Fläche ziehen spannt ein Auswahlrechteck auf.
+- Nach *Einfügen* (Strg/Cmd+V) oder *Duplizieren* (Strg/Cmd+D) sind die Kopien gemeinsam markiert und lassen sich zusammen verschieben.
 - *Bearbeiten → Alles auswählen* markiert alle Geräte.
 - Ein Klick auf freie Fläche hebt die Auswahl auf.
 
@@ -707,13 +710,27 @@ Zusätzlich färbt der Eintrag *Kabelfarbe nach Gewerk* im Menü *Ansicht* die K
 
    ![Zwei Geräte markiert](bilder/de/canvas-auswahl-04-zwei-geraete.jpg)
 
-3. Ziehen Sie mit gedrückter Umschalt-Taste ein Rechteck über mehrere Geräte.
+3. Ziehen Sie mit gedrückter Umschalt- oder Alt-Taste ein Rechteck über mehrere Geräte.
 
    ![Auswahlrechteck](bilder/de/canvas-auswahl-07-rechteck.jpg)
 
 4. *Bearbeiten → Alles auswählen* markiert alle fünf Geräte.
 
 Sobald Geräte markiert sind, erscheinen in der Leiste die Knöpfe für Auswahl-Aktionen und über der Auswahl die [Auswahlleiste](#auswahlleiste-am-gerät).
+
+### Gerätegröße
+
+Jede Gerätekachel hat unten rechts einen Griff — zwei kurze Striche in der Ecke. Er erscheint, sobald das Gerät markiert ist oder der Zeiger über der Kachel steht.
+
+- **Ziehen** ändert die Größe. Während des Ziehens steht die Prozentzahl über der Kachel. Der Bereich reicht von 60 % bis 300 %.
+- **Doppelklick** setzt das Gerät auf 100 % zurück.
+- **Pfeiltasten** gehen in Stufen von 5 %, sobald der Griff den Fokus hat; mit **Umschalt** in Stufen von 20 %.
+
+Die ganze Kachel wächst mit: Name, Untertitel, Adresszeile, Port-Beschriftungen, Symbole und die Anschlusspunkte. Die Kabel bleiben an ihren Anschlüssen und folgen der neuen Größe.
+
+Sind mehrere Geräte markiert und Sie ziehen an einem davon, bekommen alle dieselbe Größe. Dieselbe Einstellung steht als *Geräte kleiner* und *Geräte größer* in der [Auswahlleiste](#auswahlleiste-am-gerät).
+
+Die Größe gehört zum einzelnen Gerät in diesem Plan und wird mit dem Projekt gespeichert. Im abgeschlossenen Plan und im Betrachter gibt es keinen Griff.
 
 ### Geräte ausrichten
 
@@ -760,7 +777,7 @@ Der Knopf *N markierte Geräte als Gruppe speichern* legt die Auswahl samt Kabel
 
 ### Auswahl im Rack-Builder anordnen
 
-Der Knopf *N markierte Geräte im 2D-Rack-Builder anordnen* öffnet den Rack-Builder mit der Auswahl (dasselbe steht im Kontextmenü eines Geräts als *Im Rack-Builder anordnen*). Enthält die Auswahl bereits ein Rack, fehlt der Knopf; ist genau ein Rack markiert, öffnet stattdessen der Knopf *Dieses Rack im 2D-Rack-Builder bearbeiten* den Builder für dieses Rack. Der Builder selbst ist im Kapitel [Rack-Builder](#rack-builder) beschrieben.
+Der Knopf *N markierte Geräte im 2D-Rack-Builder anordnen* öffnet den Rack-Builder mit der Auswahl (dasselbe steht im Kontextmenü eines Geräts als *Im Rack-Builder anordnen*). Enthält die Auswahl bereits ein Rack, fehlt der Knopf; ist genau ein Rack markiert, öffnet stattdessen der Knopf *Dieses Rack im 2D-Rack-Builder bearbeiten* den Builder für dieses Rack. Die Geräte stehen im Rack in der Reihenfolge des Canvas: was oben liegt, sitzt oben, nebeneinander Liegendes von links nach rechts. Kabel zwischen markierten Geräten kommen als interne Kabel mit; Kabel nach draußen bleiben im Plan. Der Builder selbst ist im Kapitel [Rack-Builder](#rack-builder) beschrieben.
 
 ![Rack-Builder mit der Auswahl](bilder/de/canvas-auswahl-20-rack-aus-auswahl.jpg)
 
@@ -867,7 +884,7 @@ Besonderheiten beim Ziehen:
 
   ![Loslassen auf dem Gerätekörper](bilder/de/canvas-kabel-09-auf-den-koerper.jpg)
 
-- **Zwei Klicks statt Ziehen:** Ein Klick auf einen Anschluss beginnt das Kabel; Klicks auf freie Fläche setzen Knickpunkte, ein Klick auf einen Anschluss beendet es. Das Banner nennt *Kabel zeichnen: Tippen auf die Fläche setzt einen Knick, Tippen auf einen Port beendet.* *Knick zurück* nimmt den letzten Knick zurück, *Abbrechen* verwirft das Kabel; Esc bricht ebenfalls ab. Ein Eingang lässt sich nur mit einem Ausgang verbinden, nicht mit einem anderen Eingang. Während das Kabel aussteht, zeigt die rechte Seite *Schnelle Vorschläge (Steckertyp)*: bis zu acht Bibliotheksgeräte mit passendem Anschluss, die im Projekt am häufigsten verbunden sind zuerst. Ein Klick auf einen Vorschlag setzt das Gerät an die Mausposition und beendet das Kabel am ersten passenden Anschluss.
+- **Zwei Klicks statt Ziehen:** Ein Klick auf einen Anschluss beginnt das Kabel; Klicks auf freie Fläche setzen Knickpunkte, ein Klick auf einen Anschluss beendet es. Das Banner nennt *Kabel zeichnen: Tippen auf die Fläche setzt einen Knick, Tippen auf einen Port beendet.* *Knick zurück* nimmt den letzten Knick zurück, *Abbrechen* verwirft das Kabel; Esc bricht ebenfalls ab. Ein Kabel läuft vom Ausgang zum Eingang; verbinden Sie zwei Eingänge oder zwei Ausgänge, entsteht das Kabel trotzdem, und der Kabel-Dialog weist darauf hin. Die Anschlüsse einer Patchblende gelten als bidirektional, ein Switch-Port lässt sich also auch auf ihre Vorderseite stecken. Während das Kabel aussteht, zeigt die rechte Seite *Schnelle Vorschläge (Steckertyp)*: bis zu acht Bibliotheksgeräte mit passendem Anschluss, die im Projekt am häufigsten verbunden sind zuerst. Ein Klick auf einen Vorschlag setzt das Gerät an die Mausposition und beendet das Kabel am ersten passenden Anschluss.
 
   ![Kabel mit Banner und Vorschlägen](bilder/de/canvas-kabel-12-klick-knick.jpg)
 
@@ -958,7 +975,9 @@ Ein Rahmen ist ein farbiges Rechteck, das Geräte zu einem Ort oder Raum zusamme
 
 8. *Rahmen löschen* fragt *Rahmen „…" löschen?* — nur der Rahmen verschwindet, die Geräte bleiben.
 
-9. Markieren Sie mehrere Geräte und klicken Sie *Rahmen*, um einen Rahmen um sie zu ziehen.
+9. Strg/Cmd+C, V und D kopieren, fügen ein und duplizieren auch markierte Rahmen. Ein Rahmen wird samt den Geräten darin und den Kabeln zwischen diesen Geräten kopiert; die Kopie erscheint neben dem Original (um die Rahmenbreite versetzt). Das Rechtsklick-Menü bietet dafür *Rahmen mit Inhalt duplizieren*.
+
+10. Markieren Sie mehrere Geräte und klicken Sie *Rahmen*, um einen Rahmen um sie zu ziehen.
 
    ![Rahmen um die Auswahl](bilder/de/canvas-rahmen-13-rahmen-um-auswahl-fertig.jpg)
 
@@ -998,13 +1017,13 @@ Jeder Rahmen ist ein Raum. Rahmen lassen sich Etagen zuordnen; sie bestimmen die
 
     ![Einzelne Kabel in 3D](bilder/de/canvas-raeume-18-drei-d-kabel.jpg)
 
-12. *Beschriftung* blendet die Namen ein oder aus. *Geschosshöhe (m)* gilt nur für Etagen ohne eingetragene Höhe; die Ansicht weist darauf hin, dass dies eine Annahme ist.
+12. *Beschriftung* blendet die Namen ein oder aus. Jedes Gerät trägt dann ein Schild mit seiner Kennung (dem Kürzel aus den Eigenschaften); das Schild zeigt immer zu Ihnen und bleibt beim Zoomen gleich groß. *Durchsicht* macht die Wände durchsichtig und nimmt die Decke weg, sodass Sie von schräg oben in die Räume schauen; ohne Durchsicht sind die Räume geschlossen. *Geschosshöhe (m)* gilt nur für Etagen ohne eingetragene Höhe; die Ansicht weist darauf hin, dass dies eine Annahme ist.
 
 Geräte lassen sich in der 3D-Ansicht ziehen. Bodentanks erscheinen als flache Platte im Boden, andere Geräte als Würfel. Ziehen neben ein Gerät dreht die Ansicht, das Mausrad zoomt.
 
 ### Ebenen
 
-Die Ebenen-Chips blenden die Kabel einer Ebene ein und aus. Nur die Kabel werden gefiltert, die Geräte bleiben. Ein farbiger Punkt kennzeichnet die Signalart; der Tooltip nennt die Zahl der Kabel (zum Beispiel *Video — 4 Kabel · sichtbar (klick: ausblenden)*).
+Die Ebenen-Chips blenden die Kabel einer Ebene ein und aus. Nur die Kabel werden gefiltert, die Geräte bleiben. Ein farbiger Punkt kennzeichnet die Signalart, die Zahl im Chip die Kabel auf dieser Ebene. Unterebenen wie *video.backup* zählen bei ihrer Hauptebene, Kabel ohne Ebene bei *Other*. So fällt auf, wenn eine Ebene leer ist, obwohl der Plan sie braucht.
 
 1. Die Leiste zeigt *Video*, *Audio*, *Control*, *Network*, *Power* und *Other*.
 
@@ -1013,6 +1032,8 @@ Die Ebenen-Chips blenden die Kabel einer Ebene ein und aus. Nur die Kabel werden
 2. Klicken Sie auf *Video*: Die Videokabel verschwinden.
 
    ![Ebene Video ausgeblendet](bilder/de/canvas-ebenen-02-video-aus.jpg)
+
+   Ein Doppelklick (oder Alt-Klick) auf einen Chip schaltet die Ebene einsam: Nur ihre Kabel bleiben sichtbar. Derselbe Griff noch einmal blendet alle Ebenen wieder ein.
 
 3. *Mehr → Ebenen ⋯* öffnet das Verwaltungsmenü: *Custom-Layer anlegen…* und *Alle Ebenen wieder einblenden*.
 
@@ -1187,7 +1208,7 @@ Den **Maßstab** setzen Sie auf zwei Wegen.
 
 11. Eine Datei, die kein Bild ist, weist die App ab: *Diese Datei ist kein Hallenplan-Bild. Verwende PNG, JPG, WebP, GIF, BMP oder AVIF.*
 
-**PDF.** Ein PDF wird als Bild der Seite geladen. Hat es mehrere Seiten, erscheint im Panel *PDF-Seite* mit der Seitennummer und *von n*; eine andere Seite ersetzt den Plan an derselben Stelle mit derselben Deckkraft.
+**PDF.** Ein PDF wird als Bild der Seite geladen (bis 6000 px an der längsten Kante, damit der Plan beim Hineinzoomen lesbar bleibt). Hat es mehrere Seiten, erscheint im Panel *PDF-Seite* mit der Seitennummer und *von n*; eine andere Seite ersetzt den Plan an derselben Stelle mit derselben Deckkraft.
 
 12. Laden Sie ein PDF.
 
@@ -1303,11 +1324,11 @@ Unten links stehen die Regler *Vergrößern*, *Verkleinern*, *Einpassen* und der
 
 | Auswahl | Knöpfe |
 |---|---|
-| Ein Gerät | *Duplizieren*, *Rahmen um Auswahl*, *Geräte-Datenblatt (A4-PDF / Druck)*, *Löschen* |
+| Ein Gerät | *Duplizieren*, *Rahmen um Auswahl*, *Geräte kleiner*, *Geräte größer*, *Geräte-Datenblatt (A4-PDF / Druck)*, *Löschen* |
 | Zwei Geräte | zusätzlich die sechs Ausrichte-Knöpfe |
 | Drei und mehr Geräte | zusätzlich *Horizontal verteilen* und *Vertikal verteilen* |
 
-Bei Geräten mit lesbaren Strömen kommt *Scopes vergleichen (ein Parade je Quelle)* hinzu.
+Bei Geräten mit lesbaren Strömen kommt *Scopes vergleichen (ein Parade je Quelle)* hinzu. *Gerätegröße auf 100 % zurücksetzen* steht dort, sobald eines der markierten Geräte von 100 % abweicht.
 
 ![Auswahlleiste an einem Gerät](bilder/de/canvas-inline-01-ein-geraet.jpg)
 
@@ -1376,7 +1397,7 @@ Der Unterreiter *Lokal* zeigt die Vorlagen nach Kategorien. Jede Kategorie ist e
 
 ![Aufgeklappte Kategorie](bilder/de/bibliothek-12-kategorie-aufklappen.jpg)
 
-Jeder Eintrag zeigt den Namen und darunter die Kategorie mit der Zahl der Ein- und Ausgänge. Das **L** vor dem Namen kennzeichnet ein lokales Gerät (nicht aus Rentman). Ein Klick markiert den Eintrag und zeigt seine Vorlage im Inspector; ein Doppelklick oder Ziehen auf den Canvas platziert das Gerät. Beim Zeigen auf einen Eintrag erscheinen vier Knöpfe:
+Jeder Eintrag zeigt den Namen und darunter die Kategorie mit der Zahl der Ein- und Ausgänge. Das **L** vor dem Namen kennzeichnet ein lokales Gerät (nicht aus Rentman). Ein Klick markiert den Eintrag und zeigt seine Vorlage im Inspector; bei einer eigenen Vorlage stehen dort Ein- und Ausgänge als bearbeitbare Port-Listen (derselbe Editor wie am platzierten Gerät: hinzufügen, entfernen, ordnen, Stecker, Signal, Art). Änderungen gelten sofort für die Vorlage; bereits platzierte Geräte behalten ihre Ports; ein Doppelklick oder Ziehen auf den Canvas platziert das Gerät. Beim Zeigen auf einen Eintrag erscheinen vier Knöpfe:
 
 | Knopf | Wirkung |
 |---|---|
@@ -1436,11 +1457,13 @@ Kategorien ordnen die Vorlagen. Beim Zeigen auf den Kategoriestreifen erscheint 
 
    ![Kategorie am Griff ziehen](bilder/de/bibliothek-35-kategorie-ziehen-griff.jpg)
 
-3. Einträge lassen sich auf eine andere Kategorie ziehen; eine leere Kategorie sagt dazu *Gerät hierher ziehen zum Verschieben*.
+3. Einträge lassen sich auf eine andere Kategorie oder Unterkategorie ziehen; eine leere Kategorie sagt dazu *Gerät hierher ziehen zum Verschieben*. Ziehen Sie an den oberen oder unteren Rand der Liste, läuft sie mit. Ebenso wechselt die Kategorie im Inspector der Vorlage den Platz sofort, ohne *Speichern*.
 
    ![Eintrag in eine Kategorie ziehen](bilder/de/bibliothek-52-eintrag-in-kategorie-ziehen.jpg)
 
 4. Neue Kategorien entstehen über das Menü **+** (siehe unten).
+
+5. Neben dem Stift erscheint ein Ordner-Plus-Knopf, *Neue Unterkategorie*. Er fragt nach einem Namen und legt eine Unterkategorie an, die eingerückt unter ihrer Oberkategorie steht (zum Beispiel Audio → Lautsprecher). Klappt die Oberkategorie zu, verschwinden ihre Unterkategorien; die Zahl an einer Kategorie zählt ihre Unterkategorien mit. Beim Umbenennen einer Kategorie ziehen ihre Unterkategorien mit. Eine Unterkategorie hat die Fachdaten ihrer obersten Kategorie. Intern steht die Kategorie als Pfad `Audio > Lautsprecher`; dieselbe Schreibweise als Kategorie im Inspector der Vorlage funktioniert ebenso.
 
    ![Neue, leere Kategorie](bilder/de/bibliothek-55-kategorie-umbenannt.jpg)
 
@@ -1559,6 +1582,14 @@ Der **Datenblatt-Link ist Pflicht**: Eine Vorlage ohne Link lässt sich nicht ei
 Der Unterreiter *Geteilt* zeigt die gemeinsame Gerätebibliothek (devices.zumpelars.de), schreibgeschützt. Zum Holen oder Aktualisieren der Geräte ist eine Anmeldung nötig (*Anmelden…*); bereits geholte Geräte bleiben nutzbar. *Aktualisieren* holt den aktuellen Stand. Die Zeile *N Geräte lokal gespeichert* nennt, wie viele Geräte auf diesem Rechner liegen; sie stehen nach Kategorie geordnet. Jeder Eintrag trägt den Namen, den Status (*verifiziert*, *bestätigt*, *unbestätigt* oder *umstritten*), die Zahl der Bestätigungen und den Link *Seite* zur Detailseite. Den Status setzt die Gerätebibliothek, nicht der Planer.
 
 ![Geteilte Gerätebibliothek](bilder/de/bibliothek-58-geteilt-uebersicht.jpg)
+
+**Prüfen, melden, ändern.** Unter jedem Eintrag öffnet *Prüfen, melden, ändern* drei Wege, für die Sie angemeldet sein müssen:
+
+- *Bestätigen* bestätigt die Fassung, die hier liegt — nicht „das Gerät". Nach einer Änderung in der Gerätebibliothek zählt neu. Zu wählen ist, ob Sie *gegen das Datenblatt* oder *am Gerät selbst* geprüft haben; die Firmware ist freiwillig. *Verifiziert* braucht drei Bestätigungen und mindestens eine am Gerät, deshalb wird nach der Prüfart gefragt und nicht nach einem Daumen. Den eigenen Eintrag kann niemand bestätigen.
+- *Fehler melden* beanstandet die Fassung. Eine offene Beanstandung überstimmt jede Bestätigung, bis die Moderation sie geklärt hat; verlangt wird deshalb ein Grund von mindestens zehn Zeichen — was falsch ist und woher der richtige Wert kommt.
+- *Änderung vorschlagen* kopiert die Vorlage in die eigenen Vorlagen. Dort ist sie bearbeitbar; beim nächsten Hochladen erkennt die Gerätebibliothek Hersteller und Modell wieder und macht daraus einen Änderungsvorschlag für dieses Gerät — kein zweites Gerät gleichen Namens. Eine Änderung an fremden Daten braucht eine Begründung.
+
+Stammt ein Eintrag aus einem älteren Abgleich, steht dort *Einmal aktualisieren*: ohne die Fassungsnummer lässt sich nichts bewerten.
 
 ![Suche in der geteilten Bibliothek](bilder/de/bibliothek-59-geteilt-suche.jpg)
 
@@ -1887,7 +1918,7 @@ Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie,
 
 ![Inputs & Outputs](bilder/de/eigenschaften-15-ports-abschnitt.jpg)
 
-1. *+ Hinzufügen* legt einen Port in der Liste an.
+1. *+ Eingang* (bzw. *+ Ausgang*) legt einen Port in der Liste an, *+ Bidirektional* einen Port, der Signal in beide Richtungen führt (Netzwerk, Intercom, etherCON): ein Kabel kommt herein, weitere gehen hinaus.
 
    ![Eingang hinzugefügt](bilder/de/eigenschaften-16-ports-eingang-hinzu.jpg)
 
@@ -1900,12 +1931,12 @@ Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie,
    | Feld | Werte |
    |---|---|
    | Inhalt / Funktion | freier Text, z. B. „PGM“ |
-   | Richtung | Richtung (auto), Nur Input, Nur Output, Bidirektional (z.B. Netzwerk) |
+   | Art | *Eingang* bzw. *Ausgang* (je nach Liste) oder *Bidirektional (z. B. speakON, etherCON, Netzwerk)* (ein solcher Port kann Kabelquelle und Kabelziel sein; ein Kabel zwischen zwei bidirektionalen Ports beginnt an dem Gerät, an dem Sie zu ziehen anfangen) |
    | Seite | Seite (auto), Links, Rechts |
    | Geschlecht | Geschlecht (–), ♂ Male / Stecker, ♀ Female / Buchse |
    | Gruppe | — Kein —, vorhandene Gruppen, *+ Neue Gruppe …* |
 
-   ![Signal, Inhalt und Richtung](bilder/de/eigenschaften-19-ports-signal-inhalt-richtung.jpg)
+   ![Signal, Inhalt und Art](bilder/de/eigenschaften-19-ports-signal-inhalt-richtung.jpg)
 
 4. Bei SDI-Ports klappt *SDI-Fähigkeiten (port-spezifisch)* auf: *Max Single-Link* überschreibt den Wert des Geräts für diesen Port; *Quad-Link Set* und *Dual-Link Set* fassen Ports zu einem Set zusammen (*+ Neues Set…*). Ein neues Set meldet, wie viele Ports ihm schon zugewiesen sind.
 
@@ -1917,6 +1948,8 @@ Bei Glasfaser-Ports erscheinen zusätzlich *Breakout* (*DUO (2)*, *QUAD (4)*) mi
 
 Am Ende der Steckertyp-Liste legt ein eigener Eintrag einen neuen Stecker-Typ an; die App fragt nach dem Namen. Das × löscht einen Port.
 
+Mit dem Griff ≡ eines Ports ziehen Sie ihn an eine andere Stelle – auch in die andere Liste, von *Inputs* zu *Outputs* und zurück, ebenso in eine leere Liste. Der Port behält dabei alle Angaben und seine Kabel. Dasselbe gilt im Inspector einer Bibliotheks-Vorlage.
+
 Der Griff ≡ vor *Inputs* und *Outputs* tauscht die beiden Listen; *Ports spiegeln (Inputs rechts, Outputs links)* setzt die Eingänge an die rechte Seite des Knotens.
 
 ![Gespiegelter Knoten im Canvas](bilder/de/eigenschaften-33-ports-spiegeln-canvas.jpg)
@@ -1927,7 +1960,7 @@ Freies Feld für alles, was kein eigenes Feld hat, etwa Web-Oberfläche, Firmwar
 
 #### Rentman-Hinweis und Kategorie
 
-Ist das Modul Rentman eingeschaltet und das Gerät nicht im verknüpften Rentman-Plan, steht dort *Nicht im Rentman-Plan erfasst*. Darunter wählt *Kategorie* die Geräteart; *+ Neue Kategorie…* legt eine eigene an. Der Abschnitt *Fachdaten — <Kategorie>* zeigt die Felder dieser Art, bei Monitoren etwa Panel-Typ, HDR, Helligkeit, Bildrate und Farbraum.
+Ist das Modul Rentman eingeschaltet und das Gerät nicht im verknüpften Rentman-Plan, steht dort *Nicht im Rentman-Plan erfasst*. Darunter wählt *Kategorie* die Geräteart; *+ Neue Kategorie…* legt eine eigene an. Der Abschnitt *Fachdaten — <Kategorie>* zeigt die Felder dieser Art, bei Monitoren etwa Panel-Typ, HDR, Helligkeit, Bildrate und Farbraum. Die Audio-Fachdaten sind *Typ* (Endstufe/Lautsprecher), *Impedanz* (Ω), *Belastbarkeit (RMS/AES)* (W), *Mindestlast je Kanal* (Ω) und *Leistung je Kanal* (W); der Plan-Check *Endstufenlast* nutzt sie.
 
 ![Fachdaten eines Monitors](bilder/de/eigenschaften-147-monitor-spezifikation.jpg)
 
@@ -2245,6 +2278,10 @@ Ein Klick auf ein Kabel zeigt seine Eigenschaften.
 
 ![Signalweg im Canvas](bilder/de/eigenschaften-175-kabel-signalweg-canvas.jpg)
 
+#### Steckerteile
+
+*Steckerteile* legt je Ende fest, welcher Stecker aus dem Steckerkatalog sitzt: *Ende A* und *Ende B*, dazu der *Aderquerschnitt (AWG)*. Die Auswahl zeigt zuerst die Stecker, die zum Port passen. Hat ein Stecker mehrere Konfektionen, wählt die App die zum Aderquerschnitt passende; eine andere lässt sich wählen. Darunter stehen die Teile mit Teilenummer und Anzahl — Gehäuse, Kontakte je Pol, Verriegelung — und der Link zum Datenblatt. Jeder Stecker im Katalog trägt sein Herstellerdatenblatt.
+
 #### Festinstallation / Lebenszyklus
 
 | Feld | Werte |
@@ -2484,6 +2521,8 @@ Trägt das geöffnete Projekt den Namen *Untitled Project* oder gar keinen, übe
 
 *Datei → Speichern unter…* (`Strg+Umschalt+S`) schreibt das Projekt unter einem neuen Namen oder Pfad. Das neue Projekt ist danach das aktive; die Datei davor bleibt unverändert. Der Dateiname wird zum neuen Projektnamen.
 
+*Datei → Kopie zum Weitergeben speichern…* schreibt eine `.cableplan`-Kopie als Download, etwa für einen Kollegen. Die offene Datei und ihr Pfad bleiben, wie sie sind. Tragen Geräte oder die Intercom-Anlage Zugangsdaten, fragt *Zugangsdaten mitgeben?* nach: Das Kästchen *Benutzernamen und Passwörter mitgeben* steht aus; so entfernt die Kopie sie. Angekreuzt gehen sie mit.
+
 Jede Schreibung ist atomar. Die App schreibt zuerst eine temporäre Datei, benennt die bisherige Datei in `<name>.cableplan.bak` um und setzt dann die temporäre Datei an ihre Stelle. Nach dem zweiten Speichern liegt neben der Projektdatei darum die `.bak`-Datei mit dem Stand davor. Ein Abbruch mitten im Schreiben zerstört weder die alte noch die neue Datei.
 
 ### Autosave und Statusleiste
@@ -2535,7 +2574,7 @@ Name und Kategorie lassen sich vor dem Import ändern.
 
 ![Name und Kategorie geändert](bilder/de/datei-import-12-graphml-geraet-umbenannt.jpg)
 
-Der Reiter *Kabel* zeigt für jede Kante *Quelle*, *Ziel*, *Typ*, *Standard* und *Länge*. Den Typ leitet die App aus der Beschriftung ab. Fehlt eine Länge, setzt der Import 1 m. Knickpunkte der Linien aus yEd übernimmt der Import als Wegpunkte der Kabel.
+Der Reiter *Kabel* zeigt für jede Kante *Quelle*, *Ziel*, *Typ*, *Standard* und *Länge*. Den Typ leitet die App aus der Beschriftung ab. Fehlt eine Länge, setzt der Import 1 m. Jedes Kabel kommt als *Ortho* an; Knickpunkte der Linien aus yEd übernimmt der Import als Wegpunkte.
 
 ![Reiter Kabel](bilder/de/datei-import-13-graphml-reiter-kabel.jpg)
 
@@ -2647,6 +2686,25 @@ Wiederholen Sie den Import mit denselben Namen, bleiben die Vorlagen unveränder
 Die Datei kann auch über *CSV-Datei wählen…* kommen; der Inhalt landet im selben Feld.
 
 ![Dialog nach der Dateiwahl](bilder/de/datei-import-29-csv-datei-gewaehlt.jpg)
+
+### Import GDTF / MVR
+
+*Datei → GDTF / MVR importieren…* (auch in der Befehlspalette) öffnet den Dialog. *.gdtf- oder .mvr-Datei(en) wählen…* nimmt eine MVR-Datei oder mehrere .gdtf-Dateien auf einmal.
+
+**GDTF.** Jede Datei wird eine Bibliotheksvorlage in der Kategorie Lighting. Sie trägt:
+
+- Name (Hersteller + Typ) und Kurzname,
+- DMX-Modi mit Kanalumfang, auch bei Geräten mit mehreren Zellen über Geometrie-Verweise (Quelle „GDTF file"),
+- Leistung (W) und Gewicht (kg),
+- die Anschlüsse aus der Datei (GDTF-1.2-Verdrahtungsobjekte oder die ältere Anschlussliste), abgebildet auf die Anschlussnamen des Planers, etwa NAC3FCA → PowerCON, PowerconTRUE1 → powerCON TRUE1, XLR5 → DMX 5-pol (XLR), RJ45 → Ethernet/RJ45, 16A-CEE → CEE16. Unbekannte Namen bleiben, wie sie in der Datei stehen.
+
+Nennt eine Datei keine Anschlüsse, gelten DMX In und DMX Thru (5-polig) als angenommen; die Notizen der Vorlage sagen das.
+
+Die Tabelle zeigt je Datei Typ, DMX-Modi, Anschlüsse und ob die Vorlage schon in der Bibliothek ist (*schon da: …*) oder *neu*. *In die Bibliothek* legt nur die neuen an; vorhandene Vorlagen werden nicht überschrieben. Zuerst zählt dieselbe FixtureTypeID (Geräte-Typ-ID), dann derselbe Name.
+
+**MVR.** Der Dialog listet jeden GDTF-Typ der Szene mit Anzahl und einem Vorlagenfeld. Es schlägt eine Vorlage aus der Bibliothek vor; leer heißt: neue Vorlage aus dem eingebetteten GDTF. Sie können jede Bibliotheksvorlage eintippen oder wählen. Traversen und Dekorationsobjekte werden übersprungen; der Dialog zeigt ihre Zahl. Geräte werden Fixtures, Videowände, Projektoren und Stützen.
+
+*Geräte platzieren* setzt sie in der Draufsicht (MVR-x nach rechts, y nach oben). Die obere linke Ecke liegt an der oberen linken Ecke des Hallenplans, ohne Hallenplan bei 100/100. Der Maßstab kommt vom kalibrierten Hallenplan oder aus dem Feld *Maßstab (px je Meter)* (ohne kalibrierten Hallenplan so gewählt, dass sich keine Geräte überdecken). Jedes Gerät erhält den MVR-Namen, die FixtureID als Untertitel sowie DMX-Modus, Universum und Startadresse aus dem MVR. Die Adresse gilt als von Hand gesetzt; die automatische Adressvergabe verschiebt sie nicht. Das Platzieren ist ein Rückgängig-Schritt.
 
 ### Rentman-Import
 
@@ -2762,7 +2820,7 @@ Im Beispiel ist in NetBox ein Gerät hinzugekommen. Die zweite Vorschau zeigt nu
 
 *Datei → Gesamtprojekt exportieren (.avplan)…* schreibt das Projekt im Austauschformat `.avplan`. Die Datei ist JSON mit den Feldern `kind` (*avplan*), `formatVersion`, `app`, `appVersion`, `exportedAt`, `venue` und `domains`. Der Cable Planner trägt seinen Teil unter `domains.cabling` ein. Teile anderer Planer (Kameras, Licht, Venue) bewahrt er unverändert. Der Dateiname ist `<Projektname>.avplan`; Zeichen außer Buchstaben, Ziffern, `_` und `-` ersetzt die App durch `_`. Die Datei wird als Download des Programmfensters geschrieben.
 
-Tragen Geräte Benutzername oder Passwort, fragt *Zugangsdaten mitgeben?* nach: Die `.avplan` geht an andere Gewerke. *Ohne Zugangsdaten* entfernt sie; ein Rück-Import in diesen Planer verliert sie dann. *Mitgeben* behält sie, *Abbrechen* bricht den Export ab. Die Frage entfällt, wenn kein Gerät Zugangsdaten trägt.
+Tragen Geräte Benutzername oder Passwort oder die Intercom-Anlage ihre Codes, fragt *Zugangsdaten mitgeben?* nach: Die `.avplan` geht an andere Gewerke. Ohne Häkchen bei *Benutzernamen und Passwörter mitgeben* entfernt der Export sie (*Ohne Zugangsdaten*); ein Rück-Import in diesen Planer verliert sie dann. Angekreuzt behält *Mitgeben* sie, *Abbrechen* bricht den Export ab. Die Frage entfällt, wenn nichts Zugangsdaten trägt. Dieselbe Frage stellen die Kopie zum Weitergeben, der Geräte-Export und der geteilte Ordner.
 
 ![Rückfrage zu den Zugangsdaten](bilder/de/datei-import-43-avplan-export-zugangsdaten-frage.jpg)
 
@@ -3057,7 +3115,7 @@ Das Blatt enthält Zeichnung und Legende aus denselben Objekten. Die Nummer am G
 
 | Format | Eigenschaft |
 |---|---|
-| *PDF* | druckbar; der Titelblock steht nur im Raster-Modus (siehe unten) |
+| *PDF* | druckbar, mit Schriftfeld unten rechts (siehe unten) |
 | *PNG* | transparent möglich, scharf |
 | *JPEG* | kleiner, gut für E-Mail |
 | *SVG* | skalierbar, für Web und Weiterverarbeitung |
@@ -3067,9 +3125,11 @@ Für PDF kommen diese Einstellungen dazu:
 
 - *PDF-Thema*: *Dunkles Thema (wie Canvas)* oder *Helles Thema (für Ausdruck empfohlen)*.
 - *Monochrom sicher (Ebene im Klartext, eine Strichfarbe)* schreibt die Ebene im Klartext an jedes Kabel und färbt alle Striche gleich. Auf einem Schwarzweiß-Drucker lassen sich sonst Video und Audio kaum unterscheiden.
-- *Render-Modus*: *Raster (klassisch)* ist ein JPEG-Abbild des Canvas, zuverlässig, aber der Text wird bei hohem Zoom unscharf. Es trägt den Titelblock mit den Projektdaten und dem Stempel. *Vektor* nutzt den Druckweg von Chromium: Text bleibt wählbar und scharf bei jedem Zoom, die Datei bleibt klein. Es hat keinen Titelblock; Revision, Stand-Fingerprint und QR-Code stehen nur im Raster-PDF.
+- *Render-Modus*: *Raster (klassisch)* ist ein JPEG-Abbild des Canvas, zuverlässig, aber der Text wird bei hohem Zoom unscharf. *Vektor* nutzt den Druckweg von Chromium: Text bleibt wählbar und scharf bei jedem Zoom, die Datei bleibt klein. Beide tragen dasselbe Schriftfeld mit Projektdaten, Revision, Stand und QR-Code.
+- *Schriftfeld*: an- und abschaltbar; QR-Code, Logos und jede Zeile einzeln wählbar. *Größe* „Auto“ wächst mit dem Blatt (A3 = 100 %), alternativ ein fester Wert von 75 bis 300 %. Die Einstellung wird im Projekt gespeichert.
 - *Page-Size* gibt es nur beim Vektor-PDF: *Auto — A0 Landscape (kompatibel mit allen Viewern)*, *A4 Landscape* bis *A0 Landscape*, *A0+ Plotter* und *Original — volle Canvas-Größe für Plotter*. Seiten über A0 zeigen Edge und Vorschau manchmal weiß an; Acrobat und Plotter-Software drucken sie. Der Canvas wird vektoriell auf die Seite skaliert, Text bleibt scharf.
-- *Ebenen (im PDF enthalten)*: Die Chips Video, Audio, Control, Network, Power und Other schalten eine Ebene für Canvas und PDF um. Für ein PDF nur mit Video schalten Sie die anderen aus, exportieren und schalten sie wieder ein.
+- *Ebenen (im PDF enthalten)*: Die Chips Video, Audio, Control, Network, Power und Other schalten eine Ebene für Canvas und PDF um. Für ein PDF nur mit Video schalten Sie *Video* per Doppelklick einsam, exportieren und schalten mit einem zweiten Doppelklick alle wieder ein.
+- *Ein Blatt je Ebene (dazu ein Gesamtblatt mit allen Ebenen)* (nur Raster) schreibt eine Datei mit mehreren Seiten: zuerst alle Ebenen übereinander, dann je Ebene, die Kabel trägt, ein eigenes Blatt. Jede Seite nennt im Kopf ihre Ebene und trägt eine Legende mit Farbe und Zahl der Kabel; das Gesamtblatt listet alle Ebenen. Die Ebenen-Chips stehen danach wieder wie vorher.
 
 ![Thema Dunkel](bilder/de/export-09-plan-thema-dunkel.jpg)
 
@@ -3162,6 +3222,8 @@ Mit gewählten Geräten bieten drei Knöpfe die Ausgabe an: *Einzel-PDF (n)* ein
 ![Kabel-Stückliste](bilder/de/export-43-bom-oeffnen.jpg)
 
 Die Tabelle nennt je Zeile *Typ*, *Länge (m)*, *Verbaut*, *Gesamt (m)*, die Rentman-Planung (*Rentman geplant*, editierbar) und die *Differenz*. Die Spalte *Stückelung* kommt hinzu, sobald Lagerlängen hinterlegt sind. Die Differenz zeigt, ob mehr oder weniger verbaut ist als geplant. Darunter steht die Summe je Gewerk und die Zahl der Steckverbinder nach Typ.
+
+Tragen Kabelenden einen Stecker aus dem Steckerkatalog (*Steckerteile* in den Kabeleigenschaften), folgt der Abschnitt *Steckerteile*: jedes Teil mit *Art*, *Teilenummer*, *Hersteller*, *Beschreibung*, *Anzahl* und *Summe*, über alle Kabel zusammengezählt. Eine Gesamtsumme steht nur, wenn jedes Teil einen Preis hat. Die CSV führt den Abschnitt als eigenen Block.
 
 ![Eingabe der Rentman-Planung](bilder/de/export-44-bom-rentman-eingabe.jpg)
 
@@ -3615,6 +3677,8 @@ Die Anschlussliste führt jeden Netzanschluss mit Gerät, Schnittstelle, IP, VLA
 #### Plan-Check-Dialog
 
 *Werkzeuge → Plan-Check…* findet Lücken und Widersprüche im Plan. Die Prüfung läuft laufend gegen den aktuellen Plan, nicht erst beim Speichern. Oben stehen die Zahlen der Hinweise nach Schwere (Fehler, Warnungen, Infos) und die Gesamtzahl. Jede Zeile nennt die Art (zum Beispiel *Doppelte Kabelnummer*, *Doppelte IP*, *Hausanschluss*, *Adernbündel*, *Stecker-Mismatch*, *Kabellänge*, *Audio sym/unsym*, *Drum-Mikrofonierung*, *Dual-Link*, *Fibre breakout*) und den Befund. Ein Klick auf eine Zeile markiert das betroffene Objekt im Plan. In der Statusleiste unten zeigen drei farbige Zähler denselben Stand.
+
+*Endstufenlast* prüft jeden Ausgangskanal einer Endstufe. Die Lautsprecher, die direkt oder über die Link-Buchsen der Lautsprecher in Reihe daran hängen, gelten als parallel: Z = 1/Σ(1/Zi). Liegt Z unter der *Mindestlast je Kanal* der Endstufe, ist das ein Fehler. Bekommt ein Lautsprecher mehr als das Doppelte seiner *Belastbarkeit (RMS/AES)*, ist das eine Warnung; sein Anteil ist Kanalleistung × Z/Zi. Hat ein angeschlossener Lautsprecher keine Impedanz, steht ein Hinweis. Die Werte kommen aus den Audio-Fachdaten (siehe [Inspector](#6-inspector)).
 
 ![Plan-Check](bilder/de/werkzeuge-planen-148-check-offen.jpg)
 
@@ -4141,7 +4205,9 @@ Der Entwurf eines neuen Racks wird laufend zwischengespeichert; die Fußzeile ze
 
 #### Eigenschaften eines Geräts im Rack
 
-Ein Doppelklick auf ein Gerät im Rack öffnet *Eigenschaften · Gerätename*. Das Fenster hat *Name*, *Kategorie*, *Höhe (HE)*, *Start-HE* (mit dem Höchstwert), *Tiefe (mm)*, *Montage* (*Full-Depth*, *Nur vorne*, *Nur hinten*), bei halbbreiten Geräten *Hälfte (Vorderansicht)* (*Links* oder *Rechts*), *3D-Modell (STL, optional)*, die Abschnitte *Tiefen-Position (Z)* und *Port-Seite (Front/Rear)* sowie *Panel-Bilder (Import + Zuschneiden)*. Unten stehen *Aus Rack entfernen* (mit Rückfrage) und *Schließen*.
+Ein Doppelklick auf ein Gerät im Rack öffnet *Eigenschaften · Gerätename*. Das Fenster hat *Name*, *Kategorie*, *Höhe (HE)*, *Start-HE* (mit dem Höchstwert), *Tiefe (mm)*, *Montage* (*Full-Depth*, *Nur vorne*, *Nur hinten*), bei halbbreiten Geräten *Hälfte (Vorderansicht)* (*Links* oder *Rechts*), *3D-Modell (STL, optional)*, die Abschnitte *Tiefen-Position (Z)* und *Port-Seite (Front/Rear)* sowie *Panel-Bilder (Import + Zuschneiden)*. Bei einer Patchblende kommen *Ports nebeneinander* und *Port-Reihen untereinander* dazu: Eine Zahl genügt, die andere ergibt sich aus der Anzahl der Ports; Vorder- und Rückseite folgen gleich. Einzelne Ports lassen sich danach weiter von Hand verschieben. Unten stehen *Aus Rack entfernen* (mit Rückfrage) und *Schließen*.
+
+Ein Rechtsklick auf ein Gerät im Rack nimmt es mit derselben Rückfrage aus dem Rack.
 
 ![Eigenschaften eines Geräts im Rack](bilder/de/werkzeuge-bauen-rack-17-eigenschaften.jpg)
 
@@ -4869,7 +4935,25 @@ Beide Quellen raten und ersetzen kein Datenblatt.
 
 ![Ausfüllen-Quelle und KI-Anbieter](bilder/de/einstellungen-22-integrationen-ki.jpg)
 
-*AI-Provider (KI-Port-Vorschläge)* listet Google Gemini, Anthropic Claude und OpenAI mit dem jeweils verwendeten Modell. Der Auswahlpunkt macht einen Anbieter aktiv. Jeder Anbieter hat ein eigenes Schlüsselfeld mit *Anzeigen*/*Ausblenden*, *Speichern* und Löschen; *Key erstellen ↗* öffnet die Seite des Anbieters. Bei Anthropic Claude gibt es zusätzlich das Feld *Workspace-ID*. Diese Schlüssel werden lokal im Speicher der App abgelegt.
+#### KI-Modus
+
+*KI-Modus* bestimmt, was eine KI-Abfrage kosten darf. Dahinter stehen vier Werte, die gemeinsam umgeschaltet werden: Modell, Denktiefe, Anzahl der Websuchen und Token-Deckel.
+
+| Modus | Verhalten |
+|---|---|
+| Sparsam | kleines Modell, keine Websuche; es weiß nur, was das Modell selbst weiß |
+| Ausgewogen | mittleres Modell, zwei Websuchen, flaches Denken — die Vorgabe |
+| Genau | größtes Modell, fünf Websuchen, tiefes Denken; rund 25 Cent je Gerät |
+
+Den Preis treiben die Suchergebnisse: jede Suche legt den Text der gefundenen Seite in die Abfrage, und jeder weitere Schritt derselben Antwort wird dafür erneut berechnet. Ein Modus mit weniger Suchen und kleinerem Modell kostet deshalb nicht ein Stück weniger, sondern eine Größenordnung.
+
+*Antworten merken* beantwortet dasselbe Gerät aus der letzten Antwort, statt es zweimal zu bezahlen — 30 Tage lang, je Modell getrennt. Abfragen mit Foto oder Datenblatt werden nie gespeichert.
+
+Darunter steht, was bisher verbraucht wurde: Zahl der Abfragen, geschätzte Kosten, Token und Suchen. Die Token sind gemessen, die Preise dahinter sind Listenpreise und eine Schätzung — keine Rechnung. *Zähler zurücksetzen* leert die Zählung, *Gemerkte Antworten löschen* den Zwischenspeicher.
+
+#### AI-Provider
+
+*AI-Provider (KI-Port-Vorschläge)* listet Google Gemini, Anthropic Claude und OpenAI mit dem Modell, das der gewählte KI-Modus bei ihnen benutzt. Der Auswahlpunkt macht einen Anbieter aktiv. Jeder Anbieter hat ein eigenes Schlüsselfeld mit *Anzeigen*/*Ausblenden*, *Speichern* und Löschen; *Key erstellen ↗* öffnet die Seite des Anbieters. Bei Anthropic Claude gibt es zusätzlich das Feld *Workspace-ID*. Diese Schlüssel werden lokal im Speicher der App abgelegt.
 
 #### GreenGo Intercom Presets
 
@@ -4894,13 +4978,19 @@ Die Gerätebibliothek ist ein gemeinsamer Server, mit dem der Planer Gerätevorl
 
 **Meine Geräte:** Selbst angelegte oder geänderte Vorlagen werden hochgeladen und gehen zuerst in die Moderation.
 
-- *Eigene Geräte automatisch hochladen* lädt beim Start und nach jeder Änderung einer Vorlage hoch, solange Sie angemeldet sind.
+Hochgeladen wird erst, wenn Sie es erlaubt haben. Oben im Bereich steht, woran Sie sind: *Nicht erlaubt: keine deiner eigenen Vorlagen verlässt diese Installation* oder *Hochladen erlaubt am <Datum>*. *Lesen und entscheiden* öffnet den Datenschutz-Dialog; er nennt Punkt für Punkt, was hinausgeht (Hersteller, Modell, Kategorie, Beschreibung, Anschlüsse, Leistungsaufnahme, Höheneinheiten, Gewicht, Datenblatt-Link, Ihr Benutzername) und was hierbleibt (keine Pläne, keine Passwörter, keine IP-Adressen, keine Rentman- oder NetBox-IDs, nichts aus Rentman). Die beiden Antworten sind *Hochladen erlauben* und *Nicht hochladen*. Beim ersten Anmelden wird der Dialog von selbst gestellt.
+
+Erlauben lässt sich jederzeit widerrufen (*Ansehen und widerrufen*); dann geht nichts weiter hinaus. Bereits freigegebene Einträge bleiben in der Gerätebibliothek — andere planen damit. Einen Eintrag dort zu löschen ist eine Bitte an die Moderation. Ändert sich, **was** hochgeladen wird, wird erneut gefragt; bis dahin geht nichts hinaus.
+
+Ohne Erlaubnis bleibt die Gerätebibliothek voll nutzbar: Geräte holen und aktualisieren ist davon nicht betroffen.
+
+- *Eigene Geräte automatisch hochladen* lädt beim Start und nach jeder Änderung einer Vorlage hoch, solange Sie angemeldet sind. Der Haken wirkt nur mit erteilter Erlaubnis; ohne sie öffnet er den Datenschutz-Dialog.
 - *Jetzt synchronisieren* lädt Geändertes hoch und holt danach Aktualisierungen. Der Knopf braucht eine Anmeldung.
 - *Eigene Vorlagen (n)* klappt die Liste der eigenen Vorlagen auf. Jede zeigt ihren Stand, z. B. *noch nicht hochgeladen*, *seit dem letzten Hochladen geändert*, *hochgeladen — wartet auf Moderation*, *hochgeladen — live* oder *blockiert — die Punkte unten beheben*. Fehlen Hersteller oder Modell, stehen darunter Felder dafür; ohne beide wird die Vorlage nicht hochgeladen.
 
 ![Liste der eigenen Vorlagen und Abgleich](bilder/de/einstellungen-25-geraetebibliothek-eigene.jpg)
 
-**Abgleich:** *Aus der Gerätebibliothek aktualisieren* holt nur, was sich seit dem letzten Abgleich geändert hat (braucht eine Anmeldung). Die Geräte erscheinen schreibgeschützt in der Bibliothek unter *Geteilt* und bleiben offline verfügbar. Darunter stehen die Zahl der lokal gespeicherten Geräte und der Zeitpunkt des letzten Abgleichs. Der Bericht nennt neue, aktualisierte und entfernte Geräte sowie Einträge, die die Vorlagenprüfung der App nicht bestehen und deshalb übersprungen werden.
+**Abgleich:** Angemeldet aktualisiert der Planer die gemeinsamen Geräte von selbst — beim Start, danach alle sechs Stunden und wenn Sie das Fenster nach einer längeren Pause wieder nach vorn holen. Das braucht keine Erlaubnis: dabei kommen Daten herein, es gehen keine hinaus. *Aus der Gerätebibliothek aktualisieren* holt sofort und nur, was sich seit dem letzten Abgleich geändert hat (braucht eine Anmeldung). Die Geräte erscheinen schreibgeschützt in der Bibliothek unter *Geteilt* und bleiben offline verfügbar. Darunter stehen die Zahl der lokal gespeicherten Geräte und der Zeitpunkt des letzten Abgleichs. Der Bericht nennt neue, aktualisierte und entfernte Geräte sowie Einträge, die die Vorlagenprüfung der App nicht bestehen und deshalb übersprungen werden.
 
 ### MCP
 
@@ -4998,7 +5088,7 @@ Eigene Einträge lassen sich umbenennen (die App fragt nach dem neuen Namen) und
 
 ### Kategorien & Felder
 
-Hier entstehen eigene Gerätekategorien und Fachfelder (z. B. eine Richtcharakteristik). Eigene Felder erscheinen automatisch in den Geräte-Eigenschaften und in Stückliste und Export. Eingebaute Felder sind gesperrt (*built-in*).
+Hier entstehen eigene Gerätekategorien und Fachfelder (z. B. eine Richtcharakteristik). Eigene Felder erscheinen automatisch in den Geräte-Eigenschaften und in Stückliste und Export. Eingebaute Felder (*Standard*) lassen sich nicht ändern, aber mit dem Augen-Knopf ausblenden, wenn Sie sie nicht brauchen: Sie verschwinden dann aus Eigenschaften, Stückliste und Export der Kategorie und ihrer Unterkategorien. Gelöscht wird dabei nichts – ein ausgeblendetes Feld steht durchgestrichen in der Liste (*ausgeblendet*), ein Klick holt es samt seinen Werten zurück.
 
 ![Reiter Kategorien & Felder](bilder/de/einstellungen-37-schema.jpg)
 
@@ -5165,6 +5255,9 @@ Schaltbefehle für ATEM oder Videohub werden nie angeboten.
   hinzufügen; sie läuft dann im Vollbild mit eigenem Symbol.
 - Touch: Spreizen zoomt den Plan, zwei Finger verschieben, **lange drücken**
   öffnet das Kontextmenü.
+- **Öffnen** auf iPhone und iPad zeigt alle Dateien, nicht nur Pläne: iOS
+  kennt die Endung `.cableplan` nicht und würde sie sonst ausgrauen. Eine
+  Datei, die kein Plan ist, wird nicht geladen.
 - Im Browser nicht verfügbar (kein Socket, kein offener Port, kein
   Schlüsselbund): ATEM, Videohub, NetBox, LAN-Abgleich, Telefonzugang,
   MCP-Server, Show-Control, Schalten, Tally-Pi, Rentman-Export,

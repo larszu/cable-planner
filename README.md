@@ -70,7 +70,8 @@
   Floor boxes come from the library (*Floor boxes*) and connect like a wall
   panel: socket on top, house run below. In *Building 3D* they lie on the
   floor, and every device or floor box can be dragged there; the move lands
-  on the canvas.
+  on the canvas. *See inside* opens the walls and ceiling, and every device
+  carries a sign with its short name that faces the camera.
 - **Every list for the build day.** Pull list, patch list, termination list,
   BOM, patch sheets, faceplates, acceptance record, QR labels — one report
   editor, preview equals export. The installation handover hands every

@@ -416,7 +416,7 @@ Jeder Rahmen ist ein Raum. Rahmen lassen sich Etagen zuordnen; sie bestimmen die
 
     ![Einzelne Kabel in 3D](bilder/de/canvas-raeume-18-drei-d-kabel.jpg)
 
-12. *Beschriftung* blendet die Namen ein oder aus. *Geschosshöhe (m)* gilt nur für Etagen ohne eingetragene Höhe; die Ansicht weist darauf hin, dass dies eine Annahme ist.
+12. *Beschriftung* blendet die Namen ein oder aus. Jedes Gerät trägt dann ein Schild mit seiner Kennung (dem Kürzel aus den Eigenschaften); das Schild zeigt immer zu Ihnen und bleibt beim Zoomen gleich groß. *Durchsicht* macht die Wände durchsichtig und nimmt die Decke weg, sodass Sie von schräg oben in die Räume schauen; ohne Durchsicht sind die Räume geschlossen. *Geschosshöhe (m)* gilt nur für Etagen ohne eingetragene Höhe; die Ansicht weist darauf hin, dass dies eine Annahme ist.
 
 Geräte lassen sich in der 3D-Ansicht ziehen. Bodentanks erscheinen als flache Platte im Boden, andere Geräte als Würfel. Ziehen neben ein Gerät dreht die Ansicht, das Mausrad zoomt.
 

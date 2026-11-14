@@ -12,9 +12,9 @@
  * denselben Schaltern wie auf dem Canvas (uiStore) — zwei Filter fuer
  * dieselbe Frage liefen auseinander.
  */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Canvas, type ThreeEvent } from '@react-three/fiber'
-import { Plane, Vector3 } from 'three'
+import { BoxGeometry, DoubleSide, Plane, Vector3 } from 'three'
 import { Edges, Html, Line, OrbitControls } from '@react-three/drei'
 import { useUiStore } from '../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
@@ -44,10 +44,60 @@ interface Zug {
   dz: number
 }
 
+/**
+ * #1185 — Ein Raum als vier Waende und eine Decke statt als geschlossener
+ * Kasten. Mit „Durchsicht" werden die Waende halbtransparent und die Decke
+ * faellt weg: man schaut von schraeg oben hinein. Ohne Durchsicht ist der
+ * Raum zu — die Ansicht des Gebaeudes von aussen.
+ */
+const RaumHuelle = ({
+  breite,
+  hoehe,
+  tiefe,
+  farbe,
+  durchsicht,
+}: {
+  breite: number
+  hoehe: number
+  tiefe: number
+  farbe: string
+  durchsicht: boolean
+}) => {
+  const kasten = useMemo(() => new BoxGeometry(breite, hoehe, tiefe), [breite, hoehe, tiefe])
+  useEffect(() => () => kasten.dispose(), [kasten])
+  const opacity = durchsicht ? 0.1 : 0.55
+  const material = <meshStandardMaterial color={farbe} transparent opacity={opacity} depthWrite={false} side={DoubleSide} />
+  const waende: { pos: [number, number, number]; rotY: number; w: number }[] = [
+    { pos: [0, 0, tiefe / 2], rotY: 0, w: breite },
+    { pos: [0, 0, -tiefe / 2], rotY: 0, w: breite },
+    { pos: [breite / 2, 0, 0], rotY: Math.PI / 2, w: tiefe },
+    { pos: [-breite / 2, 0, 0], rotY: Math.PI / 2, w: tiefe },
+  ]
+  return (
+    <>
+      {waende.map((w, i) => (
+        <mesh key={i} position={w.pos} rotation={[0, w.rotY, 0]}>
+          <planeGeometry args={[w.w, hoehe]} />
+          {material}
+        </mesh>
+      ))}
+      {!durchsicht && (
+        <mesh position={[0, hoehe / 2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[breite, tiefe]} />
+          {material}
+        </mesh>
+      )}
+      {/* Die Kanten bleiben immer: sie zeigen den Raum auch, wenn er offen ist. */}
+      <Edges geometry={kasten} color={farbe} />
+    </>
+  )
+}
+
 const Szene = ({
   szene,
   modus,
   beschriftung,
+  durchsicht,
   isLight,
   gesperrt,
   onVerschoben,
@@ -55,6 +105,7 @@ const Szene = ({
   szene: GebaeudeSzene
   modus: Modus
   beschriftung: boolean
+  durchsicht: boolean
   isLight: boolean
   gesperrt: ReadonlySet<string>
   onVerschoben: (id: string, xM: number, zM: number) => void
@@ -87,6 +138,24 @@ const Szene = ({
     if (Math.hypot(zug.x - g.pos.x, zug.z - g.pos.z) > 0.01) onVerschoben(g.id, zug.x, zug.z)
     setZug(null)
   }
+  const schild = (inhalt: string) => (
+    <div
+      style={{
+        color: isLight ? '#0f172a' : '#f8fafc',
+        background: isLight ? 'rgba(255,255,255,0.92)' : 'rgba(15,23,42,0.88)',
+        border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+        borderRadius: 'var(--cp-r-s)',
+        padding: '1px 6px',
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: 0.3,
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+      }}
+    >
+      {inhalt}
+    </div>
+  )
   const label = (inhalt: string, farbe = text) => (
     <div style={{ color: farbe, fontSize: 11, whiteSpace: 'nowrap', pointerEvents: 'none', textShadow: isLight ? 'none' : '0 0 3px #000' }}>
       {inhalt}
@@ -98,11 +167,7 @@ const Szene = ({
       <directionalLight position={[20, 40, 20]} intensity={0.6} />
       {szene.raeume.map((r) => (
         <group key={r.id} position={[r.x + r.breite / 2, r.y + r.hoehe / 2, r.z + r.tiefe / 2]}>
-          <mesh>
-            <boxGeometry args={[r.breite, r.hoehe, r.tiefe]} />
-            <meshStandardMaterial color={r.farbe} transparent opacity={0.12} depthWrite={false} />
-            <Edges color={r.farbe} />
-          </mesh>
+          <RaumHuelle breite={r.breite} hoehe={r.hoehe} tiefe={r.tiefe} farbe={r.farbe} durchsicht={durchsicht} />
           {/* Boden deutlicher als die Waende: auf ihm stehen die Geraete. */}
           <mesh position={[0, -r.hoehe / 2 + 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[r.breite, r.tiefe]} />
@@ -147,9 +212,12 @@ const Szene = ({
             <boxGeometry args={g.bodentank ? [0.5, 0.06, 0.5] : [0.35, 0.35, 0.35]} />
             <meshStandardMaterial color={aktiv ? '#38bdf8' : g.bodentank ? '#f59e0b' : isLight ? '#334155' : '#cbd5e1'} />
           </mesh>
-          {beschriftung && (modus === 'kabel' || g.bodentank) && (
-            <Html position={[0, 0.4, 0]} center>
-              {label(g.name)}
+          {/* #1185 — Schild mit der Kennung. `Html` liegt als DOM ueber der
+              Szene: es zeigt immer zur Kamera und bleibt beim Zoomen gleich
+              gross — genau das, was ein Schild soll. */}
+          {beschriftung && (
+            <Html position={[0, g.bodentank ? 0.3 : 0.45, 0]} center zIndexRange={[20, 0]}>
+              {schild(g.kennung)}
             </Html>
           )}
         </group>
@@ -222,6 +290,7 @@ export const Gebaeude3DDialog = () => {
   }
   const [modus, setModus] = useState<Modus>('raeume')
   const [beschriftung, setBeschriftung] = useState(true)
+  const [durchsicht, setDurchsicht] = useState(true)
 
   const { containerRef, containerStyle, headerProps } = useDraggablePosition('cable-planner:modal-pos:gebaeude-3d', open)
   const { panelRef, titleId, dialogProps } = useDialogA11y(open, close, { ref: containerRef })
@@ -287,6 +356,10 @@ export const Gebaeude3DDialog = () => {
             <input type="checkbox" checked={beschriftung} onChange={(e) => setBeschriftung(e.target.checked)} />
             {t('gebaeude3d.labels', 'Labels')}
           </label>
+          <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary" title={t('gebaeude3d.seeInsideTitle', 'Walls see-through, ceiling off — look into the rooms from above')}>
+            <input type="checkbox" checked={durchsicht} onChange={(e) => setDurchsicht(e.target.checked)} />
+            {t('gebaeude3d.seeInside', 'See inside')}
+          </label>
           <label className="flex items-center gap-1 text-cp-xs text-cp-text-secondary" title={t('gebaeude3d.storeyTitle', 'Used only for floors without a height in the floor list')}>
             {t('gebaeude3d.storey', 'Storey height (m)')}
             <input
@@ -329,7 +402,7 @@ export const Gebaeude3DDialog = () => {
             </p>
           ) : (
             <Canvas camera={{ position: [szene.mitte.x + abstand, szene.mitte.y + abstand * 0.8, szene.mitte.z + abstand], fov: 45, near: 0.1, far: abstand * 20 }}>
-              <Szene szene={szene} modus={modus} beschriftung={beschriftung} isLight={isLight} gesperrt={gesperrt} onVerschoben={verschieben} />
+              <Szene szene={szene} modus={modus} beschriftung={beschriftung} durchsicht={durchsicht} isLight={isLight} gesperrt={gesperrt} onVerschoben={verschieben} />
             </Canvas>
           )}
         </div>

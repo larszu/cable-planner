@@ -398,7 +398,7 @@ Every frame is a room. Frames can be assigned to floors; floors determine visibi
 
     ![Single cables in 3D](bilder/en/canvas-raeume-18-drei-d-kabel.jpg)
 
-12. *Labels* shows or hides the names. *Storey height (m)* applies only to floors without an entered height; the view points out that this is an assumption.
+12. *Labels* shows or hides the names. Every device then carries a sign with its identifier (the short name from the properties); the sign always faces you and keeps its size when you zoom. *See inside* makes the walls see-through and removes the ceiling, so you look into the rooms from above; without it the rooms are closed. *Storey height (m)* applies only to floors without an entered height; the view points out that this is an assumption.
 
 Devices can be dragged in the 3D view. Floor boxes appear as a flat plate in the floor, other devices as cubes. Dragging beside a device rotates the view, the mouse wheel zooms.
 

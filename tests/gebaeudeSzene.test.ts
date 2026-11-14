@@ -79,6 +79,15 @@ describe('gebaeudeSzene', () => {
     expect(s.verbindungen[0].kabelIds).toEqual(['k1'])
   })
 
+  it('jedes Geraet traegt seine Kennung fuers Schild: eigenes Kuerzel vor dem erzeugten (#1185)', () => {
+    const s = gebaeudeSzene(
+      { ...daten, equipment: [geraet('a', 50, 50, { name: 'ATEM Constellation 8K' }), geraet('b', 60, 60, { name: 'Kamera 1', shortName: ' CAM 101 ' })] },
+      opt,
+    )
+    expect(s.geraete.find((g) => g.id === 'a')!.kennung).toBe('ATEM8K')
+    expect(s.geraete.find((g) => g.id === 'b')!.kennung).toBe('CAM 101')
+  })
+
   it('eine leere Szene hat trotzdem eine Kamera-Ausdehnung', () => {
     const s = gebaeudeSzene({ equipment: [], cables: [], locations: [], floors: [] }, opt)
     expect(s.groesse).toBeGreaterThan(0)
