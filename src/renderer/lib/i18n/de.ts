@@ -1595,9 +1595,10 @@ export const de: Dict = {
   'canvas.signalweg.chip': 'Signalweg: {kabel} Kabel, {geraete} Geräte',
   'canvas.signalweg.clearTitle': 'Signalweg-Ansicht beenden (Esc)',
   'canvas.layerChips.addCustom': 'Custom-Layer anlegen…',
-  'canvas.layerChips.chipTitle': '{label} — {count} Kabel · {state}',
+  'canvas.layerChips.chipTitleSolo': '{label} — {count} Kabel · {state} · Doppelklick: nur diese Ebene',
   'canvas.layerChips.customLayerPrompt': 'Custom-Layer anlegen (z.B. "intercom", "lighting")',
-  'canvas.layerChips.customTitle': '{layer} (custom) — Rechtsklick zum Entfernen',
+  'canvas.layerChips.customTitleSolo':
+    '{layer} (eigene Ebene) — {count} Kabel · Doppelklick: nur diese Ebene · Rechtsklick zum Entfernen',
   'canvas.layerChips.hiddenShow': 'ausgeblendet (klick: einblenden)',
   'canvas.layerChips.layerStripTitle':
     'Layer-Sichtbarkeit (nur Kabel werden gefiltert, Geräte bleiben)',
@@ -2625,6 +2626,10 @@ export const de: Dict = {
   'export.labelHeader': 'Label',
   'export.labelsImported': 'Labels.txt importiert',
   'export.layersHint': 'Klick auf einen Chip schaltet die Ebene für Canvas UND PDF um.',
+  'export.layerSheets.option': 'Ein Blatt je Ebene (dazu ein Gesamtblatt mit allen Ebenen)',
+  'export.layerSheets.allTitle': 'Alle Ebenen',
+  'export.layerSheets.layerTitle': 'Ebene: {layer}',
+  'export.layerSheets.fileSuffix': 'ebenen',
   'export.layersInPdf': 'Ebenen (im PDF enthalten)',
   'export.listModeOverload':
     'Listen-Modus, da die Crosspoint-Matrix bei dieser Größe das Browser-Rendering überlastet.',

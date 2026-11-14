@@ -192,7 +192,8 @@
   (`tools/call` with `{"name":…,"arguments":…}` works the same way).
 - **Offline first.** One JSON file per project, secrets in the OS keychain.
 - **Calm by default.** One single-line toolbar over the plan: defaults,
-  frame, selection tools and the layer chips; everything else sits under
+  frame, selection tools and the layer chips (with the cable count per
+  layer, double click to solo); everything else sits under
   *More*. Devices are neutral cards with their colour as a thin edge.
 - **One way in.** The first start asks once what you plan (show, fixed
   install, rental — optional, it only switches the matching modules on) and

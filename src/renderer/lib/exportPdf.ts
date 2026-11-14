@@ -6,7 +6,7 @@ import type { DocumentStamp } from './documentStamp'
 import { composeExportBackground, type ExportBgVariant } from './exportBackground'
 import { pdfText } from './pdfHelpers'
 import { hexToRgb, drawVectorBackground } from './pdfBackground'
-import { buildExportFilename } from './exportFilename'
+import { buildExportFilename, buildExportFilenameWithSuffix } from './exportFilename'
 import { format, tr, translate } from './i18n'
 import { useUiStore } from '../store/uiStore'
 import { resolveTitleBlockScale } from './titleBlockScale'
@@ -23,8 +23,6 @@ const extractGridColor = (
   if (options?.customPalette?.gridColor) return options.customPalette.gridColor
   return (options?.backgroundTheme ?? 'dark') === 'light' ? '#94a3b8' : '#64748b'
 }
-// hexToRgb only used by pdfBackground — import here to avoid bundling twice
-void hexToRgb
 
 export interface ExportPdfOptions {
   backgroundTheme?: 'dark' | 'light'
@@ -48,6 +46,24 @@ export interface ExportPdfOptions {
    * ist.
    */
   stamp?: DocumentStamp
+  /**
+   * #1189 — Beschriftung eines Ebenen-Blatts: Titel neben dem Projektnamen
+   * und eine Legendenzeile darunter (Farbe, Ebene, Zahl der Wege).
+   */
+  blatt?: PdfBlatt
+  /** #1189 — statt eines neuen Dokuments eine Seite an dieses anhaengen. */
+  anhaengenAn?: jsPDF
+}
+
+export interface PdfBlattLegende {
+  label: string
+  color: string
+  count: number
+}
+
+export interface PdfBlatt {
+  titel: string
+  legende: PdfBlattLegende[]
 }
 
 /**
@@ -457,7 +473,9 @@ const buildCanvasPdfAusschnitt = async (
   // pixel ≈ 0.75 pt at 96 DPI.
   const PX_TO_PT = 0.75
   const margin = 24
-  const headerHeight = 28 // reserved for title + timestamp at the top
+  const blatt = options?.blatt
+  // #1189 — die Legendenzeile braucht unter dem Titel eine eigene Zeile.
+  const headerHeight = blatt && blatt.legende.length > 0 ? 46 : 28 // title + timestamp (+ legend)
   const drawingW = contentW * PX_TO_PT
   const drawingH = contentH * PX_TO_PT
 
@@ -476,22 +494,40 @@ const buildCanvasPdfAusschnitt = async (
   const pageHeight = drawingH + margin * 2 + headerHeight + titleBlockHeight + titleBlockGap
 
   const orientation = pageWidth >= pageHeight ? 'landscape' : 'portrait'
-  const pdf = new jsPDF({
-    orientation,
-    unit: 'pt',
-    format: [pageWidth, pageHeight],
-    // v7.9.62 — Stream-Kompression einschalten. Für JPEG-Images bringt
-    // das nur wenig (sind eh komprimiert), aber Vektor-Hintergrund +
-    // Title-Block + Metadata shrinken sich messbar.
-    compress: true,
-  })
+  const pdf = options?.anhaengenAn
+    ? options.anhaengenAn.addPage([pageWidth, pageHeight], orientation)
+    : new jsPDF({
+        orientation,
+        unit: 'pt',
+        format: [pageWidth, pageHeight],
+        // v7.9.62 — Stream-Kompression einschalten. Für JPEG-Images bringt
+        // das nur wenig (sind eh komprimiert), aber Vektor-Hintergrund +
+        // Title-Block + Metadata shrinken sich messbar.
+        compress: true,
+      })
 
   pdf.setFontSize(14)
   pdf.setTextColor(15)
-  pdfText(pdf, metadata?.name || 'LZ Cable Planner Project', margin, margin + 4)
+  const kopf = metadata?.name || 'LZ Cable Planner Project'
+  pdfText(pdf, blatt ? `${kopf} — ${blatt.titel}` : kopf, margin, margin + 4)
   pdf.setFontSize(9)
   pdf.setTextColor(80)
   pdfText(pdf, new Date().toLocaleString(), pageWidth - margin, margin + 4, { align: 'right' })
+  if (blatt && blatt.legende.length > 0) {
+    // Legende: Farbfeld, Ebene, Zahl — eine Zeile, links beginnend.
+    let lx = margin
+    const ly = margin + 20
+    pdf.setFontSize(9)
+    for (const eintrag of blatt.legende) {
+      const { r, g, b } = hexToRgb(eintrag.color)
+      pdf.setFillColor(r, g, b)
+      pdf.rect(lx, ly - 7, 8, 8, 'F')
+      pdf.setTextColor(40)
+      const text = `${eintrag.label} ${eintrag.count}`
+      pdfText(pdf, text, lx + 12, ly)
+      lx += 12 + pdf.getTextWidth(text) + 14
+    }
+  }
 
   const offsetX = margin
   const offsetY = margin + headerHeight
@@ -550,4 +586,59 @@ const buildCanvasPdfAusschnitt = async (
   }
 
   return pdf
+}
+
+/**
+ * #1189 — Druck je Ebene: ein Gesamtblatt mit allen Ebenen uebereinander,
+ * danach ein Blatt je Ebene, die Wege traegt. Eine Datei, eine Seite je
+ * Blatt. Dafuer wird die Ebenen-Sichtbarkeit fuer die Dauer der Ausgabe
+ * umgeschaltet und danach genau so zurueckgestellt, wie sie war — auf dem
+ * Schirm bleibt nichts haengen.
+ *
+ * Nur der Raster-Pfad: Der Vektor-Pfad druckt ueber Chromium eine Seite je
+ * Aufruf und kann keine Seiten aneinanderhaengen.
+ */
+export const exportCanvasToPdfJeEbene = async (
+  projectName: string,
+  ebenen: (PdfBlattLegende & { key: string })[],
+  metadata?: ProjectMetadata,
+  quality = 0.85,
+  options?: ExportPdfOptions,
+): Promise<void> => {
+  const ui = useUiStore.getState()
+  const vorher = { ...ui.layerVisibility }
+  const mitWegen = ebenen.filter((e) => e.count > 0)
+  const legende = mitWegen.map(({ label, color, count }) => ({ label, color, count }))
+  const lang = ui.language
+  try {
+    ui.resetLayerVisibility()
+    const pdf = await buildCanvasPdf(metadata, quality, {
+      ...options,
+      blatt: { titel: translate(lang, 'export.layerSheets.allTitle', 'All layers'), legende },
+    })
+    for (const ebene of mitWegen) {
+      const sichtbar: Record<string, boolean> = {}
+      for (const e of ebenen) sichtbar[e.key] = e.key === ebene.key
+      useUiStore.setState({ layerVisibility: { ...vorher, ...sichtbar } })
+      await buildCanvasPdf(metadata, quality, {
+        ...options,
+        anhaengenAn: pdf,
+        blatt: {
+          titel: format(translate(lang, 'export.layerSheets.layerTitle', 'Layer: {layer}'), {
+            layer: ebene.label,
+          }),
+          legende: [{ label: ebene.label, color: ebene.color, count: ebene.count }],
+        },
+      })
+    }
+    pdf.save(
+      buildExportFilenameWithSuffix(
+        projectName,
+        translate(lang, 'export.layerSheets.fileSuffix', 'layers'),
+        'pdf',
+      ),
+    )
+  } finally {
+    useUiStore.setState({ layerVisibility: vorher })
+  }
 }

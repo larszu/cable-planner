@@ -110,3 +110,32 @@ export const isCableVisibleByLayer = (
   if (!(top in layerVisibility)) return true
   return layerVisibility[top]
 }
+
+/** #1189 — Zahl der Wege je Ebene. Dieselbe Zuordnung wie der Filter
+ *  (`isCableVisibleByLayer`): Unterebenen zaehlen bei ihrer Hauptebene,
+ *  Kabel ohne Ebene bei 'other'. Eine zweite Rechnung waere die Stelle, an
+ *  der Zahl und Sichtbarkeit irgendwann auseinanderlaufen. */
+export const countCablesByLayer = (cables: readonly Pick<Cable, 'layer'>[]): Record<string, number> => {
+  const counts: Record<string, number> = {}
+  for (const c of cables) {
+    const top = topLayer(c.layer) ?? c.layer ?? 'other'
+    counts[top] = (counts[top] ?? 0) + 1
+  }
+  return counts
+}
+
+/** #1189 — Ebene einsam schalten: nur `layer` bleibt sichtbar. Ist sie
+ *  schon die einzige sichtbare, kehrt derselbe Griff zu „alle sichtbar"
+ *  zurueck — man muss den Rueckweg nicht suchen. */
+export const soloLayerVisibility = (
+  layers: readonly string[],
+  current: Record<string, boolean>,
+  layer: string,
+): Record<string, boolean> => {
+  const visible = (l: string) => current[l] !== false
+  const schonEinsam = visible(layer) && layers.every((l) => l === layer || !visible(l))
+  const next: Record<string, boolean> = { ...current }
+  for (const l of layers) next[l] = schonEinsam ? true : l === layer
+  next[layer] = true
+  return next
+}

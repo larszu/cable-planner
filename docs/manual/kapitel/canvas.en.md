@@ -404,7 +404,7 @@ Devices can be dragged in the 3D view. Floor boxes appear as a flat plate in the
 
 ### Layers
 
-The layer chips show and hide the cables of a layer. Only the cables are filtered, the devices stay. A coloured dot marks the signal type; the tooltip gives the number of cables (for example *Video — 4 cables · visible (click to hide)*).
+The layer chips show and hide the cables of a layer. Only the cables are filtered, the devices stay. A coloured dot marks the signal type, the number in the chip the cables on that layer. Sub-layers such as *video.backup* count towards their main layer, cables without a layer towards *Other*. That shows when a layer is empty although the plan needs it.
 
 1. The toolbar shows *Video*, *Audio*, *Control*, *Network*, *Power* and *Other*.
 
@@ -413,6 +413,8 @@ The layer chips show and hide the cables of a layer. Only the cables are filtere
 2. Click *Video*: the video cables disappear.
 
    ![Layer Video hidden](bilder/en/canvas-ebenen-02-video-aus.jpg)
+
+   A double click (or Alt-click) on a chip solos the layer: only its cables stay visible. The same gesture again shows all layers.
 
 3. *More → Layers ⋯* opens the management menu: *Create custom layer…* and *Show all layers again*.
 

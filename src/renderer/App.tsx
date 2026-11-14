@@ -108,7 +108,8 @@ import { Splitter } from './components/Layout/Splitter'
 import { useProject } from './hooks/useProject'
 import { useRentman } from './hooks/useRentman'
 import { cablePlannerApi, hasDesktopBridge } from './lib/bridge'
-import { exportCanvasToPdf, exportCanvasToPdfBytes } from './lib/exportPdf'
+import { exportCanvasToPdf, exportCanvasToPdfBytes, exportCanvasToPdfJeEbene } from './lib/exportPdf'
+import { LAYER_STYLES, STANDARD_LAYERS, countCablesByLayer } from './lib/cableLayers'
 import { stampForPlan } from './lib/documentStamp'
 import { recordEmission } from './lib/documentLog'
 import { exportCanvasToPdfVector } from './lib/exportPdfVector'
@@ -1163,6 +1164,7 @@ export default function App() {
     vector = false,
     pageSize: 'auto' | 'original' | 'a4' | 'a3' | 'a2' | 'a1' | 'a0' | 'a0plus' = 'auto',
     monochrom = false,
+    jeEbene = false,
   ) => {
     setPdfExportThemeOverride(theme)
     // Bedarf 128 — wie das Thema: nur fuer die Dauer dieser Ausgabe gesetzt
@@ -1189,6 +1191,34 @@ export default function App() {
           onProgress: (phase, detail) =>
             setPdfProgress({ active: true, phase, detail }),
         })
+        recordPlanEmission()
+      } else if (jeEbene) {
+        // #1189 — Gesamtblatt + ein Blatt je Ebene, die Wege traegt.
+        const counts = countCablesByLayer(project.cables)
+        const custom = useUiStore.getState().customLayers
+        await exportCanvasToPdfJeEbene(
+          project.metadata.name,
+          [
+            ...STANDARD_LAYERS.map((key) => ({
+              key,
+              label: t(`layer.${key}`, LAYER_STYLES[key].label),
+              color: LAYER_STYLES[key].color,
+              count: counts[key] ?? 0,
+            })),
+            ...custom.map((key) => ({ key, label: key, color: LAYER_STYLES.other.color, count: counts[key] ?? 0 })),
+          ],
+          project.metadata,
+          0.85,
+          {
+            backgroundTheme: theme,
+            bgVariant: exportBgVariant,
+            gridSize: exportGridSize,
+            bgOpacity: exportBgOpacity,
+            customPalette: exportCustomPalette,
+            stamp: stampForPlan(project, new Date()),
+            onProgress: (phase, detail) => setPdfProgress({ active: true, phase, detail }),
+          },
+        )
         recordPlanEmission()
       } else {
         await exportCanvasToPdf(project.metadata.name, project.metadata, 0.85, {
@@ -1601,8 +1631,8 @@ export default function App() {
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
-        onExportPdf={(theme, vector, pageSize) =>
-          handleExportPdf(theme, vector ?? false, pageSize ?? 'auto')
+        onExportPdf={(theme, vector, pageSize, monochrom, jeEbene) =>
+          handleExportPdf(theme, vector ?? false, pageSize ?? 'auto', monochrom ?? false, jeEbene ?? false)
         }
         onPrintPdf={(theme) => handlePrintPdf(theme)}
         onExportImage={(format) => handleExportImage(format)}

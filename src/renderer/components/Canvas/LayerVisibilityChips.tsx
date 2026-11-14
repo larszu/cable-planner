@@ -17,11 +17,11 @@
  *  - Aktiv = gedeckt-farbiger Background; Inaktiv = grau opak
  *  - Tooltip erklärt was passiert
  */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Eye, Diamond, Plus} from 'lucide-react'
 import { useUiStore } from '../../store/uiStore'
 import { Icon } from '../shared/Icon'
-import { LAYER_STYLES, STANDARD_LAYERS, topLayer, type StandardLayer } from '../../lib/cableLayers'
+import { LAYER_STYLES, STANDARD_LAYERS, countCablesByLayer, type StandardLayer } from '../../lib/cableLayers'
 import { promptDialog } from '../../lib/promptDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { useCanvasProjectStore as useProjectStore } from '../../store/projectStoreContext'
@@ -77,21 +77,24 @@ export const LayerVisibilityChips = ({ teil = 'alles' }: { teil?: 'alles' | 'chi
       document.removeEventListener('keydown', esc)
     }
   }, [menuOpen])
-  // v7.9.93 — Counter pro Layer: zeigt dem User auf einen Blick wie
-  // viele Kabel auf welchem Layer liegen. Macht das Feature sichtbar:
-  // wenn alle Counter "0" sind weiß der User dass keine Layer-
-  // Zuordnung im Projekt existiert (z.B. altes Projekt vor v7.9.85).
-  // v7.9.95: Kabel ohne layer-Feld landen im 'other'-Bucket, damit das
-  // 'other'-Chip die Custom/Undefined-Kabel sichtbar macht.
+  // v7.9.93 — Counter pro Layer. #1189: die Zahl steht jetzt IM Chip,
+  // nicht nur im Tooltip — „25 Strom, 0 DMX" sieht man nur beim Hinsehen,
+  // nicht beim Darueberfahren.
   const cables = useProjectStore((s) => s.project.cables)
-  const layerCounts = (() => {
-    const counts: Record<string, number> = {}
-    for (const c of cables) {
-      const top = topLayer(c.layer) ?? c.layer ?? 'other'
-      counts[top] = (counts[top] ?? 0) + 1
-    }
-    return { counts, total: cables.length }
-  })()
+  const counts = useMemo(() => countCablesByLayer(cables), [cables])
+  const soloLayer = useUiStore((s) => s.soloLayer)
+
+  /** #1189 — Klick blendet aus/ein, Doppelklick oder Alt-Klick schaltet die
+   *  Ebene einsam (nur sie sichtbar); dasselbe noch einmal holt alle zurueck.
+   *  Der Doppelklick schaltet vorher zweimal um und landet damit wieder beim
+   *  Ausgangszustand — das Einsam-Schalten setzt danach auf. */
+  const chipHandlers = (layer: string, visible: boolean) => ({
+    onClick: (e: React.MouseEvent) => {
+      if (e.altKey) soloLayer(layer)
+      else setLayerVisibility(layer, !visible)
+    },
+    onDoubleClick: () => soloLayer(layer),
+  })
 
   const allOn = STANDARD_LAYERS.every((l) => layerVisibility[l] !== false) &&
     customLayers.every((l) => layerVisibility[l] !== false)
@@ -152,17 +155,17 @@ export const LayerVisibilityChips = ({ teil = 'alles' }: { teil?: 'alles' | 'chi
       {chips && (STANDARD_LAYERS as readonly StandardLayer[]).map((layer) => {
         const style = LAYER_STYLES[layer]
         const visible = layerVisibility[layer] !== false
-        const count = layerCounts.counts[layer] ?? 0
+        const count = counts[layer] ?? 0
         return (
           <button
             key={layer}
             type="button"
             aria-pressed={visible}
-            onClick={() => setLayerVisibility(layer, !visible)}
+            {...chipHandlers(layer, visible)}
             title={format(
               t(
-                'canvas.layerChips.chipTitle',
-                '{label} — {count} cables · {state}',
+                'canvas.layerChips.chipTitleSolo',
+                '{label} — {count} cables · {state} · double-click: only this layer',
               ),
               {
                 label: style.label,
@@ -176,6 +179,7 @@ export const LayerVisibilityChips = ({ teil = 'alles' }: { teil?: 'alles' | 'chi
           >
             <span className="cp-chip__dot" style={{ color: style.color }} aria-hidden="true" />
             <span>{style.label}</span>
+            <span className="tabular-nums text-cp-text-muted">{count}</span>
           </button>
         )
       })}
@@ -186,7 +190,7 @@ export const LayerVisibilityChips = ({ teil = 'alles' }: { teil?: 'alles' | 'chi
             key={layer}
             type="button"
             aria-pressed={visible}
-            onClick={() => setLayerVisibility(layer, !visible)}
+            {...chipHandlers(layer, visible)}
             onContextMenu={(e) => {
               e.preventDefault()
               entfernen(layer)
@@ -195,13 +199,17 @@ export const LayerVisibilityChips = ({ teil = 'alles' }: { teil?: 'alles' | 'chi
                bricht ab, sobald der Zeiger wandert: dann war es ein Zug. */
             {...langerDruck(layer)}
             title={format(
-              t('canvas.layerChips.customTitle', '{layer} (custom) — right-click to remove'),
-              { layer },
+              t(
+                'canvas.layerChips.customTitleSolo',
+                '{layer} (custom) — {count} cables · double-click: only this layer · right-click to remove',
+              ),
+              { layer, count: counts[layer] ?? 0 },
             )}
             className="cp-chip"
           >
             <Icon icon={Diamond} size="xs" />
             <span>{layer}</span>
+            <span className="tabular-nums text-cp-text-muted">{counts[layer] ?? 0}</span>
           </button>
         )
       })}
