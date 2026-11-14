@@ -4,8 +4,9 @@ import { nextPlacementPosition } from '../../lib/library'
 import { CategorySelect } from '../shared/CategorySelect'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { format, useTranslation } from '../../lib/i18n'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { PortList } from './PortList'
+import { vorlagenPortsMitIds } from '../../lib/vorlagenPortIds'
 
 export const TemplateProperties = () => {
   const t = useTranslation()
@@ -19,6 +20,17 @@ export const TemplateProperties = () => {
   const setSelectedTemplateName = useProjectStore((state) => state.setSelectedTemplateName)
 
   const template = customLibrary.find((tpl) => tpl.name === selectedTemplateName)
+
+  // #1224 — Katalog-Vorlagen tragen leere Port-Ids; ohne eindeutige Ids
+  // behielt die Port-Liste beim Wechsel Zeilen der vorigen Vorlage.
+  const inputs = useMemo(
+    () => (template ? vorlagenPortsMitIds(template.inputs, `${template.name}:in`) : []),
+    [template],
+  )
+  const outputs = useMemo(
+    () => (template ? vorlagenPortsMitIds(template.outputs, `${template.name}:out`) : []),
+    [template],
+  )
 
   const [name, setName] = useSyncedState(template?.name ?? '')
   const [category, setCategory] = useSyncedState(template?.category ?? '')
@@ -166,14 +178,14 @@ export const TemplateProperties = () => {
           behalten ihren Stand, bis man sie neu aus der Bibliothek zieht. */}
       <PortList
         title={t('template.field.inputs', 'Inputs')}
-        ports={template.inputs}
+        ports={inputs}
         onChange={(inputs) => updateCustomTemplate(template.name, { inputs })}
         collapsed={zu}
         onToggleCollapsed={umschalten}
       />
       <PortList
         title={t('template.field.outputs', 'Outputs')}
-        ports={template.outputs}
+        ports={outputs}
         onChange={(outputs) => updateCustomTemplate(template.name, { outputs })}
         collapsed={zu}
         onToggleCollapsed={umschalten}
