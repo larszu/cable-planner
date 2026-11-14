@@ -69,6 +69,11 @@ unter `docs/` muss von einer Einstiegsseite aus über Links erreichbar sein.
 
 ## Domänen-Konzepte
 
+- [`konzept-mischer-kreuzschienen-simulation.md`](konzept-mischer-kreuzschienen-simulation.md)
+  — ein Funktionsmodell für alle Mischer und Kreuzschienen (Ebenen, Breakaway,
+  M/E, Keyer, SuperSource, Mediaplayer), Innenansicht am Gerät, Simulation mit
+  Ergebnisbild, Setup-Dateien zum Aufspielen, Emulator-Server und NMOS IS-04/05/08/12.
+
 Diese Dokumente begründen, warum ein Bereich so gebaut ist, wie er gebaut ist.
 Der Status steht jeweils im Kopf des Dokuments — mehrere sind vollständig
 umgesetzt und stehen hier als Begründung, nicht als Vorhaben.
