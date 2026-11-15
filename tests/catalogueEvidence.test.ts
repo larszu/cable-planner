@@ -104,7 +104,8 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // 1738 -> 1743 am 2026-10-20: fuenf Crestron-Geraete (#1067).
     // 1743 -> 1968 -> 2015 am 2026-10-21: PixelHue, Barco, PIXERA, Christie, Panasonic, Epson und LANG-AG-Bestand.
     // 2015 -> 2041 am 2026-11-14 (#1199).
-    expect(kommentare).toBe(2041)
+    // 2041 -> 2046 am 2026-11-15: fuenf Atomos-Monitor-Recorder.
+    expect(kommentare).toBe(2046)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -114,7 +115,8 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     expect(bericht.sourced + bericht.unsourced).toBe(bericht.entries)
     // 1743 -> 1968 -> 2015 am 2026-10-21: PixelHue, Barco, PIXERA, Christie, Panasonic, Epson und LANG-AG-Bestand.
     // 2015 -> 2041 am 2026-11-14 (#1199).
-    expect(bericht.sourced).toBe(2041)
+    // 2041 -> 2046 am 2026-11-15: fuenf Atomos-Monitor-Recorder.
+    expect(bericht.sourced).toBe(2046)
     // 1831 -> 1827: der multicam-planner hat vier erfundene Kamera-Eintraege
     // entfernt (Datenblatt-Verifikation dort). Ein erzeugter Katalog, der
     // kleiner wird, weil die Quelle aufgeraeumt hat, ist ein Gewinn.
@@ -149,7 +151,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     }
     // Und die Gesamtzahl der unbelegten steigt nicht. Sinken darf sie —
     // dann ist diese Zeile die Erinnerung, die Zahl nachzuziehen.
-    expect(bericht.unsourced).toBeLessThanOrEqual(99)
+    expect(bericht.unsourced).toBeLessThanOrEqual(94)
   })
 
   it('4. „kein Beleg" ist eine eigene Auskunft', () => {

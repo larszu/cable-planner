@@ -178,6 +178,7 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // 104 -> 99: der Licht-Planer fuehrt den Beleg jetzt in ZWEI Feldern, und
     // die Uebernahme liest beide (`datasheetUrl ?? manufacturerUrl`). Fuenf
     // Leuchten waren nur unter dem zweiten Namen belegt.
-    expect(bericht.unsourced).toBe(99)
+    // 99 -> 94 am 2026-11-13: fuenf Atomos-Monitor-Recorder belegt.
+    expect(bericht.unsourced).toBe(94)
   })
 })
