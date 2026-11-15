@@ -24,6 +24,7 @@ import {
   Import as ImportIcon,
   Info,
   Keyboard,
+  MessageCircleQuestion,
   Lightbulb,
   Maximize,
   Maximize2,
@@ -1343,6 +1344,12 @@ export const MenuBar = ({
             shortcut="?"
           >
             {t('app.menu.help.shortcuts', 'Keyboard shortcuts…')}
+          </MenuItem>
+          <MenuItem
+            onClick={() => window.dispatchEvent(new CustomEvent('cp:open-plan-question'))}
+            icon={<Icon icon={MessageCircleQuestion} size="sm" />}
+          >
+            {t('app.menu.help.planQuestion', 'Ask AI about this plan…')}
           </MenuItem>
           {onOpenTour && (
             <MenuItem onClick={onOpenTour} icon={<Icon icon={Lightbulb} size="sm" />}>

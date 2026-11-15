@@ -434,6 +434,12 @@ Der Dialog *KI-Plan-Generierung* erzeugt einen Entwurf aus einer Beschreibung od
 
    ![Statusleiste nach der Ergänzung](bilder/de/werkzeuge-bauen-ki-07-ergaenzung-eingefuegt.jpg)
 
+### KI zum Plan fragen
+
+*Hilfe → KI zum Plan fragen…*
+
+Hier stellen Sie technische Fragen zum offenen Plan, etwa „Was ist der beste Signalweg von Kamera 1 zum Recorder?“ oder „Welches meiner Geräte eignet sich als Bildmischer für vier Kameras?“. Die KI bekommt dieselbe Plan-Sicht wie bei der Ergänzung aus Dokumenten: alle Räume, jedes Gerät mit Kategorie, IP, Seriennummer, Untertitel, Firmware, Gerät-Eigenschaften und Ports samt Stecker und Signalstandard, jedes Kabel mit Typ, Standard, Länge und Ebene. Benutzername, Passwort und Eigenschaften, die nach Zugangsdaten klingen (PIN, Key, Token), gehen nie mit. Die KI antwortet nur, der Plan bleibt unverändert. Websuche ist dabei aus. *Strg/Cmd+Enter* schickt die Frage ab.
+
 ### Revisionen & Snapshots
 
 *Werkzeuge → Revisionen & Snapshots…*

@@ -35,7 +35,27 @@ describe('planKontext', () => {
     const k = planKontext(projekt())
     expect(k).toContain('- Room A 1.001')
     expect(k).toContain('@e1aaaaaa | Encoder | Video | Room A 1.001')
-    expect(k).toContain('out: HDMI Out')
+    expect(k).toContain('out: HDMI Out [HDMI]')
+  })
+
+  it('#1225 nennt technische Angaben und Kabeltyp, nie Zugangsdaten', () => {
+    const p = projekt()
+    p.equipment[0] = {
+      ...p.equipment[0],
+      subtitle: 'Decimator MD-HX',
+      firmware: '2.1',
+      username: 'admin',
+      password: 'geheim123',
+      categoryProps: { maxResolution: '4K', 'Admin PIN': '4711', apiKey: 'sk-x' },
+    }
+    const k = planKontext({
+      ...p,
+      cables: [{ id: 'c1', type: 'HDMI', length: 5, color: '#fff', notes: '', layer: 'video',
+        fromEquipmentId: 'e1aaaaaaaa-1', fromPortId: 'p1', toEquipmentId: 'e2bbbbbbbb-2', toPortId: 'p2' }],
+    })
+    expect(k).toContain('Decimator MD-HX; fw 2.1; maxResolution=4K')
+    expect(k).toContain('HDMI Out -> @e2bbbbbb HDMI 1 (HDMI, 5 m, video)')
+    for (const geheim of ['admin', 'geheim123', '4711', 'sk-x']) expect(k).not.toContain(geheim)
   })
 })
 
