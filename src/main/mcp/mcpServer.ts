@@ -292,10 +292,10 @@ const baueServer = (): McpServer => {
       {
         title: 'Operate the window',
         description:
-          'Run a keyboard-shortcut command in the open window: undo, redo, zoom_in, zoom_out, fit_view, select_all, duplicate, toggle_plan_check. "status" changes nothing. Every answer carries the plan-check counts (errors, warnings) for button feedback.',
+          'Run a keyboard-shortcut command in the open window: undo, redo, zoom_in, zoom_out, fit_view, select_all, duplicate, toggle_plan_check. cue_next/cue_prev step through the rundown sections and show the devices and cables linked to the section. "status" changes nothing. Every answer carries the plan-check counts (errors, warnings) and the current cue (cue, cueIndex, cueCount) for button feedback.',
         annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
         inputSchema: {
-          action: z.enum(['status', 'undo', 'redo', 'zoom_in', 'zoom_out', 'fit_view', 'select_all', 'duplicate', 'toggle_plan_check']),
+          action: z.enum(['status', 'undo', 'redo', 'zoom_in', 'zoom_out', 'fit_view', 'select_all', 'duplicate', 'toggle_plan_check', 'cue_next', 'cue_prev']),
         },
       },
       async (args) => werkzeugAntwort('ui_command', args as Record<string, unknown>),
