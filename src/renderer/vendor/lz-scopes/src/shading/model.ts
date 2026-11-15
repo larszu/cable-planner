@@ -276,6 +276,9 @@ export const BRIDGE_PAINT_CAPS: Record<string, string[]> = {
   // HTTP-CGI with the Sony family (capabilitiesForMode(mode, family), lz-camera-bridge #77):
   // manual white balance over imaging.cgi, R and B gain only – measured on an SRG-A40.
   'http-cgi:sony': ['whiteBalance'],
+  // NMOS IS-12 (src/shading/is12.ts): the device offers an LzCameraPaint object with all nine
+  // values; a camera behind it that lacks one refuses the Set, and the bar shows that sentence.
+  is12: ['masterBlack', 'blackBalance', 'whiteBalance', 'masterGamma', 'saturation'],
 };
 
 /**
