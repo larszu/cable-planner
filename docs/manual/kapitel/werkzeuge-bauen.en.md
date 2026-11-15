@@ -434,6 +434,12 @@ The dialog *AI plan generation* creates a draft from a description or completes 
 
    ![Status bar after the completion](bilder/en/werkzeuge-bauen-ki-07-ergaenzung-eingefuegt.jpg)
 
+### Ask AI about this plan
+
+*Help → Ask AI about this plan…*
+
+Ask technical questions about the open plan here, for example “What is the best signal path from camera 1 to the recorder?” or “Which of my devices suits a vision mixer for four cameras?”. The AI gets the same view of the plan as when completing from documents: all rooms, every device with category, IP, serial number, subtitle, firmware, device properties and ports with connector and signal standard, every cable with type, standard, length and layer. User name, password and properties that sound like login data (PIN, key, token) are never sent. The AI only answers; the plan stays unchanged. Web search is off. *Ctrl/Cmd+Enter* sends the question.
+
 ### Revisions & snapshots
 
 *Tools → Revisions & snapshots…*

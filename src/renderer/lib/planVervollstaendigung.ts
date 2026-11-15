@@ -33,7 +33,33 @@ const enthaelt = (l: LocationFrame, e: Pick<EquipmentItem, 'x' | 'y' | 'width' |
 }
 const raumVon = (e: EquipmentItem, locations: readonly LocationFrame[]) => locations.find((l) => enthaelt(l, e))
 
-/** Der Plan als kompakter Text: Räume, Geräte mit Ports, Kabel. */
+/** #1225 — Schlüssel, die nach Zugangsdaten klingen, gehen nie ans Modell.
+ *  `username`/`password` am Gerät werden gar nicht erst gelesen; das hier
+ *  fängt frei benannte Eigenschaften ab („Admin-PIN", „api key"). */
+const GEHEIM = /pass|secret|token|key|pin|user|login|credential|kennwort|zugang/i
+
+/** #1225 — die technischen Angaben eines Geräts in einer Zeile. Nur eine
+ *  Positivliste von Feldern: was neu dazukommt, landet nicht von selbst im
+ *  Kontext (und damit auch keine Zugangsdaten). */
+const technik = (e: EquipmentItem): string => {
+  const teile: string[] = []
+  if (e.subtitle) teile.push(e.subtitle)
+  if (e.firmware) teile.push(`fw ${e.firmware}`)
+  for (const [k, v] of Object.entries(e.categoryProps ?? {})) {
+    if (!GEHEIM.test(k) && v !== '' && v !== false) teile.push(`${k}=${v}`)
+  }
+  return teile.join('; ') || '-'
+}
+
+/** Port mit Stecker und Signalstandard: „SDI Out [BNC 12G-SDI]". */
+const portText = (p: Port): string => {
+  const art = [p.connectorType, p.standard].filter(Boolean).join(' ')
+  return art ? `${p.name} [${art}]` : p.name
+}
+
+/** Der Plan als kompakter Text: Räume, Geräte mit technischen Angaben und
+ *  Ports, Kabel mit Typ und Länge. Dieselbe Sicht für die Ergänzung aus
+ *  Dokumenten und für Fragen an den Plan (#1225). */
 export const planKontext = (project: Pick<CablePlannerProject, 'equipment' | 'cables' | 'locations'>): string => {
   const locations = project.locations ?? []
   const byId = new Map(project.equipment.map((e) => [e.id, e]))
@@ -50,23 +76,27 @@ export const planKontext = (project: Pick<CablePlannerProject, 'equipment' | 'ca
       raumVon(e, locations)?.name ?? '-',
       e.ipAddress ?? '-',
       e.serialNumber ?? '-',
-      `in: ${e.inputs.map((p) => p.name).join(', ') || '-'}`,
-      `out: ${e.outputs.map((p) => p.name).join(', ') || '-'}`,
+      technik(e),
+      `in: ${e.inputs.map(portText).join(', ') || '-'}`,
+      `out: ${e.outputs.map(portText).join(', ') || '-'}`,
     ].join(' | '),
   )
   const kabel = project.cables.map((c) => {
     const a = byId.get(c.fromEquipmentId)
     const b = byId.get(c.toEquipmentId)
-    return `${a ? geraeteRef(a) : '?'} ${portName(a, c.fromPortId)} -> ${b ? geraeteRef(b) : '?'} ${portName(b, c.toPortId)}`
+    const art = [c.type, c.standard, c.length ? `${c.length} m` : '', c.wireless ? 'wireless' : '', c.layer ?? '']
+      .filter(Boolean)
+      .join(', ')
+    return `${a ? geraeteRef(a) : '?'} ${portName(a, c.fromPortId)} -> ${b ? geraeteRef(b) : '?'} ${portName(b, c.toPortId)}${art ? ` (${art})` : ''}`
   })
   return [
     `ROOMS (${raeume.length}):`,
     ...raeume,
     '',
-    `DEVICES (${geraete.length}) — ref | name | category | room | ip | serial | ports:`,
+    `DEVICES (${geraete.length}) — ref | name | category | room | ip | serial | specs | ports [connector standard]:`,
     ...geraete,
     '',
-    `CABLES (${kabel.length}):`,
+    `CABLES (${kabel.length}) — from -> to (type, standard, length, layer):`,
     ...kabel,
   ].join('\n')
 }
@@ -356,7 +386,9 @@ export const baueErgaenzung = (
   const portVon = (e: EquipmentItem, name: string, seite: 'inputs' | 'outputs'): Port | undefined => {
     const a = aenderungen.get(e.id)
     const alle = [...e[seite], ...(a?.[seite] ?? []), ...e.inputs, ...e.outputs, ...(a ? [...a.inputs, ...a.outputs] : [])]
-    const n = name.toLowerCase()
+    // #1225: der Kontext zeigt Ports als „HDMI Out [HDMI]“ — übernimmt das
+    // Modell den Zusatz, zählt nur der Name.
+    const n = name.replace(/\s*\[[^\]]*\]\s*$/, '').toLowerCase()
     return alle.find((p) => p.name.toLowerCase() === n) ?? alle.find((p) => p.name.toLowerCase().startsWith(n))
   }
   const istNeu = (e: EquipmentItem) => neueGeraete.includes(e)

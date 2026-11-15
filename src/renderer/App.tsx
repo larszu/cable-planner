@@ -100,6 +100,7 @@ import { ShortcutsHelp } from './components/Layout/ShortcutsHelp'
 import { CommandPalette } from './components/Layout/CommandPalette'
 import { RevisionsDialog } from './components/Project/RevisionsDialog'
 import { AiPlanGenDialog } from './components/Project/AiPlanGenDialog'
+import { PlanFrageDialog } from './components/Help/PlanFrageDialog'
 import { CsvImportDialog } from './components/Import/CsvImportDialog'
 import { GdtfMvrImportDialog } from './components/Import/GdtfMvrImportDialog'
 import { TemplatesDialog } from './components/Project/TemplatesDialog'
@@ -1636,6 +1637,7 @@ export default function App() {
       <CommandPalette />
       <RevisionsDialog />
       <AiPlanGenDialog />
+      <PlanFrageDialog />
       <CsvImportDialog />
       <GdtfMvrImportDialog />
       <TemplatesDialog />
