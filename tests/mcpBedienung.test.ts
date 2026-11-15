@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { UI_BEFEHLE, uiBefehl } from '../src/renderer/lib/mcpBedienung'
+import { useProjectStore } from '../src/renderer/store/projectStore'
+import { useUiStore } from '../src/renderer/store/uiStore'
 
 describe('ui_command', () => {
   it('status aendert nichts und liefert die Plan-Check-Zahlen', () => {
@@ -19,5 +21,20 @@ describe('ui_command', () => {
     const block = src.slice(src.indexOf('if (state.schreibenErlaubt)'))
     expect(block).toContain("'ui_command'")
     for (const b of UI_BEFEHLE) expect(block).toContain(`'${b}'`)
+  })
+
+  it('#1195 cue_next/cue_prev gehen durch den Ablauf und zeigen dessen Wege', () => {
+    useProjectStore.getState().setRundown({
+      source: 'test',
+      segments: [{ id: 's1', number: '1', title: 'Opener' }, { id: 's2', number: '2', title: 'Band' }],
+      coverage: [],
+      links: [{ segmentId: 's2', equipmentIds: ['e9'], cableIds: [] }],
+    })
+    expect(uiBefehl({ action: 'cue_next' }).daten).toMatchObject({ cue: '1 Opener', cueIndex: 1, cueCount: 2 })
+    expect(uiBefehl({ action: 'cue_next' }).daten).toMatchObject({ cue: '2 Band', cueIndex: 2 })
+    expect(useUiStore.getState().signalweg?.geraetIds).toEqual(['e9'])
+    // am Ende bleibt der Zeiger stehen
+    expect(uiBefehl({ action: 'cue_next' }).daten).toMatchObject({ cueIndex: 2 })
+    expect(uiBefehl({ action: 'cue_prev' }).daten).toMatchObject({ cue: '1 Opener' })
   })
 })
