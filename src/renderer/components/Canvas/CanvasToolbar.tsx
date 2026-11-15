@@ -1176,8 +1176,8 @@ const DefaultsMenu = ({
   setCableLabelShortForm: (v: boolean) => void
   colorPortsByType: boolean
   setColorPortsByType: (v: boolean) => void
-  cableColorMode: 'manual' | 'byLength' | 'byLayer'
-  setCableColorMode: (v: 'manual' | 'byLength' | 'byLayer') => void
+  cableColorMode: 'manual' | 'byLength' | 'byLayer' | 'byVlan'
+  setCableColorMode: (v: 'manual' | 'byLength' | 'byLayer' | 'byVlan') => void
   showLengthLegend: boolean
   setShowLengthLegend: (v: boolean) => void
 }) => {

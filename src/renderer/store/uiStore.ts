@@ -128,8 +128,11 @@ interface PersistedUiState {
    *              unterscheiden sind. Bis 2026-09-08 gab es die Farben nur
    *              an den Legenden-Chips: der Plan versprach eine Codierung,
    *              die er nicht einloeste.
+   *   byVlan   — #1203: die logische Netz-Topologie (VLAN je Kabel, aus
+   *              Switch-Port und Schnittstelle abgeleitet) auf dem
+   *              physischen Plan; Trunks gestrichelt, Kabel ohne VLAN blass.
    */
-  cableColorMode: 'manual' | 'byLength' | 'byLayer'
+  cableColorMode: 'manual' | 'byLength' | 'byLayer' | 'byVlan'
   /** #960 — welche Kennung des Exemplars am Knoten neben der Kategorie steht:
    *  Asset-Tag (Etikett, Anlagenbuchhaltung) oder interne Nummer (Technik),
    *  oder keine. Anzeige-Wahl des Rechners, nicht des Projekts. */
@@ -817,7 +820,7 @@ interface UiState extends PersistedUiState {
   setDefaultArrow: (value: boolean) => void
   setLibraryWidth: (value: number) => void
   setPropertiesWidth: (value: number) => void
-  setCableColorMode: (value: 'manual' | 'byLength' | 'byLayer') => void
+  setCableColorMode: (value: 'manual' | 'byLength' | 'byLayer' | 'byVlan') => void
   setKennungAmKnoten: (value: 'assetTag' | 'internalNumber' | 'shortName' | 'none') => void
   setCircuitOverlay: (value: boolean) => void
   setCanvasTheme: (value: 'dark' | 'light') => void

@@ -720,6 +720,7 @@ export const de: Dict = {
   'app.menu.view.canvasSearch': 'Gerät suchen',
   'app.menu.view.canvasToolbar': 'Werkzeugleiste',
   'app.menu.view.colorByLayer': 'Kabelfarbe nach Gewerk',
+  'app.menu.view.colorByVlan': 'Kabelfarbe nach VLAN (logisches Netz)',
   'app.menu.view.colorByLength': 'Kabelfarbe nach Länge',
   'app.menu.view.fit': 'Einpassen',
   'app.menu.view.followSystem': 'Darstellung: wie System',
@@ -5425,6 +5426,8 @@ export const de: Dict = {
     'Standard für neu gezeichnete Kabel. Per Kabel im Properties-Panel überschreibbar.',
   'settings.appearance.cableColor': 'Kabelfarbe',
   'settings.appearance.cableColor.byLayer': 'Nach Gewerk',
+  'settings.appearance.cableColor.byVlan': 'Nach VLAN',
+  'settings.appearance.cableColor.byVlanTitle': 'Logische Netz-Topologie: jedes Kabel trägt die Farbe seines VLANs, Trunks sind gestrichelt.',
   'settings.appearance.cableColor.byLength': 'Nach Länge',
   'settings.appearance.cableColor.manual': 'Manuell',
   'settings.appearance.cableColorDesc':

@@ -159,7 +159,7 @@ Jedes Modul hat ein Kästchen *Modul aktiviert*.
 |---|---|---|
 | Port-Label-Schriftgröße | Schieberegler, Vorgabe 11 px, Knopf zum Zurücksetzen | Schriftgröße der Ein- und Ausgangsbeschriftungen auf den Geräteknoten; größer ist beim Herauszoomen besser lesbar, macht die Geräte aber breiter |
 | Port-Farben | *Nach Richtung (Standard)* / *Nach Steckertyp* | Einfärbung der Anschlusspunkte |
-| Kabelfarbe | *Manuell* / *Nach Länge* / *Nach Gewerk* | Manuell: Farbe je Kabel aus den Eigenschaften; nach Länge: Längen-Farbcodierung; nach Gewerk: Farben der Ebenen. Die am Kabel gespeicherte Farbe bleibt in jedem Modus erhalten. |
+| Kabelfarbe | *Manuell* / *Nach Länge* / *Nach Gewerk* / *Nach VLAN* | Manuell: Farbe je Kabel aus den Eigenschaften; nach Länge: Längen-Farbcodierung; nach Gewerk: Farben der Ebenen; nach VLAN: logische Netz-Topologie. Die am Kabel gespeicherte Farbe bleibt in jedem Modus erhalten. |
 | Pfeile auf Kabeln | *Pfeil am Ziel-Ende anzeigen (Signalflussrichtung)* | Vorgabe für neu gezeichnete Kabel; je Kabel in den Eigenschaften änderbar |
 | Verbindungs-Warnungen | *Beliebige Inputs und Outputs ohne Warnung verbinden* | Normalerweise fragt die App bei einem Steckertyp-Konflikt nach. Mit diesem Haken wird die Verbindung ohne Rückfrage angelegt und als Adapter/Konverter markiert. |
 

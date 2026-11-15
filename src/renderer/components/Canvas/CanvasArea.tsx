@@ -92,6 +92,7 @@ import { format, useTranslation } from '../../lib/i18n'
 import { useAtemTallyFeed } from '../../hooks/useAtemTallyFeed'
 import { useVideohubLinkFeed } from '../../hooks/useVideohubLinkFeed'
 import { styleForLayer } from '../../lib/cableLayers'
+import { cableVlan, cableVlanLabel, vlanColor, VLAN_NONE_COLOR, VLAN_TRUNK_COLOR } from '../../lib/cableVlan'
 import { MONO_TINTE, monochromLabel } from '../../lib/monochromeSheet'
 import { cableLabelName, cableLengthSuffix } from '../../lib/lastCableChoice'
 import { addAnnotationAt } from '../../lib/annotationAuthor'
@@ -891,9 +892,16 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
     [project.equipment, project.cables, locations, ausgeblendeteRaeume, ausgeblendeteEtagen, signalweg, vollansicht],
   )
 
+  // #1203 — nur im VLAN-Modus gebraucht; sonst kein Nachschlagen je Kabel.
+  const equipmentById = useMemo(
+    () => (cableColorMode === 'byVlan' ? new Map(project.equipment.map((e) => [e.id, e])) : null),
+    [cableColorMode, project.equipment],
+  )
   const edges = useMemo<Edge[]>(
     () =>
       project.cables.map((item) => {
+        // #1203 — logische Topologie: Farbe aus dem VLAN der beiden Enden.
+        const vlan = equipmentById ? cableVlan(item, equipmentById) : null
         const lengthColor = cableColorMode === 'byLength' ? colorByLength(item.length ?? 0) : null
         // In byLength mode, cables with no matching length rule get a neutral grey so they're
         // visually distinct from manually-colored cables and easy to spot.
@@ -913,9 +921,17 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             ? (lengthColor ? lengthColor.color : '#64748b')
             : cableColorMode === 'byLayer'
               ? styleForLayer(item.layer).color
-              : item.color
+              : cableColorMode === 'byVlan'
+                ? vlan?.kind === 'access'
+                  ? vlanColor(vlan.vlanId)
+                  : vlan
+                    ? VLAN_TRUNK_COLOR
+                    : VLAN_NONE_COLOR
+                : item.color
         const dashArray = item.dashed
           ? '6 4'
+          : cableColorMode === 'byVlan' && vlan?.kind === 'trunk'
+            ? '10 3 2 3'
           : cableColorMode === 'byLength' && lengthColor?.dashArray
             ? lengthColor.dashArray
             : undefined
@@ -927,7 +943,13 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           targetHandle: item.toPortId,
           type: 'cable',
           updatable: true,
-          style: { stroke: strokeColor, strokeWidth: item.strokeWidth ?? 2.5, strokeDasharray: dashArray },
+          style: {
+            stroke: strokeColor,
+            strokeWidth: item.strokeWidth ?? 2.5,
+            strokeDasharray: dashArray,
+            // Ohne VLAN-Angabe tritt das Kabel zurueck, statt grau mitzureden.
+            ...(cableColorMode === 'byVlan' && !vlan ? { opacity: 0.35 } : {}),
+          },
           data: { cable: item, exportThemeOverride: pdfExportThemeOverride },
           label: (() => {
             // Issue #240 — Kabel-Label-Anzeige, kurz oder lang.
@@ -946,7 +968,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             const base = `${displayName}${cableLengthSuffix(item.length)}`
             // Auto-Kabelnummerierung: Nummer als [Nr]-Praefix voranstellen.
             const numbered = item.cableNumber ? `[${item.cableNumber}] ${base}` : base
-            const fertig = item.needsConverter ? `${numbered} ⚠ converter` : numbered
+            const mitWandler = item.needsConverter ? `${numbered} ⚠ converter` : numbered
+            const vlanText = cableVlanLabel(vlan, project.networkSegments)
+            const fertig = vlanText ? `${mitWandler} · ${vlanText}` : mitWandler
             // Bedarf 128 — die Ebene im Klartext, weil die Farbe sie auf
             // Papier nicht mehr traegt. ANGEHAENGT, nicht ersetzend: Name,
             // Nummer und Laenge bleiben stehen. Das Strichmuster kam dafuer
@@ -956,7 +980,7 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
           })(),
         }
       }),
-    [project.cables, cableColorMode, cableLabelShortForm, pdfExportThemeOverride, pdfExportMonochrome, labelSpecs],
+    [project.cables, project.networkSegments, equipmentById, cableColorMode, cableLabelShortForm, pdfExportThemeOverride, pdfExportMonochrome, labelSpecs],
   )
 
   const angezeigteKanten = useMemo<Edge[]>(() => {

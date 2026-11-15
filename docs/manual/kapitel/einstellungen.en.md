@@ -159,7 +159,7 @@ Each module has a checkbox *Module enabled*.
 |---|---|---|
 | Port label font size | slider, default 11 px, button to reset | font size of the input and output labels on the device nodes; larger is easier to read when zoomed out but makes devices wider |
 | Port colours | *By direction (default)* / *By connector type* | colouring of the port handles |
-| Cable colour | *Manual* / *By length* / *By discipline* | manual: colour per cable from the properties; by length: length colour coding; by discipline: the layer colours. The colour stored on the cable is kept in every mode. |
+| Cable colour | *Manual* / *By length* / *By discipline* / *By VLAN* | manual: colour per cable from the properties; by length: length colour coding; by discipline: the layer colours; by VLAN: logical network topology. The colour stored on the cable is kept in every mode. |
 | Arrows on cables | *Show arrow at the target end (signal flow direction)* | default for newly drawn cables; changeable per cable in the properties |
 | Connection warnings | *Connect any inputs and outputs without warning* | Normally the app asks for confirmation on a connector-type conflict. With this box ticked the connection is created without asking and marked as adapter/converter. |
 
