@@ -167,9 +167,13 @@ Kabel mit einer anderen Länge erscheinen grau.
 
 #### Kabelfarbe nach Gewerk
 
-*Kabelfarbe nach Gewerk* färbt jedes Kabel nach seinem Gewerk: Video blau, Audio rot, Control orange, Network grün, Power violett, Other grau. Auch hier bleibt die gespeicherte Farbe unverändert. Die beiden Farbmodi schließen sich aus.
+*Kabelfarbe nach Gewerk* färbt jedes Kabel nach seinem Gewerk: Video blau, Audio rot, Control orange, Network grün, Power violett, Other grau. Auch hier bleibt die gespeicherte Farbe unverändert. Die Farbmodi schließen sich aus.
 
 ![Kabel nach Gewerk gefärbt](bilder/de/oberflaeche-54-ansicht-farbe-gewerk-vergleich.jpg)
+
+#### Kabelfarbe nach VLAN (logisches Netz)
+
+Die Kabel sind die physische Topologie. *Kabelfarbe nach VLAN* legt die logische darüber: Jedes Kabel trägt die Farbe des VLANs an seinen beiden Enden, und sein Label bekommt *VLAN 20 Dante* (der Name kommt aus den Segmenten unter *Analyse > Netzwerk*). Das VLAN stammt vom Switch-Port (*Port → VLAN* in der Switch-Konfiguration) oder von der Netzwerk-Schnittstelle an diesem Port. Ein Kabel mit mehreren VLANs (am Switch getaggt oder an beiden Enden verschieden) ist ein Trunk: grau, strichpunktiert, Label *Trunk 10/20*. Kabel ohne VLAN-Angabe treten blass zurück. Dasselbe VLAN hat in jedem Plan dieselbe Farbe. Die gespeicherte Farbe bleibt unverändert.
 
 #### Suchfeld, Werkzeugleiste und Panels
 

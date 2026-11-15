@@ -1275,6 +1275,14 @@ export const MenuBar = ({
           >
             {t('app.menu.view.colorByLayer', 'Color cables by discipline')}
           </MenuItem>
+          <MenuItem
+            onClick={() =>
+              useUiStore.getState().setCableColorMode(cableColorMode === 'byVlan' ? 'manual' : 'byVlan')
+            }
+            icon={cableColorMode === 'byVlan' ? <Icon icon={Check} size="sm" /> : null}
+          >
+            {t('app.menu.view.colorByVlan', 'Color cables by VLAN (logical network)')}
+          </MenuItem>
           <MenuSep />
           {/* ── Die beiden schwebenden Leisten (Nutzer-Meldung 2026-09-11) ──
               „Man muss ‚Gerät suchen' und die Leiste wo die Ebenen drauf

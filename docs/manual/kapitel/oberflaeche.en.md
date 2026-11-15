@@ -167,9 +167,13 @@ Cables of any other length appear grey.
 
 #### Color cables by discipline
 
-*Color cables by discipline* colours each cable by its discipline: Video blue, Audio red, Control orange, Network green, Power violet, Other grey. Here too the stored colour stays unchanged. The two colour modes exclude each other.
+*Color cables by discipline* colours each cable by its discipline: Video blue, Audio red, Control orange, Network green, Power violet, Other grey. Here too the stored colour stays unchanged. The colour modes exclude each other.
 
 ![Cables coloured by discipline](bilder/en/oberflaeche-54-ansicht-farbe-gewerk-vergleich.jpg)
+
+#### Color cables by VLAN (logical network)
+
+The cables are the physical topology. *Color cables by VLAN* lays the logical one on top: each cable takes the colour of the VLAN at its two ends, and its label gets *VLAN 20 Dante* (the name comes from the segments under *Analysis > Network*). The VLAN is read from the switch port (*Port → VLAN* in the switch config) or from the network interface on that port. A cable carrying several VLANs (tagged at the switch, or different VLANs at the two ends) is a trunk: grey, dash-dotted, label *Trunk 10/20*. Cables without a VLAN entry fade out. The same VLAN has the same colour in every plan. The stored colour stays unchanged.
 
 #### Search field, toolbar and panels
 

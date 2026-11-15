@@ -330,6 +330,18 @@ export const AppearanceTab = () => {
           >
             {t('settings.appearance.cableColor.byLayer', 'By discipline')}
           </button>
+          <button
+            type="button"
+            onClick={() => setCableColorMode('byVlan')}
+            title={t('settings.appearance.cableColor.byVlanTitle', 'Logical network topology: each cable takes the colour of its VLAN, trunks are dashed.')}
+            className={`flex-1 px-3 py-1 text-cp-xs ${
+              cableColorMode === 'byVlan'
+                ? 'bg-cp-accent text-cp-accent-text'
+                : 'bg-cp-surface-2 text-cp-text-secondary hover:bg-cp-surface-4'
+            }`}
+          >
+            {t('settings.appearance.cableColor.byVlan', 'By VLAN')}
+          </button>
         </div>
       </SettingsCard>
 
