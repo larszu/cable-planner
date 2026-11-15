@@ -59,6 +59,7 @@ const SIGNAL_STD_BANDWIDTH: { label: string; mbps: string }[] = [
   { label: 'NDI HX', mbps: '~8–20' },
   { label: 'ST 2110-20 (1080p, uncompr.)', mbps: '~3000' },
   { label: 'ST 2110-20 (2160p, uncompr.)', mbps: '~12000' },
+  { label: 'ST 2110-22 (1080p, JPEG XS)', mbps: '~300' },
 ]
 
 const RESOLUTION_PRESETS: { label: string; w: number; h: number }[] = [

@@ -71,10 +71,12 @@ export const AUDIO_MULTICAST: ReadonlySet<SignalStandard> = new Set<SignalStanda
   'Dante',
   'AES67',
   'ST2110-30',
+  'ST2110-31',
 ])
 
 export const VIDEO_MULTICAST: ReadonlySet<SignalStandard> = new Set<SignalStandard>([
   'ST2110-20',
+  'ST2110-22',
   'ST2110-40',
 ])
 

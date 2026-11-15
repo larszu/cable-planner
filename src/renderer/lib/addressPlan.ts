@@ -43,7 +43,7 @@ const IP_STANDARDS: ReadonlySet<SignalStandard> = new Set<SignalStandard>([
   'Eth-100', 'Eth-1G', 'Eth-10G',
   'NDI', 'NDI-HX',
   'Dante', 'AES67',
-  'ST2110-20', 'ST2110-30', 'ST2110-40',
+  'ST2110-20', 'ST2110-22', 'ST2110-30', 'ST2110-31', 'ST2110-40',
   'SRT', 'RTMP', 'HLS',
   'PTP',
 ])

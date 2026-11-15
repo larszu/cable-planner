@@ -17,7 +17,13 @@
 import type { Cable } from '../types/cable'
 import type { EquipmentItem, Port, ConnectorType } from '../types/equipment'
 import type { DrumKitPlan } from '../types/drumKit'
-import { checkImpedanceMismatch, checkBalanceMismatch, maxPassiveLengthM } from '../types/cableSpec'
+import {
+  checkImpedanceMismatch,
+  checkBalanceMismatch,
+  maxPassiveLengthM,
+  bandwidthMbpsForStandard,
+  linkCapacityMbpsForStandard,
+} from '../types/cableSpec'
 import { networkAddress } from './subnet'
 import { effectiveWatts } from './equipmentSelectors'
 import { deriveDrumChannels } from './drumMicing'
@@ -675,6 +681,37 @@ export const runDrawingChecks = (
           { name: sw.name, load: Math.round(load), count, budget },
         ),
         equipmentId: sw.id,
+      })
+    }
+  }
+
+  // — Check 16c: Mediensignal breiter als die Schnittstelle (#1200) ----------
+  // Ein ST-2110-20-Kabel (≈3 Gbps) an einer Buchse, die als Eth-1G
+  // eingetragen ist, laeuft nicht: die Leitung KANN weniger, als darueber
+  // soll. Verglichen wird nur, was beide Seiten wirklich nennen — die Last
+  // des Kabelstandards gegen die Kapazitaet des Port-Standards. Fehlt eine
+  // Angabe, schweigt die Pruefung, statt zu raten.
+  for (const c of cables) {
+    const last = bandwidthMbpsForStandard(c.standard)
+    if (last === undefined) continue
+    for (const portId of [c.fromPortId, c.toPortId]) {
+      const port = portById.get(portId)
+      const kapazitaet = linkCapacityMbpsForStandard(port?.standard)
+      if (kapazitaet === undefined || last <= kapazitaet) continue
+      const eqId = portId === c.fromPortId ? c.fromEquipmentId : c.toEquipmentId
+      findings.push({
+        id: `link-too-slow:${c.id}:${portId}`,
+        severity: 'warning',
+        category: 'Network bandwidth',
+        message: format(
+          tr(
+            'check.linkTooSlow',
+            '{name} · {port}: {standard} needs about {last} Mbps, the interface carries {cap} Mbps',
+          ),
+          { name: eqName(eqId), port: port?.name ?? '?', standard: c.standard ?? '', last, cap: kapazitaet },
+        ),
+        cableId: c.id,
+        equipmentId: eqId,
       })
     }
   }
