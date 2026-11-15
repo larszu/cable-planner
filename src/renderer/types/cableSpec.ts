@@ -40,7 +40,11 @@ export type SignalStandard =
   | 'Dante'
   | 'AES67'
   | 'ST2110-20'
+  /** #1200 — compressed video at constant bit rate (JPEG XS), ST 2110-22. */
+  | 'ST2110-22'
   | 'ST2110-30'
+  /** #1200 — AES3 transparent transport (Dolby E, non-PCM), ST 2110-31. */
+  | 'ST2110-31'
   | 'ST2110-40'
   | 'SRT'
   | 'RTMP'
@@ -82,7 +86,7 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'Analog-Audio', 'AES3', 'AES3id', 'USB-2.0', 'USB-3.x',
   'Thunderbolt-3', 'Thunderbolt-4',
   'MADI', 'DVB-ASI', 'SMPTE-297', 'SMPTE-304M', 'SMPTE-311M',
-  'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-30', 'ST2110-40',
+  'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-22', 'ST2110-30', 'ST2110-31', 'ST2110-40',
   'SRT', 'RTMP', 'HLS',
   'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP', 'LTC',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
@@ -332,12 +336,12 @@ export const cableCatalog: CableSpec[] = [
     id: 'st2110-fiber',
     name: 'SMPTE ST 2110 (Fiber)',
     connectorType: 'Fiber',
-    standards: ['Fiber-SM', 'Fiber-MM', 'ST2110-20', 'ST2110-30', 'ST2110-40'],
+    standards: ['Fiber-SM', 'Fiber-MM', 'ST2110-20', 'ST2110-22', 'ST2110-30', 'ST2110-31', 'ST2110-40'],
     maxLengthMeters: 300,
     color: '#0ea5e9',
     notesKey: 'catalog.cable.st2110-fiber.notes',
     notesSource:
-      'SMPTE ST 2110 (-20 video / -30 audio / -40 ANC) over fiber. Needs a PTP grandmaster; typically 10/25/100 GbE.',
+      'SMPTE ST 2110 (-20 video / -22 JPEG XS / -30 audio / -31 AES3 / -40 ANC) over fiber. Needs a PTP grandmaster; typically 10/25/100 GbE.',
   },
   {
     id: 'blackburst-bnc',
@@ -949,9 +953,18 @@ export const bandwidthMbpsForStandard = (s: SignalStandard | undefined): number 
     case 'Dante':
     case 'AES67':
     case 'ST2110-30':
-      return 49 // 64ch @48k/24bit
+    case 'ST2110-31':
+      // Richtwert ≈ 64 ch × 16 bit @ 48 kHz. Bei L24 (24 bit, der Regelfall
+      // in -30) waeren 64 Kanaele ~74 Mbps Nutzlast — der Wert ist eher ein
+      // 32- bis 48-Kanal-Aufbau. -31 (AES3 transparent) traegt je Paar 2 ×
+      // 32 bit Subframes, 16 Paare landen in derselben Groessenordnung.
+      return 49
     case 'ST2110-40':
       return 2 // ANC/Metadaten
+    case 'ST2110-22':
+      // #1200 — JPEG XS mit CBR. Ueblich ist etwa 10:1 gegen -20, fuer
+      // 1080p also ~300 Mbps; 2160p liegt bei ~1200.
+      return 300
     case 'ST2110-20':
       return 3000 // 1080p unkomprimiert (≈2160p → 12000)
 

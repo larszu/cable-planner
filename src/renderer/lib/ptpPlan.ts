@@ -74,8 +74,8 @@ const familyOf = (std: SignalStandard | undefined): EssenceFamily | null => {
 }
 
 export const FAMILY_LABEL: Record<EssenceFamily, string> = {
-  audio: 'Audio (Dante / AES67 / ST 2110-30)',
-  video: 'Video (ST 2110-20 / -40)',
+  audio: 'Audio (Dante / AES67 / ST 2110-30 / -31)',
+  video: 'Video (ST 2110-20 / -22 / -40)',
 }
 
 export const PROFILE_LABEL: Record<PtpProfile, string> = {

@@ -44,6 +44,9 @@ unter `docs/` muss von einer Einstiegsseite aus über Links erreichbar sein.
   3932 Gerätenamen, die uns fehlen, je Hersteller. **Die Namen kommen aus der
   EasySchematic-Datenbank, die Daten aus den Herstellerblättern** — samt der
   Messung, welche Hersteller-Domänen direkt erreichbar sind.
+- [`vergleich-easyschematic-nmos-2110.md`](vergleich-easyschematic-nmos-2110.md) —
+  Exporte und Signaltypen gegen EasySchematic, ST 2110 (-10 bis -40, 2022-7, PTP)
+  und NMOS gegen das, was der Planner kennt (#1200). Tabelle je Thema mit Lücke.
 - [`katalog-luecken-easyschematic.md`](katalog-luecken-easyschematic.md) —
   dieselbe Frage von außen: was führt EasySchematic (4053 Einträge,
   AGPL-3.0), das uns fehlt. **Eine Lückenliste, keine Übernahme** — die

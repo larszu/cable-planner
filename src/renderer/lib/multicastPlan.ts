@@ -104,7 +104,9 @@ export const MULTICAST_ESSENCE_LABEL: Readonly<Record<MulticastEssence, string>>
  */
 export const MULTICAST_ESSENCE: Readonly<Partial<Record<SignalStandard, MulticastEssence>>> = {
   'ST2110-20': 'video',
+  'ST2110-22': 'video',
   'ST2110-30': 'audio',
+  'ST2110-31': 'audio',
   'ST2110-40': 'anc',
   AES67: 'audio',
   Dante: 'audio',

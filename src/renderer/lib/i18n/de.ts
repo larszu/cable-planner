@@ -6568,7 +6568,7 @@ export const de: Dict = {
   'catalog.cable.smpte-304m.notes':
     'SMPTE 311M Hybrid-Glasfaser-Kamerakabel (304M-Stecker, z. B. LEMO 3K.93C): 2 Singlemode-Fasern + Power- und Steueradern. Das ist Glasfaser, KEIN Triax.',
   'catalog.cable.st2110-fiber.notes':
-    'SMPTE ST 2110 (-20 Video / -30 Audio / -40 ANC) über Faser. Benötigt PTP-Grandmaster; typ. 10/25/100 GbE.',
+    'SMPTE ST 2110 (-20 Video / -22 JPEG XS / -30 Audio / -31 AES3 / -40 ANC) über Faser. Benötigt PTP-Grandmaster; typ. 10/25/100 GbE.',
   'catalog.cable.stream-uplink-cat6.notes':
     'Ausspielweg nach draußen: SRT (Beitrag, mit Retransmit-Reserve), RTMP (Plattform-Ingest) oder HLS (Ausspiel-Leiter). Physisch dasselbe Cat6 wie jeder andere Link — getrennt geführt, damit das Netz-Budget den Uplink als Ausspielung zeigt und nicht als weitere Produktionsquelle. Die Budget-Zahlen sind Richtwerte für einen 1080p50-Weg.',
   'catalog.cable.tally-gpi.notes':
@@ -6767,6 +6767,8 @@ export const de: Dict = {
     '{from} → {to}: {aClass} ({aKind}) ↔ {bClass} ({bKind}) — optisch inkompatibel',
   'check.gatewaySubnet':
     '{name}: Gateway {gateway} liegt nicht im Subnetz von {ip} ({mask}) — nicht erreichbar',
+  'check.linkTooSlow':
+    '{name} · {port}: {standard} braucht etwa {last} Mbps, die Schnittstelle trägt {cap} Mbps',
   'check.missingLength': '{from} → {to}: keine Länge gesetzt',
   'check.openPorts': '{name}: {n} unverbundene Ports ({ports})',
   'check.poeOverBudget':
