@@ -1,4 +1,5 @@
 import { checkProjectSetRate } from './projectRateGuard'
+import { skalaGrenzen } from '../lib/raster'
 import type { LoadDrop, LoadReport } from '../types/loadReport'
 import type { MobileDropReport } from '../types/mobileReport'
 import { v4 as uuidv4 } from 'uuid'
@@ -1612,8 +1613,18 @@ const healProjectPositions = (
         delete migrated.dimensionDmm
       }
       const base = (migrated ?? item) as EquipmentItem
+      // 2026-10-27 — die vom Nutzer gezogene Geraete-Groesse. Sie kommt aus
+      // einer Datei und wird deshalb nicht geglaubt: eine Zahl ausserhalb der
+      // Grenzen (oder ein Text, den ein fremder Export hineinschrieb) ergaebe
+      // eine Kachel, die man auf dem Bildschirm nicht mehr findet oder deren
+      // Beschriftungen ineinanderlaufen. `skalaGrenzen` bringt sie in die
+      // Grenzen und auf die Stufung; FEHLT sie, bleibt sie fehlend — die
+      // Vorgabe 1 gehoert nicht in die Datei, sie ist das Verhalten ohne Feld.
+      const skala =
+        base.sizeScale === undefined ? undefined : skalaGrenzen(base.sizeScale)
       return {
         ...base,
+        ...(skala === undefined ? {} : { sizeScale: skala }),
         x: r(base.x),
         y: r(base.y),
         width:

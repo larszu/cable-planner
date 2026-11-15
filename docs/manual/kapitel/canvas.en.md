@@ -93,6 +93,28 @@ In the dialog you can create multiple connections at once:
 - Select cable type and colour
 - Click "Connect" to create all connections at once
 
+### Change the device size
+
+Every device tile has a grip in its bottom right corner — two short strokes.
+It appears as soon as you select the device or hover over it.
+
+- **Drag** changes the size. While dragging, the percentage is shown above the
+  tile. The range is 60 % to 300 %.
+- **Double-click** resets the device to 100 %.
+- **Arrow keys** step the size once the grip has focus; hold **Shift** for
+  larger steps.
+
+The whole tile grows with it: name, subtitle, port labels, icons and the port
+dots. Cables stay on their ports and follow the new size.
+
+If several devices are selected and you drag one of them, all of them get the
+same size. The inline selection toolbar also offers **Smaller devices** and
+**Bigger devices**, plus **Reset device size** as soon as one of the selected
+devices differs from 100 %.
+
+The size belongs to the individual device in this plan and is saved with the
+project.
+
 ### Alignment and arrangement
 
 The alignment buttons appear only when at least one piece of equipment is selected.

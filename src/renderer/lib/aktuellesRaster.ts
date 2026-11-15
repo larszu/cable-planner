@@ -10,7 +10,7 @@
 // und das Modul beim Start halb leer. Die Trennung ist keine Stilfrage.
 
 import { useUiStore } from '../store/uiStore'
-import { rasterAus, type Raster } from './raster'
+import { rasterAus, skalaGrenzen, type Raster } from './raster'
 
 /** Das aktuelle Raster ausserhalb von React (Router, Exporte, Slices). */
 export const aktuellesRaster = (): Raster => rasterAus(useUiStore.getState().gridSize)
@@ -24,3 +24,14 @@ export const aktuellesRaster = (): Raster => rasterAus(useUiStore.getState().gri
  * aber niemand loest dieses Rendern aus.
  */
 export const useRaster = (): Raster => rasterAus(useUiStore((s) => s.gridSize))
+
+/**
+ * Das aktuelle Raster in der Groesse EINES Geraets (`eq.sizeScale`).
+ *
+ * Fuer Komponenten, die genau ein Geraet zeichnen — der `EquipmentNode`. Wer
+ * mehrere Geraete rechnet, nimmt `useRaster()` und laesst
+ * `computeEquipmentLayout` je Geraet umrechnen: die Funktion tut es selbst,
+ * damit nicht jeder Aufrufer daran denken muss.
+ */
+export const useRasterFuer = (skala: number | undefined): Raster =>
+  rasterAus(useUiStore((s) => s.gridSize), skalaGrenzen(skala))

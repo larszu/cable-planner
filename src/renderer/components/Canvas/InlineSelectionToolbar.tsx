@@ -29,6 +29,9 @@ import {
   SquareDashed,
   Trash2,
   Activity,
+  Minimize2,
+  Maximize2,
+  RotateCcw,
 } from 'lucide-react'
 import { hasDesktopBridge } from '../../lib/bridge'
 import { vergleichsStreams } from '../../lib/scopes'
@@ -40,6 +43,7 @@ import { useTranslation } from '../../lib/i18n'
 import { computeEquipmentLayout } from '../../lib/equipmentLayout'
 import { useRaster } from '../../lib/aktuellesRaster'
 import { computeAlignedPositions, type AlignMode, type AlignItem } from '../../lib/alignEquipment'
+import { SKALA_STUFE, SKALA_VORGABE, skalaGrenzen } from '../../lib/raster'
 import { triggerCanvasDuplicate } from '../../lib/canvasViewport'
 
 export const InlineSelectionToolbar = () => {
@@ -106,6 +110,26 @@ export const InlineSelectionToolbar = () => {
     for (const [id, pos] of moves) updateEquipment(id, pos)
     setNodes((rf) => rf.map((n) => (moves.has(n.id) ? { ...n, position: moves.get(n.id)! } : n)))
   }
+
+  /**
+   * Geraete-Groesse der ganzen Auswahl (2026-10-27).
+   *
+   * Derselbe Faktor, den der Griff an der Kachel zieht — hier als Knopf, weil
+   * das Ziehen immer nur an EINEM Geraet beginnt und der Weg ueber die
+   * Mehrfachauswahl sonst Mausarbeit waere. `richtung` ist die Anzahl Stufen;
+   * 4 Stufen sind 20 %, ein Schritt, den man sieht.
+   */
+  const stelleGroesse = (richtung: number) => {
+    for (const eqId of ids) {
+      const eq = equipment.find((e) => e.id === eqId)
+      if (!eq) continue
+      const neu = skalaGrenzen(skalaGrenzen(eq.sizeScale) + richtung * SKALA_STUFE * 4)
+      if (neu !== skalaGrenzen(eq.sizeScale)) updateEquipment(eqId, { sizeScale: neu })
+    }
+  }
+  const groesseAbweichend = ids.some(
+    (eqId) => skalaGrenzen(equipment.find((e) => e.id === eqId)?.sizeScale) !== SKALA_VORGABE,
+  )
 
   const multiEq = eqNodes.length >= 2 && locNodes.length === 0
   // larszu/lz-scopes#15 — Scopes vergleichen: je ausgewaehltem Geraet der
@@ -194,6 +218,39 @@ export const InlineSelectionToolbar = () => {
               <Icon icon={Activity} size="xs" />
             </button>
           )}
+          {/* Geraete-Groesse: kleiner, zuruecksetzen (nur wenn es etwas
+              zurueckzusetzen gibt), groesser. */}
+          <button
+            type="button"
+            className={btn}
+            title={t('inlineToolbar.smaller', 'Smaller devices')}
+            aria-label={t('inlineToolbar.smaller', 'Smaller devices')}
+            onClick={() => stelleGroesse(-1)}
+          >
+            <Icon icon={Minimize2} size="xs" />
+          </button>
+          {groesseAbweichend && (
+            <button
+              type="button"
+              className={btn}
+              title={t('inlineToolbar.resetSize', 'Reset device size to 100 %')}
+              aria-label={t('inlineToolbar.resetSize', 'Reset device size to 100 %')}
+              onClick={() => {
+                for (const eqId of ids) updateEquipment(eqId, { sizeScale: SKALA_VORGABE })
+              }}
+            >
+              <Icon icon={RotateCcw} size="xs" />
+            </button>
+          )}
+          <button
+            type="button"
+            className={btn}
+            title={t('inlineToolbar.bigger', 'Bigger devices')}
+            aria-label={t('inlineToolbar.bigger', 'Bigger devices')}
+            onClick={() => stelleGroesse(1)}
+          >
+            <Icon icon={Maximize2} size="xs" />
+          </button>
           {/* #919 — Datenblatt fuer die ganze Auswahl, eine Seite je Geraet. */}
           <button
             type="button"

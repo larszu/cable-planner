@@ -972,8 +972,21 @@ Das Wichtigste in Listenform. Niemals brechen ohne expliziten Architektur-Review
     20 px — 0,45 gegen 0,86 ms je Weg —, weil ein feineres Gitter geradere
     Wege zulässt.
 
+    **Die gezogene Gerätegröße hängt an derselben Zahl** (2026-10-27).
+    `eq.sizeScale` ist ein Faktor, den der Nutzer am Griff unten rechts an der
+    Kachel zieht — und er greift an den *Mindestmaßen* an, nicht am Ergebnis:
+    erst multiplizieren, dann einrasten. Nur so gelten beide Regeln oben auch
+    bei 150 %; das fertige Maß zu skalieren hieße, jede zweite Port-Reihe
+    wieder neben das Gitter zu setzen. Der Faktor ist **ein eigenes Feld**, wie
+    es der Kommentar in `lib/equipmentLayout.ts` seit 2026-09-11 verlangt:
+    `width`/`height` sind das Abbild der zuletzt gemessenen Größe und können
+    keine Absicht ausdrücken. `lib/raster.ts` merkt sich die abgeleiteten Maße
+    je Paar aus Rastergröße und Faktor — ein Ein-Platz-Speicher hätte bei zwei
+    verschieden großen Geräten jede Memoisierung stillgelegt.
+
     Wer das Zellmaß wieder von der Rastergröße löst, fällt in
-    `tests/rasterAlsEineZahl.test.ts` und `tests/anfahrtAmPort.test.ts`.
+    `tests/rasterAlsEineZahl.test.ts` und `tests/anfahrtAmPort.test.ts`; wer
+    den Faktor am fertigen Maß ansetzt, in `tests/geraeteGroesseZiehbar.test.ts`.
 25. **Der Breakout gehört der Buchse, nicht dem Kabel** (`types/fiber.ts`,
     #885). Eine opticalCON QUAD führt vier Fasern, ob jemand sie patcht oder
     nicht; ein Kabel belegt davon eine. Deshalb steht die Faser-Liste am

@@ -93,6 +93,30 @@ Im Dialog können Sie mehrere Verbindungen auf einmal erstellen:
 - Wählen Sie den Kabeltyp und die Farbe
 - Klicken Sie "Verbinden", um alle auf einmal anzulegen
 
+### Gerätegröße ändern
+
+Jede Gerätekachel hat unten rechts einen Griff — zwei kleine Striche in der
+Ecke. Er erscheint, sobald Sie das Gerät auswählen oder mit der Maus darüber
+fahren.
+
+- **Ziehen** ändert die Größe. Während des Ziehens steht die Prozentzahl über
+  der Kachel. Möglich sind 60 % bis 300 %.
+- **Doppelklick** setzt das Gerät auf 100 % zurück.
+- **Pfeiltasten** gehen in Stufen, sobald der Griff den Fokus hat; mit
+  **Umschalt** in größeren Schritten.
+
+Die Kachel wächst vollständig mit: Name, Untertitel, Port-Beschriftungen,
+Symbole und Anschlusspunkte. Die Kabel bleiben an ihren Anschlüssen und folgen
+der neuen Größe.
+
+Sind mehrere Geräte ausgewählt und Sie ziehen an einem davon, bekommen alle
+dieselbe Größe. In der Inline-Auswahl-Toolbar stehen dafür zusätzlich die
+Knöpfe **Geräte kleiner** und **Geräte größer** sowie — sobald eines der
+ausgewählten Geräte von 100 % abweicht — **Gerätegröße zurücksetzen**.
+
+Die Größe gehört zum einzelnen Gerät in diesem Plan und wird mit dem Projekt
+gespeichert.
+
 ### Ausrichtung und Anordnung
 
 Die Ausrichtungs-Buttons erscheinen nur, wenn mindestens ein Gerät ausgewählt ist.

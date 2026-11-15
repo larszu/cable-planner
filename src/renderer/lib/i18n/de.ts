@@ -7692,4 +7692,10 @@ export const de: Dict = {
   'doc.bedien-uebersicht': 'Bedien-Kurzübersicht',
   'doc.anhaenge': 'Anhänge-Verzeichnis',
   'doc.kamera-positionen': 'Kamera-Positionsblatt',
+  // Geraete-Groesse auf der Flaeche (2026-10-27)
+  'canvas.deviceSize.grip': 'Gerätegröße',
+  'canvas.deviceSize.gripTitle': 'Ziehen ändert die Größe dieses Geräts ({percent} %). Doppelklick setzt zurück, Pfeiltasten gehen in Stufen.',
+  'inlineToolbar.smaller': 'Geräte kleiner',
+  'inlineToolbar.bigger': 'Geräte größer',
+  'inlineToolbar.resetSize': 'Gerätegröße auf 100 % zurücksetzen',
 }

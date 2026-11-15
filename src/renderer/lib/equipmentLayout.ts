@@ -12,7 +12,7 @@ import type { EquipmentItem, Port } from '../types/equipment'
 import type { IntercomPlan } from '../types/intercomPlan'
 import { findIntercomStationForEquipment } from './greengoSync'
 import { aktuellesRaster } from './aktuellesRaster'
-import type { Raster } from './raster'
+import { rasterSkaliert, type Raster } from './raster'
 
 // v7.9.23 — Layout-Konstanten zentralisiert in lib/layoutConstants.ts.
 // Vorher waren diese Werte zwischen EquipmentNode.tsx + equipmentLayout.ts
@@ -64,6 +64,11 @@ export const computeEquipmentLayout = (
   intercom?: IntercomPlan,
   raster: Raster = aktuellesRaster(),
 ): EquipmentLayout => {
+  // Die vom Nutzer gezogene Groesse DIESES Geraets. Sie wird hier und nicht
+  // beim Aufrufer eingerechnet: alle Wege, die Geometrie brauchen — Wegfinder,
+  // Hindernisse, Pending-Linie, Exporte, Ausrichten — laufen durch diese
+  // Funktion, und ein Aufrufer, der die Umrechnung vergisst, zeichnet seine
+  // Kabelenden neben die Buchsen.
   const {
     HEADER_HEIGHT,
     HEADER_HEIGHT_WITH_IP,
@@ -71,7 +76,9 @@ export const computeEquipmentLayout = (
     PADDING,
     GRID_SIZE,
     DEFAULT_WIDTH,
-  } = raster
+    EXTRA_LINE,
+    SKALA,
+  } = rasterSkaliert(raster, eq.sizeScale)
   const inputs = eq.inputs ?? []
   const outputs = eq.outputs ?? []
   const portsFlipped = !!eq.portsFlipped
@@ -80,7 +87,7 @@ export const computeEquipmentLayout = (
   // v7.9.26 — Optionale Header-Zeilen sind gridSize-aligned (11 px)
   // statt 14, damit Port-Y-Positionen auf Dot-Reihen landen.
   const greengoUser = findIntercomStationForEquipment(eq.id, intercom)
-  const EXTRA_HEADER_LINE = GRID_SIZE
+  const EXTRA_HEADER_LINE = EXTRA_LINE
   const beltpackLine = greengoUser ? EXTRA_HEADER_LINE : 0
   // #910 — die Optik-Zeile einer MultiCam-Kamera, wie im Knoten. Fehlte sie
   // hier, lagen Kabel-Routing und Hindernisse eine Rasterzeile neben den
@@ -119,10 +126,10 @@ export const computeEquipmentLayout = (
       Math.max(max, (p.name?.length ?? 0) + (p.connectorType?.length ?? 0) + 3),
     0,
   )
-  const labelWidth = longestPortText * 7 + 32
+  const labelWidth = longestPortText * 7 * SKALA + 32 * SKALA
   // #588 — Geräte-Name muss ebenfalls auf eine Zeile passen (siehe
   // EquipmentNode); identische Formel für konsistente Breite.
-  const nameWidth = (eq.name?.length ?? 0) * 7 + 44
+  const nameWidth = (eq.name?.length ?? 0) * 7 * SKALA + 44 * SKALA
   // #501 — Breite/Höhe müssen BYTE-genau wie im Renderer (EquipmentNode,
   // v7.9.26 snapUp) aufs Grid einrasten. Sonst startet die Pending-Kabel-
   // Linie an einer UN-gesnappten Außenkante, während der echte Port-Handle
@@ -141,9 +148,8 @@ export const computeEquipmentLayout = (
   //
   // Hier stand `Math.max(snapUp(eq.width ?? intrinsicWidth), intrinsicWidth)`,
   // und das war richtig gedacht: „der Nutzer hat das Gerät breiter gezogen,
-  // also lass es breiter". Nur gibt es das Ziehen nicht. `NodeResizer` haengt
-  // ausschliesslich am `LocationFrameNode`; ein Geraet laesst sich auf der
-  // Flaeche nicht in der Groesse aendern. (Die Millimeter-Felder in der
+  // also lass es breiter". Nur gab es das Ziehen damals nicht; `NodeResizer`
+  // hing ausschliesslich am `LocationFrameNode`. (Die Millimeter-Felder in der
   // Eigenschaften-Leiste sind `widthMm`/`heightMm` — die physische Bauform,
   // ein anderes Feld.)
   //
@@ -161,9 +167,17 @@ export const computeEquipmentLayout = (
   // Die Groesse kommt deshalb ab jetzt AUSSCHLIESSLICH aus den Daten. Das
   // gespeicherte Feld bleibt erhalten und wird weiter nachgefuehrt — Exporte
   // (`exportDxf`, `exportStagePlot`), die Kabellaengen-Schaetzung und die
-  // Raum-Zuordnung lesen es —, aber es entscheidet nichts mehr. Wer Geraete
-  // eines Tages ziehbar macht, braucht dafuer ein EIGENES Feld; dieses hier
-  // kann die Frage nicht beantworten.
+  // Raum-Zuordnung lesen es —, aber es entscheidet nichts mehr.
+  //
+  // 2026-10-27 — DAS ZIEHEN GIBT ES JETZT, und es hat das eigene Feld
+  // bekommen, das dieser Absatz verlangte: `eq.sizeScale`. Es steht nicht in
+  // dieser Formel, weil es keine Breite ist, sondern ein Faktor auf die
+  // Mindestmasse (`rasterSkaliert` oben) — die Zahl unten bleibt damit
+  // „so breit, wie der Inhalt es braucht", nur in der gewaehlten Groesse. Ein
+  // gekuerzter Port-Name macht das Geraet also auch bei Faktor 2 wieder
+  // schmaler. Die Bedeutungen bleiben getrennt: `sizeScale` entscheidet,
+  // `width`/`height` berichten.
+
   const width = snapUp(Math.max(DEFAULT_WIDTH, labelWidth * 2, nameWidth))
 
   const portRows = Math.max(sideCounts.left, sideCounts.right, 1)

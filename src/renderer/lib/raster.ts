@@ -77,6 +77,39 @@ export const RASTER_MIN = 6
  *  nicht mehr auf einen Bildschirm. */
 export const RASTER_MAX = 60
 
+/**
+ * Groesse EINES Geraets, vom Nutzer auf der Flaeche gezogen (`eq.sizeScale`).
+ *
+ * Sie ist ein FAKTOR und keine Breite, und das ist der Kern dieser Loesung:
+ * `equipmentLayout.ts` haelt fest, dass `eq.width`/`eq.height` ein Abbild der
+ * zuletzt gemessenen Groesse sind und keine Absicht ausdruecken koennen — wer
+ * Geraete ziehbar macht, braucht ein eigenes Feld. Dieses hier ist es.
+ *
+ * Als Faktor, weil die Groesse eines Geraets nicht frei ist: die Buchsen
+ * muessen auf Gitterpunkten sitzen (siehe `zellenMass`), und die Hoehe folgt
+ * der Zahl der Port-Reihen. Gezogen wird deshalb nicht eine Breite, sondern
+ * der Faktor, mit dem die MINDESTMASSE unten multipliziert werden; danach
+ * laeuft dieselbe Einrastung wie immer. So bleibt jede Buchse ein Gitterpunkt,
+ * in jeder Groesse.
+ *
+ * Grenzen: unter 0,6 draengen sich die Port-Beschriftungen ineinander (das
+ * Mindestmass 22 px traegt zwei Zeilen Schrift), ueber 3 passt ein Geraet mit
+ * vier Ports nicht mehr auf einen Bildschirm — dieselbe Begruendung wie bei
+ * `RASTER_MAX`. Die Stufe 0,05 haelt das Ziehen ruhig: ohne sie zittert die
+ * Karte bei jedem Pixel Mausbewegung.
+ */
+export const SKALA_MIN = 0.6
+export const SKALA_MAX = 3
+export const SKALA_STUFE = 0.05
+export const SKALA_VORGABE = 1
+
+/** Faktor in die Grenzen bringen und auf die Stufe runden. */
+export const skalaGrenzen = (n: number | undefined): number => {
+  if (n == null || !Number.isFinite(n)) return SKALA_VORGABE
+  const gestuft = Math.round(n / SKALA_STUFE) * SKALA_STUFE
+  return Math.min(SKALA_MAX, Math.max(SKALA_MIN, Math.round(gestuft * 100) / 100))
+}
+
 export interface Raster {
   /** Schrittweite in Pixeln — die eine Zahl, aus der alles folgt. */
   GRID_SIZE: number
@@ -85,12 +118,22 @@ export interface Raster {
   PORT_ROW: number
   PADDING: number
   DEFAULT_WIDTH: number
+  /** Hoehe einer OPTIONALEN Kopfzeile (Untertitel, Beltpack-Name, Optik).
+   *  Bei Vorgabe-Groesse ist sie die Schrittweite selbst — die Zahl, die
+   *  vorher in Knoten und Layout je als `GRID_SIZE` hingeschrieben stand.
+   *  Mit `SKALA` waechst sie mit, sonst stuende die groessere Schrift in
+   *  einer Zeile alter Hoehe. */
+  EXTRA_LINE: number
   /** Klickflaeche des ReactFlow-Handles. Bewusst NICHT rastergebunden — sie
    *  ist eine Fingerkuppe, kein Layoutmass. */
   HANDLE_SIZE: number
   /** Kantenlaenge einer Zelle des Wegfinders. Gleich der Schrittweite: nur
    *  dann ist jede Buchse ein Gitterpunkt (Begruendung bei `zellenMass`). */
   CELL_SIZE: number
+  /** Der Faktor, mit dem dieses Raster gerechnet wurde. Schriftgroessen und
+   *  die geschaetzten Textbreiten haengen daran — sie sind keine Rastermasse
+   *  und rasten nicht ein, muessen aber mitwachsen. */
+  SKALA: number
 }
 
 export const rasterGrenzen = (n: number): number =>
@@ -123,29 +166,58 @@ const aufGeradesVielfaches = (mindest: number, g: number): number =>
  */
 const zellenMass = (g: number): number => g
 
-/** Alle Layoutmasse aus einer Rastergroesse. Rein, ohne Store. */
-export const rasterAus = (gridSize: number): Raster => {
+/**
+ * Alle Layoutmasse aus einer Rastergroesse — und, wenn der Nutzer das Geraet
+ * groesser gezogen hat, aus seinem Faktor. Rein, ohne Store.
+ *
+ * Der Faktor greift an den MINDESTMASSEN an, nicht am Ergebnis. Erst
+ * multiplizieren, dann einrasten: `aufVielfaches`/`aufGeradesVielfaches`
+ * laufen unveraendert, und damit gilt die Zusage dieser Datei („jede Buchse
+ * ist ein Gitterpunkt") fuer jede Groesse. Wuerde man umgekehrt das fertige
+ * Mass skalieren, waere `PORT_ROW * 1,5` kein Vielfaches des Rasters mehr und
+ * jede zweite Buchse laege daneben.
+ */
+export const rasterAus = (gridSize: number, skala: number = SKALA_VORGABE): Raster => {
   const g = rasterGrenzen(Number.isFinite(gridSize) ? gridSize : RASTER_DEFAULT)
-  if (zwischenspeicher && zwischenspeicher.GRID_SIZE === g) return zwischenspeicher
+  const s = skalaGrenzen(skala)
+  const schluessel = `${g}:${s}`
+  const gemerkt = zwischenspeicher.get(schluessel)
+  if (gemerkt) return gemerkt
   const raster: Raster = {
     GRID_SIZE: g,
-    HEADER_HEIGHT: aufVielfaches(RASTER_MINDEST.HEADER_HEIGHT, g),
-    HEADER_HEIGHT_WITH_IP: aufVielfaches(RASTER_MINDEST.HEADER_HEIGHT_WITH_IP, g),
-    PORT_ROW: aufGeradesVielfaches(RASTER_MINDEST.PORT_ROW, g),
-    PADDING: aufVielfaches(RASTER_MINDEST.PADDING, g),
-    DEFAULT_WIDTH: aufVielfaches(RASTER_MINDEST.DEFAULT_WIDTH, g),
+    HEADER_HEIGHT: aufVielfaches(RASTER_MINDEST.HEADER_HEIGHT * s, g),
+    HEADER_HEIGHT_WITH_IP: aufVielfaches(RASTER_MINDEST.HEADER_HEIGHT_WITH_IP * s, g),
+    PORT_ROW: aufGeradesVielfaches(RASTER_MINDEST.PORT_ROW * s, g),
+    PADDING: aufVielfaches(RASTER_MINDEST.PADDING * s, g),
+    DEFAULT_WIDTH: aufVielfaches(RASTER_MINDEST.DEFAULT_WIDTH * s, g),
+    EXTRA_LINE: aufVielfaches(g * s, g),
     HANDLE_SIZE: 16,
     CELL_SIZE: zellenMass(g),
+    SKALA: s,
   }
-  zwischenspeicher = raster
+  zwischenspeicher.set(schluessel, raster)
   return raster
 }
 
-// Ein-Platz-Zwischenspeicher. Nicht fuer die Rechenzeit — die ist
-// vernachlaessigbar —, sondern fuer die Identitaet: React-Komponenten rufen
-// `rasterAus` im Rendern auf, und ein bei jedem Aufruf neues Objekt haette
-// jede `useMemo`-Abhaengigkeit darauf wertlos gemacht.
-let zwischenspeicher: Raster | null = null
+/** Dasselbe Raster in einer anderen Geraete-Groesse. Fuer Aufrufer, die ein
+ *  Raster schon in der Hand haben (die Komponenten mit `useRaster()`) und es
+ *  nur fuer EIN Geraet umrechnen wollen. */
+export const rasterSkaliert = (raster: Raster, skala: number | undefined): Raster =>
+  rasterAus(raster.GRID_SIZE, skalaGrenzen(skala))
+
+// Zwischenspeicher je Rastergroesse UND Geraete-Faktor. Nicht fuer die
+// Rechenzeit — die ist vernachlaessigbar —, sondern fuer die Identitaet:
+// React-Komponenten rufen `rasterAus` im Rendern auf, und ein bei jedem Aufruf
+// neues Objekt haette jede `useMemo`-Abhaengigkeit darauf wertlos gemacht.
+//
+// Bis 2026-10-27 war es EIN Platz. Das genuegte, solange alle Geraete dasselbe
+// Raster teilten; seit jedes seinen eigenen Faktor tragen kann, raeumte ein
+// Plan mit zwei verschieden grossen Geraeten den Platz bei jedem Knoten leer
+// und gab jedem Aufrufer ein frisches Objekt — die Memoisierung waere still
+// verschwunden. Die Zahl der Schluessel ist von der Stufung begrenzt
+// (Rastergroessen 6..60 x Faktoren 0,6..3 in 0,05-Schritten), und praktisch
+// stehen in einem Plan eine Handvoll.
+const zwischenspeicher = new Map<string, Raster>()
 
 /** Das Raster der Vorgabe. Fuer Aufrufer ohne Store-Zugang (Tests, Node-Skripte
  *  und die Voreinstellung des uiStore selbst). */
