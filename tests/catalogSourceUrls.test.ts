@@ -134,7 +134,8 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // 1743 -> 1968 -> 2015 am 2026-10-21: PixelHue, Barco, PIXERA, Christie, Panasonic, Epson und LANG-AG-Bestand.
     // 2015 -> 2041 am 2026-11-14: Kramer, Blackmagic 2110/DeckLink/Teranex/HyperDeck, Magewell, Sony (#1199).
     // 2041 -> 2046 am 2026-11-15: fuenf Atomos-Monitor-Recorder.
-    expect(pairs().length).toBe(2046)
+    // 2046 -> 2049 am 2026-11-16: NEC MultiSync P402, P461, X461S.
+    expect(pairs().length).toBe(2049)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -316,6 +317,7 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
     // 1743 -> 1968 -> 2015 am 2026-10-21: PixelHue, Barco, PIXERA, Christie, Panasonic, Epson und LANG-AG-Bestand.
     // 2015 -> 2041 am 2026-11-14 (#1199).
     // 2041 -> 2046 am 2026-11-15: fuenf Atomos-Monitor-Recorder.
-    expect(pairs().filter((p) => p.field).length).toBe(2046)
+    // 2046 -> 2049 am 2026-11-16: NEC MultiSync P402, P461, X461S.
+    expect(pairs().filter((p) => p.field).length).toBe(2049)
   })
 })
