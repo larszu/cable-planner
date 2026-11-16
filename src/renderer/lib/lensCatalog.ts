@@ -13868,10 +13868,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.sony.co.uk/electronics/camera-lenses/sel1224g/specifications
   {
     match: ['sonyfe1224f4g', 'fe1224f4g'],
     deviceTypeId: '0edb4a90-82b6-5d05-a581-441fbec2c9f1',
     template: {
+      manufacturerUrl: 'https://www.sony.co.uk/electronics/camera-lenses/sel1224g/specifications',
       name: 'Sony FE 12-24 F4 G',
       category: LENS,
       subtitle: '12-24 mm · E',

@@ -197,12 +197,15 @@ export const CAMERA_CATALOG: CameraEntry[] = [
     },
   },
 
-  // PMW-EX3 (Super35, classic rental workhorse)
-  // Output: 1x SDI, 1x HDMI; Audio: 2x XLR; TC In/Out
+  // PMW-EX3 (3x 1/2-Zoll-CMOS laut Bedienungsanleitung, classic rental workhorse)
+  // Output: 1x SDI, 1x HDMI; Audio: 2x XLR; TC In/Out — Ports noch nicht
+  // gegen die Anleitung geprueft (PDF von hier nicht abrufbar).
   {
     match: ['pmw-ex3'],
     deviceTypeId: '49e01b95-3c47-4e2d-b871-134f12fd305d',
+    // Quelle: https://www.sony.co.uk/electronics/support/professional-camcorders-handheld-camcorders/pmw-ex3/manuals
     template: {
+      manufacturerUrl: 'https://www.sony.co.uk/electronics/support/professional-camcorders-handheld-camcorders/pmw-ex3/manuals',
       name: 'Sony PMW-EX3',
       category: CAM,
       inputs: [
