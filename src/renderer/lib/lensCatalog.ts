@@ -3277,10 +3277,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.venuslens.net/product/laowa-12mm-t-2-9-zero-d-cine/
   {
     match: ['laowa12mmt29zerodcine', '12mmt29zerodcine'],
     deviceTypeId: 'a6200314-1396-5303-84ba-e7eb585af135',
     template: {
+      manufacturerUrl: 'https://www.venuslens.net/product/laowa-12mm-t-2-9-zero-d-cine/',
       name: 'Laowa 12mm T2.9 Zero-D Cine',
       category: LENS,
       subtitle: '12 mm · EF',
@@ -3375,10 +3377,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://laowacine.com/product/laowa-ooom-25-100mm-t2-9-cine/
   {
     match: ['laowa25100mmt29cine', '25100mmt29cine'],
     deviceTypeId: 'be18bfe1-317d-5619-80a3-1fdebcb05d3f',
     template: {
+      manufacturerUrl: 'https://laowacine.com/product/laowa-ooom-25-100mm-t2-9-cine/',
       name: 'Laowa 25-100mm T2.9 Cine',
       category: LENS,
       subtitle: '25-100 mm · PL',
@@ -8303,10 +8307,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://laowacine.com/product/laowa-1-5x-nanomorph-27mm-t2-8-35mm-t2-4-50mm-t2-4-pl-ef/
   {
     match: ['laowananomorph27mmt2915x', 'nanomorph27mmt2915x'],
     deviceTypeId: '6786dfe7-49ae-5e88-8e26-de0fc33e744d',
     template: {
+      manufacturerUrl: 'https://laowacine.com/product/laowa-1-5x-nanomorph-27mm-t2-8-35mm-t2-4-50mm-t2-4-pl-ef/',
       name: 'Laowa Nanomorph 27mm T2.9 1.5x',
       category: LENS,
       subtitle: '27 mm · PL',
@@ -8378,10 +8384,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://laowacine.com/product/nanomorph-1-5x-anamorphic-65mm-t2-4-80mm-t2-4/
   {
     match: ['laowananomorph65mmt2415x', 'nanomorph65mmt2415x'],
     deviceTypeId: 'dc6cfd4d-a79a-5ba5-ac33-af76fcb3cd2d',
     template: {
+      manufacturerUrl: 'https://laowacine.com/product/nanomorph-1-5x-anamorphic-65mm-t2-4-80mm-t2-4/',
       name: 'Laowa Nanomorph 65mm T2.4 1.5x',
       category: LENS,
       subtitle: '65 mm · PL',
@@ -8393,10 +8401,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://laowacine.com/product/nanomorph-1-5x-anamorphic-65mm-t2-4-80mm-t2-4/
   {
     match: ['laowananomorph80mmt2415x', 'nanomorph80mmt2415x'],
     deviceTypeId: '312ae0c7-9a71-587c-bd35-f212e653e2b3',
     template: {
+      manufacturerUrl: 'https://laowacine.com/product/nanomorph-1-5x-anamorphic-65mm-t2-4-80mm-t2-4/',
       name: 'Laowa Nanomorph 80mm T2.4 1.5x',
       category: LENS,
       subtitle: '80 mm · PL',
