@@ -179,6 +179,7 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // die Uebernahme liest beide (`datasheetUrl ?? manufacturerUrl`). Fuenf
     // Leuchten waren nur unter dem zweiten Namen belegt.
     // 99 -> 94 am 2026-11-13: fuenf Atomos-Monitor-Recorder belegt.
-    expect(bericht.unsourced).toBe(94)
+    // 94 -> 92 am 2026-11-16: Zeiss CP.2 15 mm und 135 mm belegt.
+    expect(bericht.unsourced).toBe(92)
   })
 })
