@@ -15,6 +15,7 @@
 // REIN: keine Uhr, kein Store, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
 import type { Cable } from '../types/cable'
+import type { CableSpec } from '../types/cableSpec'
 
 type MitEnden = Pick<Cable, 'type' | 'terminationFrom' | 'terminationTo'>
 
@@ -40,3 +41,23 @@ export const bomTyp = (c: MitEnden): string => {
  *  Ohne Enden derselbe wie bisher (`Typ|Laenge`) — gespeicherte Rentman-
  *  Planmengen und -Zuordnungen bleiben gueltig. */
 export const bomSchluessel = (c: MitEnden & Pick<Cable, 'length'>): string => `${bomTyp(c)}|${c.length}`
+
+/** #1278 — Die Stecker eines Kabeltyps mit zwei verschiedenen Enden als
+ *  `terminationFrom/To` fuer ein neues Kabel. Liegt das zweite Ende des Typs
+ *  am Quell-Port, wird das Kabel umgedreht. Ein Typ mit gleichen Enden gibt
+ *  nichts vor — dann bleibt es beim Stecker des Ports. */
+export const endenAusKabeltyp = (
+  spec: Pick<CableSpec, 'connectorType' | 'connectorTypeTo'> | undefined,
+  quellStecker?: string,
+): Pick<Cable, 'terminationFrom' | 'terminationTo'> => {
+  const a = spec?.connectorType
+  const b = spec?.connectorTypeTo
+  if (!a || !b || a === b) return {}
+  return quellStecker === b ? { terminationFrom: b, terminationTo: a } : { terminationFrom: a, terminationTo: b }
+}
+
+/** „powerCON TRUE1 ↔ Schuko 230V" bzw. der eine Stecker — fuer Listen von Kabeltypen. */
+export const kabeltypStecker = (spec: Pick<CableSpec, 'connectorType' | 'connectorTypeTo'>): string =>
+  spec.connectorTypeTo && spec.connectorTypeTo !== spec.connectorType
+    ? `${spec.connectorType} ↔ ${spec.connectorTypeTo}`
+    : spec.connectorType

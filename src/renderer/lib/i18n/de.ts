@@ -1300,6 +1300,8 @@ export const de: Dict = {
   'cableLib.color': 'Kabel-Farbe',
   'cableLib.compatibleWith': 'Auch kompatibel mit (optional)',
   'cableLib.connectorType': 'Stecker-Typ',
+  'cableLib.connectorTypeTo': 'Stecker am anderen Ende',
+  'cableLib.connectorTypeToSame': 'Wie am ersten Ende',
   'cableLib.create': 'Anlegen',
   'cableLib.customBadge': 'Eigener Kabeltyp (lokal angelegt)',
   'cableLib.customBadgeLabel': 'Eigen',

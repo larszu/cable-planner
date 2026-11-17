@@ -29,6 +29,7 @@ import { format, useTranslation } from '../../lib/i18n'
 // der Einstellungen-Tab oeffnet. Anlegen gehoert dorthin; hier wird nur noch
 // bearbeitet, was schon in der Liste steht.
 import { CableTypeEditor } from '../Cable/CableTypeEditor'
+import { kabeltypStecker } from '../../lib/kabelEnden'
 
 /**
  * Group cables by their primary connector family. SDI cables are highlighted
@@ -415,7 +416,7 @@ export const CableLibraryPanel = () => {
                           )}
                         </div>
                         <div className="mt-0.5 text-cp-xs text-cp-text-muted">
-                          {cable.connectorType}
+                          {kabeltypStecker(cable)}
                           {cable.compatibleConnectors?.length
                             ? ` (+ ${cable.compatibleConnectors.join(', ')})`
                             : ''}

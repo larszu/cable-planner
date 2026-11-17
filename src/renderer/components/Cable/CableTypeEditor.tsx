@@ -76,6 +76,10 @@ const CableTypeEditorForm = ({
   const [connectorType, setConnectorType] = useState<ConnectorType>(
     initial?.connectorType ?? 'Custom',
   )
+  // #1278 — '' = am anderen Ende derselbe Stecker.
+  const [connectorTypeTo, setConnectorTypeTo] = useState<ConnectorType | ''>(
+    initial?.connectorTypeTo ?? '',
+  )
   const [compatible, setCompatible] = useState<ConnectorType[]>(
     initial?.compatibleConnectors ?? [],
   )
@@ -134,6 +138,7 @@ const CableTypeEditorForm = ({
     const spec: Omit<CableSpec, 'id'> = {
       name: trimmedName,
       connectorType,
+      connectorTypeTo: connectorTypeTo && connectorTypeTo !== connectorType ? connectorTypeTo : undefined,
       compatibleConnectors: compatible.length > 0 ? compatible : undefined,
       standards,
       color,
@@ -211,6 +216,22 @@ const CableTypeEditorForm = ({
                 className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 px-2 py-1"
               >
                 {allConnectorTypeOptions.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                    {customConnectorTypes.includes(c as string) ? t('cableLib.customSuffix', ' (custom)') : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="text-cp-text-muted">{t('cableLib.connectorTypeTo', 'Connector at the other end')}</span>
+              <select
+                value={connectorTypeTo}
+                onChange={(e) => setConnectorTypeTo(e.target.value as ConnectorType | '')}
+                className="mt-0.5 w-full border border-cp-border bg-cp-surface-3 px-2 py-1"
+              >
+                <option value="">{t('cableLib.connectorTypeToSame', 'Same as first end')}</option>
+                {allConnectorTypeOptions.filter((c) => c !== connectorType).map((c) => (
                   <option key={c} value={c}>
                     {c}
                     {customConnectorTypes.includes(c as string) ? t('cableLib.customSuffix', ' (custom)') : ''}

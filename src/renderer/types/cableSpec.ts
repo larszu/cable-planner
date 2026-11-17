@@ -140,7 +140,16 @@ export interface CableSpec {
   id: string
   name: string
   connectorType: ConnectorType
-  /** Connectors this cable can also mate with directly (same physical connector). */
+  /**
+   * #1278 — Stecker am anderen Ende, wenn er vom ersten abweicht
+   * (powerCON TRUE1 → Schuko-Buchse, RJ45 → M8). Fehlt er, tragen beide
+   * Enden `connectorType`. Ein neues Kabel aus diesem Typ bekommt die beiden
+   * Stecker als `Cable.terminationFrom/To` (#1222), so herum, wie es an den
+   * Ports liegt.
+   */
+  connectorTypeTo?: ConnectorType
+  /** Connectors this cable can also mate with directly (same physical connector).
+   *  Bei zwei verschiedenen Steckern gilt das fuer das erste Ende. */
   compatibleConnectors?: ConnectorType[]
   standards: SignalStandard[]
   /** Typical maximum cable length in meters (signal integrity). */
@@ -830,6 +839,34 @@ export const checkCableCompatibility = (
 ): CompatibilityResult => {
   const cableConnector = cable.connectorType
   const acceptable = new Set<ConnectorType>([cableConnector, ...(cable.compatibleConnectors ?? [])])
+  // #1278 — zwei verschiedene Stecker: ein Ende je Port, in beiden
+  // Richtungen (das Kabel laesst sich umdrehen). Das Kabel IST dann der
+  // Uebergang, ein Adapter-Hinweis waere falsch.
+  const anderesEnde = cable.connectorTypeTo && cable.connectorTypeTo !== cableConnector
+    ? cable.connectorTypeTo
+    : undefined
+  if (anderesEnde) {
+    const passt = (acceptable.has(from) && to === anderesEnde) || (from === anderesEnde && acceptable.has(to))
+    const steckerText = `${cableConnector} ↔ ${anderesEnde}`
+    return passt
+      ? {
+          level: 'ok',
+          schluessel: 'cableSpec.matches',
+          werte: { cable: cable.name, from, to },
+          message: einsetzen('{cable} matches {from} ↔ {to}.', { cable: cable.name, from, to }),
+        }
+      : {
+          level: 'error',
+          schluessel: 'cableSpec.cannotConnect',
+          werte: { cable: cable.name, connector: steckerText, from, to },
+          message: einsetzen('Cable "{cable}" ({connector}) cannot connect {from} to {to}.', {
+            cable: cable.name,
+            connector: steckerText,
+            from,
+            to,
+          }),
+        }
+  }
 
   const fromOk = acceptable.has(from)
   const toOk = acceptable.has(to)
