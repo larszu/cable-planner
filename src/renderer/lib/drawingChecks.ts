@@ -21,10 +21,11 @@ import {
   checkImpedanceMismatch,
   checkBalanceMismatch,
   maxPassiveLengthM,
-  bandwidthMbpsForStandard,
+  kabelLastMbps,
   linkCapacityMbpsForStandard,
 } from '../types/cableSpec'
 import { networkAddress } from './subnet'
+import { st2110_21Passt } from './st2110'
 import { effectiveWatts } from './equipmentSelectors'
 import { deriveDrumChannels } from './drumMicing'
 import { labelTargetIssues } from './labelDerivation'
@@ -692,7 +693,8 @@ export const runDrawingChecks = (
   // des Kabelstandards gegen die Kapazitaet des Port-Standards. Fehlt eine
   // Angabe, schweigt die Pruefung, statt zu raten.
   for (const c of cables) {
-    const last = bandwidthMbpsForStandard(c.standard)
+    // #1280 — ST 2110-20 aus dem Videoformat statt fester 3 Gbps.
+    const last = kabelLastMbps(c, defaultVideoFormat)
     if (last === undefined) continue
     for (const portId of [c.fromPortId, c.toPortId]) {
       const port = portById.get(portId)
@@ -714,6 +716,35 @@ export const runDrawingChecks = (
         equipmentId: eqId,
       })
     }
+  }
+
+  // — Check 16d: ST 2110-21 Sendeprofil gegen Empfaengertyp (#1280) ---------
+  // Ein W-Sender (Software, breite Taktung) laeuft einem schmalen Empfaenger
+  // (Typ N) den Puffer voll. Gemeldet wird nur dieser belegte Fall
+  // (`st2110_21Passt`); fehlt ein Profil, schweigt die Pruefung.
+  for (const c of cables) {
+    const sender = portById.get(c.fromPortId)?.st2110_21
+    const empfaengerPort = portById.get(c.toPortId)
+    if (st2110_21Passt(sender, empfaengerPort?.st2110_21)) continue
+    findings.push({
+      id: `st2110-21-profile:${c.id}`,
+      severity: 'warning',
+      category: 'Network bandwidth',
+      message: format(
+        tr(
+          'check.st2110_21Profile',
+          '{name} · {port}: ST 2110-21 sender type {sender} into a type {receiver} receiver; it only takes narrow senders',
+        ),
+        {
+          name: eqName(c.toEquipmentId),
+          port: empfaengerPort?.name ?? '?',
+          sender: sender ?? '',
+          receiver: empfaengerPort?.st2110_21 ?? '',
+        },
+      ),
+      cableId: c.id,
+      equipmentId: c.toEquipmentId,
+    })
   }
 
   // — Check 15b: Symmetrisch↔Unsymmetrisch (Audio) (#380) --------------------

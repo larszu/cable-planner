@@ -498,7 +498,11 @@ const NetworkTab = ({ projectName }: { projectName: string }) => {
   // Bedarf 22/23 — die Netz-Dokumente aus DEMSELBEN Modell. Kein zweites
   // Datenmodell fuer das Blatt: „Export artefacts other departments actually
   // consume, generated from one model."
-  const request = useMemo(() => buildVenueNetworkRequest(equipment, cables), [equipment, cables])
+  const vorgabeFormat = useProjectStore((s) => s.project.metadata.defaultVideoFormat)
+  const request = useMemo(
+    () => buildVenueNetworkRequest(equipment, cables, vorgabeFormat),
+    [equipment, cables, vorgabeFormat],
+  )
 
   // BEDARF 73 — der Zeit-Plan. Aus denselben zwei Quellen: die PTP-Felder an
   // den Schnittstellen und die Standards an den Kabeln. Kein drittes Modell.

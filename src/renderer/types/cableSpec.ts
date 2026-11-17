@@ -1,4 +1,6 @@
 import type { ConnectorType } from './equipment'
+import { DEFAULT_VIDEO_FORMAT, type VideoFormatId } from './videoFormat'
+import { st2110_20Mbps } from '../lib/st2110'
 import { einsetzen, type Platzhalterwerte } from '../lib/platzhalter'
 
 /**
@@ -975,6 +977,20 @@ export const impedanceForStandard = (s: SignalStandard | undefined): 50 | 75 | 1
 }
 
 /**
+ * #1280 — die Last EINES Kabels: bei ST 2110-20 aus dem Videoformat des
+ * Kabels, sonst dem des Projekts; alle anderen Standards wie
+ * `bandwidthMbpsForStandard`.
+ */
+export const kabelLastMbps = (
+  c: { standard?: SignalStandard; videoFormat?: VideoFormatId },
+  vorgabeFormat?: VideoFormatId,
+): number | undefined => {
+  const format = c.videoFormat ?? vorgabeFormat
+  if (c.standard === 'ST2110-20' && format) return st2110_20Mbps(format)
+  return bandwidthMbpsForStandard(c.standard)
+}
+
+/**
  * #346 — Grobe Brutto-Bandbreite (Mbps) eines IP-/Netzwerk-Mediensignals,
  * für das Projekt-Netzwerk-Budget. Nur Standards, die sich ein Ethernet-/
  * IP-Netz teilen, liefern einen Wert; punkt-zu-punkt-Signale (SDI/HDMI/USB)
@@ -1003,7 +1019,9 @@ export const bandwidthMbpsForStandard = (s: SignalStandard | undefined): number 
       // 1080p also ~300 Mbps; 2160p liegt bei ~1200.
       return 300
     case 'ST2110-20':
-      return 3000 // 1080p unkomprimiert (≈2160p → 12000)
+      // #1280 — gerechnet, nicht geschaetzt: ohne Format das Projekt-
+      // Vorgabeformat (1080p50, 4:2:2, 10 bit). Mit Format `kabelLastMbps`.
+      return st2110_20Mbps(DEFAULT_VIDEO_FORMAT)
 
     // ── Delivery / Contribution (B-10) ──────────────────────────────────
     //
