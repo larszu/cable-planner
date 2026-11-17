@@ -59,6 +59,7 @@ import { fileURLToPath } from 'node:url'
 
 const { EINGEBAUTER_KATALOG } = await import('../src/renderer/lib/eingebauterKatalog.ts')
 const { pruefeVorlage } = await import('../src/renderer/lib/vorlagenEinreichung.ts')
+const { ALL_CONNECTOR_TYPES } = await import('../src/renderer/types/equipment.ts')
 const { DEFAULT_DEVICE_LIBRARY_URL } = await import('../src/renderer/lib/deviceLibraryClient.ts')
 
 const HIER = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -101,6 +102,8 @@ const uuid5 = (name) => {
 
 const schluessel = (s) => String(s ?? '').toLowerCase().replace(/[^a-z0-9]/g, '')
 
+const bekannteStecker = new Set(ALL_CONNECTOR_TYPES)
+
 const eigeneIds = new Set(EINGEBAUTER_KATALOG.map((t) => t.deviceTypeId).filter(Boolean))
 const eigeneNamen = new Set(EINGEBAUTER_KATALOG.map((t) => schluessel(t.name)))
 
@@ -139,6 +142,25 @@ for (const eintrag of alle) {
   const befunde = pruefeVorlage(vorlage)
   if (befunde.some((b) => b.blockiert)) {
     abgelehnt.push(`${vorlage.name} — ${befunde.filter((b) => b.blockiert).map((b) => b.art).join(', ')}`)
+    continue
+  }
+  // STECKERTYPEN, DIE DIESE APP NICHT KENNT.
+  //
+  // `ConnectorType` ist eine Aufzaehlung; ein unbekannter Wert laesst die
+  // erzeugte Datei nicht uebersetzen (gefunden beim ersten Lauf: ein Geraet
+  // trug „PowerCon True 1", die App fuehrt „powerCON TRUE1"). Ein anderer
+  // Planner und das Formular im Browser kennen die Aufzaehlung nicht.
+  //
+  // Zugeordnet wird NICHT geraten: aus „PowerCon True 1" „powerCON TRUE1" zu
+  // machen ist hier offensichtlich, bei zwei aehnlichen Normen nicht mehr,
+  // und eine falsche Zuordnung wandert still in Patchliste und Verkabelung.
+  // Der Eintrag wird genannt und bleibt draussen, bis ihn jemand in der
+  // BIBLIOTHEK richtigstellt — dort gehoert die Korrektur hin.
+  const fremd = [...(vorlage.inputs ?? []), ...(vorlage.outputs ?? [])]
+    .map((p) => p?.connectorType)
+    .filter((c) => c && !bekannteStecker.has(c))
+  if (fremd.length) {
+    abgelehnt.push(`${vorlage.name} — Steckertyp unbekannt: ${[...new Set(fremd)].join(', ')}`)
     continue
   }
   // `EquipmentTemplate` hat kein `id` (`Omit<EquipmentItem, 'id'…>`) — eine
