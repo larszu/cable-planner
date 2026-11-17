@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 // ───────────────────────────────────────────────────────────────────────────
 // Der RUECKWEG: Gemeinschaftsgeraete aus der Bibliothek in diesen Katalog.
-// Lauf: `npm run library:fetch` · Pruefen: `npm run library:fetch:check`
+// Lauf: `npm run library:fetch`
+//
+// KEIN eigener npm-Pruef-Lauf. `--pruefen` gibt es als Flagge fuer die Hand,
+// aber nicht als Skript: ein Prueflauf in `package.json`, den kein Workflow
+// faehrt, ist laut `ci:complete` keine Zusicherung, sondern eine Notiz — und
+// als PR-Tor taugt er nicht, denn die Datei veraltet planmaessig, sobald
+// jemand ein Geraet in der Bibliothek bestaetigt. Dass sie nachgezogen wird,
+// sichert `library-fetch.yml` naechtlich zu, indem es einen PR oeffnet.
 //
 // WARUM ES DAS GIBT. `library-publish.mjs` schickt den Katalog dieses Repos
 // nach devices.zumpelars.de. Der Weg zurueck fehlte: ein Geraet, das jemand
@@ -179,7 +186,7 @@ if (alt === inhalt) {
   fertig(0)
 }
 if (NUR_PRUEFEN) {
-  warnung(`\`gemeinschaftsKatalog.ts\` ist VERALTET — \`npm run library:fetch\` ausfuehren und das Ergebnis einchecken.`)
+  warnung('`gemeinschaftsKatalog.ts` ist VERALTET — `npm run library:fetch` ausfuehren und das Ergebnis einchecken.')
   fertig(1)
 }
 writeFileSync(ZIEL, inhalt)
