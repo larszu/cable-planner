@@ -4058,6 +4058,8 @@ export const de: Dict = {
   'foto.add': 'Foto hinzufügen…',
   'foto.take': 'Foto aufnehmen',
   'foto.caption': 'Bildunterschrift',
+  'foto.inPlan': 'Im Plan zeigen',
+  'foto.inPlanHint': 'Zeigt das Foto im Plan unter dem Gerät',
   'foto.mark': 'Im Plan markieren',
   'foto.markMove': 'Marke im Plan versetzen',
   'foto.markWaiting': 'In den Plan klicken…',

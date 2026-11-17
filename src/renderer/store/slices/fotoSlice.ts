@@ -71,7 +71,7 @@ export const createFotoSlice: StateCreator<ProjectState, [], [], FotoSlice> = (s
       return { project: updated }
     }),
 
-  updateFoto: (id: string, patch: Partial<Pick<Foto, 'notiz' | 'zeigtAuf'>>) =>
+  updateFoto: (id: string, patch: Partial<Pick<Foto, 'notiz' | 'zeigtAuf' | 'imPlan'>>) =>
     set((state) => {
       if (isProjectLocked(state)) return state
       const updated = touchProject({

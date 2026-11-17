@@ -79,4 +79,10 @@ export interface Foto {
   hinzugefuegtAm: string
   /** Bildunterschrift (#1187 — im Bericht unter dem Bild). */
   notiz?: string
+  /**
+   * #1272 — das Foto steht im Plan als Bild unter dem Geraeteknoten.
+   * Ein- und ausblendbar je Foto; ein Typ-Foto (`deviceTypeId`) zeigt sich
+   * so an jedem Geraet des Typs. Ohne das Feld bleibt der Knoten wie bisher.
+   */
+  imPlan?: boolean
 }

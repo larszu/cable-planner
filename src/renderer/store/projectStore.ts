@@ -880,7 +880,7 @@ export interface ProjectState {
   /** #884 — Notiz oder Ziel eines Fotos aendern. */
   updateFoto: (
     id: string,
-    patch: Partial<Pick<import('../types/foto').Foto, 'notiz' | 'zeigtAuf'>>,
+    patch: Partial<Pick<import('../types/foto').Foto, 'notiz' | 'zeigtAuf' | 'imPlan'>>,
   ) => void
   /** Anhänge — frisch abgelegte Dateien aufnehmen. */
   addAnhaenge: (neu: import('../types/anhang').ProjektAnhang[]) => void

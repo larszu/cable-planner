@@ -9,6 +9,7 @@ import { useCanvasProjectStore as useProjectStore, useCanvasProjectStoreInstance
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation, format } from '../../lib/i18n'
 import { Icon } from '../shared/Icon'
+import { planFotoAmGeraet } from '../../lib/fotoMasse'
 import { colorForConnector } from '../../lib/cableColors'
 import { defaultIconForEquipment } from '../../lib/deviceKind'
 import { findIntercomStationForEquipment } from '../../lib/greengoSync'
@@ -194,6 +195,9 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
   // schreiben, damit alle drei Sichten denselben Stand zeigen. Nicht die
   // Green-GO-Projektion: die entstuende hier je Geraet und Render neu.
   const intercom = useProjectStore((s) => s.project.intercom)
+  // #1272 — liefert nur die Zeichenkette: der Knoten zeichnet nicht neu,
+  // wenn sich ein anderes Foto im Plan aendert.
+  const planBild = useProjectStore((s) => planFotoAmGeraet(s.project.fotos, id, data.deviceTypeId)?.dataUri)
   const greengoUser = findIntercomStationForEquipment(id, intercom)
   // Issue #68: if the user hovers an edge, we want to light up the
   // port handles on both endpoints. Resolve the hovered cable's source
@@ -1061,8 +1065,26 @@ const EquipmentNodeInner = ({ id, data, selected }: NodeProps<EquipmentNodeData>
       {/* #946 — das Standbild eines Streams, UNTER dem Knoten; darunter die
           Scope-Plakette (larszu/lz-scopes#15). Ein gemeinsamer Stapel, damit
           beide nicht uebereinander liegen. */}
-      {data.streams && data.streams.length > 0 && (
+      {((data.streams && data.streams.length > 0) || planBild) && (
         <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {/* #1272 — das Foto des Geraets, unter dem Knoten wie das Standbild:
+              Kopf und Port-Raster bleiben, wo sie sind. */}
+          {planBild && (
+            <img
+              src={planBild}
+              alt=""
+              draggable={false}
+              style={{
+                width: '100%',
+                maxHeight: 180,
+                objectFit: 'contain',
+                display: 'block',
+                borderRadius: 'var(--cp-r-s)',
+                border: `1px solid ${isLight ? '#cbd5e1' : '#334155'}`,
+                background: isLight ? '#f8fafc' : '#0f172a',
+              }}
+            />
+          )}
           <StreamPreviewTile streams={data.streams} isLight={isLight} />
           <ScopeBadge streams={data.streams} geraet={data.name} isLight={isLight} />
         </div>

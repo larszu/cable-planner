@@ -126,6 +126,8 @@ Ist das Modul Rentman eingeschaltet und das Gerät nicht im verknüpften Rentman
 
 ![Foto am Gerät](bilder/de/eigenschaften-50-fotos-hinzugefuegt.jpg)
 
+*Im Plan zeigen* an einem Foto blendet es im Plan als Bild unter dem Geräteknoten ein; ein zweiter Klick blendet es wieder aus. Ein Foto des Gerätetyps erscheint so unter jedem Gerät dieses Typs. Sind mehrere eingeschaltet, zeigt der Knoten das erste.
+
 #### Darstellung & Flags
 
 ![Darstellung & Flags](bilder/de/eigenschaften-52-flags-offen.jpg)
