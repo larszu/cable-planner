@@ -103,7 +103,7 @@ describe('#1200 Pruefung: Signal breiter als die Schnittstelle', () => {
     expect(f).toHaveLength(1)
     expect(f[0].severity).toBe('warning')
     expect(f[0].equipmentId).toBe('sw')
-    expect(f[0].message).toContain('3000')
+    expect(f[0].message).toContain('2188')
     expect(f[0].message).toContain('1000')
   })
 

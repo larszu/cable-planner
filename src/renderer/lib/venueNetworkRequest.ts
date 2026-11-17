@@ -52,7 +52,8 @@
 import type { Cable } from '../types/cable'
 import type { EquipmentItem } from '../types/equipment'
 import type { SignalStandard } from '../types/cableSpec'
-import { bandwidthMbpsForStandard } from '../types/cableSpec'
+import { kabelLastMbps } from '../types/cableSpec'
+import type { VideoFormatId } from '../types/videoFormat'
 import { allDeviceInterfaces } from './networkInterfaces'
 import { buildAddressPlan } from './addressPlan'
 import { subnetCidr } from './subnet'
@@ -133,6 +134,8 @@ const nummer = (v: unknown): number | undefined =>
 export function buildVenueNetworkRequest(
   equipment: EquipmentItem[],
   cables: Cable[],
+  /** #1280 — Projekt-Videoformat fuer ST-2110-20-Kabel ohne eigenes. */
+  vorgabeFormat?: VideoFormatId,
 ): VenueNetworkRequest {
   const nics = allDeviceInterfaces(equipment)
   const plan = buildAddressPlan(equipment)
@@ -167,7 +170,7 @@ export function buildVenueNetworkRequest(
   const licht = new Set<string>()
   for (const c of cables) {
     const std = (c as { standard?: SignalStandard }).standard
-    const mbps = bandwidthMbpsForStandard(std)
+    const mbps = kabelLastMbps(c, vorgabeFormat)
     if (mbps) mediaMbps += mbps
     if (std && AUDIO_MULTICAST.has(std)) audio.add(std)
     if (std && VIDEO_MULTICAST.has(std)) video.add(std)

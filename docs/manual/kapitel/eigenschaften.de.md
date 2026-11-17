@@ -72,6 +72,7 @@ Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie,
    | Feld | Werte |
    |---|---|
    | Inhalt / Funktion | freier Text, z. B. „PGM“ |
+   | ST-2110-21-Sendeprofil / -Empfängertyp | nur bei Signalstandard ST2110-20: am Ausgang *N (schmal)*, *NL (schmal, linear)* oder *W (breit)*, am Eingang *N* oder *W*. Ein W-Sender an einem N-Empfänger steht als Befund in der Plan-Prüfung. Die Netzlast eines ST-2110-20-Kabels rechnet die App aus dem Videoformat des Kabels, sonst dem des Projekts (4:2:2, 10 bit, samt Paketköpfen), z. B. 1080p50 ≈ 2,2 Gbps, 2160p50 ≈ 8,8 Gbps |
    | Art | *Eingang* bzw. *Ausgang* (je nach Liste) oder *Bidirektional (z. B. speakON, etherCON, Netzwerk)* (ein solcher Port kann Kabelquelle und Kabelziel sein; ein Kabel zwischen zwei bidirektionalen Ports beginnt an dem Gerät, an dem Sie zu ziehen anfangen) |
    | Seite | Seite (auto), Links, Rechts |
    | Geschlecht | Geschlecht (–), ♂ Male / Stecker, ♀ Female / Buchse |

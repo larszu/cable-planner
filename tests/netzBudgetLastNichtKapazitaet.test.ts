@@ -51,7 +51,7 @@ describe('Kapazitaet zaehlt nicht als Last', () => {
 
   it('die Medien-Standards behalten ihre Werte', () => {
     expect(bandwidthMbpsForStandard('NDI')).toBe(250)
-    expect(bandwidthMbpsForStandard('ST2110-20')).toBe(3000)
+    expect(bandwidthMbpsForStandard('ST2110-20')).toBe(2188)
     expect(bandwidthMbpsForStandard('Dante')).toBe(49)
   })
 })

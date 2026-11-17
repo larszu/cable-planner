@@ -18,7 +18,7 @@ import { Icon } from '../shared/Icon'
 import { downloadBlob } from '../../lib/downloadBlob'
 import { wattsWithSource, type WattsSource } from '../../lib/equipmentSelectors'
 import { buildExportFilenameWithSuffix } from '../../lib/exportFilename'
-import { bandwidthMbpsForStandard, linkCapacityMbpsForStandard } from '../../types/cableSpec'
+import { kabelLastMbps, linkCapacityMbpsForStandard } from '../../types/cableSpec'
 import { powerStandardById, POWER_SUPPLY_PRESETS } from '../../types/powerStandard'
 import jsPDF from 'jspdf'
 import { sanitizeForPdf } from '../../lib/sanitizeForPdf'
@@ -94,6 +94,7 @@ const LINK_TIERS: { label: string; mbps: number }[] = [
 const BandwidthTab = () => {
   const t = useTranslation()
   const cables = useProjectStore((s) => s.project.cables)
+  const vorgabeFormat = useProjectStore((s) => s.project.metadata?.defaultVideoFormat)
   // #346 — Projekt-Netzwerk-Budget: Summe der IP-/Netzwerk-Signal-Bandbreiten
   // über alle Kabel mit gesetztem Netzwerk-Standard.
   // LAST und KAPAZITAET werden getrennt gezaehlt. Bis 2026-09-04 lieferte
@@ -115,7 +116,7 @@ const BandwidthTab = () => {
         linkCount += 1
         continue
       }
-      const mbps = bandwidthMbpsForStandard(c.standard)
+      const mbps = kabelLastMbps(c, vorgabeFormat)
       if (mbps == null) continue
       totalMbps += mbps
       count += 1

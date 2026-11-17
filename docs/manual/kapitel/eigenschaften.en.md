@@ -72,6 +72,7 @@ The section has two lists, *Inputs* and *Outputs*. The header counts them, e.g. 
    | Field | Values |
    |---|---|
    | Content / function | free text, e.g. “PGM” |
+   | ST 2110-21 sender type / receiver type | only with signal standard ST2110-20: on an output *N (Narrow)*, *NL (Narrow Linear)* or *W (Wide)*, on an input *N* or *W*. A W sender into an N receiver is a finding in the plan check. The app computes the network load of an ST 2110-20 cable from the cable's video format, otherwise the project's (4:2:2, 10 bit, including packet headers), e.g. 1080p50 ≈ 2.2 Gbps, 2160p50 ≈ 8.8 Gbps |
    | Kind | *Input* or *Output* (depending on the list) or *Bidirectional (e.g. speakON, etherCON, network)* (such a port can be cable source and target; a cable between two bidirectional ports starts at the device where you begin dragging) |
    | Side | Side (auto), Left, Right |
    | Gender | Gender (–), ♂ Male / plug, ♀ Female / socket |

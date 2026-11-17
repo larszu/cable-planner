@@ -696,6 +696,29 @@ export const PortList = ({
                 </select>
               </div>
             </div>
+            {/* #1280 — ST 2110-21: am Ausgang das Sendeprofil, am Eingang
+                der Empfaengertyp. Nur bei ST 2110-20, sonst gibt es keins. */}
+            {port.standard === 'ST2110-20' && (
+              <label className="mt-1 flex items-center gap-1 text-cp-xs text-cp-text-muted">
+                <span className="shrink-0">
+                  {seite === 'out'
+                    ? t('ports.st2110_21.sender', 'ST 2110-21 sender type')
+                    : t('ports.st2110_21.receiver', 'ST 2110-21 receiver type')}
+                </span>
+                <select
+                  value={port.st2110_21 ?? ''}
+                  onChange={(event) =>
+                    updatePort(port.id, { st2110_21: (event.target.value || undefined) as Port['st2110_21'] })
+                  }
+                  className="flex-1 border border-cp-border bg-cp-surface-3 p-1 text-cp-xs text-cp-text"
+                >
+                  <option value="">-</option>
+                  <option value="N">{t('ports.st2110_21.n', 'N (Narrow)')}</option>
+                  {seite === 'out' && <option value="NL">{t('ports.st2110_21.nl', 'NL (Narrow Linear)')}</option>}
+                  <option value="W">{t('ports.st2110_21.w', 'W (Wide)')}</option>
+                </select>
+              </label>
+            )}
             {/* #286 — Inhaltliches Label fuer das gefuehrte Signal (PGM,
                 PVW, MV1, Cam1, Slot 3). Optional; bleibt leer wenn der
                 Port kein semantisch fixes Signal traegt. Wenn gesetzt
