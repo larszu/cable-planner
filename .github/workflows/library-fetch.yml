@@ -39,7 +39,7 @@ jobs:
           DEVICE_LIBRARY_URL: ${{ vars.DEVICE_LIBRARY_URL }}
         run: npm run library:fetch
       - name: PR oeffnen, wenn sich etwas geaendert hat
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: katalog/gemeinschaftsgeraete
           title: 'katalog: Gemeinschaftsgeraete aus der Bibliothek nachziehen'
