@@ -149,7 +149,7 @@ genommen.sort((a, b) => a.gemeinschaft.slug.localeCompare(b.gemeinschaft.slug))
 
 const kopf = `// ───────────────────────────────────────────────────────────────────────────
 // ERZEUGT von \`scripts/library-fetch.mjs\` — nicht von Hand aendern.
-// Lauf: \`npm run library:fetch\` · Veraltet? \`npm run library:fetch:check\`
+// Lauf: \`npm run library:fetch\` (naechtlich in \`library-fetch.yml\`).
 //
 // Geraete, die die GEMEINSCHAFT in der Bibliothek angelegt und bestaetigt hat
 // (Status \`${status}\` oder besser). Sie liegen hier eingecheckt, damit jede
