@@ -10,6 +10,7 @@ import { infoDialog } from '../../lib/infoDialog'
 import { cableCatalog } from '../../types/cableSpec'
 import type { CableType } from '../../types/cable'
 import { NumberInput } from '../shared/NumberInput'
+import { endenAusKabeltyp } from '../../lib/kabelEnden'
 
 // CableType excludes DIN/DisplayPort/USB (legacy types); map them to 'Custom'.
 const EXCLUDED: Set<string> = new Set(['DIN', 'DisplayPort', 'USB'])
@@ -112,6 +113,7 @@ const BulkConnectDialogInner = () => {
         color: spec?.color ?? '#94a3b8',
         notes: '',
         cableSpecId: spec?.id,
+        ...endenAusKabeltyp(spec, fp.connectorType),
         fromEquipmentId: fromEq.id,
         fromPortId: fp.id,
         toEquipmentId: toEq.id,

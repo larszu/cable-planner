@@ -386,6 +386,7 @@ The cable library in the left sidebar can also edit a type in place.
 |---|---|
 | Name | e.g. CAT6a patch 5m |
 | Connector type | list of all connector types; *+* creates your own |
+| Connector at the other end | *Same as first end* or another connector type, e.g. powerCON TRUE1 → Schuko. A cable of this type fits between exactly these two connectors, either way round, and carries them as *Connector at start / at end* |
 | Cable colour | colour field |
 | Also compatible with (optional) | further connector types to click |
 | Signal standards | standards to click; *+ Standard* creates your own |

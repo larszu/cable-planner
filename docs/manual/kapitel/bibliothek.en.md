@@ -284,7 +284,7 @@ The tab *Cables* (*Cable library*) lists the cable types, grouped by connector t
 
    ![Custom cable type in the list](bilder/en/bibliothek-69-kabel-eigener-typ.jpg)
 
-3. The pencil opens *Edit cable type*. The form has the fields *Name*, *Connector type* (with **+** for a new connector type), *Cable colour*, *Also compatible with (optional)*, *Signal standards* (with *+ Standard* for a new standard), *Max. length (m) — optional*, *Outer diameter (mm) — optional, from the datasheet* and *Note (optional)*. *Save* is only possible when a name and at least one standard are set. For a built-in type the change is saved as a local adjustment (*Adjusted*); the button with the arrow (*Remove override*) asks *Reset override for "…"?* and restores the original values with *Reset*.
+3. The pencil opens *Edit cable type*. The form has the fields *Name*, *Connector type* (with **+** for a new connector type), *Connector at the other end*, *Cable colour*, *Also compatible with (optional)*, *Signal standards* (with *+ Standard* for a new standard), *Max. length (m) — optional*, *Outer diameter (mm) — optional, from the datasheet* and *Note (optional)*. *Save* is only possible when a name and at least one standard are set. For a built-in type the change is saved as a local adjustment (*Adjusted*); the button with the arrow (*Remove override*) asks *Reset override for "…"?* and restores the original values with *Reset*.
 
    ![Dialog Edit cable type](bilder/en/bibliothek-64-kabel-eintrag-bearbeiten.jpg)
 
