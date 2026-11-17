@@ -121,6 +121,7 @@ import { MCP_LOG_MAX, normalisiereMcpEintrag } from '../types/mcpLog'
 import { pruefeVorlage } from '../lib/textProtocol'
 import { pruefeCompanion } from '../lib/companionControl'
 import { entdoppelePortIds } from '../lib/portIdsEntdoppeln'
+import { liegtIn } from '../lib/unterkategorie'
 
 const CUSTOM_LIB_KEY = STORAGE_KEYS.customLibrary
 const PROJECT_AUTOSAVE_KEY = STORAGE_KEYS.projectAutosave
@@ -518,6 +519,9 @@ export interface ProjectState {
   removeCustomTemplate: (name: string) => void
   setCustomTemplateCategory: (name: string, category: string) => void
   renameCustomCategory: (oldCategory: string, newCategory: string) => void
+  /** #1273 — Kategorie samt Unterkategorien aus dem Geraete-Pool loeschen.
+   *  Die Vorlagen darin werden mitgeloescht oder ohne Kategorie behalten. */
+  removeCustomCategory: (category: string, vorlagen: 'behalten' | 'mitloeschen') => void
   /** #917 — eigenen Stecker/Standard/Ebene umbenennen: zieht Ports, Kabel und
    *  Bibliotheks-Vorlagen im offenen Projekt mit. Liefert die Zahl der
    *  geaenderten Geraete, Kabel und Vorlagen. */
@@ -2566,6 +2570,26 @@ const buildProjectStore = (
         categoryTranslations: nextTranslations,
         project: { ...state.project, equipment: nextEquipment },
       }
+    }),
+  removeCustomCategory: (category, vorlagen) =>
+    set((state) => {
+      const cat = category.trim()
+      if (!cat) return {}
+      // Nur der Pool (Bibliothek): verbaute Geraete im Plan bleiben, wie sie
+      // sind — eine Vorlage zu loeschen loescht auch sonst kein Geraet im Plan.
+      const betroffen = (c: string | undefined) => liegtIn(c || 'Other', cat)
+      const nextLib =
+        vorlagen === 'mitloeschen'
+          ? state.customLibrary.filter((t) => !betroffen(t.category))
+          : state.customLibrary.map((t) => (betroffen(t.category) ? { ...t, category: '' } : t))
+      persistCustomLibrary(nextLib)
+      const nextCats = state.knownCategories.filter((c) => !liegtIn(c, cat))
+      persistKnownCategories(nextCats)
+      const nextTranslations = Object.fromEntries(
+        Object.entries(state.categoryTranslations).filter(([k]) => !liegtIn(k, cat)),
+      )
+      persistCategoryTranslations(nextTranslations)
+      return { customLibrary: nextLib, knownCategories: nextCats, categoryTranslations: nextTranslations }
     }),
   groupPresets: loadGroupPresets(),
 })

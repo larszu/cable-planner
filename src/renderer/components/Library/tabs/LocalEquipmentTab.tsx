@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { ChevronDown, ChevronRight, Pencil, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, Pencil, Trash2, X } from 'lucide-react'
 import { Icon } from '../../shared/Icon'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
@@ -15,6 +15,7 @@ import { DeviceLibrarySubmitDialog } from '../DeviceLibrarySubmitDialog'
 import { mountModal } from '../../../lib/modalRoot'
 import { infoDialog } from '../../../lib/infoDialog'
 import { confirmDialog } from '../../../lib/confirmDialog'
+import { kategorieLoeschenDialog } from '../../../lib/kategorieLoeschenDialog'
 import {
   kategorieBlatt,
   kategorieTiefe,
@@ -67,6 +68,7 @@ export const LocalEquipmentTab = ({
   const addKnownCategories = useProjectStore((s) => s.addKnownCategories)
   const reorderCategories = useProjectStore((s) => s.reorderCategories)
   const renameCustomCategory = useProjectStore((s) => s.renameCustomCategory)
+  const removeCustomCategory = useProjectStore((s) => s.removeCustomCategory)
   const categoryTranslations = useProjectStore((s) => s.categoryTranslations)
   const setCategoryTranslation = useProjectStore((s) => s.setCategoryTranslation)
   const lang = useUiStore((s) => s.language)
@@ -461,6 +463,31 @@ export const LocalEquipmentTab = ({
                     aria-label={t('library.renameCategory', 'Rename category')}
                   >
                     <Icon icon={Pencil} size="xs" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      // #1273 — vorher fragen; liegen noch Geraete darin
+                      // (auch in Unterkategorien), entscheidet der Nutzer, ob
+                      // sie mitgehen oder ohne Kategorie im Pool bleiben.
+                      const name = categoryDisplay(cat, lang, categoryTranslations)
+                      if (imBaum.length === 0) {
+                        const ok = await confirmDialog(
+                          format(t('library.deleteCategory.title', 'Delete category "{name}"?'), { name }),
+                          { destructive: true, okLabel: t('library.deleteCategory.ok', 'Delete category') },
+                        )
+                        if (ok) removeCustomCategory(cat, 'behalten')
+                        return
+                      }
+                      const wahl = await kategorieLoeschenDialog(name, imBaum.length)
+                      if (wahl) removeCustomCategory(cat, wahl)
+                    }}
+                    className="hidden bg-cp-surface-4/80 px-1.5 py-0.5 text-cp-xs font-normal normal-case text-cp-text-bright hover:bg-red-700 hover:text-white group-hover/cat:block"
+                    title={t('library.deleteCategory.ok', 'Delete category')}
+                    aria-label={t('library.deleteCategory.ok', 'Delete category')}
+                  >
+                    <Icon icon={Trash2} size="xs" />
                   </button>
                   <span className="bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-normal text-cp-text-muted">
                     {imBaum.length}

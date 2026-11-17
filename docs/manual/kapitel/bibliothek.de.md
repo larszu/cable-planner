@@ -110,6 +110,8 @@ Kategorien ordnen die Vorlagen. Beim Zeigen auf den Kategoriestreifen erscheint 
 
    ![Neue, leere Kategorie](bilder/de/bibliothek-55-kategorie-umbenannt.jpg)
 
+6. Der Papierkorb neben dem Stift löscht die Kategorie samt ihren Unterkategorien. Vorher fragt er *Kategorie „…" löschen?*. Liegen noch Geräte darin, wählen Sie zwischen *Geräte behalten, ohne Kategorie unten im Pool* (vorgewählt) und *Geräte mitlöschen*. Geräte, die schon im Plan stehen, bleiben in jedem Fall unverändert.
+
 #### Das Menü +
 
 Der Knopf **+** neben dem Suchfeld (Tooltip: *Neues Gerät oder neue Kategorie anlegen*) öffnet ein Menü mit fünf Einträgen.

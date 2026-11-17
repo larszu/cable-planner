@@ -3492,6 +3492,12 @@ export const de: Dict = {
   'mvrImport.doneTitle': 'MVR importiert',
   'mvrImport.doneBody': '{n} Gerät(e) platziert. Neue Vorlagen in der Bibliothek: {neu}.',
   'library.renameCategory': 'Kategorie umbenennen',
+  'library.deleteCategory.title': 'Kategorie „{name}" löschen?',
+  'library.deleteCategory.ok': 'Kategorie löschen',
+  'library.deleteCategory.bodyOne': 'In dieser Kategorie liegt noch ein Gerät.',
+  'library.deleteCategory.bodyMany': 'In dieser Kategorie liegen noch {n} Geräte.',
+  'library.deleteCategory.keep': 'Geräte behalten, ohne Kategorie unten im Pool',
+  'library.deleteCategory.deleteDevices': 'Geräte mitlöschen',
   'library.rentman.accountAll': 'Alle Rentman-Equipments (Account-Katalog)',
   'library.rentman.accountTitle':
     'Alle in deinem Rentman-Account angelegten Equipments (Account-Katalog), gegliedert nach der Rentman-Ordnerstruktur',
