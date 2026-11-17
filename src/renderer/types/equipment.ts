@@ -1574,6 +1574,15 @@ export type EquipmentTemplate = Omit<EquipmentItem, 'id' | 'x' | 'y'> & {
    * multiple Rentman projects have been imported.
    */
   rentmanProjectName?: string
+  /**
+   * Herkunft eines Geraets, das die GEMEINSCHAFT in der Geraetebibliothek
+   * angelegt hat und das `scripts/library-fetch.mjs` in den eingebauten
+   * Katalog geholt hat (`gemeinschaftsKatalog.ts`). Nicht zu verwechseln mit
+   * `libraryRef` — das zeigt auf die lokale Geraeteliste dieser
+   * Installation. Hier steht, dass der Eintrag NICHT aus diesem Repo kommt,
+   * und wo er in der Bibliothek steht.
+   */
+  gemeinschaft?: { slug: string; version: number; status: string; url: string }
 }
 
 /**

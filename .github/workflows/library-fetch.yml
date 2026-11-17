@@ -1,0 +1,61 @@
+name: Gemeinschaftsgeraete aus der Bibliothek holen
+
+# Der Rueckweg zu `library-publish.yml`: Geraete, die die Gemeinschaft auf
+# devices.zumpelars.de angelegt und bestaetigt hat, gehoeren eingecheckt in den
+# Katalog — sonst bekommt sie nur, wer in der App angemeldet ist (siehe Kopf
+# von `scripts/library-fetch.mjs`).
+#
+# Der Lauf schreibt nichts nach main, sondern oeffnet einen PR: ein Katalog,
+# der sich selbst aendert, soll gesehen werden, bevor er ausgeliefert wird.
+#
+# Ohne das Secret DEVICE_LIBRARY_KEY endet der Lauf gruen mit einem Hinweis —
+# ein Fork soll nicht rot werden.
+
+on:
+  schedule:
+    # Nach dem naechtlichen Geraetepruefer, damit dessen Ergebnisse mitkommen.
+    - cron: '40 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: library-fetch
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Gemeinschaftsgeraete holen
+        env:
+          DEVICE_LIBRARY_KEY: ${{ secrets.DEVICE_LIBRARY_KEY }}
+          DEVICE_LIBRARY_URL: ${{ vars.DEVICE_LIBRARY_URL }}
+        run: npm run library:fetch
+      - name: PR oeffnen, wenn sich etwas geaendert hat
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: katalog/gemeinschaftsgeraete
+          title: 'katalog: Gemeinschaftsgeraete aus der Bibliothek nachziehen'
+          commit-message: |
+            katalog: Gemeinschaftsgeraete aus der Bibliothek nachziehen
+
+            Erzeugt von scripts/library-fetch.mjs. Bestaetigte Geraete aus
+            devices.zumpelars.de, die nicht aus diesem Repo stammen.
+          body: |
+            Erzeugt von `scripts/library-fetch.mjs` (`library-fetch.yml`).
+
+            Bestaetigte Geraete (`status=confirmed` oder besser) aus der
+            Geraetebibliothek, die **nicht** aus diesem Repo stammen. Sie
+            liegen eingecheckt, damit jede Installation sie bekommt — ohne
+            Konto und offline.
+
+            Welche dazukamen und welche abgelehnt wurden, steht in der
+            Zusammenfassung des Laufs.
+          add-paths: src/renderer/lib/gemeinschaftsKatalog.ts

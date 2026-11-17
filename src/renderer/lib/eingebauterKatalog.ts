@@ -42,8 +42,13 @@ import { cameraBodyTemplates } from './cameraBodyCatalog.ts'
 import { lensTemplates } from './lensCatalog.ts'
 import { rigTemplates } from './rigCatalog.ts'
 import { fixtureTemplates } from './fixtureCatalog.ts'
+// Der Rueckweg aus der Bibliothek: Geraete, die die Gemeinschaft dort
+// angelegt und bestaetigt hat (`npm run library:fetch`). Sie gehoeren in diese
+// Liste, damit JEDE Installation sie bekommt — ohne Konto und offline.
+import { gemeinschaftsTemplates } from './gemeinschaftsKatalog.ts'
 import { mitSteuerung } from './steuerprotokolle.ts'
 
 export const EINGEBAUTER_KATALOG: readonly EquipmentTemplate[] = [...blackmagicTemplates, ...ubiquitiTemplates, ...monitorTemplates, ...cameraTemplates, ...miscTemplates, ...greengoTemplates, ...ajaTemplates, ...rossTemplates, ...lynxTemplates, ...switcherTemplates, ...avNetworkTemplates, ...broadcastToolsTemplates, ...audioTemplates, ...wirelessAudioTemplates, ...micTemplates, ...mediaStationTemplates, ...passiveTemplates, ...decimatorTemplates, ...bromptonTemplates, ...clearcomTemplates, ...luminexTemplates, ...netgearAvTemplates,
   ...ciscoTemplates,
-  ...crestronTemplates, ...lightwareTemplates, ...cameraBodyTemplates, ...lensTemplates, ...rigTemplates, ...fixtureTemplates].map(mitSteuerung)
+  ...crestronTemplates, ...lightwareTemplates, ...cameraBodyTemplates, ...lensTemplates, ...rigTemplates, ...fixtureTemplates,
+  ...gemeinschaftsTemplates].map(mitSteuerung)

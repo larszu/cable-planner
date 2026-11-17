@@ -83,6 +83,7 @@
     "notices": "node scripts/generate-notices.mjs",
     "actions:check": "node scripts/actions-node-runtime.mjs",
     "library:publish": "node scripts/library-publish.mjs",
+    "library:fetch": "node scripts/library-fetch.mjs",
     "ui:overflow": "node scripts/ui-overflow.mjs",
     "ui:labels": "node scripts/ui-labels.mjs",
     "ui:targets": "node scripts/ui-targets.mjs",
