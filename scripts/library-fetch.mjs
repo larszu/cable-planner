@@ -3,6 +3,9 @@
 // Der RUECKWEG: Gemeinschaftsgeraete aus der Bibliothek in diesen Katalog.
 // Lauf: `npm run library:fetch`
 //
+// BRAUCHT `npm ci`, anders als `library-publish.mjs`: `pruefeVorlage` haengt
+// ueber `uiStore` an zustand.
+//
 // GESTARTET MIT `register-endungen.mjs`, wie `katalog:uebernahme`. Die
 // App-Module importieren einander ohne `.ts`-Endung; bares Node findet sie
 // deshalb nicht (`ERR_MODULE_NOT_FOUND` auf `lib/portLabel`). Der Loader
