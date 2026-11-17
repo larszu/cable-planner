@@ -16,7 +16,7 @@
 // dazu steht in `lib/fotoMasse.ts`.
 // ───────────────────────────────────────────────────────────────────────────
 import { useRef, useState } from 'react'
-import { Camera, ImagePlus, MapPin, X } from 'lucide-react'
+import { Camera, Eye, ImagePlus, MapPin, X } from 'lucide-react'
 import { useUiStore } from '../../../store/uiStore'
 import { useCanvasProjectStore as useProjectStore } from '../../../store/projectStoreContext'
 import { Icon } from '../../shared/Icon'
@@ -144,6 +144,20 @@ export const FotoListe = ({
                     ? t('foto.markMove', 'Move mark in plan')
                     : t('foto.mark', 'Mark in plan')}
               </button>
+              {/* #1272 — nur an Geraet oder Geraetetyp: dort gibt es einen
+                  Knoten, unter dem das Bild stehen kann. */}
+              {(f.zeigtAuf?.equipmentId || f.zeigtAuf?.deviceTypeId) && (
+                <button
+                  type="button"
+                  onClick={() => updateFoto(f.id, { imPlan: f.imPlan ? undefined : true })}
+                  aria-pressed={!!f.imPlan}
+                  className="inline-flex w-fit items-center gap-1 border border-cp-border px-1.5 py-0.5 text-cp-xs text-cp-text-secondary hover:text-cp-text aria-pressed:bg-cp-accent-soft"
+                  title={t('foto.inPlanHint', 'Shows the photo under the device in the plan')}
+                >
+                  <Icon icon={Eye} className="h-3 w-3" />
+                  {t('foto.inPlan', 'Show in plan')}
+                </button>
+              )}
             </div>
             <button
               type="button"

@@ -172,3 +172,11 @@ export const fotosAmGeraet = (
   (fotos ?? []).filter(
     (f) => f.zeigtAuf?.equipmentId === equipmentId || (!!deviceTypeId && f.zeigtAuf?.deviceTypeId === deviceTypeId),
   )
+
+/** #1272 — das Bild, das der Geraeteknoten im Plan zeigt: das erste Foto am
+ *  Geraet oder an seinem Typ mit `imPlan`, dessen Bilddaten geladen sind. */
+export const planFotoAmGeraet = (
+  fotos: readonly Foto[] | undefined,
+  equipmentId: string,
+  deviceTypeId: string | undefined,
+): Foto | undefined => fotosAmGeraet(fotos, equipmentId, deviceTypeId).find((f) => f.imPlan && f.dataUri)

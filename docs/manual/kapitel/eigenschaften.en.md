@@ -126,6 +126,8 @@ With the Rentman module enabled and the device missing from the linked Rentman p
 
 ![Photo on the device](bilder/en/eigenschaften-50-fotos-hinzugefuegt.jpg)
 
+*Show in plan* on a photo shows it in the plan as a picture under the device node; a second click hides it again. A photo of the device type appears under every device of that type. If several are switched on, the node shows the first.
+
 #### Display & flags
 
 ![Display & flags](bilder/en/eigenschaften-52-flags-offen.jpg)
