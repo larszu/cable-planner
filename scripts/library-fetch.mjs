@@ -3,6 +3,11 @@
 // Der RUECKWEG: Gemeinschaftsgeraete aus der Bibliothek in diesen Katalog.
 // Lauf: `npm run library:fetch`
 //
+// GESTARTET MIT `register-endungen.mjs`, wie `katalog:uebernahme`. Die
+// App-Module importieren einander ohne `.ts`-Endung; bares Node findet sie
+// deshalb nicht (`ERR_MODULE_NOT_FOUND` auf `lib/portLabel`). Der Loader
+// dieses Repos haengt die Endung an.
+//
 // KEIN eigener npm-Pruef-Lauf. `--pruefen` gibt es als Flagge fuer die Hand,
 // aber nicht als Skript: ein Prueflauf in `package.json`, den kein Workflow
 // faehrt, ist laut `ci:complete` keine Zusicherung, sondern eine Notiz — und
