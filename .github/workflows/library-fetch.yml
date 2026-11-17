@@ -33,6 +33,14 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '24'
+          cache: 'npm'
+      # MIT Installation, anders als `library-publish.yml`. Dort reicht bares
+      # Node; hier wird `pruefeVorlage` gebraucht — dieselbe Regel, mit der die
+      # App beim Abgleich entscheidet — und die haengt ueber `uiStore` an
+      # zustand. Eine zweite, abgeschriebene Pruefregel waere billiger im Lauf
+      # und teurer in jeder Woche danach.
+      - run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev libsecret-1-0
+      - run: npm ci
       - name: Gemeinschaftsgeraete holen
         env:
           DEVICE_LIBRARY_KEY: ${{ secrets.DEVICE_LIBRARY_KEY }}
