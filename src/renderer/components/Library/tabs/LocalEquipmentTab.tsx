@@ -489,7 +489,10 @@ export const LocalEquipmentTab = ({
                   >
                     <Icon icon={Trash2} size="xs" />
                   </button>
-                  <span className="bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-normal text-cp-text-muted">
+                  {/* #1273 — die Zahl macht beim Ueberfahren dem Papierkorb
+                      Platz: drei Knoepfe nebeneinander liessen dem Namen in
+                      der schmalen Leiste keine Breite mehr. */}
+                  <span className="bg-cp-surface-2 px-1.5 py-0.5 text-cp-xs font-normal text-cp-text-muted group-hover/cat:hidden">
                     {imBaum.length}
                   </span>
                 </div>
