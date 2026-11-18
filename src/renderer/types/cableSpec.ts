@@ -77,6 +77,26 @@ export type SignalStandard =
   | 'HDBaseT'
   /** #1095 — analog 4-wire talkback (balanced pairs on an RJ45, NOT Ethernet). */
   | 'Talkback-4W'
+  // #1279 — Luecken gegen EasySchematic (nur die Begriffe, kein Code).
+  /** Audio Video Bridging (IEEE 802.1BA, Transport IEEE 1722, Takt gPTP
+   *  IEEE 802.1AS). Schicht 2, kein IP — steht deshalb weder im Adress- noch
+   *  im IP-Multicast-Plan. */
+  | 'AVB'
+  /** AES50: Mehrkanal-Audio punkt-zu-punkt ueber Cat5e, nutzt nur die
+   *  Ethernet-Bituebertragung, nicht das Netz. */
+  | 'AES50'
+  /** S/PDIF (IEC 60958-3, Consumer): Koax (Cinch, 75 Ω) oder optisch (Toslink). */
+  | 'S/PDIF'
+  /** ADAT Lightpipe: 8 Kanaele bei 48 kHz ueber Toslink. */
+  | 'ADAT'
+  /** MIDI 1.0 (5-pol DIN, 31,25 kBaud). MTC ist eigener Eintrag. */
+  | 'MIDI'
+  /** Lautsprecherpegel: verstaerkerseitig, Endstufe → Box. */
+  | 'Speaker-Level'
+  /** RTSP (RFC 7826): Steuerung eines Streams, Medien per RTP. */
+  | 'RTSP'
+  /** MPEG-TS (ISO/IEC 13818-1) ueber IP (UDP/RTP). Ueber Koax ist es DVB-ASI. */
+  | 'MPEG-TS'
   | 'Generic'
 
 /** All valid signal standard values in display order. */
@@ -89,7 +109,8 @@ export const ALL_SIGNAL_STANDARDS: SignalStandard[] = [
   'Thunderbolt-3', 'Thunderbolt-4',
   'MADI', 'DVB-ASI', 'SMPTE-297', 'SMPTE-304M', 'SMPTE-311M',
   'NDI', 'NDI-HX', 'Dante', 'AES67', 'ST2110-20', 'ST2110-22', 'ST2110-30', 'ST2110-31', 'ST2110-40',
-  'SRT', 'RTMP', 'HLS',
+  'SRT', 'RTMP', 'HLS', 'RTSP', 'MPEG-TS',
+  'AVB', 'AES50', 'S/PDIF', 'ADAT', 'MIDI', 'Speaker-Level',
   'Blackburst', 'Tri-Level', 'Word-Clock', 'PTP', 'LTC',
   'RF-UHF', 'RF-VHF', 'RF-2.4G', 'RF-5G',
   'RS-232', 'RS-422', 'RS-485', 'DMX512', 'RDM', 'Art-Net', 'sACN',
@@ -336,7 +357,7 @@ export const cableCatalog: CableSpec[] = [
     id: 'stream-uplink-cat6',
     name: 'Stream-Uplink (SRT/RTMP/HLS)',
     connectorType: 'Ethernet/RJ45',
-    standards: ['Eth-100', 'Eth-1G', 'SRT', 'RTMP', 'HLS'],
+    standards: ['Eth-100', 'Eth-1G', 'SRT', 'RTMP', 'HLS', 'RTSP', 'MPEG-TS'],
     maxLengthMeters: 100,
     color: '#a855f7',
     notesKey: 'catalog.cable.stream-uplink-cat6.notes',
@@ -667,6 +688,69 @@ export const cableCatalog: CableSpec[] = [
     notesKey: 'catalog.cable.dmx-5pin.notes',
     notesSource:
       'DMX512-A / RDM lighting control, 512 channels per universe. 5-pin XLR is the standard; terminate the last fixture with 120Ω.',
+  },
+  // #1279 — Kabel fuer die neuen Signalstandards.
+  {
+    id: 'avb-cat',
+    name: 'AVB (Ethernet)',
+    connectorType: 'Ethernet/RJ45',
+    compatibleConnectors: ['etherCON'],
+    standards: ['Eth-100', 'Eth-1G', 'AVB'],
+    maxLengthMeters: 100,
+    color: '#0ea5e9',
+    notesKey: 'catalog.cable.avb-cat.notes',
+    notesSource:
+      'AVB (IEEE 802.1BA): audio and video over Ethernet with reserved bandwidth. Every switch on the way must support AVB; layer 2, no IP routing.',
+  },
+  {
+    id: 'aes50-cat5e',
+    name: 'AES50 (Cat5e, shielded)',
+    connectorType: 'etherCON',
+    compatibleConnectors: ['Ethernet/RJ45'],
+    standards: ['AES50'],
+    maxLengthMeters: 100,
+    color: '#0284c7',
+    notesKey: 'catalog.cable.aes50-cat5e.notes',
+    notesSource:
+      'AES50: multichannel audio point to point over shielded Cat5e. Not a network: no switch between the two devices.',
+  },
+  {
+    id: 'spdif-coax',
+    name: 'S/PDIF coax (RCA, 75 Ω)',
+    connectorType: 'Cinch/RCA',
+    standards: ['S/PDIF'],
+    color: '#f59e0b',
+    notesKey: 'catalog.cable.spdif-coax.notes',
+    notesSource: 'S/PDIF (IEC 60958-3) on a 75 Ω coax with RCA plugs. Use a 75 Ω cable, not an analogue audio cable.',
+  },
+  {
+    id: 'toslink-optical',
+    name: 'Toslink (S/PDIF / ADAT)',
+    connectorType: 'Toslink',
+    standards: ['S/PDIF', 'ADAT'],
+    color: '#fbbf24',
+    notesKey: 'catalog.cable.toslink-optical.notes',
+    notesSource: 'Optical Toslink: S/PDIF stereo or ADAT Lightpipe (8 channels at 48 kHz). Plastic fibre, short runs only.',
+  },
+  {
+    id: 'midi-din5',
+    name: 'MIDI (5-pin DIN)',
+    connectorType: 'MIDI',
+    standards: ['MIDI', 'MTC'],
+    maxLengthMeters: 15,
+    color: '#a3e635',
+    notesKey: 'catalog.cable.midi-din5.notes',
+    notesSource: 'MIDI 1.0 on a 5-pin DIN cable, at most 15 m (50 ft) per the MIDI 1.0 specification. Out goes to In.',
+  },
+  {
+    id: 'speakon-speaker',
+    name: 'Speaker cable (speakON)',
+    connectorType: 'speakON 4 Pole',
+    compatibleConnectors: ['speakON 2 Pole'],
+    standards: ['Speaker-Level'],
+    color: '#525252',
+    notesKey: 'catalog.cable.speakon-speaker.notes',
+    notesSource: 'Speaker level from the amplifier to the loudspeaker. Never on a line or mic input.',
   },
   {
     id: 'artnet-sacn',
