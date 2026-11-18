@@ -280,6 +280,8 @@ The tab *Cables* (*Cable library*) lists the cable types, grouped by connector t
 
    ![Opened cable group](bilder/en/bibliothek-63-kabel-gruppe-aufklappen.jpg)
 
+   Built in are also cables for AVB, AES50 (Cat5e, etherCON), S/PDIF (RCA coax and Toslink), ADAT (Toslink), MIDI (5-pin DIN, at most 15 m) and speaker level (speakON); the stream uplink cable also carries RTSP and MPEG-TS. AVB runs on layer 2 and is therefore not in the IP address and multicast plan.
+
 2. Custom types carry the badge *Custom*, adjusted built-in types the badge *Adjusted*.
 
    ![Custom cable type in the list](bilder/en/bibliothek-69-kabel-eigener-typ.jpg)

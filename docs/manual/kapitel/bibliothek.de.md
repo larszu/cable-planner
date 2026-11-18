@@ -280,6 +280,8 @@ Der Reiter *Kabel* (*Kabel-Library*) listet die Kabeltypen, gruppiert nach Steck
 
    ![Aufgeklappte Kabelgruppe](bilder/de/bibliothek-63-kabel-gruppe-aufklappen.jpg)
 
+   Eingebaut sind auch Kabel für AVB, AES50 (Cat5e, etherCON), S/PDIF (Cinch-Koax und Toslink), ADAT (Toslink), MIDI (5-pol. DIN, höchstens 15 m) und Lautsprecherpegel (speakON); das Stream-Uplink-Kabel trägt zusätzlich RTSP und MPEG-TS. AVB läuft auf Schicht 2 und steht deshalb nicht im IP-Adress- und Multicast-Plan.
+
 2. Eigene Typen tragen das Zeichen *Eigen*, angepasste eingebaute Typen das Zeichen *Angepasst*.
 
    ![Eigener Kabeltyp in der Liste](bilder/de/bibliothek-69-kabel-eigener-typ.jpg)

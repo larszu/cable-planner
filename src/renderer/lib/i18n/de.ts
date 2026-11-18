@@ -6511,6 +6511,18 @@ export const de: Dict = {
   // `dicts.ts` traegt seit der Drehung nur noch die Quellsprache.
   'catalog.cable.aes3id-bnc.notes':
     'AES3id: AES3-Digitalaudio über 75Ω-Koax unsymmetrisch (BNC) — die BNC-Variante von AES/EBU. Ein Stereopaar pro Koax, größere Reichweite als symmetrisches AES3 über XLR. Verbreitet an Routern und Broadcast-Geräten.',
+  'catalog.cable.avb-cat.notes':
+    'AVB (IEEE 802.1BA): Audio und Video über Ethernet mit reservierter Bandbreite. Jeder Switch auf dem Weg muss AVB können; Schicht 2, kein IP-Routing.',
+  'catalog.cable.aes50-cat5e.notes':
+    'AES50: Mehrkanal-Audio punkt-zu-punkt über geschirmtes Cat5e. Kein Netz: kein Switch zwischen den beiden Geräten.',
+  'catalog.cable.spdif-coax.notes':
+    'S/PDIF (IEC 60958-3) über 75-Ω-Koax mit Cinch-Steckern. Ein 75-Ω-Kabel nehmen, kein analoges Audiokabel.',
+  'catalog.cable.toslink-optical.notes':
+    'Optisches Toslink: S/PDIF Stereo oder ADAT Lightpipe (8 Kanäle bei 48 kHz). Kunststofffaser, nur kurze Wege.',
+  'catalog.cable.midi-din5.notes':
+    'MIDI 1.0 über 5-pol. DIN-Kabel, laut MIDI-1.0-Spezifikation höchstens 15 m (50 ft). Out geht auf In.',
+  'catalog.cable.speakon-speaker.notes':
+    'Lautsprecherpegel von der Endstufe zur Box. Nie auf einen Line- oder Mikrofoneingang.',
   'catalog.cable.artnet-sacn.notes':
     'Art-Net / sACN (E1.31): viele DMX-Universen über Ethernet. Dediziertes/Managed-Netz nutzen; sACN per Multicast.',
   'catalog.cable.blackburst-bnc.notes':
