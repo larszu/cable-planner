@@ -173,6 +173,14 @@ for (const eintrag of alle) {
   // Vorlage wird am Namen erkannt, die Instanz bekommt ihre Id beim Platzieren.
   delete vorlage.id
   genommen.push({
+    // `width`/`height` sind am `EquipmentTemplate` Pflicht, die Facette der
+    // Bibliothek fuehrt sie nicht: sie beschreiben die Kachel auf der
+    // Zeichenflaeche, nicht das Geraet. Ein fester Vorgabewert ist hier
+    // dasselbe Vorgehen wie in `katalog-uebernahme.mjs` (240x160 fuer
+    // Kameras, 200x120 fuer Objektive) — und er ist keine Behauptung ueber
+    // das Geraet: wer die Kachel anders haben will, zieht sie groesser.
+    width: 240,
+    height: 160,
     ...vorlage,
     deviceTypeId: vorlage.deviceTypeId || uuid5(`avplan:library:${library.slug}`),
     gemeinschaft: { slug: library.slug, version: library.version, status: library.status, url: library.url },
