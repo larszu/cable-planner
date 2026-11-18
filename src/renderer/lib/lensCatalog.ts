@@ -5,7 +5,7 @@
 // ║  Pruefen:    npm run katalog:check                                    ║
 // ╚═══════════════════════════════════════════════════════════════════════╝
 //
-// 835 Eintraege, davon 815 mit Datenblatt-Link.
+// 835 Eintraege, davon 823 mit Datenblatt-Link.
 //
 // JEDER EINTRAG TRAEGT `portsUnknown: true`. Die Quelle kennt keine
 // Anschluesse, und eine erfundene Belegung saehe im Plan genauso autoritativ
