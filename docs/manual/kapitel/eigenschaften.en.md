@@ -72,6 +72,7 @@ The section has two lists, *Inputs* and *Outputs*. The header counts them, e.g. 
    | Field | Values |
    |---|---|
    | Content / function | free text, e.g. “PGM” |
+   | ST 2110-21 sender type / receiver type | only with signal standard ST2110-20: on an output *N (Narrow)*, *NL (Narrow Linear)* or *W (Wide)*, on an input *N* or *W*. A W sender into an N receiver is a finding in the plan check. The app computes the network load of an ST 2110-20 cable from the cable's video format, otherwise the project's (4:2:2, 10 bit, including packet headers), e.g. 1080p50 ≈ 2.2 Gbps, 2160p50 ≈ 8.8 Gbps |
    | Kind | *Input* or *Output* (depending on the list) or *Bidirectional (e.g. speakON, etherCON, network)* (such a port can be cable source and target; a cable between two bidirectional ports starts at the device where you begin dragging) |
    | Side | Side (auto), Left, Right |
    | Gender | Gender (–), ♂ Male / plug, ♀ Female / socket |
@@ -125,6 +126,8 @@ With the Rentman module enabled and the device missing from the linked Rentman p
 *Add photo…* attaches a photo to the device. If the device has a device type from the library, the app asks *Also use for the device type?*. With *Also for the device type* the photo shows on every device of this type in the plan and is stored only once; *Only this device* attaches it here only. The section then shows two lists: *This device* and *Device type* with the number of devices of that type.
 
 ![Photo on the device](bilder/en/eigenschaften-50-fotos-hinzugefuegt.jpg)
+
+*Show in plan* on a photo shows it in the plan as a picture under the device node; a second click hides it again. A photo of the device type appears under every device of that type. If several are switched on, the node shows the first.
 
 #### Display & flags
 

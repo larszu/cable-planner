@@ -284,7 +284,7 @@ Der Reiter *Kabel* (*Kabel-Library*) listet die Kabeltypen, gruppiert nach Steck
 
    ![Eigener Kabeltyp in der Liste](bilder/de/bibliothek-69-kabel-eigener-typ.jpg)
 
-3. Der Stift öffnet *Kabeltyp bearbeiten*. Das Formular hat die Felder *Name*, *Stecker-Typ* (mit **+** für einen neuen Steckertyp), *Kabel-Farbe*, *Auch kompatibel mit (optional)*, *Signal-Standards* (mit *+ Standard* für einen neuen Standard), *Max. Länge (m) – optional*, *Außendurchmesser (mm) — optional, aus dem Datenblatt* und *Notiz (optional)*. *Speichern* ist erst möglich, wenn ein Name und mindestens ein Standard gesetzt sind. Bei einem eingebauten Typ wird die Änderung als lokale Anpassung gespeichert (*Angepasst*); der Knopf mit dem Pfeil (*Override entfernen*) fragt *Override für „…" zurücksetzen?* und stellt mit *Zurücksetzen* die ursprünglichen Werte wieder her.
+3. Der Stift öffnet *Kabeltyp bearbeiten*. Das Formular hat die Felder *Name*, *Stecker-Typ* (mit **+** für einen neuen Steckertyp), *Stecker am anderen Ende*, *Kabel-Farbe*, *Auch kompatibel mit (optional)*, *Signal-Standards* (mit *+ Standard* für einen neuen Standard), *Max. Länge (m) – optional*, *Außendurchmesser (mm) — optional, aus dem Datenblatt* und *Notiz (optional)*. *Speichern* ist erst möglich, wenn ein Name und mindestens ein Standard gesetzt sind. Bei einem eingebauten Typ wird die Änderung als lokale Anpassung gespeichert (*Angepasst*); der Knopf mit dem Pfeil (*Override entfernen*) fragt *Override für „…" zurücksetzen?* und stellt mit *Zurücksetzen* die ursprünglichen Werte wieder her.
 
    ![Dialog Kabeltyp bearbeiten](bilder/de/bibliothek-64-kabel-eintrag-bearbeiten.jpg)
 

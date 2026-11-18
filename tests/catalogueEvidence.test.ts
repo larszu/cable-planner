@@ -105,8 +105,9 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // 1743 -> 1968 -> 2015 am 2026-10-21: PixelHue, Barco, PIXERA, Christie, Panasonic, Epson und LANG-AG-Bestand.
     // 2015 -> 2041 am 2026-11-14 (#1199).
     // 2041 -> 2046 am 2026-11-15: fuenf Atomos-Monitor-Recorder.
-    // 2046 -> 2051 am 2026-11-16: fuenf Laowa-Objektive.
-    expect(kommentare).toBe(2051)
+    // 2046 -> 2049 am 2026-11-16: NEC MultiSync P402, P461, X461S.
+    // 2049 -> 2058 am 2026-11-18: acht Objektive (Laowa, Zeiss CP.2, Sony FE 12-24 F4 G) und Sony PMW-EX3 mit Herstellerbeleg.
+    expect(kommentare).toBe(2058)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -117,8 +118,9 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // 1743 -> 1968 -> 2015 am 2026-10-21: PixelHue, Barco, PIXERA, Christie, Panasonic, Epson und LANG-AG-Bestand.
     // 2015 -> 2041 am 2026-11-14 (#1199).
     // 2041 -> 2046 am 2026-11-15: fuenf Atomos-Monitor-Recorder.
-    // 2046 -> 2051 am 2026-11-16: fuenf Laowa-Objektive.
-    expect(bericht.sourced).toBe(2051)
+    // 2046 -> 2049 am 2026-11-16: NEC MultiSync P402, P461, X461S.
+    // 2049 -> 2058 am 2026-11-18: acht Objektive (Laowa, Zeiss CP.2, Sony FE 12-24 F4 G) und Sony PMW-EX3 mit Herstellerbeleg.
+    expect(bericht.sourced).toBe(2058)
     // 1831 -> 1827: der multicam-planner hat vier erfundene Kamera-Eintraege
     // entfernt (Datenblatt-Verifikation dort). Ein erzeugter Katalog, der
     // kleiner wird, weil die Quelle aufgeraeumt hat, ist ein Gewinn.
@@ -153,7 +155,7 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     }
     // Und die Gesamtzahl der unbelegten steigt nicht. Sinken darf sie —
     // dann ist diese Zeile die Erinnerung, die Zahl nachzuziehen.
-    expect(bericht.unsourced).toBeLessThanOrEqual(89)
+    expect(bericht.unsourced).toBeLessThanOrEqual(82)
   })
 
   it('4. „kein Beleg" ist eine eigene Auskunft', () => {

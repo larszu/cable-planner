@@ -72,6 +72,7 @@ Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie,
    | Feld | Werte |
    |---|---|
    | Inhalt / Funktion | freier Text, z. B. „PGM“ |
+   | ST-2110-21-Sendeprofil / -Empfängertyp | nur bei Signalstandard ST2110-20: am Ausgang *N (schmal)*, *NL (schmal, linear)* oder *W (breit)*, am Eingang *N* oder *W*. Ein W-Sender an einem N-Empfänger steht als Befund in der Plan-Prüfung. Die Netzlast eines ST-2110-20-Kabels rechnet die App aus dem Videoformat des Kabels, sonst dem des Projekts (4:2:2, 10 bit, samt Paketköpfen), z. B. 1080p50 ≈ 2,2 Gbps, 2160p50 ≈ 8,8 Gbps |
    | Art | *Eingang* bzw. *Ausgang* (je nach Liste) oder *Bidirektional (z. B. speakON, etherCON, Netzwerk)* (ein solcher Port kann Kabelquelle und Kabelziel sein; ein Kabel zwischen zwei bidirektionalen Ports beginnt an dem Gerät, an dem Sie zu ziehen anfangen) |
    | Seite | Seite (auto), Links, Rechts |
    | Geschlecht | Geschlecht (–), ♂ Male / Stecker, ♀ Female / Buchse |
@@ -125,6 +126,8 @@ Ist das Modul Rentman eingeschaltet und das Gerät nicht im verknüpften Rentman
 *Foto hinzufügen…* hängt ein Foto an das Gerät. Hat das Gerät einen Gerätetyp aus der Bibliothek, fragt die App *Auch für den Gerätetyp übernehmen?*. Mit *Auch für den Gerätetyp* erscheint das Foto an jedem Gerät dieses Typs im Plan und wird nur einmal gespeichert; *Nur dieses Gerät* hängt es nur hier an. Der Abschnitt zeigt dann zwei Listen: *Dieses Gerät* und *Gerätetyp* mit der Zahl der Geräte dieses Typs.
 
 ![Foto am Gerät](bilder/de/eigenschaften-50-fotos-hinzugefuegt.jpg)
+
+*Im Plan zeigen* an einem Foto blendet es im Plan als Bild unter dem Geräteknoten ein; ein zweiter Klick blendet es wieder aus. Ein Foto des Gerätetyps erscheint so unter jedem Gerät dieses Typs. Sind mehrere eingeschaltet, zeigt der Knoten das erste.
 
 #### Darstellung & Flags
 

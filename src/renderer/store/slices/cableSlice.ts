@@ -29,7 +29,7 @@ import type { ProjectState } from '../projectStore'
  */
 
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
-  Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
+  Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter' | 'terminationFrom' | 'terminationTo'>>
 
 export type CableSlice = Pick<
   ProjectState,
@@ -217,6 +217,8 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
         cableSpecId: draft.cableSpecId,
         standard: draft.standard,
         needsConverter: draft.needsConverter,
+        terminationFrom: draft.terminationFrom,
+        terminationTo: draft.terminationTo,
         routing: ui.defaultRouting,
         arrowEnd: ui.defaultArrow,
         // Inherently two-way cable types get the bidirectional flag set
@@ -295,6 +297,8 @@ export const createCableSlice: StateCreator<ProjectState, [], [], CableSlice> = 
           cableSpecId: draft.cableSpecId,
           standard: draft.standard,
           needsConverter: draft.needsConverter,
+          terminationFrom: draft.terminationFrom,
+          terminationTo: draft.terminationTo,
           routing: ui.defaultRouting,
           arrowEnd: ui.defaultArrow,
           bidirectional: isBidirectionalCableType(draft.type),

@@ -69,7 +69,7 @@ import type { IntercomPlan } from '../types/intercomPlan'
 import { planFromGreengo } from '../lib/intercomPlan'
 
 type CableDraft = Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
-  Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>
+  Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter' | 'terminationFrom' | 'terminationTo'>>
 
 import { STORAGE_KEYS } from '../lib/storageKeys'
 import { VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
@@ -880,7 +880,7 @@ export interface ProjectState {
   /** #884 — Notiz oder Ziel eines Fotos aendern. */
   updateFoto: (
     id: string,
-    patch: Partial<Pick<import('../types/foto').Foto, 'notiz' | 'zeigtAuf'>>,
+    patch: Partial<Pick<import('../types/foto').Foto, 'notiz' | 'zeigtAuf' | 'imPlan'>>,
   ) => void
   /** Anhänge — frisch abgelegte Dateien aufnehmen. */
   addAnhaenge: (neu: import('../types/anhang').ProjektAnhang[]) => void

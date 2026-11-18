@@ -163,6 +163,7 @@ import { istPatternObservation } from './types/patternCheck'
 import { usePatternStore } from './store/patternStore'
 import { Icon } from './components/shared/Icon'
 import { cableTouches } from './lib/portOccupancy'
+import { endenAusKabeltyp } from './lib/kabelEnden'
 import { useLabelFollowSync } from './components/Properties/sections/useLabelFollowSync'
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -2193,6 +2194,11 @@ const CableEditDialog = ({ cable, onClose, onSave }: CableEditDialogProps) => {
       color,
       notes,
       cableSpecId: specId === CUSTOM_CABLE_SPEC_ID ? undefined : selected.id,
+      // #1278 — erst ein WECHSEL auf einen Typ mit zwei Steckern traegt sie ein;
+      // von Hand gesetzte Enden bleiben sonst stehen.
+      ...(specId !== (cable.cableSpecId ?? CUSTOM_CABLE_SPEC_ID) && specId !== CUSTOM_CABLE_SPEC_ID
+        ? endenAusKabeltyp(selected, fromPort?.connectorType)
+        : {}),
       type: connectorToCableType(specId === CUSTOM_CABLE_SPEC_ID ? customConnectorType : selected.connectorType),
       standard: specId === CUSTOM_CABLE_SPEC_ID ? customStandard : standard,
       fromEquipmentId,

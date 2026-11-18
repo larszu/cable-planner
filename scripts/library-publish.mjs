@@ -58,6 +58,10 @@ const items = []
 const ohneQuelle = []
 const ohneHersteller = []
 for (const t of EINGEBAUTER_KATALOG) {
+  // Was `library:fetch` AUS der Bibliothek geholt hat, geht nicht wieder
+  // hinein: der Server meldete es als „in-sync", aber der Bericht waere
+  // voll davon, und die Richtung des Datenflusses waere nicht mehr lesbar.
+  if (t.gemeinschaft) continue
   const item = uploadItemAus(t)
   if (!item.core.manufacturer) ohneHersteller.push(t.name)
   else if (!/^https?:\/\//i.test(item.core.sourceUrl)) ohneQuelle.push(t.name)

@@ -35,6 +35,7 @@ import type { CableSpec } from '../../../types/cableSpec'
 import { useUiStore } from '../../../store/uiStore'
 import { confirmDialog } from '../../../lib/confirmDialog'
 import { format, useTranslation } from '../../../lib/i18n'
+import { kabeltypStecker } from '../../../lib/kabelEnden'
 
 export const CableTypesTab = () => {
   const t = useTranslation()
@@ -79,7 +80,7 @@ export const CableTypesTab = () => {
         aria-hidden
       />
       <span className="min-w-0 flex-1 truncate text-cp-base text-cp-text-bright">{spec.name}</span>
-      <span className="text-cp-xs text-cp-text-muted">{spec.connectorType}</span>
+      <span className="text-cp-xs text-cp-text-muted">{kabeltypStecker(spec)}</span>
       <button
         type="button"
         onClick={() => setEditing(spec)}

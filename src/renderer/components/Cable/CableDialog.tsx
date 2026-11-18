@@ -30,6 +30,7 @@ import type { VideoFormatId } from '../../types/videoFormat'
 import { CUSTOM_CABLE_SPEC_ID, makeCustomCableSpec } from './customCableSpec'
 import { useBackdropClose } from '../../hooks/useBackdropClose'
 import { cableChoiceKey, defaultCableSpecId, rankCablesForPorts, rememberedLength } from '../../lib/lastCableChoice'
+import { endenAusKabeltyp } from '../../lib/kabelEnden'
 
 export interface CableDialogProps {
   fromPort?: Port
@@ -42,7 +43,7 @@ export interface CableDialogProps {
   onCancel: () => void
   onCreate: (
     draft: Pick<Cable, 'name' | 'type' | 'length' | 'color' | 'notes'> &
-      Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter'>>,
+      Partial<Pick<Cable, 'cableSpecId' | 'standard' | 'needsConverter' | 'terminationFrom' | 'terminationTo'>>,
   ) => void
 }
 
@@ -299,6 +300,7 @@ export const CableDialog = ({ fromPort, toPort, fromDev, toDev, richtungsHinweis
       // `needsConverter` already covers warn-level and error-level mismatch
       // (see definition above), so no extra fall-through check needed.
       needsConverter,
+      ...(specId === CUSTOM_CABLE_SPEC_ID ? {} : endenAusKabeltyp(selected, fromPort?.connectorType)),
     })
   }
 

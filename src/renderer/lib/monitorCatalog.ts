@@ -20,6 +20,8 @@ import type { RecordingCapability } from './recording'
 // Handbuch-Artikel auf support.atomos.com belegt (dort 200, anders als
 // atomos.com); Shogun Inferno und Sumo 19 ueber die Atomos-Handbuch-PDFs bei
 // Lensrentals. Sumo 19M bleibt unbelegt: kein eigenes Herstellerdokument.
+// 2026-11-16: NEC P402/P461 (Datenblaetter sharpdisplays.eu) und X461S
+// (Handbuch sharpnecdisplays.us) belegt, Ports am Blatt korrigiert.
 
 const port = (name: string, connectorType: Port['connectorType'] = 'BNC'): Port => ({
   id: '',
@@ -586,12 +588,16 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
 
   // ── NEC MultiSync Large Format Displays ──────────────────────────────────
 
-  // MultiSync P402 (40") / P461 (46") — HDMI, DisplayPort, DVI-D
+  // MultiSync P402 (40") / P461 (46") — HDMI, DisplayPort, DVI-D; die
+  // analogen Eingaenge (VGA, RGBHV, S-Video) sind hier nicht abgebildet.
   // Rentman: "NEC MultiSync P402", "NEC MultiSync P461"
   {
     match: ['nec', 'p402'],
     deviceTypeId: 'fb049046-2318-42e9-929c-2baacca958d9',
+    // Quelle: https://www.sharpdisplays.eu/p/download/cp/Products/LargeFormatDisplays/Products/SupportedProducts/P402/Datasheets/Datasheet-(english).pdf?fn=NEC_Datasheet_P402-english.pdf
+    // Datenblatt S. 2, „Output Video Digital": DisplayPort UND DVI-D (Daisy-Chain).
     template: {
+      manufacturerUrl: 'https://www.sharpdisplays.eu/p/download/cp/Products/LargeFormatDisplays/Products/SupportedProducts/P402/Datasheets/Datasheet-(english).pdf?fn=NEC_Datasheet_P402-english.pdf',
       name: 'NEC MultiSync P402',
       category: MON,
       inputs: [
@@ -599,14 +605,17 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
         port('DisplayPort In', 'DisplayPort'),
         port('DVI-D In', 'Custom'),
       ],
-      outputs: [port('DisplayPort Out', 'DisplayPort')],
+      outputs: [port('DisplayPort Out', 'DisplayPort'), port('DVI-D Out', 'Custom')],
       width: 240, height: 160,
     },
   },
   {
     match: ['nec', 'p461'],
     deviceTypeId: '574a8e44-89d1-45a8-867f-8a0784151116',
+    // Quelle: https://www.sharpdisplays.eu/p/download/cp/Products/LargeFormatDisplays/Products/SupportedProducts/P461/Datasheets/Datasheet-(english)_eeme.pdf?fn=NEC_Datasheet_P461-english.pdf
+    // Datenblatt S. 2, „Video Output": nur analog (BNC) — kein DisplayPort-Ausgang.
     template: {
+      manufacturerUrl: 'https://www.sharpdisplays.eu/p/download/cp/Products/LargeFormatDisplays/Products/SupportedProducts/P461/Datasheets/Datasheet-(english)_eeme.pdf?fn=NEC_Datasheet_P461-english.pdf',
       name: 'NEC MultiSync P461',
       category: MON,
       inputs: [
@@ -614,12 +623,13 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
         port('DisplayPort In', 'DisplayPort'),
         port('DVI-D In', 'Custom'),
       ],
-      outputs: [port('DisplayPort Out', 'DisplayPort')],
+      outputs: [],
       width: 240, height: 160,
     },
   },
 
-  // MultiSync X401S (40") / X461S (46") — HDMI, DVI-D (×2), Component In
+  // MultiSync X401S (40") / X461S (46"). Die X401S-Ports sind noch nicht gegen
+  // ihr Handbuch geprueft; die X461S folgt ihrem Handbuch (siehe dort).
   // Rentman: "NEC MultiSync X401S", "NEC MultiSync X461S"
   {
     match: ['nec', 'x401'],
@@ -642,16 +652,21 @@ export const MONITOR_CATALOG: MonitorEntry[] = [
   {
     match: ['nec', 'x461'],
     deviceTypeId: '19381105-1fcb-4e71-b9ab-998624709257',
+    // Quelle: https://assets.sharpnecdisplays.us/documents/usermanuals/x461s-x551s_usermanual.pdf
+    // Handbuch S. 9 „Terminal Panel": DisplayPort, HDMI, DVI-D In/Out,
+    // VGA, VIDEO1 (BNC, Composite). Ein zweiter DVI-Eingang existiert nicht.
     template: {
+      manufacturerUrl: 'https://assets.sharpnecdisplays.us/documents/usermanuals/x461s-x551s_usermanual.pdf',
       name: 'NEC MultiSync X461S',
       category: MON,
       inputs: [
         hdmiIn('HDMI In'),
-        port('DVI-D In 1', 'Custom'),
-        port('DVI-D In 2', 'Custom'),
-        sdiIn('Component In (BNC)'),
+        port('DisplayPort In', 'DisplayPort'),
+        port('DVI-D In', 'Custom'),
+        port('VGA In', 'VGA'),
+        sdiIn('Composite In (BNC)'),
       ],
-      outputs: [],
+      outputs: [port('DVI-D Out', 'Custom')],
       width: 240, height: 160,
     },
   },

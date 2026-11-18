@@ -78,7 +78,7 @@ describe('Die Produktions-Haelfte bleibt unberuehrt', () => {
   })
 
   it('die bekannten Produktions-Bandbreiten stehen unveraendert', () => {
-    expect(bandwidthMbpsForStandard('ST2110-20')).toBe(3000)
+    expect(bandwidthMbpsForStandard('ST2110-20')).toBe(2188)
     expect(bandwidthMbpsForStandard('NDI')).toBe(250)
     expect(bandwidthMbpsForStandard('Dante')).toBe(49)
   })

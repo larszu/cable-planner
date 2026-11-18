@@ -1300,6 +1300,8 @@ export const de: Dict = {
   'cableLib.color': 'Kabel-Farbe',
   'cableLib.compatibleWith': 'Auch kompatibel mit (optional)',
   'cableLib.connectorType': 'Stecker-Typ',
+  'cableLib.connectorTypeTo': 'Stecker am anderen Ende',
+  'cableLib.connectorTypeToSame': 'Wie am ersten Ende',
   'cableLib.create': 'Anlegen',
   'cableLib.customBadge': 'Eigener Kabeltyp (lokal angelegt)',
   'cableLib.customBadgeLabel': 'Eigen',
@@ -4056,6 +4058,8 @@ export const de: Dict = {
   'foto.add': 'Foto hinzufügen…',
   'foto.take': 'Foto aufnehmen',
   'foto.caption': 'Bildunterschrift',
+  'foto.inPlan': 'Im Plan zeigen',
+  'foto.inPlanHint': 'Zeigt das Foto im Plan unter dem Gerät',
   'foto.mark': 'Im Plan markieren',
   'foto.markMove': 'Marke im Plan versetzen',
   'foto.markWaiting': 'In den Plan klicken…',
@@ -4415,6 +4419,11 @@ export const de: Dict = {
   'ports.aria.gender': 'Stecker-Geschlecht',
   'ports.aria.side': 'Port-Seite',
   'ports.aria.signal': 'Signalstandard',
+  'ports.st2110_21.sender': 'ST-2110-21-Sendeprofil',
+  'ports.st2110_21.receiver': 'ST-2110-21-Empfängertyp',
+  'ports.st2110_21.n': 'N (schmal)',
+  'ports.st2110_21.nl': 'NL (schmal, linear)',
+  'ports.st2110_21.w': 'W (breit)',
   'ports.atemSourceIdPlaceholder': 'z.B. 8001 für AUX 1',
   'ports.atemSourceIdTitle':
     'Source-ID die im MV-Config-Dialog adressiert wird. AUX = 8001+, PGM = 10010, PVW = 10011, ME 2 PGM = 10020 …. Bei Inputs leer lassen für idx+1-Default.',
@@ -6769,6 +6778,8 @@ export const de: Dict = {
     '{name}: Gateway {gateway} liegt nicht im Subnetz von {ip} ({mask}) — nicht erreichbar',
   'check.linkTooSlow':
     '{name} · {port}: {standard} braucht etwa {last} Mbps, die Schnittstelle trägt {cap} Mbps',
+  'check.st2110_21Profile':
+    '{name} · {port}: ST-2110-21-Sender vom Typ {sender} an einem Empfänger vom Typ {receiver}; der nimmt nur schmale Sender',
   'check.missingLength': '{from} → {to}: keine Länge gesetzt',
   'check.openPorts': '{name}: {n} unverbundene Ports ({ports})',
   'check.poeOverBudget':

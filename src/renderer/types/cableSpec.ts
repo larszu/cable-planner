@@ -1,4 +1,6 @@
 import type { ConnectorType } from './equipment'
+import { DEFAULT_VIDEO_FORMAT, type VideoFormatId } from './videoFormat'
+import { st2110_20Mbps } from '../lib/st2110'
 import { einsetzen, type Platzhalterwerte } from '../lib/platzhalter'
 
 /**
@@ -140,7 +142,16 @@ export interface CableSpec {
   id: string
   name: string
   connectorType: ConnectorType
-  /** Connectors this cable can also mate with directly (same physical connector). */
+  /**
+   * #1278 — Stecker am anderen Ende, wenn er vom ersten abweicht
+   * (powerCON TRUE1 → Schuko-Buchse, RJ45 → M8). Fehlt er, tragen beide
+   * Enden `connectorType`. Ein neues Kabel aus diesem Typ bekommt die beiden
+   * Stecker als `Cable.terminationFrom/To` (#1222), so herum, wie es an den
+   * Ports liegt.
+   */
+  connectorTypeTo?: ConnectorType
+  /** Connectors this cable can also mate with directly (same physical connector).
+   *  Bei zwei verschiedenen Steckern gilt das fuer das erste Ende. */
   compatibleConnectors?: ConnectorType[]
   standards: SignalStandard[]
   /** Typical maximum cable length in meters (signal integrity). */
@@ -830,6 +841,34 @@ export const checkCableCompatibility = (
 ): CompatibilityResult => {
   const cableConnector = cable.connectorType
   const acceptable = new Set<ConnectorType>([cableConnector, ...(cable.compatibleConnectors ?? [])])
+  // #1278 — zwei verschiedene Stecker: ein Ende je Port, in beiden
+  // Richtungen (das Kabel laesst sich umdrehen). Das Kabel IST dann der
+  // Uebergang, ein Adapter-Hinweis waere falsch.
+  const anderesEnde = cable.connectorTypeTo && cable.connectorTypeTo !== cableConnector
+    ? cable.connectorTypeTo
+    : undefined
+  if (anderesEnde) {
+    const passt = (acceptable.has(from) && to === anderesEnde) || (from === anderesEnde && acceptable.has(to))
+    const steckerText = `${cableConnector} ↔ ${anderesEnde}`
+    return passt
+      ? {
+          level: 'ok',
+          schluessel: 'cableSpec.matches',
+          werte: { cable: cable.name, from, to },
+          message: einsetzen('{cable} matches {from} ↔ {to}.', { cable: cable.name, from, to }),
+        }
+      : {
+          level: 'error',
+          schluessel: 'cableSpec.cannotConnect',
+          werte: { cable: cable.name, connector: steckerText, from, to },
+          message: einsetzen('Cable "{cable}" ({connector}) cannot connect {from} to {to}.', {
+            cable: cable.name,
+            connector: steckerText,
+            from,
+            to,
+          }),
+        }
+  }
 
   const fromOk = acceptable.has(from)
   const toOk = acceptable.has(to)
@@ -938,6 +977,20 @@ export const impedanceForStandard = (s: SignalStandard | undefined): 50 | 75 | 1
 }
 
 /**
+ * #1280 — die Last EINES Kabels: bei ST 2110-20 aus dem Videoformat des
+ * Kabels, sonst dem des Projekts; alle anderen Standards wie
+ * `bandwidthMbpsForStandard`.
+ */
+export const kabelLastMbps = (
+  c: { standard?: SignalStandard; videoFormat?: VideoFormatId },
+  vorgabeFormat?: VideoFormatId,
+): number | undefined => {
+  const format = c.videoFormat ?? vorgabeFormat
+  if (c.standard === 'ST2110-20' && format) return st2110_20Mbps(format)
+  return bandwidthMbpsForStandard(c.standard)
+}
+
+/**
  * #346 — Grobe Brutto-Bandbreite (Mbps) eines IP-/Netzwerk-Mediensignals,
  * für das Projekt-Netzwerk-Budget. Nur Standards, die sich ein Ethernet-/
  * IP-Netz teilen, liefern einen Wert; punkt-zu-punkt-Signale (SDI/HDMI/USB)
@@ -966,7 +1019,9 @@ export const bandwidthMbpsForStandard = (s: SignalStandard | undefined): number 
       // 1080p also ~300 Mbps; 2160p liegt bei ~1200.
       return 300
     case 'ST2110-20':
-      return 3000 // 1080p unkomprimiert (≈2160p → 12000)
+      // #1280 — gerechnet, nicht geschaetzt: ohne Format das Projekt-
+      // Vorgabeformat (1080p50, 4:2:2, 10 bit). Mit Format `kabelLastMbps`.
+      return st2110_20Mbps(DEFAULT_VIDEO_FORMAT)
 
     // ── Delivery / Contribution (B-10) ──────────────────────────────────
     //

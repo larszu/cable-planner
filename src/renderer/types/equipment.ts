@@ -376,6 +376,12 @@ export interface Port {
   side?: 'left' | 'right'
   /** Optional signal standard declared for this port (e.g. SDI-12G on a camera out). */
   standard?: SignalStandard
+  /**
+   * #1280 — ST 2110-21 Profil eines ST-2110-20-Ports: am Ausgang das
+   * Sendeprofil (N, NL, W), am Eingang der Empfaengertyp (N oder W).
+   * Siehe `lib/st2110.ts`.
+   */
+  st2110_21?: import('../lib/st2110').St2110_21Profil
   /** #286 — Inhaltliches Label fuer das gefuehrte Signal: "PGM", "PVW",
    *  "MV1", "Cam1" etc. Trennt die Information "WAS geht hier durch?"
    *  vom Hardware-Standard (SDI 3G/12G) und vom Hauptnamen. Wenn gesetzt,
@@ -1574,6 +1580,15 @@ export type EquipmentTemplate = Omit<EquipmentItem, 'id' | 'x' | 'y'> & {
    * multiple Rentman projects have been imported.
    */
   rentmanProjectName?: string
+  /**
+   * Herkunft eines Geraets, das die GEMEINSCHAFT in der Geraetebibliothek
+   * angelegt hat und das `scripts/library-fetch.mjs` in den eingebauten
+   * Katalog geholt hat (`gemeinschaftsKatalog.ts`). Nicht zu verwechseln mit
+   * `libraryRef` — das zeigt auf die lokale Geraeteliste dieser
+   * Installation. Hier steht, dass der Eintrag NICHT aus diesem Repo kommt,
+   * und wo er in der Bibliothek steht.
+   */
+  gemeinschaft?: { slug: string; version: number; status: string; url: string }
 }
 
 /**

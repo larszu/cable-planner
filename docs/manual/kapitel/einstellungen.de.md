@@ -404,6 +404,7 @@ Die Kabel-Bibliothek in der linken Seitenleiste bearbeitet einen Typ ebenfalls d
 |---|---|
 | Name | z. B. CAT6a Patch 5m |
 | Stecker-Typ | Auswahl aus allen Steckertypen; *+* legt einen eigenen an |
+| Stecker am anderen Ende | *Wie am ersten Ende* oder ein anderer Steckertyp, z. B. powerCON TRUE1 → Schuko. Ein Kabel aus diesem Typ passt zwischen genau diese beiden Stecker, in beiden Richtungen, und trägt sie als *Stecker am Anfang / am Ende* |
 | Kabel-Farbe | Farbfeld |
 | Auch kompatibel mit (optional) | weitere Steckertypen zum Anklicken |
 | Signal-Standards | Standards zum Anklicken; *+ Standard* legt einen eigenen an |
