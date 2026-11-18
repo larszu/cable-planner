@@ -8,11 +8,90 @@
 // bekommt ueber den Abgleich im Programm ausserdem den tagesaktuellen Stand.
 //
 // Was aus DIESEM Repo stammt, steht hier NICHT: es stuende sonst zweimal im
-// Katalog. `gemeinschaft` haelt fest, woher ein Eintrag kommt.
+// Katalog. `libraryRef` haelt fest, woher ein Eintrag kommt.
 //
-// Noch leer: der erste Lauf braucht den Schluessel aus dem Repo-Secret und
-// laeuft deshalb in `library-sync.yml`, nicht auf einem Entwicklerrechner.
+// Quelle: https://devices.zumpelars.de
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentTemplate } from '../types/equipment.ts'
 
-export const gemeinschaftsTemplates: readonly EquipmentTemplate[] = []
+export const gemeinschaftsTemplates: readonly EquipmentTemplate[] = [
+  {
+    "width": 240,
+    "height": 160,
+    "name": "ROBE lighting s.r.o. Spiider",
+    "category": "Lighting",
+    "inputs": [
+      {
+        "id": "in-mwcfip9o-0",
+        "name": "Ethernet",
+        "type": "Ethernet/RJ45",
+        "connectorType": "Ethernet/RJ45",
+        "direction": "in"
+      },
+      {
+        "id": "in-mwcfkrbm-1",
+        "name": "DMX 5pol",
+        "type": "DMX 5-pol (XLR)",
+        "connectorType": "DMX 5-pol (XLR)",
+        "direction": "in",
+        "standard": "DMX512",
+        "gender": "male"
+      },
+      {
+        "id": "in-mwcfm0rn-2",
+        "name": "DMX 3pol",
+        "type": "DMX 3-pol (XLR)",
+        "connectorType": "DMX 3-pol (XLR)",
+        "direction": "in",
+        "standard": "DMX512",
+        "gender": "male"
+      },
+      {
+        "id": "in-mwcfmiez-3",
+        "name": "True 1",
+        "type": "PowerCon True 1",
+        "connectorType": "powerCON TRUE1",
+        "direction": "in",
+        "standard": "Power-230V",
+        "gender": "male"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "out-mwcfp2ab-4",
+        "name": "Ethernet",
+        "type": "Ethernet/RJ45",
+        "connectorType": "Ethernet/RJ45",
+        "direction": "out"
+      },
+      {
+        "id": "out-mwcfpc64-5",
+        "name": "DMX 5pol",
+        "type": "DMX 5-pol (XLR)",
+        "connectorType": "DMX 5-pol (XLR)",
+        "direction": "out",
+        "standard": "DMX512",
+        "gender": "female"
+      },
+      {
+        "id": "out-mwcfpo8k-6",
+        "name": "DMX 3pol",
+        "type": "DMX 3-pol (XLR)",
+        "connectorType": "DMX 3-pol (XLR)",
+        "direction": "out",
+        "standard": "DMX512",
+        "gender": "female"
+      }
+    ],
+    "shortName": "Robe",
+    "manufacturerUrl": "https://www.robelighting.de/spiider#downloads",
+    "powerWatts": 660,
+    "deviceTypeId": "7402b769-953d-598a-a25c-b62c330d82dd",
+    "gemeinschaft": {
+      "slug": "robe-lighting-s-r-o-spiider",
+      "version": 1,
+      "status": "confirmed",
+      "url": "https://devices.zumpelars.de/d/robe-lighting-s-r-o-spiider"
+    }
+  }
+]
