@@ -180,6 +180,7 @@ describe('B-11 — der Kopf einer Katalog-Datei sagt seine Beleglage', () => {
     // Leuchten waren nur unter dem zweiten Namen belegt.
     // 99 -> 94 am 2026-11-13: fuenf Atomos-Monitor-Recorder belegt.
     // 94 -> 91 am 2026-11-16: NEC MultiSync P402, P461, X461S belegt.
-    expect(bericht.unsourced).toBe(91)
+    // 91 -> 82 am 2026-11-18: acht Objektive und Sony PMW-EX3 belegt.
+    expect(bericht.unsourced).toBe(82)
   })
 })
