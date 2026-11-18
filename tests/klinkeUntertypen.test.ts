@@ -51,6 +51,18 @@ describe('Die Klinken-Familie', () => {
     expect(KLINKEN).toContain('Jack 3.5 mm')
   })
 
+  it('zieht „PowerCon True 1" auf den Wert dieser App — und nur eindeutige Schreibweisen', () => {
+    // Aus der Geraetebibliothek: ein Nutzer hatte den Steckertyp selbst
+    // eingetippt. powerCON TRUE1 ist genau EIN Stecker, die Schreibweise ist
+    // also eindeutig. Zugeordnet wird hier und einmal, nicht in jedem
+    // Planner, der die Bibliothek liest.
+    expect(heileSteckertyp('PowerCon True 1')).toBe('powerCON TRUE1')
+    expect(ALL_CONNECTOR_TYPES).toContain(heileSteckertyp('PowerCon True 1'))
+    // Was nicht eindeutig ist, bleibt stehen: ein eigener Steckertyp ist eine
+    // Angabe des Nutzers und keine Einladung, sie zu ersetzen.
+    expect(heileSteckertyp('Spezialstecker Werkstatt')).toBe('Spezialstecker Werkstatt')
+  })
+
   it('behält den generischen Wert `Klinke`', () => {
     // DIE WICHTIGSTE ZUSICHERUNG DIESER DATEI. Ein bestehender Plan mit
     // `Klinke` sagt „hier sitzt eine Klinke, und niemand hat gesagt, welche".

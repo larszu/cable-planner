@@ -28,6 +28,18 @@ export const LEGACY_CONNECTOR_RENAMES: Record<string, ConnectorType> = {
   'TS Jack': 'Jack 6.35 mm TS',
   'TRS Jack': 'Jack 6.35 mm TRS',
   'Mini Jack': 'Jack 3.5 mm TRS',
+  // NICHT aus einer Umbenennung dieser App, sondern von AUSSEN: in der
+  // Geraetebibliothek stand ein Geraet mit „PowerCon True 1" (gefunden
+  // 17.11.2026 beim ersten Lauf von `library:fetch`, das `verify` lief
+  // daran rot). Die Aufzaehlung hier hat diesen Wert nie gefuehrt — jemand
+  // hat ihn als eigenen Steckertyp eingetippt, und das ist erlaubt.
+  //
+  // Er steht trotzdem in dieser Tabelle, weil er ihre Regel erfuellt: der
+  // neue Name FOLGT aus dem alten. powerCON TRUE1 ist genau EIN Stecker von
+  // Neutrik; „PowerCon True 1" ist dieselbe Sache in anderer Schreibweise,
+  // nicht eine unvollstaendige Angabe wie „Klinke". Zugeordnet wird deshalb
+  // hier und einmal — nicht in jedem Planner, der die Bibliothek liest.
+  'PowerCon True 1': 'powerCON TRUE1',
 }
 
 /**
