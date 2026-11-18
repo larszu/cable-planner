@@ -10,6 +10,22 @@ name: Gemeinschaftsgeraete aus der Bibliothek holen
 #
 # Ohne das Secret DEVICE_LIBRARY_KEY endet der Lauf gruen mit einem Hinweis —
 # ein Fork soll nicht rot werden.
+#
+# ─── ZWEI DINGE, DIE AM 18.11.2026 AUFGEFALLEN SIND ────────────────────────
+#
+# 1. DER LAUF KANN DEN PR NICHT SELBST OEFFNEN, solange unter Settings →
+#    Actions → General „Allow GitHub Actions to create and approve pull
+#    requests" aus ist: der letzte Schritt endet mit „GitHub Actions is not
+#    permitted to create or approve pull requests". Der Branch ist dann
+#    trotzdem gepusht — der PR muss von Hand kommen. Der Schalter ist eine
+#    Entscheidung des Eigentuemers, keine Panne.
+#
+# 2. EIN PUSH MIT DEM ACTIONS-TOKEN LOEST KEINE CI AUS (Rekursionsschutz von
+#    GitHub). Der PR stand danach ohne eine einzige Pruefung da, und das sieht
+#    aus wie „laeuft noch" statt wie „wurde nie geprueft". Anstossen laesst er
+#    sich durch Schliessen und Wiederoeffnen. Wer das dauerhaft loswerden
+#    will, gibt dem Schritt einen PAT (`token:`) statt des GITHUB_TOKEN —
+#    dann gilt auch Punkt 1 nicht mehr.
 
 on:
   schedule:
