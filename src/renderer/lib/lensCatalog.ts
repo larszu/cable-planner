@@ -12947,10 +12947,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.direct-digital.com/sites/default/files/docs-en/LENSCARLZEISSCP2SET%20-%2002.pdf
   {
     match: ['zeisscp215mmt21', 'cp215mmt21'],
     deviceTypeId: '2db2b6f6-87fd-5aa2-9126-ea9a52df883b',
     template: {
+      manufacturerUrl: 'https://www.direct-digital.com/sites/default/files/docs-en/LENSCARLZEISSCP2SET%20-%2002.pdf',
       name: 'Zeiss CP.2 15mm T2.1',
       category: LENS,
       subtitle: '15 mm · EF',
@@ -13098,10 +13100,12 @@ export const LENS_CATALOG: LensEntry[] = [
       portsUnknown: true,
     },
   },
+  // Quelle: https://www.direct-digital.com/sites/default/files/docs-en/LENSCARLZEISSCP2SET%20-%2002.pdf
   {
     match: ['zeisscp2135mmt21', 'cp2135mmt21'],
     deviceTypeId: '20cd3f82-984b-5210-94d0-d3cf1dcd24eb',
     template: {
+      manufacturerUrl: 'https://www.direct-digital.com/sites/default/files/docs-en/LENSCARLZEISSCP2SET%20-%2002.pdf',
       name: 'Zeiss CP.2 135mm T2.1',
       category: LENS,
       subtitle: '135 mm · EF',
