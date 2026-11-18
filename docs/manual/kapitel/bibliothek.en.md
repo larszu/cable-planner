@@ -110,6 +110,8 @@ Categories order the templates. A pencil appears when you point at the category 
 
    ![New, empty category](bilder/en/bibliothek-55-kategorie-umbenannt.jpg)
 
+6. The bin next to the pencil deletes the category together with its subcategories. It first asks *Delete category "…"?*. If devices are still in it, you choose between *Keep the devices, listed without a category* (preselected) and *Delete the devices too*. Devices already placed in the plan stay unchanged either way.
+
 #### The + menu
 
 The **+** button next to the search field (tooltip: *Create new device or category*) opens a menu with five entries.
