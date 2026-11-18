@@ -60,6 +60,7 @@ import { fileURLToPath } from 'node:url'
 const { EINGEBAUTER_KATALOG } = await import('../src/renderer/lib/eingebauterKatalog.ts')
 const { pruefeVorlage } = await import('../src/renderer/lib/vorlagenEinreichung.ts')
 const { ALL_CONNECTOR_TYPES } = await import('../src/renderer/types/equipment.ts')
+const { heileSteckertyp } = await import('../src/renderer/lib/connectorRenames.ts')
 const { DEFAULT_DEVICE_LIBRARY_URL } = await import('../src/renderer/lib/deviceLibraryClient.ts')
 
 const HIER = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -156,6 +157,11 @@ for (const eintrag of alle) {
   // und eine falsche Zuordnung wandert still in Patchliste und Verkabelung.
   // Der Eintrag wird genannt und bleibt draussen, bis ihn jemand in der
   // BIBLIOTHEK richtigstellt — dort gehoert die Korrektur hin.
+  // Bekannte Schreibweisen zuerst gerade ziehen — dieselbe Tabelle, mit der
+  // die App gespeicherte Plaene und Vorlagen heilt (`connectorRenames.ts`).
+  for (const liste of [vorlage.inputs, vorlage.outputs]) {
+    for (const port of liste ?? []) if (port?.connectorType) port.connectorType = heileSteckertyp(port.connectorType)
+  }
   const fremd = [...(vorlage.inputs ?? []), ...(vorlage.outputs ?? [])]
     .map((p) => p?.connectorType)
     .filter((c) => c && !bekannteStecker.has(c))
