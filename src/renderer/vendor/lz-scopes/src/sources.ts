@@ -72,6 +72,13 @@ export interface SourceSettings {
   lowLatency?: boolean;
   /** this source's own low-latency settings; missing fields follow the global ones */
   ll?: Partial<LowLatencyConfig>;
+  /**
+   * Bridge streams: 'fast' = newest picture as soon as it is here (shortest delay, varies with
+   * every hiccup); 'fixed' = every picture a fixed time after capture (src/delayBuffer.ts, #244).
+   */
+  latency?: 'fast' | 'fixed';
+  /** fixed delay in ms (latency 'fixed') */
+  latencyMs?: number;
   /** bridge: keep a ring buffer for "save the last … s" (src/record/record.ts) */
   ring?: boolean;
   /** file sources (#188): 'bridge' = ffmpeg decodes (up to 16 bit), 'video' = the browser's <video> (8 bit, with transport) */
@@ -529,6 +536,8 @@ export class Source {
     if (this.lowLatency && ll.ownRtp) q.set('rtp', 'own');
     // QC metrics from ffmpeg (#202): costs about 6 ms per 1080p frame in the bridge, so only on request
     if (this.settings.signalStats) q.set('signal', '1');
+    // fixed delay (#244): the bridge stamps every picture with its PTS and keeps more in flight
+    if (this.settings.latency === 'fixed') { q.set('pts', '1'); q.set('latency', 'fixed'); }
     this.rtpStats = null;
     this.phase = null;
     this.connectFrames(`${bridge}/stream?${q}`, false);
@@ -540,7 +549,7 @@ export class Source {
    */
   connectFrames(wsUrl: string, reset = true) {
     if (reset) { this.stop(); this.url = wsUrl; this.set('connecting', t('source.status.connecting')); }
-    const ws = openFrameSocket(wsUrl);
+    const ws = openFrameSocket(wsUrl, this.settings.latency === 'fixed' ? this.settings.latencyMs ?? 200 : 0);
     this.ws = ws;
     ws.onmessage = (ev) => {
       if (typeof ev.data === 'string') {

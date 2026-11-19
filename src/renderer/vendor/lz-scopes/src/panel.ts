@@ -6,7 +6,7 @@ import { legendBox, splitPos, type Box } from './overlayDrag';
 import { drawGenlockPanel, type GenlockOptions } from './genlock';
 import { DISPLAY_LABELS, FALSE_COLOR_PRESETS, GAMUTS, mul3, rgbToXyzMatrix, bandRange, gamutConvert, isLog, logBarTargets, transferLabel, ycbcr, type DisplaySpace, type GamutId, type HdrPreview } from './color';
 import {
-  drawChannelPlotGraticule, drawCubeGraticule, drawLutVolume, drawDiamondGraticule, drawSatLumGraticule, diamondPoint, drawVectorExtras, type VectorTarget, drawSkinRange, drawCieGraticule, drawHistogram, drawTextBox, drawVectorGraticule, drawHlsGraticule, hsl, hlsPoint, drawWaveGraticule, drawWaveProbe,
+  drawChannelPlotGraticule, drawCubeGraticule, drawLutVolume, drawDiamondGraticule, drawSatLumGraticule, diamondPoint, diamondScale, DIAMOND_SPLIT, drawVectorExtras, type VectorTarget, drawSkinRange, drawCieGraticule, drawHistogram, drawTextBox, drawVectorGraticule, drawHlsGraticule, hsl, hlsPoint, drawWaveGraticule, drawWaveProbe,
   WAVE_ZOOMS, channelLayout, isAudio, isWaveform, plotRect, type WaveChannels, type WaveOpts, type WaveZoom, probeLines, statsLines, vectorPoint, vectorBands, vectorBandRects, FONT, LABEL, type ScopeType, type Unit, type BarTargetSet,
 } from './graticule';
 import { drawAudioBar, drawAudioPanel, type AudioPanelOptions } from './audio/panels';
@@ -55,6 +55,14 @@ import { TILE_HEAD, sanitizeTiles, tileAspect, tileGrid, tileLabel, tileSources,
 export interface PanelState {
   scope: ScopeType; sourceId: string; gain: number; colorize: boolean; zoom: number;
   picture: PictureMode; hist: 'rgb' | 'luma' | 'split'; log: boolean;
+  /** diamond: magnifier preset (graticule.ts diamondZoomView) */
+  diamondZoom?: import('./graticule').DiamondZoom;
+  /** diamond: Tek "Split Diamond" – the two diamonds apart, black ends separated (#248) */
+  diamondSplit?: boolean;
+  /** waveforms: 'flat' (full bandwidth) or 'lowpass' (Tek "Low Pass", −3 dB at ≈ 0.06 × sample rate; #246) */
+  waveFilter?: 'flat' | 'lowpass';
+  /** vectorscope: fixed centre box (default on) */
+  centreBox?: boolean;
   /** parades / RGB overlay: 'mono' | 'channel' | 'source' colours */
   paradeColor?: 'mono' | 'channel' | 'source';
   /** vectorscope: gamut boundaries to show */
@@ -757,7 +765,9 @@ function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: s
   const aspect = src && src.width ? src.width / src.height : 16 / 9;
   const frame = plotRect(p.scope, body.w, body.h, aspect);
   const abs = { x: body.x + frame.x, y: body.y + frame.y, w: frame.w, h: frame.h };
-  renderer.clearRect(abs);
+  // the diamond's plot is a narrow 1:2 strip; a black strip of that shape on the app background
+  // looked squashed (feedback 11/2026), so its black field is the whole panel, like a Tek tile
+  renderer.clearRect(p.scope === 'diamond' ? body : abs);
   // gesture zoom (#89): GL through the shader view (scatter) or a larger picture rect; the
   // overlay draws with the zoomed rect `r`, clipped, so graticule and markers follow the trace
   const xv = xyView(p);
@@ -786,6 +796,8 @@ function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: s
       ...(crt ? { crt } : {}),
       ...(!crt && p.persist ? { persist: p.persist } : {}),
       ...(p.smooth ? { smooth: p.smooth } : {}),
+      ...(isWaveform(p.scope) && p.waveFilter === 'lowpass' ? { lowPass: waveLowPass(src) } : {}),
+      ...(p.scope === 'diamond' ? { diamond: (({ sx, sy, off }) => [sx, sy, off] as [number, number, number])(diamondScale(frame, p.diamondSplit ? DIAMOND_SPLIT : 0)) } : {}),
       ...(p.scope === 'chplot' ? { pair: p.pair ?? 0 } : {}),
       ...(cube ? { cube: {
         space: CUBE_SPACE_ID[cube.space], rot: cubeRotation(cube.yaw, cube.pitch), to2020: gamutConvert(GAMUTS[src.gamut], GAMUTS['2020']),
@@ -827,7 +839,7 @@ function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: s
     if (probeRgb) drawWaveProbe(ctx, p.scope, r, src, probeRgb, wo);
   } else if (p.scope === 'vector') {
     const g = greenOf(o);
-    drawVectorGraticule(ctx, r, src.colorspace, p.zoom, o.skin.tol, vectorTargets(src), p.greenWedge ? { hue: g.hue ?? GREEN_DEFAULT.hue, tol: g.tol } : undefined);
+    drawVectorGraticule(ctx, r, src.colorspace, p.zoom, o.skin.tol, vectorTargets(src), p.greenWedge ? { hue: g.hue ?? GREEN_DEFAULT.hue, tol: g.tol } : undefined, p.centreBox !== false);
     drawVectorExtras(ctx, r, src.colorspace, p.zoom, p.gamuts ?? [], o.targets ?? [], src.transfer, src.gamut, src.hlgLw);
     if (probeRgb) {
       const { cb, cr } = ycbcr(probeRgb[0], probeRgb[1], probeRgb[2], src.colorspace);
@@ -886,11 +898,11 @@ function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: s
     }
     drawCubeGraticule(ctx, r, c, src.gamut, cubeNits(src.transfer), probeRgb ? cubeQOf(c.space, probeRgb, src) : null, src.colorspace);
   } else if (p.scope === 'diamond') {
-    drawDiamondGraticule(ctx, r);
+    drawDiamondGraticule(ctx, r, p.diamondSplit ? DIAMOND_SPLIT : 0);
     if (probeRgb) {
       ctx.strokeStyle = '#00dcff'; ctx.lineWidth = 1.5;
       for (const [a, upper] of [[probeRgb[2], true], [probeRgb[0], false]] as [number, boolean][]) {
-        const [x, y] = diamondPoint(r, a, probeRgb[1], upper);
+        const [x, y] = diamondPoint(r, a, probeRgb[1], upper, p.diamondSplit ? DIAMOND_SPLIT : 0);
         ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.stroke();
       }
     }
@@ -1028,7 +1040,7 @@ function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: s
   }
   if (xv) ctx.restore();
   // smoothing changes what is measured, so the panel says it (#179)
-  const note = smoothNote(p);
+  const note = smoothNote(p, src);
   if (note) {
     ctx.fillStyle = '#ffb300'; ctx.font = FONT; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
     ctx.fillText(note, body.w - 6, body.h - 6);
@@ -1037,12 +1049,31 @@ function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: s
 }
 
 /**
+ * Gaussian σ (analysis px) of the waveform "Low Pass" (#246). Tektronix WFM5200/WFM7200: −3 dB at
+ * 0.8 MHz (SD, 13.5 MHz), 4.5 MHz (HD, 74.25 MHz), 9 MHz (3G, 148.5 MHz) – always ≈ 0.06 of the
+ * luma sample rate. A Gaussian with −3 dB at f has σ = 0.1325 / f, i.e. ≈ 2.2 source pixels.
+ * A bridge that already scaled the picture down (area filter, a box of k source px) has used part
+ * of that; only the rest is applied here.
+ */
+export function waveLowPass(src: Source | null): number {
+  const sw = src?.info?.sourceWidth || src?.width || 0, w = src?.width || 0;
+  const k = w > 0 && sw > w ? sw / w : 1;
+  const sigma = 0.1325 / 0.0606 / k;
+  return Math.sqrt(Math.max(0.05, sigma * sigma - (k > 1 ? 1 / 12 : 0)));
+}
+
+/**
  * What the panel has to admit about its own reading (#179): a signal low-pass averages noise
  * away – and a real single-pixel spike with it – and a smoothed trace is older than this frame.
  * Empty when nothing is smoothed; the CRT look is a look, not a filter, and says so itself.
  */
-export function smoothNote(p: PanelState): string {
+export function smoothNote(p: PanelState, src?: Source | null): string {
   const parts: string[] = [];
+  // a reduced analysis width is a low-pass too (area scaling in the bridge): the waveform looks
+  // smoother than on a hardware scope in Flat (feedback 11/2026)
+  const sw = src?.info?.sourceWidth ?? 0;
+  if (isWaveform(p.scope) && src && src.width > 0 && sw > src.width) parts.push(t('panel.sig.noteScaled', { w: src.width, sw }));
+  if (isWaveform(p.scope) && p.waveFilter === 'lowpass') parts.push(t('panel.sig.noteLowPass'));
   if (p.smooth) parts.push(t('panel.sig.noteSignal', { grid: p.smooth === 2 ? '5×5' : '3×3' }));
   if (p.persist && !p.crt?.on) parts.push(t('panel.sig.noteTrace', { s: p.persist < 0 ? '∞' : num(p.persist / 1000, 1) }));
   return parts.length ? `${t('panel.sig.note')} ${parts.join(' · ')}` : '';
