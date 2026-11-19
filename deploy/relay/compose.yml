@@ -37,6 +37,10 @@ services:
       - /var/lib/coturn:size=8m,mode=1777
       - /tmp:size=8m,mode=1777
     cap_drop: [ALL]
+    # Das Image setzt auf /usr/bin/turnserver die Datei-Capability
+    # NET_BIND_SERVICE. Fehlt sie im Bounding-Set, scheitert exec mit
+    # no-new-privileges sofort (Exit 126, Endlos-Neustart; 19.11.2026).
+    cap_add: [NET_BIND_SERVICE]
     security_opt: ["no-new-privileges:true"]
     mem_limit: 128m
     memswap_limit: 128m
