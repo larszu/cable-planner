@@ -42,17 +42,23 @@ if ! grep -q 'relay.zumpelars.de' Caddyfile; then
   cp -a Caddyfile "Caddyfile.bak-$STAMP"
   { echo; cat /opt/relay-src/deploy/relay/Caddyfile.snippet; } >> Caddyfile
 fi
-if ! grep -q relay_edge docker-compose.yml; then
-  cp -a docker-compose.yml "docker-compose.yml.bak-$STAMP"
-  python3 - <<'PY'
+# Each half is checked on its own: a run that stopped after one half must be
+# able to finish the other. The Caddy list is matched by pattern because other
+# services (schulung_edge, ...) add their own networks to it.
+cp -a docker-compose.yml "docker-compose.yml.bak-$STAMP"
+python3 - <<'PY'
+import re
 p = '/opt/pingvin/docker-compose.yml'
 s = open(p).read()
-s = s.replace("networks: [netz, devices_edge]\n    depends_on: [pingvin]", "networks: [netz, devices_edge, relay_edge]\n    depends_on: [pingvin]")
-s = s.replace("  devices_edge:\n    external: true\n", "  devices_edge:\n    external: true\n  relay_edge:\n    external: true\n")
+def add(m):
+    return m.group(0) if 'relay_edge' in m.group(2) else m.group(1) + m.group(2) + ', relay_edge' + m.group(3)
+s = re.sub(r"(networks: \[)([^\]]*devices_edge[^\]]*)(\]\n    depends_on: \[pingvin\])", add, s)
+if not re.search(r"^  relay_edge:\n    external: true", s, re.M):
+    s = s.replace("  devices_edge:\n    external: true\n", "  devices_edge:\n    external: true\n  relay_edge:\n    external: true\n")
 open(p, 'w').write(s)
 PY
-  grep -q 'devices_edge, relay_edge' docker-compose.yml || { echo "compose edit failed — Caddy-Netze von Hand ergaenzen"; exit 1; }
-fi
+grep -Eq 'networks: \[[^]]*relay_edge[^]]*\]' docker-compose.yml && grep -q '^  relay_edge:' docker-compose.yml \
+  || { echo "compose edit failed — Caddy-Netze von Hand ergaenzen"; exit 1; }
 
 # Firewall: TURN braucht UDP/TCP 3478, TLS 5349 und den Relay-Bereich.
 if command -v ufw >/dev/null && ufw status | grep -q 'Status: active'; then
