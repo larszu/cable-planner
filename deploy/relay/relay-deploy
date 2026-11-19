@@ -54,6 +54,9 @@ git fetch --quiet origin
 git checkout --quiet --detach "${1:-origin/main}"
 echo "== $(git log --oneline -1)"
 install -m 755 "$SRC/deploy/relay/relay-deploy" /usr/local/bin/relay-deploy
+# compose.yml kommt bei jedem Lauf aus dem Repo: setup-relay.sh kopierte sie
+# nur einmal (cp -n), Korrekturen im Repo erreichten den Server sonst nie.
+install -m 644 "$SRC/deploy/relay/compose.yml" "$DIR/compose.yml"
 
 # coturn-Konfiguration aus der Vorlage; das Secret kommt aus .env, nie aus git.
 set -a; . "$DIR/.env"; set +a
