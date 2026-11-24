@@ -58,6 +58,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const { EINGEBAUTER_KATALOG } = await import('../src/renderer/lib/eingebauterKatalog.ts')
+const { gemeinschaftsTemplates } = await import('../src/renderer/lib/gemeinschaftsKatalog.ts')
 const { pruefeVorlage } = await import('../src/renderer/lib/vorlagenEinreichung.ts')
 const { ALL_CONNECTOR_TYPES } = await import('../src/renderer/types/equipment.ts')
 const { heileSteckertyp } = await import('../src/renderer/lib/connectorRenames.ts')
@@ -105,8 +106,17 @@ const schluessel = (s) => String(s ?? '').toLowerCase().replace(/[^a-z0-9]/g, ''
 
 const bekannteStecker = new Set(ALL_CONNECTOR_TYPES)
 
-const eigeneIds = new Set(EINGEBAUTER_KATALOG.map((t) => t.deviceTypeId).filter(Boolean))
-const eigeneNamen = new Set(EINGEBAUTER_KATALOG.map((t) => schluessel(t.name)))
+// `EINGEBAUTER_KATALOG` enthaelt auch `gemeinschaftsTemplates` — also genau
+// das, was dieser Lauf beim letzten Mal geschrieben hat. Zaehlte das als
+// „eigen", fiele jedes Gemeinschaftsgeraet beim naechsten Lauf wieder heraus
+// (#1300 trug den Robe Spiider ein, der Lauf danach strich ihn in #1304).
+// Eigen ist darum nur, was NICHT aus der Gemeinschaftsdatei stammt.
+const ausGemeinschaft = (t) =>
+  gemeinschaftsTemplates.some((g) =>
+    g.deviceTypeId && t.deviceTypeId ? g.deviceTypeId === t.deviceTypeId : schluessel(g.name) === schluessel(t.name))
+const eigeneVorlagen = EINGEBAUTER_KATALOG.filter((t) => !ausGemeinschaft(t))
+const eigeneIds = new Set(eigeneVorlagen.map((t) => t.deviceTypeId).filter(Boolean))
+const eigeneNamen = new Set(eigeneVorlagen.map((t) => schluessel(t.name)))
 
 // ─── Holen ─────────────────────────────────────────────────────────────────
 
