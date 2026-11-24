@@ -180,4 +180,6 @@ dialog.modal-xl { width: min(1180px, 96vw); }
 .scopehelp p { margin: 0 0 var(--sp-2); line-height: 1.45; }
 .scopehelp .help-list { margin: 0 0 var(--sp-2); padding-left: 1.1em; line-height: 1.45; }
 .scopehelp .help-try { border-top: 1px solid var(--line-1); padding-top: var(--sp-2); margin-top: var(--sp-2); }
+.scopehelp .help-more { border-top: 1px solid var(--line-1); padding-top: var(--sp-2); margin-top: var(--sp-2); }
+.scopehelp details > summary { cursor: pointer; min-height: var(--control-h); display: list-item; font-weight: 600; color: var(--text); }
 .scopehelp .help-pitfall { border-top: 1px solid var(--line-1); padding-top: var(--sp-2); margin-top: var(--sp-2); color: var(--text-soft); }

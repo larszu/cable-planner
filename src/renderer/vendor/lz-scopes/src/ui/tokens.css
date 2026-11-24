@@ -3,7 +3,7 @@
    - neutral:  achromatic greys (a* = b* = 0), muted accents; default for colour-critical work,
                see docs/research/ui-farben.md. Light: the same greys mirrored.
    - lzm:      Lars Zumpe Medienproduktion, Brand Guide 2.0 (lzm-web tokens): Deep Navy,
-               Off-White, Stahlblau, no radii, Tally red (--signal) only as focus and signal.
+               Off-White, Stahlblau, soft radii (lzm-web overrides the print rule for UI), Tally red (--signal) only as focus and signal.
                Light: print weighting (Off-White ground, white/Eisblau surfaces, Navy text).
    - original: the near-black look before the brand work (PR #30); dark only.
    Only chrome changes. Scope traces, graticules, false colours and measurement colours are not
@@ -53,7 +53,10 @@
   /* spacing: 4 px grid, half steps allowed in the tool */
   --sp-0: 2px; --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-6: 24px;
   /* control sizes: fine pointer; coarse pointers get 44 px targets (WCAG 2.5.5 / Apple HIG) */
-  --control-h: 24px; --control-h-sm: 24px; --control-pad: 3px 7px;
+  /* 28 px controls (UX analysis 11/2026, lzm-web: comfortable targets without losing density) */
+  --control-h: 28px; --control-h-sm: 24px; --control-pad: 4px 9px;
+  /* radii of the chrome (lzm-web: soft corners); scope bodies stay square */
+  --radius-s: 6px; --radius-m: 10px; --radius-l: 16px;
   --label-w: 120px;
 
   /* ---- skin "neutral", dark (also the fallback without data-theme): sRGB greys R = G = B,
@@ -90,7 +93,7 @@
   --err-text: #eaa9a4; /* error text: ≥ 4.5:1 on every dark surface (ui-audit) */
   --dot-idle: #5a5a5a;
   --dot-radius: 0; --dot-skew: 0deg; --live-glow: none;
-  --radius: 2px; --radius-lg: 2px;
+  --radius: 6px; --radius-lg: 10px;
   --elev-float: none;
   --src-border: 0; --src-top: 1px solid var(--line-3);
   --kicker-rule: 1px solid var(--line-2); --kicker-track: 0.16em;
@@ -163,7 +166,7 @@
   --err-text: #ffa8a2;
   --dot-idle: var(--lzm-schiefer);
   --dot-radius: 0; --dot-skew: -11deg; --live-glow: none;
-  --radius: 0; --radius-lg: 0;
+  --radius: 6px; --radius-lg: 10px;
   --elev-float: 0 12px 32px rgba(5, 10, 25, 0.55);
   --src-border: 0; --src-top: 2px solid var(--line-3);
   --kicker-rule: 1px solid var(--lzm-stahlblau); --kicker-track: 0.16em;

@@ -4,7 +4,7 @@
 // camera, and a common pitfall. Tasks can be ticked off; the count shows what is left to try.
 // Texts: src/i18n/<lang>/help.ts, checked against the sources in docs/research/scope-hilfe.md.
 
-import { checkbox, h, hint, kicker, popover, type Kid } from '../ui';
+import { checkbox, h, hint, popover, type Kid } from '../ui';
 import { hasKey, t, type Key } from '../i18n';
 import type { ScopeType } from '../graticule';
 
@@ -40,18 +40,23 @@ export function helpCard(scope: ScopeType | string, all: readonly string[]): Kid
   const done = doneSet();
   const tasks = helpScopes(all);
   const progress = h('p', { class: 'hint help-progress' }, t('help.progress', { done: tasks.filter((s) => done.has(s)).length, all: tasks.length }));
+  // short first (#256): the two sentences "what is it" and "what for"; reading, task and pitfall fold out
+  const what = lines('what');
+  const firstSentence = (s: string) => /^(.+?[.!?])(\s|$)/.exec(s)?.[1] ?? s;
   return [
     h('p', { class: 'help-one' }, t(k(scope, 'one'))),
-    ...lines('what').map((l) => h('p', {}, l)),
-    lines('read').length ? kicker(t('help.read')) : null,
-    lines('read').length ? h('ul', { class: 'help-list' }, ...lines('read').map((l) => h('li', {}, l))) : null,
-    hasKey(k(scope, 'try')) ? h('div', { class: 'help-try' },
-      kicker(t('help.try')),
+    what.length ? h('p', {}, firstSentence(what[0])) : null,
+    lines('read').length || what.length ? h('details', { class: 'help-more' },
+      h('summary', {}, t('help.read')),
+      ...(what.length && firstSentence(what[0]) !== what.join('\n') ? [h('p', {}, what.join(' ').slice(firstSentence(what[0]).length).trim())] : []),
+      lines('read').length ? h('ul', { class: 'help-list' }, ...lines('read').map((l) => h('li', {}, l))) : null,
+      hasKey(k(scope, 'pitfall')) ? h('p', { class: 'help-pitfall' }, h('strong', {}, t('help.pitfall')), ' ', t(k(scope, 'pitfall'))) : null) : null,
+    hasKey(k(scope, 'try')) ? h('details', { class: 'help-try' },
+      h('summary', {}, t('help.try')),
       h('p', {}, t(k(scope, 'try'))),
       hasKey(k(scope, 'check')) ? h('p', { class: 'hint' }, t('help.checkPrefix'), ' ', t(k(scope, 'check'))) : null,
       checkbox(done.has(scope), t('help.done'), (v) => { setDone(scope, v); const n = doneSet(); progress.textContent = t('help.progress', { done: tasks.filter((s) => n.has(s)).length, all: tasks.length }); }),
       tasks.length ? progress : null) : null,
-    hasKey(k(scope, 'pitfall')) ? h('p', { class: 'help-pitfall' }, h('strong', {}, t('help.pitfall')), ' ', t(k(scope, 'pitfall'))) : null,
   ].filter(Boolean) as Kid[];
 }
 

@@ -27,7 +27,8 @@ export function debugFlags(): { worker?: boolean; stats?: 'cpu' | 'gpu'; drawOnA
 /** Can frames (and H.264) be received in a worker here? */
 export const workerAvailable = () => typeof Worker !== 'undefined' && debugFlags().worker !== false;
 
-export function openFrameSocket(url: string): FrameSocket {
+/** @param delayMs fixed playout delay after capture (#244); 0 = newest picture at once */
+export function openFrameSocket(url: string, delayMs = 0): FrameSocket {
   if (!workerAvailable()) return plainSocket(url);
   let w: Worker;
   try { w = new Worker(new URL('./frameWorker.ts', import.meta.url), { type: 'module' }); } catch { return plainSocket(url); }
@@ -47,7 +48,7 @@ export function openFrameSocket(url: string): FrameSocket {
     else if (m.type === 'close') sock.onclose?.();
   };
   w.onerror = () => sock.onerror?.();
-  w.postMessage({ type: 'open', url });
+  w.postMessage({ type: 'open', url, delayMs });
   return sock;
 }
 

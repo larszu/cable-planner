@@ -13,6 +13,8 @@ import { readStamp } from '../server/stamp.mjs';
 import { meanLuma } from './luma';
 import { decodedFullRange, yuv420ToRgba } from './yuv';
 import { t as tr } from './i18n';
+import { DelayBuffer } from './delayBuffer';
+import { v210Bytes, v210Message } from './v210';
 
 export interface FrameMeta {
   /** Date.now() when the frame arrived here (raw) or left the decoder (H.264) */
@@ -29,7 +31,7 @@ export interface FrameMeta {
   av?: [number, number][];
 }
 
-type In = { type: 'open'; url: string } | { type: 'ack' } | { type: 'close' } | { type: 'send'; data: string };
+type In = { type: 'open'; url: string; delayMs?: number } | { type: 'ack' } | { type: 'close' } | { type: 'send'; data: string };
 export type Out =
   | { type: 'text'; data: string }
   | { type: 'bin'; data: ArrayBuffer; meta?: FrameMeta }
@@ -38,9 +40,30 @@ export type Out =
 const post = (m: Out, transfer: Transferable[] = []) => (self as unknown as DedicatedWorkerGlobalScope).postMessage(m, transfer);
 
 let ws: WebSocket | null = null;
-let info: { width: number; height: number; depth: number; proto?: number; decodeMatrix?: string; range?: string; transport?: string; format?: string; audio?: unknown } | null = null;
+let info: { width: number; height: number; depth: number; proto?: number; decodeMatrix?: string; range?: string; transport?: string; format?: string; pack?: string; audio?: unknown } | null = null;
 let waiting: { data: ArrayBuffer; meta: FrameMeta } | null = null;
 let inflight = false, replaced = 0;
+/** fixed playout delay (#244): pictures wait here until their slot; null = newest at once */
+let delay: DelayBuffer<{ data: ArrayBuffer; meta: Omit<FrameMeta, 'replaced'> }> | null = null;
+let delayTimer: ReturnType<typeof setTimeout> | null = null;
+function pump() {
+  delayTimer = null;
+  if (!delay) return;
+  const now = Date.now();
+  const f = delay.take(now);
+  if (f) queue(f.data, f.meta);
+  const n = delay.next(now);
+  if (n !== Infinity) delayTimer = setTimeout(pump, Math.max(1, n));
+}
+/** A raw picture with PTS: into the delay buffer when there is one, else straight on. */
+function offer(data: ArrayBuffer, meta: Omit<FrameMeta, 'replaced'>, pts: number) {
+  if (delay && delay.push({ data, meta }, pts, meta.arrive)) {
+    if (delayTimer) clearTimeout(delayTimer);
+    pump();
+    return;
+  }
+  queue(data, meta);
+}
 /** A/V samples not yet handed over (kept across replaced frames) */
 let av: [number, number][] = [];
 
@@ -132,7 +155,14 @@ function open(url: string) {
       post({ type: 'text', data: ev.data });
       return;
     }
-    const buf = ev.data as ArrayBuffer, now = Date.now();
+    let buf = ev.data as ArrayBuffer;
+    const now = Date.now();
+    // v210 passthrough (#258): unpack to the Y′CbCr layout here, off the main thread
+    if (info?.pack === 'v210') {
+      const head = info.proto === 2 ? 16 : 0;
+      const lzv = !head || new DataView(buf).getUint32(0, true) === 0x3156_5a4c; // 'LZV1'
+      if (lzv && buf.byteLength === head + v210Bytes(info.width, info.height)) buf = v210Message(buf, info.width, info.height, head);
+    }
     if (info?.proto === 2) {
       const head = new DataView(buf, 0, 16);
       const magic = String.fromCharCode(head.getUint8(0), head.getUint8(1), head.getUint8(2), head.getUint8(3));
@@ -145,7 +175,9 @@ function open(url: string) {
       const st = readStamp(px, info.width, info.height, max);
       // LZV1 header value = PTS in s (#24), not a bridge clock
       if (info.audio && info.width) { av.push([hv, meanLuma(px, info.width, info.height, max, info.format === 'yuv')]); if (av.length > 250) av.shift(); }
-      queue(buf, { arrive: now, bridge: NaN, stamp: st?.ms ?? null });
+      // capture time: the PTS, or without one (no sound) the frame number at the nominal rate
+      const fps = Number((info as { fps?: number }).fps) || 0;
+      offer(buf, { arrive: now, bridge: NaN, stamp: st?.ms ?? null }, Number.isFinite(hv) ? hv : fps > 0 ? n / fps : NaN);
       return;
     }
     if (!info) return;
@@ -159,7 +191,7 @@ function open(url: string) {
 
 self.onmessage = (e: MessageEvent<In>) => {
   const m = e.data;
-  if (m.type === 'open') open(m.url);
+  if (m.type === 'open') { delay = m.delayMs && m.delayMs > 0 ? new DelayBuffer(m.delayMs) : null; open(m.url); }
   else if (m.type === 'ack') { inflight = false; flush(); }
   else if (m.type === 'send') { if (ws?.readyState === WebSocket.OPEN) ws.send(m.data); }
   else if (m.type === 'close') { const s = ws; ws = null; s?.close(); decoder?.close(); decoder = null; self.close(); }
