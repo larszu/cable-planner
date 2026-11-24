@@ -49,7 +49,7 @@ There are two ways to join a running session. In both cases **joining replaces y
 
   ![Search of the network without a hit](bilder/en/zusammenarbeit-03-suche-im-netz.jpg)
 
-- **Invitation link**: in the running session the host clicks *Copy invite*; the button briefly reads *Copied*. The clipboard then holds the line *Join the LZ Cable Planner live session:* and a link. Room, mode, signaling server and password are encoded in the part of the link after `#join=`, which is not sent to a server. A room password that is set is in the link as well; hand it on to your team only. Whoever opens the link sees *Join live session “room · host”? Your current plan will be replaced by the host’s.* and joins with *Join*. STUN/TURN credentials are not in the link.
+- **Invitation link**: in the running session the host clicks *Copy invite*; the button briefly reads *Copied*. The clipboard then holds the line *Join the LZ Cable Planner live session:* and a link. Room, mode, signaling server and password are encoded in the part of the link after `#join=`, which is not sent to a server. A room password that is set is in the link as well; hand it on to your team only. Whoever opens the link sees *Join live session “room · host”? Your current plan will be replaced by the host’s.* and joins with *Join*. STUN/TURN credentials are not in the link. With a signed-in account and the Pro package the session also uses the TURN server on relay.zumpelars.de when no direct connection works; without Pro it carries on silently over the public fallback or the LAN.
 
   ![Invitation copied](bilder/en/zusammenarbeit-07-einladung-kopiert.jpg)
 

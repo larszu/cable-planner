@@ -20,6 +20,9 @@ export type CloudErrorCode =
   /** Speicher des Kontos voll. */
   | 'quota-exceeded'
   | 'not-found'
+  /** 402: dafuer braucht das Konto das Pro-Paket „Cloud“ (Bestellseite `<server>/pro`).
+   *  Lesen und Herunterladen gehen ohne; neu speichern, Links, TURN nicht. */
+  | 'pro-required'
   | 'server'
 
 export class CloudError extends Error {
@@ -115,7 +118,7 @@ async function rufe<T>(server: string, token: string, methode: Methode, pfad: st
   if (res.ok) return json as T
   const code = String(json?.error ?? '')
   if (res.status === 409 && code === 'conflict') throw new CloudConflict(Number(json?.headRev))
-  const known: CloudErrorCode[] = ['project-too-large', 'quota-exceeded', 'not-found']
+  const known: CloudErrorCode[] = ['project-too-large', 'quota-exceeded', 'not-found', 'pro-required']
   const c: CloudErrorCode = res.status === 401 ? 'not-signed-in'
     : res.status === 429 ? 'rate-limited'
       : (known as string[]).includes(code) ? (code as CloudErrorCode) : 'server'

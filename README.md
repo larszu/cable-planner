@@ -158,7 +158,12 @@
   the type. Each photo carries a caption and its date, and the photo
   documentation (by room, device and cable) goes into the handover.
 - **Together.** Live co-editing over WebRTC, optional cloud copy with revisions,
-  a shared device library across the planner suite.
+  a shared device library across the planner suite. Cloud saving, share links,
+  the TURN relay and the MCP connector are the device library's Pro package
+  "Cloud" (5 € a month or 49 € a year, no VAT under § 19 UStG,
+  https://devices.zumpelars.de/pro). Without it the app shows a calm "Pro
+  needed" note, live collaboration falls back to the public relay or the LAN,
+  and existing cloud projects stay readable and downloadable.
 - **Cable by voice.** The *Voice* button in the canvas toolbar takes a
   sentence such as "SDI 1 from the ATEM to the NEC in the foyer" or
   „Kamera 2 auf den Mischer, Eingang 2" (German and English, several cables

@@ -115,6 +115,7 @@ English version: [manual.en.md](manual.en.md)
    - [Mehrere Kabel verbinden](#mehrere-kabel-verbinden)
    - [Neues Rack erstellen](#neues-rack-erstellen)
    - [KI-Plan generieren](#ki-plan-generieren)
+   - [KI zum Plan fragen](#ki-zum-plan-fragen)
    - [Revisionen & Snapshots](#revisionen--snapshots)
    - [Lager / Bestand](#lager--bestand)
    - [Geräte-Konfiguration](#geräte-konfiguration)
@@ -347,9 +348,13 @@ Kabel mit einer anderen Länge erscheinen grau.
 
 #### Kabelfarbe nach Gewerk
 
-*Kabelfarbe nach Gewerk* färbt jedes Kabel nach seinem Gewerk: Video blau, Audio rot, Control orange, Network grün, Power violett, Other grau. Auch hier bleibt die gespeicherte Farbe unverändert. Die beiden Farbmodi schließen sich aus.
+*Kabelfarbe nach Gewerk* färbt jedes Kabel nach seinem Gewerk: Video blau, Audio rot, Control orange, Network grün, Power violett, Other grau. Auch hier bleibt die gespeicherte Farbe unverändert. Die Farbmodi schließen sich aus.
 
 ![Kabel nach Gewerk gefärbt](bilder/de/oberflaeche-54-ansicht-farbe-gewerk-vergleich.jpg)
+
+#### Kabelfarbe nach VLAN (logisches Netz)
+
+Die Kabel sind die physische Topologie. *Kabelfarbe nach VLAN* legt die logische darüber: Jedes Kabel trägt die Farbe des VLANs an seinen beiden Enden, und sein Label bekommt *VLAN 20 Dante* (der Name kommt aus den Segmenten unter *Analyse > Netzwerk*). Das VLAN stammt vom Switch-Port (*Port → VLAN* in der Switch-Konfiguration) oder von der Netzwerk-Schnittstelle an diesem Port. Ein Kabel mit mehreren VLANs (am Switch getaggt oder an beiden Enden verschieden) ist ein Trunk: grau, strichpunktiert, Label *Trunk 10/20*. Kabel ohne VLAN-Angabe treten blass zurück. Dasselbe VLAN hat in jedem Plan dieselbe Farbe. Die gespeicherte Farbe bleibt unverändert.
 
 #### Suchfeld, Werkzeugleiste und Panels
 
@@ -975,7 +980,7 @@ Ein Rahmen ist ein farbiges Rechteck, das Geräte zu einem Ort oder Raum zusamme
 
 8. *Rahmen löschen* fragt *Rahmen „…" löschen?* — nur der Rahmen verschwindet, die Geräte bleiben.
 
-9. Strg/Cmd+C, V und D kopieren, fügen ein und duplizieren auch markierte Rahmen. Ein Rahmen wird samt den Geräten darin und den Kabeln zwischen diesen Geräten kopiert; die Kopie erscheint neben dem Original (um die Rahmenbreite versetzt). Das Rechtsklick-Menü bietet dafür *Rahmen mit Inhalt duplizieren*.
+9. Strg/Cmd+C, V und D kopieren, fügen ein und duplizieren auch markierte Rahmen. Ein Rahmen wird samt den Geräten darin und den Kabeln zwischen diesen Geräten kopiert; die Kopie erscheint neben dem Original (um die Rahmenbreite versetzt). Das Rechtsklick-Menü bietet dafür *Rahmen mit Inhalt duplizieren*. Dasselbe Menü öffnet mit *Raumdokumentation exportieren…* die Stückliste des Raums (siehe Kapitel *Eigenschaften*).
 
 10. Markieren Sie mehrere Geräte und klicken Sie *Rahmen*, um einen Rahmen um sie zu ziehen.
 
@@ -1469,6 +1474,8 @@ Kategorien ordnen die Vorlagen. Beim Zeigen auf den Kategoriestreifen erscheint 
 
    ![Neue, leere Kategorie](bilder/de/bibliothek-55-kategorie-umbenannt.jpg)
 
+6. Der Papierkorb neben dem Stift löscht die Kategorie samt ihren Unterkategorien. Vorher fragt er *Kategorie „…" löschen?*. Liegen noch Geräte darin, wählen Sie zwischen *Geräte behalten, ohne Kategorie unten im Pool* (vorgewählt) und *Geräte mitlöschen*. Geräte, die schon im Plan stehen, bleiben in jedem Fall unverändert.
+
 #### Das Menü +
 
 Der Knopf **+** neben dem Suchfeld (Tooltip: *Neues Gerät oder neue Kategorie anlegen*) öffnet ein Menü mit fünf Einträgen.
@@ -1639,11 +1646,13 @@ Der Reiter *Kabel* (*Kabel-Library*) listet die Kabeltypen, gruppiert nach Steck
 
    ![Aufgeklappte Kabelgruppe](bilder/de/bibliothek-63-kabel-gruppe-aufklappen.jpg)
 
+   Eingebaut sind auch Kabel für AVB, AES50 (Cat5e, etherCON), S/PDIF (Cinch-Koax und Toslink), ADAT (Toslink), MIDI (5-pol. DIN, höchstens 15 m) und Lautsprecherpegel (speakON); das Stream-Uplink-Kabel trägt zusätzlich RTSP und MPEG-TS. AVB läuft auf Schicht 2 und steht deshalb nicht im IP-Adress- und Multicast-Plan.
+
 2. Eigene Typen tragen das Zeichen *Eigen*, angepasste eingebaute Typen das Zeichen *Angepasst*.
 
    ![Eigener Kabeltyp in der Liste](bilder/de/bibliothek-69-kabel-eigener-typ.jpg)
 
-3. Der Stift öffnet *Kabeltyp bearbeiten*. Das Formular hat die Felder *Name*, *Stecker-Typ* (mit **+** für einen neuen Steckertyp), *Kabel-Farbe*, *Auch kompatibel mit (optional)*, *Signal-Standards* (mit *+ Standard* für einen neuen Standard), *Max. Länge (m) – optional*, *Außendurchmesser (mm) — optional, aus dem Datenblatt* und *Notiz (optional)*. *Speichern* ist erst möglich, wenn ein Name und mindestens ein Standard gesetzt sind. Bei einem eingebauten Typ wird die Änderung als lokale Anpassung gespeichert (*Angepasst*); der Knopf mit dem Pfeil (*Override entfernen*) fragt *Override für „…" zurücksetzen?* und stellt mit *Zurücksetzen* die ursprünglichen Werte wieder her.
+3. Der Stift öffnet *Kabeltyp bearbeiten*. Das Formular hat die Felder *Name*, *Stecker-Typ* (mit **+** für einen neuen Steckertyp), *Stecker am anderen Ende*, *Kabel-Farbe*, *Auch kompatibel mit (optional)*, *Signal-Standards* (mit *+ Standard* für einen neuen Standard), *Max. Länge (m) – optional*, *Außendurchmesser (mm) — optional, aus dem Datenblatt* und *Notiz (optional)*. *Speichern* ist erst möglich, wenn ein Name und mindestens ein Standard gesetzt sind. Bei einem eingebauten Typ wird die Änderung als lokale Anpassung gespeichert (*Angepasst*); der Knopf mit dem Pfeil (*Override entfernen*) fragt *Override für „…" zurücksetzen?* und stellt mit *Zurücksetzen* die ursprünglichen Werte wieder her.
 
    ![Dialog Kabeltyp bearbeiten](bilder/de/bibliothek-64-kabel-eintrag-bearbeiten.jpg)
 
@@ -1935,6 +1944,7 @@ Der Abschnitt hat zwei Listen, *Inputs* und *Outputs*. Die Kopfzeile zählt sie,
    | Feld | Werte |
    |---|---|
    | Inhalt / Funktion | freier Text, z. B. „PGM“ |
+   | ST-2110-21-Sendeprofil / -Empfängertyp | nur bei Signalstandard ST2110-20: am Ausgang *N (schmal)*, *NL (schmal, linear)* oder *W (breit)*, am Eingang *N* oder *W*. Ein W-Sender an einem N-Empfänger steht als Befund in der Plan-Prüfung. Die Netzlast eines ST-2110-20-Kabels rechnet die App aus dem Videoformat des Kabels, sonst dem des Projekts (4:2:2, 10 bit, samt Paketköpfen), z. B. 1080p50 ≈ 2,2 Gbps, 2160p50 ≈ 8,8 Gbps |
    | Art | *Eingang* bzw. *Ausgang* (je nach Liste) oder *Bidirektional (z. B. speakON, etherCON, Netzwerk)* (ein solcher Port kann Kabelquelle und Kabelziel sein; ein Kabel zwischen zwei bidirektionalen Ports beginnt an dem Gerät, an dem Sie zu ziehen anfangen) |
    | Seite | Seite (auto), Links, Rechts |
    | Geschlecht | Geschlecht (–), ♂ Male / Stecker, ♀ Female / Buchse |
@@ -1988,6 +1998,8 @@ Ist das Modul Rentman eingeschaltet und das Gerät nicht im verknüpften Rentman
 *Foto hinzufügen…* hängt ein Foto an das Gerät. Hat das Gerät einen Gerätetyp aus der Bibliothek, fragt die App *Auch für den Gerätetyp übernehmen?*. Mit *Auch für den Gerätetyp* erscheint das Foto an jedem Gerät dieses Typs im Plan und wird nur einmal gespeichert; *Nur dieses Gerät* hängt es nur hier an. Der Abschnitt zeigt dann zwei Listen: *Dieses Gerät* und *Gerätetyp* mit der Zahl der Geräte dieses Typs.
 
 ![Foto am Gerät](bilder/de/eigenschaften-50-fotos-hinzugefuegt.jpg)
+
+*Im Plan zeigen* an einem Foto blendet es im Plan als Bild unter dem Geräteknoten ein; ein zweiter Klick blendet es wieder aus. Ein Foto des Gerätetyps erscheint so unter jedem Gerät dieses Typs. Sind mehrere eingeschaltet, zeigt der Knoten das erste.
 
 #### Darstellung & Flags
 
@@ -2367,7 +2379,7 @@ Ein Klick auf einen Rahmen zeigt seine Eigenschaften.
 
 | Knopf | Wirkung |
 |---|---|
-| Stückliste exportieren | öffnet die Stückliste des Raums mit Geräten, internen Kabeln und externen Verbindungen; *Kabel zusammenfassen*, *Plan einbetten* und *PDF exportieren* |
+| Stückliste exportieren | öffnet die Stückliste des Raums mit Geräten, internen Kabeln und externen Verbindungen; *Kabel zusammenfassen*, *Plan einbetten* und *PDF exportieren*. Der eingebettete Plan zeigt keine Auswahl-Markierung; die Auswahl im Canvas wird dafür aufgehoben. |
 | Nur Rahmen löschen | löscht den Rahmen, die Geräte bleiben |
 | Rahmen + Inhalt löschen | löscht nach Rückfrage den Rahmen mit allen Geräten und deren Kabeln |
 
@@ -3361,6 +3373,8 @@ Mit Anmeldung hat der Dialog drei Abschnitte. Diese Abschnitte sind nicht aufgen
 - *Lese-Link.* Ein Link lässt jeden den Plan im Browser lesen, ohne Konto; Zugangsdaten sind nicht enthalten. Der Dialog warnt davor, dass der Plan den Rechner verlässt. *Immer die neueste Revision zeigen* hält den Link aktuell, sonst zeigt er die Revision, die beim Erstellen die jüngste war. *Läuft ab* wählt *nie* oder *nach 7*, *30* oder *90 Tagen*. *Link erstellen und kopieren* legt den Link an und kopiert ihn. Die Liste der Links nennt jeweils die Zahl der Aufrufe und den Ablauf; *Kopieren* kopiert erneut, *Widerrufen* macht den Link ungültig.
 - *Deine Cloud-Projekte.* Jedes andere Projekt des Kontos mit *Öffnen* und *.cableplan herunterladen*. Die Liste hat keinen Löschen-Knopf; gelöscht wird nur das verbundene Projekt.
 
+**Pro-Paket „Cloud“.** In die Cloud speichern, Lese-Links anlegen, die TURN-Weiterleitung der Live-Zusammenarbeit und der MCP-Connector für Claude gehören zum Pro-Paket der Gerätebibliothek: 5 € im Monat oder 49 € im Jahr, keine Umsatzsteuer nach § 19 UStG. Bestellt wird unter https://devices.zumpelars.de/pro; die Rechnung kommt per E-Mail, freigeschaltet wird nach Zahlungseingang. Die Laufzeit verlängert sich nicht von selbst. Kostenlos bleiben Gerätebibliothek, Konto und die Live-Zusammenarbeit über Signaling. Ohne Pro zeigt der Dialog beim Speichern oder beim Link-Anlegen *Speichern in der Cloud und Lese-Links brauchen das Pro-Paket „Cloud“. Deine Cloud-Projekte bleiben lesbar und herunterladbar.* mit dem Link *Pro bestellen*. Nach Ablauf bleiben alle Cloud-Projekte lesbar und als `.cableplan` herunterladbar, bestehende Lese-Links funktionieren weiter.
+
 ### Viewer-Datei
 
 *Datei → Als Viewer-Datei exportieren…* schreibt eine `.cpviewer`-Datei für Reviewer und Helfer. Der Inhalt entspricht der Projektdatei, mit erzwungenem Modus *viewer*; Zugangsdaten der Geräte sind entfernt, weil die Datei an Externe geht. Vorhandene Anmerkungen bleiben, so kann der Eigentümer Aufgaben für Freelancer vormerken. Danach nennt *Viewer-Datei gespeichert* den Pfad.
@@ -4300,6 +4314,12 @@ Der Dialog *KI-Plan-Generierung* erzeugt einen Entwurf aus einer Beschreibung od
 
    ![Statusleiste nach der Ergänzung](bilder/de/werkzeuge-bauen-ki-07-ergaenzung-eingefuegt.jpg)
 
+### KI zum Plan fragen
+
+*Hilfe → KI zum Plan fragen…*
+
+Hier stellen Sie technische Fragen zum offenen Plan, etwa „Was ist der beste Signalweg von Kamera 1 zum Recorder?“ oder „Welches meiner Geräte eignet sich als Bildmischer für vier Kameras?“. Die KI bekommt dieselbe Plan-Sicht wie bei der Ergänzung aus Dokumenten: alle Räume, jedes Gerät mit Kategorie, IP, Seriennummer, Untertitel, Firmware, Gerät-Eigenschaften und Ports samt Stecker und Signalstandard, jedes Kabel mit Typ, Standard, Länge und Ebene. Benutzername, Passwort und Eigenschaften, die nach Zugangsdaten klingen (PIN, Key, Token), gehen nie mit. Die KI antwortet nur, der Plan bleibt unverändert. Websuche ist dabei aus. *Strg/Cmd+Enter* schickt die Frage ab.
+
 ### Revisionen & Snapshots
 
 *Werkzeuge → Revisionen & Snapshots…*
@@ -4646,7 +4666,7 @@ Es gibt zwei Wege, einer laufenden Session beizutreten. In beiden Fällen **erse
 
   ![Suche im Netz ohne Treffer](bilder/de/zusammenarbeit-03-suche-im-netz.jpg)
 
-- **Einladungslink**: Der Gastgeber klickt in der laufenden Session auf *Einladung kopieren*; das Feld meldet kurz *Kopiert*. In der Zwischenablage liegen die Zeile *Live-Session im LZ Cable Planner beitreten:* und ein Link. Raum, Modus, Signaling-Server und Passwort stecken kodiert im Linkteil nach `#join=`, der nicht an einen Server gesendet wird. Ein gesetztes Raum-Passwort steht ebenfalls im Link; geben Sie ihn nur an Ihr Team weiter. Wer den Link öffnet, sieht *Zur Live-Session „Raum · Gastgeber" beitreten? Dein aktueller Plan wird durch den des Hosts ersetzt.* und tritt mit *Beitreten* bei. STUN-/TURN-Zugangsdaten stehen nicht im Link.
+- **Einladungslink**: Der Gastgeber klickt in der laufenden Session auf *Einladung kopieren*; das Feld meldet kurz *Kopiert*. In der Zwischenablage liegen die Zeile *Live-Session im LZ Cable Planner beitreten:* und ein Link. Raum, Modus, Signaling-Server und Passwort stecken kodiert im Linkteil nach `#join=`, der nicht an einen Server gesendet wird. Ein gesetztes Raum-Passwort steht ebenfalls im Link; geben Sie ihn nur an Ihr Team weiter. Wer den Link öffnet, sieht *Zur Live-Session „Raum · Gastgeber" beitreten? Dein aktueller Plan wird durch den des Hosts ersetzt.* und tritt mit *Beitreten* bei. STUN-/TURN-Zugangsdaten stehen nicht im Link. Mit angemeldetem Konto und Pro-Paket nutzt die Sitzung zusätzlich den TURN-Server von relay.zumpelars.de, wenn keine direkte Verbindung zustande kommt; ohne Pro läuft sie ohne Meldung über die öffentliche Reserve bzw. im LAN weiter.
 
   ![Einladung kopiert](bilder/de/zusammenarbeit-07-einladung-kopiert.jpg)
 
@@ -4839,7 +4859,7 @@ Jedes Modul hat ein Kästchen *Modul aktiviert*.
 |---|---|---|
 | Port-Label-Schriftgröße | Schieberegler, Vorgabe 11 px, Knopf zum Zurücksetzen | Schriftgröße der Ein- und Ausgangsbeschriftungen auf den Geräteknoten; größer ist beim Herauszoomen besser lesbar, macht die Geräte aber breiter |
 | Port-Farben | *Nach Richtung (Standard)* / *Nach Steckertyp* | Einfärbung der Anschlusspunkte |
-| Kabelfarbe | *Manuell* / *Nach Länge* / *Nach Gewerk* | Manuell: Farbe je Kabel aus den Eigenschaften; nach Länge: Längen-Farbcodierung; nach Gewerk: Farben der Ebenen. Die am Kabel gespeicherte Farbe bleibt in jedem Modus erhalten. |
+| Kabelfarbe | *Manuell* / *Nach Länge* / *Nach Gewerk* / *Nach VLAN* | Manuell: Farbe je Kabel aus den Eigenschaften; nach Länge: Längen-Farbcodierung; nach Gewerk: Farben der Ebenen; nach VLAN: logische Netz-Topologie. Die am Kabel gespeicherte Farbe bleibt in jedem Modus erhalten. |
 | Pfeile auf Kabeln | *Pfeil am Ziel-Ende anzeigen (Signalflussrichtung)* | Vorgabe für neu gezeichnete Kabel; je Kabel in den Eigenschaften änderbar |
 | Verbindungs-Warnungen | *Beliebige Inputs und Outputs ohne Warnung verbinden* | Normalerweise fragt die App bei einem Steckertyp-Konflikt nach. Mit diesem Haken wird die Verbindung ohne Rückfrage angelegt und als Adapter/Konverter markiert. |
 
@@ -5019,7 +5039,7 @@ Ohne Erlaubnis bleibt die Gerätebibliothek voll nutzbar: Geräte holen und aktu
 
 ### MCP
 
-Über den MCP-Server fragt Claude diesen Plan ab: Geräte, Ports, Signalwege, Kabel und das Ergebnis des Plan-Checks. Der Server läuft nur in der Desktop-App, hört nur auf 127.0.0.1 und verlangt ein Paarungs-Token. Darf er ändern, bedient das Werkzeug `ui_command` auch das Fenster — Rückgängig, Wiederholen, Zoom, Einpassen, Alles auswählen, Duplizieren, Plan-Check — und meldet die Zahl der Fehler und Warnungen; darüber steuert ein Stream Deck mit Companion den Plan.
+Über den MCP-Server fragt Claude diesen Plan ab: Geräte, Ports, Signalwege, Kabel und das Ergebnis des Plan-Checks. Der Server läuft nur in der Desktop-App, hört nur auf 127.0.0.1 und verlangt ein Paarungs-Token. Darf er ändern, bedient das Werkzeug `ui_command` auch das Fenster — Rückgängig, Wiederholen, Zoom, Einpassen, Alles auswählen, Duplizieren, Plan-Check — und meldet die Zahl der Fehler und Warnungen; darüber steuert ein Stream Deck mit Companion den Plan. *Nächster Cue* und *Voriger Cue* gehen durch die Abschnitte des Ablaufplans und zeigen die mit dem Abschnitt verknüpften Geräte und Wege in der Signalweg-Ansicht (*Esc* beendet sie); die Antwort nennt Nummer und Titel des Abschnitts.
 
 ![Reiter MCP, Server aus](bilder/de/einstellungen-26-mcp.jpg)
 
@@ -5084,6 +5104,7 @@ Die Kabel-Bibliothek in der linken Seitenleiste bearbeitet einen Typ ebenfalls d
 |---|---|
 | Name | z. B. CAT6a Patch 5m |
 | Stecker-Typ | Auswahl aus allen Steckertypen; *+* legt einen eigenen an |
+| Stecker am anderen Ende | *Wie am ersten Ende* oder ein anderer Steckertyp, z. B. powerCON TRUE1 → Schuko. Ein Kabel aus diesem Typ passt zwischen genau diese beiden Stecker, in beiden Richtungen, und trägt sie als *Stecker am Anfang / am Ende* |
 | Kabel-Farbe | Farbfeld |
 | Auch kompatibel mit (optional) | weitere Steckertypen zum Anklicken |
 | Signal-Standards | Standards zum Anklicken; *+ Standard* legt einen eigenen an |

@@ -6,7 +6,7 @@ import { useUiStore } from '../../store/uiStore'
 import { useProjectStore } from '../../store/projectStore'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useDeviceLibraryStore } from '../../store/deviceLibraryStore'
-import { effectiveServer } from '../../lib/deviceLibraryUrl'
+import { effectiveServer, proOrderUrl } from '../../lib/deviceLibraryUrl'
 import { format, useTranslation } from '../../lib/i18n'
 import { confirmDialog } from '../../lib/confirmDialog'
 import { downloadBlob } from '../../lib/downloadBlob'
@@ -37,6 +37,8 @@ export const CloudDialog = () => {
   const [copied, setCopied] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  // 402: kein Fehler, sondern ein ruhiger Hinweis mit Weg zur Bestellung.
+  const [proNeeded, setProNeeded] = useState(false)
   const [notice, setNotice] = useState('')
   const host = (() => {
     try {
@@ -56,6 +58,7 @@ export const CloudDialog = () => {
       'quota-exceeded': t('cloud.err.quota', 'Your cloud storage is full. Delete old projects to make room.'),
       'not-found': t('cloud.err.notFound', 'This cloud project no longer exists.'),
       conflict: t('cloud.err.conflict', 'Someone saved at the same moment. Try again.'),
+      'pro-required': t('cloud.pro.needed', 'Saving to the cloud and share links need the Pro package "Cloud". Your cloud projects stay readable and downloadable.'),
     }
     return texts[code] ?? format(t('cloud.err.server', 'The server answered with an error ({code}).'), { code })
   }
@@ -65,6 +68,7 @@ export const CloudDialog = () => {
   }, [open, server, refreshSession])
   const closeDialog = () => {
     setError('')
+    setProNeeded(false)
     setNotice('')
     close()
   }
@@ -104,7 +108,8 @@ export const CloudDialog = () => {
       await fn()
       setTick((n) => n + 1)
     } catch (e) {
-      setError(errorText(e))
+      if (e instanceof CloudCallError && e.code === 'pro-required') setProNeeded(true)
+      else setError(errorText(e))
     } finally {
       setBusy(false)
     }
@@ -211,6 +216,14 @@ export const CloudDialog = () => {
         />
         {!error && loadError !== null && <p className="border border-cp-danger px-2 py-1 text-cp-danger" role="alert">{errorText(loadError)}</p>}
         {error && <p className="border border-cp-danger px-2 py-1 text-cp-danger" role="alert">{error}</p>}
+        {proNeeded && (
+          <p className="border border-cp-accent px-2 py-1 text-cp-text" role="status">
+            {t('cloud.pro.needed', 'Saving to the cloud and share links need the Pro package "Cloud". Your cloud projects stay readable and downloadable.')}{' '}
+            <a href={proOrderUrl(server)} target="_blank" rel="noopener noreferrer" className="text-cp-accent hover:underline">
+              {t('cloud.pro.order', 'Order Pro')}
+            </a>
+          </p>
+        )}
         {notice && <p className="border border-cp-accent px-2 py-1 text-cp-text" role="status">{notice}</p>}
         {session !== 'signed-in' ? (
           <div className="flex flex-col items-start gap-2 text-cp-text-secondary">

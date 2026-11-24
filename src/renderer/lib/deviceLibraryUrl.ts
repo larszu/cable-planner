@@ -4,6 +4,9 @@ import { DEFAULT_DEVICE_LIBRARY_URL } from './deviceLibraryClient'
  *  der Pfad ist derselbe, auf den die Website selbst verlinkt. */
 export const guidelinesUrl = (server: string): string => `${server.replace(/\/+$/, '')}/guidelines`
 
+/** Bestellseite des Pro-Pakets „Cloud“ (402 `pro-required` des Servers). */
+export const proOrderUrl = (server: string): string => `${server.replace(/\/+$/, '')}/pro`
+
 /** Leere Einstellung = Vorgabe-Server. So spricht jeder Build ohne jede
  *  Einstellung `DEFAULT_DEVICE_LIBRARY_URL` an. */
 export const effectiveServer = (setting: string | undefined | null): string =>
