@@ -88,15 +88,19 @@ const FETCH = (k: TexKind) => (k === 'yuv' ? YUV_FETCH_GLSL : k === '16'
 const SAMPLE_GLSL = (k: TexKind) => `
 ${FETCH(k)}
 uniform ivec2 uSize;
-uniform int uStep, uCols, uMode, uColorize, uCieUv, uSecN, uPair;
+uniform int uStep, uStepRow, uCols, uMode, uColorize, uCieUv, uSecN, uPair;
 uniform ivec4 uSec; // section per trace instance (-1 = hidden channel)
 uniform vec2 uK;
 uniform float uZoom, uIntensity, uWMin, uWMax, uPointSize;
+uniform vec3 uDiamond; // diamond: x/y scale and split offset (graticule.ts diamondScale)
 uniform vec3 uPanZoom; // gesture view of 2D scopes (view.ts): pos · z + (x, y)
 uniform mat3 uToXYZ;
 uniform vec4 uCie;
 ${ROI_GLSL}
 uniform vec4 uSkin;
+uniform float uLowPass; // waveform filter "Low Pass" (Tek, #246): Gaussian σ in analysis px, 0 = Flat
+uniform int uRecon; // waveform "Flat reconstructed" (#257): points per sample (1 = samples only, 4 = Lanczos-3)
+float gSub = 0.0; // position between this sample and the next (0 … 1), set by the scatter for uRecon > 1
 uniform int uSmooth; // signal low-pass before the measurement (#179): 0 off, 1 = 3×3, 2 = 5×5
 uniform vec2 uLumaWin; // tonal window Y′ lo…hi (vectorscope by tonal range, #180); everything outside is not drawn
 uniform vec3 uTint;
@@ -114,7 +118,46 @@ float waveY(float v) { return (v - uWMin) / (uWMax - uWMin) * 2.0 - 1.0; }
  * panel asks for a low-pass (#179). That changes the reading, not only the picture – noise is
  * averaged away, and so is a real one-pixel spike. The panel says so when it is on.
  */
+#ifdef RECON
+float lanczos3(float x) {
+  if (abs(x) < 1e-6) return 1.0;
+  if (abs(x) >= 3.0) return 0.0;
+  float px = 3.14159265359 * x;
+  return 3.0 * sin(px) * sin(px / 3.0) / (px * px);
+}
+#endif
+// The filters are compile-time variants (RECON, LOWPASS, SMOOTH; Renderer.scatterProgram): one
+// shader with every loop inlined was too big for SwiftShader (CI) and lost the WebGL context.
 vec3 fetchMeasured(ivec2 p) {
+#ifdef RECON
+  if (gSub > 0.0) {
+    // sin(x)/x reconstruction between the samples, normalised weights (recon.ts reconAt)
+    vec3 a = vec3(0.0);
+    float wsum = 0.0;
+    for (int k = -2; k <= 3; k++) {
+      float w = lanczos3(float(k) - gSub);
+      a += w * fetchRGB(ivec2(clamp(p.x + k, 0, uSize.x - 1), p.y));
+      wsum += w;
+    }
+    return a / wsum;
+  }
+#endif
+#ifdef LOWPASS
+  if (uLowPass > 0.0 && uSmooth <= 0) {
+    // horizontal only, like the waveform filter of a hardware monitor; flat areas keep their level
+    vec3 a = vec3(0.0);
+    float wsum = 0.0;
+    int r = min(8, int(ceil(3.0 * uLowPass)));
+    for (int dx = -8; dx <= 8; dx++) {
+      if (abs(dx) > r) continue;
+      float w = exp(-float(dx * dx) / (2.0 * uLowPass * uLowPass));
+      a += w * fetchRGB(ivec2(clamp(p.x + dx, 0, uSize.x - 1), p.y));
+      wsum += w;
+    }
+    return a / wsum;
+  }
+#endif
+#ifdef SMOOTH
   if (uSmooth <= 0) return fetchRGB(p);
   ivec2 hi = uSize - ivec2(1);
   vec3 s = vec3(0.0);
@@ -128,6 +171,9 @@ vec3 fetchMeasured(ivec2 p) {
     }
   }
   return s / n;
+#else
+  return fetchRGB(p);
+#endif
 }
 
 bool plotSample(ivec2 p, int ch, out vec2 pos, out vec3 col) {
@@ -136,7 +182,7 @@ bool plotSample(ivec2 p, int ch, out vec2 pos, out vec3 col) {
   float Y = dot(rgb, vec3(kr, kg, kb));
   float cb = (rgb.b - Y) / (2.0 * (1.0 - kb));
   float cr = (rgb.r - Y) / (2.0 * (1.0 - kr));
-  float x = (float(p.x) + 0.5) / float(uSize.x);
+  float x = (float(p.x) + 0.5 + gSub) / float(uSize.x);
   vec3 unit[3] = vec3[3](vec3(1.0, 0.18, 0.18), vec3(0.2, 1.0, 0.25), vec3(0.3, 0.45, 1.0));
   vec3 mono = uTint;
   // the pixel's own colour, brightness normalised so dark pixels stay visible; black and
@@ -177,9 +223,9 @@ bool plotSample(ivec2 p, int ch, out vec2 pos, out vec3 col) {
     pos = vec2((float(ch) + x) / 3.0 * 2.0 - 1.0, waveY(v));
     col = ch == 0 || uColorize == 0 ? mono : ch == 1 ? vec3(0.35, 0.55, 1.0) : vec3(1.0, 0.3, 0.35);
   } else if (uMode == 8) {
-    // Tektronix diamond (graticule.ts DIAMOND_SCALE): upper B′+G′ over B′−G′, lower −(R′+G′) over R′−G′
+    // Tektronix diamond (graticule.ts diamondScale): upper B′+G′ over B′−G′, lower −(R′+G′) over R′−G′
     float a = ch == 0 ? rgb.b : rgb.r, s = a + rgb.g;
-    pos = vec2(a - rgb.g, ch == 0 ? s : -s) * vec2(0.92, 0.46);
+    pos = vec2((a - rgb.g) * uDiamond.x, (ch == 0 ? s : -s) * uDiamond.y + (ch == 0 ? uDiamond.z : -uDiamond.z));
     if (uColorize == 1) col = srcCol;
   } else if (uMode == 10) {
     // saturation over luma (graticule.ts drawSatLumGraticule): x = Y′, y = |CbCr| / 0.5 (0…120 %)
@@ -225,12 +271,16 @@ bool plotSample(ivec2 p, int ch, out vec2 pos, out vec3 col) {
 }`;
 
 
-const SCATTER_VS = (k: TexKind) => `#version 300 es
-precision highp float; precision highp int;
+const SCATTER_VS = (k: TexKind, defs = '') => `#version 300 es
+${defs}precision highp float; precision highp int;
 ${SAMPLE_GLSL(k)}
 void main() {
   gl_PointSize = uPointSize;
-  ivec2 p = ivec2(gl_VertexID % uCols, gl_VertexID / uCols) * uStep;
+  int id = gl_VertexID;
+#ifdef RECON
+  if (uRecon > 1) { gSub = float(id % uRecon) / float(uRecon); id /= uRecon; }
+#endif
+  ivec2 p = ivec2(id % uCols, id / uCols) * ivec2(uStep, uStepRow);
   vec2 pos; vec3 col;
   if (p.y >= uSize.y || p.x >= uSize.x || !plotSample(p, gl_InstanceID, pos, col)) { gl_Position = vec4(9.0); return; }
   vColor = col * uIntensity;
@@ -238,8 +288,8 @@ void main() {
   gl_Position = vec4(pos, 0.0, 1.0);
 }`;
 
-const CRT_VS = (k: TexKind) => `#version 300 es
-precision highp float; precision highp int;
+const CRT_VS = (k: TexKind, defs = '') => `#version 300 es
+${defs}precision highp float; precision highp int;
 ${SAMPLE_GLSL(k)}
 ${CRT_VS_MAIN}`;
 
@@ -425,6 +475,12 @@ export interface ScatterParams {
   density?: number;
   /** signal low-pass before the measurement (#179): 0 off, 1 = 3×3, 2 = 5×5 */
   smooth?: 0 | 1 | 2;
+  /** waveform filter Low Pass: Gaussian σ in analysis px (panel.ts waveLowPass), 0/undefined = Flat */
+  lowPass?: number;
+  /** waveform "Flat reconstructed" (#257): points per sample, recon.ts RECON_FACTOR; scatter only, not the CRT */
+  recon?: number;
+  /** diamond: clip-space scale and split (graticule.ts diamondScale) */
+  diamond?: [number, number, number];
   /** only samples whose Y′ lies in this window (vectorscope by tonal range, #180) */
   luma?: [number, number];
 }
@@ -724,6 +780,8 @@ export class Renderer {
     const kind = this.texKind(src, t);
     const crt = p.crt?.on ? p.crt : null;
     const wave = p.mode !== 'vector' && p.mode !== 'hls' && p.mode !== 'cie' && p.mode !== 'diamond' && p.mode !== 'cube' && p.mode !== 'satlum' && p.mode !== 'chplot';
+    // Flat reconstructed (#257): more points per sample, waveforms in the point scatter only
+    const recon = !crt && wave && (p.recon ?? 1) > 1 ? Math.round(p.recon ?? 1) : 1;
     // Normalise so that the display brightness does not depend on source or panel size.
     const sections = p.mode === 'parade' || p.mode === 'yrgb' ? p.secN ?? (p.mode === 'yrgb' ? 4 : 3) : p.mode === 'ycbcr' ? 3 : 1;
     let stepX: number, stepY: number;
@@ -735,9 +793,13 @@ export class Renderer {
         stepX = Math.max(1, Math.ceil(t.w / Math.max(16, vp.w / sections)));
         stepY = Math.max(1, Math.ceil(t.h / Math.max(1, Math.floor(budget / Math.ceil(t.w / stepX)))));
       } else stepX = stepY = Math.max(1, Math.ceil(Math.sqrt((t.w * t.h) / budget)));
+    } else if (wave) {
+      // waveforms keep every column: skipping columns drops thin edges and overshoots and makes the
+      // trace look low-passed (feedback 11/2026); rows are thinned instead (more samples of the same column)
+      stepX = 1; stepY = Math.max(1, Math.ceil((t.w * t.h * recon) / p.maxSamples));
     } else stepX = stepY = Math.max(1, Math.ceil(Math.sqrt((t.w * t.h) / p.maxSamples)));
     const cols = Math.ceil(t.w / stepX), rows = Math.ceil(t.h / stepY);
-    const n = crt ? Math.max(1, cols - 1) * rows : cols * rows;
+    const n = crt ? Math.max(1, cols - 1) * rows : cols * rows * recon;
     const area = (vp.w / sections) * vp.h;
     // the 3D volume spreads the points thinly: bigger dots and more weight so colours stay visible
     const dot = !crt && !wave ? Math.max(1, Math.round(this.dpr)) * (p.mode === 'cube' ? 3 : 1) : 1;
@@ -748,7 +810,10 @@ export class Renderer {
     const fresh = this.sigs.get(key) !== sig;
     this.sigs.set(key, sig);
     if (fresh) {
-      const prog = crt ? this.program(`crt${kind}`, CRT_VS(kind), CRT_FS) : this.program(`scatter${kind}`, SCATTER_VS(kind), SCATTER_FS);
+      // filter variants compiled only when used (see fetchMeasured)
+      const flags = [(p.smooth ?? 0) > 0 ? 'SMOOTH' : '', !crt && (p.lowPass ?? 0) > 0 ? 'LOWPASS' : '', recon > 1 ? 'RECON' : ''].filter(Boolean);
+      const defs = flags.map((f) => `#define ${f}\n`).join(''), tag = flags.join('+');
+      const prog = crt ? this.program(`crt${kind}${tag}`, CRT_VS(kind, defs), CRT_FS) : this.program(`scatter${kind}${tag}`, SCATTER_VS(kind, defs), SCATTER_FS);
       gl.bindFramebuffer(gl.FRAMEBUFFER, acc.fbo);
       gl.viewport(0, 0, acc.w, acc.h);
       gl.disable(gl.SCISSOR_TEST);
@@ -763,6 +828,7 @@ export class Renderer {
       gl.uniform1i(this.u(prog, 'uSrc'), 0);
       gl.uniform2i(this.u(prog, 'uSize'), t.w, t.h);
       gl.uniform1i(this.u(prog, 'uStep'), stepX);
+      if (!crt) gl.uniform1i(this.u(prog, 'uStepRow'), stepY);
       gl.uniform1i(this.u(prog, 'uCols'), cols);
       gl.uniform1i(this.u(prog, 'uMode'), MODE_ID[p.mode]);
       this.linearUniforms(prog, src);
@@ -771,6 +837,7 @@ export class Renderer {
       gl.uniform2f(this.u(prog, 'uK'), kr, kb);
       gl.uniform1f(this.u(prog, 'uZoom'), p.zoom);
       gl.uniform3f(this.u(prog, 'uPanZoom'), ...(p.view ?? [1, 0, 0]));
+      gl.uniform3f(this.u(prog, 'uDiamond'), ...(p.diamond ?? [0.92, 0.46, 0]));
       gl.uniform1f(this.u(prog, 'uIntensity'), intensity);
       gl.uniform1f(this.u(prog, 'uPointSize'), dot);
       gl.uniform1f(this.u(prog, 'uWMin'), p.range?.[0] ?? WAVE_MIN);
@@ -786,6 +853,8 @@ export class Renderer {
       this.setRois(prog, p.roi);
       gl.uniform4f(this.u(prog, 'uSkin'), p.skin.lo, p.skin.hi, p.skin.tol, p.skin.hue ?? 123);
       gl.uniform1i(this.u(prog, 'uSmooth'), p.smooth ?? 0);
+      gl.uniform1f(this.u(prog, 'uLowPass'), p.lowPass ?? 0);
+      gl.uniform1i(this.u(prog, 'uRecon'), recon);
       gl.uniform2f(this.u(prog, 'uLumaWin'), p.luma?.[0] ?? -1e3, p.luma?.[1] ?? 1e3);
       gl.uniform3fv(this.u(prog, 'uTint'), p.tint);
       if (p.cube) {

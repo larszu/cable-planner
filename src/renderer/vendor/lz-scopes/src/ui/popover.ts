@@ -24,6 +24,8 @@ export interface PopoverOpts {
   cls?: string;
   /** trigger class (default: icon button) */
   triggerCls?: string;
+  /** open beside this rectangle instead of below the trigger (help card next to its panel, #256) */
+  beside?: (trigger: HTMLElement) => DOMRect | null | undefined;
 }
 
 export interface PopoverEl extends HTMLElement {
@@ -89,14 +91,18 @@ export function popover(o: PopoverOpts): PopoverEl {
   panel.addEventListener('beforetoggle', (e) => {
     if ((e as ToggleEvent).newState === 'open') { render(); trigger.setAttribute('aria-expanded', 'true'); } else trigger.setAttribute('aria-expanded', 'false');
   });
-  panel.addEventListener('toggle', (e) => { if ((e as ToggleEvent).newState === 'open') placePopover(panel, trigger.getBoundingClientRect(), o.align); });
+  const placeIt = () => {
+    const r = o.beside?.(trigger);
+    if (r) place(panel, r, { side: 'right' }); else placePopover(panel, trigger.getBoundingClientRect(), o.align);
+  };
+  panel.addEventListener('toggle', (e) => { if ((e as ToggleEvent).newState === 'open') placeIt(); });
   // typing in the panel must not reach the global shortcuts (S, F, 1–6, Esc …)
   panel.addEventListener('keydown', (e) => e.stopPropagation());
   const wrap = h('span', { class: 'pop' }, trigger, panel) as unknown as PopoverEl;
   Object.defineProperties(wrap, {
     open: { value: () => { if (!panel.matches(':popover-open')) panel.showPopover(); } },
     close: { value: () => { if (panel.matches(':popover-open')) panel.hidePopover(); } },
-    refresh: { value: () => { if (panel.matches(':popover-open')) { render(); placePopover(panel, trigger.getBoundingClientRect(), o.align); } } },
+    refresh: { value: () => { if (panel.matches(':popover-open')) { render(); placeIt(); } } },
     isOpen: { get: () => panel.matches(':popover-open') },
     panel: { value: panel },
   });

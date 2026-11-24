@@ -4,14 +4,14 @@
 // video element, test pattern). Framework-free so React/Vue hosts wrap it in a ref.
 
 import { LUMA, detectDisplay } from './color';
-import { SCOPE_LABELS, type ScopeType, type Unit } from './graticule';
+import { scopeMenu, type ScopeType, type Unit } from './graticule';
 import { DEFAULT_SKIN, defaultPanel, drawPanel, panelSignature, type PanelState, type Tint } from './panel';
 import { Renderer } from './renderer';
 import type { Source } from './sources';
 import { t, useLang, type Lang } from './i18n';
 // DOM helpers only, no app styles: hosts embed this next to their own CSS (the CSS below is all it brings)
 import { h } from './ui/dom';
-import { select } from './ui/controls';
+import { groupedSelect } from './ui/controls';
 
 export interface ScopeViewOptions {
   scopes?: ScopeType[];
@@ -89,7 +89,7 @@ export class ScopeView {
       const body = h('div', { class: 'lzs-body' }, overlay);
       const el = h('div', { class: 'lzs-panel' },
         this.opts.selectors && h('div', { class: 'lzs-head' },
-          select(scope, Object.entries(SCOPE_LABELS).filter(([k]) => k !== 'stats'), (v) => {
+          groupedSelect(scope, scopeMenu((k) => k === 'stats', false), (v) => {
             const next = [...this.opts.scopes]; next[i] = v as ScopeType;
             this.setScopes(next); this.opts.onScopesChange?.(next);
           })),
