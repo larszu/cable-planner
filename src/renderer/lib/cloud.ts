@@ -78,8 +78,10 @@ export const cloudApi = {
 
 /**
  * #869 — STUN/TURN des eigenen coturn mit den Zugangsdaten des Kontos.
- * Leer, wenn niemand angemeldet ist, der Server keinen TURN kennt oder das
- * Netz fehlt: dann gelten die Defaults von y-webrtc, wie bisher.
+ * Leer, wenn niemand angemeldet ist, der Server keinen TURN kennt, das Konto
+ * kein Pro-Paket hat (402) oder das Netz fehlt: dann gelten still die
+ * Defaults von y-webrtc bzw. das LAN, wie bisher. Die Zusammenarbeit selbst
+ * sperrt das nie.
  */
 export const turnFromAccount = async (server: string): Promise<IceServerConfig[]> => {
   try {

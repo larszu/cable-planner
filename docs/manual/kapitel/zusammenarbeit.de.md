@@ -49,7 +49,7 @@ Es gibt zwei Wege, einer laufenden Session beizutreten. In beiden Fällen **erse
 
   ![Suche im Netz ohne Treffer](bilder/de/zusammenarbeit-03-suche-im-netz.jpg)
 
-- **Einladungslink**: Der Gastgeber klickt in der laufenden Session auf *Einladung kopieren*; das Feld meldet kurz *Kopiert*. In der Zwischenablage liegen die Zeile *Live-Session im LZ Cable Planner beitreten:* und ein Link. Raum, Modus, Signaling-Server und Passwort stecken kodiert im Linkteil nach `#join=`, der nicht an einen Server gesendet wird. Ein gesetztes Raum-Passwort steht ebenfalls im Link; geben Sie ihn nur an Ihr Team weiter. Wer den Link öffnet, sieht *Zur Live-Session „Raum · Gastgeber" beitreten? Dein aktueller Plan wird durch den des Hosts ersetzt.* und tritt mit *Beitreten* bei. STUN-/TURN-Zugangsdaten stehen nicht im Link.
+- **Einladungslink**: Der Gastgeber klickt in der laufenden Session auf *Einladung kopieren*; das Feld meldet kurz *Kopiert*. In der Zwischenablage liegen die Zeile *Live-Session im LZ Cable Planner beitreten:* und ein Link. Raum, Modus, Signaling-Server und Passwort stecken kodiert im Linkteil nach `#join=`, der nicht an einen Server gesendet wird. Ein gesetztes Raum-Passwort steht ebenfalls im Link; geben Sie ihn nur an Ihr Team weiter. Wer den Link öffnet, sieht *Zur Live-Session „Raum · Gastgeber" beitreten? Dein aktueller Plan wird durch den des Hosts ersetzt.* und tritt mit *Beitreten* bei. STUN-/TURN-Zugangsdaten stehen nicht im Link. Mit angemeldetem Konto und Pro-Paket nutzt die Sitzung zusätzlich den TURN-Server von relay.zumpelars.de, wenn keine direkte Verbindung zustande kommt; ohne Pro läuft sie ohne Meldung über die öffentliche Reserve bzw. im LAN weiter.
 
   ![Einladung kopiert](bilder/de/zusammenarbeit-07-einladung-kopiert.jpg)
 

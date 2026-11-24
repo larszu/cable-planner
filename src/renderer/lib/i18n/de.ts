@@ -7499,6 +7499,8 @@ export const de: Dict = {
   'cloud.err.notFound': 'Dieses Cloud-Projekt gibt es nicht mehr.',
   'cloud.err.conflict': 'Jemand hat im selben Moment gespeichert. Versuche es erneut.',
   'cloud.err.server': 'Der Server hat mit einem Fehler geantwortet ({code}).',
+  'cloud.pro.needed': 'Speichern in der Cloud und Lese-Links brauchen das Pro-Paket „Cloud“. Deine Cloud-Projekte bleiben lesbar und herunterladbar.',
+  'cloud.pro.order': 'Pro bestellen',
   'cloud.link.title': 'Lese-Link',
   'cloud.link.warning': 'Der Plan verlässt diesen Rechner: Wer den Link hat, kann ihn im Browser lesen, ohne Konto. Zugangsdaten sind nicht enthalten.',
   'cloud.link.follow': 'Immer die neueste Revision zeigen',

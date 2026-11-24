@@ -114,6 +114,7 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [Connect multiple cables](#connect-multiple-cables)
    - [Create new rack](#create-new-rack)
    - [Generate AI plan](#generate-ai-plan)
+   - [Ask AI about this plan](#ask-ai-about-this-plan)
    - [Revisions & snapshots](#revisions--snapshots)
    - [Inventory / stock](#inventory--stock)
    - [Device configuration](#device-configuration)
@@ -346,9 +347,13 @@ Cables of any other length appear grey.
 
 #### Color cables by discipline
 
-*Color cables by discipline* colours each cable by its discipline: Video blue, Audio red, Control orange, Network green, Power violet, Other grey. Here too the stored colour stays unchanged. The two colour modes exclude each other.
+*Color cables by discipline* colours each cable by its discipline: Video blue, Audio red, Control orange, Network green, Power violet, Other grey. Here too the stored colour stays unchanged. The colour modes exclude each other.
 
 ![Cables coloured by discipline](bilder/en/oberflaeche-54-ansicht-farbe-gewerk-vergleich.jpg)
+
+#### Color cables by VLAN (logical network)
+
+The cables are the physical topology. *Color cables by VLAN* lays the logical one on top: each cable takes the colour of the VLAN at its two ends, and its label gets *VLAN 20 Dante* (the name comes from the segments under *Analysis > Network*). The VLAN is read from the switch port (*Port → VLAN* in the switch config) or from the network interface on that port. A cable carrying several VLANs (tagged at the switch, or different VLANs at the two ends) is a trunk: grey, dash-dotted, label *Trunk 10/20*. Cables without a VLAN entry fade out. The same VLAN has the same colour in every plan. The stored colour stays unchanged.
 
 #### Search field, toolbar and panels
 
@@ -956,7 +961,7 @@ A frame is a coloured rectangle that groups devices into a place or room. The bu
 
 8. *Delete frame* asks *Delete frame "…"?* — only the frame disappears, the devices stay.
 
-9. Ctrl/Cmd+C, V and D also copy, paste and duplicate selected frames. A frame is copied together with the devices inside it and the cables between those devices; the copy appears next to the original (offset by the frame width). The right-click menu offers *Duplicate frame with contents*.
+9. Ctrl/Cmd+C, V and D also copy, paste and duplicate selected frames. A frame is copied together with the devices inside it and the cables between those devices; the copy appears next to the original (offset by the frame width). The right-click menu offers *Duplicate frame with contents*. The same menu opens the room's BOM with *Export room documentation…* (see chapter *Properties*).
 
 10. Select several devices and click *Frame* to draw a frame around them.
 
@@ -1443,6 +1448,8 @@ Categories order the templates. A pencil appears when you point at the category 
 
    ![New, empty category](bilder/en/bibliothek-55-kategorie-umbenannt.jpg)
 
+6. The bin next to the pencil deletes the category together with its subcategories. It first asks *Delete category "…"?*. If devices are still in it, you choose between *Keep the devices, listed without a category* (preselected) and *Delete the devices too*. Devices already placed in the plan stay unchanged either way.
+
 #### The + menu
 
 The **+** button next to the search field (tooltip: *Create new device or category*) opens a menu with five entries.
@@ -1613,11 +1620,13 @@ The tab *Cables* (*Cable library*) lists the cable types, grouped by connector t
 
    ![Opened cable group](bilder/en/bibliothek-63-kabel-gruppe-aufklappen.jpg)
 
+   Built in are also cables for AVB, AES50 (Cat5e, etherCON), S/PDIF (RCA coax and Toslink), ADAT (Toslink), MIDI (5-pin DIN, at most 15 m) and speaker level (speakON); the stream uplink cable also carries RTSP and MPEG-TS. AVB runs on layer 2 and is therefore not in the IP address and multicast plan.
+
 2. Custom types carry the badge *Custom*, adjusted built-in types the badge *Adjusted*.
 
    ![Custom cable type in the list](bilder/en/bibliothek-69-kabel-eigener-typ.jpg)
 
-3. The pencil opens *Edit cable type*. The form has the fields *Name*, *Connector type* (with **+** for a new connector type), *Cable colour*, *Also compatible with (optional)*, *Signal standards* (with *+ Standard* for a new standard), *Max. length (m) — optional*, *Outer diameter (mm) — optional, from the datasheet* and *Note (optional)*. *Save* is only possible when a name and at least one standard are set. For a built-in type the change is saved as a local adjustment (*Adjusted*); the button with the arrow (*Remove override*) asks *Reset override for "…"?* and restores the original values with *Reset*.
+3. The pencil opens *Edit cable type*. The form has the fields *Name*, *Connector type* (with **+** for a new connector type), *Connector at the other end*, *Cable colour*, *Also compatible with (optional)*, *Signal standards* (with *+ Standard* for a new standard), *Max. length (m) — optional*, *Outer diameter (mm) — optional, from the datasheet* and *Note (optional)*. *Save* is only possible when a name and at least one standard are set. For a built-in type the change is saved as a local adjustment (*Adjusted*); the button with the arrow (*Remove override*) asks *Reset override for "…"?* and restores the original values with *Reset*.
 
    ![Dialog Edit cable type](bilder/en/bibliothek-64-kabel-eintrag-bearbeiten.jpg)
 
@@ -1909,6 +1918,7 @@ The section has two lists, *Inputs* and *Outputs*. The header counts them, e.g. 
    | Field | Values |
    |---|---|
    | Content / function | free text, e.g. “PGM” |
+   | ST 2110-21 sender type / receiver type | only with signal standard ST2110-20: on an output *N (Narrow)*, *NL (Narrow Linear)* or *W (Wide)*, on an input *N* or *W*. A W sender into an N receiver is a finding in the plan check. The app computes the network load of an ST 2110-20 cable from the cable's video format, otherwise the project's (4:2:2, 10 bit, including packet headers), e.g. 1080p50 ≈ 2.2 Gbps, 2160p50 ≈ 8.8 Gbps |
    | Kind | *Input* or *Output* (depending on the list) or *Bidirectional (e.g. speakON, etherCON, network)* (such a port can be cable source and target; a cable between two bidirectional ports starts at the device where you begin dragging) |
    | Side | Side (auto), Left, Right |
    | Gender | Gender (–), ♂ Male / plug, ♀ Female / socket |
@@ -1962,6 +1972,8 @@ With the Rentman module enabled and the device missing from the linked Rentman p
 *Add photo…* attaches a photo to the device. If the device has a device type from the library, the app asks *Also use for the device type?*. With *Also for the device type* the photo shows on every device of this type in the plan and is stored only once; *Only this device* attaches it here only. The section then shows two lists: *This device* and *Device type* with the number of devices of that type.
 
 ![Photo on the device](bilder/en/eigenschaften-50-fotos-hinzugefuegt.jpg)
+
+*Show in plan* on a photo shows it in the plan as a picture under the device node; a second click hides it again. A photo of the device type appears under every device of that type. If several are switched on, the node shows the first.
 
 #### Display & flags
 
@@ -2341,7 +2353,7 @@ Clicking a frame shows its properties.
 
 | Button | Effect |
 |---|---|
-| Export BOM | opens the room's BOM with devices, internal cables and external connections; *Combine cables*, *Embed plan* and *Export PDF* |
+| Export BOM | opens the room's BOM with devices, internal cables and external connections; *Combine cables*, *Embed plan* and *Export PDF*. The embedded plan shows no selection highlight; the canvas selection is cleared for it. |
 | Delete frame only | deletes the frame, the devices stay |
 | Delete frame + contents | deletes, after confirmation, the frame with all its devices and their cables |
 
@@ -3335,6 +3347,8 @@ Once signed in, the dialog has three sections. These sections are not captured b
 - *Share link.* A link lets anyone read the plan in the browser, without an account; credentials are not included. The dialog warns that the plan leaves the computer. *Always show the newest revision* keeps the link current, otherwise it shows the revision that was newest when it was created. *Expires* chooses *never* or *after 7*, *30* or *90 days*. *Create link and copy* creates the link and copies it. The list of links gives the number of openings and the expiry for each; *Copy* copies again, *Revoke* makes the link invalid.
 - *Your cloud projects.* Every other project of the account with *Open* and *Download .cableplan*. The list has no delete button; only the linked project can be deleted.
 
+**Pro package "Cloud".** Saving to the cloud, creating share links, the TURN relay for live collaboration and the MCP connector for Claude belong to the device library's Pro package: 5 € a month or 49 € a year, no VAT under § 19 UStG. Order at https://devices.zumpelars.de/pro; the invoice comes by e-mail, Pro is activated after payment. The term does not renew by itself. The device library, the account and live collaboration via signaling stay free. Without Pro, saving or creating a link shows *Saving to the cloud and share links need the Pro package "Cloud". Your cloud projects stay readable and downloadable.* with the link *Order Pro*. After Pro ends, all cloud projects stay readable and downloadable as `.cableplan`, and existing share links keep working.
+
 ### Viewer file
 
 *File → Export as viewer file…* writes a `.cpviewer` file for reviewers and helpers. The content equals the project file, with the mode forced to *viewer*; device credentials are removed because the file goes to outsiders. Existing annotations stay, so the owner can pre-mark tasks for freelancers. Afterwards *Viewer file saved* names the path.
@@ -4274,6 +4288,12 @@ The dialog *AI plan generation* creates a draft from a description or completes 
 
    ![Status bar after the completion](bilder/en/werkzeuge-bauen-ki-07-ergaenzung-eingefuegt.jpg)
 
+### Ask AI about this plan
+
+*Help → Ask AI about this plan…*
+
+Ask technical questions about the open plan here, for example “What is the best signal path from camera 1 to the recorder?” or “Which of my devices suits a vision mixer for four cameras?”. The AI gets the same view of the plan as when completing from documents: all rooms, every device with category, IP, serial number, subtitle, firmware, device properties and ports with connector and signal standard, every cable with type, standard, length and layer. User name, password and properties that sound like login data (PIN, key, token) are never sent. The AI only answers; the plan stays unchanged. Web search is off. *Ctrl/Cmd+Enter* sends the question.
+
 ### Revisions & snapshots
 
 *Tools → Revisions & snapshots…*
@@ -4620,7 +4640,7 @@ There are two ways to join a running session. In both cases **joining replaces y
 
   ![Search of the network without a hit](bilder/en/zusammenarbeit-03-suche-im-netz.jpg)
 
-- **Invitation link**: in the running session the host clicks *Copy invite*; the button briefly reads *Copied*. The clipboard then holds the line *Join the LZ Cable Planner live session:* and a link. Room, mode, signaling server and password are encoded in the part of the link after `#join=`, which is not sent to a server. A room password that is set is in the link as well; hand it on to your team only. Whoever opens the link sees *Join live session “room · host”? Your current plan will be replaced by the host’s.* and joins with *Join*. STUN/TURN credentials are not in the link.
+- **Invitation link**: in the running session the host clicks *Copy invite*; the button briefly reads *Copied*. The clipboard then holds the line *Join the LZ Cable Planner live session:* and a link. Room, mode, signaling server and password are encoded in the part of the link after `#join=`, which is not sent to a server. A room password that is set is in the link as well; hand it on to your team only. Whoever opens the link sees *Join live session “room · host”? Your current plan will be replaced by the host’s.* and joins with *Join*. STUN/TURN credentials are not in the link. With a signed-in account and the Pro package the session also uses the TURN server on relay.zumpelars.de when no direct connection works; without Pro it carries on silently over the public fallback or the LAN.
 
   ![Invitation copied](bilder/en/zusammenarbeit-07-einladung-kopiert.jpg)
 
@@ -4813,7 +4833,7 @@ Each module has a checkbox *Module enabled*.
 |---|---|---|
 | Port label font size | slider, default 11 px, button to reset | font size of the input and output labels on the device nodes; larger is easier to read when zoomed out but makes devices wider |
 | Port colours | *By direction (default)* / *By connector type* | colouring of the port handles |
-| Cable colour | *Manual* / *By length* / *By discipline* | manual: colour per cable from the properties; by length: length colour coding; by discipline: the layer colours. The colour stored on the cable is kept in every mode. |
+| Cable colour | *Manual* / *By length* / *By discipline* / *By VLAN* | manual: colour per cable from the properties; by length: length colour coding; by discipline: the layer colours; by VLAN: logical network topology. The colour stored on the cable is kept in every mode. |
 | Arrows on cables | *Show arrow at the target end (signal flow direction)* | default for newly drawn cables; changeable per cable in the properties |
 | Connection warnings | *Connect any inputs and outputs without warning* | Normally the app asks for confirmation on a connector-type conflict. With this box ticked the connection is created without asking and marked as adapter/converter. |
 
@@ -4975,7 +4995,7 @@ Without permission the device library stays fully usable: fetching and updating 
 
 ### MCP
 
-Through the MCP server Claude queries this plan: devices, ports, signal paths, cables and the result of the plan check. The server runs only in the desktop app, listens only on 127.0.0.1 and requires a pairing token. When it may change the plan, the tool `ui_command` also operates the window — undo, redo, zoom, fit, select all, duplicate, plan check — and reports the number of errors and warnings; this is how a Stream Deck with Companion drives the plan.
+Through the MCP server Claude queries this plan: devices, ports, signal paths, cables and the result of the plan check. The server runs only in the desktop app, listens only on 127.0.0.1 and requires a pairing token. When it may change the plan, the tool `ui_command` also operates the window — undo, redo, zoom, fit, select all, duplicate, plan check — and reports the number of errors and warnings; this is how a Stream Deck with Companion drives the plan. *Next cue* and *Previous cue* step through the sections of the rundown and show the devices and cables linked to the section in the signal path view (*Esc* ends it); the answer names the section's number and title.
 
 ![MCP tab, server off](bilder/en/einstellungen-26-mcp.jpg)
 
@@ -5040,6 +5060,7 @@ The cable library in the left sidebar can also edit a type in place.
 |---|---|
 | Name | e.g. CAT6a patch 5m |
 | Connector type | list of all connector types; *+* creates your own |
+| Connector at the other end | *Same as first end* or another connector type, e.g. powerCON TRUE1 → Schuko. A cable of this type fits between exactly these two connectors, either way round, and carries them as *Connector at start / at end* |
 | Cable colour | colour field |
 | Also compatible with (optional) | further connector types to click |
 | Signal standards | standards to click; *+ Standard* creates your own |
