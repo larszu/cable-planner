@@ -35,7 +35,17 @@ denied-peer-ip=224.0.0.0-255.255.255.255
 denied-peer-ip=::1
 denied-peer-ip=fc00::-fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
 denied-peer-ip=fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+# IPv4-gemappte und NAT64-Adressen fuehren sonst ueber IPv6 auf IPv4-Ziele.
+denied-peer-ip=::ffff:0.0.0.0-::ffff:255.255.255.255
+denied-peer-ip=64:ff9b::-64:ff9b::ffff:ffff
+# Der VPS selbst, ueber beide Protokolle (relay-deploy setzt die Adressen ein;
+# ohne IPv6 entfaellt die zweite Zeile).
 denied-peer-ip=@PUBLIC_IP@
+denied-peer-ip=@PUBLIC_IP6@
+
+# Nur UDP-Relays (RFC 6062 aus): WebRTC braucht kein TCP zum Peer, und
+# TCP-Relays waeren ein Weg zu beliebigen TCP-Diensten.
+no-tcp-relay
 
 # Traffic kostet: Live-Zusammenarbeit tauscht CRDT-Updates (Kilobyte), keine
 # Videostroeme. 500 kB/s je Sitzung, 5 MB/s fuer alle zusammen.

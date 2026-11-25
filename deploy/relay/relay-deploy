@@ -61,7 +61,10 @@ install -m 644 "$SRC/deploy/relay/compose.yml" "$DIR/compose.yml"
 # coturn-Konfiguration aus der Vorlage; das Secret kommt aus .env, nie aus git.
 set -a; . "$DIR/.env"; set +a
 PUBLIC_IP=$(ip -4 route get 1.1.1.1 | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}')
-sed -e "s|@TURN_SECRET@|$TURN_SECRET|" -e "s|@REALM@|$REALM|" -e "s|@PUBLIC_IP@|$PUBLIC_IP|" \
+PUBLIC_IP6=$(ip -6 route get 2606:4700:4700::1111 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}')
+# Ohne IPv6-Route faellt die Zeile weg; coturn nimmt kein leeres denied-peer-ip.
+if [ -n "$PUBLIC_IP6" ]; then IP6_EXPR="s|@PUBLIC_IP6@|$PUBLIC_IP6|"; else IP6_EXPR="/@PUBLIC_IP6@/d"; fi
+sed -e "s|@TURN_SECRET@|$TURN_SECRET|" -e "s|@REALM@|$REALM|" -e "s|@PUBLIC_IP@|$PUBLIC_IP|" -e "$IP6_EXPR" \
   "$SRC/deploy/relay/turnserver.conf.in" > "$DIR/turnserver.conf.new"
 install -m 400 -o 65534 -g 65534 "$DIR/turnserver.conf.new" "$DIR/turnserver.conf"
 rm -f "$DIR/turnserver.conf.new"
