@@ -9,6 +9,7 @@
 // Nutzung:  npm run test:signaling   (baut zuerst dist/main, dann dieser Test)
 // Exit 0 = alle Asserts grün, Exit 1 = Fehler (CI-tauglich).
 
+import { spawn } from 'node:child_process'
 import { WebSocket } from 'ws'
 import { startSignalingServer, stopSignalingServer } from '../dist/main/signalingServer.js'
 
@@ -44,6 +45,60 @@ const waitFor = (ws, type, ms = 1000) =>
       res(null)
     }, ms)
   })
+
+/** Ergebnis eines Verbindungsversuchs: 'open' oder der HTTP-Status der Ablehnung. */
+const tryConnect = (url, headers) =>
+  new Promise((res) => {
+    const ws = new WebSocket(url, { headers })
+    ws.on('open', () => {
+      ws.close()
+      res('open')
+    })
+    ws.on('unexpected-response', (_req, r) => res(r.statusCode))
+    ws.on('error', () => res('error'))
+  })
+
+// Oeffentlicher Relay (scripts/signaling-server.mjs, deploy/relay): Origin-
+// Pruefung, Nachrichtengroesse und Publish-Drossel.
+const checkPublicRelay = async () => {
+  const port = 45000 + Math.floor(Math.random() * 5000)
+  const proc = spawn(process.execPath, ['scripts/signaling-server.mjs'], {
+    env: { ...process.env, PORT: String(port), HOST: '127.0.0.1', PUBLISH_RATE: '1', PUBLISH_BURST: '5', ALLOWED_ORIGINS: '' },
+    stdio: ['ignore', 'pipe', 'inherit'],
+  })
+  await new Promise((res) => proc.stdout.on('data', (d) => String(d).includes('hört auf') && res()))
+  const url = `ws://127.0.0.1:${port}`
+  try {
+    assert((await tryConnect(url)) === 'open', 'Relay: ohne Origin (Desktop) erlaubt')
+    assert((await tryConnect(url, { Origin: 'https://larszu.github.io' })) === 'open', 'Relay: App-Origin erlaubt')
+    assert((await tryConnect(url, { Origin: 'file://' })) === 'open', 'Relay: Electron (file://) erlaubt')
+    assert((await tryConnect(url, { Origin: 'https://fremd.example' })) === 403, 'Relay: fremde Origin abgelehnt (403)')
+
+    const big = new WebSocket(url)
+    await open(big)
+    const closed = new Promise((res) => big.on('close', (code) => res(code)))
+    big.send('x'.repeat(65 * 1024))
+    assert((await closed) === 1009, 'Relay: Nachricht ueber 64 kB trennt die Verbindung (1009)')
+
+    const p = new WebSocket(url)
+    const q = new WebSocket(url)
+    await Promise.all([open(p), open(q)])
+    q.send(JSON.stringify({ type: 'subscribe', topics: ['t'] }))
+    p.send(JSON.stringify({ type: 'subscribe', topics: ['t'] }))
+    await delay(50)
+    let count = 0
+    q.on('message', (d) => {
+      if (JSON.parse(String(d)).type === 'publish') count++
+    })
+    for (let i = 0; i < 20; i++) p.send(JSON.stringify({ type: 'publish', topic: 't', data: i }))
+    await delay(300)
+    assert(count === 5, `Relay: Publish-Drossel laesst nur den Burst durch (5, war ${count})`)
+    p.close()
+    q.close()
+  } finally {
+    proc.kill()
+  }
+}
 
 const run = async () => {
   const { url, port } = await startSignalingServer()
@@ -99,6 +154,8 @@ const run = async () => {
   c.close()
   stopSignalingServer()
   await delay(50)
+
+  await checkPublicRelay()
 
   console.log(
     failures === 0

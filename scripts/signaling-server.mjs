@@ -26,13 +26,44 @@ const PING_TIMEOUT_MS = 30_000
 const MAX_CONNECTIONS = Number(process.env.MAX_CONNECTIONS) || 1000
 const MAX_PER_IP = Number(process.env.MAX_PER_IP) || 50
 const MAX_TOPICS = Number(process.env.MAX_TOPICS) || 50
-const MAX_PAYLOAD = Number(process.env.MAX_PAYLOAD) || 256 * 1024
+// Signaling-Nachrichten (SDP-Angebote, ICE-Kandidaten) sind wenige Kilobyte.
+const MAX_PAYLOAD = Number(process.env.MAX_PAYLOAD) || 64 * 1024
+// Token-Bucket je Verbindung fuer publish: PUBLISH_BURST auf einmal, danach
+// PUBLISH_RATE je Sekunde. Ein Verbindungsaufbau zu mehreren Peers braucht
+// kurz viele Nachrichten, danach fast keine mehr. Ueberschuss wird verworfen.
+const PUBLISH_RATE = Number(process.env.PUBLISH_RATE) || 20
+const PUBLISH_BURST = Number(process.env.PUBLISH_BURST) || 100
+// Erlaubte Origins (Komma-Liste). Ohne Origin kommen Desktop- und
+// Node-Clients; file:// bzw. null schickt die Electron-App.
+// ALLOWED_ORIGINS=* schaltet die Pruefung ab (nur fuer das LAN gedacht).
+const DEFAULT_ORIGINS = [
+  'https://larszu.github.io',
+  'https://devices.zumpelars.de',
+  'file://',
+  'null',
+]
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || DEFAULT_ORIGINS.join(','))
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean)
+const LOCAL_DEV_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/
+const originAllowed = (origin) => {
+  if (!origin) return true
+  if (ALLOWED_ORIGINS.includes('*')) return true
+  if (LOCAL_DEV_ORIGIN.test(origin)) return true
+  return ALLOWED_ORIGINS.includes(origin)
+}
 // Hinter Caddy kommt jede Verbindung von Caddy; die echte Adresse steht dann
 // in X-Forwarded-For. Nur mit TRUST_PROXY=1 glauben — sonst koennte jeder
 // Client sie selbst setzen.
 const TRUST_PROXY = process.env.TRUST_PROXY === '1'
 
-const wss = new WebSocketServer({ port: PORT, host: HOST, maxPayload: MAX_PAYLOAD })
+const wss = new WebSocketServer({
+  port: PORT,
+  host: HOST,
+  maxPayload: MAX_PAYLOAD,
+  verifyClient: ({ origin }, done) => (originAllowed(origin) ? done(true) : done(false, 403, 'origin not allowed')),
+})
 const perIp = new Map()
 const ipOf = (req) => {
   const fwd = TRUST_PROXY ? String(req.headers['x-forwarded-for'] ?? '').split(',')[0].trim() : ''
@@ -61,6 +92,16 @@ wss.on('connection', (conn, req) => {
   const subscribed = new Set()
   let closed = false
   let pongReceived = true
+  let tokens = PUBLISH_BURST
+  let lastRefill = Date.now()
+  const takeToken = () => {
+    const now = Date.now()
+    tokens = Math.min(PUBLISH_BURST, tokens + ((now - lastRefill) / 1000) * PUBLISH_RATE)
+    lastRefill = now
+    if (tokens < 1) return false
+    tokens -= 1
+    return true
+  }
 
   const pingInterval = setInterval(() => {
     if (!pongReceived) {
@@ -75,6 +116,10 @@ wss.on('connection', (conn, req) => {
       conn.close()
     }
   }, PING_TIMEOUT_MS)
+
+  // Ohne Handler beendet ein Protokollfehler (z. B. Nachricht ueber
+  // MAX_PAYLOAD) den ganzen Prozess; so trennt er nur diese Verbindung.
+  conn.on('error', () => conn.terminate())
 
   conn.on('pong', () => {
     pongReceived = true
@@ -122,7 +167,7 @@ wss.on('connection', (conn, req) => {
         })
         break
       case 'publish':
-        if (m.topic) {
+        if (typeof m.topic === 'string' && takeToken()) {
           const receivers = topics.get(m.topic)
           if (receivers) {
             m.clients = receivers.size

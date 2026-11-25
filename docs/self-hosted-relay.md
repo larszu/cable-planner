@@ -47,6 +47,15 @@ PORT=4444 node scripts/signaling-server.mjs
 
 Er hört auf `ws://0.0.0.0:4444` und vermittelt nur Signaling (Räume/Topics).
 
+Grenzen per Umgebungsvariable:
+
+| Variable | Vorgabe | Wirkung |
+|---|---|---|
+| `ALLOWED_ORIGINS` | `https://larszu.github.io,https://devices.zumpelars.de,file://,null` | Komma-Liste erlaubter Origins. Ohne Origin (Desktop, Node) und `http://localhost:*` sind immer erlaubt; `*` schaltet die Prüfung ab. Eigene Web-Ausgabe hier eintragen. |
+| `MAX_PAYLOAD` | `65536` | größte Nachricht in Byte; darüber wird getrennt |
+| `PUBLISH_RATE` / `PUBLISH_BURST` | `20` / `100` | Token-Bucket je Verbindung für `publish`; Überschuss wird verworfen |
+| `MAX_CONNECTIONS` / `MAX_PER_IP` / `MAX_TOPICS` | `1000` / `50` / `50` | Verbindungen gesamt, je IP, Räume je Verbindung |
+
 ## 2. Öffentlich + verschlüsselt erreichbar machen (wss://)
 
 Mobile Browser verlangen **wss://** (TLS). Stelle den Relay hinter einen
