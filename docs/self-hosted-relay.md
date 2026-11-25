@@ -24,23 +24,15 @@ Eigener Relay und „Nur lokal" bleiben wählbar und haben Vorrang.
 | Raumkennung, IP-Adressen, Verbindungsaufbau (SDP) — nur im Speicher | der Plan: Updates laufen Ende-zu-Ende zwischen den Geräten, mit Raum-Passwort verschlüsselt |
 | TURN: Nutzdaten im Durchlauf, wenn P2P scheitert (verschlüsselt, nicht gespeichert) | irgendetwas auf Platte |
 
-Betrieb (auf dem lz-share-VPS, Grenzen: Relay 96 MB/0,25 CPU, coturn
-128 MB/0,5 CPU, 500 kB/s je Sitzung, 5 MB/s gesamt, Portbereich
-49160–49200, keine Weiterleitung in private Netze oder zum VPS selbst):
-
-```bash
-ssh root@91.216.248.103
-curl -fsSL https://raw.githubusercontent.com/larszu/cable-planner/main/deploy/relay/setup-relay.sh | bash
-# DNS: A-Record relay.zumpelars.de -> VPS (Lima-Panel)
-cd /opt/pingvin && docker compose up -d --force-recreate caddy
-relay-deploy              # main holen, bauen, ausrollen
-relay-deploy --stand      # was läuft, Traffic, TURN-Sitzungen
-```
-
-Dateien: `deploy/relay/` (Dockerfile, `compose.yml`, `turnserver.conf.in`,
-`Caddyfile.snippet`, `setup-relay.sh`, `relay-deploy`). Das TURN-Secret
-erzeugt `setup-relay.sh` und trägt es in `/opt/relay/.env` und
-`/opt/devices/.env` ein — nie ins Repo.
+Betrieb: `relay.zumpelars.de` läuft auf demselben Server wie die
+Gerätebibliothek. Begrenzt ist er auf 96 MB/0,25 CPU für den Relay und
+128 MB/0,5 CPU für coturn, auf 500 kB/s je Sitzung und 5 MB/s gesamt sowie
+auf den Portbereich 49160–49200. Weiterleitungen in private Netze gibt es
+nicht. TURN-Zugangsdaten bekommen nur Konten mit dem Pro-Paket „Cloud“ der
+Gerätebibliothek; ohne Pro fällt die Zusammenarbeit auf öffentliche Reserve
+oder LAN zurück. Bausteine liegen in `deploy/relay/`. Das TURN-Secret
+entsteht auf dem Server und landet nie im Repo. Zugänge, Pfade und Abläufe
+für den eigenen Server stehen im privaten Betriebshandbuch, nicht hier.
 
 ## 1. Relay starten
 
