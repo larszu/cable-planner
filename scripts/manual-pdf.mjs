@@ -253,8 +253,8 @@ ${body}
   <div class="claim">Im<br>Fokus<i>.</i></div>
   <div class="adresse">
     <b>Lars Zumpe</b><br>
-    <span class="meta">Lars Zumpe Medienproduktion · Turmstraße 37 · 51645 Gummersbach</span><br>
-    +49 151 2070 3235<br>info@zumpelars.de<br>www.zumpelars.de
+    <span class="meta">Lars Zumpe Medienproduktion</span><br>
+    info@zumpelars.de<br>www.zumpelars.de
   </div>
   <div class="rueck-logo logo">${logo}</div>
   <div class="fuss klein"><span>LZ Cable Planner · ${titel} · Version ${version} · ${datum}</span><span>${lizenz}</span></div>
