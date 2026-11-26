@@ -14,8 +14,9 @@
 //     Betriebsart 8K ausserdem M/E, SuperSource und Multiviewer (die Seite
 //     nennt dort nur EINEN Wert ohne Aufteilung nach Betriebsart).
 //   - Videohub: Take-Modus (das Ethernet-Protokoll kennt nur Sperren).
-//   - Universal Videohub 72/288: kein Profil, die Herstellerseiten fuehren
-//     die Modelle nicht mehr.
+//   - Universal Videohub 72/288: Take-Modus und Breakaway (das Handbuch
+//     nennt beides nicht). Belegt sind Groesse und Ebenen aus dem
+//     Videohub-Handbuch auf documents.blackmagicdesign.com.
 //   - ATEM Mini, Mini Pro (ISO), Mini Extreme (ISO): M/E-Zahl und
 //     SuperSource (die Tech-Specs fuehren beides nur beim Extreme ISO G2),
 //     beim ATEM Mini ausserdem der Multiviewer (hat keinen).
@@ -230,6 +231,31 @@ const videohub = (n: number): SwitchingProfile => ({
   levels: [{ id: 'video', label: 'Video' }],
   features: { locks: true },
 })
+
+/** Videohub-Handbuch (Installation and Operation Manual), Kapitel „Universal Videohub Routers“. */
+const VIDEOHUB_MANUAL = 'https://documents.blackmagicdesign.com/UserManuals/VideohubInstallation.pdf'
+
+const universalVideohub = (n: number): SwitchingProfile => ({
+  role: 'router',
+  idScheme: 'videohub',
+  manufacturerUrl: VIDEOHUB_MANUAL,
+  sources: { features: VIDEOHUB_PROTOCOL },
+  blocks: { inputs: n },
+  outputs: n,
+  levels: [
+    { id: 'video', label: 'Video' },
+    { id: 'rs422', label: 'RS-422 deck control' },
+  ],
+  features: { locks: true },
+})
+
+/**
+ * Universal Videohub 72 / 288 voll bestueckt: „provides 72 SDI inputs, 72 SDI
+ * outputs, 72 bidirectional RS-422 deck control ports“ bzw. „288 SDI inputs,
+ * 288 SDI outputs, 288 bidirectional RS-422 deck control ports“.
+ */
+export const PROFILE_UNIVERSAL_VIDEOHUB_72 = universalVideohub(72)
+export const PROFILE_UNIVERSAL_VIDEOHUB_288 = universalVideohub(288)
 
 /** Smart Videohub 12G 40x40, 40x40, 20x20, 12x12 — eine Ebene. */
 export const PROFILE_SMART_VIDEOHUB_40 = videohub(40)

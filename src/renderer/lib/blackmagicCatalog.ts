@@ -13,6 +13,8 @@ import {
   PROFILE_SMART_VIDEOHUB_12,
   PROFILE_SMART_VIDEOHUB_20,
   PROFILE_SMART_VIDEOHUB_40,
+  PROFILE_UNIVERSAL_VIDEOHUB_72,
+  PROFILE_UNIVERSAL_VIDEOHUB_288,
   PROFILE_ATEM_MINI,
   PROFILE_ATEM_MINI_PRO,
   PROFILE_ATEM_MINI_PRO_ISO,
@@ -187,6 +189,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '83750064-f7ee-4d86-b47e-704b170c552e',
     kind: 'videohub',
     videohubPresetKey: 'universal-72x72',
+    switchingProfile: PROFILE_UNIVERSAL_VIDEOHUB_72,
     // Quelle: https://www.blackmagicdesign.com/products/blackmagicvideohub
     template: {
       manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicvideohub',
@@ -207,6 +210,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
     deviceTypeId: '42fd5858-df56-46c6-a3cc-e3dd155ede23',
     kind: 'videohub',
     videohubPresetKey: 'universal-master-288x288',
+    switchingProfile: PROFILE_UNIVERSAL_VIDEOHUB_288,
     // Quelle: https://www.blackmagicdesign.com/products/blackmagicvideohub
     template: {
       manufacturerUrl: 'https://www.blackmagicdesign.com/products/blackmagicvideohub',

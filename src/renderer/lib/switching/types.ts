@@ -25,6 +25,12 @@ export interface SwitchingBlockCounts {
   /** Externe Videoeingaenge. */
   inputs?: number
   mixEffects?: number
+  /**
+   * Kleine Zusatzreihen neben den vollen M/Es (Grass Valley „MiniME“, For-A
+   * „MELite“, Sony „MiniME“). Eigenes Feld, weil das Datenblatt sie getrennt
+   * zaehlt und sie weniger koennen als eine M/E.
+   */
+  subMixEffects?: number
   /** Upstream-Keyer insgesamt (Datenblatt nennt meist die Summe). */
   upstreamKeyers?: number
   /** Upstream-Keyer je M/E, wo das Datenblatt es ausdruecklich sagt. */
@@ -65,6 +71,13 @@ export interface SwitchingMode {
 export interface MatrixLevelDef {
   id: string
   label: string
+  /**
+   * Groesse dieser Ebene, wo sie von der Video-Matrix abweicht (z. B. eine
+   * Audio-Matrix in Kanaelen). Fehlt der Wert: wie `blocks.inputs` x `outputs`
+   * bzw. nicht belegt.
+   */
+  inputs?: number
+  outputs?: number
 }
 
 /** Was eine Kreuzschiene ueber die Ebenen hinaus kann. Fehlt ein Wert: nicht belegt. */
@@ -75,6 +88,8 @@ export interface MatrixFeatures {
   locks?: boolean
   /** Vormerken und gemeinsam schalten. */
   takeMode?: boolean
+  /** Anzahl speicherbarer Salvos, wo das Datenblatt sie nennt. */
+  salvos?: number
 }
 
 /**

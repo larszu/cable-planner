@@ -758,6 +758,7 @@ export const de: Dict = {
   'switching.count.mediaPlayers': 'Mediaplayer',
   'switching.count.mixEffects': 'M/Es',
   'switching.count.multiviewers': 'Multiviewer',
+  'switching.count.subMixEffects': 'Zusatz-M/Es (MiniME, MELite)',
   'switching.count.stills': 'Standbilder im Media-Pool',
   'switching.count.superSourceBoxes': 'Boxen je SuperSource',
   'switching.count.superSources': 'SuperSources',
