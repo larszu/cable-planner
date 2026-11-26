@@ -58,6 +58,59 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
     },
   },
 
+  // Panasonic AV-HS410 (2011) — 1-M/E-HD-Mischer, 8 SDI + 1 DVI-D im Grundausbau (max. 13 Eingaenge mit Optionskarten); Tally/GPI (2x D-sub 15) ohne passenden Steckertyp nicht gefuehrt
+  // Quelle: https://eww.pass.panasonic.co.jp/pro-av/support/dload/hs410_ver201/operation_base_e.pdf
+  {
+    match: ['panasonic', 'av-hs410'],
+    deviceTypeId: '7dfc3965-4e2c-495e-bd8e-b87e20d10e5f',
+    template: {
+      manufacturerUrl: 'https://eww.pass.panasonic.co.jp/pro-av/support/dload/hs410_ver201/operation_base_e.pdf',
+      name: 'Panasonic AV-HS410',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('SDI In', 8, 'BNC'),
+        { id: '', name: 'DVI-D In', type: 'DVI', connectorType: 'DVI' },
+        { id: '', name: 'LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'EDITOR (RS-422)', type: 'DB9', connectorType: 'DB9' },
+        { id: '', name: 'COM (RS-422)', type: 'DB9', connectorType: 'DB9' },
+      ],
+      outputs: [
+        ...num('SDI Out', 6, 'BNC'),
+        { id: '', name: 'DVI-D Out', type: 'DVI', connectorType: 'DVI' },
+        ...num('Black Burst Out', 2, 'BNC'),
+      ],
+      width: 260, height: 252,
+    },
+  },
+
+  // Panasonic AV-HS6000 (2014) — 2-M/E-Mainframe AV-HS60U2 in 3 HE, 32 SDI + 2 DVI In, 16 SDI-Ausgangsleitungen mit je 2 verteilten BNC
+  // Quelle: https://pro-av.panasonic.net/en/products/av-hs6000/spec.html
+  {
+    match: ['panasonic', 'av-hs6000'],
+    deviceTypeId: '9e40841b-52a0-4908-875e-d759ba080f65',
+    template: {
+      manufacturerUrl: 'https://pro-av.panasonic.net/en/products/av-hs6000/spec.html',
+      name: 'Panasonic AV-HS6000',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('SDI In', 32, 'BNC'),
+        ...num('DVI-D In', 2, 'DVI'),
+        { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'LTC In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'PANEL LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        ...num('COM (RS-422)', 4, 'DB9'),
+        { id: '', name: 'GPI In (D-sub 25)', type: 'DB25', connectorType: 'DB25' },
+      ],
+      outputs: [
+        ...num('SDI Out', 32, 'BNC'),
+        ...num('Black Burst Out', 2, 'BNC'),
+        ...num('GPI Out (D-sub 25)', 2, 'DB25'),
+      ],
+      width: 260, height: 748,
+    },
+  },
+
   // For-A HVS-490 (2016) — HANABI 2 M/E, 3G/HD/SD; Frame-Sync auf allen Inputs; erweiterbar bis 40 In / 22 Out
   // Quelle: https://www.for-a.com/products/hvs490/
   {

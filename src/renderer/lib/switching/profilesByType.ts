@@ -52,6 +52,8 @@ export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfil
   '319fdd22-1092-4b92-8b8f-d3ed5423db53': roland.PROFILE_ROLAND_P20HD,
   // Panasonic (switcherCatalog)
   'd3671648-297a-4785-a48f-9ecdcab0f934': panasonic.PROFILE_PANASONIC_AV_UHS500,
+  '7dfc3965-4e2c-495e-bd8e-b87e20d10e5f': panasonic.PROFILE_PANASONIC_AV_HS410,
+  '9e40841b-52a0-4908-875e-d759ba080f65': panasonic.PROFILE_PANASONIC_AV_HS6000,
   // For-A (switcherCatalog)
   'ce02f5e9-95c8-4910-a616-6147a312998b': fora.PROFILE_FORA_HVS_490,
   // AJA (ajaCatalog)
