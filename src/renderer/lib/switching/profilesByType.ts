@@ -12,6 +12,7 @@ import { PROFILE_ATEM_TVS_PRO_4K } from './profiles'
 import * as ross from './profilesRoss'
 import * as roland from './profilesRoland'
 import * as panasonic from './profilesPanasonic'
+import * as fora from './profilesForA'
 
 export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfile>> = {
   /** Blackmagic ATEM Television Studio Pro 4K (broadcastNachtragBCatalog) */
@@ -40,4 +41,6 @@ export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfil
   '9d9feabe-7a1d-473b-b182-d6a37e19a390': roland.PROFILE_ROLAND_XS62S,
   // Panasonic (switcherCatalog)
   'd3671648-297a-4785-a48f-9ecdcab0f934': panasonic.PROFILE_PANASONIC_AV_UHS500,
+  // For-A (switcherCatalog)
+  'ce02f5e9-95c8-4910-a616-6147a312998b': fora.PROFILE_FORA_HVS_490,
 }
