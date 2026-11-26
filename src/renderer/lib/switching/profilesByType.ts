@@ -42,6 +42,14 @@ export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfil
   'eebf5cb4-31f2-4c35-87a7-6c59c28227fb': roland.PROFILE_ROLAND_VR6HD,
   'b36b1870-fac4-4053-8f9f-5aa1efdddd26': roland.PROFILE_ROLAND_V1200HD,
   '9d9feabe-7a1d-473b-b182-d6a37e19a390': roland.PROFILE_ROLAND_XS62S,
+  '29eea792-d516-48bf-877b-b751d382ce4b': roland.PROFILE_ROLAND_V1HD,
+  'efa0ed3d-a66f-49f7-8126-7d6a4b404cef': roland.PROFILE_ROLAND_V1SDI,
+  'd7fd1b9c-bb9b-495d-b919-2924de639627': roland.PROFILE_ROLAND_VR4HD,
+  '2edf1e21-27d6-445d-a167-3cf245d4775c': roland.PROFILE_ROLAND_V600UHD,
+  '9329823d-63cb-4d13-8f14-ace0e6a62f72': roland.PROFILE_ROLAND_XS1HD,
+  '4c28019c-a14e-465b-ae66-2be15d05f706': roland.PROFILE_ROLAND_XS84H,
+  'c48e7903-7c1a-44ad-9e3d-20980f78866e': roland.PROFILE_ROLAND_VP42H,
+  '319fdd22-1092-4b92-8b8f-d3ed5423db53': roland.PROFILE_ROLAND_P20HD,
   // Panasonic (switcherCatalog)
   'd3671648-297a-4785-a48f-9ecdcab0f934': panasonic.PROFILE_PANASONIC_AV_UHS500,
   // For-A (switcherCatalog)
