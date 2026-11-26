@@ -66,13 +66,17 @@ PUBLIC_IP6=$(ip -6 route get 2606:4700:4700::1111 2>/dev/null | awk '{for(i=1;i<
 if [ -n "$PUBLIC_IP6" ]; then IP6_EXPR="s|@PUBLIC_IP6@|$PUBLIC_IP6|"; else IP6_EXPR="/@PUBLIC_IP6@/d"; fi
 sed -e "s|@TURN_SECRET@|$TURN_SECRET|" -e "s|@REALM@|$REALM|" -e "s|@PUBLIC_IP@|$PUBLIC_IP|" -e "$IP6_EXPR" \
   "$SRC/deploy/relay/turnserver.conf.in" > "$DIR/turnserver.conf.new"
+# coturn liest die Datei nur beim Start; compose sieht die Aenderung nicht.
+OLD_CONF=$(sha256sum "$DIR/turnserver.conf" 2>/dev/null | cut -d" " -f1)
 install -m 400 -o 65534 -g 65534 "$DIR/turnserver.conf.new" "$DIR/turnserver.conf"
+CONF_CHANGED=$([ "$OLD_CONF" = "$(sha256sum "$DIR/turnserver.conf" | cut -d" " -f1)" ] || echo 1)
 rm -f "$DIR/turnserver.conf.new"
 certs || echo "coturn startet ohne TLS-Zertifikat; 5349 geht erst nach 'relay-deploy --certs'."
 
 nice -n 19 docker build -q -f deploy/relay/Dockerfile -t cable-planner-relay:latest "$SRC"
 cd "$DIR"
 docker compose up -d 2>&1 | tail -2
+[ -n "$CONF_CHANGED" ] && { echo "turnserver.conf geaendert: coturn neu starten"; docker compose restart coturn 2>&1 | tail -1; }
 sleep 5
 docker compose ps --format "  {{.Name}}: {{.Status}}"
 docker image prune -f >/dev/null
