@@ -32,6 +32,14 @@ describe('Profile in der Breite', () => {
       if (p.levels) expect(p.sources?.levels ?? p.manufacturerUrl).toMatch(url)
       if (p.features) expect(p.sources?.features ?? p.manufacturerUrl).toMatch(url)
       if (p.role === 'router') expect(p.levels?.length ?? 0, i!.template.name).toBeGreaterThan(0)
+      // Ebenengroesse und Salvo-Anzahl: nur positive ganze Zahlen, belegt wie die Ebenen.
+      for (const l of p.levels ?? []) {
+        for (const n of [l.inputs, l.outputs]) {
+          if (n !== undefined) expect(Number.isInteger(n) && n > 0, `${i!.template.name} ${l.id}`).toBe(true)
+        }
+      }
+      const salvos = p.features?.salvos
+      if (salvos !== undefined) expect(Number.isInteger(salvos) && salvos > 0, i!.template.name).toBe(true)
     }
   })
 })

@@ -72,6 +72,7 @@ export interface InnerMatrix {
 const COUNT_KEYS: readonly (keyof SwitchingBlockCounts)[] = [
   'inputs',
   'mixEffects',
+  'subMixEffects',
   'upstreamKeyers',
   'upstreamKeyersPerMe',
   'downstreamKeyers',

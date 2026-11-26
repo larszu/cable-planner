@@ -42,6 +42,7 @@ const ERGAENZBAR: SwitchingBlockCountKey[] = [
 const COUNT_EN: Record<SwitchingBlockCountKey, string> = {
   inputs: 'Inputs',
   mixEffects: 'M/Es',
+  subMixEffects: 'Sub-M/Es (MiniME, MELite)',
   upstreamKeyers: 'Upstream keyers',
   upstreamKeyersPerMe: 'Keyers per M/E',
   downstreamKeyers: 'Downstream keyers',
