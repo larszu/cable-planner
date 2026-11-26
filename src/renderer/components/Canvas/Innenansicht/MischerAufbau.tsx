@@ -25,12 +25,17 @@ import {
   innerPathsInto,
   routePatch,
   setKeyer,
+  stillRef,
+  stillSlotNumber,
   type InnerBlock,
+  type MediaSlotState,
   type SwitchingProfile,
 } from '../../../lib/switching'
 import type { EquipmentItem } from '../../../types/equipment'
 import { MischerSeitenleiste } from './MischerSeitenleiste'
 import { blockLabel, destLabel } from './labels'
+import { BildAblage, BildLadenKnopf, StillVorschau } from './Standbild'
+import { useStandbildLaden } from './useStandbild'
 
 interface BlockData {
   block: InnerBlock
@@ -42,6 +47,9 @@ interface BlockData {
   onAir?: boolean
   onToggleAir?: () => void
   airLabel: string
+  removeLabel?: string
+  /** Nur Mediaplayer: Bild laden, Vorschau, entfernen. */
+  media?: { ref?: MediaSlotState; onFile: (f: File) => void; onClear?: () => void; clearLabel: string }
 }
 
 const ROW = 20
@@ -66,6 +74,36 @@ const BlockNode = memo(({ data, selected }: NodeProps<BlockData>) => {
         )}
       </div>
       {data.sub && <div className="-mt-1 px-2 pb-1 text-cp-text-faint">{data.sub}</div>}
+      {data.media && (
+        <BildAblage
+          onFile={data.media.onFile}
+          className="nodrag mx-2 mb-1 flex items-center gap-1 rounded-cp-s border border-dashed border-cp-border p-1"
+          testId={`mp-ablage-${block.index}`}
+        >
+          <div className="flex h-12 w-20 shrink-0 items-center justify-center">
+            {data.media.ref ? (
+              <StillVorschau refState={data.media.ref} gross />
+            ) : (
+              <span className="text-center text-cp-text-faint">{data.media.clearLabel}</span>
+            )}
+          </div>
+          <div className="flex flex-col items-start">
+            <BildLadenKnopf onFile={data.media.onFile} ersetzen={!!data.media.ref} testId={`mp-laden-${block.index}`} />
+            {data.media.onClear && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  data.media?.onClear?.()
+                }}
+                className="nodrag rounded-cp-s px-1.5 py-0.5 text-cp-danger hover:bg-cp-surface-3"
+              >
+                {data.removeLabel}
+              </button>
+            )}
+          </div>
+        </BildAblage>
+      )}
       {data.dests.map((d) => (
         <div
           key={d.id}
@@ -131,12 +169,18 @@ const COL_X: Record<InnerBlock['kind'], number> = {
   multiviewer: 1300,
 }
 
-const heightOf = (b: InnerBlock, hasSub: boolean) => HEAD + (hasSub ? 14 : 0) + b.dests.length * ROW + 4
+/** Hoehe der Bildflaeche im Mediaplayer-Knoten. */
+const MEDIA_H = 62
+
+const heightOf = (b: InnerBlock, hasSub: boolean) =>
+  HEAD + (hasSub ? 14 : 0) + b.dests.length * ROW + 4 + (b.kind === 'mediaPlayer' ? MEDIA_H : 0)
 
 const Flaeche = ({ device, profile }: { device: EquipmentItem; profile: SwitchingProfile | null }) => {
   const t = useTranslation()
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
   const anhaenge = useProjectStore((s) => s.project.anhaenge)
+  const fotos = useProjectStore((s) => s.project.fotos)
+  const { inPlayer, leeren } = useStandbildLaden(device.id)
   const [auswahl, setAuswahl] = useState<string | null>(null)
   const [kante, setKante] = useState<string | null>(null)
   const state = device.switching
@@ -173,7 +217,10 @@ const Flaeche = ({ device, profile }: { device: EquipmentItem; profile: Switchin
     const y: Partial<Record<number, number>> = {}
     const stillName = (slot: string | undefined) => {
       if (!slot) return undefined
-      const a = anhaenge?.find((x) => x.id === state?.media?.[slot]?.anhangId)
+      const ref = state?.media?.[slot]
+      const f = ref?.fotoId ? fotos?.find((x) => x.id === ref.fotoId) : undefined
+      if (f) return f.notiz || format(t('switching.media.still', 'Still {n}'), { n: slot.split(':')[1] })
+      const a = anhaenge?.find((x) => x.id === ref?.anhangId)
       return a
         ? a.titel || a.datei.fileName
         : format(t('switching.media.slotEmpty', 'Still {n} (empty)'), {
@@ -215,6 +262,21 @@ const Flaeche = ({ device, profile }: { device: EquipmentItem; profile: Switchin
           highlight: highlighted.blocks.has(b.id),
           dim: !!auswahl && !highlighted.blocks.has(b.id),
           airLabel: t('switching.keyer.onAir', 'On air'),
+          removeLabel: t('switching.media.remove', 'Remove image'),
+          ...(b.kind === 'mediaPlayer'
+            ? (() => {
+                const slot = stillSlotNumber(state?.routes?.[`mp:${b.index}/still`])
+                const ref = slot ? stillRef(state, slot) : undefined
+                return {
+                  media: {
+                    ref,
+                    onFile: (f: File) => void inPlayer(b.index, f),
+                    onClear: ref && slot ? () => leeren(slot) : undefined,
+                    clearLabel: t('switching.media.dropHere', 'Drop an image here'),
+                  },
+                }
+              })()
+            : {}),
           ...(keyer
             ? {
                 onAir: state?.keyers?.[b.id]?.onAir === true,
@@ -230,7 +292,7 @@ const Flaeche = ({ device, profile }: { device: EquipmentItem; profile: Switchin
       })
     }
     return out
-  }, [matrix, routes, state, t, highlighted, auswahl, anhaenge, device.id, updateEquipment])
+  }, [matrix, routes, state, t, highlighted, auswahl, anhaenge, fotos, device.id, updateEquipment, inPlayer, leeren])
 
   const edges = useMemo<Edge[]>(() => {
     const out: Edge[] = []

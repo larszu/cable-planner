@@ -7,6 +7,7 @@ import { resolveDeviceType } from '../deviceTypeRegistry'
 import { buildInnerMatrix, type InnerMatrix } from './internalMatrix'
 import type {
   KeyerState,
+  MediaSlotState,
   SwitchingBlockCountKey,
   SwitchingBlockCounts,
   SwitchingMacro,
@@ -66,11 +67,22 @@ export const setKeyer = (state: SwitchingState | undefined, id: string, patch: K
   return { ...s, keyers: { ...(s.keyers ?? {}), [id]: { ...(s.keyers?.[id] ?? {}), ...patch } } }
 }
 
-/** Einen Media-Pool-Platz mit einem Projekt-Anhang belegen (leer = freigeben). */
-export const setMediaSlot = (state: SwitchingState | undefined, slot: number, anhangId: string | undefined): SwitchingState => {
+/**
+ * Einen Media-Pool-Platz belegen (leer = freigeben). Eine Zeichenkette ist
+ * eine Anhang-Id, ein Objekt nennt Foto oder Anhang.
+ */
+export const setMediaSlot = (
+  state: SwitchingState | undefined,
+  slot: number,
+  ref: string | MediaSlotState | undefined,
+): SwitchingState => {
   const s = state ?? {}
   const media = { ...(s.media ?? {}) }
-  if (anhangId) media[`still:${slot}`] = { anhangId }
+  const r: MediaSlotState = typeof ref === 'string' ? { anhangId: ref } : (ref ?? {})
+  const clean: MediaSlotState = {}
+  if (r.fotoId) clean.fotoId = r.fotoId
+  if (r.anhangId) clean.anhangId = r.anhangId
+  if (clean.fotoId || clean.anhangId) media[`still:${slot}`] = clean
   else delete media[`still:${slot}`]
   return { ...s, media }
 }
@@ -151,7 +163,11 @@ export const normaliseSwitching = (
   const media: SwitchingState['media'] = {}
   if (isObj(raw.media)) {
     for (const [slot, m] of Object.entries(raw.media)) {
-      if (/^still:\d+$/.test(slot) && isObj(m) && typeof m.anhangId === 'string' && m.anhangId) media[slot] = { anhangId: m.anhangId }
+      if (!/^still:\d+$/.test(slot) || !isObj(m)) continue
+      const ms: MediaSlotState = {}
+      if (typeof m.fotoId === 'string' && m.fotoId) ms.fotoId = m.fotoId
+      if (typeof m.anhangId === 'string' && m.anhangId) ms.anhangId = m.anhangId
+      if (ms.fotoId || ms.anhangId) media[slot] = ms
     }
   }
   if (Object.keys(media).length) s.media = media

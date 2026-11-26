@@ -298,12 +298,12 @@ describe('Betriebsart, Snapshot, Makro, Heilung', () => {
     const s = normaliseSwitching(d, {
       routes: { 'me:1/pgm': 'in:3', 'me:9/pgm': 'in:1', 'aux:1': 'gibtsnicht', 'mp:1/still': 'still:2' },
       keyers: { 'me:1/key:1': { onAir: true, type: 'quatsch' } },
-      media: { 'still:2': { anhangId: 'x' }, 'unsinn': { anhangId: 'y' } },
+      media: { 'still:2': { anhangId: 'x' }, 'still:3': { fotoId: 'f' }, 'still:4': {}, 'unsinn': { anhangId: 'y' } },
       locks: { a: 'lock', b: 'nein' },
     })
     expect(s?.routes).toEqual({ 'me:1/pgm': 'in:3', 'mp:1/still': 'still:2' })
     expect(s?.keyers).toEqual({ 'me:1/key:1': { onAir: true } })
-    expect(s?.media).toEqual({ 'still:2': { anhangId: 'x' } })
+    expect(s?.media).toEqual({ 'still:2': { anhangId: 'x' }, 'still:3': { fotoId: 'f' } })
     expect(s?.locks).toEqual({ a: 'lock' })
     expect(normaliseSwitching(d, { routes: { quatsch: 1 } })).toBeUndefined()
     expect(normaliseSwitching(d, 'kaputt')).toBeUndefined()

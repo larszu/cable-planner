@@ -1,14 +1,11 @@
 // #1240 Stufe 2 — Seitenleiste der Mischer-Innenansicht: Profil und
 // Betriebsart, fehlende Bausteine ergaenzen, Media-Pool mit PNGs.
 //
-// Bilder gehen den vorhandenen Weg der Projekt-Anhaenge (Ordner „Anhaenge“,
-// Pruefsumme, Vorschau ueber `attachment:preview`) — keine zweite Ablage.
-import { useEffect, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+// Bilder laedt man mit „Bild laden…“ oder per Drag & Drop (`Standbild.tsx`).
+// Sie liegen im Projekt und gehen damit auch im Browser. Vorhandene
+// Bild-Anhaenge (Ordner „Anhaenge“) bleiben waehlbar.
 import { useProjectStore } from '../../../store/projectStore'
 import { format, useTranslation } from '../../../lib/i18n'
-import { cablePlannerApi, hasDesktopBridge } from '../../../lib/bridge'
-import { alsDataUrl, neuerAnhang } from '../../../lib/anhaenge'
 import {
   effectiveCounts,
   innerPathsFrom,
@@ -16,6 +13,7 @@ import {
   pathBlocks,
   routePatch,
   setMediaSlot,
+  stillRef,
   type InnerMatrix,
   type SwitchingBlockCountKey,
   type SwitchingProfile,
@@ -23,6 +21,8 @@ import {
 import type { EquipmentItem } from '../../../types/equipment'
 import type { ProjektAnhang } from '../../../types/anhang'
 import { blockLabel } from './labels'
+import { BildAblage, BildLadenKnopf, StillName, StillVorschau } from './Standbild'
+import { useStandbildLaden } from './useStandbild'
 
 const ERGAENZBAR: SwitchingBlockCountKey[] = [
   'inputs',
@@ -59,23 +59,6 @@ const COUNT_EN: Record<SwitchingBlockCountKey, string> = {
 const istBild = (a: ProjektAnhang) =>
   /^image\/(png|jpeg|gif|bmp|tiff)$/.test(a.datei.mediaType) || /\.png$/i.test(a.datei.fileName)
 
-const Vorschau = ({ anhang }: { anhang: ProjektAnhang }) => {
-  const filePath = useProjectStore((s) => s.filePath)
-  const [src, setSrc] = useState<string | null>(null)
-  useEffect(() => {
-    if (!hasDesktopBridge || !filePath) return
-    let aktiv = true
-    void cablePlannerApi.attachment
-      .preview(filePath, anhang.datei.storedAs)
-      .then((r) => aktiv && r && setSrc(alsDataUrl(r.mediaType, r.daten)))
-      .catch(() => undefined)
-    return () => {
-      aktiv = false
-    }
-  }, [filePath, anhang.datei.storedAs])
-  return src ? <img src={src} alt="" className="h-8 w-14 rounded-cp-s border border-cp-border object-contain" /> : null
-}
-
 export const MischerSeitenleiste = ({
   device,
   profile,
@@ -89,10 +72,8 @@ export const MischerSeitenleiste = ({
 }) => {
   const t = useTranslation()
   const updateEquipment = useProjectStore((s) => s.updateEquipment)
-  const addAnhaenge = useProjectStore((s) => s.addAnhaenge)
-  const filePath = useProjectStore((s) => s.filePath)
   const anhaenge = useProjectStore((s) => s.project.anhaenge) ?? []
-  const [fehler, setFehler] = useState<string | null>(null)
+  const { inPlatz, leeren, fehler } = useStandbildLaden(device.id)
   const state = device.switching
   const counts = effectiveCounts(profile, state)
   const bilder = anhaenge.filter(istBild)
@@ -104,20 +85,6 @@ export const MischerSeitenleiste = ({
     if (v === undefined || !Number.isFinite(v)) delete blocks[k]
     else blocks[k] = Math.max(0, Math.min(100, Math.floor(v)))
     updateEquipment(device.id, { switching: { ...(state ?? {}), blocks } })
-  }
-
-  const pngAnhaengen = async (slot: number) => {
-    setFehler(null)
-    const r = await cablePlannerApi.attachment.pick(filePath ?? undefined)
-    if (r.canceled) return
-    const ok = r.results.find((x) => x.ok && /^image\//.test(x.file.mediaType))
-    if (!ok || !ok.ok) {
-      setFehler(t('switching.media.notImage', 'Please choose a PNG or another image file.'))
-      return
-    }
-    const a = neuerAnhang(ok.file, 'sonstiges', { type: 'equipment', id: device.id }, uuidv4())
-    addAnhaenge([a])
-    updateEquipment(device.id, { switching: setMediaSlot(state, slot, a.id) })
   }
 
   const gewaehlt = auswahl ? matrix.byId.get(auswahl) : undefined
@@ -248,53 +215,61 @@ export const MischerSeitenleiste = ({
       {(counts.stills ?? 0) > 0 && (
         <section>
           <h3 className="mb-1 font-medium text-cp-text">{t('switching.media.pool', 'Media pool')}</h3>
-          {!hasDesktopBridge && (
-            <p className="mb-1 text-cp-text-muted">
-              {t(
-                'switching.media.desktopOnly',
-                'Attaching new images works in the desktop app; existing image attachments can be chosen here.',
-              )}
-            </p>
-          )}
+          <p className="mb-1 text-cp-text-muted">
+            {t('switching.media.dropHint', 'Load a PNG or drop it onto a slot. PNG transparency is kept for keys.')}
+          </p>
           {fehler && <p className="mb-1 text-cp-danger">{fehler}</p>}
-          <ul className="max-h-72 space-y-1 overflow-y-auto">
+          <ul className="max-h-80 space-y-1 overflow-y-auto">
             {Array.from({ length: counts.stills ?? 0 }, (_, i) => i + 1).map((slot) => {
-              const a = anhaenge.find((x) => x.id === state?.media?.[`still:${slot}`]?.anhangId)
+              const ref = stillRef(state, slot)
+              const a = ref?.fotoId ? undefined : anhaenge.find((x) => x.id === ref?.anhangId)
               return (
-                <li key={slot} className="flex items-center gap-1.5" data-slot={slot}>
-                  <span className="w-20 shrink-0 whitespace-nowrap text-cp-text-muted">
-                    {format(t('switching.media.still', 'Still {n}'), {
-                      n: slot,
-                    })}
-                  </span>
-                  {a && <Vorschau anhang={a} />}
-                  <select
-                    value={a?.id ?? ''}
-                    onChange={(e) =>
-                      updateEquipment(device.id, {
-                        switching: setMediaSlot(state, slot, e.target.value || undefined),
-                      })
-                    }
-                    className="min-w-0 flex-1 border border-cp-border bg-cp-surface-2 px-1 py-0.5"
-                    aria-label={format(t('switching.media.still', 'Still {n}'), { n: slot })}
+                <li key={slot} data-slot={slot}>
+                  <BildAblage
+                    onFile={(f) => void inPlatz(slot, f)}
+                    className="flex items-center gap-1.5 rounded-cp-s p-0.5"
+                    testId={`pool-platz-${slot}`}
                   >
-                    <option value="">{t('switching.media.empty', 'empty')}</option>
-                    {bilder.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.titel || b.datei.fileName}
-                      </option>
-                    ))}
-                  </select>
-                  {hasDesktopBridge && (
-                    <button
-                      type="button"
-                      onClick={() => void pngAnhaengen(slot)}
-                      className="rounded-cp-s px-1.5 py-0.5 text-cp-accent hover:bg-cp-surface-3"
-                      title={t('switching.media.attach', 'Attach PNG…')}
-                    >
-                      {t('switching.media.attachShort', 'PNG…')}
-                    </button>
-                  )}
+                    <span className="w-16 shrink-0 whitespace-nowrap text-cp-text-muted">
+                      {format(t('switching.media.still', 'Still {n}'), { n: slot })}
+                    </span>
+                    <StillVorschau refState={ref} />
+                    {!ref && <span className="text-cp-text-faint">{t('switching.media.empty', 'empty')}</span>}
+                    {ref?.fotoId && <StillName refState={ref} />}
+                    {bilder.length > 0 && !ref?.fotoId && (
+                      <select
+                        value={a?.id ?? ''}
+                        onChange={(e) =>
+                          updateEquipment(device.id, {
+                            switching: setMediaSlot(state, slot, e.target.value || undefined),
+                          })
+                        }
+                        className="min-w-0 flex-1 border border-cp-border bg-cp-surface-2 px-1 py-0.5"
+                        aria-label={format(t('switching.media.attachmentFor', 'Attachment for still {n}'), { n: slot })}
+                      >
+                        <option value="">{t('switching.media.attachmentNone', 'no attachment')}</option>
+                        {bilder.map((b) => (
+                          <option key={b.id} value={b.id}>
+                            {b.titel || b.datei.fileName}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    <span className="ml-auto flex shrink-0 items-center">
+                      <BildLadenKnopf onFile={(f) => void inPlatz(slot, f)} ersetzen={!!ref} testId={`pool-laden-${slot}`} />
+                      {ref && (
+                        <button
+                          type="button"
+                          onClick={() => leeren(slot)}
+                          className="rounded-cp-s px-1.5 py-0.5 text-cp-danger hover:bg-cp-surface-3"
+                          title={t('switching.media.remove', 'Remove image')}
+                          aria-label={t('switching.media.remove', 'Remove image')}
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </span>
+                  </BildAblage>
                 </li>
               )
             })}
