@@ -1,0 +1,17 @@
+{
+  "description": "Length method result",
+  "name": "NcMethodResultLength",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Sequence length result value. MUST be null if the sequence is null",
+      "name": "value",
+      "typeName": "NcUint32",
+      "isNullable": true,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": "NcMethodResult",
+  "constraints": null
+}

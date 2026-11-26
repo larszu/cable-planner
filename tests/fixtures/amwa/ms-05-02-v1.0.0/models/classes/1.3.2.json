@@ -1,0 +1,99 @@
+{
+  "description": "NcClassManager class descriptor",
+  "classId": [
+    1,
+    3,
+    2
+  ],
+  "name": "NcClassManager",
+  "fixedRole": "ClassManager",
+  "properties": [
+    {
+      "description": "Descriptions of all control classes in the device (descriptors do not contain inherited elements)",
+      "id": {
+        "level": 3,
+        "index": 1
+      },
+      "name": "controlClasses",
+      "typeName": "NcClassDescriptor",
+      "isReadOnly": true,
+      "isNullable": false,
+      "isSequence": true,
+      "isDeprecated": false,
+      "constraints": null
+    },
+    {
+      "description": "Descriptions of all data types in the device (descriptors do not contain inherited elements)",
+      "id": {
+        "level": 3,
+        "index": 2
+      },
+      "name": "datatypes",
+      "typeName": "NcDatatypeDescriptor",
+      "isReadOnly": true,
+      "isNullable": false,
+      "isSequence": true,
+      "isDeprecated": false,
+      "constraints": null
+    }
+  ],
+  "methods": [
+    {
+      "description": "Get a single class descriptor",
+      "id": {
+        "level": 3,
+        "index": 1
+      },
+      "name": "GetControlClass",
+      "resultDatatype": "NcMethodResultClassDescriptor",
+      "parameters": [
+        {
+          "description": "class ID",
+          "name": "classId",
+          "typeName": "NcClassId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "If set the descriptor would contain all inherited elements",
+          "name": "includeInherited",
+          "typeName": "NcBoolean",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    },
+    {
+      "description": "Get a single datatype descriptor",
+      "id": {
+        "level": 3,
+        "index": 2
+      },
+      "name": "GetDatatype",
+      "resultDatatype": "NcMethodResultDatatypeDescriptor",
+      "parameters": [
+        {
+          "description": "name of datatype",
+          "name": "name",
+          "typeName": "NcName",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "If set the descriptor would contain all inherited elements",
+          "name": "includeInherited",
+          "typeName": "NcBoolean",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    }
+  ],
+  "events": []
+}

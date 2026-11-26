@@ -523,6 +523,17 @@ With outputs, a summary line gives how many entries belong to this project and h
 
 ![Register with entries](bilder/en/export-131-register-gefuellt.jpg)
 
+### NMOS export
+
+*File → Export NMOS (IS-04/05/08, MS-05-02)…* writes the plan as one JSON file for a broadcast controller or the bridge to load. It has four parts:
+
+- **IS-04:** nodes, devices, sources, flows, senders and receivers. Every device with at least one ST 2110 port becomes a node and a device, every 2110 output a sender, every 2110 input a receiver. The ids are derived from the project and the plan: the same plan gives the same UUIDs on every export. Network switches and routers are not devices; in an IP installation the router is the network.
+- **IS-05:** the planned connections as the body for `POST /bulk/receivers`, one entry per receiver with `sender_id`, `master_enable` and `activation`. The sender is traced back along the cable, through the planned crosspoints of a router. Where the multicast plan has assigned groups, they go along as `transport_params`. Each salvo of a router becomes a bulk package of its own. Receivers without a traceable sender are listed in a message after the export.
+- **IS-08:** the channel mapping of the ATEM audio matrix and of a router's audio levels, as the `io` view and as the body for `POST /map/activations`.
+- **MS-05-02:** every switcher and router with a profile as a block tree, the way an IS-12 controller reads it: M/E, keyers, transition, SuperSource boxes, aux and crosspoints with their planned values. Read-only.
+
+The file does not claim what the plan does not know: without an IP address the node API stays empty, the clock is an internal one, an audio flow has two channels.
+
 ### Way back to Rentman
 
 *Attach plan to Rentman…* attaches the current plan as a PDF, with stamp, to the linked Rentman project. The file name carries the project name and the time; beforehand a confirmation asks about the target project. *Send cables to Rentman…* opens a dialog that sets *Built*, *Planned* and *Already sent* side by side per cable type and length, lets you choose the Rentman mapping and sends the difference as an addition; fewer built than last sent must be corrected in Rentman by hand. Both entries are greyed out as long as no Rentman project is linked (*no project linked*). The link is created in the Rentman import, see *File and Import*. Neither path is captured because they need a Rentman account.

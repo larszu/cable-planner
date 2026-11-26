@@ -1,0 +1,8 @@
+{
+  "description": "Time interval described in nanoseconds",
+  "name": "NcTimeInterval",
+  "type": 1,
+  "parentType": "NcInt64",
+  "isSequence": false,
+  "constraints": null
+}

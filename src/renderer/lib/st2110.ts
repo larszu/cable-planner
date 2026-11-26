@@ -62,6 +62,9 @@ const KOPF_JE_PAKET = 12 + 2 + 6 + 8 + 20 + 14 + 4
 /** Annahme, siehe Kopf. */
 const NUTZLAST_JE_PAKET = 1200
 
+/** Aktives Raster `[Breite, Hoehe, volle Bilder je Sekunde]` (Nennrate), z. B. fuer IS-04-Flows. */
+export const st2110Raster = (format: VideoFormatId): readonly [number, number, number] | undefined => RASTER[format]
+
 /** Last eines ST-2110-20-Stroms in Mbps, samt Paketkoepfen bis Ethernet. */
 export const st2110_20Mbps = (
   format: VideoFormatId,

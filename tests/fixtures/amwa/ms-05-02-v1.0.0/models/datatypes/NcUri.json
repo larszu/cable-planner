@@ -1,0 +1,8 @@
+{
+    "description": "Uniform resource identifier",
+    "name": "NcUri",
+    "type": 1,
+    "parentType": "NcString",
+    "isSequence": false,
+    "constraints": null
+}

@@ -43,6 +43,7 @@ import {
   SaveAll,
   Scan,
   Server,
+  Network,
   Settings,
   Shuffle,
   SlidersHorizontal,
@@ -98,6 +99,8 @@ import { buildSourceMap, mergeSourceMap, parseSourceMap } from '../../lib/source
 import { summarizeForeign, hasForeign } from '../../lib/foreignView'
 import type { CablePlannerProject } from '../../types/project'
 import { buildExportFilename } from '../../lib/exportFilename'
+import { buildNmosExport, nmosExportIsEmpty } from '../../lib/nmos'
+import { NmosImportDialog } from '../Import/NmosImportDialog'
 import { hasDesktopBridge, cablePlannerApi } from '../../lib/bridge'
 import { infoDialog } from '../../lib/infoDialog'
 import { confirmDialog } from '../../lib/confirmDialog'
@@ -182,6 +185,32 @@ export const MenuBar = ({
   // MultiCam-Planner-Kameras (.cameras.json) als Equipment-Nodes importieren.
   // #909 — ein Abgleich, kein Anhaengen: der zweite Import aktualisiert.
   const cameraImportRef = useRef<HTMLInputElement | null>(null)
+  const [nmosImportOpen, setNmosImportOpen] = useState(false)
+
+  // #1240 Stufe 6 — der Plan als NMOS-Paket: IS-04-Inventar, IS-05-Soll-
+  // Verbindungen und Salvos, IS-08-Kanalzuordnung, MS-05-02-Blockbaeume.
+  const handleExportNmos = async () => {
+    const project = useProjectStore.getState().project
+    const out = buildNmosExport(project, new Date())
+    if (nmosExportIsEmpty(out)) {
+      await infoDialog(
+        t('app.menu.file.exportNmosEmpty', 'Nothing to export: the plan has no ST 2110 ports, no audio routing and no switcher or router.'),
+      )
+      return
+    }
+    downloadBlob(buildExportFilename(project.metadata?.name || 'project', 'nmos.json'), JSON.stringify(out, null, 2), 'application/json')
+    if (out.is05.open.length > 0) {
+      await infoDialog(t('app.menu.file.exportNmosOpenTitle', 'NMOS file written — some receivers stay open'), {
+        body: format(
+          t(
+            'app.menu.file.exportNmosOpenBody',
+            'No sender could be traced for these receivers (no crosspoint planned, or a network switch in between): {names}',
+          ),
+          { names: out.is05.open.map((o) => o.label).join(', ') },
+        ),
+      })
+    }
+  }
   const kameraBericht = (ergebnis: KameraAbgleich): string[] => {
     const lines = [
       format(
@@ -674,6 +703,7 @@ export const MenuBar = ({
   )
   return (
     <header className="cp-topbar justify-between text-cp-xs">
+      {nmosImportOpen && <NmosImportDialog open onClose={() => setNmosImportOpen(false)} />}
       <input ref={cameraImportRef} type="file" accept={acceptFuerGeraet('.cameras.json,.json')} className="hidden" onChange={handleImportCameras} />
       <input ref={avplanImportRef} type="file" accept={acceptFuerGeraet('.avplan,.json')} className="hidden" onChange={handleImportAvplan} />
       <input ref={sourceMapImportRef} type="file" accept={acceptFuerGeraet('.avsourcemap,.json')} className="hidden" onChange={handleImportSourceMap} />
@@ -719,6 +749,9 @@ export const MenuBar = ({
               </MenuItem>
             </>
           )}
+          <MenuItem onClick={() => setNmosImportOpen(true)} icon={<Icon icon={Network} size="sm" />}>
+            {t('app.menu.file.importNmos', 'Import NMOS registry (IS-04)…')}
+          </MenuItem>
           <MenuItem onClick={() => cameraImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.file.importCameras', 'Import MultiCam cameras…')}
           </MenuItem>
@@ -755,6 +788,9 @@ export const MenuBar = ({
           </MenuItem>
           <MenuItem onClick={handleExportSourceMap} icon={<Icon icon={Upload} size="sm" />}>
             {t('app.menu.file.exportSourceMap', 'Export identity map (.avsourcemap)…')}
+          </MenuItem>
+          <MenuItem onClick={() => void handleExportNmos()} icon={<Icon icon={Network} size="sm" />}>
+            {t('app.menu.file.exportNmos', 'Export NMOS (IS-04/05/08, MS-05-02)…')}
           </MenuItem>
           <MenuItem onClick={() => sourceMapImportRef.current?.click()} icon={<Icon icon={ImportIcon} size="sm" />}>
             {t('app.menu.file.importSourceMap', 'Import identity map (.avsourcemap)…')}

@@ -1,0 +1,25 @@
+{
+  "description": "Property constraints class",
+  "name": "NcPropertyConstraints",
+  "type": 2,
+  "fields": [
+    {
+      "description": "The id of the property being constrained",
+      "name": "propertyId",
+      "typeName": "NcPropertyId",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    },
+    {
+      "description": "Optional default value",
+      "name": "defaultValue",
+      "typeName": null,
+      "isNullable": true,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": null,
+  "constraints": null
+}

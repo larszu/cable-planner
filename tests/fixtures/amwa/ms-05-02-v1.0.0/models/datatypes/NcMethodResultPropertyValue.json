@@ -1,0 +1,17 @@
+{
+  "description": "Result when invoking the getter method associated with a property",
+  "name": "NcMethodResultPropertyValue",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Getter method value for the associated property",
+      "name": "value",
+      "typeName": null,
+      "isNullable": true,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": "NcMethodResult",
+  "constraints": null
+}

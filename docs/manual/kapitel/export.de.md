@@ -523,6 +523,17 @@ Mit Ausgaben nennt die Kopfzeile die Zahl der Einträge zu diesem Projekt und wi
 
 ![Register mit Einträgen](bilder/de/export-131-register-gefuellt.jpg)
 
+### NMOS-Export
+
+*Datei → NMOS exportieren (IS-04/05/08, MS-05-02)…* schreibt den Plan als eine JSON-Datei, die ein Broadcast-Controller oder die Bridge einspielt. Sie enthält vier Teile:
+
+- **IS-04:** Nodes, Devices, Sources, Flows, Sender und Empfänger. Jedes Gerät mit mindestens einem ST-2110-Anschluss ist Node und Device, jeder 2110-Ausgang Sender, jeder 2110-Eingang Empfänger. Die Kennungen sind aus Projekt und Plan abgeleitet: derselbe Plan ergibt bei jedem Export dieselben UUIDs. Netzwerk-Switches und Kreuzschienen sind keine Devices; in einer IP-Anlage ist die Kreuzschiene das Netz.
+- **IS-05:** die Soll-Verbindungen als Rumpf für `POST /bulk/receivers`, je Empfänger mit `sender_id`, `master_enable` und `activation`. Der Sender wird am Kabel zurückverfolgt, über geplante Kreuzpunkte einer Kreuzschiene hinweg. Hat der Multicast-Plan Gruppen vergeben, gehen sie als `transport_params` mit. Jeder Salvo einer Kreuzschiene wird ein eigenes Bulk-Paket. Empfänger, für die sich kein Sender finden lässt, nennt eine Meldung nach dem Export.
+- **IS-08:** die Kanalzuordnung der ATEM-Audio-Matrix und der Audio-Ebenen einer Kreuzschiene, als `io`-Sicht und als Rumpf für `POST /map/activations`.
+- **MS-05-02:** jeder Mischer und jede Kreuzschiene mit Profil als Blockbaum, wie ein IS-12-Controller ihn liest: M/E, Keyer, Übergang, SuperSource-Boxen, Aux und Kreuzpunkte mit den geplanten Werten. Nur zum Lesen.
+
+Was der Plan nicht weiß, behauptet die Datei nicht: Ohne IP-Adresse bleibt die Node-API leer, die Uhr ist eine interne, ein Audio-Fluss hat zwei Kanäle.
+
 ### Rückweg nach Rentman
 
 *Plan an Rentman anhängen…* hängt den aktuellen Plan als PDF an das verknüpfte Rentman-Projekt, mit Stempel. Der Dateiname trägt Projektname und Zeitpunkt; vorher fragt eine Rückfrage nach dem Zielprojekt. *Kabel an Rentman senden…* öffnet einen Dialog, der je Kabeltyp und Länge *Verbaut*, *Geplant* und *Bereits gesendet* gegenüberstellt, die Rentman-Zuordnung wählen lässt und die Differenz als Zugang sendet; weniger Verbautes als zuletzt gesendet muss in Rentman von Hand korrigiert werden. Beide Einträge sind ausgegraut, solange kein Rentman-Projekt verknüpft ist (*kein Projekt verknüpft*). Die Verknüpfung entsteht im Rentman-Import, siehe *Datei und Import*. Beide Wege sind nicht aufgenommen, weil sie ein Rentman-Konto brauchen.

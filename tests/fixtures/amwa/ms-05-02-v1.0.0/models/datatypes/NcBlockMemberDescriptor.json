@@ -1,0 +1,57 @@
+{
+    "description": "Descriptor which is specific to a block member",
+    "name": "NcBlockMemberDescriptor",
+    "type": 2,
+    "fields": [
+        {
+            "description": "Role of member in its containing block",
+            "name": "role",
+            "typeName": "NcString",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        },
+        {
+            "description": "OID of member",
+            "name": "oid",
+            "typeName": "NcOid",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        },
+        {
+            "description": "TRUE iff member's OID is hardwired into device",
+            "name": "constantOid",
+            "typeName": "NcBoolean",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        },
+        {
+            "description": "Class ID",
+            "name": "classId",
+            "typeName": "NcClassId",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        },
+        {
+            "description": "User label",
+            "name": "userLabel",
+            "typeName": "NcString",
+            "isNullable": true,
+            "isSequence": false,
+            "constraints": null
+        },
+        {
+            "description": "Containing block's OID",
+            "name": "owner",
+            "typeName": "NcOid",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        }
+    ],
+    "parentType": "NcDescriptor",
+    "constraints": null
+}

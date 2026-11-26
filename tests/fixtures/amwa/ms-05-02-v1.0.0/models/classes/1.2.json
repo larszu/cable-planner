@@ -1,0 +1,27 @@
+{
+  "description": "NcWorker class descriptor",
+  "classId": [
+    1,
+    2
+  ],
+  "name": "NcWorker",
+  "fixedRole": null,
+  "properties": [
+    {
+      "description": "TRUE iff worker is enabled",
+      "id": {
+        "level": 2,
+        "index": 1
+      },
+      "name": "enabled",
+      "typeName": "NcBoolean",
+      "isReadOnly": false,
+      "isNullable": false,
+      "isSequence": false,
+      "isDeprecated": false,
+      "constraints": null
+    }
+  ],
+  "methods": [],
+  "events": []
+}

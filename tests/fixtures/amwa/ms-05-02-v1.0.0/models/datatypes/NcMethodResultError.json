@@ -1,0 +1,17 @@
+{
+  "description": "Error result - to be used when the method call encounters an error",
+  "name": "NcMethodResultError",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Error message",
+      "name": "errorMessage",
+      "typeName": "NcString",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": "NcMethodResult",
+  "constraints": null
+}

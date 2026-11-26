@@ -1,0 +1,28 @@
+{
+    "description": "Datatype type",
+    "name": "NcDatatypeType",
+    "type": 3,
+    "items": [
+        {
+            "description": "Primitive datatype",
+            "name": "Primitive",
+            "value": 0
+        },
+        {
+            "description": "Simple alias of another datatype",
+            "name": "Typedef",
+            "value": 1
+        },
+        {
+            "description": "Data structure",
+            "name": "Struct",
+            "value": 2
+        },
+        {
+            "description": "Enum datatype",
+            "name": "Enum",
+            "value": 3
+        }
+    ],
+    "constraints": null
+}

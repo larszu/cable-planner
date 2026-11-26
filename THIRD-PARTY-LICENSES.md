@@ -11731,3 +11731,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+---
+
+## AMWA NMOS specifications (test fixtures, not bundled)
+
+- **License:** Apache-2.0
+- **Author:** Advanced Media Workflow Association (AMWA)
+- **Source:** https://github.com/AMWA-TV/is-04 (v1.3.3), https://github.com/AMWA-TV/is-05 (v1.2.0), https://github.com/AMWA-TV/is-08 (v1.0.1), https://github.com/AMWA-TV/ms-05-02 (v1.0.0)
+
+Unmodified JSON schemas and models in `tests/fixtures/amwa/`, used only to validate the NMOS export in the tests. The full license text and NOTICE of each repository are kept next to the files (`tests/fixtures/amwa/*/LICENSE`, `NOTICE`).

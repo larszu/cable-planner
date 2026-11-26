@@ -1,0 +1,17 @@
+{
+  "description": "Abstract parameter constraints class",
+  "name": "NcParameterConstraints",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Default value",
+      "name": "defaultValue",
+      "typeName": null,
+      "isNullable": true,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": null,
+  "constraints": null
+}

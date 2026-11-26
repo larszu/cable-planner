@@ -1,0 +1,17 @@
+{
+  "description": "Base result of the invoked method",
+  "name": "NcMethodResult",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Status for the invoked method",
+      "name": "status",
+      "typeName": "NcMethodStatus",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": null,
+  "constraints": null
+}

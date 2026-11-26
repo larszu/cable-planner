@@ -40,6 +40,7 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [Rooms, floors and the 3D building view](#rooms-floors-and-the-3d-building-view)
    - [Layers](#layers)
    - [Signal path](#signal-path)
+   - [Inner view of switchers and routers](#inner-view-of-switchers-and-routers)
    - [Operating modes: schematic, circuit, test pattern](#operating-modes-schematic-circuit-test-pattern)
    - [Locking](#locking)
    - [Finalising the plan](#finalising-the-plan)
@@ -83,6 +84,7 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [The `.cableplan` file format](#the-cableplan-file-format)
    - [Import yEd / GraphML](#import-yed--graphml)
    - [Import MultiCam cameras](#import-multicam-cameras)
+   - [Import NMOS registry (IS-04)](#import-nmos-registry-is-04)
    - [Import equipment from CSV](#import-equipment-from-csv)
    - [Import GDTF / MVR](#import-gdtf--mvr)
    - [Rentman import](#rentman-import)
@@ -100,6 +102,7 @@ Deutsche Fassung: [handbuch.de.md](handbuch.de.md)
    - [Import annotations](#import-annotations)
    - [Compare plan revisions](#compare-plan-revisions)
    - [Documents handed out](#documents-handed-out)
+   - [NMOS export](#nmos-export)
    - [Way back to Rentman](#way-back-to-rentman)
 10. [Tools: Plan](#10-tools-plan)
    - [Calculate](#calculate)
@@ -1044,6 +1047,26 @@ The signal path highlights the whole chain a cable is part of and dims the rest.
    ![Signal path shown](bilder/en/canvas-signalweg-02-signalweg-zeigen.jpg)
 
 3. The toolbar shows the chip *Signal path: n cables, m devices*. A click on it or Esc ends the view.
+
+### Inner view of switchers and routers
+
+With the module *Switcher & router inner view* turned on (Settings › Modules, off by default), double-click a switcher or router to open its inner view. *Inner view* in the context menu does the same. The view opens as a second layer over the plan. The breadcrumb *Plan › device* or Esc takes you back.
+
+**Switcher.** The device's blocks are shown as nodes: inputs, colour generators and media players on the left, SuperSource, keyers and M/Es in the middle, PGM, aux and multiviewers on the right. To set a crosspoint, drag an edge from a source to a bus: an M/E's programme bus, a SuperSource box, a keyer's fill or an aux. To clear a selected edge, press Delete or click *Remove route*. Click a block to highlight its path through the device. The sidebar names the path, e.g. *M/E 2 › SuperSource 1 › M/E 1 › PGM*. It also tells you whether the path reaches an output, sits on a preview bus only or ends at a keyer that is off air. An aux that passes an input through also counts for the signal path in the plan.
+
+Load a still right on the media player node with **Load image…**, or drop the file onto the node. The image goes into the slot the player is playing, otherwise into the first free slot. The node shows a preview; **Replace…** swaps the image and **Remove image** frees the slot. The media pool in the side panel does the same per slot, drag and drop included. The image is stored in the project, so this works in the browser too and before the project has been saved. A PNG keeps its transparency for the key. Existing image attachments (folder *Anhaenge*) can still be chosen.
+
+The number and limits of blocks come from the manufacturer's datasheet (link *Source*). If the datasheet does not give a value, add it yourself under *Not in the datasheet*. For devices with operating modes, such as the 8K mode of the Constellation 8K, choose the mode. If the plan goes over a limit, you see a note, but nothing is locked. For devices without a profile, you add the blocks yourself.
+
+**ATEM setup file.** On an ATEM, the top of the sidebar has *Load setup file…* and *Save setup file…*. This is the XML file that ATEM Software Control writes with *File › Save* and loads with *Restore*. Loading takes over M/E buses, keyers, DSKs, SuperSource boxes, aux, colour generators, media players and the media pool, multiviewers, input names, macro names, mix-minus and the audio routing. If the file has blocks the device is missing, they are added; values from the datasheet stay. Sources the plan has no block for (for example clean feed) are listed below the buttons. Saving writes only the values the plan knows into the loaded file. Everything else stays exactly as it was. The multiviewer and audio routing from the ATEM dialogs go into the file too. Without a loaded file, a new one is written with the sections the plan knows.
+
+**Offer as a device on the network.** In the desktop app, an ATEM and a Videohub have the switch *Offer as a device on the network*. ATEM Software Control, Companion or the bridge can then connect to the inner view as if it were the device: an ATEM on UDP 9910, a Videohub on TCP 9990. The emulator listens on this computer only (`127.0.0.1`). *Also reachable from other computers* opens it to the network. The address is shown below the switch, and the console calls the device “Emulator …”. Changes in the plan reach the consoles at once. What a console switches goes into the plan. No bus carries a picture: the emulator shows that commands arrive correctly, not that the installation works. If you change the number of blocks, turn it off and on again.
+
+**Desk.** At the top of a switcher's inner view you switch between *Layout* and *Desk*. The desk operates the switcher against a simulation. Each M/E has a programme row and a preview row, plus *Cut*, *Auto* and the T-bar. Under *Transition* you choose Mix, Dip (with a dip source) or Wipe (with a pattern), along with the duration and the curve. The curves are the same as in LZ Switcher Motion. The keyer buttons take USKs on air or off air. Below that are the DSKs with their fill source, the aux selection, the plan's macros and the SuperSource boxes with source, position and size. *Quad layout* puts the boxes back into the four corners.
+
+On the right, *Result* shows the simulated picture of PGM, an M/E, an aux or a multiviewer. Each source appears as a test pattern with its name; a media player shows its loaded still. Boxes, keys, DSKs and transitions are arranged as in the switcher. Picture quality is not the point. Whatever a cut changes goes into the plan; a running transition lasts only for this session.
+
+**Router.** A router shows a matrix of outputs against inputs. Click a cell to set the crosspoint and click it again to clear it. Outputs can be locked. With *Preset, then take*, several crosspoints switch together. Salvos are the same ones as in the Videohub export.
 
 ### Operating modes: schematic, circuit, test pattern
 
@@ -2643,6 +2666,14 @@ A file that is not a valid camera list reports *Camera import failed — not a v
 
 ![Error message](bilder/en/datei-import-32-multicam-fehler.jpg)
 
+### Import NMOS registry (IS-04)
+
+*File → Import NMOS registry (IS-04)…* takes an existing 2110 installation into the plan as an inventory. It reads a JSON file holding an IS-04 registry response: the `nodes`, `devices`, `senders`, `receivers` and `flows` lists of the Query API, a single list of these resources, or the NMOS file the planner exports itself. In the desktop app the *Query API address* field also reads a registry directly, for example `http://registry:8235/x-nmos/query/v1.3`. Only http and https without credentials in the address are allowed.
+
+Before anything is added, a preview lists every IS-04 device with its number of senders and receivers. Deselected devices stay out. Each device becomes a device in the plan; its senders become outputs, its receivers inputs, each with the ST 2110 standard taken from the media type (`video/raw` becomes ST 2110-20, `video/jxsv` ST 2110-22, `audio/L24` ST 2110-30, `audio/AM824` ST 2110-31, `video/smpte291` ST 2110-40). The IP address comes from the node. Devices whose NMOS id is already in the plan are marked *already in the plan* and are not added twice.
+
+No cables are created. A registry knows who subscribes to whom, not what is plugged in.
+
 ### Import equipment from CSV
 
 *File → Import equipment from CSV…* creates device templates in the local library. Only templates are created; nothing is placed on the canvas.
@@ -3401,6 +3432,17 @@ Without outputs a note says *Nothing has been handed out for this project yet �
 With outputs, a summary line gives how many entries belong to this project and how many of them are superseded. The table groups by recipient (from the field *Recipient of this sheet*; without one it says *Recipient not named*) and shows for each entry *Document*, *Handed out*, *Revision on the sheet*, *Still valid?* and *What changed since*. The status is *current*, *superseded — hand out again* or *cannot tell*; for superseded sheets the last column explains what has changed. *Refresh* reads the register again, *Clear register* deletes the entries after a confirmation. Older entries fall out of the register; a note says so, and a second one names entries of other projects.
 
 ![Register with entries](bilder/en/export-131-register-gefuellt.jpg)
+
+### NMOS export
+
+*File → Export NMOS (IS-04/05/08, MS-05-02)…* writes the plan as one JSON file for a broadcast controller or the bridge to load. It has four parts:
+
+- **IS-04:** nodes, devices, sources, flows, senders and receivers. Every device with at least one ST 2110 port becomes a node and a device, every 2110 output a sender, every 2110 input a receiver. The ids are derived from the project and the plan: the same plan gives the same UUIDs on every export. Network switches and routers are not devices; in an IP installation the router is the network.
+- **IS-05:** the planned connections as the body for `POST /bulk/receivers`, one entry per receiver with `sender_id`, `master_enable` and `activation`. The sender is traced back along the cable, through the planned crosspoints of a router. Where the multicast plan has assigned groups, they go along as `transport_params`. Each salvo of a router becomes a bulk package of its own. Receivers without a traceable sender are listed in a message after the export.
+- **IS-08:** the channel mapping of the ATEM audio matrix and of a router's audio levels, as the `io` view and as the body for `POST /map/activations`.
+- **MS-05-02:** every switcher and router with a profile as a block tree, the way an IS-12 controller reads it: M/E, keyers, transition, SuperSource boxes, aux and crosspoints with their planned values. Read-only.
+
+The file does not claim what the plan does not know: without an IP address the node API stays empty, the clock is an internal one, an audio flow has two channels.
 
 ### Way back to Rentman
 

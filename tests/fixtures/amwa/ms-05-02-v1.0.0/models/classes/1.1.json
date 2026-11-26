@@ -1,0 +1,162 @@
+{
+  "description": "NcBlock class descriptor",
+  "classId": [
+    1,
+    1
+  ],
+  "name": "NcBlock",
+  "fixedRole": null,
+  "properties": [
+    {
+      "description": "TRUE if block is functional",
+      "id": {
+        "level": 2,
+        "index": 1
+      },
+      "name": "enabled",
+      "typeName": "NcBoolean",
+      "isReadOnly": true,
+      "isNullable": false,
+      "isSequence": false,
+      "isDeprecated": false,
+      "constraints": null
+    },
+    {
+      "description": "Descriptors of this block's members",
+      "id": {
+        "level": 2,
+        "index": 2
+      },
+      "name": "members",
+      "typeName": "NcBlockMemberDescriptor",
+      "isReadOnly": true,
+      "isNullable": false,
+      "isSequence": true,
+      "isDeprecated": false,
+      "constraints": null
+    }
+  ],
+  "methods": [
+    {
+      "description": "Gets descriptors of members of the block",
+      "id": {
+        "level": 2,
+        "index": 1
+      },
+      "name": "GetMemberDescriptors",
+      "resultDatatype": "NcMethodResultBlockMemberDescriptors",
+      "parameters": [
+        {
+          "description": "If recurse is set to true, nested members can be retrieved",
+          "name": "recurse",
+          "typeName": "NcBoolean",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    },
+    {
+      "description": "Finds member(s) by path",
+      "id": {
+        "level": 2,
+        "index": 2
+      },
+      "name": "FindMembersByPath",
+      "resultDatatype": "NcMethodResultBlockMemberDescriptors",
+      "parameters": [
+        {
+          "description": "Relative path to search for (MUST not include the role of the block targeted by oid)",
+          "name": "path",
+          "typeName": "NcRolePath",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    },
+    {
+      "description": "Finds members with given role name or fragment",
+      "id": {
+        "level": 2,
+        "index": 3
+      },
+      "name": "FindMembersByRole",
+      "resultDatatype": "NcMethodResultBlockMemberDescriptors",
+      "parameters": [
+        {
+          "description": "Role text to search for",
+          "name": "role",
+          "typeName": "NcString",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "Signals if the comparison should be case sensitive",
+          "name": "caseSensitive",
+          "typeName": "NcBoolean",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "TRUE to only return exact matches",
+          "name": "matchWholeString",
+          "typeName": "NcBoolean",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "TRUE to search nested blocks",
+          "name": "recurse",
+          "typeName": "NcBoolean",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    },
+    {
+      "description": "Finds members with given class id",
+      "id": {
+        "level": 2,
+        "index": 4
+      },
+      "name": "FindMembersByClassId",
+      "resultDatatype": "NcMethodResultBlockMemberDescriptors",
+      "parameters": [
+        {
+          "description": "Class id to search for",
+          "name": "classId",
+          "typeName": "NcClassId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "If TRUE it will also include derived class descriptors",
+          "name": "includeDerived",
+          "typeName": "NcBoolean",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "TRUE to search nested blocks",
+          "name": "recurse",
+          "typeName": "NcBoolean",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    }
+  ],
+  "events": []
+}

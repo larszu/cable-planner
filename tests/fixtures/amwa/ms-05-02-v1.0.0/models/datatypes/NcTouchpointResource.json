@@ -1,0 +1,17 @@
+{
+    "description": "Touchpoint resource class",
+    "name": "NcTouchpointResource",
+    "type": 2,
+    "fields": [
+        {
+            "description": "The type of the resource",
+            "name": "resourceType",
+            "typeName": "NcString",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        }
+    ],
+    "parentType": null,
+    "constraints": null
+}

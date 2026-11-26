@@ -1,0 +1,8 @@
+{
+    "description": "Identity handler",
+    "name": "NcId",
+    "type": 1,
+    "parentType": "NcUint32",
+    "isSequence": false,
+    "constraints": null
+}

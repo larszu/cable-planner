@@ -1,0 +1,17 @@
+{
+    "description": "Touchpoint resource class for NMOS resources",
+    "name": "NcTouchpointResourceNmos",
+    "type": 2,
+    "fields": [
+        {
+            "description": "NMOS resource UUID",
+            "name": "id",
+            "typeName": "NcUuid",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        }
+    ],
+    "parentType": "NcTouchpointResource",
+    "constraints": null
+}

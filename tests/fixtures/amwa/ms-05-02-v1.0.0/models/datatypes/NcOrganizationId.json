@@ -1,0 +1,8 @@
+{
+    "description": "Unique 24-bit organization id",
+    "name": "NcOrganizationId",
+    "type": 1,
+    "parentType": "NcInt32",
+    "isSequence": false,
+    "constraints": null
+}

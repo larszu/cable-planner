@@ -1,0 +1,324 @@
+{
+  "description": "NcObject class descriptor",
+  "classId": [
+    1
+  ],
+  "name": "NcObject",
+  "fixedRole": null,
+  "properties": [
+    {
+      "description": "Static value. All instances of the same class will have the same identity value",
+      "id": {
+        "level": 1,
+        "index": 1
+      },
+      "name": "classId",
+      "typeName": "NcClassId",
+      "isReadOnly": true,
+      "isNullable": false,
+      "isSequence": false,
+      "isDeprecated": false,
+      "constraints": null
+    },
+    {
+      "description": "Object identifier",
+      "id": {
+        "level": 1,
+        "index": 2
+      },
+      "name": "oid",
+      "typeName": "NcOid",
+      "isReadOnly": true,
+      "isNullable": false,
+      "isSequence": false,
+      "isDeprecated": false,
+      "constraints": null
+    },
+    {
+      "description": "TRUE iff OID is hardwired into device",
+      "id": {
+        "level": 1,
+        "index": 3
+      },
+      "name": "constantOid",
+      "typeName": "NcBoolean",
+      "isReadOnly": true,
+      "isNullable": false,
+      "isSequence": false,
+      "isDeprecated": false,
+      "constraints": null
+    },
+    {
+      "description": "OID of containing block. Can only ever be null for the root block",
+      "id": {
+        "level": 1,
+        "index": 4
+      },
+      "name": "owner",
+      "typeName": "NcOid",
+      "isReadOnly": true,
+      "isNullable": true,
+      "isSequence": false,
+      "isDeprecated": false,
+      "constraints": null
+    },
+    {
+      "description": "Role of object in the containing block",
+      "id": {
+        "level": 1,
+        "index": 5
+      },
+      "name": "role",
+      "typeName": "NcString",
+      "isReadOnly": true,
+      "isNullable": false,
+      "isSequence": false,
+      "isDeprecated": false,
+      "constraints": null
+    },
+    {
+      "description": "Scribble strip",
+      "id": {
+        "level": 1,
+        "index": 6
+      },
+      "name": "userLabel",
+      "typeName": "NcString",
+      "isReadOnly": false,
+      "isNullable": true,
+      "isSequence": false,
+      "isDeprecated": false,
+      "constraints": null
+    },
+    {
+      "description": "Touchpoints to other contexts",
+      "id": {
+        "level": 1,
+        "index": 7
+      },
+      "name": "touchpoints",
+      "typeName": "NcTouchpoint",
+      "isReadOnly": true,
+      "isNullable": true,
+      "isSequence": true,
+      "isDeprecated": false,
+      "constraints": null
+    },
+    {
+      "description": "Runtime property constraints",
+      "id": {
+        "level": 1,
+        "index": 8
+      },
+      "name": "runtimePropertyConstraints",
+      "typeName": "NcPropertyConstraints",
+      "isReadOnly": true,
+      "isNullable": true,
+      "isSequence": true,
+      "isDeprecated": false,
+      "constraints": null
+    }
+  ],
+  "methods": [
+    {
+      "description": "Get property value",
+      "id": {
+        "level": 1,
+        "index": 1
+      },
+      "name": "Get",
+      "resultDatatype": "NcMethodResultPropertyValue",
+      "parameters": [
+        {
+          "description": "Property id",
+          "name": "id",
+          "typeName": "NcPropertyId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    },
+    {
+      "description": "Set property value",
+      "id": {
+        "level": 1,
+        "index": 2
+      },
+      "name": "Set",
+      "resultDatatype": "NcMethodResult",
+      "parameters": [
+        {
+          "description": "Property id",
+          "name": "id",
+          "typeName": "NcPropertyId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "Property value",
+          "name": "value",
+          "typeName": null,
+          "isNullable": true,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    },
+    {
+      "description": "Get sequence item",
+      "id": {
+        "level": 1,
+        "index": 3
+      },
+      "name": "GetSequenceItem",
+      "resultDatatype": "NcMethodResultPropertyValue",
+      "parameters": [
+        {
+          "description": "Property id",
+          "name": "id",
+          "typeName": "NcPropertyId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "Index of item in the sequence",
+          "name": "index",
+          "typeName": "NcId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    },
+    {
+      "description": "Set sequence item value",
+      "id": {
+        "level": 1,
+        "index": 4
+      },
+      "name": "SetSequenceItem",
+      "resultDatatype": "NcMethodResult",
+      "parameters": [
+        {
+          "description": "Property id",
+          "name": "id",
+          "typeName": "NcPropertyId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "Index of item in the sequence",
+          "name": "index",
+          "typeName": "NcId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "Value",
+          "name": "value",
+          "typeName": null,
+          "isNullable": true,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    },
+    {
+      "description": "Add item to sequence",
+      "id": {
+        "level": 1,
+        "index": 5
+      },
+      "name": "AddSequenceItem",
+      "resultDatatype": "NcMethodResultId",
+      "parameters": [
+        {
+          "description": "Property id",
+          "name": "id",
+          "typeName": "NcPropertyId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "Value",
+          "name": "value",
+          "typeName": null,
+          "isNullable": true,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    },
+    {
+      "description": "Delete sequence item",
+      "id": {
+        "level": 1,
+        "index": 6
+      },
+      "name": "RemoveSequenceItem",
+      "resultDatatype": "NcMethodResult",
+      "parameters": [
+        {
+          "description": "Property id",
+          "name": "id",
+          "typeName": "NcPropertyId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        },
+        {
+          "description": "Index of item in the sequence",
+          "name": "index",
+          "typeName": "NcId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    },
+    {
+      "description": "Get sequence length",
+      "id": {
+        "level": 1,
+        "index": 7
+      },
+      "name": "GetSequenceLength",
+      "resultDatatype": "NcMethodResultLength",
+      "parameters": [
+        {
+          "description": "Property id",
+          "name": "id",
+          "typeName": "NcPropertyId",
+          "isNullable": false,
+          "isSequence": false,
+          "constraints": null
+        }
+      ],
+      "isDeprecated": false
+    }
+  ],
+  "events": [
+    {
+      "description": "Property changed event",
+      "id": {
+        "level": 1,
+        "index": 1
+      },
+      "name": "PropertyChanged",
+      "eventDatatype": "NcPropertyChangedEventData",
+      "isDeprecated": false
+    }
+  ]
+}

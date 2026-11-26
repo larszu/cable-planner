@@ -1,0 +1,49 @@
+{
+  "description": "Descriptor of a class method",
+  "name": "NcMethodDescriptor",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Method id with level and index",
+      "name": "id",
+      "typeName": "NcMethodId",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    },
+    {
+      "description": "Name of method",
+      "name": "name",
+      "typeName": "NcName",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    },
+    {
+      "description": "Name of method result's datatype",
+      "name": "resultDatatype",
+      "typeName": "NcName",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    },
+    {
+      "description": "Parameter descriptors if any",
+      "name": "parameters",
+      "typeName": "NcParameterDescriptor",
+      "isNullable": false,
+      "isSequence": true,
+      "constraints": null
+    },
+    {
+      "description": "TRUE iff property is marked as deprecated",
+      "name": "isDeprecated",
+      "typeName": "NcBoolean",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": "NcDescriptor",
+  "constraints": null
+}

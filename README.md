@@ -134,6 +134,13 @@
   as an ATEM (UDP 9910) or Videohub (TCP 9990) emulator, so ATEM Software
   Control or Companion can drive the plan (localhost by default). Block
   counts and limits come from the datasheet, with the source linked.
+- **NMOS.** *File → Export NMOS* writes the plan as IS-04 resources (nodes,
+  devices, flows, senders, receivers with stable UUIDs), the planned
+  connections and router salvos as IS-05 bulk requests, the ATEM audio matrix
+  and router audio levels as IS-08 channel maps, and every switcher and router
+  as an MS-05-02 block tree. *File → Import NMOS registry* turns an IS-04
+  registry response (JSON file, or the Query API in the desktop app) into an
+  inventory after a preview. Checked against the official AMWA schemas.
 - **Scopes at the device.** Waveform, vectorscope, parade and histogram
   ([LZ Scopes](https://github.com/larszu/lz-scopes)) live from a device's
   RTSP, RTMP, SRT, HLS or MJPEG stream: *Scopes* next to the stream in the

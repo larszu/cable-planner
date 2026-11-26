@@ -507,6 +507,8 @@ export interface Port {
    */
   netboxId?: number
   netboxObjectType?: string
+  /** #1240 — IS-04-Sender- bzw. Receiver-UUID, aus der dieser Port eingelesen wurde. */
+  nmosId?: string
   /**
    * #410 — Steckverbinder-Geschlecht (male/female). Optional; alte Projekte
    * heilen zu undefined. Wird als ♂/♀ am Port-Handle gezeigt und in
@@ -852,7 +854,10 @@ export interface EquipmentItem {
   /** Tracks how the device entered the project — used by the import
    *  dialog's diff view and by Rentman / GraphML re-imports so we know
    *  which subset of devices is replaceable. */
-  importSource?: 'graphml' | 'rentman' | 'netbox' | 'multicam' | 'manual'
+  importSource?: 'graphml' | 'rentman' | 'netbox' | 'multicam' | 'nmos' | 'manual'
+  /** #1240 — IS-04-Device-UUID aus einer eingelesenen NMOS-Registry. Ein
+   *  zweiter Import erkennt daran, was schon im Plan steht. */
+  nmosId?: string
   /** #909 — Id der Kamera im MultiCam-Plan (`camera-list`). Stabile
    *  Identitaet ueber Import-Laeufe: der naechste Import aktualisiert dieses
    *  Geraet, statt ein zweites anzulegen. */

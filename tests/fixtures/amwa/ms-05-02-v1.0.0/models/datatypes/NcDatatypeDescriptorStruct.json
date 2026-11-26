@@ -1,0 +1,25 @@
+{
+  "description": "Struct datatype descriptor",
+  "name": "NcDatatypeDescriptorStruct",
+  "type": 2,
+  "fields": [
+    {
+      "description": "One item descriptor per field of the struct",
+      "name": "fields",
+      "typeName": "NcFieldDescriptor",
+      "isNullable": false,
+      "isSequence": true,
+      "constraints": null
+    },
+    {
+      "description": "Name of the parent type if any or null if it has no parent",
+      "name": "parentType",
+      "typeName": "NcName",
+      "isNullable": true,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": "NcDatatypeDescriptor",
+  "constraints": null
+}
