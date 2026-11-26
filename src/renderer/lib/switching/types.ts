@@ -185,4 +185,30 @@ export interface SwitchingState {
   salvos?: SwitchingSalvo[]
   macros?: SwitchingMacro[]
   snapshots?: SwitchingSnapshot[]
+  /** Aus einer ATEM-Setup-Datei gelesen (Stufe 4), siehe `AtemProfileState`. */
+  atemProfile?: AtemProfileState
+}
+
+// ─── ATEM-Setup-Datei (#1240, Stufe 4) ──────────────────────────────────
+
+/**
+ * Was eine geladene ATEM-Setup-Datei (Profil-XML) mitbringt und das Modell
+ * sonst nicht fuehrt. Die Datei selbst bleibt als `rawXml` erhalten: beim
+ * Speichern wird nur ueberschrieben, was der Plan kennt, alles andere bleibt
+ * byte-gleich. Nummern sind 1-basiert wie im Modell (die Datei zaehlt ab 0).
+ */
+export interface AtemProfileState {
+  rawXml: string
+  fileName?: string
+  product?: string
+  /** Eingangsnamen nach ATEM-Quellen-ID. */
+  inputs?: Record<string, { shortName: string; longName: string }>
+  colors?: Record<string, { hue: number; saturation: number; luma: number }>
+  /** Media-Pool: Platz -> Name und Pfad aus der Datei. */
+  stills?: Record<string, { name: string; path?: string }>
+  /** SuperSource-Boxen an/aus, `ss:n/box:m -> enabled`. */
+  boxes?: Record<string, boolean>
+  macros?: Record<string, { name: string; description?: string }>
+  /** Mix-Minus-Ausgaenge: Nummer -> `audioMode`. */
+  mixMinus?: Record<string, string>
 }

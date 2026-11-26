@@ -112,7 +112,7 @@ Das Ziel lautet „vor Ort nur noch aufspielen und los“. Dafür braucht jeder 
 
 | Gerät | Ausgabe | Einlesung | Stand heute |
 |---|---|---|---|
-| ATEM | Profil-XML (ATEM Software Control „Restore“) | dieselbe Datei | nur der Audio-Teil wird gepatcht (`atemAudioMappingXml.ts`), der Rest bleibt byte-gleich; Vorlage des Formats: `pyAtemSim/default_config.xml` |
+| ATEM | Profil-XML (ATEM Software Control „Restore“) | dieselbe Datei | alle Abschnitte, die das Modell kennt (`atemProfileXml.ts`, Stufe 4), der Rest bleibt byte-gleich; Vorlage des Formats: `pyAtemSim/default_config.xml` |
 | ATEM Media-Pool | Bilder per Upload aus der Simulation | – | Swift-Atem kann den Media-Pool-Transfer, siehe `docs/atem-pruefstand.md` |
 | Videohub | Labels + Routing-Dump | Dump | vorhanden (`exportVideohub.ts`) |
 | SW-P-08 / Ultrix / Quartz | Salvo- und Namenslisten | Dump über die Bridge | Treiber in der Bridge, keine Dateiausgabe |

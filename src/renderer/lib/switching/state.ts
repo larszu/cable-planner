@@ -6,6 +6,7 @@ import type { EquipmentItem } from '../../types/equipment'
 import { resolveDeviceType } from '../deviceTypeRegistry'
 import { buildInnerMatrix, type InnerMatrix } from './internalMatrix'
 import type {
+  AtemProfileState,
   KeyerState,
   MediaSlotState,
   SwitchingBlockCountKey,
@@ -200,6 +201,7 @@ export const normaliseSwitching = (
     routes: strMap(x.routes),
   }))
   if (snapshots.length) s.snapshots = snapshots
+  if (isObj(raw.atemProfile) && typeof raw.atemProfile.rawXml === 'string') s.atemProfile = raw.atemProfile as unknown as AtemProfileState
   return Object.keys(s).length ? s : undefined
 }
 

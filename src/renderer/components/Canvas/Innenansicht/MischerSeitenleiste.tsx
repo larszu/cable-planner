@@ -23,6 +23,7 @@ import type { ProjektAnhang } from '../../../types/anhang'
 import { blockLabel } from './labels'
 import { BildAblage, BildLadenKnopf, StillName, StillVorschau } from './Standbild'
 import { useStandbildLaden } from './useStandbild'
+import { AtemSetupDatei } from './AtemSetupDatei'
 
 const ERGAENZBAR: SwitchingBlockCountKey[] = [
   'inputs',
@@ -100,6 +101,7 @@ export const MischerSeitenleiste = ({
 
   return (
     <aside className="w-72 shrink-0 space-y-4 overflow-y-auto border-l border-cp-border bg-cp-surface-1 p-3 text-cp-xs">
+      <AtemSetupDatei device={device} profile={profile} />
       <section>
         {profile ? (
           <p className="text-cp-text-muted">

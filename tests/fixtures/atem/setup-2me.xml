@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Eigene Testdatei (#1240, Stufe 4): Aufbau wie eine ATEM-Setup-Datei, Werte erfunden. -->
+<Profile majorVersion="1" minorVersion="5" product="ATEM 2 M/E Constellation HD">
+    <MixEffectBlocks>
+        <MixEffectBlock index="0">
+            <Program input="1"/>
+            <Preview input="2"/>
+            <NextTransition selection="Background" nextSelection="Background"/>
+            <TransitionStyle style="Mix" nextStyle="Mix" previewTransition="False" transitionPosition="0">
+                <MixParameters rate="25"/>
+            </TransitionStyle>
+            <Keys>
+                <Key index="0" type="Luma" inputCut="3011" inputFill="3010" onAir="True" masked="False">
+                    <LumaParameters preMultiplied="True" clip="50" gain="70" inverse="False"/>
+                    <FlyParameters enabled="False" xPosition="0" yPosition="0" xSize="0.5" ySize="0.5" rotation="0" rate="30"/>
+                </Key>
+                <Key index="1" type="DVE" inputCut="0" inputFill="4" onAir="False" masked="False"/>
+            </Keys>
+            <FadeToBlack rate="25" isFullyBlack="False"/>
+        </MixEffectBlock>
+        <MixEffectBlock index="1">
+            <Program input="6000"/>
+            <Preview input="7001"/>
+            <Keys>
+                <Key index="0" type="Chroma" inputCut="0" inputFill="0" onAir="False"/>
+            </Keys>
+        </MixEffectBlock>
+    </MixEffectBlocks>
+    <DownstreamKeys>
+        <DownstreamKey index="0" fillSource="3020" keySource="3021" rate="25" onAir="False" tie="False"/>
+        <DownstreamKey index="1" fillSource="5" keySource="5" rate="25" onAir="True" tie="False"/>
+    </DownstreamKeys>
+    <SuperSource artFillInput="2001" artKeyInput="0" artOption='Background' artPreMultiplied="False" borderEnabled="False">
+        <Boxes>
+            <Box index="0" enabled="True" inputSource="10020" xPosition="-8" yPosition="4.5" size="0.5" cropped="False"/>
+            <Box index="1" enabled="True" inputSource="2" xPosition="8" yPosition="4.5" size="0.5" cropped="False"/>
+            <Box index="2" enabled="False" inputSource="3" xPosition="-8" yPosition="-4.5" size="0.5" cropped="False"/>
+            <Box index="3" enabled="False" inputSource="0" xPosition="8" yPosition="-4.5" size="0.5" cropped="False"/>
+        </Boxes>
+    </SuperSource>
+    <ColorGenerators>
+        <ColorGenerator index="0" hue="50" saturation="100" luma="50"/>
+        <ColorGenerator index="1" hue="27.5" saturation="100" luma="50"/>
+    </ColorGenerators>
+    <Auxiliaries>
+        <Auxiliary id="8001" input="10010"/>
+        <Auxiliary id="8002" input="3"/>
+        <Auxiliary id="8003" input="10011"/>
+    </Auxiliaries>
+    <Settings abDirect="False" cameraAux="-1">
+        <Talkback sdiMuted="False"/>
+        <Inputs>
+            <Input id="1" shortName="CAM1" longName="Kamera 1 &amp; Ton" externalPortType="SDI"/>
+            <Input id="2" shortName="CAM2" longName="Kamera 2" externalPortType="SDI"/>
+            <Input id="3" shortName="CAM3" longName="Kamera 3" externalPortType="SDI"/>
+            <Input id="4" shortName="PPT" longName="Präsentation" externalPortType="SDI"/>
+            <Input id="5" shortName="GFX" longName="Grafik" externalPortType="SDI"/>
+            <Input id="1000" shortName="BARS" longName="Color Bars" externalPortType="Internal"/>
+        </Inputs>
+        <MixMinusOutputs>
+            <MixMinusOutput index="0" audioMode="ProgramOut"/>
+            <MixMinusOutput index="1" audioMode="MixMinus"/>
+        </MixMinusOutputs>
+        <MultiViews>
+            <MultiView index="0" layout="ProgramTop" LayoutID="12" vuMeterOpacity="1" programPreviewSwapped="False">
+                <Windows>
+                    <Window index="0" input="10011" vuMeterEnabled="False" safeAreaEnabled="True"/>
+                    <Window index="1" input="10010" vuMeterEnabled="True" safeAreaEnabled="False"/>
+                    <Window index="2" input="1" vuMeterEnabled="False" safeAreaEnabled="False"/>
+                    <Window index="3" input="2" vuMeterEnabled="False" safeAreaEnabled="False"/>
+                    <Window index="4" input="3" vuMeterEnabled="False" safeAreaEnabled="False"/>
+                    <Window index="5" input="4" vuMeterEnabled="False" safeAreaEnabled="False"/>
+                    <Window index="6" input="5" vuMeterEnabled="False" safeAreaEnabled="False"/>
+                    <Window index="7" input="6000" vuMeterEnabled="False" safeAreaEnabled="False"/>
+                    <Window index="8" input="3010" vuMeterEnabled="False" safeAreaEnabled="False"/>
+                    <Window index="9" input="8001" vuMeterEnabled="False" safeAreaEnabled="False"/>
+                </Windows>
+            </MultiView>
+        </MultiViews>
+        <UpstreamKeys sizeLink="True"/>
+    </Settings>
+    <VideoMode videoMode="1080i50"/>
+    <HyperDecks>
+        <HyperDeck id="0" networkAddress="0.0.0.0" input="0" autoRoll="False" autoRollFrameDelay="0"/>
+    </HyperDecks>
+    <AudioMapping>
+        <AudioOutputs>
+            <Output id="1" sourceId="1" name="MADI 1"/>
+            <Output id="2" sourceId="2" name="MADI 2"/>
+        </AudioOutputs>
+        <AudioSources>
+            <Source id="1" name="Cam 1"/>
+            <Source id="2" name="Cam 2"/>
+        </AudioSources>
+    </AudioMapping>
+    <MediaPlayers>
+        <MediaPlayer index="0" sourceType="Still" sourceIndex="2"/>
+        <MediaPlayer index="1" sourceType="Clip" sourceIndex="0"/>
+    </MediaPlayers>
+    <MediaPool>
+        <Stills>
+            <Still index="0" name="Logo" path="ATEM Media Pool/Logo.png"/>
+            <Still index="2" name="Bauchbinde" path="ATEM Media Pool/Bauchbinde.png"/>
+        </Stills>
+    </MediaPool>
+    <CameraControl>
+    </CameraControl>
+    <MacroPool>
+        <Macro index="0" name="Opener" description="">
+            <Op id="ProgramInput" mixEffectBlockIndex="0" input="1"/>
+        </Macro>
+        <Macro index="1" name="Abspann" description="Ende"/>
+    </MacroPool>
+    <MacroControl loop="False"/>
+</Profile>

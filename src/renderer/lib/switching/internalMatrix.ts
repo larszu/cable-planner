@@ -9,7 +9,7 @@
 //
 // Quellen-IDs folgen dem offen dokumentierten ATEM-Profil-XML (Eingang n = n,
 // Schwarz 0, Bars 1000, Farbe 2000+n, Mediaplayer 3000+10n, SuperSource
-// 6000+n, Aux 8000+n, M/E-Programm 10000+10n) — dieselben Zahlen, die
+// 6000+n-1 (die erste SuperSource ist 6000), Aux 8000+n, M/E-Programm 10000+10n) — dieselben Zahlen, die
 // `atemPortSources.ts` fuer Aux und PGM schon ableitet.
 //
 // REIN: keine Uhr, kein Store, kein IO.
@@ -162,7 +162,7 @@ export const buildInnerMatrix = (
       kind: 'superSource',
       index: i,
       source: true,
-      sourceId: 6000 + i,
+      sourceId: 6000 + i - 1,
       dests: [...boxes, { id: `ss:${i}/art-fill`, role: 'artFill' }, { id: `ss:${i}/art-key`, role: 'artKey' }],
       column: 'mid',
     })
