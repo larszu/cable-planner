@@ -13,6 +13,13 @@ import {
   PROFILE_SMART_VIDEOHUB_12,
   PROFILE_SMART_VIDEOHUB_20,
   PROFILE_SMART_VIDEOHUB_40,
+  PROFILE_ATEM_MINI,
+  PROFILE_ATEM_MINI_PRO,
+  PROFILE_ATEM_MINI_PRO_ISO,
+  PROFILE_ATEM_MINI_EXTREME,
+  PROFILE_ATEM_MINI_EXTREME_ISO,
+  PROFILE_ATEM_1ME_PRODUCTION_STUDIO_4K,
+  PROFILE_ATEM_2ME_PRODUCTION_STUDIO_4K,
 } from './switching/profiles'
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -523,6 +530,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['atem', '2 m/e', 'production', '4k'],
+    switchingProfile: PROFILE_ATEM_2ME_PRODUCTION_STUDIO_4K,
     deviceTypeId: '0be0fb87-d3bf-4e2e-a884-79b5b770b19e',
     kind: 'atem',
     // Quelle: https://www.blackmagicdesign.com/products/atemproductionstudio4k
@@ -549,6 +557,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['atem', '1 m/e', 'production', '4k'],
+    switchingProfile: PROFILE_ATEM_1ME_PRODUCTION_STUDIO_4K,
     deviceTypeId: '52167ca7-7a7e-4566-843b-4b9a4d635252',
     kind: 'atem',
     // Quelle: https://www.blackmagicdesign.com/products/atemproductionstudio4k
@@ -574,6 +583,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['atem', 'mini', 'extreme', 'iso'],
+    switchingProfile: PROFILE_ATEM_MINI_EXTREME_ISO,
     deviceTypeId: '4622e885-df82-430e-9512-fca13b673b4d',
     kind: 'atem',
     // Der ISO zeichnet je Eingang eine Datei auf — die Kanalnummer IST die
@@ -601,6 +611,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['atem', 'mini', 'extreme'],
+    switchingProfile: PROFILE_ATEM_MINI_EXTREME,
     deviceTypeId: '4e7edb7a-df5f-468a-bba1-ea4417867c9c',
     kind: 'atem',
     // Quelle: https://www.blackmagicdesign.com/products/atemmini
@@ -625,6 +636,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['atem', 'mini', 'pro', 'iso'],
+    switchingProfile: PROFILE_ATEM_MINI_PRO_ISO,
     deviceTypeId: 'a252049d-992a-432b-8084-d1f794c79c4a',
     kind: 'atem',
     records: 'per-input',
@@ -646,6 +658,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['atem', 'mini', 'pro'],
+    switchingProfile: PROFILE_ATEM_MINI_PRO,
     deviceTypeId: '652bad38-f099-4c61-a2e2-31e897ca5792',
     kind: 'atem',
     // Quelle: https://www.blackmagicdesign.com/products/atemmini
@@ -666,6 +679,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['atem', 'mini'],
+    switchingProfile: PROFILE_ATEM_MINI,
     deviceTypeId: '736199eb-6ae0-4a30-91c8-3f645102460f',
     kind: 'atem',
     // Quelle: https://www.blackmagicdesign.com/products/atemmini

@@ -1,6 +1,7 @@
 // Funktionsmodell fuer Mischer und Kreuzschienen (#1240). Siehe types.ts.
 export * from './types'
 export * from './profiles'
+export * from './profilesByType'
 export * from './internalMatrix'
 export * from './innerPath'
 export * from './matrix'
