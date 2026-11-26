@@ -14,7 +14,7 @@ const talkbackOf = (i: number) =>
 
 describe('ATEM Constellation talkback RJ45 (#1095)', () => {
   it('every Constellation model has its own talkback port with the manual pinout', () => {
-    expect(constellations.length).toBe(3)
+    expect(constellations.length).toBe(8) // +5 aus #1240 (1 M/E, 4 M/E, 4K Plus)
     constellations.forEach((e, i) => {
       const tb = talkbackOf(i)
       expect(tb, e.template.name).toBeDefined()

@@ -65,7 +65,7 @@ describe('Profile im Katalog', () => {
 
   it('alle ATEM Constellation im Katalog tragen ein Profil mit M/E-Zahl als Feld', () => {
     const constellations = BLACKMAGIC_CATALOG.filter((e) => /constellation/i.test(e.template.name))
-    expect(constellations.length).toBeGreaterThanOrEqual(3)
+    expect(constellations.length).toBeGreaterThanOrEqual(8)
     for (const e of constellations) {
       expect(e.switchingProfile?.role).toBe('mixer')
       expect(e.switchingProfile?.blocks.mixEffects).toBeGreaterThan(0)
@@ -87,7 +87,7 @@ describe('Profile im Katalog', () => {
 
   it('jede Zahl hat eine Herstellerquelle', () => {
     const herkunft = /^https:\/\/(www\.blackmagicdesign\.com|documents\.blackmagicdesign\.com|web\.archive\.org\/web\/\d+\/https:\/\/www\.blackmagicdesign\.com)\//
-    expect(profiled.length).toBeGreaterThanOrEqual(7)
+    expect(profiled.length).toBeGreaterThanOrEqual(12)
     for (const e of profiled) {
       const p = e.switchingProfile as SwitchingProfile
       expect(p.manufacturerUrl).toMatch(herkunft)

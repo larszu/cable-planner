@@ -136,7 +136,8 @@ describe('jeder Quellen-Kommentar steht auch als Feld im Eintrag', () => {
     // 2041 -> 2046 am 2026-11-15: fuenf Atomos-Monitor-Recorder.
     // 2046 -> 2049 am 2026-11-16: NEC MultiSync P402, P461, X461S.
     // 2049 -> 2058 am 2026-11-18: acht Objektive (Laowa, Zeiss CP.2, Sony FE 12-24 F4 G) und Sony PMW-EX3 mit Herstellerbeleg.
-    expect(pairs().length).toBe(2058)
+    // 2058 -> 2063 am 2026-11-26: ATEM 1 M/E und 4 M/E Constellation 4K/HD und 4 M/E 4K Plus (#1240).
+    expect(pairs().length).toBe(2063)
   })
 
   it('deckt die Kataloge ab, die Belege fuehren', () => {
@@ -320,6 +321,7 @@ describe('der Beleg zeigt auf den Hersteller, nicht auf einen Haendler', () => {
     // 2041 -> 2046 am 2026-11-15: fuenf Atomos-Monitor-Recorder.
     // 2046 -> 2049 am 2026-11-16: NEC MultiSync P402, P461, X461S.
     // 2049 -> 2058 am 2026-11-18: acht Objektive (Laowa, Zeiss CP.2, Sony FE 12-24 F4 G) und Sony PMW-EX3 mit Herstellerbeleg.
-    expect(pairs().filter((p) => p.field).length).toBe(2058)
+    // 2058 -> 2063 am 2026-11-26: ATEM 1 M/E und 4 M/E Constellation 4K/HD und 4 M/E 4K Plus (#1240).
+    expect(pairs().filter((p) => p.field).length).toBe(2063)
   })
 })
