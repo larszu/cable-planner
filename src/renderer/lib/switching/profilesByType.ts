@@ -13,6 +13,7 @@ import * as ross from './profilesRoss'
 import * as roland from './profilesRoland'
 import * as panasonic from './profilesPanasonic'
 import * as fora from './profilesForA'
+import * as aja from './profilesAja'
 
 export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfile>> = {
   /** Blackmagic ATEM Television Studio Pro 4K (broadcastNachtragBCatalog) */
@@ -43,4 +44,11 @@ export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfil
   'd3671648-297a-4785-a48f-9ecdcab0f934': panasonic.PROFILE_PANASONIC_AV_UHS500,
   // For-A (switcherCatalog)
   'ce02f5e9-95c8-4910-a616-6147a312998b': fora.PROFILE_FORA_HVS_490,
+  // AJA (ajaCatalog)
+  'ca069939-edff-479f-acc1-56650a5a1e8e': aja.PROFILE_AJA_KUMO_1616_12G,
+  '2a3eed49-cc33-45be-ae0f-c5e6c89e818d': aja.PROFILE_AJA_KUMO_3232_12G,
+  '40147c52-679d-4784-a009-f8211be107f9': aja.PROFILE_AJA_KUMO_6464_12G,
+  'd8584156-1793-4794-a4b4-488cfe834e59': aja.PROFILE_AJA_KUMO_1616,
+  'd435ffb1-c471-4059-89ee-84a490f6025c': aja.PROFILE_AJA_KUMO_3232,
+  '379c5b0a-a4b5-40d0-a66d-a3fda51b5059': aja.PROFILE_AJA_KUMO_6464,
 }
