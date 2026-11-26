@@ -459,6 +459,18 @@ Der Signalweg hebt die ganze Kette hervor, in der ein Kabel liegt, und dunkelt d
 3. In der Leiste steht der Chip *Signalweg: n Kabel, m Geräte*. Ein Klick darauf oder Esc beendet die Ansicht.
 
 
+### Innenansicht von Mischer und Kreuzschiene
+
+Mit dem Modul *Innenansicht Mischer & Kreuzschiene* (Einstellungen › Module, ab Werk aus) öffnet ein Doppelklick auf einen Mischer oder eine Kreuzschiene die Innenansicht. Das geht auch über *Innenansicht* im Kontextmenü. Die Ansicht legt sich als zweite Ebene über den Plan. Über die Brotkrumen *Plan › Gerät* oder mit Esc kommst du zurück.
+
+**Mischer.** Die Bausteine des Geräts erscheinen als Knoten: Eingänge, Farbgeneratoren und Mediaplayer links, SuperSource, Keyer und M/Es in der Mitte, PGM, Aux und Multiviewer rechts. Ziehst du eine Kante von einer Quelle auf einen Bus (Programm-Bus einer M/E, Box einer SuperSource, Fill eines Keyers, Aux), setzt du den Kreuzpunkt. Eine gewählte Kante löst du mit Entf oder *Weg lösen*. Klickst du einen Baustein an, wird sein Weg durch das Gerät hervorgehoben. Die Seitenleiste nennt ihn, zum Beispiel *M/E 2 › SuperSource 1 › M/E 1 › PGM*, und sagt, ob er an einem Ausgang ankommt, nur auf der Vorschau liegt oder an einem Keyer endet, der nicht auf Sendung ist. Ein Aux, der einen Eingang durchschaltet, zählt auch für den Signalweg im Plan.
+
+Im Media-Pool belegst du Standbild-Plätze mit Bildern. Ein PNG wird als Anhang des Geräts abgelegt (Ordner *Anhaenge*, nur in der Desktop-App); vorhandene Bild-Anhänge lassen sich auch im Browser wählen. Jedem Mediaplayer weist du ein Standbild zu.
+
+Anzahl und Grenzen der Bausteine stammen aus dem Datenblatt des Herstellers (Link *Quelle*). Nennt das Datenblatt einen Wert nicht, trägst du ihn unter *Nicht im Datenblatt* selbst ein. Hat ein Gerät Betriebsarten wie den 8K-Modus des Constellation 8K, wählst du sie aus. Liegt der Plan über einer Grenze, erscheint ein Hinweis. Gesperrt wird dabei nichts. Für Geräte ohne Profil trägst du die Bausteine selbst ein.
+
+**Kreuzschiene.** Die Kreuzschiene zeigt eine Matrix aus Ausgängen und Eingängen. Ein Klick setzt den Kreuzpunkt, ein zweiter löst ihn. Ausgänge lassen sich sperren. Mit *Vormerken, dann Take* schaltest du mehrere Kreuzpunkte gemeinsam. Salvos sind dieselben wie im Videohub-Export.
+
 ### Betriebsarten: Schema, Schaltbild, Prüfbild
 
 #### Schema und Live

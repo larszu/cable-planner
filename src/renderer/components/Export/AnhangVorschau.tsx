@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { alsDataUrl } from '../../lib/anhaenge'
 import { Eye } from 'lucide-react'
 import { ModalShell } from '../shared/ModalShell'
 import { Icon } from '../shared/Icon'
@@ -8,13 +9,6 @@ import { pdfRenderer } from '../../lib/grundriss/pdfRenderer'
 import type { ProjektAnhang } from '../../types/anhang'
 
 type Zustand = { art: 'laedt' } | { art: 'bild'; src: string; seiten?: number } | { art: 'nicht' }
-
-/** Bytes als data:-URL — ohne `Blob`-URL, die sonst jemand freigeben muesste. */
-const alsDataUrl = (mediaType: string, daten: Uint8Array): string => {
-  let bin = ''
-  for (let i = 0; i < daten.length; i += 0x8000) bin += String.fromCharCode(...daten.subarray(i, i + 0x8000))
-  return `data:${mediaType};base64,${btoa(bin)}`
-}
 
 /**
  * #1186 — Vorschau eines Anhangs: ein Bild wie es ist, ein PDF als Bild der

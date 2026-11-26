@@ -38,6 +38,8 @@ import { planAblage, ziehtDateien } from '../../avplan/floorplan/planDatei'
 import { PLAN_PDF, planFehlerText, ungeeignetCode, ursprungUm } from '../../lib/grundriss/planUebernahme'
 import { planUebernehmen } from '../Grundriss/planUebernehmen'
 import { useUiStore } from '../../store/uiStore'
+import { useSettingsStore } from '../../store/settingsStore'
+import { hatInnenansicht } from '../../lib/switching/entry'
 import { alleGrundrisse, etageAusKnotenId, grundrissKnotenId, grundrissVon } from '../../lib/grundriss/etagenPlaene'
 import { netKeyOf } from '../../lib/offPageNet'
 import {
@@ -252,6 +254,9 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
   const setHighlightedNetKey = useUiStore((state) => state.setHighlightedNetKey)
   // v7.8.7 — cable right-click context menu trigger.
   const openCableContextMenu = useUiStore((state) => state.openCableContextMenu)
+  const openInnenansicht = useUiStore((state) => state.openInnenansicht)
+  // #1240 — Innenansicht an Mischern und Kreuzschienen, nur mit Modul.
+  const innenansichtAn = useSettingsStore((state) => state.enabledModules.switching)
   const openDatasheet = useUiStore((state) => state.openDatasheet)
   // #557 — Kontextmenüs schliessen sobald Canvas verschoben/gezoomt wird.
   const closeCableContextMenu = useUiStore((state) => state.closeCableContextMenu)
@@ -2431,6 +2436,8 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
             const eq = project.equipment.find((e) => e.id === node.id)
             if (eq?.rackInternalSnapshot) {
               triggerRackBuilderEditFromBlackBox(node.id)
+            } else if (eq && innenansichtAn && hatInnenansicht(eq)) {
+              openInnenansicht(eq.id)
             }
           }
         }}
@@ -2694,6 +2701,25 @@ const CanvasContent = ({ mode = 'main' }: { mode?: CanvasMode }) => {
               color: '#e2e8f0',
             }}
           >
+            {innenansichtAn && !isLocation && hatInnenansicht(target as EquipmentItem) && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    openInnenansicht(nodeContextMenu.nodeId)
+                    setNodeContextMenu(null)
+                  }}
+                  className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left hover:bg-cp-surface-3"
+                >
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="2" y="3" width="12" height="10" rx="1" />
+                    <path d="M5 6h2M5 10h2M9 8h2" />
+                  </svg>
+                  <span>{t('canvas.nodeMenu.innerView', 'Inner view')}</span>
+                </button>
+                <div style={{ height: 1, background: '#334155', margin: '4px 0' }} />
+              </>
+            )}
             {isRack && (
               <>
                 <button

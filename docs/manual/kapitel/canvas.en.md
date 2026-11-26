@@ -440,6 +440,18 @@ The signal path highlights the whole chain a cable is part of and dims the rest.
 
 3. The toolbar shows the chip *Signal path: n cables, m devices*. A click on it or Esc ends the view.
 
+### Inner view of switchers and routers
+
+With the module *Switcher & router inner view* turned on (Settings › Modules, off by default), double-click a switcher or router to open its inner view. *Inner view* in the context menu does the same. The view opens as a second layer over the plan. The breadcrumb *Plan › device* or Esc takes you back.
+
+**Switcher.** The device's blocks are shown as nodes: inputs, colour generators and media players on the left, SuperSource, keyers and M/Es in the middle, PGM, aux and multiviewers on the right. To set a crosspoint, drag an edge from a source to a bus: an M/E's programme bus, a SuperSource box, a keyer's fill or an aux. To clear a selected edge, press Delete or click *Remove route*. Click a block to highlight its path through the device. The sidebar names the path, e.g. *M/E 2 › SuperSource 1 › M/E 1 › PGM*. It also tells you whether the path reaches an output, sits on a preview bus only or ends at a keyer that is off air. An aux that passes an input through also counts for the signal path in the plan.
+
+The media pool holds stills. A PNG is stored as an attachment of the device (folder *Anhaenge*, desktop app only); in the browser you can choose from image attachments already in the project. Each media player is assigned a still.
+
+The number and limits of blocks come from the manufacturer's datasheet (link *Source*). If the datasheet does not give a value, add it yourself under *Not in the datasheet*. For devices with operating modes, such as the 8K mode of the Constellation 8K, choose the mode. If the plan goes over a limit, you see a note, but nothing is locked. For devices without a profile, you add the blocks yourself.
+
+**Router.** A router shows a matrix of outputs against inputs. Click a cell to set the crosspoint and click it again to clear it. Outputs can be locked. With *Preset, then take*, several crosspoints switch together. Salvos are the same ones as in the Videohub export.
+
 ### Operating modes: schematic, circuit, test pattern
 
 #### Schematic and live

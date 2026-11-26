@@ -120,6 +120,12 @@
   ATEM input names can follow the Videohub routing: when a hub output that
   is cabled to an ATEM input is switched, the input takes the name of the
   routed source.
+- **Inner view of switchers and routers** (module, off by default). Double-click
+  an ATEM Constellation or a Videohub to open its blocks as a second canvas
+  layer. On a switcher you route M/Es, keyers, SuperSource boxes, media
+  players with PNG stills and aux, and the path through the device is traced
+  up to PGM. On a router you get a matrix with locks, take and salvos. Block
+  counts and limits come from the datasheet, with the source linked.
 - **Scopes at the device.** Waveform, vectorscope, parade and histogram
   ([LZ Scopes](https://github.com/larszu/lz-scopes)) live from a device's
   RTSP, RTMP, SRT, HLS or MJPEG stream: *Scopes* next to the stream in the

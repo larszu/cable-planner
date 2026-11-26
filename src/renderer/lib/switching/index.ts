@@ -16,3 +16,4 @@ export {
   normaliseSwitching,
   type LimitNote,
 } from './state'
+export { innenansichtRolle, hatInnenansicht } from './entry'
