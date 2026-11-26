@@ -8,6 +8,7 @@ import { uiBefehl } from './lib/mcpBedienung'
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { useIsNarrow } from './hooks/useBreakpoint'
 import { CanvasArea } from './components/Canvas/CanvasArea'
+import { Innenansicht } from './components/Canvas/Innenansicht/Innenansicht'
 import { CableDialog } from './components/Cable/CableDialog'
 import { CUSTOM_CABLE_SPEC_ID, makeCustomCableSpec } from './components/Cable/customCableSpec'
 import { getEquipmentById } from './lib/equipmentSelectors'
@@ -1537,8 +1538,10 @@ export default function App() {
       >
         <LibraryPanel />
         <Splitter side="left" onResize={(delta) => setLibraryWidth(libraryWidth + delta)} />
-        <div className="min-h-0 h-full w-full overflow-hidden">
+        <div className="relative min-h-0 h-full w-full overflow-hidden">
           <CanvasArea />
+          {/* #1240 — Innenansicht eines Mischers/einer Kreuzschiene als zweite Ebene ueber dem Plan. */}
+          <Innenansicht />
         </div>
         <Splitter side="right" onResize={(delta) => setPropertiesWidth(propertiesWidth + delta)} />
         <PropertiesPanel />

@@ -170,3 +170,10 @@ export const anhaengeTable = (project: CablePlannerProject): CsvTable => {
     rows: zeilen,
   }
 }
+
+/** Bytes als data:-URL — ohne `Blob`-URL, die sonst jemand freigeben muesste. */
+export const alsDataUrl = (mediaType: string, daten: Uint8Array): string => {
+  let bin = ''
+  for (let i = 0; i < daten.length; i += 0x8000) bin += String.fromCharCode(...daten.subarray(i, i + 0x8000))
+  return `data:${mediaType};base64,${btoa(bin)}`
+}

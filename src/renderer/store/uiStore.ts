@@ -1101,6 +1101,10 @@ interface UiState extends PersistedUiState {
   cableContextMenu:
     | { open: true; cableId: string; screenX: number; screenY: number; flowX: number; flowY: number }
     | { open: false }
+  /** #1240 — Geraet, dessen Innenansicht (zweite Ebene im Canvas) offen ist. Kein Projekt-Datum. */
+  innenansichtId: string | null
+  openInnenansicht: (equipmentId: string) => void
+  closeInnenansicht: () => void
   openCableContextMenu: (args: {
     cableId: string
     screenX: number
@@ -1723,6 +1727,9 @@ export const useUiStore = create<UiState>((set) => ({
   triggerEmptyDeviceDrop: (info) => set({ pendingEmptyDeviceDrop: info }),
   clearEmptyDeviceDrop: () => set({ pendingEmptyDeviceDrop: null }),
   cableContextMenu: { open: false },
+  innenansichtId: null,
+  openInnenansicht: (equipmentId) => set({ innenansichtId: equipmentId }),
+  closeInnenansicht: () => set({ innenansichtId: null }),
   openCableContextMenu: ({ cableId, screenX, screenY, flowX, flowY }) =>
     set({ cableContextMenu: { open: true, cableId, screenX, screenY, flowX, flowY } }),
   closeCableContextMenu: () => set({ cableContextMenu: { open: false } }),

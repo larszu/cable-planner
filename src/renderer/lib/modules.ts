@@ -8,7 +8,7 @@
  * Framework-frei und damit testbar; UI (Settings-Tab, Onboarding) liest hier.
  */
 
-export type ModuleId = 'festinstallation' | 'mobile' | 'rentman' | 'rental' | 'netbox'
+export type ModuleId = 'festinstallation' | 'mobile' | 'rentman' | 'rental' | 'netbox' | 'switching'
 
 export interface ModuleMeta {
   id: ModuleId
@@ -48,6 +48,14 @@ export const MODULES: ModuleMeta[] = [
     description:
       'Import a site or rack from a NetBox instance as a cable plan and later add only new devices/connections.',
   },
+  {
+    // #1240 — Innenansicht an Mischern und Kreuzschienen. Standardmaessig
+    // aus: wer nur Kabel zeichnet, sieht nichts davon.
+    id: 'switching',
+    label: 'Switcher & router inner view',
+    description:
+      'Double-click a switcher or router to open its inner view: M/Es, keyers, SuperSource, media players, aux and the internal routes.',
+  },
 ]
 
 export const MODULE_IDS: ModuleId[] = MODULES.map((m) => m.id)
@@ -66,6 +74,7 @@ export const DEFAULT_ENABLED: Record<ModuleId, boolean> = {
   // #597 — wie rentman opt-in: ohne eigene NetBox-Instanz ist das Modul
   // wertlos und würde nur Menüeinträge zustellen.
   netbox: false,
+  switching: false,
 }
 
 export type PresetId = 'show' | 'festinstallation' | 'rental'
