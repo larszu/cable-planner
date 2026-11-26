@@ -5,8 +5,13 @@
 import type { EquipmentItem } from '../../types/equipment'
 import { resolveDeviceType } from '../deviceTypeRegistry'
 import { buildInnerMatrix, type InnerMatrix } from './internalMatrix'
+import { EASE_DIRECTIONS, EASE_FAMILIES, type EaseDirection, type EaseFamily } from './easing'
 import type {
+<<<<<<< HEAD
   AtemProfileState,
+=======
+  BoxState,
+>>>>>>> 4db0103 (feat: Pult mit Simulation und Ergebnisbild in der Innenansicht (#1240))
   KeyerState,
   MediaSlotState,
   SwitchingBlockCountKey,
@@ -15,7 +20,10 @@ import type {
   SwitchingProfile,
   SwitchingSnapshot,
   SwitchingState,
+  TransitionSettings,
+  WipePattern,
 } from './types'
+import { WIPE_PATTERNS } from './types'
 
 /** Das Profil eines Geraets aus dem Katalog — `null`, wenn es keines gibt. */
 export const switchingProfileFor = (device: Pick<EquipmentItem, 'deviceTypeId'>): SwitchingProfile | null =>
@@ -201,7 +209,48 @@ export const normaliseSwitching = (
     routes: strMap(x.routes),
   }))
   if (snapshots.length) s.snapshots = snapshots
+<<<<<<< HEAD
   if (isObj(raw.atemProfile) && typeof raw.atemProfile.rawXml === 'string') s.atemProfile = raw.atemProfile as unknown as AtemProfileState
+=======
+
+  // Stufe 3: Uebergaenge je M/E und Lage der SuperSource-Boxen.
+  if (isObj(raw.transitions)) {
+    const tr: Record<string, TransitionSettings> = {}
+    for (const [me, v] of Object.entries(raw.transitions)) {
+      if (!/^me:\d+$/.test(me) || !isObj(v)) continue
+      const t: TransitionSettings = {}
+      if (v.style === 'mix' || v.style === 'dip' || v.style === 'wipe') t.style = v.style
+      if (typeof v.rateMs === 'number' && v.rateMs > 0 && v.rateMs <= 60_000) t.rateMs = v.rateMs
+      if (typeof v.wipe === 'string' && (WIPE_PATTERNS as readonly string[]).includes(v.wipe)) t.wipe = v.wipe as WipePattern
+      if (typeof v.dipSource === 'string' && matrix.byId.get(v.dipSource)?.source) t.dipSource = v.dipSource
+      const e = v.easing
+      if (
+        isObj(e) &&
+        (EASE_FAMILIES as string[]).includes(String(e.family)) &&
+        (EASE_DIRECTIONS as string[]).includes(String(e.direction))
+      ) {
+        t.easing = { family: e.family as EaseFamily, direction: e.direction as EaseDirection }
+      }
+      if (Object.keys(t).length) tr[me] = t
+    }
+    if (Object.keys(tr).length) s.transitions = tr
+  }
+  if (isObj(raw.boxes)) {
+    const bx: Record<string, BoxState> = {}
+    for (const [id, v] of Object.entries(raw.boxes)) {
+      if (!/^ss:\d+\/box:\d+$/.test(id) || !isObj(v)) continue
+      const b: BoxState = {}
+      if (typeof v.enabled === 'boolean') b.enabled = v.enabled
+      if (typeof v.cropped === 'boolean') b.cropped = v.cropped
+      for (const k of ['x', 'y', 'size', 'cropTop', 'cropBottom', 'cropLeft', 'cropRight'] as const) {
+        const n = v[k]
+        if (typeof n === 'number' && Number.isFinite(n)) b[k] = n
+      }
+      if (Object.keys(b).length) bx[id] = b
+    }
+    if (Object.keys(bx).length) s.boxes = bx
+  }
+>>>>>>> 4db0103 (feat: Pult mit Simulation und Ergebnisbild in der Innenansicht (#1240))
   return Object.keys(s).length ? s : undefined
 }
 

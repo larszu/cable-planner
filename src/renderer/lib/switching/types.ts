@@ -15,6 +15,7 @@
 //
 // REIN: Typen, kein IO.
 // ───────────────────────────────────────────────────────────────────────────
+import type { Easing } from './easing'
 
 /** Welche Rolle das Geraet hat. Kreuzschiene und Mischer sind getrennte Produkte. */
 export type SwitchingRole = 'mixer' | 'router'
@@ -155,6 +156,44 @@ export interface SwitchingSnapshot {
 
 export type LockKind = 'lock' | 'protect'
 
+/** Uebergangsart einer M/E (Stufe 3). */
+export type TransitionStyle = 'mix' | 'dip' | 'wipe'
+
+/** Wipe-Muster wie in lz-vision-mixer (`lzwipe`). */
+export type WipePattern = 'right' | 'left' | 'down' | 'up' | 'barnDoor' | 'circle' | 'diamond' | 'box'
+
+// Die Wertelisten stehen hier, damit Heilung und Pult dieselbe Liste lesen.
+export const TRANSITION_STYLES: readonly TransitionStyle[] = ['mix', 'dip', 'wipe']
+export const WIPE_PATTERNS: readonly WipePattern[] = ['right', 'left', 'down', 'up', 'barnDoor', 'circle', 'diamond', 'box']
+
+/** Einstellungen des Uebergangs einer M/E. Fehlt ein Wert, gilt die Vorgabe. */
+export interface TransitionSettings {
+  style?: TransitionStyle
+  /** Dauer in Millisekunden. */
+  rateMs?: number
+  easing?: Easing
+  wipe?: WipePattern
+  /** Quelle (Knoten-ID) fuer Dip. Vorgabe: Schwarz. */
+  dipSource?: string
+}
+
+/**
+ * Eine SuperSource-Box. Einheiten wie in lz-switcher-motion: das Bild reicht
+ * von x −16…16 und y −9…9 (y nach oben), Groesse 1 fuellt das Bild, Crop
+ * wird am Quellbild gemessen (oben/unten 0…18, links/rechts 0…32).
+ */
+export interface BoxState {
+  enabled?: boolean
+  x?: number
+  y?: number
+  size?: number
+  cropped?: boolean
+  cropTop?: number
+  cropBottom?: number
+  cropLeft?: number
+  cropRight?: number
+}
+
 /**
  * Der geplante Zustand. Alles optional: ein Mischer ohne Eintrag hat nichts
  * geplant, und eine leere Tabelle auf jedem Geraet waere Ballast.
@@ -185,6 +224,7 @@ export interface SwitchingState {
   salvos?: SwitchingSalvo[]
   macros?: SwitchingMacro[]
   snapshots?: SwitchingSnapshot[]
+<<<<<<< HEAD
   /** Aus einer ATEM-Setup-Datei gelesen (Stufe 4), siehe `AtemProfileState`. */
   atemProfile?: AtemProfileState
 }
@@ -211,4 +251,10 @@ export interface AtemProfileState {
   macros?: Record<string, { name: string; description?: string }>
   /** Mix-Minus-Ausgaenge: Nummer -> `audioMode`. */
   mixMinus?: Record<string, string>
+=======
+  /** Uebergang je M/E (`me:n`). */
+  transitions?: Record<string, TransitionSettings>
+  /** Lage der SuperSource-Boxen (`ss:n/box:k`). Fehlt eine, gilt das Quad. */
+  boxes?: Record<string, BoxState>
+>>>>>>> 4db0103 (feat: Pult mit Simulation und Ergebnisbild in der Innenansicht (#1240))
 }

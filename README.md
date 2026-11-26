@@ -125,7 +125,10 @@
   layer. On a switcher you route M/Es, keyers, SuperSource boxes, media
   players and aux, and the path through the device is traced up to PGM.
   Stills go in with *Load image…* or drag and drop on the media player or the
-  media pool, in the browser as well. On a router you get a matrix with locks, take and salvos. On an ATEM, the setup file from ATEM Software Control loads into the plan
+  media pool, in the browser as well. The *Desk* view runs the switcher
+  against a simulation (Cut, Auto, T-bar, mix/dip/wipe, keyers, DSK, aux,
+  macros, SuperSource boxes) and draws the resulting PGM, aux or multiviewer
+  picture from test patterns and the loaded stills. On a router you get a matrix with locks, take and salvos. On an ATEM, the setup file from ATEM Software Control loads into the plan
   and saves back with only the known values changed; the rest of the file
   stays byte for byte. In the desktop app the inner view can be offered on the network
   as an ATEM (UDP 9910) or Videohub (TCP 9990) emulator, so ATEM Software

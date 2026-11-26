@@ -7,19 +7,22 @@
 // zurueck. Der Zustand liegt am Geraet im Projekt (`EquipmentItem.switching`).
 // Mischer und Kreuzschiene haben getrennte Ansichten — getrennte Produkte.
 // ───────────────────────────────────────────────────────────────────────────
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useProjectStore } from '../../../store/projectStore'
 import { useUiStore } from '../../../store/uiStore'
 import { useTranslation } from '../../../lib/i18n'
 import { innenansichtRolle, switchingProfileFor } from '../../../lib/switching'
 import { MischerAufbau } from './MischerAufbau'
 import { KreuzschieneAufbau } from './KreuzschieneAufbau'
+import { MischerPult } from './MischerPult'
 
 export const Innenansicht = () => {
   const t = useTranslation()
   const id = useUiStore((s) => s.innenansichtId)
   const close = useUiStore((s) => s.closeInnenansicht)
   const device = useProjectStore((s) => s.project.equipment.find((e) => e.id === id))
+  // „Aufbau | Pult“ (Stufe 3); Kreuzschienen haben nur ihre Matrix.
+  const [ansicht, setAnsicht] = useState<'aufbau' | 'pult'>('aufbau')
 
   useEffect(() => {
     if (!id) return
@@ -62,14 +65,35 @@ export const Innenansicht = () => {
         </span>
         <span className="font-medium text-cp-text">{device.name}</span>
         <span className="ml-2 text-cp-xs text-cp-text-muted">
-          {rolle === 'router'
-            ? t('switching.view.router', 'Router · matrix')
-            : t('switching.view.mixer', 'Switcher · layout')}
+          {rolle === 'router' ? t('switching.view.router', 'Router · matrix') : t('switching.view.mixerShort', 'Switcher')}
         </span>
+        {rolle !== 'router' && (
+          <div
+            className="ml-3 flex rounded-cp-control border border-cp-border bg-cp-surface-2 p-0.5 text-cp-xs"
+            role="tablist"
+            aria-label={t('switching.view.mode', 'View')}
+          >
+            {(['aufbau', 'pult'] as const).map((a) => (
+              <button
+                key={a}
+                type="button"
+                role="tab"
+                aria-selected={ansicht === a}
+                data-testid={`innenansicht-${a}`}
+                onClick={() => setAnsicht(a)}
+                className={`rounded-cp-s px-2.5 py-0.5 ${ansicht === a ? 'bg-cp-surface-raised font-medium text-cp-text shadow-cp-1' : 'text-cp-text-muted hover:text-cp-text'}`}
+              >
+                {a === 'aufbau' ? t('switching.view.layout', 'Layout') : t('switching.view.desk', 'Desk')}
+              </button>
+            ))}
+          </div>
+        )}
       </nav>
       <div className="relative min-h-0 flex-1">
         {rolle === 'router' ? (
           <KreuzschieneAufbau device={device} profile={profile} />
+        ) : ansicht === 'pult' ? (
+          <MischerPult device={device} profile={profile} />
         ) : (
           <MischerAufbau device={device} profile={profile} />
         )}
