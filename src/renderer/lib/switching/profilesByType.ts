@@ -10,6 +10,7 @@
 import type { SwitchingProfile } from './types'
 import { PROFILE_ATEM_TVS_PRO_4K } from './profiles'
 import * as ross from './profilesRoss'
+import * as roland from './profilesRoland'
 
 export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfile>> = {
   /** Blackmagic ATEM Television Studio Pro 4K (broadcastNachtragBCatalog) */
@@ -26,4 +27,14 @@ export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfil
   'aa1dd919-e9ed-4170-a8cb-a6ac7c1bf975': ross.PROFILE_ROSS_ULTRIX_FR5,
   '9f3f125f-823b-48c1-9e4e-8960a0cc6c49': ross.PROFILE_ROSS_NK_3G72,
   '2e14ed1e-284b-4b5d-bc76-caa07a433d8c': ross.PROFILE_ROSS_NK_3G16,
+
+  // Roland (switcherCatalog, miscCatalog)
+  '2983ce7e-e004-49c5-8411-709546aea466': roland.PROFILE_ROLAND_V160HD,
+  'f2786473-7eea-44e7-97a8-cbe63c6d8cc4': roland.PROFILE_ROLAND_V60HD,
+  '7079510f-190f-4fe2-9efb-bf7bcef97244': roland.PROFILE_ROLAND_V8HD,
+  '684a1453-28b5-4026-8f5d-f77edfbd55ff': roland.PROFILE_ROLAND_V80HD,
+  'fc593190-82d8-4f39-9ffe-4aa5ac636bdb': roland.PROFILE_ROLAND_VR120HD,
+  'eebf5cb4-31f2-4c35-87a7-6c59c28227fb': roland.PROFILE_ROLAND_VR6HD,
+  'b36b1870-fac4-4053-8f9f-5aa1efdddd26': roland.PROFILE_ROLAND_V1200HD,
+  '9d9feabe-7a1d-473b-b182-d6a37e19a390': roland.PROFILE_ROLAND_XS62S,
 }
