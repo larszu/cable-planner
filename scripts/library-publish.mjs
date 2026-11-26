@@ -28,6 +28,9 @@
 //   --dry-run            nur abbilden und berichten, nichts senden
 // ───────────────────────────────────────────────────────────────────────────
 import { appendFileSync } from 'node:fs'
+// Der Katalog importiert Geschwister ohne Endung (`./switching/profiles`);
+// Node findet sie nur mit dem Aufloeser aus `ts-endungen.mjs`.
+import './register-endungen.mjs'
 
 const { EINGEBAUTER_KATALOG } = await import('../src/renderer/lib/eingebauterKatalog.ts')
 const { uploadItemAus } = await import('../src/renderer/lib/deviceLibraryItem.ts')

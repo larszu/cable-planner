@@ -34,6 +34,10 @@ export function impliedOutputSourceId(name: string): number | undefined {
   return pvw ? base + 1 : base
 }
 
+/** ATEM-Quellen-ID eines Eingangs: gesetztes `atemSourceId`, sonst die Position (1-basiert). */
+export const inputSourceId = (port: PortLike | undefined, idx: number): number =>
+  typeof port?.atemSourceId === 'number' ? port.atemSourceId : idx + 1
+
 export function atemPortSources(equipment: {
   inputs?: PortLike[]
   outputs?: PortLike[]
@@ -43,7 +47,7 @@ export function atemPortSources(equipment: {
   inputs.forEach((p, idx) => {
     const name = typeof p?.name === 'string' ? p.name.trim() : ''
     if (!name) return
-    out.push({ id: typeof p.atemSourceId === 'number' ? p.atemSourceId : idx + 1, name, isOutput: false })
+    out.push({ id: inputSourceId(p, idx), name, isOutput: false })
   })
   const outputs = Array.isArray(equipment.outputs) ? equipment.outputs : []
   for (const p of outputs) {

@@ -76,6 +76,7 @@ import { VIEWPORT_DEFAULTS } from '../lib/layoutConstants'
 import { getCanvasSize } from '../lib/canvasViewport'
 import { seedLibrarySyncCache } from '../lib/librarySync'
 import { normaliseVideohubRouting } from '../lib/videohubRouting'
+import { normaliseSwitching } from '../lib/switching/state'
 import { normaliseLabelFollow } from '../lib/atemLabelFollow'
 import {
   clearDanglingIdentity,
@@ -1608,6 +1609,16 @@ const healProjectPositions = (
 
       if (item.videohubRouting !== undefined) {
         item = { ...item, videohubRouting: normaliseVideohubRouting(item.videohubRouting) }
+      }
+
+      // #1240 — Zustand im Inneren eines Mischers/einer Kreuzschiene. Nur
+      // angefasst, wenn er da ist; Kreuzpunkte auf Bausteine, die das Geraet
+      // nicht (mehr) hat, fallen weg (`normaliseSwitching`).
+      if (item.switching !== undefined) {
+        const sw = normaliseSwitching(item, item.switching)
+        item = sw
+          ? { ...item, switching: sw }
+          : ((({ switching: _weg, ...rest }) => rest)(item) as EquipmentItem)
       }
 
       // #946 — Streams am Geraet. Nur angefasst, wenn das Geraet welche

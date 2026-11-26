@@ -645,6 +645,26 @@ plain-text Routing-/Label-Blöcke. Smart-Routing erkennt Quellen anhand
 ihrer Namen (Fuzzy-Match mit AI-Provider-Fallback bei niedriger
 Score-Schwelle).
 
+### 6.5a · Funktionsmodell Mischer und Kreuzschienen (#1240)
+
+`src/renderer/lib/switching/` ist rein (kein IO). Ein Mischer oder eine
+Kreuzschiene ist eine Zusammensetzung von Bausteinen (M/E, USK, DSK,
+SuperSource mit Boxen, Mediaplayer, Farbgenerator, Aux, Multiviewer-Verweis,
+Makro, Snapshot); welche und wie viele, steht im **Profil am
+Katalog-Eintrag** (`switchingProfile`, aufgelöst über `deviceTypeId`). Jede
+Zahl trägt ihre Herstellerquelle, nicht Belegtes bleibt leer.
+
+Die interne Signalführung ist selbst eine Matrix (`internalMatrix.ts`,
+Quellen-IDs nach dem ATEM-Profil-XML); `innerPath.ts` verfolgt einen Weg
+durch das Gerät bis PGM oder Aux. Der Zustand liegt am Gerät in
+`EquipmentItem.switching`. **Eine Angabe, ein Ort:** ein Aux auf einen
+externen Eingang steht in `plannedCrosspoints` (dort liest ihn
+`signalChain.ts`), die Video-Ebene einer Kreuzschiene in
+`videohubRouting.planned` (dort lesen Export, Salvo-Blatt und Signalweg);
+nur die übrigen Ebenen, Sperren und Vormerkungen stehen in `switching`.
+Kreuzschienen rechnen mit Ebenen, Breakaway, Take und Sperren in
+`matrix.ts`. Heilung: `normaliseSwitching` in `healProjectPositions`.
+
 ### 6.5b · Gerätekonfigurationen tragen ihre Herkunft daneben (Bedarf 43)
 
 Jede Datei, die dieses Programm an ein **fremdes Gerät** ausgibt — Videohub
