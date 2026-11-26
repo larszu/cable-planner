@@ -420,6 +420,13 @@ export type CablePlannerApi = {
       scopeId: number,
     ) => Promise<NetboxSnapshot>
   }
+  /** #1240 Stufe 6 — IS-04-Registry einlesen. Die URL nur im Desktop. */
+  nmos: {
+    openFile: () => Promise<{ ok: true; value: { fileName: string; text: string } } | { ok: false; message: string } | null>
+    fetchRegistry: (
+      url: string,
+    ) => Promise<{ ok: true; value: { url: string; resources: Record<string, unknown[]> } } | { ok: false; message: string }>
+  }
   graphml: {
     openFile: () => Promise<{ filePath: string; fileName: string; xml: string } | null>
   }
@@ -1326,6 +1333,31 @@ const webFallbackApi: CablePlannerApi = {
     fetchSnapshot: async () => {
       throw new Error(tr('bridge.netbox.desktopOnly', 'NetBox integration needs the desktop app.'))
     },
+  },
+  nmos: {
+    openFile: async () => {
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.accept = acceptFuerGeraet('.json,application/json')
+      return await new Promise<{ ok: true; value: { fileName: string; text: string } } | { ok: false; message: string } | null>(
+        (resolve) => {
+          input.onchange = async () => {
+            const file = input.files?.[0]
+            if (!file) return resolve(null)
+            try {
+              resolve({ ok: true, value: { fileName: file.name, text: await file.text() } })
+            } catch (e) {
+              resolve({ ok: false, message: e instanceof Error ? e.message : String(e) })
+            }
+          }
+          input.click()
+        },
+      )
+    },
+    fetchRegistry: async () => ({
+      ok: false as const,
+      message: tr('bridge.nmos.desktopOnly', 'Reading a registry over the network needs the desktop app.'),
+    }),
   },
   graphml: {
     // Browser fallback for dev / non-Electron contexts: use a hidden

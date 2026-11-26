@@ -1,0 +1,8 @@
+{
+    "description": "Version code in semantic versioning format",
+    "name": "NcVersionCode",
+    "type": 1,
+    "parentType": "NcString",
+    "isSequence": false,
+    "constraints": null
+}

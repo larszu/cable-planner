@@ -1,0 +1,17 @@
+{
+  "description": "Method result containing a datatype descriptor as the value",
+  "name": "NcMethodResultDatatypeDescriptor",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Datatype descriptor method result value",
+      "name": "value",
+      "typeName": "NcDatatypeDescriptor",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": "NcMethodResult",
+  "constraints": null
+}

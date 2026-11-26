@@ -1,0 +1,25 @@
+{
+  "description": "Device operational state",
+  "name": "NcDeviceOperationalState",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Generic operational state",
+      "name": "generic",
+      "typeName": "NcDeviceGenericState",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    },
+    {
+      "description": "Specific device details",
+      "name": "deviceSpecificDetails",
+      "typeName": "NcString",
+      "isNullable": true,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": null,
+  "constraints": null
+}

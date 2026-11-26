@@ -1,0 +1,17 @@
+{
+    "description": "Touchpoint resource class for NMOS resources",
+    "name": "NcTouchpointResourceNmosChannelMapping",
+    "type": 2,
+    "fields": [
+        {
+            "description": "IS-08 Audio Channel Mapping input or output id",
+            "name": "ioId",
+            "typeName": "NcString",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        }
+    ],
+    "parentType": "NcTouchpointResourceNmos",
+    "constraints": null
+}

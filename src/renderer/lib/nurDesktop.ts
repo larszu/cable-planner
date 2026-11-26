@@ -63,6 +63,11 @@ export function nurDesktop(t: Uebersetzen): NurDesktop[] {
       grund: t('desktopOnly.netbox.why', 'Reads a token from the OS keychain and calls a host inside your network.'),
     },
     {
+      domaene: 'nmos',
+      name: t('desktopOnly.nmos', 'Reading an NMOS registry over the network'),
+      grund: t('desktopOnly.nmos.why', 'Calls the Query API of a host inside your network; a page may not reach it. A JSON file works in the browser too.'),
+    },
+    {
       domaene: 'signaling',
       name: t('desktopOnly.signaling', 'Local signalling server'),
       grund: t('desktopOnly.signaling.why', 'Listens on a port of this machine. A page cannot be a server.'),

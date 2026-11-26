@@ -84,6 +84,10 @@ const GERAETE_DOMAENEN = [
   'camera',
   // Green-GO live (`greengo:*`): Zustand des Geraets, nur im greengoLiveStore.
   'greengo',
+  // #1240 Stufe 6 — eine NMOS-Registry (`nmos:*`) ist ein Fremdsystem wie
+  // NetBox. Ihre Antwort landet erst nach der Vorschau im Plan, als NEUE
+  // Geraete (Bestandsaufnahme); vorhandene fasst der Import nicht an.
+  'nmos',
 ] as const
 
 /**
@@ -290,6 +294,15 @@ const CLASSIFIED: Site[] = [
       'Geraete behalten jede manuelle Nacharbeit. Dass dabei `portsUnknown` ' +
       'faellt, ist richtig: es fiel, WEIL echte Ports gelesen wurden — genau ' +
       'die Bedingung, unter der die Unbekannt-Markierung nicht mehr gilt.',
+  },
+  {
+    file: 'components/Import/NmosImportDialog.tsx',
+    verdict: 'additiv',
+    reason:
+      '#1240 Stufe 6 — die Registry-Antwort geht erst durch die Vorschau und ' +
+      'dann nur ueber `addEquipment` als NEUE Geraete in den Plan. Geraete, ' +
+      'deren NMOS-UUID schon im Plan steht, sind gesperrt und werden nicht ' +
+      'angefasst; Kabel entstehen keine.',
   },
   {
     file: 'components/Properties/sections/LabelFollowPanel.tsx',

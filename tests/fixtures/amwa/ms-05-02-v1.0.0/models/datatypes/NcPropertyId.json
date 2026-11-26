@@ -1,0 +1,8 @@
+{
+    "description": "Property id which contains the level and index",
+    "name": "NcPropertyId",
+    "type": 2,
+    "fields": [],
+    "parentType": "NcElementId",
+    "constraints": null
+}

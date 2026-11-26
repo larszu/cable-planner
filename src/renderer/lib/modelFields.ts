@@ -291,6 +291,7 @@ export const INSTANCE_FIELDS = [
   'graphmlId',
   'netboxId',
   'netboxSourceUrl',
+  'nmosId',
   'rentmanId',
   'rentmanRemoved',
   // #906 — vor Ort erfasst: gilt fuer DIESES Exemplar und seine Arbeitsliste.

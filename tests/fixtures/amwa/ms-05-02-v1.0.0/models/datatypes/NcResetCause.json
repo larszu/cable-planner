@@ -1,0 +1,38 @@
+{
+  "description": "Reset cause enum",
+  "name": "NcResetCause",
+  "type": 3,
+  "items": [
+    {
+      "description": "Unknown",
+      "name": "Unknown",
+      "value": 0
+    },
+    {
+      "description": "Power on",
+      "name": "PowerOn",
+      "value": 1
+    },
+    {
+      "description": "Internal error",
+      "name": "InternalError",
+      "value": 2
+    },
+    {
+      "description": "Upgrade",
+      "name": "Upgrade",
+      "value": 3
+    },
+    {
+      "description": "Controller request",
+      "name": "ControllerRequest",
+      "value": 4
+    },
+    {
+      "description": "Manual request from the front panel",
+      "name": "ManualReset",
+      "value": 5
+    }
+  ],
+  "constraints": null
+}

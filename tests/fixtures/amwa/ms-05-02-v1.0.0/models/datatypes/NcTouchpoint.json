@@ -1,0 +1,17 @@
+{
+    "description": "Base touchpoint class",
+    "name": "NcTouchpoint",
+    "type": 2,
+    "fields": [
+        {
+            "description": "Context namespace",
+            "name": "contextNamespace",
+            "typeName": "NcString",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        }
+    ],
+    "parentType": null,
+    "constraints": null
+}

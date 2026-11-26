@@ -1,0 +1,8 @@
+{
+    "description": "Sequence of class ID fields.",
+    "name": "NcClassId",
+    "type": 1,
+    "parentType": "NcInt32",
+    "isSequence": true,
+    "constraints": null
+}

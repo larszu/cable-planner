@@ -401,6 +401,7 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   netboxId: 'bookkeeping',
   netboxPath: 'bookkeeping',
   netboxSourceUrl: 'bookkeeping',
+  nmosId: 'bookkeeping',
   rentmanId: 'bookkeeping',
   rentmanRemoved: 'bookkeeping',
   multicamId: 'bookkeeping',

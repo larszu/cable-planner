@@ -1,0 +1,25 @@
+{
+    "description": "Class element id which contains the level and index",
+    "name": "NcElementId",
+    "type": 2,
+    "fields": [
+        {
+            "description": "Level of the element",
+            "name": "level",
+            "typeName": "NcUint16",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        },
+        {
+            "description": "Index of the element",
+            "name": "index",
+            "typeName": "NcUint16",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        }
+    ],
+    "parentType": null,
+    "constraints": null
+}

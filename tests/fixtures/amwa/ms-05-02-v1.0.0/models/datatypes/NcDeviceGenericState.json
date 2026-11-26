@@ -1,0 +1,38 @@
+{
+  "description": "Device generic operational state",
+  "name": "NcDeviceGenericState",
+  "type": 3,
+  "items": [
+    {
+      "description": "Unknown",
+      "name": "Unknown",
+      "value": 0
+    },
+    {
+      "description": "Normal operation",
+      "name": "NormalOperation",
+      "value": 1
+    },
+    {
+      "description": "Device is initializing",
+      "name": "Initializing",
+      "value": 2
+    },
+    {
+      "description": "Device is performing a software or firmware update",
+      "name": "Updating",
+      "value": 3
+    },
+    {
+      "description": "Device is experiencing a licensing error",
+      "name": "LicensingError",
+      "value": 4
+    },
+    {
+      "description": "Device is experiencing an internal error",
+      "name": "InternalError",
+      "value": 5
+    }
+  ],
+  "constraints": null
+}

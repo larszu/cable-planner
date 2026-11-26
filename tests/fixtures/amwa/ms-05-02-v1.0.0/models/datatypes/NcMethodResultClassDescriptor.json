@@ -1,0 +1,17 @@
+{
+  "description": "Method result containing a class descriptor as the value",
+  "name": "NcMethodResultClassDescriptor",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Class descriptor method result value",
+      "name": "value",
+      "typeName": "NcClassDescriptor",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": "NcMethodResult",
+  "constraints": null
+}

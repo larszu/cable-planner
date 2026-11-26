@@ -148,6 +148,17 @@ contextBridge.exposeInMainWorld('cablePlanner', {
     call: (server: string, op: string, args: unknown[]) =>
       ipcRenderer.invoke('cloud:call', server, op, args) as Promise<unknown>,
   },
+  // #1240 Stufe 6 — IS-04-Registry als Datei oder ueber die Query API.
+  nmos: {
+    openFile: () =>
+      ipcRenderer.invoke('nmos:open-file') as Promise<
+        { ok: true; value: { fileName: string; text: string } } | { ok: false; message: string } | null
+      >,
+    fetchRegistry: (url: string) =>
+      ipcRenderer.invoke('nmos:fetch-registry', url) as Promise<
+        { ok: true; value: { url: string; resources: Record<string, unknown[]> } } | { ok: false; message: string }
+      >,
+  },
   graphml: {
     openFile: () =>
       ipcRenderer.invoke('graphml:open-file') as Promise<{

@@ -1,0 +1,17 @@
+{
+    "description": "Base descriptor",
+    "name": "NcDescriptor",
+    "type": 2,
+    "fields": [
+        {
+            "description": "Optional user facing description",
+            "name": "description",
+            "typeName": "NcString",
+            "isNullable": true,
+            "isSequence": false,
+            "constraints": null
+        }
+    ],
+    "parentType": null,
+    "constraints": null
+}

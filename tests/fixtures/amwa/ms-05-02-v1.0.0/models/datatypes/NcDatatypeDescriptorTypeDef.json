@@ -1,0 +1,25 @@
+{
+  "description": "Type def datatype descriptor",
+  "name": "NcDatatypeDescriptorTypeDef",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Original typedef datatype name",
+      "name": "parentType",
+      "typeName": "NcName",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    },
+    {
+      "description": "TRUE iff type is a typedef sequence of another type",
+      "name": "isSequence",
+      "typeName": "NcBoolean",
+      "isNullable": false,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": "NcDatatypeDescriptor",
+  "constraints": null
+}

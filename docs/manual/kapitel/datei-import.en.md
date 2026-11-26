@@ -224,6 +224,14 @@ A file that is not a valid camera list reports *Camera import failed — not a v
 
 ![Error message](bilder/en/datei-import-32-multicam-fehler.jpg)
 
+### Import NMOS registry (IS-04)
+
+*File → Import NMOS registry (IS-04)…* takes an existing 2110 installation into the plan as an inventory. It reads a JSON file holding an IS-04 registry response: the `nodes`, `devices`, `senders`, `receivers` and `flows` lists of the Query API, a single list of these resources, or the NMOS file the planner exports itself. In the desktop app the *Query API address* field also reads a registry directly, for example `http://registry:8235/x-nmos/query/v1.3`. Only http and https without credentials in the address are allowed.
+
+Before anything is added, a preview lists every IS-04 device with its number of senders and receivers. Deselected devices stay out. Each device becomes a device in the plan; its senders become outputs, its receivers inputs, each with the ST 2110 standard taken from the media type (`video/raw` becomes ST 2110-20, `video/jxsv` ST 2110-22, `audio/L24` ST 2110-30, `audio/AM824` ST 2110-31, `video/smpte291` ST 2110-40). The IP address comes from the node. Devices whose NMOS id is already in the plan are marked *already in the plan* and are not added twice.
+
+No cables are created. A registry knows who subscribes to whom, not what is plugged in.
+
 ### Import equipment from CSV
 
 *File → Import equipment from CSV…* creates device templates in the local library. Only templates are created; nothing is placed on the canvas.

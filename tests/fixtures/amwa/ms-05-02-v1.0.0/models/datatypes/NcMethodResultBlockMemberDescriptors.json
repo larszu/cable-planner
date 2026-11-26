@@ -1,0 +1,17 @@
+{
+  "description": "Method result containing block member descriptors as the value",
+  "name": "NcMethodResultBlockMemberDescriptors",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Block member descriptors method result value",
+      "name": "value",
+      "typeName": "NcBlockMemberDescriptor",
+      "isNullable": false,
+      "isSequence": true,
+      "constraints": null
+    }
+  ],
+  "parentType": "NcMethodResult",
+  "constraints": null
+}

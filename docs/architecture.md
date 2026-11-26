@@ -74,6 +74,7 @@ Alle IPC-Channels sind nach Domäne präfixiert. Definitionen in
 | `graphml:*` | `graphmlIpc.ts` | `open-file` |
 | `print:*` | `printIpc.ts` | `pdf-bytes` |
 | `webSearch:*` | `webSearchIpc.ts` | `search` — DuckDuckGo-Ergebnisseite + Text der ersten Treffer für „Ports aus dem Namen raten“ (CORS sperrt das im Renderer) |
+| `nmos:*` | `nmosIpc.ts` | `open-file`, `fetch-registry` — IS-04-Registry als JSON-Datei oder über die Query API (URL-Prüfung in main, nur gleicher Ursprung beim Blättern); Vorschau und Übernahme im Renderer (#1240) |
 | `logs:*` | `logIpc.ts` | `renderer-error` (Renderer → Main, one-way) |
 | `signaling:*` | `signalingIpc.ts` | LAN-Signaling-Relay für die Yjs/WebRTC-Kollaboration (#413) |
 | `collabDiscovery:*` | `collabDiscoveryIpc.ts` | Bonjour/mDNS-Discovery von Kollaborations-Peers im LAN |

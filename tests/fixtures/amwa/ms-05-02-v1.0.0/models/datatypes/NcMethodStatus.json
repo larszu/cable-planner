@@ -1,0 +1,98 @@
+{
+  "description": "Method invokation status",
+  "name": "NcMethodStatus",
+  "type": 3,
+  "items": [
+    {
+      "description": "Method call was successful",
+      "name": "Ok",
+      "value": 200
+    },
+    {
+      "description": "Method call was successful but targeted property is deprecated",
+      "name": "PropertyDeprecated",
+      "value": 298
+    },
+    {
+      "description": "Method call was successful but method is deprecated",
+      "name": "MethodDeprecated",
+      "value": 299
+    },
+    {
+      "description": "Badly-formed command (e.g. the incoming command has invalid message encoding and cannot be parsed by the underlying protocol)",
+      "name": "BadCommandFormat",
+      "value": 400
+    },
+    {
+      "description": "Client is not authorized",
+      "name": "Unauthorized",
+      "value": 401
+    },
+    {
+      "description": "Command addresses a nonexistent object",
+      "name": "BadOid",
+      "value": 404
+    },
+    {
+      "description": "Attempt to change read-only state",
+      "name": "Readonly",
+      "value": 405
+    },
+    {
+      "description": "Method call is invalid in current operating context (e.g. attempting to invoke a method when the object is disabled)",
+      "name": "InvalidRequest",
+      "value": 406
+    },
+    {
+      "description": "There is a conflict with the current state of the device",
+      "name": "Conflict",
+      "value": 409
+    },
+    {
+      "description": "Something was too big",
+      "name": "BufferOverflow",
+      "value": 413
+    },
+    {
+      "description": "Index is outside the available range",
+      "name": "IndexOutOfBounds",
+      "value": 414
+    },
+    {
+      "description": "Method parameter does not meet expectations (e.g. attempting to invoke a method with an invalid type for one of its parameters)",
+      "name": "ParameterError",
+      "value": 417
+    },
+    {
+      "description": "Addressed object is locked",
+      "name": "Locked",
+      "value": 423
+    },
+    {
+      "description": "Internal device error",
+      "name": "DeviceError",
+      "value": 500
+    },
+    {
+      "description": "Addressed method is not implemented by the addressed object",
+      "name": "MethodNotImplemented",
+      "value": 501
+    },
+    {
+      "description": "Addressed property is not implemented by the addressed object",
+      "name": "PropertyNotImplemented",
+      "value": 502
+    },
+    {
+      "description": "The device is not ready to handle any commands",
+      "name": "NotReady",
+      "value": 503
+    },
+    {
+      "description": "Method call did not finish within the allotted time",
+      "name": "Timeout",
+      "value": 504
+    }
+  ],
+  "constraints": null
+}

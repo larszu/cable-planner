@@ -1,0 +1,28 @@
+{
+  "description": "Type of property change",
+  "name": "NcPropertyChangeType",
+  "type": 3,
+  "items": [
+    {
+      "description": "Current value changed",
+      "name": "ValueChanged",
+      "value": 0
+    },
+    {
+      "description": "Sequence item added",
+      "name": "SequenceItemAdded",
+      "value": 1
+    },
+    {
+      "description": "Sequence item changed",
+      "name": "SequenceItemChanged",
+      "value": 2
+    },
+    {
+      "description": "Sequence item removed",
+      "name": "SequenceItemRemoved",
+      "value": 3
+    }
+  ],
+  "constraints": null
+}

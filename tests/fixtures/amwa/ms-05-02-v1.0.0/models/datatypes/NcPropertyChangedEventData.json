@@ -1,0 +1,41 @@
+{
+    "description": "Payload of property-changed event",
+    "name": "NcPropertyChangedEventData",
+    "type": 2,
+    "fields": [
+        {
+            "description": "The id of the property that changed",
+            "name": "propertyId",
+            "typeName": "NcPropertyId",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        },
+        {
+            "description": "Information regarding the change type",
+            "name": "changeType",
+            "typeName": "NcPropertyChangeType",
+            "isNullable": false,
+            "isSequence": false,
+            "constraints": null
+        },
+        {
+            "description": "Property-type specific value",
+            "name": "value",
+            "typeName": null,
+            "isNullable": true,
+            "isSequence": false,
+            "constraints": null
+        },
+        {
+            "description": "Index of sequence item if the property is a sequence",
+            "name": "sequenceItemIndex",
+            "typeName": "NcId",
+            "isNullable": true,
+            "isSequence": false,
+            "constraints": null
+        }
+    ],
+    "parentType": null,
+    "constraints": null
+}

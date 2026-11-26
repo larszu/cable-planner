@@ -1,0 +1,12 @@
+{
+  "description": "NcManager class descriptor",
+  "classId": [
+    1,
+    3
+  ],
+  "name": "NcManager",
+  "fixedRole": null,
+  "properties": [],
+  "methods": [],
+  "events": []
+}

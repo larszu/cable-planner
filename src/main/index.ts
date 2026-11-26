@@ -30,6 +30,7 @@ import { registerGreengoIpc } from './ipc/greengoIpc.js'
 import { registerEmulatorIpc } from './ipc/emulatorIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
 import { registerGraphmlIpc } from './ipc/graphmlIpc.js'
+import { registerNmosIpc } from './ipc/nmosIpc.js'
 import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
 import { registerMcpIpc } from './ipc/mcpIpc.js'
 import { registerCollabDiscoveryIpc } from './ipc/collabDiscoveryIpc.js'
@@ -417,6 +418,7 @@ app.whenReady().then(async () => {
   registerEmulatorIpc()
   registerSyncIpc()
   registerGraphmlIpc()
+  registerNmosIpc()
   registerMobileShareIpc()
   // #872 — der lokale MCP-Server. Die Handler stehen immer bereit; der
   // Server selbst laeuft erst, wenn jemand ihn einschaltet.

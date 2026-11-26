@@ -41,6 +41,7 @@ English version: [manual.en.md](manual.en.md)
    - [Räume, Etagen und 3D-Gebäudeansicht](#räume-etagen-und-3d-gebäudeansicht)
    - [Ebenen](#ebenen)
    - [Signalweg](#signalweg)
+   - [Innenansicht von Mischer und Kreuzschiene](#innenansicht-von-mischer-und-kreuzschiene)
    - [Betriebsarten: Schema, Schaltbild, Prüfbild](#betriebsarten-schema-schaltbild-prüfbild)
    - [Sperren](#sperren)
    - [Plan abschließen](#plan-abschließen)
@@ -84,6 +85,7 @@ English version: [manual.en.md](manual.en.md)
    - [Das Dateiformat `.cableplan`](#das-dateiformat-cableplan)
    - [Import yEd / GraphML](#import-yed--graphml)
    - [Import MultiCam-Kameras](#import-multicam-kameras)
+   - [Import NMOS-Registry (IS-04)](#import-nmos-registry-is-04)
    - [Import Equipment aus CSV](#import-equipment-aus-csv)
    - [Import GDTF / MVR](#import-gdtf--mvr)
    - [Rentman-Import](#rentman-import)
@@ -101,6 +103,7 @@ English version: [manual.en.md](manual.en.md)
    - [Anmerkungen importieren](#anmerkungen-importieren)
    - [Plan-Stände vergleichen](#plan-stände-vergleichen)
    - [Ausgegebene Dokumente](#ausgegebene-dokumente)
+   - [NMOS-Export](#nmos-export)
    - [Rückweg nach Rentman](#rückweg-nach-rentman)
 10. [Werkzeuge: Planen](#10-werkzeuge-planen)
    - [Berechnen](#berechnen)
@@ -1064,6 +1067,26 @@ Der Signalweg hebt die ganze Kette hervor, in der ein Kabel liegt, und dunkelt d
 
 3. In der Leiste steht der Chip *Signalweg: n Kabel, m Geräte*. Ein Klick darauf oder Esc beendet die Ansicht.
 
+
+### Innenansicht von Mischer und Kreuzschiene
+
+Mit dem Modul *Innenansicht Mischer & Kreuzschiene* (Einstellungen › Module, ab Werk aus) öffnet ein Doppelklick auf einen Mischer oder eine Kreuzschiene die Innenansicht. Das geht auch über *Innenansicht* im Kontextmenü. Die Ansicht legt sich als zweite Ebene über den Plan. Über die Brotkrumen *Plan › Gerät* oder mit Esc kommst du zurück.
+
+**Mischer.** Die Bausteine des Geräts erscheinen als Knoten: Eingänge, Farbgeneratoren und Mediaplayer links, SuperSource, Keyer und M/Es in der Mitte, PGM, Aux und Multiviewer rechts. Ziehst du eine Kante von einer Quelle auf einen Bus (Programm-Bus einer M/E, Box einer SuperSource, Fill eines Keyers, Aux), setzt du den Kreuzpunkt. Eine gewählte Kante löst du mit Entf oder *Weg lösen*. Klickst du einen Baustein an, wird sein Weg durch das Gerät hervorgehoben. Die Seitenleiste nennt ihn, zum Beispiel *M/E 2 › SuperSource 1 › M/E 1 › PGM*, und sagt, ob er an einem Ausgang ankommt, nur auf der Vorschau liegt oder an einem Keyer endet, der nicht auf Sendung ist. Ein Aux, der einen Eingang durchschaltet, zählt auch für den Signalweg im Plan.
+
+Ein Standbild lädst du direkt am Mediaplayer-Knoten mit **Bild laden…** oder ziehst die Datei auf den Knoten. Das Bild landet auf dem Platz, den der Mediaplayer spielt, sonst auf dem ersten freien Platz. Der Knoten zeigt eine Vorschau, **Ersetzen…** tauscht das Bild und **Bild entfernen** gibt den Platz frei. Im Media-Pool der Seitenleiste geht dasselbe je Platz, auch per Drag & Drop. Das Bild wird im Projekt gespeichert, deshalb klappt das auch im Browser und in einem noch nicht gespeicherten Projekt. Ein PNG behält seine Transparenz für den Key. Vorhandene Bild-Anhänge (Ordner *Anhaenge*) lassen sich weiterhin wählen.
+
+Anzahl und Grenzen der Bausteine stammen aus dem Datenblatt des Herstellers (Link *Quelle*). Nennt das Datenblatt einen Wert nicht, trägst du ihn unter *Nicht im Datenblatt* selbst ein. Hat ein Gerät Betriebsarten wie den 8K-Modus des Constellation 8K, wählst du sie aus. Liegt der Plan über einer Grenze, erscheint ein Hinweis. Gesperrt wird dabei nichts. Für Geräte ohne Profil trägst du die Bausteine selbst ein.
+
+**ATEM-Setup-Datei.** Bei einem ATEM stehen oben in der Seitenleiste *Setup-Datei laden…* und *Setup-Datei speichern…*. Gemeint ist die XML-Datei, die ATEM Software Control unter *Datei › Speichern* schreibt und mit *Wiederherstellen* einspielt. Beim Laden übernimmt der Plan M/E-Busse, Keyer, DSK, SuperSource-Boxen, Aux, Farbgeneratoren, Mediaplayer und Media-Pool, Multiviewer, Eingangsnamen, Makronamen, Mix-Minus und die Audio-Zuordnung. Fehlen dem Gerät Bausteine, die in der Datei stehen, werden sie ergänzt. Werte aus dem Datenblatt bleiben dabei stehen. Quellen, für die der Plan keinen Baustein hat (etwa Clean Feed), werden unter der Schaltfläche genannt. Beim Speichern schreibt der Plan nur die Werte, die er kennt, in die geladene Datei. Alles andere bleibt Zeichen für Zeichen, wie es war. Den Multiviewer und die Audio-Zuordnung aus den ATEM-Dialogen nimmt die Datei mit. Ohne geladene Datei entsteht eine neue mit den Abschnitten, die der Plan kennt.
+
+**Als Gerät im Netz anbieten.** In der Desktop-App gibt es bei einem ATEM und bei einem Videohub den Schalter *Als Gerät im Netz anbieten*. Dann verbinden sich ATEM Software Control, Companion oder die Bridge mit der Innenansicht, als wäre sie das Gerät: ein ATEM auf UDP 9910, ein Videohub auf TCP 9990. Der Emulator hört nur auf diesem Rechner (`127.0.0.1`). Erst *Auch von anderen Rechnern erreichbar* öffnet ihn für das Netz. Die Adresse steht unter dem Schalter, und im Pult heißt das Gerät „Emulator …“. Was du im Plan änderst, sehen die Pulte sofort. Was ein Pult schaltet, landet im Plan. Hinter keinem Bus liegt ein Bild: der Emulator zeigt, dass Befehle richtig ankommen, nicht dass die Anlage funktioniert. Änderst du die Zahl der Bausteine, schalte ihn einmal aus und wieder an.
+
+**Pult.** Oben in der Innenansicht eines Mischers schaltest du zwischen *Aufbau* und *Pult* um. Das Pult bedient den Mischer gegen eine Simulation. Je M/E gibt es eine Programm- und eine Vorschau-Reihe, dazu *Cut*, *Auto* und den T-Bar. Unter *Übergang* wählst du Mix, Dip (mit Dip-Quelle) oder Wipe (mit Muster), außerdem die Dauer und die Kurve. Die Kurven sind dieselben wie in LZ Switcher Motion. Die Keyer-Tasten nehmen USKs auf das Bild oder vom Bild. Darunter folgen die DSKs mit ihrer Fill-Quelle, die Aux-Wahl, die Makros des Plans und die SuperSource-Boxen mit Quelle, Lage und Größe. *Quad-Aufteilung* setzt die Boxen zurück in die vier Ecken.
+
+Rechts zeigt *Ergebnis* das simulierte Bild von PGM, einer M/E, einem Aux oder einem Multiviewer. Jede Quelle erscheint als Prüfbild mit ihrem Namen, ein Mediaplayer mit seinem geladenen Standbild. Boxen, Keys, DSKs und Übergänge sind so angeordnet wie im Mischer. Die Bildqualität ist dabei nicht das Ziel. Was ein Schnitt ändert, landet im Plan. Ein laufender Übergang gilt nur für diese Sitzung.
+
+**Kreuzschiene.** Die Kreuzschiene zeigt eine Matrix aus Ausgängen und Eingängen. Ein Klick setzt den Kreuzpunkt, ein zweiter löst ihn. Ausgänge lassen sich sperren. Mit *Vormerken, dann Take* schaltest du mehrere Kreuzpunkte gemeinsam. Salvos sind dieselben wie im Videohub-Export.
 
 ### Betriebsarten: Schema, Schaltbild, Prüfbild
 
@@ -2669,6 +2692,14 @@ Eine Datei, die keine gültige Kameraliste ist, meldet *Kamera-Import fehlgeschl
 
 ![Fehlermeldung](bilder/de/datei-import-32-multicam-fehler.jpg)
 
+### Import NMOS-Registry (IS-04)
+
+*Datei → NMOS-Registry einlesen (IS-04)…* übernimmt eine vorhandene 2110-Anlage als Bestandsaufnahme. Gelesen wird eine JSON-Datei mit der Antwort einer IS-04-Registry: die Listen `nodes`, `devices`, `senders`, `receivers` und `flows` der Query API, eine einzelne Liste dieser Ressourcen oder die NMOS-Datei, die der Planer selbst exportiert. In der Desktop-App liest das Feld *Adresse der Query API* die Registry auch direkt, etwa `http://registry:8235/x-nmos/query/v1.3`. Erlaubt sind nur http und https ohne Zugangsdaten in der Adresse.
+
+Vor der Übernahme zeigt eine Vorschau jedes IS-04-Device mit der Zahl seiner Sender und Empfänger. Abgewählte Geräte bleiben draußen. Aus jedem Device wird ein Gerät; seine Sender werden Ausgänge, seine Empfänger Eingänge, jeweils mit dem ST-2110-Standard aus dem Medientyp (`video/raw` wird ST 2110-20, `video/jxsv` ST 2110-22, `audio/L24` ST 2110-30, `audio/AM824` ST 2110-31, `video/smpte291` ST 2110-40). Die IP-Adresse kommt aus dem Node. Geräte, deren NMOS-Kennung schon im Plan steht, sind als *schon im Plan* markiert und werden nicht doppelt angelegt.
+
+Kabel entstehen nicht. Eine Registry weiß, wer wen abonniert hat, aber nicht, was gesteckt ist.
+
 ### Import Equipment aus CSV
 
 *Datei → Equipment aus CSV importieren…* legt Gerätevorlagen in der lokalen Bibliothek an. Es entstehen nur Vorlagen; auf den Canvas kommt nichts.
@@ -3427,6 +3458,17 @@ Ohne Ausgaben steht dort *nichts ausgegeben*, dazu der Hinweis, dass für dieses
 Mit Ausgaben nennt die Kopfzeile die Zahl der Einträge zu diesem Projekt und wie viele davon überholt sind. Die Tabelle gruppiert nach Empfänger (aus dem Feld *Empfänger dieses Blattes*; fehlt er, steht dort *Empfänger nicht genannt*) und zeigt je Eintrag *Dokument*, *Ausgegeben*, *Stand auf dem Blatt*, *Gilt noch?* und *Was sich seitdem geändert hat*. Der Status lautet *aktuell*, *überholt — neu ausgeben* oder *nicht beurteilbar*; bei überholten Blättern erklärt die letzte Spalte, was sich geändert hat. *Aktualisieren* liest das Register neu, *Register leeren* löscht die Einträge nach einer Rückfrage. Ältere Einträge fallen aus dem Register; ein Hinweis nennt das, ein zweiter nennt Einträge anderer Projekte.
 
 ![Register mit Einträgen](bilder/de/export-131-register-gefuellt.jpg)
+
+### NMOS-Export
+
+*Datei → NMOS exportieren (IS-04/05/08, MS-05-02)…* schreibt den Plan als eine JSON-Datei, die ein Broadcast-Controller oder die Bridge einspielt. Sie enthält vier Teile:
+
+- **IS-04:** Nodes, Devices, Sources, Flows, Sender und Empfänger. Jedes Gerät mit mindestens einem ST-2110-Anschluss ist Node und Device, jeder 2110-Ausgang Sender, jeder 2110-Eingang Empfänger. Die Kennungen sind aus Projekt und Plan abgeleitet: derselbe Plan ergibt bei jedem Export dieselben UUIDs. Netzwerk-Switches und Kreuzschienen sind keine Devices; in einer IP-Anlage ist die Kreuzschiene das Netz.
+- **IS-05:** die Soll-Verbindungen als Rumpf für `POST /bulk/receivers`, je Empfänger mit `sender_id`, `master_enable` und `activation`. Der Sender wird am Kabel zurückverfolgt, über geplante Kreuzpunkte einer Kreuzschiene hinweg. Hat der Multicast-Plan Gruppen vergeben, gehen sie als `transport_params` mit. Jeder Salvo einer Kreuzschiene wird ein eigenes Bulk-Paket. Empfänger, für die sich kein Sender finden lässt, nennt eine Meldung nach dem Export.
+- **IS-08:** die Kanalzuordnung der ATEM-Audio-Matrix und der Audio-Ebenen einer Kreuzschiene, als `io`-Sicht und als Rumpf für `POST /map/activations`.
+- **MS-05-02:** jeder Mischer und jede Kreuzschiene mit Profil als Blockbaum, wie ein IS-12-Controller ihn liest: M/E, Keyer, Übergang, SuperSource-Boxen, Aux und Kreuzpunkte mit den geplanten Werten. Nur zum Lesen.
+
+Was der Plan nicht weiß, behauptet die Datei nicht: Ohne IP-Adresse bleibt die Node-API leer, die Uhr ist eine interne, ein Audio-Fluss hat zwei Kanäle.
 
 ### Rückweg nach Rentman
 

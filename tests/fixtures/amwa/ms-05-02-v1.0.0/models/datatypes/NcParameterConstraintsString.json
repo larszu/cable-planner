@@ -1,0 +1,25 @@
+{
+  "description": "String parameter constraints class",
+  "name": "NcParameterConstraintsString",
+  "type": 2,
+  "fields": [
+    {
+      "description": "Maximum characters allowed",
+      "name": "maxCharacters",
+      "typeName": "NcUint32",
+      "isNullable": true,
+      "isSequence": false,
+      "constraints": null
+    },
+    {
+      "description": "Regex pattern",
+      "name": "pattern",
+      "typeName": "NcRegex",
+      "isNullable": true,
+      "isSequence": false,
+      "constraints": null
+    }
+  ],
+  "parentType": "NcParameterConstraints",
+  "constraints": null
+}
