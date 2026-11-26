@@ -405,6 +405,19 @@ contextBridge.exposeInMainWorld('cablePlanner', {
       return () => ipcRenderer.removeListener('greengo:event', listener)
     },
   },
+  // #1240 Stufe 5: die Simulation als ATEM bzw. Videohub im Netz anbieten.
+  emulator: {
+    start: (req: unknown) => ipcRenderer.invoke('emulator:start', req) as Promise<unknown>,
+    stop: (kind: string) => ipcRenderer.invoke('emulator:stop', kind) as Promise<unknown>,
+    status: (kind: string) => ipcRenderer.invoke('emulator:status', kind) as Promise<unknown>,
+    update: (kind: string, equipmentId: string, values: unknown) =>
+      ipcRenderer.invoke('emulator:update', kind, equipmentId, values) as Promise<unknown>,
+    onChanged: (cb: (c: unknown) => void) => {
+      const listener = (_event: unknown, c: unknown) => cb(c)
+      ipcRenderer.on('emulator:changed', listener)
+      return () => ipcRenderer.removeListener('emulator:changed', listener)
+    },
+  },
   // Die LZ Camera Bridge des Raums: EIN WebSocket im Main-Prozess, jede
   // Nachricht der Bruecke kommt unveraendert als `camera:event` zurueck.
   camera: {

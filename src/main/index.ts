@@ -27,6 +27,7 @@ import { registerShowControlIpc } from './ipc/showControlIpc.js'
 import { registerTallyIpc } from './ipc/tallyIpc.js'
 import { registerCameraIpc } from './ipc/cameraIpc.js'
 import { registerGreengoIpc } from './ipc/greengoIpc.js'
+import { registerEmulatorIpc } from './ipc/emulatorIpc.js'
 import { registerSyncIpc } from './ipc/syncIpc.js'
 import { registerGraphmlIpc } from './ipc/graphmlIpc.js'
 import { registerMobileShareIpc } from './ipc/mobileShareIpc.js'
@@ -413,6 +414,7 @@ app.whenReady().then(async () => {
   registerTallyIpc()
   registerCameraIpc()
   registerGreengoIpc()
+  registerEmulatorIpc()
   registerSyncIpc()
   registerGraphmlIpc()
   registerMobileShareIpc()

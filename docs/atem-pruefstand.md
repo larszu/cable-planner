@@ -27,6 +27,38 @@ bedienen als auch vom Cable-Planner ansteuern — und beide sehen dasselbe Gerä
 
 ---
 
+## 0 · Der eingebaute Emulator (seit #1240, Stufe 5)
+
+Die Desktop-App bringt einen eigenen Emulator mit. In der Innenansicht eines
+ATEM bzw. Videohub schaltet **Als Gerät im Netz anbieten** ihn ein:
+
+| Gerät | Port | Was er kann |
+|---|---|---|
+| ATEM | UDP 9910 | Programm, Vorschau, Cut, Auto (ohne Blende: wie Cut), Aux, Keyer an/aus, DSK an/aus und Quellen, SuperSource-Boxen, Eingangsnamen, Tally (`TlSr`, durch SuperSource und M/E hindurch) |
+| Videohub | TCP 9990 | Vorspiel (Protokoll 2.8), Routing, Ein- und Ausgangsnamen, Sperren (`O`/`L`/`U`/`F`), `PING:`; ein vom Plan gesperrter Ausgang lässt sich nicht schalten |
+
+- **Adresse.** Vorgabe ist `127.0.0.1`. Erst *Auch von anderen Rechnern
+  erreichbar* bindet an alle Schnittstellen. Die Adresse steht sichtbar unter
+  dem Schalter.
+- **Keine Verwechslung.** Der Modellname im Pult beginnt immer mit
+  „Emulator“ (`_pin` beim ATEM, `Friendly name` beim Videohub).
+- **Abgleich.** Planänderungen gehen sofort an alle Pulte. Was ein Pult
+  schaltet, landet im Plan. Quellen, für die der Plan keinen Baustein hat,
+  bleiben nur im Emulator.
+- **Geprüft** ist der ATEM-Teil gegen `atem-connection` (dieselbe Bibliothek
+  wie Companion) und gegen den eigenen Treiber mit Ziel *Prüfstand*
+  (`tests/emulatorServer.test.ts`). Ob sich *ATEM Software Control* verbindet,
+  ist **nicht geprüft**. Dafür fehlen ihm Abschnitte, die das Modell nicht
+  kennt (Videomodus, Multiviewer, Audio, Media-Pool).
+- **Grundlage:** die Befehlsklassen von `atem-connection` (gespiegelt) und
+  der Paketrahmen nach pyAtemSim bzw. Swift-Atem. Der Videohub folgt der
+  öffentlichen Blackmagic-Doku. Code: `src/main/services/emulator/`.
+
+Swift-Atem (unten) bleibt der Weg, wenn der Mischer unabhängig vom Plan laufen
+soll oder der Media-Pool-Transfer gebraucht wird.
+
+---
+
 ## 1 · Was es gibt — nachgesehen, nicht erinnert
 
 Geprüft am 2026-09-08, jeweils an der Quelle:

@@ -1,4 +1,5 @@
 import { tr, format } from './i18n'
+import type { EmuChange, EmuKind, EmuStartRequest, EmuStatus, EmuValues } from '../types/emulator'
 import { acceptFuerGeraet } from './pickFile'
 import type { CablePlannerProject } from '../types/project'
 import type { NetboxRack, NetboxSite, NetboxSnapshot } from '../types/netbox'
@@ -357,6 +358,14 @@ export type CablePlannerApi = {
    * im selben Netz und spricht nur JSON, deshalb ist das hier ausnahmsweise
    * kein „braucht die Desktop-App".
    */
+  /** #1240 Stufe 5: die Simulation als ATEM bzw. Videohub im Netz. Nur in der Desktop-App. */
+  emulator: {
+    start: (req: EmuStartRequest) => Promise<EmuStatus>
+    stop: (kind: EmuKind) => Promise<EmuStatus>
+    status: (kind: EmuKind) => Promise<EmuStatus>
+    update: (kind: EmuKind, equipmentId: string, values: EmuValues) => Promise<EmuStatus>
+    onChanged: (cb: (c: EmuChange) => void) => () => void
+  }
   /** Green-GO live ueber OSC (Geraeteskript osc-remote.gg5t). Nur in der Desktop-App: UDP geht im Browser nicht. */
   greengo: {
     connect: (a: { host: string; port: number }) => Promise<{ ok: boolean; message: string }>
@@ -971,7 +980,27 @@ const webGreengo = (() => {
   }
 })()
 
+const webEmulator = (() => {
+  const aus = (kind: EmuKind): EmuStatus => ({
+    kind,
+    equipmentId: '',
+    running: false,
+    address: null,
+    lan: false,
+    clients: 0,
+    error: tr('bridge.emulator.desktopOnly', 'Offering the device on the network needs the desktop app — a browser cannot open a UDP or TCP server.'),
+  })
+  return {
+    start: async (req: EmuStartRequest) => aus(req.kind),
+    stop: async (kind: EmuKind) => aus(kind),
+    status: async (kind: EmuKind) => aus(kind),
+    update: async (kind: EmuKind) => aus(kind),
+    onChanged: () => () => {},
+  }
+})()
+
 const webFallbackApi: CablePlannerApi = {
+  emulator: webEmulator,
   greengo: webGreengo,
   camera: webCameraBridge,
   /**

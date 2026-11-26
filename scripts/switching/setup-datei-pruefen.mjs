@@ -1,4 +1,5 @@
-// #1240 Stufe 4 — ATEM-Setup-Datei in der Innenansicht einmal laden und speichern.
+// #1240 Stufe 4/5 — ATEM-Setup-Datei in der Innenansicht einmal laden und speichern;
+// Emulator-Schalter sichtbar.
 //
 // Voraussetzung: `npm run dev:renderer` laeuft auf :4181. Hell erzwungen,
 // weil Headless-Chrome sonst dunkel meldet.
@@ -64,6 +65,10 @@ await page.waitForTimeout(800)
 await page.locator('.react-flow__node[data-id="atem"]').first().dblclick({ timeout: 8000 })
 await page.waitForTimeout(800)
 ok(await page.getByTestId('atem-setup-datei').isVisible(), 'Abschnitt „ATEM-Setup-Datei“ steht in der Seitenleiste')
+
+// Stufe 5: im Browser steht der Schalter da, ist aber aus (kein UDP/TCP-Server).
+ok(await page.getByTestId('emulator-schalter').isVisible(), 'Schalter „Als Geraet im Netz anbieten“ steht da')
+ok(await page.locator('[data-testid="emulator-schalter"] input').first().isDisabled(), 'im Browser ist er gesperrt')
 
 const XML = readFileSync(new globalThis.URL('../../tests/fixtures/atem/setup-2me.xml', import.meta.url), 'utf8')
 const [chooser] = await Promise.all([

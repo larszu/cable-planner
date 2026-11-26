@@ -20,6 +20,8 @@ import {
   type SwitchingProfile,
 } from '../../../lib/switching'
 import type { EquipmentItem } from '../../../types/equipment'
+import { detectDeviceKind } from '../../../lib/deviceKind'
+import { EmulatorSchalter } from './EmulatorSchalter'
 
 export const KreuzschieneAufbau = ({
   device,
@@ -251,6 +253,9 @@ export const KreuzschieneAufbau = ({
             {t('switching.router.saveSalvo', 'Save current routing as salvo…')}
           </button>
         </section>
+        {(profile?.idScheme === 'videohub' || detectDeviceKind(device) === 'videohub') && (
+          <EmulatorSchalter device={device} kind="videohub" />
+        )}
       </aside>
     </div>
   )
