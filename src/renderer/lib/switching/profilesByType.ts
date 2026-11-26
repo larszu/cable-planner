@@ -15,6 +15,7 @@ import * as panasonic from './profilesPanasonic'
 import * as fora from './profilesForA'
 import * as aja from './profilesAja'
 import * as lightware from './profilesLightware'
+import * as vizrt from './profilesVizrt'
 
 export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfile>> = {
   /** Blackmagic ATEM Television Studio Pro 4K (broadcastNachtragBCatalog) */
@@ -56,4 +57,7 @@ export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfil
   '1b6664b5-a57a-4a2d-a83e-ca40a1efb635': lightware.PROFILE_LIGHTWARE_MX2_16,
   'd1ff1f5c-356c-40da-8000-27688926e7e1': lightware.PROFILE_LIGHTWARE_MX2_24,
   '5a96706b-c85a-4478-83a3-12bd9d139956': lightware.PROFILE_LIGHTWARE_MX2_48,
+  // Vizrt (switcherCatalog)
+  '3cc4a0b1-735f-46b8-b08b-7a2692c89135': vizrt.PROFILE_TRICASTER_2_ELITE,
+  'e96379ac-e90b-411a-a390-fcebe3696a5f': vizrt.PROFILE_TRICASTER_MINI_4K,
 }
