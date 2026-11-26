@@ -9,6 +9,9 @@
 // Aenderung geht danach an ALLE verbundenen Pulte. Ein Block mit Kopfzeile
 // und ohne Zeilen fragt den Stand ab.
 //
+// CONFIGURATION: traegt „Take Mode: true|false“; ein Pult liest und setzt es
+// mit demselben Block.
+//
 // Sperren: „L“ = von jemand anderem gesperrt, „O“ = von mir, „U“ = frei;
 // ein Pult schickt O (sperren), U (freigeben) oder F (Freigabe erzwingen).
 // Was der Plan sperrt, ist fuer jedes Pult „L“ und laesst sich nicht
@@ -121,6 +124,10 @@ export class VideohubEmulator {
       ])
   }
 
+  private configBlock(): string {
+    return this.block('CONFIGURATION:', [`Take Mode: ${this.values.takeMode === true}`])
+  }
+
   private prelude(conn: Conn): string {
     return [
       this.block('PROTOCOL PREAMBLE:', [`Version: ${VIDEOHUB_PROTOCOL_VERSION}`]),
@@ -129,6 +136,7 @@ export class VideohubEmulator {
       this.block('OUTPUT LABELS:', this.labels('out', this.t.outputs)),
       this.block('VIDEO OUTPUT LOCKS:', this.locks(conn)),
       this.block('VIDEO OUTPUT ROUTING:', this.routing()),
+      this.configBlock(),
       this.block('END PRELUDE:', []),
     ].join('')
   }
@@ -162,6 +170,13 @@ export class VideohubEmulator {
     const ack = () => void conn.sock.write('ACK\n\n')
     const nak = () => void conn.sock.write('NAK\n\n')
     if (header === 'PING:') return ack()
+    if (header === 'CONFIGURATION:') {
+      if (!lines.length) return this.answer(conn, this.configBlock())
+      const m = lines.map((l) => /^Take Mode:\s*(true|false)$/i.exec(l))
+      if (m.some((x) => !x)) return nak()
+      ack()
+      return this.change({ takeMode: m[m.length - 1]![1].toLowerCase() === 'true' })
+    }
     if (pairs.some((p) => !p)) return nak()
     const items = pairs.map((p) => ({ i: Number(p![1]), rest: p![2] }))
 
@@ -221,6 +236,7 @@ export class VideohubEmulator {
       if (idx('in').length) out += this.block('INPUT LABELS:', this.labels('in', this.t.inputs, idx('in')))
       if (idx('out').length) out += this.block('OUTPUT LABELS:', this.labels('out', this.t.outputs, idx('out')))
       if (idx('lock').length) out += this.block('VIDEO OUTPUT LOCKS:', this.locks(c, idx('lock')))
+      if (keys.includes('takeMode')) out += this.configBlock()
       if (out) c.sock.write(out)
     }
   }

@@ -11,6 +11,7 @@
 //   me.<m>.pgm / me.<m>.pvw          Quelle (ATEM-ID)
 //   me.<m>.key.<k>.on                Keyer auf Sendung
 //   me.<m>.key.<k>.fill / .key       Quelle
+//   me.<m>.ftb                       Fade to Black (true = schwarz)
 //   dsk.<d>.on / dsk.<d>.fill / .key
 //   aux.<a>                          Quelle
 //   ss.<s>.box.<b>.on / .src         SuperSource-Box
@@ -20,6 +21,7 @@
 //   route.<o>                        Eingang auf Ausgang o
 //   in.<i> / out.<o>                 Beschriftung
 //   lock.<o>                         true = vom Plan gesperrt
+//   takeMode                         CONFIGURATION: Take Mode
 // ───────────────────────────────────────────────────────────────────────────
 
 export type EmuValues = Record<string, number | string | boolean>

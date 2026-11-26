@@ -2,8 +2,8 @@
 // ATEM-Emulator, UDP 9910 (#1240, Stufe 5).
 //
 // Der Mischer-Teil des ATEM-Protokolls, so weit das Modell ihn kennt:
-// Programm, Vorschau, Cut, Auto, Aux, Keyer an/aus, DSK, SuperSource-Boxen,
-// Eingangsnamen und Tally. Grundlage ist das offene `atem-connection`: die
+// Programm, Vorschau, Cut, Auto, Aux, Keyer an/aus und Quellen, DSK,
+// SuperSource-Boxen, Fade to Black, Eingangsnamen und Tally. Grundlage ist das offene `atem-connection`: die
 // Befehle hier sind das Spiegelbild seiner Befehlsklassen (was dort ein
 // Pult serialisiert, wird hier gelesen, und umgekehrt), und der
 // Integrationstest verbindet genau diese Bibliothek — dieselbe, die
@@ -143,6 +143,19 @@ const commandsFor = (topo: AtemEmuTopology, v: EmuValues, key: string): Buffer[]
   if (p[0] === 'me' && p[2] === 'key' && p[4] === 'on') {
     return [cmd('KeOn', u8s(Number(p[1]), Number(p[3]), flag(v, key) ? 1 : 0, 0))]
   }
+  if (p[0] === 'me' && p[2] === 'key' && (p[4] === 'fill' || p[4] === 'key')) {
+    // Keyer-Eigenschaften: Art (0 = Luma), Fliegen moeglich (die Topologie meldet einen DVE), Fill- und Key-Quelle.
+    const b = Buffer.alloc(20)
+    b.writeUInt8(Number(p[1]), 0)
+    b.writeUInt8(Number(p[3]), 1)
+    b.writeUInt8(1, 4)
+    b.writeUInt16BE(num(v, `me.${p[1]}.key.${p[3]}.fill`), 6)
+    b.writeUInt16BE(num(v, `me.${p[1]}.key.${p[3]}.key`), 8)
+    return [cmd('KeBP', b)]
+  }
+  if (p[0] === 'me' && p[2] === 'ftb') {
+    return [cmd('FtbS', u8s(Number(p[1]), flag(v, key) ? 1 : 0, 0, 0))]
+  }
   if (p[0] === 'dsk') {
     const d = Number(p[1])
     if (p[2] === 'on') return [cmd('DskS', u8s(d, flag(v, key) ? 1 : 0, 0, 0, flag(v, key) ? 1 : 0, 0, 0, 0))]
@@ -200,7 +213,10 @@ const initialCommands = (topo: AtemEmuTopology, v: EmuValues): Buffer[] => {
   }
   for (let m = 0; m < topo.mixEffects; m++) {
     out.push(...commandsFor(topo, v, `me.${m}.pgm`), ...commandsFor(topo, v, `me.${m}.pvw`))
-    for (let k = 0; k < topo.keyersPerMe; k++) out.push(...commandsFor(topo, v, `me.${m}.key.${k}.on`))
+    for (let k = 0; k < topo.keyersPerMe; k++) {
+      out.push(...commandsFor(topo, v, `me.${m}.key.${k}.fill`), ...commandsFor(topo, v, `me.${m}.key.${k}.on`))
+    }
+    out.push(...commandsFor(topo, v, `me.${m}.ftb`))
   }
   for (let d = 0; d < topo.downstreamKeyers; d++) {
     out.push(...commandsFor(topo, v, `dsk.${d}.fill`), ...commandsFor(topo, v, `dsk.${d}.on`))
@@ -246,6 +262,16 @@ export const applyClientCommand = (topo: AtemEmuTopology, v: EmuValues, name: st
       break
     case 'CKOn':
       if (meOk && d.readUInt8(1) < topo.keyersPerMe) set(`me.${me}.key.${d.readUInt8(1)}.on`, d.readUInt8(2) === 1)
+      break
+    case 'CKeF':
+      if (meOk && d.readUInt8(1) < topo.keyersPerMe) set(`me.${me}.key.${d.readUInt8(1)}.fill`, d.readUInt16BE(2))
+      break
+    case 'CKeC':
+      if (meOk && d.readUInt8(1) < topo.keyersPerMe) set(`me.${me}.key.${d.readUInt8(1)}.key`, d.readUInt16BE(2))
+      break
+    case 'FtbA':
+      // Ohne Uebergangszeit: das Bild ist sofort schwarz bzw. wieder da.
+      if (meOk) set(`me.${me}.ftb`, !flag(v, `me.${me}.ftb`))
       break
     case 'CDsL':
       if (me < topo.downstreamKeyers) set(`dsk.${me}.on`, d.readUInt8(1) === 1)
@@ -363,6 +389,7 @@ export class AtemEmulator {
     for (const k of keys) {
       // DSK-Quellen gehen als ein Befehl fuer Fill und Key.
       const norm = k.replace(/^(dsk\.\d+)\.(fill|key)$/, '$1.fill').replace(/^(ss\.\d+\.box\.\d+)\.(on|src)$/, '$1.src')
+        .replace(/^(me\.\d+\.key\.\d+)\.(fill|key)$/, '$1.fill')
       if (seen.has(norm)) continue
       seen.add(norm)
       cmds.push(...commandsFor(this.topo, this.values, norm))
