@@ -35,7 +35,8 @@ describe('#878 — Katalog-Luecken in den Zielbereichen', () => {
     // 1842: +5 Crestron (#1067).
     // 1842 -> 2067 -> 2114 am 2026-10-21: Event-/Verleih-Kataloge (PixelHue, Barco, PIXERA, Projektoren, LANG AG).
     // 2114 -> 2140 am 2026-11-14: #1199.
-    expect(b.eintraegeGesamt).toBe(2145)
+    // 2145 -> 2151 am 2026-11-26: Sony XVS/MVS (#1240).
+    expect(b.eintraegeGesamt).toBe(2151)
     expect(b.eintraegeGesamt).toBe(evidenceReport().entries)
 
     // „ueber ein Drittel Mikrofone" — das stimmt, und zwar deutlich.

@@ -108,7 +108,8 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // 2046 -> 2049 am 2026-11-16: NEC MultiSync P402, P461, X461S.
     // 2049 -> 2058 am 2026-11-18: acht Objektive (Laowa, Zeiss CP.2, Sony FE 12-24 F4 G) und Sony PMW-EX3 mit Herstellerbeleg.
     // 2058 -> 2063 am 2026-11-26: ATEM 1 M/E und 4 M/E Constellation 4K/HD und 4 M/E 4K Plus (#1240).
-    expect(kommentare).toBe(2063)
+    // 2063 -> 2069 am 2026-11-26: Sony XVS-G1, XVS-9000/7000/6000, MVS-6530/3000A (#1240).
+    expect(kommentare).toBe(2069)
   })
 
   it('2. die Abdeckung wird gerechnet', () => {
@@ -122,11 +123,12 @@ describe('Initiative 11 — trägt diese Katalog-Zeile ein Datenblatt?', () => {
     // 2046 -> 2049 am 2026-11-16: NEC MultiSync P402, P461, X461S.
     // 2049 -> 2058 am 2026-11-18: acht Objektive (Laowa, Zeiss CP.2, Sony FE 12-24 F4 G) und Sony PMW-EX3 mit Herstellerbeleg.
     // 2058 -> 2063 am 2026-11-26: ATEM 1 M/E und 4 M/E Constellation 4K/HD und 4 M/E 4K Plus (#1240).
-    expect(bericht.sourced).toBe(2063)
+    // 2063 -> 2069 am 2026-11-26: Sony XVS-G1, XVS-9000/7000/6000, MVS-6530/3000A (#1240).
+    expect(bericht.sourced).toBe(2069)
     // 1831 -> 1827: der multicam-planner hat vier erfundene Kamera-Eintraege
     // entfernt (Datenblatt-Verifikation dort). Ein erzeugter Katalog, der
     // kleiner wird, weil die Quelle aufgeraeumt hat, ist ein Gewinn.
-    expect(bericht.entries).toBe(2145) // +26 aus #1199 (2026-11-14), +5 aus #1240 (Constellation)
+    expect(bericht.entries).toBe(2151) // +26 aus #1199 (2026-11-14), +5 aus #1240 (Constellation), +6 Sony (#1240)
 
     // Kein Katalog steht mehr ganz ohne Beleg (B-11 abgeschlossen) — und die
     // Liste wird GERECHNET, nicht aufgezählt: trägt einer von ihnen morgen

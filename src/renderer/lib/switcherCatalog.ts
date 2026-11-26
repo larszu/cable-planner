@@ -156,27 +156,189 @@ export const SWITCHER_CATALOG: SwitcherEntry[] = [
     },
   },
 
-  // Sony MCX-500 (2016) — 8-Input-Streaming-/Recording-Mischer, Frame-Sync je Input, RCP-Steuerung
-  // Quelle: https://pro.sony/ue_US/products/video-switchers/mcx-500
+  // Sony MCX-500 (2016) — 4-Kanal-1-M/E-Mischer, 8 Anschluesse fuer 4 gleichzeitige Kanaele, RCP-Steuerung; Ports laut Datenblatt (sony.jp, pro.sony sperrt Abrufe)
+  // Quelle: https://www.sony.jp/products/catalog/MCX-500_1701.pdf
   {
     match: ['sony', 'mcx-500'],
     deviceTypeId: 'ee3a295e-5ef1-44e1-96c3-5866ea062431',
     template: {
-      manufacturerUrl: 'https://pro.sony/ue_US/products/video-switchers/mcx-500',
+      manufacturerUrl: 'https://www.sony.jp/products/catalog/MCX-500_1701.pdf',
       name: 'Sony MCX-500',
       category: 'Video Mixer',
       inputs: [
         ...num('3G-SDI In', 4, 'BNC'),
         ...num('HDMI In', 2, 'HDMI'),
-        ...num('Composite In', 2, 'Cinch/RCA'),
-        ...num('Audio In L/R', 2, 'XLR'),
-        { id: '', name: 'LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        ...num('Composite In', 2, 'BNC'),
+        { id: '', name: 'Title RGB In', type: 'VGA', connectorType: 'VGA' },
+        ...num('Audio In (XLR/TRS)', 2, 'XLR'),
+        ...num('LAN', 2, 'Ethernet/RJ45'),
+        { id: '', name: 'Tally (D-Sub 9)', type: 'DB9', connectorType: 'DB9' },
+        { id: '', name: 'USB', type: 'USB', connectorType: 'USB' },
       ],
       outputs: [
         { id: '', name: 'SDI PGM Out', type: 'BNC', connectorType: 'BNC' },
-        ...num('HDMI Out', 2, 'HDMI'),
+        { id: '', name: 'HDMI PGM Out', type: 'HDMI', connectorType: 'HDMI' },
+        { id: '', name: 'HDMI Multiviewer Out', type: 'HDMI', connectorType: 'HDMI' },
+        { id: '', name: 'Composite Out', type: 'BNC', connectorType: 'BNC' },
+        ...num('Audio Out', 2, 'Cinch/RCA'),
+        { id: '', name: 'Phones', type: 'Jack 3.5 mm', connectorType: 'Jack 3.5 mm' },
       ],
-      width: 260, height: 236,
+      width: 260, height: 300,
+    },
+  },
+
+  // Sony XVS-G1 (2020) — 2 M/E (max. 4), 24 In/12 Out Grundausbau (max. 44/24 mit XKS-G1110); Anschluesse laut Katalog 2025.3
+  // Quelle: https://www.sony.jp/products/catalog/XVS-G1_2503.pdf
+  {
+    match: ['sony', 'xvs-g1'],
+    deviceTypeId: 'c0b191b4-c93e-4fcc-9a06-e9a6a374c5d9',
+    template: {
+      manufacturerUrl: 'https://www.sony.jp/products/catalog/XVS-G1_2503.pdf',
+      name: 'Sony XVS-G1',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('SDI In', 24, 'BNC'),
+        { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'LAN 1', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'LAN 2', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'GPI (D-sub 25)', type: 'DB25', connectorType: 'DB25' },
+      ],
+      outputs: [
+        ...num('SDI Out', 12, 'BNC'),
+        { id: '', name: 'Ref Loop Out', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'Ref Out', type: 'BNC', connectorType: 'BNC' },
+      ],
+      width: 260, height: 508,
+    },
+  },
+
+  // Sony XVS-9000 — BNC-Vollausbau „プライマリー入力160“ / „出力80“ laut XVS-Katalog 2022.2; Tally/GPI der 7000/6000 liegen in den Interface-Einheiten MKS-X7700/X2700
+  // Quelle: https://www.sony.jp/products/catalog/PRODUCTION_SWITCHER_SYSTEM_2202.pdf
+  {
+    match: ['sony', 'xvs-9000'],
+    deviceTypeId: '48d2ac55-9dc5-491d-9abe-94d3133d2e67',
+    template: {
+      manufacturerUrl: 'https://www.sony.jp/products/catalog/PRODUCTION_SWITCHER_SYSTEM_2202.pdf',
+      name: 'Sony XVS-9000',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('SDI In', 160, 'BNC'),
+        { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'MVS LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'UTL LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'GPI (D-sub 25)', type: 'DB25', connectorType: 'DB25' },
+      ],
+      outputs: [
+        ...num('SDI Out', 80, 'BNC'),
+        { id: '', name: 'Ref Loop Out', type: 'BNC', connectorType: 'BNC' },
+      ],
+      width: 260, height: 2684,
+    },
+  },
+
+  // Sony XVS-7000 — BNC-Vollausbau „プライマリー入力112“ / „出力48“ laut XVS-Katalog 2022.2; Tally/GPI der 7000/6000 liegen in den Interface-Einheiten MKS-X7700/X2700
+  // Quelle: https://www.sony.jp/products/catalog/PRODUCTION_SWITCHER_SYSTEM_2202.pdf
+  {
+    match: ['sony', 'xvs-7000'],
+    deviceTypeId: '80b210eb-502d-4d5f-a05c-803db5050bf2',
+    template: {
+      manufacturerUrl: 'https://www.sony.jp/products/catalog/PRODUCTION_SWITCHER_SYSTEM_2202.pdf',
+      name: 'Sony XVS-7000',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('SDI In', 112, 'BNC'),
+        { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'MVS LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'UTL LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+      ],
+      outputs: [
+        ...num('SDI Out', 48, 'BNC'),
+        { id: '', name: 'Ref Loop Out', type: 'BNC', connectorType: 'BNC' },
+      ],
+      width: 260, height: 1900,
+    },
+  },
+
+  // Sony XVS-6000 — BNC-Vollausbau „プライマリー入力64“ / „出力24“ laut XVS-Katalog 2022.2; Tally/GPI der 7000/6000 liegen in den Interface-Einheiten MKS-X7700/X2700
+  // Quelle: https://www.sony.jp/products/catalog/PRODUCTION_SWITCHER_SYSTEM_2202.pdf
+  {
+    match: ['sony', 'xvs-6000'],
+    deviceTypeId: 'c3b7d836-aa15-49aa-bc10-ce27821f0b58',
+    template: {
+      manufacturerUrl: 'https://www.sony.jp/products/catalog/PRODUCTION_SWITCHER_SYSTEM_2202.pdf',
+      name: 'Sony XVS-6000',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('SDI In', 64, 'BNC'),
+        { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'MVS LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'UTL LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+      ],
+      outputs: [
+        ...num('SDI Out', 24, 'BNC'),
+        { id: '', name: 'Ref Loop Out', type: 'BNC', connectorType: 'BNC' },
+      ],
+      width: 260, height: 1132,
+    },
+  },
+
+  // Sony MVS-6530 — 48 In / 32 Out BNC, 4U; Anschluesse laut Spezifikationsblatt
+  // Quelle: https://www.sony.jp/products/catalog/SPC_MVS-6530.pdf
+  {
+    match: ['sony', 'mvs-6530'],
+    deviceTypeId: 'a4c830da-fcb8-4f64-aa28-678af356f2d9',
+    template: {
+      manufacturerUrl: 'https://www.sony.jp/products/catalog/SPC_MVS-6530.pdf',
+      name: 'Sony MVS-6530',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('SDI In', 48, 'BNC'),
+        { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'MVS LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'UTIL (SW) LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'UTIL (SCU) LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'UTIL (FM) LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        ...num('Remote RS-422', 4, 'DB9'),
+        ...num('Remote S', 2, 'DB9'),
+        ...num('Tally/GPI (D-sub 25)', 4, 'DB25'),
+        { id: '', name: 'Serial Tally', type: 'DB9', connectorType: 'DB9' },
+        { id: '', name: 'S-BUS', type: 'BNC', connectorType: 'BNC' },
+      ],
+      outputs: [
+        ...num('SDI Out', 32, 'BNC'),
+        { id: '', name: 'Ref Loop Out', type: 'BNC', connectorType: 'BNC' },
+      ],
+      width: 260, height: 1100,
+    },
+  },
+
+  // Sony MVS-3000A — 32 In / 16 Out BNC, 4U; Anschluesse laut Spezifikationsblatt
+  // Quelle: https://www.sony.jp/products/catalog/SPC_MVS-3000A.pdf
+  {
+    match: ['sony', 'mvs-3000a'],
+    deviceTypeId: '6563161f-5357-4f5d-8896-5a537947d149',
+    template: {
+      manufacturerUrl: 'https://www.sony.jp/products/catalog/SPC_MVS-3000A.pdf',
+      name: 'Sony MVS-3000A',
+      category: 'Video Mixer',
+      inputs: [
+        ...num('SDI In', 32, 'BNC'),
+        { id: '', name: 'Ref In', type: 'BNC', connectorType: 'BNC' },
+        { id: '', name: 'MVS LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'UTIL (SW) LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'UTIL (SCU) LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        { id: '', name: 'UTIL (FM) LAN', type: 'Ethernet/RJ45', connectorType: 'Ethernet/RJ45' },
+        ...num('Remote RS-422', 4, 'DB9'),
+        ...num('Remote S', 2, 'DB9'),
+        ...num('Tally/GPI (D-sub 25)', 4, 'DB25'),
+        { id: '', name: 'Serial Tally', type: 'DB9', connectorType: 'DB9' },
+        { id: '', name: 'S-BUS', type: 'BNC', connectorType: 'BNC' },
+      ],
+      outputs: [
+        ...num('SDI Out', 16, 'BNC'),
+        { id: '', name: 'Ref Loop Out', type: 'BNC', connectorType: 'BNC' },
+      ],
+      width: 260, height: 844,
     },
   },
 
