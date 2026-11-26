@@ -123,6 +123,23 @@ describe('ATEM-Emulator gegen atem-connection', () => {
     })
   })
 
+  it('Keyer-Quellen und Fade to Black kommen an und werden gemeldet', async () => {
+    await atem.setUpstreamKeyerFillSource(3, 0, 0)
+    await atem.setUpstreamKeyerCutSource(4, 0, 0)
+    await atem.fadeToBlack(1)
+    expect(
+      await until(
+        () =>
+          atem.state?.video.mixEffects[0]?.upstreamKeyers[0]?.fillSource === 3 &&
+          atem.state?.video.mixEffects[0]?.upstreamKeyers[0]?.cutSource === 4 &&
+          atem.state?.video.mixEffects[1]?.fadeToBlack?.isFullyBlack === true,
+      ),
+    ).toBe(true)
+    expect(Object.assign({}, ...changes)).toMatchObject({ 'me.0.key.0.fill': 3, 'me.0.key.0.key': 4, 'me.1.ftb': true })
+    await atem.fadeToBlack(1)
+    expect(await until(() => atem.state?.video.mixEffects[1]?.fadeToBlack?.isFullyBlack === false)).toBe(true)
+  })
+
   it('eine Planaenderung erreicht das Pult, ohne als Pultaenderung zurueckzukommen', async () => {
     const before = changes.length
     emu.update({ 'me.1.pgm': 1 })
@@ -189,6 +206,14 @@ describe('Videohub-Emulator', () => {
     expect(b).toContain('VIDEO OUTPUT LOCKS:\n0 U\n')
     expect(b).toContain('5 L\n')
     expect(b).toContain('VIDEO OUTPUT ROUTING:\n0 1\n')
+  })
+
+  it('meldet und setzt den Take-Modus im CONFIGURATION-Block', async () => {
+    const b = await talk('CONFIGURATION:\nTake Mode: true\n\n', /CONFIGURATION:\nTake Mode: true\n/)
+    expect(b).toContain('CONFIGURATION:\nTake Mode: false\n\nEND PRELUDE:')
+    expect(vh.snapshot().takeMode).toBe(true)
+    const q = await talk('CONFIGURATION:\n\n', /ACK\n\nCONFIGURATION:\nTake Mode: true\n/)
+    expect(q).toContain('ACK')
   })
 
   it('ein vom Plan gesperrter Ausgang wird nicht geschaltet', async () => {
