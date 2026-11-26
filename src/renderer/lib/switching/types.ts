@@ -224,9 +224,12 @@ export interface SwitchingState {
   salvos?: SwitchingSalvo[]
   macros?: SwitchingMacro[]
   snapshots?: SwitchingSnapshot[]
-<<<<<<< HEAD
   /** Aus einer ATEM-Setup-Datei gelesen (Stufe 4), siehe `AtemProfileState`. */
   atemProfile?: AtemProfileState
+  /** Uebergang je M/E (`me:n`). */
+  transitions?: Record<string, TransitionSettings>
+  /** Lage der SuperSource-Boxen (`ss:n/box:k`). Fehlt eine, gilt das Quad. */
+  boxes?: Record<string, BoxState>
 }
 
 // ─── ATEM-Setup-Datei (#1240, Stufe 4) ──────────────────────────────────
@@ -251,10 +254,4 @@ export interface AtemProfileState {
   macros?: Record<string, { name: string; description?: string }>
   /** Mix-Minus-Ausgaenge: Nummer -> `audioMode`. */
   mixMinus?: Record<string, string>
-=======
-  /** Uebergang je M/E (`me:n`). */
-  transitions?: Record<string, TransitionSettings>
-  /** Lage der SuperSource-Boxen (`ss:n/box:k`). Fehlt eine, gilt das Quad. */
-  boxes?: Record<string, BoxState>
->>>>>>> 4db0103 (feat: Pult mit Simulation und Ergebnisbild in der Innenansicht (#1240))
 }

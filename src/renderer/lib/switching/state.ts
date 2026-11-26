@@ -7,11 +7,8 @@ import { resolveDeviceType } from '../deviceTypeRegistry'
 import { buildInnerMatrix, type InnerMatrix } from './internalMatrix'
 import { EASE_DIRECTIONS, EASE_FAMILIES, type EaseDirection, type EaseFamily } from './easing'
 import type {
-<<<<<<< HEAD
   AtemProfileState,
-=======
   BoxState,
->>>>>>> 4db0103 (feat: Pult mit Simulation und Ergebnisbild in der Innenansicht (#1240))
   KeyerState,
   MediaSlotState,
   SwitchingBlockCountKey,
@@ -209,9 +206,7 @@ export const normaliseSwitching = (
     routes: strMap(x.routes),
   }))
   if (snapshots.length) s.snapshots = snapshots
-<<<<<<< HEAD
   if (isObj(raw.atemProfile) && typeof raw.atemProfile.rawXml === 'string') s.atemProfile = raw.atemProfile as unknown as AtemProfileState
-=======
 
   // Stufe 3: Uebergaenge je M/E und Lage der SuperSource-Boxen.
   if (isObj(raw.transitions)) {
@@ -250,7 +245,6 @@ export const normaliseSwitching = (
     }
     if (Object.keys(bx).length) s.boxes = bx
   }
->>>>>>> 4db0103 (feat: Pult mit Simulation und Ergebnisbild in der Innenansicht (#1240))
   return Object.keys(s).length ? s : undefined
 }
 
