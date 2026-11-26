@@ -12,6 +12,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 import type { EquipmentTemplate } from '../types/equipment'
 import type { RecordingCapability } from './recording'
+import type { SwitchingProfile } from './switching/types'
 import { CAMERA_CATALOG } from './cameraCatalog'
 import { CAMERA_BODY_CATALOG } from './cameraBodyCatalog'
 import { LENS_CATALOG } from './lensCatalog'
@@ -78,6 +79,8 @@ export interface DeviceTypeInfo {
    * laesst die Namens-Heuristik dann bewusst nicht mehr darueber.
    */
   records?: RecordingCapability
+  /** #1240 — Bausteine, Anzahl und Grenzen eines Mischers bzw. einer Kreuzschiene (Datenblatt). */
+  switchingProfile?: SwitchingProfile
 }
 
 /** Lazy aufgebaut, damit der Modul-Import billig bleibt. */
@@ -180,6 +183,7 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
       kind: e.kind,
       videohubPresetKey: e.videohubPresetKey,
       records: e.records,
+      switchingProfile: e.switchingProfile,
     })
   }
   for (const e of GREENGO_CATALOG) {

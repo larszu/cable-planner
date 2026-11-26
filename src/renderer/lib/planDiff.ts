@@ -280,6 +280,7 @@ export const EQUIPMENT_FIELD_CLASS: Record<string, FieldClass> = {
   kann: 'substantive',
   videohubRouting: 'substantive',
   plannedCrosspoints: 'substantive',
+  switching: 'substantive',
   controlProtocol: 'substantive',
   controlTarget: 'substantive',
   controlPort: 'substantive',

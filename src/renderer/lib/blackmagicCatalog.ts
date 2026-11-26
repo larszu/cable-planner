@@ -1,5 +1,14 @@
 import type { EquipmentTemplate, Port } from '../types/equipment'
 import type { RecordingCapability } from './recording'
+import type { SwitchingProfile } from './switching/types'
+import {
+  PROFILE_ATEM_2ME_CONSTELLATION_4K,
+  PROFILE_ATEM_2ME_CONSTELLATION_HD,
+  PROFILE_ATEM_CONSTELLATION_8K,
+  PROFILE_SMART_VIDEOHUB_12,
+  PROFILE_SMART_VIDEOHUB_20,
+  PROFILE_SMART_VIDEOHUB_40,
+} from './switching/profiles'
 
 // ───────────────────────────────────────────────────────────────────────────
 // Blackmagic-Design-Katalog (Videohubs, ATEM-Mischer, HyperDeck, Konverter).
@@ -65,6 +74,9 @@ interface BlackmagicEntry {
    *  EIGENES Feld und kein `kind`-Wert: ein ATEM ISO ist Mischer UND
    *  Recorder, `kind` kann nur eines von beidem sagen. */
   records?: RecordingCapability
+  /** #1240 — Bausteine, Anzahl und Grenzen (Datenblatt, `lib/switching/profiles.ts`).
+   *  Die M/E-Zahl steht damit als Feld da und nicht nur im Namen. */
+  switchingProfile?: SwitchingProfile
   /** Name patterns (lowercased) that must ALL appear in the source name. */
   match: string[]
   template: EquipmentTemplate
@@ -84,6 +96,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   // https://web.archive.org/web/20210507072830/https://www.blackmagicdesign.com/products/smartvideohub/techspecs/W-VHS-05
   {
     match: ['smart videohub', '40x40', '12g'],
+    switchingProfile: PROFILE_SMART_VIDEOHUB_40,
     deviceTypeId: 'bb1964f5-f2e2-44b7-8cb4-8d8ea3a7a742',
     kind: 'videohub',
     videohubPresetKey: 'smart-40x40-12g',
@@ -102,6 +115,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['smart videohub', '40x40'],
+    switchingProfile: PROFILE_SMART_VIDEOHUB_40,
     deviceTypeId: '556a23a4-3565-457a-afad-556592ddd74a',
     kind: 'videohub',
     videohubPresetKey: 'smart-40x40',
@@ -120,6 +134,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['smart videohub', '20x20'],
+    switchingProfile: PROFILE_SMART_VIDEOHUB_20,
     deviceTypeId: 'a5aa8476-ae3a-4dc3-a854-d95d9634557b',
     kind: 'videohub',
     videohubPresetKey: 'smart-20x20',
@@ -138,6 +153,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['smart videohub', '12x12'],
+    switchingProfile: PROFILE_SMART_VIDEOHUB_12,
     deviceTypeId: 'b5ec1c47-6d5d-4f53-811e-16c67d62cc54',
     kind: 'videohub',
     videohubPresetKey: 'smart-12x12',
@@ -198,6 +214,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   // --- ATEMs -------------------------------------------------------------
   {
     match: ['atem', 'constellation', '8k'],
+    switchingProfile: PROFILE_ATEM_CONSTELLATION_8K,
     deviceTypeId: 'f6021c28-4e79-413b-9038-38cc1311faf3',
     kind: 'atem',
     // Quelle: https://www.blackmagicdesign.com/products/atemconstellation
@@ -228,6 +245,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['atem', 'constellation', '2 m/e', '4k'],
+    switchingProfile: PROFILE_ATEM_2ME_CONSTELLATION_4K,
     deviceTypeId: '1472cfc1-df0d-41af-a5c3-b52496a20e53',
     kind: 'atem',
     // Ports nach den Techspecs (gleiche Seite wie die HD-Variante): Audio
@@ -265,6 +283,7 @@ export const BLACKMAGIC_CATALOG: BlackmagicEntry[] = [
   },
   {
     match: ['atem', 'constellation', '2 m/e', 'hd'],
+    switchingProfile: PROFILE_ATEM_2ME_CONSTELLATION_HD,
     deviceTypeId: '361cb58a-5bdb-4976-b10d-3e5ee9c0366c',
     kind: 'atem',
     // #1032 — 1 HE, 20 x 3G-SDI In, 12 x 3G-SDI Out, 2 x Multiview 3G-SDI,

@@ -1061,6 +1061,13 @@ export interface EquipmentItem {
   atemAudioConfig?: AtemAudioConfig
   /** Geplantes Videohub-Routing (ADR-001). Nur bei Videohub-Geraeten gesetzt. */
   videohubRouting?: VideohubRouting
+  /**
+   * #1240 — geplanter Zustand im Inneren eines Mischers oder einer
+   * Kreuzschiene: interne Kreuzpunkte, Keyer, Media-Pool, Ebenen, Salvos.
+   * Modell in `lib/switching/`. Optional: nur Geraete, an denen jemand in
+   * der Innenansicht etwas gesetzt hat, tragen das Feld.
+   */
+  switching?: import('../lib/switching/types').SwitchingState
   /** Die geplante Schaltung in herstellerneutraler Form:
    *  `plannedCrosspoints[outputPortId] = inputPortId`. Fuer JEDES Geraet, das
    *  schaltet — Mischer eingeschlossen, deren Bus-Nummern nicht zu einer

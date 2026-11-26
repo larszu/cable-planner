@@ -267,6 +267,9 @@ export const INSTANCE_FIELDS = [
   // Modell — sie zeigt auf Anschluss-Ids DIESES Geraets. In eine Bibliothek
   // uebernommen zeigte sie auf Anschluesse, die es dort nicht gibt.
   'plannedCrosspoints',
+  // #1240 — Zustand im Inneren (Kreuzpunkte, Keyer, Media-Pool) zeigt auf
+  // Bausteine und Anhaenge DIESES Plans; das Profil selbst steht im Katalog.
+  'switching',
   // Protokoll und Steuer-Port beschreiben, wie DIESES Geraet erreicht wird —
   // dieselbe Einordnung wie `ipAddress`. In eine Bibliothek uebernommen
   // richteten sie einen Befehl an das Exemplar, von dem abgeschrieben wurde.
