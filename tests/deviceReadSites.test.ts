@@ -98,6 +98,11 @@ const SONSTIGE_DOMAENEN = [
   // #871 — Cloud-Kopie des eigenen Plans. Kein Geraet: was zurueckkommt, ist
   // der eigene Plan (eine Revision oder das dreiseitig Zusammengefuehrte,
   // `lib/cloud.ts`), kein Befund einer Anlage.
+  // #1240 Stufe 5 — der eigene Emulator. Hinter ihm steht kein Geraet,
+  // sondern der Plan selbst: was zurueckkommt, hat jemand am VIRTUELLEN Pult
+  // geschaltet (ATEM Software Control, Companion), also eine Eingabe, kein
+  // Befund einer Anlage. Deshalb darf `emulatorSync` sie in den Plan schreiben.
+  'emulator',
   'cloud',
   'collabDiscovery',
   // #946 — ein Standbild fuer die Vorschau-Kachel. Es kommt zwar von einem

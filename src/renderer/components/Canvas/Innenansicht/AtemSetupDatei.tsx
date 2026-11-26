@@ -1,4 +1,5 @@
-// #1240 Stufe 4 — ATEM-Setup-Datei in der Innenansicht laden und speichern.
+// #1240 Stufe 4 — ATEM-Setup-Datei in der Innenansicht laden und speichern;
+// darunter (Stufe 5) der Schalter „Als Gerät im Netz anbieten“.
 //
 // Die Datei geht durch `atemProfileXml.ts`: was das Modell kennt, landet im
 // Plan; alles andere bleibt in der Datei und kommt beim Speichern byte-gleich
@@ -13,6 +14,7 @@ import { buildExportFilenameWithSuffix } from '../../../lib/exportFilename'
 import { detectDeviceKind } from '../../../lib/deviceKind'
 import type { EquipmentItem } from '../../../types/equipment'
 import type { SwitchingProfile } from '../../../lib/switching'
+import { EmulatorSchalter } from './EmulatorSchalter'
 
 const istAtem = (device: EquipmentItem, profile: SwitchingProfile | null): boolean =>
   profile ? profile.idScheme === 'atem' && profile.role === 'mixer' : detectDeviceKind(device) === 'atem'
@@ -75,6 +77,7 @@ export const AtemSetupDatei = ({ device, profile }: { device: EquipmentItem; pro
   }
 
   return (
+    <>
     <section data-testid="atem-setup-datei">
       <h3 className="mb-1 font-medium text-cp-text">{t('switching.setup.title', 'ATEM setup file')}</h3>
       <p className="mb-1 text-cp-text-muted">
@@ -94,5 +97,7 @@ export const AtemSetupDatei = ({ device, profile }: { device: EquipmentItem; pro
       </div>
       {meldung && <p className={meldung.ok ? 'mt-1 text-cp-text-secondary' : 'mt-1 text-cp-warn'}>{meldung.text}</p>}
     </section>
+    <EmulatorSchalter device={device} kind="atem" />
+    </>
   )
 }

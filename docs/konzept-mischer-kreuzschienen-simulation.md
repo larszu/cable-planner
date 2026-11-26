@@ -134,6 +134,8 @@ Der Schritt über MixEffect hinaus: Die Simulation **spricht das Protokoll des G
 
 So probiert man das ganze Pult-Setup aus, inklusive Companion-Seiten und Tally, bevor man vor Ort ist. Die Bridge schaltet dabei mit `ControlTarget = simulator`, das Feld gibt es schon, und der Beleg vermerkt es.
 
+**Stand (Stufe 5):** ATEM und Videohub laufen in `src/main/services/emulator/`, Schalter in der Innenansicht; Prüfstand-Doku `docs/atem-pruefstand.md` §0. SW-P-08 bleibt offen.
+
 **Sicherheit:** Der Simulator lauscht standardmäßig nur auf 127.0.0.1 und unter einer eigenen, im Fenster angezeigten Adresse. Eine Verwechslung mit der echten Anlage darf nicht möglich sein .
 
 ---
