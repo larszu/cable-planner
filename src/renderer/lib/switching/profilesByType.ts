@@ -14,6 +14,7 @@ import * as roland from './profilesRoland'
 import * as panasonic from './profilesPanasonic'
 import * as fora from './profilesForA'
 import * as aja from './profilesAja'
+import * as lightware from './profilesLightware'
 
 export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfile>> = {
   /** Blackmagic ATEM Television Studio Pro 4K (broadcastNachtragBCatalog) */
@@ -51,4 +52,8 @@ export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfil
   'd8584156-1793-4794-a4b4-488cfe834e59': aja.PROFILE_AJA_KUMO_1616,
   'd435ffb1-c471-4059-89ee-84a490f6025c': aja.PROFILE_AJA_KUMO_3232,
   '379c5b0a-a4b5-40d0-a66d-a3fda51b5059': aja.PROFILE_AJA_KUMO_6464,
+  // Lightware (langImageCatalog, signalNachtragCatalog)
+  '1b6664b5-a57a-4a2d-a83e-ca40a1efb635': lightware.PROFILE_LIGHTWARE_MX2_16,
+  'd1ff1f5c-356c-40da-8000-27688926e7e1': lightware.PROFILE_LIGHTWARE_MX2_24,
+  '5a96706b-c85a-4478-83a3-12bd9d139956': lightware.PROFILE_LIGHTWARE_MX2_48,
 }
