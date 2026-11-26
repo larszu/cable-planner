@@ -13,8 +13,12 @@
 //   - Aux und Multiviewer, wo die Seite nur „Multi-View (3 types)“ oder
 //     „Aux“ ohne Anzahl nennt.
 //   - V-1200HD: Eingaenge (haengen an den XI-Erweiterungskarten).
-//   - Kein Profil (Seite nennt keine Anzahl): V-1HD, V-1SDI, VR-4HD,
-//     V-600UHD, XS-1HD, XS-84H, VP-42H, P-20HD.
+//   - V-1HD, V-1SDI, VR-4HD, V-600UHD, XS-1HD, XS-84H, VP-42H, P-20HD: die
+//     Specifications-Seiten nennen keine Anzahlen; die Zahlen stammen aus dem
+//     Owner's bzw. Reference Manual (PDF auf static.roland.com). „Memory“,
+//     „Preset“ und „Scene Memory“ sind gespeicherte Einstellungen, keine
+//     Makros, und werden nicht gezaehlt. Keyer-, DSK- und PinP-Zahlen bleiben
+//     leer, wo das Handbuch nur Effekttypen auflistet.
 // ───────────────────────────────────────────────────────────────────────────
 import type { SwitchingProfile } from './types'
 
@@ -82,4 +86,70 @@ export const PROFILE_ROLAND_XS62S: SwitchingProfile = {
   role: 'mixer',
   manufacturerUrl: spec('xs-62s'),
   blocks: { inputs: 6, stills: 2 },
+}
+
+// ─── Zahlen aus dem Handbuch (Owner's / Reference Manual, PDF) ───────────
+const pdf = (name: string) => `https://static.roland.com/assets/media/pdf/${name}.pdf`
+
+/** V-1HD: „The video on channels 1 through 4 is switched“ (S. 19). Multi-View nur auf PREVIEW, kein eigener Ausgang. */
+export const PROFILE_ROLAND_V1HD: SwitchingProfile = {
+  role: 'mixer',
+  manufacturerUrl: pdf('V-1HD_v2_eng01_W'),
+  blocks: { inputs: 4 },
+}
+
+/** V-1SDI: 4 Kanaele (S. 36), „DSK (Luminance Key, Chroma Key)“, „HDMI OUT MULTI-VIEW … x 1“. */
+export const PROFILE_ROLAND_V1SDI: SwitchingProfile = {
+  role: 'mixer',
+  manufacturerUrl: pdf('V-1SDI_v15_eng02_W'),
+  blocks: { inputs: 4, downstreamKeyers: 1, multiviewers: 1 },
+}
+
+/** VR-4HD: „Automatically switch the video of channels 1–4“ (S. 19); ein Standbild von Kanal 4 (S. 20). */
+export const PROFILE_ROLAND_VR4HD: SwitchingProfile = {
+  role: 'mixer',
+  manufacturerUrl: pdf('VR-4HD_v21_eng01_W'),
+  blocks: { inputs: 4, stills: 1 },
+}
+
+/**
+ * V-600UHD: „Number of Video Channels 6 channels“ (S. 66), „three internal
+ * buses (PGM, PVW, and AUX)“ (S. 15), „DSK PinP, Key“, „up to eight still
+ * images“ (S. 21), ein MULTI-VIEW-Ausgang (S. 67).
+ */
+export const PROFILE_ROLAND_V600UHD: SwitchingProfile = {
+  role: 'mixer',
+  manufacturerUrl: pdf('V-600UHD_reference_eng07_W'),
+  blocks: { inputs: 6, aux: 1, downstreamKeyers: 1, stills: 8, multiviewers: 1 },
+}
+
+/** XS-1HD: „HDMI type A x 4 (HDMI INPUT 1–4)“, „Composition (Keyer) 1“, „Still Image … Internal Memory 1“ (S. 29). */
+export const PROFILE_ROLAND_XS1HD: SwitchingProfile = {
+  role: 'mixer',
+  manufacturerUrl: pdf('XS-1HD_eng02_W'),
+  blocks: { inputs: 4, upstreamKeyers: 1, stills: 1 },
+}
+
+/** XS-84H: „HDMI … x 8 (INPUT 1–8)“, „It can be stored up to 4 files in the internal memory“ (S. 34). */
+export const PROFILE_ROLAND_XS84H: SwitchingProfile = {
+  role: 'mixer',
+  manufacturerUrl: pdf('XS-82H_XS-83H_XS-84H_eng04_W'),
+  blocks: { inputs: 8, stills: 4 },
+}
+
+/**
+ * VP-42H: „INPUT HDMI 1–4“, „Layer: 4 (Picture in Picture x 4) *Layer 1 is
+ * Picture in Picture with Keyer“, „Still Image … Internal Memory: 3“ (S. 33).
+ */
+export const PROFILE_ROLAND_VP42H: SwitchingProfile = {
+  role: 'mixer',
+  manufacturerUrl: pdf('XS-42H_VP-42H_reference_v13_eng03_W'),
+  blocks: { inputs: 4, dves: 4, upstreamKeyers: 1, stills: 3 },
+}
+
+/** P-20HD (Recorder mit Umschaltung): „INPUT 1–2 HDMI type A x 2“, Standbilder „Up to 16 files … in each project“ (S. 81). */
+export const PROFILE_ROLAND_P20HD: SwitchingProfile = {
+  role: 'mixer',
+  manufacturerUrl: pdf('P-20HD_reference_v20_eng02_W'),
+  blocks: { inputs: 2, stills: 16 },
 }
