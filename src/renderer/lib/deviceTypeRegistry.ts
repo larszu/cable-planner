@@ -13,6 +13,7 @@
 import type { EquipmentTemplate } from '../types/equipment'
 import type { RecordingCapability } from './recording'
 import type { SwitchingProfile } from './switching/types'
+import { SWITCHING_PROFILES_BY_TYPE } from './switching/profilesByType'
 import { CAMERA_CATALOG } from './cameraCatalog'
 import { CAMERA_BODY_CATALOG } from './cameraBodyCatalog'
 import { LENS_CATALOG } from './lensCatalog'
@@ -94,7 +95,9 @@ const buildRegistry = (): Map<string, DeviceTypeInfo> => {
       console.warn(`deviceTypeRegistry: doppelte deviceTypeId ${id}`)
       return
     }
-    map.set(id, info)
+    // #1240: Profile fuer Eintraege ausserhalb des Blackmagic-Katalogs.
+    const profile = info.switchingProfile ?? SWITCHING_PROFILES_BY_TYPE[id]
+    map.set(id, profile ? { ...info, switchingProfile: profile } : info)
   }
   for (const e of CAMERA_CATALOG) {
     put(e.deviceTypeId, { template: { ...e.template, deviceTypeId: e.deviceTypeId } })

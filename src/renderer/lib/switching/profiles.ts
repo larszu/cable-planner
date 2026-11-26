@@ -16,6 +16,14 @@
 //   - Videohub: Take-Modus (das Ethernet-Protokoll kennt nur Sperren).
 //   - Universal Videohub 72/288: kein Profil, die Herstellerseiten fuehren
 //     die Modelle nicht mehr.
+//   - ATEM Mini, Mini Pro (ISO), Mini Extreme (ISO): M/E-Zahl und
+//     SuperSource (die Tech-Specs fuehren beides nur beim Extreme ISO G2),
+//     beim ATEM Mini ausserdem der Multiviewer (hat keinen).
+//   - Television Studio Pro 4K: M/E-Zahl. Production Studio 4K: die M/E-Zahl
+//     kommt aus dem Modellnamen der Tech-Specs-Seite, es gibt kein eigenes
+//     Feld. Farbgeneratoren beim 1 M/E und beim TVS Pro 4K; beim
+//     2 M/E die Upstream-Keyer (die Tech-Specs nennen „4“ ohne Bezug auf
+//     M/E-Reihe oder Summe).
 // ───────────────────────────────────────────────────────────────────────────
 import type { SwitchingProfile } from './types'
 
@@ -227,3 +235,106 @@ const videohub = (n: number): SwitchingProfile => ({
 export const PROFILE_SMART_VIDEOHUB_40 = videohub(40)
 export const PROFILE_SMART_VIDEOHUB_20 = videohub(20)
 export const PROFILE_SMART_VIDEOHUB_12 = videohub(12)
+
+// ─── ATEM Mini, Production Studio 4K, Television Studio Pro 4K ───────────
+// Live-Tech-Specs fuer die Modelle, die Blackmagic noch fuehrt, sonst die
+// archivierte Tech-Specs-Seite. Gelesen am 26.11.2026.
+
+const TS_ATEM_MINI = 'https://www.blackmagicdesign.com/products/atemmini/techspecs'
+/** Archiv 2021: fuehrt noch ATEM Mini und Mini Extreme ISO (erste Generation). */
+const TS_ATEM_MINI_2021 =
+  'https://web.archive.org/web/20211204135246/https://www.blackmagicdesign.com/products/atemmini/techspecs/W-APS-13'
+/** Archiv 2019: Production-Studio-4K-Reihe. */
+const TS_PRODUCTION_STUDIO_4K =
+  'https://web.archive.org/web/20191212075613/https://www.blackmagicdesign.com/products/atem/techspecs'
+/** Archiv 2018, Produktseite: „SuperSource … Available on the ATEM 2 M/E Production Studio 4K … 4 picture in picture DVEs“. */
+const PRODUCT_ATEM_2018 = 'https://web.archive.org/web/20180523025725/https://www.blackmagicdesign.com/products/atem'
+/** Archiv 2022: Television-Studio-Reihe mit dem Pro 4K. */
+const TS_TVS_2022 =
+  'https://web.archive.org/web/20220308050304/https://www.blackmagicdesign.com/products/atemtelevisionstudio/techspecs'
+
+const atemMini = (url: string, extreme: boolean, multiviewers?: number): SwitchingProfile => ({
+  role: 'mixer',
+  idScheme: 'atem',
+  manufacturerUrl: url,
+  blocks: {
+    inputs: extreme ? 8 : 4,
+    upstreamKeyers: extreme ? 4 : 1,
+    downstreamKeyers: extreme ? 2 : 1,
+    mediaPlayers: extreme ? 2 : 1,
+    stills: 20,
+    colorGenerators: 2,
+    aux: extreme ? 2 : 1,
+    dves: extreme ? 2 : 1,
+    ...(multiviewers ? { multiviewers } : {}),
+  },
+})
+
+/** ATEM Mini: kein Multiviewer (Tech-Specs fuehren keinen). */
+export const PROFILE_ATEM_MINI = atemMini(TS_ATEM_MINI_2021, false)
+/** ATEM Mini Pro / Pro ISO: „1 x 10 Views“. */
+export const PROFILE_ATEM_MINI_PRO = atemMini(TS_ATEM_MINI, false, 1)
+export const PROFILE_ATEM_MINI_PRO_ISO = atemMini(TS_ATEM_MINI, false, 1)
+/** ATEM Mini Extreme: „a multiview with up to 16 views“. */
+export const PROFILE_ATEM_MINI_EXTREME = atemMini(TS_ATEM_MINI, true, 1)
+/** ATEM Mini Extreme ISO (erste Generation, nicht G2): archivierte Tech-Specs, Multiviewer dort ohne Anzahl. */
+export const PROFILE_ATEM_MINI_EXTREME_ISO = atemMini(TS_ATEM_MINI_2021, true)
+
+/** ATEM 1 M/E Production Studio 4K: „11 with 10 active“ (gezaehlt: aktiv), „1 x 10 views“. */
+export const PROFILE_ATEM_1ME_PRODUCTION_STUDIO_4K: SwitchingProfile = {
+  role: 'mixer',
+  idScheme: 'atem',
+  manufacturerUrl: TS_PRODUCTION_STUDIO_4K,
+  blocks: {
+    inputs: 10,
+    mixEffects: 1,
+    upstreamKeyers: 4,
+    downstreamKeyers: 2,
+    mediaPlayers: 2,
+    stills: 32,
+    clips: 2,
+    aux: 3,
+    multiviewers: 1,
+    dves: 1,
+  },
+}
+
+/** ATEM 2 M/E Production Studio 4K: „21 with 20 active“ (gezaehlt: aktiv), „Total Multi Views 2“. */
+export const PROFILE_ATEM_2ME_PRODUCTION_STUDIO_4K: SwitchingProfile = {
+  role: 'mixer',
+  idScheme: 'atem',
+  manufacturerUrl: TS_PRODUCTION_STUDIO_4K,
+  sources: { superSources: PRODUCT_ATEM_2018, superSourceBoxes: PRODUCT_ATEM_2018 },
+  blocks: {
+    inputs: 20,
+    mixEffects: 2,
+    downstreamKeyers: 2,
+    superSources: 1,
+    superSourceBoxes: 4,
+    mediaPlayers: 2,
+    stills: 32,
+    clips: 2,
+    colorGenerators: 2,
+    aux: 6,
+    multiviewers: 2,
+    dves: 1,
+  },
+}
+
+/** ATEM Television Studio Pro 4K: „1 x 10 Views“, „2, with non volatile flash memory“. */
+export const PROFILE_ATEM_TVS_PRO_4K: SwitchingProfile = {
+  role: 'mixer',
+  idScheme: 'atem',
+  manufacturerUrl: TS_TVS_2022,
+  blocks: {
+    inputs: 8,
+    upstreamKeyers: 1,
+    downstreamKeyers: 2,
+    mediaPlayers: 2,
+    stills: 20,
+    clips: 2,
+    aux: 1,
+    multiviewers: 1,
+    dves: 1,
+  },
+}
