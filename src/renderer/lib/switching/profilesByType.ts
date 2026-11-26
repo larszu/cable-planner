@@ -16,6 +16,7 @@ import * as fora from './profilesForA'
 import * as aja from './profilesAja'
 import * as lightware from './profilesLightware'
 import * as vizrt from './profilesVizrt'
+import * as sony from './profilesSony'
 
 export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfile>> = {
   /** Blackmagic ATEM Television Studio Pro 4K (broadcastNachtragBCatalog) */
@@ -68,4 +69,12 @@ export const SWITCHING_PROFILES_BY_TYPE: Readonly<Record<string, SwitchingProfil
   // Vizrt (switcherCatalog)
   '3cc4a0b1-735f-46b8-b08b-7a2692c89135': vizrt.PROFILE_TRICASTER_2_ELITE,
   'e96379ac-e90b-411a-a390-fcebe3696a5f': vizrt.PROFILE_TRICASTER_MINI_4K,
+  // Sony (switcherCatalog)
+  'ee3a295e-5ef1-44e1-96c3-5866ea062431': sony.PROFILE_SONY_MCX500,
+  'c0b191b4-c93e-4fcc-9a06-e9a6a374c5d9': sony.PROFILE_SONY_XVS_G1,
+  '48d2ac55-9dc5-491d-9abe-94d3133d2e67': sony.PROFILE_SONY_XVS_9000,
+  '80b210eb-502d-4d5f-a05c-803db5050bf2': sony.PROFILE_SONY_XVS_7000,
+  'c3b7d836-aa15-49aa-bc10-ce27821f0b58': sony.PROFILE_SONY_XVS_6000,
+  'a4c830da-fcb8-4f64-aa28-678af356f2d9': sony.PROFILE_SONY_MVS_6530,
+  '6563161f-5357-4f5d-8896-5a537947d149': sony.PROFILE_SONY_MVS_3000A,
 }
