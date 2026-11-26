@@ -125,7 +125,9 @@
   layer. On a switcher you route M/Es, keyers, SuperSource boxes, media
   players and aux, and the path through the device is traced up to PGM.
   Stills go in with *Load image…* or drag and drop on the media player or the
-  media pool, in the browser as well. On a router you get a matrix with locks, take and salvos. Block
+  media pool, in the browser as well. On a router you get a matrix with locks, take and salvos. On an ATEM, the setup file from ATEM Software Control loads into the plan
+  and saves back with only the known values changed; the rest of the file
+  stays byte for byte. Block
   counts and limits come from the datasheet, with the source linked.
 - **Scopes at the device.** Waveform, vectorscope, parade and histogram
   ([LZ Scopes](https://github.com/larszu/lz-scopes)) live from a device's

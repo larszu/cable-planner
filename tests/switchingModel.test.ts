@@ -129,7 +129,7 @@ describe('Interne Matrix', () => {
     // Quellen-IDs wie im ATEM-Profil-XML
     expect(m.byId.get('me:2')?.sourceId).toBe(10020)
     expect(m.byId.get('mp:1')?.sourceId).toBe(3010)
-    expect(m.byId.get('ss:1')?.sourceId).toBe(6001)
+    expect(m.byId.get('ss:1')?.sourceId).toBe(6000)
   })
 
   it('ohne Profil gibt es nur, was der Planer ergaenzt', () => {

@@ -450,6 +450,8 @@ Load a still right on the media player node with **Load image…**, or drop the 
 
 The number and limits of blocks come from the manufacturer's datasheet (link *Source*). If the datasheet does not give a value, add it yourself under *Not in the datasheet*. For devices with operating modes, such as the 8K mode of the Constellation 8K, choose the mode. If the plan goes over a limit, you see a note, but nothing is locked. For devices without a profile, you add the blocks yourself.
 
+**ATEM setup file.** On an ATEM, the top of the sidebar has *Load setup file…* and *Save setup file…*. This is the XML file that ATEM Software Control writes with *File › Save* and loads with *Restore*. Loading takes over M/E buses, keyers, DSKs, SuperSource boxes, aux, colour generators, media players and the media pool, multiviewers, input names, macro names, mix-minus and the audio routing. If the file has blocks the device is missing, they are added; values from the datasheet stay. Sources the plan has no block for (for example clean feed) are listed below the buttons. Saving writes only the values the plan knows into the loaded file. Everything else stays exactly as it was. The multiviewer and audio routing from the ATEM dialogs go into the file too. Without a loaded file, a new one is written with the sections the plan knows.
+
 **Router.** A router shows a matrix of outputs against inputs. Click a cell to set the crosspoint and click it again to clear it. Outputs can be locked. With *Preset, then take*, several crosspoints switch together. Salvos are the same ones as in the Videohub export.
 
 ### Operating modes: schematic, circuit, test pattern
