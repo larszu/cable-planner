@@ -40,7 +40,7 @@ export const PROFILE_ROSS_CARBONITE_ULTRA: SwitchingProfile = {
   blocks: { inputs: 24, mixEffects: 3, upstreamKeyersPerMe: 4, mediaPlayers: 4, multiviewers: 4, dves: 8, macros: 256 },
   modes: [
     { id: 'sdhd', label: 'SD/HD', limits: { inputs: 24, mixEffects: 3, mediaPlayers: 4, multiviewers: 4, dves: 8 } },
-    { id: 'uhd', label: 'UHD', limits: { inputs: 18, mixEffects: 2, mediaPlayers: 2, multiviewers: 2, dves: 4 } },
+    { id: 'uhd-only', label: 'UHD', limits: { inputs: 18, mixEffects: 2, mediaPlayers: 2, multiviewers: 2, dves: 4 } },
   ],
 }
 
@@ -51,7 +51,7 @@ export const PROFILE_ROSS_CARBONITE_ULTRA_60: SwitchingProfile = {
   blocks: { inputs: 60, mixEffects: 3, upstreamKeyersPerMe: 6, mediaPlayers: 8, multiviewers: 7, dves: 12 },
   modes: [
     { id: 'sdhd', label: 'HD/SD', limits: { inputs: 60, mixEffects: 3, mediaPlayers: 8, multiviewers: 7, dves: 12 } },
-    { id: 'uhd', label: 'UHD', limits: { inputs: 60, mixEffects: 3, mediaPlayers: 6, multiviewers: 6, dves: 8 } },
+    { id: 'uhd-only', label: 'UHD', limits: { inputs: 60, mixEffects: 3, mediaPlayers: 6, multiviewers: 6, dves: 8 } },
   ],
 }
 
@@ -62,7 +62,7 @@ export const PROFILE_ROSS_CARBONITE_BLACK_PLUS_2ME: SwitchingProfile = {
   blocks: { inputs: 36, mixEffects: 2, upstreamKeyersPerMe: 4, mediaPlayers: 4, multiviewers: 5, dves: 8, macros: 256 },
   modes: [
     { id: 'sdhd', label: 'SD/HD', limits: { inputs: 36, mixEffects: 2, multiviewers: 5, dves: 8 } },
-    { id: 'uhd', label: 'UHD', limits: { inputs: 9, mixEffects: 1, multiviewers: 1, dves: 2 } },
+    { id: 'uhd-only', label: 'UHD', limits: { inputs: 9, mixEffects: 1, multiviewers: 1, dves: 2 } },
   ],
 }
 
