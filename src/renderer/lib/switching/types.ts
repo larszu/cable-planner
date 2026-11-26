@@ -109,9 +109,18 @@ export interface KeyerState {
   onAir?: boolean
 }
 
-/** Ein belegter Platz im Media-Pool. Das Bild ist ein Projekt-Anhang. */
+/**
+ * Ein belegter Platz im Media-Pool.
+ *
+ * `fotoId`: das Bild liegt im Projekt (`project.fotos`), geladen ueber
+ * „Bild laden…“ oder Drag & Drop. Das ist der Weg, der ueberall geht, auch
+ * im Browser und in einem noch nicht gespeicherten Projekt.
+ * `anhangId`: ein vorhandener Bild-Anhang (Ordner `Anhaenge`, Desktop).
+ * Steht beides, gilt `fotoId`.
+ */
 export interface MediaSlotState {
-  anhangId: string
+  anhangId?: string
+  fotoId?: string
 }
 
 /** Ein Makro: Schrittfolge aus Befehlen des Modells. */

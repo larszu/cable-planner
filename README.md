@@ -123,8 +123,9 @@
 - **Inner view of switchers and routers** (module, off by default). Double-click
   an ATEM Constellation or a Videohub to open its blocks as a second canvas
   layer. On a switcher you route M/Es, keyers, SuperSource boxes, media
-  players with PNG stills and aux, and the path through the device is traced
-  up to PGM. On a router you get a matrix with locks, take and salvos. Block
+  players and aux, and the path through the device is traced up to PGM.
+  Stills go in with *Load image…* or drag and drop on the media player or the
+  media pool, in the browser as well. On a router you get a matrix with locks, take and salvos. Block
   counts and limits come from the datasheet, with the source linked.
 - **Scopes at the device.** Waveform, vectorscope, parade and histogram
   ([LZ Scopes](https://github.com/larszu/lz-scopes)) live from a device's

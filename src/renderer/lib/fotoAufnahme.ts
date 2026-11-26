@@ -104,3 +104,55 @@ export async function nimmFoto(
     },
   }
 }
+
+/**
+ * #1240 — die lange Kante eines Standbilds im Media-Pool. 1920 ist das Format
+ * eines HD-Stills am Mischer; mehr braucht weder die Simulation noch die
+ * Vorschau.
+ */
+export const STANDBILD_KANTE_MAX = 1920
+
+/**
+ * #1240 — ein Standbild fuer den Media-Pool eines Mischers.
+ *
+ * Anders als ein Foto bleibt ein PNG ein PNG: eine Bauchbinde traegt ihre
+ * Transparenz, und genau die braucht der Keyer als Key. Alles andere wird
+ * wie ein Foto zu JPEG. Das Bild liegt im Projekt (`project.fotos`), also
+ * auch im Browser und in einem Projekt, das noch keinen Ordner hat.
+ */
+export async function nimmStandbild(datei: File, jetzt: string, zeigtAuf?: FotoZiel): Promise<Aufnahme | null> {
+  if (!/^image\//.test(datei.type) && !/\.(png|jpe?g|webp|gif|bmp)$/i.test(datei.name)) return null
+  let bitmap: ImageBitmap
+  try {
+    bitmap = await createImageBitmap(datei)
+  } catch {
+    return null
+  }
+  const { breite, hoehe } = zielMasse(bitmap.width, bitmap.height, STANDBILD_KANTE_MAX)
+  const flaeche = document.createElement('canvas')
+  flaeche.width = breite
+  flaeche.height = hoehe
+  const ctx = flaeche.getContext('2d')
+  if (!ctx) {
+    bitmap.close()
+    return null
+  }
+  ctx.drawImage(bitmap, 0, 0, breite, hoehe)
+  bitmap.close()
+  const png = datei.type === 'image/png' || /\.png$/i.test(datei.name)
+  const dataUri = png ? flaeche.toDataURL('image/png') : flaeche.toDataURL('image/jpeg', 0.85)
+  return {
+    originalBytes: datei.size,
+    foto: {
+      id: uuidv4(),
+      dataUri,
+      breite,
+      hoehe,
+      bytes: dataUri.length,
+      zeigtAuf,
+      quelle: 'planer',
+      hinzugefuegtAm: jetzt,
+      notiz: datei.name,
+    },
+  }
+}
