@@ -56,3 +56,26 @@ export const destLabel = (d: InnerDest, t: Uebersetzen): string => {
       return t('switching.dest.still', 'Still')
   }
 }
+
+/** Kurzname fuer die Tasten im Pult: Eingaenge als Zahl, sonst ein Kuerzel. */
+export const shortLabel = (b: InnerBlock, t: Uebersetzen): string => {
+  const n = { n: b.index }
+  switch (b.kind) {
+    case 'input':
+      return String(b.index)
+    case 'black':
+      return t('switching.short.black', 'BLK')
+    case 'bars':
+      return t('switching.short.bars', 'BARS')
+    case 'color':
+      return format(t('switching.short.color', 'COL{n}'), n)
+    case 'mediaPlayer':
+      return format(t('switching.short.mediaPlayer', 'MP{n}'), n)
+    case 'superSource':
+      return format(t('switching.short.superSource', 'SS{n}'), n)
+    case 'mixEffect':
+      return format(t('switching.short.mixEffect', 'ME{n}'), n)
+    default:
+      return blockLabel(b, t)
+  }
+}
