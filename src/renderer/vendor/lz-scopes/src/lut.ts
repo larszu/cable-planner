@@ -257,11 +257,15 @@ export interface StoredLut { name: string; text: string; added: number }
 
 /** Parse, register and remember a LUT file (text kept in IndexedDB for the next session). */
 export async function addLutFile(file: File): Promise<Lut> {
-  const text = await file.text();
-  const lut = parseLut(text, file.name);
+  return addLutText(file.name, await file.text());
+}
+
+/** Same as addLutFile for text that did not come from a file (e.g. a download). */
+export async function addLutText(name: string, text: string): Promise<Lut> {
+  const lut = parseLut(text, name);
   registerLut(lut);
   const d = await db();
-  if (d) await new Promise<void>((ok) => { const tx = d.transaction(STORE, 'readwrite'); tx.objectStore(STORE).put({ name: file.name, text, added: Date.now() } satisfies StoredLut); tx.oncomplete = () => ok(); tx.onerror = () => ok(); });
+  if (d) await new Promise<void>((ok) => { const tx = d.transaction(STORE, 'readwrite'); tx.objectStore(STORE).put({ name, text, added: Date.now() } satisfies StoredLut); tx.oncomplete = () => ok(); tx.onerror = () => ok(); });
   return lut;
 }
 

@@ -6,6 +6,7 @@
 // NOT TESTED WITH HARDWARE (#116) – the fixtures are built from the standards' bit tables.
 
 import type { Transfer } from './color';
+import { parseCdp, parseEdh, parseOp47, parseScte104, parseSt2031, type Cdp, type Edh, type Op47, type Scte104, type St2031 } from './anc';
 
 export interface VancPacket { did: number; sdid: number; line: number; stream?: number; data: string }
 
@@ -152,6 +153,11 @@ export function packetName(did: number, sdid: number): string | null {
   if (did === 0x60 && sdid === 0x60) return 'ST 12-2 ATC';
   if (did === 0x61 && sdid === 0x01) return 'CEA-708 (ST 334-1)';
   if (did === 0x61 && sdid === 0x02) return 'CEA-608 (ST 334-1)';
+  if (did === 0x41 && sdid === 0x07) return 'SCTE 104 (ST 2010)';
+  if (did === 0x41 && sdid === 0x08) return 'ST 2031 DVB/SCTE VBI';
+  if (did === 0x43 && sdid === 0x02) return 'OP-47 SDP (RDD 8)';
+  if (did === 0x43 && sdid === 0x03) return 'OP-47 multipacket (RDD 8)';
+  if (did === 0xf4) return 'EDH (RP 165)';
   const a = audioGroup(did);
   if (a) return `ST 299 audio ${a.control ? 'control' : 'data'} group ${a.group}`;
   return null;
@@ -160,12 +166,14 @@ export function packetName(did: number, sdid: number): string | null {
 export interface VancSummary {
   st352: St352 | null; atc: Atc[]; hdr: Hdr2108 | null; afd: { afd: number; frame16x9: boolean } | null;
   cea708: boolean; cea608: boolean; audioGroups: number[]; audioControl: number[];
+  /** #235: SCTE 104 messages (distinct), CEA-708 CDP, OP-47, ST 2031 data units, EDH */
+  scte104: Scte104[]; cdp: Cdp | null; op47: Op47 | null; st2031: St2031[]; edh: Edh | null;
   packets: (VancPacket & { name: string | null; count: number })[];
 }
 
 /** Decode everything the panel shows from one VANC record. */
 export function summarise(packets: VancPacket[]): VancSummary {
-  const s: VancSummary = { st352: null, atc: [], hdr: null, afd: null, cea708: false, cea608: false, audioGroups: [], audioControl: [], packets: [] };
+  const s: VancSummary = { st352: null, atc: [], hdr: null, afd: null, cea708: false, cea608: false, audioGroups: [], audioControl: [], scte104: [], cdp: null, op47: null, st2031: [], edh: null, packets: [] };
   const seen = new Map<string, VancPacket & { name: string | null; count: number }>();
   for (const p of packets) {
     const b = bytesOf(p.data ?? '');
@@ -177,7 +185,13 @@ export function summarise(packets: VancPacket[]): VancSummary {
     else if (p.did === 0x41 && p.sdid === 0x0c) s.hdr ??= parse2108(b);
     else if (p.did === 0x41 && p.sdid === 0x05) s.afd ??= parseAfd(b);
     else if (p.did === 0x60 && p.sdid === 0x60) { const a = parseAtc(b); if (a && !s.atc.some((x) => x.kind === a.kind)) s.atc.push(a); }
-    else if (p.did === 0x61 && p.sdid === 0x01) s.cea708 = true;
+    else if (p.did === 0x61 && p.sdid === 0x01) { s.cea708 = true; s.cdp ??= parseCdp(b); }
+    else if (p.did === 0x41 && p.sdid === 0x07) {
+      const m = parseScte104(b);
+      if (m && !s.scte104.some((x) => JSON.stringify(x) === JSON.stringify(m))) s.scte104.push(m);
+    } else if (p.did === 0x41 && p.sdid === 0x08) { const d = parseSt2031(b); if (d) s.st2031.push(d); }
+    else if (p.did === 0x43 && p.sdid === 0x02) s.op47 ??= parseOp47(b);
+    else if (p.did === 0xf4) s.edh ??= parseEdh(b);
     else if (p.did === 0x61 && p.sdid === 0x02) s.cea608 = true;
     else {
       const a = audioGroup(p.did);

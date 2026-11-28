@@ -50,6 +50,8 @@ export default {
   'pattern.pqRamp': 'PQ ramp with reference white 203',
   'pattern.pqRampLabel': '203 cd/m² (BT.2408 reference white)',
   'pattern.av.flash': 'Flash',
+  'pattern.av.early': 'sound early',
+  'pattern.av.late': 'sound late',
   'pattern.av.title': 'A/V sync',
   'pattern.av.hint': 'Flash and beep (tone generator “A/V sync beep”) at every whole second',
   'pattern.smpte75lz': 'SMPTE 75 % bars + PLUGE (LZ)',

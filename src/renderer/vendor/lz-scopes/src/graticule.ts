@@ -9,20 +9,21 @@ import {
 import { hexLine, targetSignal, type ColorTarget } from './match/core';
 import { CIE_VIEW, CIE_VIEW_UV, WAVE_MAX, WAVE_MIN, type PictureMode, type Rect } from './renderer';
 import { latencyLines, rtpLines } from './latency';
+import { st2110Lines } from './st2110';
 import type { Source } from './sources';
 import { CUBE_SPACE_LABELS, SIGNAL_SPACES, cubeProject, cubeRotation, cubeWireframe, qFromChl, qFromHsv, qFromIctcp, qFromLab, qFromRgb, qFromXyz, qFromYcc, type CubeSettings } from './cube';
 import { num, onLangChange, t, type Key } from './i18n';
 import { bridgeText } from './i18n/bridgeMessage';
 import { stopLabel, stopTicks, stopsOf } from './stops';
 
-export type ScopeType = 'picture' | 'wf-luma' | 'wf-color' | 'wf-skin' | 'wf-green' | 'match' | 'wf-rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'vector3' | 'hls' | 'cie' | 'diamond' | 'cube' | 'satlum' | 'chplot' | 'minmax' | 'timeline' | 'qclog' | 'hist' | 'stats' | 'tiles' | 'noise' | 'wshading' | 'skinall' | 'chart' | 'drift' | 'shguide'
-  | 'audio-meter' | 'audio-loudness' | 'audio-spectrum' | 'audio-phase' | 'audio-check' | 'clock' | 'genlock' | 'simulcast' | 'encoder' | 'lens' | 'sdi'
+export type ScopeType = 'picture' | 'wf-luma' | 'wf-color' | 'wf-skin' | 'wf-green' | 'match' | 'wf-rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'vector3' | 'hls' | 'cie' | 'diamond' | 'cube' | 'surface' | 'satlum' | 'chplot' | 'minmax' | 'timeline' | 'strip' | 'qclog' | 'hist' | 'stats' | 'tiles' | 'noise' | 'wshading' | 'skinall' | 'chart' | 'drift' | 'shguide'
+  | 'audio-meter' | 'audio-loudness' | 'audio-spectrum' | 'audio-phase' | 'audio-check' | 'audio-surround' | 'audio-field' | 'audio-spl' | 'audio-rta' | 'clock' | 'genlock' | 'simulcast' | 'encoder' | 'lens' | 'sdi'
   | 'light-cie' | 'light-vector' | 'light-bands' | 'light-trend' | 'light-map' | 'light-spectrum' | 'light-swatch';
 export type Unit = 'percent' | 'bit8' | 'bit10' | 'nits' | 'stop';
 
 const SCOPE_IDS: ScopeType[] = [
-  'picture', 'wf-luma', 'wf-color', 'wf-skin', 'wf-green', 'wf-rgb', 'parade', 'yrgb', 'ycbcr', 'vector', 'vector3', 'hls', 'cie', 'diamond', 'cube', 'satlum', 'chplot', 'minmax', 'qclog', 'timeline', 'hist', 'stats', 'match', 'simulcast', 'encoder', 'lens', 'sdi', 'tiles', 'noise', 'wshading', 'skinall', 'chart', 'drift', 'shguide',
-  'audio-meter', 'audio-loudness', 'audio-spectrum', 'audio-phase', 'audio-check', 'clock', 'genlock',
+  'picture', 'wf-luma', 'wf-color', 'wf-skin', 'wf-green', 'wf-rgb', 'parade', 'yrgb', 'ycbcr', 'vector', 'vector3', 'hls', 'cie', 'diamond', 'cube', 'surface', 'satlum', 'chplot', 'minmax', 'qclog', 'timeline', 'strip', 'hist', 'stats', 'match', 'simulcast', 'encoder', 'lens', 'sdi', 'tiles', 'noise', 'wshading', 'skinall', 'chart', 'drift', 'shguide',
+  'audio-meter', 'audio-loudness', 'audio-spectrum', 'audio-phase', 'audio-check', 'audio-surround', 'audio-field', 'audio-spl', 'audio-rta', 'clock', 'genlock',
   // Opple Light Master (src/opple/scopes.ts, LIGHT_LABELS)
   'light-cie', 'light-vector', 'light-bands', 'light-trend', 'light-map', 'light-spectrum', 'light-swatch',
 ];
@@ -37,10 +38,10 @@ export const SCOPE_LABELS = scopeLabels();
 export const SCOPE_GROUPS: readonly (readonly [group: string, scopes: readonly ScopeType[]])[] = [
   ['picture', ['picture']],
   ['waveform', ['wf-luma', 'wf-color', 'wf-rgb', 'parade', 'yrgb', 'ycbcr', 'wf-skin', 'wf-green', 'minmax']],
-  ['colour', ['vector', 'vector3', 'hls', 'diamond', 'cie', 'cube', 'satlum', 'chplot']],
-  ['measure', ['hist', 'stats', 'timeline', 'qclog', 'noise', 'sdi', 'genlock', 'clock']],
+  ['colour', ['vector', 'vector3', 'hls', 'diamond', 'cie', 'cube', 'surface', 'satlum', 'chplot']],
+  ['measure', ['hist', 'stats', 'timeline', 'strip', 'qclog', 'noise', 'sdi', 'genlock', 'clock']],
   ['cameras', ['tiles', 'match', 'skinall', 'chart', 'drift', 'wshading', 'shguide', 'simulcast', 'encoder', 'lens']],
-  ['audio', ['audio-meter', 'audio-loudness', 'audio-spectrum', 'audio-phase', 'audio-check']],
+  ['audio', ['audio-meter', 'audio-loudness', 'audio-surround', 'audio-spectrum', 'audio-rta', 'audio-phase', 'audio-field', 'audio-spl', 'audio-check']],
   ['light', ['light-cie', 'light-vector', 'light-bands', 'light-trend', 'light-map', 'light-spectrum', 'light-swatch']],
 ];
 /** Picture overlays that also appear as entries of their own under "Picture" (a picture panel with that overlay). */
@@ -95,7 +96,7 @@ export function plotRect(scope: ScopeType, w: number, h: number, aspect = 16 / 9
     const s = Math.max(10, Math.min(w - 52, h - 30));
     return { x: 44 + (w - 52 - s) / 2, y: 8, w: s, h: s };
   }
-  if (scope === 'cube') {
+  if (scope === 'cube' || scope === 'surface') {
     const s = Math.max(10, Math.min(w, h) - 16);
     return { x: (w - s) / 2, y: (h - s) / 2, w: s, h: s };
   }
@@ -765,7 +766,13 @@ export function statsLines(src: Source, displayFps: number): string[] {
     `${col('scope.stats.analysis')}${src.width}×${src.height}  ${src.yuv ? t('scope.stats.yuvPath', { range: src.yuv.full ? 'full' : 'narrow', bits: src.yuv.bits }) : `${src.depth} bit R′G′B′`}`,
   ];
   if (info?.note) lines.push(`${col('scope.stats.note')}${bridgeText(info, 'note')}`);
-  if (info) lines.push(`${col('scope.stats.scan')}${info.interlaced ? t('scope.stats.interlaced') : t('scope.stats.progressive')}; ${t('scope.stats.wholeFrames')}`);
+  if (info) {
+    // #219: field order and de-interlacing of the bridge (server/interlace.mjs)
+    const scan = info.deinterlaced ? t('scope.stats.deinterlaced') : info.interlaced ? t('scope.stats.interlaced') : t('scope.stats.progressive');
+    const order = info.interlaced && info.fields ? `, ${t(info.fields === 'bff' ? 'scope.stats.bff' : 'scope.stats.tff')}` : '';
+    const forced = info.fieldsForced ? ` (${t('scope.stats.forced')})` : '';
+    lines.push(`${col('scope.stats.scan')}${scan}${order}${forced}; ${t('scope.stats.wholeFrames')}`);
+  }
   if (info) {
     lines.push(`${col('scope.stats.source')}${info.sourceWidth}×${info.sourceHeight}  ${info.codec ?? ''} ${info.pixFmt ?? ''}`);
     if (info.transport === 'h264') lines.push(`${col('scope.stats.transport')}${t('scope.stats.h264')}`);
@@ -789,7 +796,7 @@ export function statsLines(src: Source, displayFps: number): string[] {
     }
   }
   if (st) lines.push(`${col('scope.stats.statistics')}${src.statsPerf.path === 'gpu' ? t('scope.stats.gpu') : t('scope.stats.cpu')} · ${t('scope.stats.mainThread', { ms: src.statsPerf.ms.toFixed(2) })}`);
-  lines.push(...latencyLines(src.latency.summary(), src.kind === 'stream' && src.lowLatency), ...rtpLines(src.rtpInfo, src.rtpStats));
+  lines.push(...latencyLines(src.latency.summary(), src.kind === 'stream' && src.lowLatency), ...rtpLines(src.rtpInfo, src.rtpStats), ...st2110Lines(src.st2110));
   lines.push('', ...r103Lines(src));
   return lines;
 }

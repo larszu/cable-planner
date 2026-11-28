@@ -40,11 +40,12 @@ const signed = (v: number, d = 1) => (Number.isFinite(v) ? `${v > 0 ? '+' : ''}$
 export function grabFrame(s: Source): Frame | null {
   if (!s.ready) return null;
   if (s.data) {
-    const scale = s.depth === 16 ? 65535 : 255, st = Math.max(1, Math.ceil(s.width / 3840));
+    // through the source decoder: R′G′B′ as before, Y′CbCr and packed v210 (#258) decoded
+    const dec = s.decoder(), st = Math.max(1, Math.ceil(s.width / 3840));
     const w = Math.floor(s.width / st), hh = Math.floor(s.height / st), rgb = new Float32Array(w * hh * 3);
     for (let y = 0; y < hh; y++) for (let x = 0; x < w; x++) {
-      const i = (y * st * s.width + x * st) * 4, o = (y * w + x) * 3;
-      rgb[o] = s.data[i] / scale; rgb[o + 1] = s.data[i + 1] / scale; rgb[o + 2] = s.data[i + 2] / scale;
+      const c = dec(s.data, (y * st * s.width + x * st) * 4), o = (y * w + x) * 3;
+      rgb[o] = c[0]; rgb[o + 1] = c[1]; rgb[o + 2] = c[2];
     }
     return { width: w, height: hh, rgb };
   }

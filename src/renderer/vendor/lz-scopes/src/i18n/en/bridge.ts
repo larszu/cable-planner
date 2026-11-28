@@ -93,6 +93,13 @@ export default {
   'bridge.ndi.dropping': 'NDI: {lost} pictures lost in the last second (network {ndi}, helper {helper})',
   'bridge.ndi.recovered': 'NDI: no losses again ({fps} fps)',
   'bridge.ndi.format': 'NDI format {fourcc} not supported',
+  'bridge.st2110.noInput': 'No network input {id}',
+  'bridge.st2110.noSdp': 'Network input not connected – no SDP active',
+  'bridge.st2110.badSdp': 'SDP not usable: {reason}',
+  'bridge.st2110.socket': 'Network: {reason}',
+  'bridge.st2110.noPackets': 'No packets on {group}:{port}',
+  'bridge.st2110.broken': 'ST 2110: {n} incomplete frames in the last second ({lost} packets lost so far)',
+  'bridge.st2110.recovered': 'ST 2110: complete frames again',
 
   'bridge.record.denied': 'Recording only from the local app (same origin) or with the control token',
   'bridge.record.unsupported': 'This source cannot be recorded in the bridge',
@@ -149,6 +156,14 @@ export default {
   'bridge.ptp.lock2': 'cold locking',
   'bridge.ptp.lock3': 'warm locking',
   'bridge.ptp.lock4': 'locked',
+
+  // ST 2110 receive (server/st2110.mjs, server/st2110stream.mjs)
+  'bridge.st2110.badUrl': 'Invalid st2110: source (SDP or audio=/anc= with address:port)',
+  'bridge.st2110.inUse': 'Port {port} is in use',
+  'bridge.st2110.join': 'Cannot join {group} on this interface ({err})',
+  'bridge.st2110.busy': 'A snapshot is already running',
+  'bridge.st2110.ringOff': 'Rolling capture is off',
+  'bridge.st2110.captureDenied': 'Capture only from this computer or with the control token',
 
   // iOS app: Bonjour search for the bridge (ios/App/App/LzNative.swift)
   'bridge.ios.localNetworkDenied': 'Access to the local network denied (Settings → Privacy & Security → Local Network)',

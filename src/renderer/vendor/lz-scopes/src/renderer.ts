@@ -10,17 +10,19 @@ import type { Lut } from './lut';
 import type { Source } from './sources';
 import { RGC, RGC_GLSL, rgcScale } from './rgc';
 import { CUBE_GLSL, CUBE_SCALE } from './cube';
+import { SURFACE_GLSL, SURFACE_HEIGHT } from './hecto';
 import { t } from './i18n';
 import { R103, R103_GLSL, YUV_FETCH_GLSL, yuvScale } from './ycbcr';
+import { V210_UNPACK_FS, v210RowWords } from './v210';
 import { intersect } from './view';
 import { BLUR_FS, CRT_DISPLAY_FS, CRT_FS, CRT_VS_MAIN, PERSIST_FS, PHOSPHORS, beamSigma, persistDecay, type CrtSettings } from './crt';
 
 /** Beam segments per CRT scope and frame (each is a quad, far more fill than a point). */
 const CRT_BUDGET = 150_000;
 
-export type ScatterMode = 'luma' | 'rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'hls' | 'cie' | 'skin' | 'diamond' | 'cube' | 'satlum' | 'chplot';
-const MODE_ID: Record<ScatterMode, number> = { luma: 0, rgb: 1, parade: 2, yrgb: 3, ycbcr: 4, vector: 5, cie: 6, skin: 7, diamond: 8, cube: 9, satlum: 10, chplot: 11, hls: 12 };
-const INSTANCES: Record<ScatterMode, number> = { luma: 1, rgb: 3, parade: 3, yrgb: 4, ycbcr: 3, vector: 1, cie: 1, skin: 1, diamond: 2, cube: 1, satlum: 1, chplot: 1, hls: 1 };
+export type ScatterMode = 'luma' | 'rgb' | 'parade' | 'yrgb' | 'ycbcr' | 'vector' | 'hls' | 'cie' | 'skin' | 'diamond' | 'cube' | 'satlum' | 'chplot' | 'surface';
+const MODE_ID: Record<ScatterMode, number> = { luma: 0, rgb: 1, parade: 2, yrgb: 3, ycbcr: 4, vector: 5, cie: 6, skin: 7, diamond: 8, cube: 9, satlum: 10, chplot: 11, hls: 12, surface: 13 };
+const INSTANCES: Record<ScatterMode, number> = { luma: 1, rgb: 3, parade: 3, yrgb: 4, ycbcr: 3, vector: 1, cie: 1, skin: 1, diamond: 2, cube: 1, satlum: 1, chplot: 1, hls: 1, surface: 1 };
 
 export type PictureMode = 'normal' | 'false' | 'zebra' | 'clip' | 'luma' | 'skin' | 'green' | 'gamut' | 'r103' | 'neutral' | 'peaking';
 // 'green' = the skin overlay with the green qualifier's range (panel.ts passes it as skin)
@@ -109,6 +111,7 @@ out float vW;
 ${SKIN_GLSL}
 ${LINEAR_GLSL}
 ${CUBE_GLSL}
+${SURFACE_GLSL}
 
 float waveY(float v) { return (v - uWMin) / (uWMax - uWMin) * 2.0 - 1.0; }
 
@@ -240,6 +243,13 @@ bool plotSample(ivec2 p, int ch, out vec2 pos, out vec3 col) {
     // 3D colour volume (cube.ts): rotated, orthographic
     pos = (uRot * cubeQ(rgb)).xy * ${CUBE_SCALE.toFixed(4)} * uView.x + uView.yz;
     if (uColorize == 1) col = srcCol;
+  } else if (uMode == 13) {
+    // Hectorscope (hecto.ts surfaceQ): picture x/y as the floor, the value as the height, same rotation as the volume
+    float v = uSurf.x < 0.5 ? Y : uSurf.x < 1.5 ? rgb.r : uSurf.x < 2.5 ? rgb.g : uSurf.x < 3.5 ? rgb.b : length(vec2(cb, cr)) / 0.5;
+    float yy = (float(p.y) + 0.5) / float(uSize.y);
+    vec3 q = vec3((x - 0.5) * 2.0, (v - 0.5) * ${SURFACE_HEIGHT.toFixed(4)}, (yy - 0.5) * 2.0 * uSurf.y);
+    pos = (uRot * q).xy * ${CUBE_SCALE.toFixed(4)} * uView.x + uView.yz;
+    col = uSurf.z > 0.5 ? srcCol : surfRamp(v);
   } else if (uMode == 12) {
     // HLS vectorscope (graticule.ts hsl/hlsPoint): HSL hue as the angle from the matrix's YUV red, HSL saturation as the radius
     vec3 c = clamp(rgb, 0.0, 1.0);
@@ -449,7 +459,11 @@ void main() {
   o = vec4(c, 1.0);
 }`;
 
-interface SrcTex { tex: WebGLTexture; w: number; h: number; u16: boolean; seq: number }
+/**
+ * `packed`: v210 sources (#258) – the words as uploaded (R32UI, v210RowWords(w) × h) and the
+ * framebuffer the unpack pass writes into `tex` (RGBA16UI A, Y′, Cb, Cr like format=yuv).
+ */
+interface SrcTex { tex: WebGLTexture; w: number; h: number; u16: boolean; seq: number; packed?: { tex: WebGLTexture; fbo: WebGLFramebuffer } }
 interface Accum { tex: WebGLTexture; fbo: WebGLFramebuffer; w: number; h: number }
 
 export interface ScatterParams {
@@ -463,6 +477,8 @@ export interface ScatterParams {
   sec?: number[]; secN?: number;
   /** 3D volume (cube.ts): space id, row-major rotation, source → BT.2020, source white XYZ, cd/m² of 1.0 */
   cube?: { space: number; rot: number[]; to2020: number[]; white: number[]; nits: number; view?: { zoom: number; panX: number; panY: number } };
+  /** Hectorscope (hecto.ts): axis id, picture colours instead of the height ramp, grid columns, rotation and view */
+  surface?: { axis: number; source: boolean; cols: number; rot: number[]; view: { zoom: number; panX: number; panY: number } };
   /** channel plot: 0 R/G, 1 R/B, 2 G/B, 3 Y/Cb, 4 Y/Cr, 5 Cb/Cr */
   pair?: number;
   /** digital display: persistence τ in ms (trace history; −1 = infinite), as in the CRT mode */
@@ -615,11 +631,12 @@ export class Renderer {
     if (!src.ready) return null;
     const gl = this.gl;
     const u16 = src.data !== null && src.depth === 16;
+    const v210 = src.data instanceof Uint32Array && src.pack === 'v210';
     let t = this.textures.get(src.id);
     const w = src.width, h = src.height;
-    if (t && t.seq === src.frameSeq && t.w === w && t.h === h && t.u16 === u16) return t;
-    if (!t || t.u16 !== u16) {
-      if (t) gl.deleteTexture(t.tex);
+    if (t && t.seq === src.frameSeq && t.w === w && t.h === h && t.u16 === u16 && !!t.packed === v210) return t;
+    if (!t || t.u16 !== u16 || !!t.packed !== v210) {
+      if (t) this.deleteSrcTex(t);
       const tex = gl.createTexture()!;
       t = { tex, w: 0, h: 0, u16, seq: -1 };
       this.textures.set(src.id, t);
@@ -629,6 +646,10 @@ export class Renderer {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
+    // a new size is announced before its first picture: the old one does not fit, and a failed
+    // texImage2D would leave the texture without level 0 (every later texSubImage2D fails too)
+    if (src.data && src.data.length !== (v210 ? v210RowWords(w) : w * 4) * h) return null;
+    if (v210) return this.unpackV210(src, t, w, h);
     gl.bindTexture(gl.TEXTURE_2D, t.tex);
     const same = t.w === w && t.h === h;
     try {
@@ -647,6 +668,59 @@ export class Renderer {
     }
     t.w = w; t.h = h; t.seq = src.frameSeq;
     return t;
+  }
+
+  /**
+   * v210 (#258): upload the packed words as they came – a third of the 8 B/px of the unpacked
+   * layout – and unpack them on the GPU once per picture into `t.tex` (RGBA16UI, V210_UNPACK_FS).
+   * The scopes then read it exactly like a format=yuv texture.
+   */
+  private unpackV210(src: Source, t: SrcTex, w: number, h: number): SrcTex {
+    const gl = this.gl, tw = v210RowWords(w);
+    const nearest = () => {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    };
+    const same = t.w === w && t.h === h && !!t.packed;
+    if (!t.packed) {
+      const tex = gl.createTexture()!;
+      gl.bindTexture(gl.TEXTURE_2D, tex); nearest();
+      t.packed = { tex, fbo: gl.createFramebuffer()! };
+    }
+    gl.bindTexture(gl.TEXTURE_2D, t.packed.tex);
+    if (same) gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, tw, h, gl.RED_INTEGER, gl.UNSIGNED_INT, src.data!);
+    else {
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32UI, tw, h, 0, gl.RED_INTEGER, gl.UNSIGNED_INT, src.data!);
+      gl.bindTexture(gl.TEXTURE_2D, t.tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16UI, w, h, 0, gl.RGBA_INTEGER, gl.UNSIGNED_SHORT, null);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, t.packed.fbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t.tex, 0);
+    }
+    // the callers set framebuffer, viewport, program and textures after this; scissor and blend
+    // may belong to them and come back as they were
+    const scissor = gl.isEnabled(gl.SCISSOR_TEST), blend = gl.isEnabled(gl.BLEND);
+    gl.disable(gl.SCISSOR_TEST); gl.disable(gl.BLEND);
+    const prog = this.program('v210unpack', PICTURE_VS, V210_UNPACK_FS);
+    gl.useProgram(prog);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, t.packed.fbo);
+    gl.viewport(0, 0, w, h);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, t.packed.tex);
+    gl.uniform1i(this.u(prog, 'uPacked'), 0);
+    gl.uniform1i(this.u(prog, 'uW'), w);
+    gl.uniform4f(this.u(prog, 'uUv'), 0, 0, 1, 1);
+    gl.bindVertexArray(this.vao);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (scissor) gl.enable(gl.SCISSOR_TEST);
+    if (blend) gl.enable(gl.BLEND);
+    t.w = w; t.h = h; t.seq = src.frameSeq;
+    return t;
+  }
+
+  private deleteSrcTex(t: SrcTex) {
+    this.gl.deleteTexture(t.tex);
+    if (t.packed) { this.gl.deleteTexture(t.packed.tex); this.gl.deleteFramebuffer(t.packed.fbo); }
   }
 
   private accum(key: string, w: number, h: number): Accum {
@@ -711,7 +785,7 @@ export class Renderer {
 
   dropSource(id: string) {
     const t = this.textures.get(id);
-    if (t) { this.gl.deleteTexture(t.tex); this.textures.delete(id); }
+    if (t) { this.deleteSrcTex(t); this.textures.delete(id); }
   }
 
   /** CSS-pixel rect (relative to canvas) → GL viewport in device pixels (origin bottom-left). */
@@ -779,7 +853,7 @@ export class Renderer {
     const acc = this.accum(key, vp.w, vp.h);
     const kind = this.texKind(src, t);
     const crt = p.crt?.on ? p.crt : null;
-    const wave = p.mode !== 'vector' && p.mode !== 'hls' && p.mode !== 'cie' && p.mode !== 'diamond' && p.mode !== 'cube' && p.mode !== 'satlum' && p.mode !== 'chplot';
+    const wave = p.mode !== 'vector' && p.mode !== 'hls' && p.mode !== 'cie' && p.mode !== 'diamond' && p.mode !== 'cube' && p.mode !== 'satlum' && p.mode !== 'chplot' && p.mode !== 'surface';
     // Flat reconstructed (#257): more points per sample, waveforms in the point scatter only
     const recon = !crt && wave && (p.recon ?? 1) > 1 ? Math.round(p.recon ?? 1) : 1;
     // Normalise so that the display brightness does not depend on source or panel size.
@@ -798,12 +872,14 @@ export class Renderer {
       // trace look low-passed (feedback 11/2026); rows are thinned instead (more samples of the same column)
       stepX = 1; stepY = Math.max(1, Math.ceil((t.w * t.h * recon) / p.maxSamples));
     } else stepX = stepY = Math.max(1, Math.ceil(Math.sqrt((t.w * t.h) / p.maxSamples)));
+    // Hectorscope: a fixed floor grid (Auflösung), never more points than the sample budget
+    if (p.surface && !crt) stepX = stepY = Math.max(stepX, Math.ceil(t.w / Math.max(8, p.surface.cols)));
     const cols = Math.ceil(t.w / stepX), rows = Math.ceil(t.h / stepY);
     const n = crt ? Math.max(1, cols - 1) * rows : cols * rows * recon;
     const area = (vp.w / sections) * vp.h;
     // the 3D volume spreads the points thinly: bigger dots and more weight so colours stay visible
-    const dot = !crt && !wave ? Math.max(1, Math.round(this.dpr)) * (p.mode === 'cube' ? 3 : 1) : 1;
-    const intensity = ((wave ? 0.9 : 0.6) * area) / n / (dot * dot) * (p.mode === 'cube' ? 6 : 1) * (p.density ?? 1);
+    const dot = !crt && !wave ? Math.max(1, Math.round(this.dpr)) * (p.mode === 'cube' ? 3 : p.mode === 'surface' ? 2 : 1) : 1;
+    const intensity = ((wave ? 0.9 : 0.6) * area) / n / (dot * dot) * (p.mode === 'cube' ? 6 : p.mode === 'surface' ? 4 : 1) * (p.density ?? 1);
 
     // Only re-scatter when the frame or a parameter changed; otherwise reuse the accumulation.
     const sig = `${ghost?.snapshot ? `snap:${ghost.snapshot}:${t.seq}` : `${src.id}:${src.frameSeq}`}:${t.w}x${t.h}:${acc.w}x${acc.h}:${src.colorspace}:${src.transfer}:${src.gamut}:${src.hlgLw}:${chainOf(src)?.sig ?? ''}:${JSON.stringify(baseOf(src).yuv)}:${baseOf(src).colorspace}:${this.dpr}:${JSON.stringify(p)}`;
@@ -864,6 +940,11 @@ export class Renderer {
         gl.uniform3fv(this.u(prog, 'uWhiteXYZ'), p.cube.white);
         gl.uniform1f(this.u(prog, 'uCubeNits'), p.cube.nits);
         gl.uniform3f(this.u(prog, 'uView'), p.cube.view?.zoom ?? 1, p.cube.view?.panX ?? 0, p.cube.view?.panY ?? 0);
+      }
+      if (p.surface) {
+        gl.uniformMatrix3fv(this.u(prog, 'uRot'), false, colMajor(p.surface.rot));
+        gl.uniform3f(this.u(prog, 'uView'), p.surface.view.zoom, p.surface.view.panX, p.surface.view.panY);
+        gl.uniform4f(this.u(prog, 'uSurf'), p.surface.axis, t.h / t.w, p.surface.source ? 1 : 0, 0);
       }
       gl.bindVertexArray(this.vao);
       if (crt) {

@@ -28,7 +28,9 @@ export const neutralParams = (p: PanelState) => {
   return { threshold: (p.neutral?.threshold ?? 5) / 100, lo, hi };
 };
 import { drawTimeline, type TimelineSpan } from './history';
+import { drawStrip, type StripSettings } from './strip';
 import { CUBE_SPACE_ID, DEFAULT_CUBE, cubeNits, cubeQOf, cubeRotation, type CubeSettings } from './cube';
+import { DEFAULT_SURFACE, SURFACE_AXIS_ID, drawSurfaceGraticule, surfaceValue, type SurfaceSettings } from './hecto';
 import { DEFAULT_CRT, PHOSPHORS, type CrtSettings } from './crt';
 import { STAGE_LABELS, autoPeaks, baseOf, chainOf, stageView, type Stage } from './chain';
 import { clockOpts, drawClockOverlay, drawClockPanel, type ClockOptions } from './clock/panel';
@@ -81,6 +83,8 @@ export interface PanelState {
   alarm?: AlarmSettings;
   /** Pinned panels keep their source when another panel switches. */
   pin?: boolean;
+  /** 0-based index of a picture panel whose source this panel follows, its A/B split included (#177) */
+  follow?: number;
   /** waveforms: EBU R 103 −5/105 % lines (off by default) and reference marks (BT.2408 / 18 % grey, on by default) */
   r103?: boolean; marks?: boolean;
   /** CIE scope in CIE 1976 u′v′ */
@@ -119,15 +123,21 @@ export interface PanelState {
   everyFrame?: boolean; grid?: number;
   /** timeline: shown time span in seconds */
   span?: TimelineSpan;
+  /** picture history (strip.ts, #196): stills, spacing, waveform below */
+  strip?: StripSettings;
   /** vectorscope, CIE, diamond, 3D volume (digital): persistence in ms, −1 = infinite (trace history) */
   persist?: number;
   /** 3D colour volume: space, rotation, wire-frame gamut */
   cube?: Partial<CubeSettings>;
+  /** Hectorscope (#178, hecto.ts): axis, colour, grid, rotation and view */
+  surface?: Partial<SurfaceSettings>;
   /**
    * picture: A/B comparison. `b` = 'stage:signal|cst|lut' (same source) or 'src:<id>';
    * split = divider at `pos` (drag it in the picture; 'wipe' = older saved name), diff = max |A − B| × `gain`.
    */
-  ab?: { mode: 'off' | 'split' | 'wipe' | 'diff' | 'crop' | 'butterfly'; b: string; pos?: number; gain?: number };
+  ab?: { mode: 'off' | 'split' | 'wipe' | 'diff' | 'crop' | 'butterfly'; b: string; pos?: number; gain?: number;
+    /** switching the split on lets the other unpinned panels (not picture panels) follow this one (#177) */
+    spread?: boolean };
   /** picture: overlay legend position (fractions of the free space, default bottom-left) */
   legendPos?: { x: number; y: number };
   /** picture: ACES 1.3 reference gamut compression as a preview (picture and gamut warning, not the scopes) */
@@ -369,17 +379,19 @@ const XY: ViewLimits = { min: 1, max: 16, axes: 'xy', cover: true };
 /** Zoom range and axes of a scope; null = no zoom (audio, clock, tables …). */
 export function viewLimits(scope: ScopeType): ViewLimits | null {
   if (isWaveform(scope)) return { min: 1, max: 20, axes: 'y', cover: true };
-  if (scope === 'cube') return { min: 0.3, max: 8, axes: 'xy', cover: false };
+  if (scope === 'cube' || scope === 'surface') return { min: 0.3, max: 8, axes: 'xy', cover: false };
   if (scope === 'vector' || scope === 'hls' || scope === 'cie' || scope === 'satlum' || scope === 'chplot' || scope === 'diamond' || scope === 'hist' || scope === 'picture') return XY;
   return null;
 }
 /** Current view of a panel (the 3D volume: its own zoom/pan). */
 export function panelView(p: PanelState): View {
   if (p.scope === 'cube') return { z: p.cube?.zoom ?? 1, x: p.cube?.panX ?? 0, y: p.cube?.panY ?? 0 };
+  if (p.scope === 'surface') return { z: p.surface?.zoom ?? 1, x: p.surface?.panX ?? 0, y: p.surface?.panY ?? 0 };
   return p.view ?? IDENTITY;
 }
 export function setPanelView(p: PanelState, v: View) {
   if (p.scope === 'cube') p.cube = { ...DEFAULT_CUBE, ...p.cube, zoom: v.z, panX: v.x, panY: v.y };
+  else if (p.scope === 'surface') p.surface = { ...DEFAULT_SURFACE, ...p.surface, zoom: v.z, panX: v.x, panY: v.y };
   else p.view = isIdentity(v) ? undefined : { z: v.z, x: v.x, y: v.y };
 }
 /** Waveform level range on screen: magnifier preset plus gesture zoom. */
@@ -391,7 +403,15 @@ export function contentRect(p: PanelState, w: number, h: number, aspect = 16 / 9
 }
 /** The gesture view of a 2D scope or the picture (not waveforms, not the 3D volume); null = none. */
 function xyView(p: PanelState): View | null {
-  return p.view && !isIdentity(p.view) && viewLimits(p.scope)?.axes === 'xy' && p.scope !== 'cube' ? p.view : null;
+  return p.view && !isIdentity(p.view) && viewLimits(p.scope)?.axes === 'xy' && !is3d(p.scope) ? p.view : null;
+}
+/** Rotatable 3D views (colour volume, Hectorscope): they keep zoom, pan and rotation in their own settings. */
+export const is3d = (scope: ScopeType) => scope === 'cube' || scope === 'surface';
+/** Rotate a 3D view by a drag of dx, dy px (0.5° per px, pitch limited to ±90°). */
+export function rotate3d(p: PanelState, dx: number, dy: number) {
+  const turn = (c: { yaw: number; pitch: number }) => ({ yaw: ((c.yaw + dx * 0.5 + 540) % 360) - 180, pitch: Math.max(-90, Math.min(90, c.pitch + dy * 0.5)) });
+  if (p.scope === 'cube') { const c = { ...DEFAULT_CUBE, ...p.cube }; p.cube = { ...c, ...turn(c) }; }
+  else if (p.scope === 'surface') { const c = { ...DEFAULT_SURFACE, ...p.surface }; p.surface = { ...c, ...turn(c) }; }
 }
 /** Scopes whose labels sit outside the plot: their overlay is clipped to the panel, not the plot. */
 const LABELS_OUTSIDE: ScopeType[] = ['cie', 'satlum', 'chplot', 'hist'];
@@ -638,6 +658,8 @@ export function panelSignature(p: PanelState, src: Source | null, body: Rect, o:
     : p.scope === 'cie' && p.gamutShare !== false ? `|c${Math.floor(Date.now() / 500)}`
     // SDI signal info: VANC records arrive beside the frames and go stale
     : p.scope === 'sdi' ? `|v${src?.vanc?.at ?? 0}:${Math.floor(Date.now() / 1000)}`
+    // picture history: new stills, sound at 20 Hz of audio time, luma samples
+    : p.scope === 'strip' ? `|p${src?.stills.version}:${src?.audio ? Math.floor(src.audio.frames / (src.audio.fs / 20)) : ''}:${src?.history.version}`
     : p.scope === 'qclog' ? `|q${qcLog.version}:${Math.floor(Date.now() / 1000)}` : '';
   if (p.scope === 'clock') return `C|${src?.id}|${JSON.stringify(p)}|${body.x},${body.y},${body.w},${body.h}${tick}`;
   if (isLight(p.scope)) return `${lightSignature(p.scope, p.light, body.w, body.h)}|${body.x},${body.y}`;
@@ -665,7 +687,7 @@ export const defaultPanel = (scope: ScopeType): PanelState => ({
 const PARADE: ScopeType[] = ['parade', 'yrgb', 'wf-rgb'];
 
 const SCATTER: Partial<Record<ScopeType, ScatterMode>> = {
-  'wf-luma': 'luma', 'wf-color': 'luma', 'wf-skin': 'skin', 'wf-green': 'skin', 'wf-rgb': 'rgb', parade: 'parade', yrgb: 'yrgb', ycbcr: 'ycbcr', vector: 'vector', vector3: 'vector', hls: 'hls', cie: 'cie', diamond: 'diamond', cube: 'cube', satlum: 'satlum', chplot: 'chplot',
+  'wf-luma': 'luma', 'wf-color': 'luma', 'wf-skin': 'skin', 'wf-green': 'skin', 'wf-rgb': 'rgb', parade: 'parade', yrgb: 'yrgb', ycbcr: 'ycbcr', vector: 'vector', vector3: 'vector', hls: 'hls', cie: 'cie', diamond: 'diamond', cube: 'cube', surface: 'surface', satlum: 'satlum', chplot: 'chplot',
 };
 
 /**
@@ -711,6 +733,19 @@ function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: s
       return;
     }
     drawTimeline(ctx, { x: 4, y: 6, w: body.w - 8, h: body.h - 8 }, src.history, src.colorspace, p.span ?? 10);
+    return;
+  }
+  if (p.scope === 'strip') {
+    renderer.clearRect(body);
+    if (!src || !src.ready) {
+      ctx.fillStyle = '#6b7078'; ctx.font = '12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(src ? (src.message || t('panel.draw.noData')) : (o.emptyText ?? t('panel.draw.addSource')), body.w / 2, body.h / 2);
+      return;
+    }
+    drawStrip(ctx, { x: 4, y: 6, w: body.w - 8, h: body.h - 8 }, {
+      stills: src.stills, aspect: src.width && src.height ? src.width / src.height : 16 / 9, history: src.history,
+      env: src.audio?.env ?? null, names: src.audio?.names ?? [], now: performance.now(),
+    }, p.strip);
     return;
   }
   if (p.scope === 'genlock') {
@@ -793,6 +828,7 @@ function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: s
   if (mode) {
     const crt = crtOf(p);
     const cube = p.scope === 'cube' ? { ...DEFAULT_CUBE, ...p.cube } : null;
+    const surf = p.scope === 'surface' ? { ...DEFAULT_SURFACE, ...p.surface } : null;
     const params = (s: Source): ScatterParams => ({
       ...(crt ? { crt } : {}),
       ...(!crt && p.persist ? { persist: p.persist } : {}),
@@ -805,6 +841,10 @@ function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: s
         space: CUBE_SPACE_ID[cube.space], rot: cubeRotation(cube.yaw, cube.pitch), to2020: gamutConvert(GAMUTS[src.gamut], GAMUTS['2020']),
         white: mul3(rgbToXyzMatrix(GAMUTS[src.gamut]), [1, 1, 1]), nits: cubeNits(src.transfer),
         view: { zoom: cube.zoom ?? 1, panX: cube.panX ?? 0, panY: cube.panY ?? 0 },
+      } } : {}),
+      ...(surf ? { surface: {
+        axis: SURFACE_AXIS_ID[surf.axis], source: surf.colour === 'source', cols: surf.res, rot: cubeRotation(surf.yaw, surf.pitch),
+        view: { zoom: surf.zoom ?? 1, panX: surf.panX ?? 0, panY: surf.panY ?? 0 },
       } } : {}),
       ...(xv ? { view: [xv.z, xv.x, xv.y] as [number, number, number], density: xv.z * xv.z } : wz !== 1 ? { density: wz } : {}),
       mode, gain: p.gain, colorize: PARADE.includes(p.scope) ? ({ mono: 0, channel: 1, source: 2 } as const)[p.paradeColor ?? (p.colorize ? 'channel' : 'mono')] : p.scope === 'wf-color' || p.colorize || (o.tint === 'picture' && !crt), zoom: p.zoom, tint: crt ? [...PHOSPHORS[crt.phosphor].color] as [number, number, number] : [...TINTS[o.tint]] as [number, number, number],
@@ -899,6 +939,10 @@ function drawPanelBody(renderer: Renderer, ctx: CanvasRenderingContext2D, key: s
       drawLutVolume(ctx, r, c, lutVolCache.pts, (rgb) => cubeQOf(c.space, rgb, src), !!c.lutInput);
     }
     drawCubeGraticule(ctx, r, c, src.gamut, cubeNits(src.transfer), probeRgb ? cubeQOf(c.space, probeRgb, src) : null, src.colorspace);
+  } else if (p.scope === 'surface') {
+    const c = { ...DEFAULT_SURFACE, ...p.surface };
+    const probe = src.probe && probeRgb && src.width ? { u: (src.probe.x + 0.5) / src.width, v: (src.probe.y + 0.5) / src.height, value: surfaceValue(c.axis, probeRgb, LUMA[src.colorspace]) } : null;
+    drawSurfaceGraticule(ctx, r, c, src.width ? src.height / src.width : 9 / 16, probe);
   } else if (p.scope === 'diamond') {
     drawDiamondGraticule(ctx, r, p.diamondSplit ? DIAMOND_SPLIT : 0);
     if (probeRgb) {

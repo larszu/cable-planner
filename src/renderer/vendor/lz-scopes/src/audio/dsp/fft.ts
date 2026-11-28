@@ -38,19 +38,34 @@ export function fft(re: Float64Array, im: Float64Array) {
 }
 
 /**
- * Power spectrum of the last n samples (x is read from `start`, length n) in dBFS per bin
- * (bins 0 … n/2). A sine of amplitude A shows its peak bin at 20·log10(A).
+ * Hann-windowed spectrum of x[start … start+n), scaled so that a sine of amplitude A has
+ * |X| = A in its peak bin (bins 0 … n/2).
  */
-export function spectrumDb(x: ArrayLike<number>, start: number, n: number): Float32Array {
+export function windowedSpectrum(x: ArrayLike<number>, start: number, n: number): { re: Float64Array; im: Float64Array } {
   const w = hann(n), re = new Float64Array(n), im = new Float64Array(n);
   let wsum = 0;
   for (let i = 0; i < n; i++) { re[i] = x[start + i] * w[i]; wsum += w[i]; }
   fft(re, im);
-  const out = new Float32Array(n / 2 + 1), norm = 2 / wsum;
-  for (let k = 0; k <= n / 2; k++) {
-    const m = Math.hypot(re[k], im[k]) * norm;
-    out[k] = m > 1e-10 ? 20 * Math.log10(m) : -200;
-  }
+  const norm = 2 / wsum, h = n / 2 + 1;
+  const r = new Float64Array(h), q = new Float64Array(h);
+  for (let k = 0; k < h; k++) { r[k] = re[k] * norm; q[k] = im[k] * norm; }
+  return { re: r, im: q };
+}
+
+/** Linear power per bin (A² for a sine of amplitude A in its peak bin). */
+export function powerSpectrum(x: ArrayLike<number>, start: number, n: number): Float64Array {
+  const { re, im } = windowedSpectrum(x, start, n), out = new Float64Array(re.length);
+  for (let k = 0; k < re.length; k++) out[k] = re[k] * re[k] + im[k] * im[k];
+  return out;
+}
+
+/**
+ * Power spectrum of the last n samples (x is read from `start`, length n) in dBFS per bin
+ * (bins 0 … n/2). A sine of amplitude A shows its peak bin at 20·log10(A).
+ */
+export function spectrumDb(x: ArrayLike<number>, start: number, n: number): Float32Array {
+  const p = powerSpectrum(x, start, n), out = new Float32Array(p.length);
+  for (let k = 0; k < p.length; k++) out[k] = p[k] > 1e-20 ? 10 * Math.log10(p[k]) : -200;
   return out;
 }
 

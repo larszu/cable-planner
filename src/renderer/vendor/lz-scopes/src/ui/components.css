@@ -118,7 +118,8 @@ table.num-table td:first-child, table.num-table th:first-child { text-align: lef
   border-width: 1px 0 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding-bottom: env(safe-area-inset-bottom);
 }
-.popover.sheet .popover-head::before { content: ''; display: block; width: 36px; height: 4px; margin: 0 auto 8px; background: var(--line-3); border-radius: var(--radius); }
+.popover.over { min-width: 0; border-radius: var(--radius-lg) var(--radius-lg) var(--radius) var(--radius); }
+.popover.sheet .popover-head::before, .popover.over .popover-head::before { content: ''; display: block; width: 36px; height: 4px; margin: 0 auto 8px; background: var(--line-3); border-radius: var(--radius); }
 @media (prefers-reduced-motion: no-preference) {
   .popover:popover-open { transition: opacity var(--dur-2) var(--ease), translate var(--dur-2) var(--ease); }
   @starting-style { .popover:popover-open { opacity: 0; translate: 0 4px; } }
@@ -182,4 +183,11 @@ dialog.modal-xl { width: min(1180px, 96vw); }
 .scopehelp .help-try { border-top: 1px solid var(--line-1); padding-top: var(--sp-2); margin-top: var(--sp-2); }
 .scopehelp .help-more { border-top: 1px solid var(--line-1); padding-top: var(--sp-2); margin-top: var(--sp-2); }
 .scopehelp details > summary { cursor: pointer; min-height: var(--control-h); display: list-item; font-weight: 600; color: var(--text); }
+/* event log and explanation cards (src/opsUi.ts, #239) */
+.ops .ops-events { max-height: 55vh; overflow-y: auto; }
+.ops .ops-card { border-top: 1px solid var(--line-1); padding: var(--sp-2) 0; }
+.ops .ops-card > summary { cursor: pointer; min-height: var(--control-h); display: list-item; color: var(--text); }
+.ops .ops-card p { margin: var(--sp-2) 0 0; line-height: 1.45; }
+.ops .ops-value { font-family: var(--mono); color: var(--text-soft); }
+.ops .ops-formula { font-family: var(--mono); white-space: pre-wrap; }
 .scopehelp .help-pitfall { border-top: 1px solid var(--line-1); padding-top: var(--sp-2); margin-top: var(--sp-2); color: var(--text-soft); }

@@ -13,6 +13,13 @@ export interface PtpSm {
   previousJamLocalOffset: number; daylightSaving: { current: boolean; next: boolean; previousJam: boolean }; leapSecondJump: boolean;
 }
 export interface RtpStatus { group: string; port: number; error: string; packets: number; payloadType: number | null; frames: number; lagMs: number | null; lagFrames: number | null; gridTicks: number | null; ref: 'ptp' | 'system' }
+/** One leader of the grandmaster list (#231): every domain, deltaNs = its Sync time − the selected one (software) */
+export interface PtpLeader {
+  domain: number; identity: string; leader: string; address: string | null; oui: string | null; clockClass: number; clockAccuracy: number;
+  priority1: number; priority2: number; stepsRemoved: number; timeSource: string; selected: boolean; deltaNs: number | null; seenMsAgo: number;
+}
+export interface PtpEvent { at: number; domain: number; from: string | null; to: string | null; address: string | null }
+export interface NetIf { name: string; address: string; phc: string | null; speedMbit: number | null; rxMbit: number | null; rxPps: number | null; load: number | null }
 export interface PtpStatus {
   running: boolean; error: string; state: 'none' | 'error' | 'receiving' | 'announce' | 'sync-only' | 'stale';
   domain?: number; domains: number[]; gm?: PtpGm | null; leaders?: number; twoStep?: boolean;
@@ -20,6 +27,7 @@ export interface PtpStatus {
   offsetNs?: number | null; jitterNs?: number | null; meanPathDelayNs?: number | null; pathDelayIncluded?: boolean;
   history?: (number | null)[]; sm?: PtpSm | null; delayReq: boolean; iface: string;
   ifaces: { name: string; address: string }[]; serverUtcMs: number; rtp: RtpStatus | null;
+  timestamps?: 'software' | 'hardware'; grandmasters?: PtpLeader[]; events?: PtpEvent[]; netif?: NetIf[];
 }
 
 export interface PtpWant { iface: string; delayReq: boolean; rtp: { group: string; port: number; rateNum: number; rateDen: number } | null }

@@ -42,8 +42,10 @@ export function drawStamp(rgba, w, h, ms, counter) {
 /**
  * Read the stamp from RGBA samples (Uint8 or Uint16, `max` = 255 or 65535). Samples the
  * centre of every block (3×3 mean of the green channel). Returns null without a valid stamp.
+ * `px` may also be a function sample index → value (packed pictures, src/v210.ts v210At).
  */
 export function readStamp(px, w, h, max = 255, offset = 0) {
+  const at = typeof px === 'function' ? px : (i) => px[i];
   if (w < STAMP_BLOCKS * 4 || h < 48) return null;
   const { bw, bh } = geometry(w, h);
   const words = [0, 0];
@@ -52,7 +54,7 @@ export function readStamp(px, w, h, max = 255, offset = 0) {
     for (let b = 0; b < STAMP_BLOCKS; b++) {
       const cx = Math.floor((b + 0.5) * bw), cy = Math.floor((row + 0.5) * bh);
       let s = 0;
-      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) s += px[offset + ((cy + dy) * w + cx + dx) * 4 + 1];
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) s += at(offset + ((cy + dy) * w + cx + dx) * 4 + 1);
       word = (word << 1) | (s / 9 > max / 2 ? 1 : 0);
     }
     words[row] = word >>> 0;

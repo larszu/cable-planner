@@ -262,6 +262,18 @@ function drawPtp(ctx: CanvasRenderingContext2D, st: PtpStatus | null, x: number,
     rows.push([t('clock.ptp.nextJam'), sm.timeOfNextJam ? t('clock.ptp.nextJamAt', { local: hhmm(sm.timeOfNextJam + sm.currentLocalOffset), ptp: sm.timeOfNextJam }) : t('clock.ptp.noJam')]);
     rows.push([t('clock.ptp.sysRate'), `${sm.frameRateNum}/${sm.frameRateDen} ${sm.dropFrame ? 'DF' : 'NDF'}${sm.colorFrame ? ' · Color Frame' : ''}`]);
   } else rows.push(['SM-TLV', t('clock.ptp.noSm'), C.dim]);
+  // grandmaster list (#231): all leaders of all domains; a second grandmaster is a fault to find
+  const gms = st.grandmasters ?? [];
+  if (gms.length > 1 || gms.some((l) => l.domain !== st.domain)) {
+    for (const l of gms.slice(0, 6)) {
+      rows.push([`${l.selected ? '● ' : '○ '}D${l.domain}`, `${l.identity}${l.oui ? ` · OUI ${l.oui}` : ''} · ${t('clock.ptp.gmClass', { c: l.clockClass, p1: l.priority1 })}${l.selected ? '' : l.deltaNs != null ? ` · Δ ${fmtNs(l.deltaNs)}` : ''}`, l.selected ? C.fg : C.warn]);
+    }
+  }
+  const ev = st.events?.filter((e) => e.from !== null).at(-1);
+  if (ev) rows.push([t('clock.ptp.gmChange'), t('clock.ptp.gmChangeText', { time: new Date(ev.at).toLocaleTimeString(), d: ev.domain, from: ev.from ?? '–', to: ev.to ?? '–' }), C.warn]);
+  const phc = (st.netif ?? []).filter((n) => n.phc).map((n) => `${n.name} (${n.phc})`);
+  rows.push([t('clock.ptp.stamps'), phc.length ? t('clock.ptp.stampsPhc', { list: phc.join(', ') }) : t('clock.ptp.stampsSw'), C.dim]);
+  for (const n of (st.netif ?? []).filter((x) => x.rxMbit != null).slice(0, 3)) rows.push([n.name, t('clock.ptp.ifLoad', { mbit: n.rxMbit!.toFixed(1), pps: n.rxPps ?? 0, load: n.load != null ? ` · ${n.load} %` : '' }), C.dim]);
   if (st.rtp) {
     const r = st.rtp;
     rows.push(['ST 2110 RTP', r.error ? bridgeText(r, 'error') : t('clock.rtp.status', { addr: `${r.group}:${r.port}`, n: r.packets, pt: r.payloadType ?? '–' }), r.error ? C.bad : C.fg]);

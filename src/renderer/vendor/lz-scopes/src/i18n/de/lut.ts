@@ -26,4 +26,10 @@ export default {
   'lut.src.arriNote': 'Weitergabe nur mit Zustimmung (arri.com/en/legal)',
   'lut.src.redNote': 'Bedingungen hinter einer Zustimmungs-Checkbox, Text nicht einsehbar',
   'lut.src.bmdNote': 'nur mit DaVinci Resolve (Ordner LUT/Blackmagic Design), keine eigene Download-Seite',
+  'lut.bbc.2a': 'PQ 4000 cd/m² → HLG (mit Tone-Mapping)',
+  'lut.bbc.3a': 'BT.709 SDR → HLG, direkt (Displaylicht)',
+  'lut.bbc.5a': 'BT.709 SDR → HLG, angehoben (Displaylicht)',
+  'lut.bbc.8a': 'HLG → BT.709 SDR, heruntergerechnet (Displaylicht)',
+  'lut.bbc.http': 'Download fehlgeschlagen (HTTP {status})',
+  'lut.bbc.mismatch': 'LUT erwartet {want}, am Platz kommt {have} an',
 } satisfies Translation<typeof en>;

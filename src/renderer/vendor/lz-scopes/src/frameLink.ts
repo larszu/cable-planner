@@ -20,7 +20,7 @@ export interface FrameSocket {
   readonly worker: boolean;
 }
 
-export function debugFlags(): { worker?: boolean; stats?: 'cpu' | 'gpu'; drawOnArrive?: boolean; preserveBuffer?: boolean; cpuFrameHz?: number } {
+export function debugFlags(): { worker?: boolean; stats?: 'cpu' | 'gpu'; drawOnArrive?: boolean; preserveBuffer?: boolean; cpuFrameHz?: number; v210?: 'gpu' | 'worker' } {
   try { return JSON.parse(localStorage.getItem('lz-scopes.debug') ?? '{}') ?? {}; } catch { return {}; }
 }
 
@@ -48,7 +48,7 @@ export function openFrameSocket(url: string, delayMs = 0): FrameSocket {
     else if (m.type === 'close') sock.onclose?.();
   };
   w.onerror = () => sock.onerror?.();
-  w.postMessage({ type: 'open', url, delayMs });
+  w.postMessage({ type: 'open', url, delayMs, unpackV210: debugFlags().v210 === 'worker' });
   return sock;
 }
 

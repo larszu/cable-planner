@@ -225,7 +225,13 @@ export class StreamMonitor {
   setPair(pair: number) {
     this.pair = pair;
     const a = Math.min(this.channels - 1, pair * 2), b = Math.min(this.channels - 1, pair * 2 + 1);
-    this.node?.port.postMessage({ map: [a, b] });
+    this.node?.port.postMessage({ map: [a, b], matrix: null });
+  }
+
+  /** Solo or downmix (dsp/downmix.ts): a 2 × channels matrix; null = back to the pair. */
+  setMatrix(matrix: number[][] | null) {
+    if (!matrix) { this.setPair(this.pair); return; }
+    this.node?.port.postMessage({ matrix });
   }
 
   async setSink(id: string) {

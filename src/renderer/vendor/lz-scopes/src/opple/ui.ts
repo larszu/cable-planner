@@ -6,6 +6,7 @@
 import { bluetoothSupport } from './meter';
 import { LM3_MODE_NAMES, readingsCsv, type Reading } from './photometry';
 import { compareLights, greenMagentaHint } from './lightScience';
+import { evFromLux, lightDelta, matchesSearch, targetRecord } from './target';
 import { desktopBluetooth, lightStore, oppleMeter, type LightStore } from './store';
 import { ArgyllLightMeter, DRIVER_LABELS } from './drivers';
 import type { SpectrumUnit } from './spectrum';
@@ -89,6 +90,8 @@ export function mountOpple(root: HTMLElement, hooks: { openScopes?: () => void; 
       cell('CCT K (McCamy)', r ? de(r.cct, 0) : '–'),
       cell('Duv (Ohno)', r ? de(r.duv, 4) : '–'),
       cell('x / y (CIE 1931)', r ? `${de(r.x, 4)} / ${de(r.y, 4)}` : '–'),
+      cell(t('opple.ui.ev'), r && r.quantity !== 'cd/m²' ? de(evFromLux(r.lux), 1) : '–'),
+      cell(t('opple.ui.toTarget'), r && s.target && s.target.reading !== r ? de(lightDelta(s.target.reading, r).duv, 4) : '–'),
     );
     info.textContent = r
       ? `${s.label(r.device ?? '')} · ${r.model === 'argyll' ? 'ArgyllCMS' : r.model === 'datei' /* lang-ok: driver id */ ? t('opple.ui.fromFile') : r.model === 'lm4' ? 'Light Master 4' : `Light Master 3${r.mode ? `, Matrix ${LM3_MODE_NAMES[r.mode]}` : ''}`}${r.spectrum ? ` · ${t('opple.ui.spectrumN', { n: r.spectrum.values.length })}` : ''}${r.cri ? ` · Ra ${de(r.cri.ra, 1)}` : ''} · ${r.model === 'lm3' || r.model === 'lm4' ? (r.calibrated ? t('opple.ui.withCal') : t('opple.ui.withoutCal')) : t('opple.ui.deviceValues')}${r.temperature != null ? ` · ${de(r.temperature, 1)} °C` : ''} · ${t('opple.ui.historyN', { n: s.history.length })}`
@@ -111,38 +114,91 @@ export function mountOpple(root: HTMLElement, hooks: { openScopes?: () => void; 
     renderPoints();
   }
 
-  let label = '';
+  let label = '', note = '', query = '', editing = '';
+  const list = h('div');
+  const search = textInput('', (v) => { query = v; renderList(); }, { placeholder: t('opple.ui.searchPh'), live: true, title: t('opple.ui.searchTitle') });
+  const time = (ts: number) => new Date(ts).toLocaleString(undefined, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+  function renderList() {
+    const o = s.opts;
+    const shown = s.points.filter((p) => matchesSearch(p, query, s.label(p.reading.device ?? '')));
+    list.replaceChildren(
+      s.points.length ? h('table', {},
+        h('tr', {}, h('td', {}, ''), h('td', { title: t('opple.ui.refTitle') }, 'A'), h('td', { title: t('opple.ui.cmpTitle') }, 'B'), h('td', { title: t('opple.ui.targetTitle') }, '★'), h('td', { class: 'n' }, 'lx'), h('td', { class: 'n' }, 'EV'), h('td', { class: 'n' }, 'K'), h('td', { class: 'n' }, 'Duv'), h('td', {}, '')),
+        ...shown.flatMap((p) => {
+          const meta = [p.place, time(p.reading.ts), p.note].filter(Boolean).join(' · ');
+          const main = h('tr', {},
+            h('td', {}, p.label, h('div', { class: 'meta' }, meta)),
+            h('td', {}, h('input', { type: 'radio', name: 'opple-ref', checked: p.id === o.ref, title: t('opple.ui.refTitle'), onchange: () => { o.ref = p.id; s.saveOpts(); s.changed(); } })),
+            h('td', {}, h('input', { type: 'radio', name: 'opple-cmp', checked: p.id === o.cmp, title: t('opple.ui.cmpTitle'), onchange: () => { o.cmp = p.id; s.saveOpts(); s.changed(); } })),
+            h('td', {}, iconButton(p.id === o.target ? '★' : '☆', p.id === o.target ? t('opple.ui.untarget') : t('opple.ui.setTarget'), () => s.setTarget(p.id === o.target ? null : p.id), { small: true, pressed: p.id === o.target })),
+            h('td', { class: 'n' }, de(p.reading.lux, p.reading.lux < 10 ? 1 : 0)),
+            h('td', { class: 'n' }, p.reading.quantity === 'cd/m²' ? '–' : de(evFromLux(p.reading.lux), 1)),
+            h('td', { class: 'n' }, de(p.reading.cct, 0)), h('td', { class: 'n' }, sgn(p.reading.duv, 3)),
+            h('td', {}, iconButton('✎', t('opple.ui.editPoint'), () => { editing = editing === p.id ? '' : p.id; renderList(); }, { small: true }),
+              iconButton('✕', t('opple.ui.deletePoint'), () => s.removePoint(p.id), { small: true })));
+          if (editing !== p.id) return [main];
+          const edit = (k: 'label' | 'place' | 'note') => (v: string) => s.editPoint(p.id, { [k]: k === 'label' ? v.trim() || p.label : v.trim() });
+          return [main, h('tr', {}, h('td', { colspan: 9 }, row(
+            textInput(p.label, edit('label'), { placeholder: t('opple.ui.namePh') }),
+            textInput(p.place ?? '', edit('place'), { placeholder: t('opple.ui.placePh') }),
+            textInput(p.note ?? '', edit('note'), { placeholder: t('opple.ui.notePh') }))))];
+        })) : '',
+      s.points.length && !shown.length ? hint(t('opple.ui.noMatch')) : '',
+    );
+  }
+
+  /** target (#184): what it is, how far the live reading is from it, and how other tools get it */
+  function targetBox(): HTMLElement | string {
+    const tg = s.target;
+    if (!tg) return s.points.length ? hint(t('opple.ui.noTarget')) : '';
+    const r = tg.reading, live = s.latest(s.active) ?? s.latest();
+    const d = live && live !== r ? lightDelta(r, live) : null;
+    const json = () => JSON.stringify(targetRecord(tg, s.label(r.device ?? '')), null, 2);
+    return h('div', { class: 'cmp' },
+      h('b', {}, `★ ${t('opple.ui.target')}: ${tg.label}`), tg.place ? ` · ${tg.place}` : '', h('br'),
+      `${de(r.cct, 0)} K · Duv ${sgn(r.duv, 4)} · x/y ${de(r.x, 4)} / ${de(r.y, 4)} · ${de(r.lux, r.lux < 10 ? 1 : 0)} ${r.quantity ?? 'lx'}${r.quantity === 'cd/m²' ? '' : ` · EV ${de(evFromLux(r.lux), 1)}`}`, h('br'),
+      d ? t('opple.ui.targetDelta', { duv: de(d.duv, 4), cct: sgn(d.dCct, 0), dduv: sgn(d.dDuv, 4), ev: sgn(d.dEv, 2) }) : t('opple.ui.targetNoLive'), h('br'),
+      row(
+        button(t('opple.ui.targetCopy'), () => navigator.clipboard?.writeText(json()), { small: true, title: t('opple.ui.targetCopyTitle') }),
+        button(t('opple.ui.targetFile'), () => save(`${t('opple.file.prefix')}-${t('opple.file.target')}-${stamp()}.json`, json(), 'application/json'), { small: true }),
+        button(t('opple.ui.untarget'), () => s.setTarget(null), { small: true })),
+      h('span', { class: 'hint' }, t('opple.ui.targetShare')));
+  }
+
   function renderPoints() {
     const o = s.opts;
     const commit = () => { s.saveOpts(); s.changed(); };
     const can = s.connected.length > 0;
-    const take = (grid: boolean) => { s.capture(label, grid).then(() => { label = ''; }).catch((e) => { s.message = (e as Error).message; s.changed(); }); };
+    const take = (grid: boolean, asTarget = false) => {
+      s.capture(label, grid, note).then((p) => { label = ''; note = ''; if (asTarget) s.setTarget(p.id); else s.changed(); }).catch((e) => { s.message = (e as Error).message; s.changed(); });
+    };
     const cellName = `${String.fromCharCode(65 + o.cursor[1])}${o.cursor[0] + 1}`;
     const a = s.point(o.ref), b = s.point(o.cmp);
     const cmp = a && b && a !== b ? compareLights(a.reading, b.reading, o.gelMaker) : null;
+    renderList();
     points.replaceChildren(
       kicker(t('opple.ui.pointsTitle')),
       row(
         textInput(label, (v) => { label = v; }, { placeholder: t('opple.ui.namePh'), live: true }),
         select(String(o.avg), [1, 3, 5, 10].map((n) => [String(n), `⌀ ${n}`] as [string, string]), (v) => { o.avg = Number(v); s.saveOpts(); }, t('opple.ui.avgTitle'))),
       row(
+        textInput(o.place ?? '', (v) => { o.place = v; s.saveOpts(); }, { placeholder: t('opple.ui.placePh'), live: true, title: t('opple.ui.placeTitle') }),
+        textInput(note, (v) => { note = v; }, { placeholder: t('opple.ui.notePh'), live: true })),
+      row(
         button(t('opple.ui.point'), () => take(false), { disabled: !can, title: t('opple.ui.pointTitle') }),
         button(t('opple.ui.cell', { cell: cellName }), () => take(true), { disabled: !can, title: t('opple.ui.cellTitle') }),
-        iconButton('→', t('opple.ui.skipCell'), () => s.advance(), { small: true })),
+        iconButton('→', t('opple.ui.skipCell'), () => s.advance(), { small: true }),
+        button(t('opple.ui.asTarget'), () => take(false, true), { disabled: !can, title: t('opple.ui.asTargetTitle') })),
       row(t('opple.ui.grid'), numberInput(o.cols, (n) => { o.cols = n; commit(); }, { min: 1, max: 12, clamp: true, size: 's' }), '×',
         numberInput(o.rows, (n) => { o.rows = n; commit(); }, { min: 1, max: 26, clamp: true, size: 's' }),
         h('span', { class: 'hint' }, t('opple.ui.gridHint'))),
-      s.points.length ? h('table', {},
-        h('tr', {}, h('td', {}, ''), h('td', {}, 'Ref'), h('td', {}, 'B'), h('td', { class: 'n' }, 'lx'), h('td', { class: 'n' }, 'K'), h('td', { class: 'n' }, 'Duv'), h('td', {}, '')),
-        ...s.points.map((p) => h('tr', {},
-          h('td', {}, p.label),
-          h('td', {}, h('input', { type: 'radio', name: 'opple-ref', checked: p.id === o.ref, title: t('opple.ui.refTitle'), onchange: () => { o.ref = p.id; s.saveOpts(); s.changed(); } })),
-          h('td', {}, h('input', { type: 'radio', name: 'opple-cmp', checked: p.id === o.cmp, title: t('opple.ui.cmpTitle'), onchange: () => { o.cmp = p.id; s.saveOpts(); s.changed(); } })),
-          h('td', { class: 'n' }, de(p.reading.lux, p.reading.lux < 10 ? 1 : 0)), h('td', { class: 'n' }, de(p.reading.cct, 0)), h('td', { class: 'n' }, sgn(p.reading.duv, 3)),
-          h('td', {}, iconButton('✕', t('opple.ui.deletePoint'), () => s.removePoint(p.id), { small: true }))))) : '',
+      s.points.length > 3 ? search : '',
+      list,
+      targetBox(),
       cmp ? h('div', { class: 'cmp' },
         h('b', {}, `${a!.label} (A) → ${b!.label} (B)`), h('br'),
-        t('opple.ui.cmpLine', { duv: de(cmp.duv, 4), a: de(cmp.cctA, 0), b: de(cmp.cctB, 0), stops: sgn(cmp.stops, 2) }), h('br'),
+        t('opple.ui.cmpLine', { duv: de(cmp.duv, 4), a: de(cmp.cctA, 0), b: de(cmp.cctB, 0), dcct: sgn(cmp.cctB - cmp.cctA, 0), stops: sgn(cmp.stops, 2) }), h('br'),
         `${t('opple.ui.miredFix', { v: sgn(cmp.shift, 0) })} `,
         select(o.gelMaker, [['Lee', 'Lee'], ['Rosco', 'Rosco']], (v) => { o.gelMaker = v as 'Lee' | 'Rosco'; s.saveOpts(); s.changed(); }), h('br'),
         ...(cmp.gels.length ? cmp.gels.map((g, i) => h('span', {}, t('opple.ui.gelLine', { i: i + 1, gels: g.gels.map((x) => x.name).join(' + '), m: sgn(g.mired, 0), k: de(g.resultK, 0), rest: sgn(g.residual, 0) }), h('br'))) : [t('opple.ui.noGel'), h('br')]),
@@ -194,11 +250,13 @@ export function pointsCsv(s: LightStore) {
   return [
     `# ${t('opple.csv.pointsHead')}`,
     // column names: stable English ids, independent of the UI language
-    'point,cell,device,time,lux,x,y,cct_k,duv,du_v_ref',
+    'point,cell,device,time,lux,x,y,cct_k,duv,du_v_ref,ev100,place,note,target',
     ...s.points.map((p) => {
       const r: Reading = p.reading;
       const d = r0 ? compareLights(r0.reading, r).duv : NaN;
-      return [`"${p.label.replace(/"/g, '""')}"`, p.cell ? `${String.fromCharCode(65 + p.cell[1])}${p.cell[0] + 1}` : '', `"${s.label(r.device ?? '')}"`, new Date(r.ts).toISOString(), f(r.lux, 2), f(r.x, 5), f(r.y, 5), f(r.cct, 0), f(r.duv, 5), f(d, 5)].join(',');
+      const q = (v: string) => `"${v.replace(/"/g, '""')}"`;
+      return [q(p.label), p.cell ? `${String.fromCharCode(65 + p.cell[1])}${p.cell[0] + 1}` : '', q(s.label(r.device ?? '')), new Date(r.ts).toISOString(), f(r.lux, 2), f(r.x, 5), f(r.y, 5), f(r.cct, 0), f(r.duv, 5), f(d, 5),
+        r.quantity === 'cd/m²' ? '' : f(evFromLux(r.lux), 2), q(p.place ?? ''), q(p.note ?? ''), p.id === s.opts.target ? 'yes' : ''].join(',');
     }),
   ].join('\n') + '\n';
 }

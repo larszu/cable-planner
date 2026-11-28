@@ -10,7 +10,10 @@ import { LtcReader } from './dsp/ltc';
 import { channelInfo, layoutKnown, type ChannelInfo } from './dsp/layouts';
 import { IdentDetector, type IdentReport } from './dsp/ident';
 import { AvSyncMeter } from './dsp/avsync';
+import { SplMeter } from './dsp/spl';
+import { S337Detector } from './dsp/s337';
 import { toDb } from './dsp/truepeak';
+import { Envelope } from './dsp/envelope';
 import { t } from '../i18n';
 
 const RING = 32768;
@@ -31,6 +34,10 @@ export class AudioAnalysis {
   readonly ident: IdentDetector;
   /** A/V offset (bridge streams with PTS); fed by the source */
   readonly av: AvSyncMeter;
+  /** sample min/max per 10 ms for the last 30 s (picture history panel, #196) */
+  readonly env: Envelope;
+  /** ST 337 bursts (Dolby E, AC-3, E-AC-3 …) in the channel pairs (#234) */
+  readonly s337 = new S337Detector();
   /** latest samples per channel; `frames` counts everything ever pushed */
   private ring: Float32Array[];
   frames = 0;
@@ -54,6 +61,8 @@ export class AudioAnalysis {
   ltcChannel = 0;
   /** performance.now() when the reader had consumed `ltc.position` samples */
   ltcAt = 0;
+  /** sound level meters per channel, created by the first panel that asks (#187) */
+  private spls = new Map<number, SplMeter>();
 
   constructor(fs: number, channels: number, layout = '') {
     this.fs = fs; this.channels = Math.max(1, channels); this.layout = layout;
@@ -65,6 +74,7 @@ export class AudioAnalysis {
     this.names = this.info.map((c) => c.name);
     this.ident = new IdentDetector(fs, this.info);
     this.av = new AvSyncMeter(fs);
+    this.env = new Envelope(fs, this.channels);
     this.loud.onStep = (m, s) => {
       this.histM[this.histHead] = m; this.histS[this.histHead] = s;
       let tp = 0;
@@ -83,6 +93,7 @@ export class AudioAnalysis {
     this.level.process(planar, n);
     this.loud.process(planar, n);
     this.ident.push(planar, n);
+    this.s337.push(planar, n);
     for (let c = 0; c < this.channels; c++) {
       const r = this.ring[c], x = planar[c];
       const pos = this.frames % RING;
@@ -94,7 +105,17 @@ export class AudioAnalysis {
     this.frames += n;
     this.version++;
     this.lastPush = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    this.env.push(planar, n, this.lastPush);
     if (this.ltc) { this.ltc.process(planar[Math.min(this.ltcChannel, this.channels - 1)], n); this.ltcAt = this.lastPush; }
+    for (const [c, m] of this.spls) m.process(planar[c], n);
+  }
+
+  /** Sound level meter on channel ch; starts measuring when first asked for. */
+  spl(ch: number): SplMeter {
+    const c = Math.max(0, Math.min(this.channels - 1, Math.floor(ch)));
+    let m = this.spls.get(c);
+    if (!m) { m = new SplMeter(this.fs); this.spls.set(c, m); }
+    return m;
   }
 
   /** Read LTC from channel ch (−1 = off). */
@@ -186,9 +207,9 @@ export class AudioAnalysis {
     return out;
   }
 
-  /** Reset I, LRA, Max M/S, Max peak/TP, clip and gap counters together. */
+  /** Reset I, LRA, Max M/S, Max peak/TP, clip and gap counters, L_eq and sound level holds together. */
   reset() {
-    this.loud.reset(); this.level.reset(); this.gaps = 0; this.histLen = 0; this.version++;
+    this.loud.reset(); this.level.reset(); for (const m of this.spls.values()) m.reset(); this.gaps = 0; this.histLen = 0; this.version++;
   }
   get paused() { return this.loud.paused; }
   set paused(v: boolean) { this.loud.paused = v; this.version++; }

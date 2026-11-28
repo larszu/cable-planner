@@ -7,7 +7,9 @@ import type { ChainSettings, Compiled } from './chain';
 import { patternById, renderPattern } from './patterns';
 import { AudioAnalysis } from './audio/analysis';
 import { AudioTap, StreamMonitor, generator, measurementConstraints } from './audio/io';
+import { listenFor } from './audio/dsp/downmix';
 import { GRID_W, History, gridFromData, summarise } from './history';
+import { StillRing, stillEveryMs, stillFrom } from './strip';
 import { lineExtremes, neutralCast, type LineExtremes, type NeutralCast } from './minmax';
 import { r103Check, rgbDecoder, yuvDecoder, type Decode, type R103Result, type YuvCoding } from './ycbcr';
 import { debugFlags, openFrameSocket, workerAvailable, type FrameSocket } from './frameLink';
@@ -15,6 +17,7 @@ import { GpuStats } from './gpuStats';
 import { LatencyMeter, type RtpStats } from './latency';
 import { effectiveWidth, mergeLowLatency, type LowLatencyConfig } from './lowLatency';
 import { meanLuma } from './luma';
+import { v210Bytes, v210Decoder, v210MeanLuma } from './v210';
 import { t } from './i18n';
 import { bridgeMessage } from './i18n/bridgeMessage';
 import { streamRoute } from './streamRoute';
@@ -22,7 +25,7 @@ import { FrameHistory, pickFrame } from './record/sync';
 
 export { meanLuma };
 
-export type SourceKind = 'stream' | 'webcam' | 'screen' | 'file' | 'pattern' | 'folder' | 'audio';
+export type SourceKind = 'stream' | 'webcam' | 'screen' | 'file' | 'pattern' | 'folder' | 'audio' | 'camera' | 'split';
 
 /**
  * Input of an audio-only source: an audio device in the browser (getUserMedia, at most
@@ -58,6 +61,10 @@ export interface SourceSettings {
   /** bridge: Y′CbCr → R′G′B′ matrix and range of the ffmpeg conversion ('auto' = tags, else BT.709 above SD) */
   decodeMatrix?: 'auto' | 'bt709' | 'bt601' | 'bt2020';
   decodeRange?: 'auto' | 'tv' | 'pc';
+  /** bridge (#219): field order – 'auto' = as the source reports it, else forced ('progressive' = treat as progressive) */
+  fieldOrder?: 'auto' | 'progressive' | 'tff' | 'bff';
+  /** bridge (#219): de-interlace interlaced sources (bwdif) instead of keeping the fields woven */
+  deinterlace?: boolean;
   /** DeckLink helper: 10 bit (v210) or 8 bit (UYVY) capture */
   deckLinkBits?: 8 | 10;
   /** DeckLink input connector ('sdi', 'hdmi' …); unset = as set in Desktop Video Setup */
@@ -99,6 +106,14 @@ export interface StreamInfo {
   yuvRange?: 'limited' | 'full'; bits?: number;
   /** the source is interlaced: each frame carries both fields woven, scaled field by field */
   interlaced?: boolean;
+  /** interlaced: which field comes first in time (upper = tff, lower = bff), as used by the bridge */
+  fields?: 'tff' | 'bff';
+  /** what the source itself reports (before a forced setting) */
+  sourceFields?: 'tff' | 'bff';
+  /** the card overrides what the source reports */
+  fieldsForced?: boolean;
+  /** the bridge de-interlaced the picture (bwdif): one progressive picture per frame */
+  deinterlaced?: boolean;
   /** why the bridge sent something other than requested */
   note?: string;
   /** start time code of the container (ffprobe tag, e.g. MOV tmcd) and the stream's start time in s */
@@ -107,6 +122,8 @@ export interface StreamInfo {
   frameRate?: string; sourceFps?: number;
   /** 'h264' = compressed transport (8 bit, lossy), decoded by the browser */
   transport?: string;
+  /** 'v210': format 'yuv' pictures packed as they leave a DeckLink/AJA card (#258, src/v210.ts) */
+  pack?: string;
 }
 
 /**
@@ -147,6 +164,8 @@ export function bridgeInputParams(url: string, set: SourceSettings): Record<stri
   if (url.startsWith('aja:') && set.ajaInput) q.input = set.ajaInput;
   if (set.decodeMatrix && set.decodeMatrix !== 'auto') q.matrix = set.decodeMatrix;
   if (set.decodeRange && set.decodeRange !== 'auto') q.range = set.decodeRange;
+  if (set.fieldOrder && set.fieldOrder !== 'auto') q.field = set.fieldOrder;
+  if (set.deinterlace) q.deint = '1';
   return q;
 }
 
@@ -196,8 +215,10 @@ export class Source {
   depth: 8 | 16 = 8;
   /** raw frames are 16-bit Y′CbCr (A, Y′, Cb, Cr) with this coding; null = R′G′B′ */
   yuv: YuvCoding | null = null;
+  /** raw frames are packed v210 words (#258, src/v210.ts; data is a Uint32Array); null = one sample per channel */
+  pack: 'v210' | null = null;
   /** Latest raw frame (bridge streams). */
-  data: Uint8Array | Uint16Array | null = null;
+  data: Uint8Array | Uint16Array | Uint32Array | null = null;
   /** Browser-decoded media (webcam, screen, files). */
   element: HTMLVideoElement | HTMLImageElement | HTMLCanvasElement | null = null;
   /** Test pattern state (kind 'pattern'). */
@@ -324,11 +345,26 @@ export class Source {
     this.history.push(summarise(pts, this.colorspace, now));
   }
 
+  /** picture history panel (strip.ts, #196): small stills while such a panel shows this source */
+  readonly stills = new StillRing();
+  private stillAt = 0;
+  /** One still every step / 10 (at most ten a second), kept for `count` steps. */
+  sampleStills(now: number, count: number, step: number) {
+    if (!this.ready) return;
+    const every = stillEveryMs(step);
+    if (now - this.stillAt < every - 1) return;
+    // reuse the throttled CPU frame like the timeline (#127)
+    const f = this.data ? { px: this.data, w: this.width, h: this.height, decode: this.decoder() } : this.cpuFrame();
+    if (!f || !f.w || !f.h) return;
+    this.stillAt = now;
+    this.stills.push({ t: now, ...stillFrom(f.px, f.w, f.h, f.decode) }, count * step * 1000 + every);
+  }
+
   /** Reads a pixel of the raw frame (`data`) as normalised R′G′B′: Y′CbCr decoded with the source matrix. */
   decoder(): Decode {
     if (!this.yuv) return rgbDecoder(this.depth === 16 ? 65535 : 255);
     const { kr, kb } = LUMA[this.colorspace];
-    return yuvDecoder(kr, kb, this.yuv);
+    return this.pack === 'v210' ? v210Decoder(this.width, kr, kb, this.yuv) : yuvDecoder(kr, kb, this.yuv);
   }
 
   /**
@@ -444,6 +480,12 @@ export class Source {
   rtpStats: RtpStats | null = null;
   /** frame phase against the ST 2059-1 grid, from the bridge stats of capture-helper sources (server/phase.mjs, #72) */
   phase: import('./genlock').PhaseReport | null = null;
+  /** ST 2110 flows of an st2110: source: counters and ST 2022-7 evaluation from the bridge stats (src/st2110.ts) */
+  st2110: import('./st2110').St2110Stats | null = null;
+  /** last pcap state of an st2110: source (#232) */
+  pcap: import('./st2110').PcapState | null = null;
+  /** rolling capture switched on (the bridge's answer to cmd 'ring') */
+  pcapRing = false;
   private patternTimer: ReturnType<typeof setInterval> | null = null;
   private media: MediaStream | null = null;
   private objectUrl: string | null = null;
@@ -451,8 +493,9 @@ export class Source {
   private statsCanvas: HTMLCanvasElement | null = null;
   private statsSeq = '';
 
-  constructor(kind: SourceKind, name?: string, settings?: Partial<SourceSettings>) {
-    this.id = `s${nextId++}`;
+  /** `id` only for derived sources with a fixed id (src/derived.ts: the split of a panel). */
+  constructor(kind: SourceKind, name?: string, settings?: Partial<SourceSettings>, id?: string) {
+    this.id = id ?? `s${nextId++}`;
     this.kind = kind;
     this.name = name ?? t(`source.kind.${kind}`);
     this.settings = { ...DEFAULT_SETTINGS, ...settings };
@@ -500,7 +543,7 @@ export class Source {
     if (moved) this.onChange();
   }
 
-  private tick() {
+  protected tick() {
     const now = performance.now();
     this.frameTimes.push(now);
     while (this.frameTimes.length && now - this.frameTimes[0] > 1000) this.frameTimes.shift();
@@ -534,7 +577,7 @@ export class Source {
     if (this.settings.codec === 'h264' && workerAvailable()) q.set('codec', 'h264');
     else if (this.settings.yuv) {
       q.set('format', 'yuv'); q.set('depth', '16');
-      // DeckLink/AJA at native width: v210 as it comes from the card, unpacked in the frame worker (#258)
+      // DeckLink/AJA at native width: v210 as it comes from the card, decoded in the shader (#258)
       if (workerAvailable()) q.set('pack', 'v210');
     }
     if (this.lowLatency && ll.ownRtp) q.set('rtp', 'own');
@@ -544,6 +587,7 @@ export class Source {
     if (this.settings.latency === 'fixed') { q.set('pts', '1'); q.set('latency', 'fixed'); }
     this.rtpStats = null;
     this.phase = null;
+    this.st2110 = null; this.pcap = null; this.pcapRing = false;
     this.connectFrames(`${bridge}/stream?${q}`, false);
   }
 
@@ -592,9 +636,14 @@ export class Source {
           this.latency.onBridgeStats(msg.stampAge);
           this.rtpStats = msg.rtp ?? null;
           this.phase = msg.phase ?? null;
+          if (msg.st2110) this.st2110 = msg.st2110;
           if (msg.rec) Source.onRecord?.(this, msg.rec);
           if (msg.ring) Source.onRecord?.(this, msg.ring);
           if (msg.message) this.set(this.status === 'live' ? 'live' : 'connecting', bridgeMessage(msg));
+        } else if (msg.type === 'pcap') {
+          // pcap snapshot / rolling capture of an st2110: source (server/st2110stream.mjs)
+          if (msg.state === 'ring') this.pcapRing = !!msg.ring;
+          this.pcap = msg; this.onChange();
         } else if (msg.type === 'record' || msg.type === 'ring' || msg.type === 'playback') {
           // local recording in the bridge (server/recorder.mjs)
           Source.onRecord?.(this, msg);
@@ -627,14 +676,16 @@ export class Source {
         }
         if (magic !== 'LZV1') return;
         const pts = head.getFloat64(8, true);
-        const px = this.depth === 16 ? new Uint16Array(buf, 16) : new Uint8Array(buf, 16);
+        const packed = this.packed(buf.byteLength - 16);
+        const px = packed ? new Uint32Array(buf, 16) : this.depth === 16 ? new Uint16Array(buf, 16) : new Uint8Array(buf, 16);
         // A/V offset: mean luma of every frame (also while frozen), stamped with its PTS;
         // the frame worker measured them already, including frames it replaced
         if (this.audio && this.width) {
           if (ev.meta?.av) for (const [t, l] of ev.meta.av) this.audio.av.pushVideo(t, l);
-          else this.audio.av.pushVideo(pts, meanLuma(px, this.width, this.height, this.depth === 16 ? 65535 : 255, !!this.yuv));
+          else this.audio.av.pushVideo(pts, packed ? v210MeanLuma(px, this.width, this.height) : meanLuma(px, this.width, this.height, this.depth === 16 ? 65535 : 255, !!this.yuv));
         }
         if (this.frozen) return;
+        this.pack = packed ? 'v210' : null;
         this.data = px;
         this.held.push(px);
         this.tick();
@@ -643,7 +694,9 @@ export class Source {
         return;
       }
       if (this.frozen) return;
-      this.data = this.depth === 16 ? new Uint16Array(buf) : new Uint8Array(buf);
+      const packed = this.packed(buf.byteLength);
+      this.pack = packed ? 'v210' : null;
+      this.data = packed ? new Uint32Array(buf) : this.depth === 16 ? new Uint16Array(buf) : new Uint8Array(buf);
       this.held.push(this.data);
       this.tick();
       this.latency.onFrame(ev.meta);
@@ -653,19 +706,28 @@ export class Source {
     ws.onclose = () => { if (this.ws === ws && this.status === 'live') this.set('ended', t('source.status.connectionEnded')); };
   }
 
+  /**
+   * A picture of `bytes` is still packed v210 (#258): the frame worker passes the words on unless
+   * the debug switch {"v210":"worker"} unpacks them there (then it has 8 bytes per pixel).
+   */
+  private packed(bytes: number): boolean {
+    return this.info?.pack === 'v210' && this.yuv !== null && bytes === v210Bytes(this.width, this.height);
+  }
+
   /** DaVinci Resolve (#88): how the picture gets here right now – set by src/resolvePlayback.ts. */
   resolveRoute: ResolveRoute | null = null;
   /** a 'resolve' message of the bridge arrived (main.ts → src/resolvePlayback.ts) */
   static onResolve: ((s: Source, msg: { state: 'playing' | 'paused'; played?: boolean; project?: string | null }) => void) | null = null;
   /** last raw frames with their arrival time, for "freeze all" with latency compensation (#140 step 2) */
-  readonly held = new FrameHistory<Uint8Array | Uint16Array>();
+  readonly held = new FrameHistory<Uint8Array | Uint16Array | Uint32Array>();
   /**
    * Freeze on the held frame closest to scene moment `scene` (wall ms); this source shows the
    * scene `latencyMs` late. Element sources (camera, files in the page) freeze on their current picture.
    */
   freezeAt(scene: number, latencyMs: number) {
     const f = this.data ? pickFrame(this.held.frames, scene, latencyMs) : null;
-    if (f && f.frame !== this.data && f.frame.length === this.data!.length) { this.data = f.frame; this.frameSeq++; }
+    // same length = same layout (a v210 picture never has the length of an unpacked one)
+    if (f && f.frame !== this.data && f.frame.length === this.data!.length && f.frame.constructor === this.data!.constructor) { this.data = f.frame; this.frameSeq++; }
     this.frozen = true;
   }
   /** a recording message of the bridge arrived (src/record/record.ts) */
@@ -728,6 +790,7 @@ export class Source {
   }
   pushFrame(buffer: ArrayBuffer) {
     if (this.frozen || !this.info) return;
+    this.pack = null;
     this.data = this.depth === 16 ? new Uint16Array(buffer) : new Uint8Array(buffer);
     this.tick();
   }
@@ -898,7 +961,7 @@ export class Source {
     if (def.frame16) {
       // exact codes for the scopes; the canvas stays as the 8-bit picture for other uses
       const f = def.frame16(width, height);
-      this.data = f.data; this.depth = 16; this.yuv = f.coding;
+      this.data = f.data; this.depth = 16; this.yuv = f.coding; this.pack = null;
     }
     this.tick();
     this.set('live', `${def.name} · ${width}×${height}${def.frame16 ? ' · 16 bit Y′CbCr' : ''}`);
@@ -966,6 +1029,7 @@ export class Source {
       if (this.audio !== a) { m.close(); return; }
       this.monitor = m; this.monitorError = m.error;
       m.setPair(monitorSink.pair);
+      if (monitorSink.listen !== `p${monitorSink.pair}`) m.setMatrix(listenFor(a.info, monitorSink.listen));
       m.onStats = () => this.onChange();
       this.onChange();
     }).catch((e) => { this.monitorError = (e as Error).message; this.onChange(); });
@@ -1039,10 +1103,11 @@ export class Source {
     if (this.videoEl) { this.videoEl.pause(); this.videoEl.srcObject = null; this.videoEl = null; }
     if (this.objectUrl) { URL.revokeObjectURL(this.objectUrl); this.objectUrl = null; }
     this.history.clear();
+    // the stills (#196) stay: they are the evidence of what came in before a stop or reconnect
     this.held.clear();
     this.clip = null;
     this.signal = null;
-    this.element = null; this.data = null; this.yuv = null; this.info = null; this.tc = null; this.vanc = null; this.width = 0; this.height = 0; this.stats = null;
+    this.element = null; this.data = null; this.pack = null; this.yuv = null; this.info = null; this.tc = null; this.vanc = null; this.width = 0; this.height = 0; this.stats = null;
     this.fps = 0; this.dropped = 0;
     if (this.status !== 'idle') this.set('idle');
   }
@@ -1235,7 +1300,7 @@ export class Source {
   /** The current frame as CPU pixels (bridge data, or the shared cpuFrame() readback). */
   private readbackFrame() {
     if (!this.ready) return null;
-    let px: Uint8Array | Uint8ClampedArray | Uint16Array, w: number, h: number, step: number, scale: number;
+    let px: Uint8Array | Uint8ClampedArray | Uint16Array | Uint32Array, w: number, h: number, step: number, scale: number;
     if (this.data) {
       px = this.data; w = this.width; h = this.height; scale = this.depth === 16 ? 65535 : 255;
       step = Math.max(1, Math.round(Math.sqrt((w * h) / 130000)));
@@ -1301,5 +1366,6 @@ export function yuvOf(info: StreamInfo): YuvCoding | null {
 }
 
 /** Output device and channel pair for listening to bridge sound (set from the UI). */
-export const monitorSink = { id: '', pair: 0 };
+/** Output device and what is heard: pair index, and `listen` = "p<n>" | "s<n>" | "loro" | "ltrt" (dsp/downmix.ts). */
+export const monitorSink = { id: '', pair: 0, listen: 'p0' };
 

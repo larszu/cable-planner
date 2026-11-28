@@ -1,5 +1,6 @@
 // @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
 import { t } from '../../i18n';
+import { AvHistory } from './avhistory';
 // A/V offset from a flash (luma step in the picture) and a beep (1 kHz burst in the sound),
 // both stamped with the presentation timestamps (PTS) of the same ffmpeg process
 // (bridge protocol 2). Signal pair: test pattern “A/V-Sync” + generator “A/V-Sync-Piep”,
@@ -77,6 +78,10 @@ export class AvSyncMeter {
   private ref = { peak: 0, floor: 0, at: 0 };
   noPts = false;
   version = 0;
+  /** long-run history of every pair (#236); survives reset(), cleared with history.reset() */
+  readonly history = new AvHistory();
+  /** wall clock for the history (tests replace it) */
+  now = () => Date.now();
 
   constructor(fs: number) {
     this.fs = fs;
@@ -184,6 +189,7 @@ export class AvSyncMeter {
       // wait for a beep that could still come after the flash
       if (best === null) continue;
       this.pairs.push({ at: v, offsetMs: (v - best) * 1000 });
+      this.history.add(this.now(), (v - best) * 1000);
       if (this.pairs.length > HIST) this.pairs.shift();
       this.version++;
     }

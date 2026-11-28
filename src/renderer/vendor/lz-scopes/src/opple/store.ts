@@ -32,7 +32,11 @@ export interface KnownDevice {
   model?: 'lm3' | 'lm4';
   last?: number;
 }
-export interface LightPoint { id: string; label: string; reading: Reading; cell?: [number, number] }
+export interface LightPoint {
+  id: string; label: string; reading: Reading; cell?: [number, number];
+  /** where it was measured and a free note (#184); searchable in the list */
+  place?: string; note?: string;
+}
 interface BtBridge {
   onDevices(cb: (m: { devices: { id: string; name: string }[]; scanning: boolean; done?: boolean }) => void): () => void;
   select(id: string): Promise<boolean>;
@@ -45,7 +49,13 @@ const LS_DEVICES = 'lz-scopes.opple.devices', LS_POINTS = 'lz-scopes.opple.point
 const load = <T>(k: string, d: T): T => { try { const v = JSON.parse(localStorage.getItem(k) ?? 'null'); return v ?? d; } catch { return d; } };
 const store = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private window */ } };
 
-export interface LightOptions { cols: number; rows: number; cursor: [number, number]; ref: string | null; cmp: string | null; gelMaker: Gel['maker']; avg: number }
+export interface LightOptions {
+  cols: number; rows: number; cursor: [number, number]; ref: string | null; cmp: string | null; gelMaker: Gel['maker']; avg: number;
+  /** point remembered as the target (#184): shown against the live reading, shared via the control API */
+  target?: string | null;
+  /** place for the next points (stays until changed) */
+  place?: string;
+}
 
 /** The first meter; the LED-wall dialog uses it. */
 export const oppleMeter = new OppleMeter();
@@ -160,7 +170,7 @@ export class LightStore extends EventTarget {
     const r = readingFromSpectrum(sp, 'datei'); // lang-ok: driver id
     r.device = t('opple.store.file', { name });
     this.history.push(r);
-    const p: LightPoint = { id: `p${Date.now().toString(36)}`, label: name.replace(/\.[^.]+$/, ''), reading: r };
+    const p: LightPoint = { id: `p${Date.now().toString(36)}`, label: name.replace(/\.[^.]+$/, ''), reading: r, ...this.where('') };
     this.points.push(p);
     if (!this.opts.ref) this.opts.ref = p.id; else this.opts.cmp = p.id;
     this.savePoints(); this.saveOpts(); this.changed();
@@ -217,14 +227,14 @@ export class LightStore extends EventTarget {
   get connected() { return [...this.meters.entries()].filter(([, m]) => m.state === 'connected'); }
 
   /** Average `opts.avg` readings of the active meter and keep them as a point (next grid cell). */
-  async capture(label: string, toGrid: boolean) {
+  async capture(label: string, toGrid: boolean, note = '') {
     const m = this.meters.get(this.active) ?? this.connected[0]?.[1];
     if (!m || m.state !== 'connected') throw new Error(t('opple.store.connectFirst'));
     const r = await m.measureAveraged(this.opts.avg);
     r.device = [...this.meters].find(([, x]) => x === m)?.[0];
     const cell: [number, number] | undefined = toGrid ? [...this.opts.cursor] as [number, number] : undefined;
     if (cell) this.points = this.points.filter((p) => !p.cell || cellKey(...p.cell) !== cellKey(...cell));
-    const p: LightPoint = { id: `p${Date.now().toString(36)}`, label: label || (cell ? `${String.fromCharCode(65 + cell[1])}${cell[0] + 1}` : `Punkt ${this.points.length + 1}`), reading: r, cell };
+    const p: LightPoint = { id: `p${Date.now().toString(36)}`, label: label || (cell ? `${String.fromCharCode(65 + cell[1])}${cell[0] + 1}` : `Punkt ${this.points.length + 1}`), reading: r, cell, ...this.where(note) };
     this.points.push(p);
     if (cell) this.advance();
     if (!this.opts.ref) this.opts.ref = p.id; else if (!cell) this.opts.cmp = p.id;
@@ -236,13 +246,29 @@ export class LightStore extends EventTarget {
     this.opts.cursor = c + 1 < this.opts.cols ? [c + 1, r] : [0, (r + 1) % this.opts.rows];
     this.saveOpts(); this.changed();
   }
+  private where(note: string) {
+    const place = this.opts.place?.trim() ?? '';
+    return { ...(place ? { place } : {}), ...(note.trim() ? { note: note.trim() } : {}) };
+  }
+  /** Change name, place or note of a point afterwards. */
+  editPoint(id: string, patch: Partial<Pick<LightPoint, 'label' | 'place' | 'note'>>) {
+    const p = this.point(id);
+    if (!p) return;
+    Object.assign(p, patch);
+    this.savePoints(); this.changed();
+  }
+  /** Remember a point as the target (null = none). */
+  setTarget(id: string | null) { this.opts.target = id && this.point(id) ? id : null; this.saveOpts(); this.changed(); }
+  /** The current target point, if any. */
+  get target() { return this.point(this.opts.target ?? null); }
   removePoint(id: string) {
     this.points = this.points.filter((p) => p.id !== id);
+    if (this.opts.target === id) this.opts.target = null;
     if (this.opts.ref === id) this.opts.ref = null;
     if (this.opts.cmp === id) this.opts.cmp = null;
     this.savePoints(); this.saveOpts(); this.changed();
   }
-  clearPoints() { this.points = []; this.opts.ref = null; this.opts.cmp = null; this.opts.cursor = [0, 0]; this.savePoints(); this.saveOpts(); this.changed(); }
+  clearPoints() { this.points = []; this.opts.ref = null; this.opts.cmp = null; this.opts.target = null; this.opts.cursor = [0, 0]; this.savePoints(); this.saveOpts(); this.changed(); }
   gridCells(): GridCell[] {
     return this.points.filter((p) => p.cell && p.cell[0] < this.opts.cols && p.cell[1] < this.opts.rows).map((p) => ({ col: p.cell![0], row: p.cell![1], reading: p.reading }));
   }

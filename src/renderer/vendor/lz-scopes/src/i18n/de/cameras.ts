@@ -1,0 +1,53 @@
+// @ts-nocheck -- vendort aus larszu/lz-scopes, dort geprueft (scripts/lz-scopes-vendor.mjs)
+// Deutsche Übersetzung zu en/cameras.ts.
+import type en from '../en/cameras';
+import type { Translation } from '../types';
+
+export default {
+  'cam.split': 'Aufteilen …',
+  'cam.splitTitle': 'Diesen Eingang in Kameras aufteilen, eine je Multiviewer-Kachel (ATEM, Videohub, Decimator …)',
+  'cam.dialogTitle': '{name} in Kameras aufteilen',
+  'cam.dialogHint': 'Jede Kachel wird eine eigene Kamera und lässt sich in jedem Panel und Werkzeug wählen wie ein Eingang. Ein Klick auf eine Kachel lässt sie weg (Program, Preview, Uhr, Ton). Der Eingang selbst bleibt, wie er ist.',
+  'cam.previewLabel': 'Eingang mit dem Kachelraster',
+  'cam.layout': 'Aufteilung',
+  'cam.layout.2x2': 'Vier gleiche Kacheln',
+  'cam.layout.3x3': 'Neun gleiche Kacheln',
+  'cam.layout.4x4': 'Sechzehn gleiche Kacheln',
+  'cam.layout.2+8': 'Zwei große Kacheln oben, acht kleine darunter (ATEM-Voreinstellung)',
+  'cam.layout.1+5': 'Eine große Kachel oben links, fünf kleine darum',
+  'cam.inset': 'Rand',
+  'cam.insetOn': 'Rand abziehen',
+  'cam.insetTitle': 'Beschriftung, Tally-Rahmen und Tonanzeige einer Kachel gehören nicht zur Kamera. Ohne Abzug erscheinen sie in Waveform und Histogramm (weiße Schrift, roter Rahmen). Anteil der Kachelhöhe, an jeder Seite.',
+  'cam.tileOnTitle': 'Diese Kachel als Kamera anlegen',
+  'cam.tileName': 'Name von Kachel {n}',
+  'cam.quality': 'Eine Kachel hat hier etwa {size} Pixel (Eingang {width} breit), oft 8 bit und mit Einblendungen. Das reicht für Pegel, Schwarzwert, Farbabgleich und Clipping. Schärfe, Rauschen und Fokus-Peaking sind damit nicht aussagekräftig. Für mehr Pixel die Analysebreite des Eingangs auf 1920 oder nativ stellen.',
+  'cam.apply': 'Kameras anlegen',
+  'cam.remove': 'Aufteilung entfernen',
+  'cam.removeTitle': 'Die Kameras aus den Kacheln dieses Eingangs entfernen',
+  'cam.defaultName': 'Kam {n}',
+  'cam.badge': 'aus Multiviewer · {size}',
+  'cam.badgeTitle': 'Kachel eines Multiviewers: skaliert, oft 8 bit, eventuell mit Einblendungen. Gut für Pegel, Schwarzwert, Farbabgleich und Clipping. Schärfe, Rauschen und Fokus-Peaking sind hier nicht aussagekräftig.',
+  'cam.whole': 'ganzer Eingang',
+  'cam.of': 'Eingang: {input}',
+  'cam.ofTile': 'Eingang: {input} · Kachel {tile}',
+  'cam.replace': 'Ersetzen durch Eingang …',
+  'cam.replaceTitle': 'Diese Kamera an einen anderen Eingang hängen (etwa eine direkte SDI-Leitung). Name und Platz bleiben.',
+  'cam.colour': 'Farbe und Kette wie Eingang {input}',
+  'cam.created': '{n} Kameras aus {input}',
+
+  'split.name': 'Split Panel {n}',
+  'split.card': 'A/B-Split von Bild-Panel {n} als ein Bild: links der Linie A, rechts davon B. In jedem Panel und Werkzeug wählbar, ausschalten im Bild-Panel.',
+  'split.stageB': 'B ist eine andere Stufe derselben Quelle. Das gibt es nur im Bild, nicht als Quelle. Eine zweite Quelle als B wählen.',
+  'split.noB': 'Keine zweite Quelle als B',
+  'split.waiting': 'Warte auf A und B',
+  'split.mixed': 'A und B kommen in verschiedenen Formaten (Bittiefe, RGB/Y′CbCr oder Bridge/Browser) und lassen sich nicht zu einem Bild zusammensetzen.',
+
+  'panel.splitOn': 'Split ein: A und B nebeneinander (andere Panels können folgen)',
+  'panel.splitOff': 'Split aus',
+  'panel.followGroup': 'Folgen',
+  'panel.followPanel': 'Folge Bild-Panel {n}',
+  'panel.abSpread': 'Andere Panels folgen beim Einschalten',
+  'panel.abSpreadTitle': 'Beim Einschalten des Splits folgen alle anderen nicht angepinnten Panels, die kein Bild-Panel sind, diesem Panel. Ihre Scopes messen dann das Split-Bild.',
+  'panel.abSplitSource': 'Andere Panels können diesen Split als Quelle „{name}“ wählen oder diesem Panel folgen.',
+  'panel.abSplitStage': 'Als Quelle für andere Panels nur mit einer zweiten Quelle als B.',
+} satisfies Translation<typeof en>;

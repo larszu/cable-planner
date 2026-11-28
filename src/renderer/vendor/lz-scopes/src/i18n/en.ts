@@ -32,11 +32,13 @@ import calib from './en/calib';
 import feedback from './en/feedback';
 import help from './en/help';
 import compare from './en/compare';
+import cameras from './en/cameras';
 import wallcheck from './en/wallcheck';
 import sim from './en/sim';
 import enc from './en/enc';
 import lens from './en/lens';
 import sdi from './en/sdi';
+import ops from './en/ops';
 
 
 import tools from './en/tools';
@@ -81,11 +83,13 @@ export const en = {
   ...feedback,
   ...help,
   ...compare,
+  ...cameras,
   ...wallcheck,
   ...sim,
   ...enc,
   ...lens,
   ...sdi,
+  ...ops,
 };
 
 export type Key = keyof typeof en;

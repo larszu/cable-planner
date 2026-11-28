@@ -51,6 +51,8 @@ export default {
   'pattern.pqRamp': 'PQ-Verlauf mit Referenzweiß 203',
   'pattern.pqRampLabel': '203 cd/m² (BT.2408 Referenzweiß)',
   'pattern.av.flash': 'Blitz',
+  'pattern.av.early': 'Ton zu früh',
+  'pattern.av.late': 'Ton zu spät',
   'pattern.av.title': 'A/V-Sync',
   'pattern.av.hint': 'Blitz und Piep (Tongenerator „A/V-Sync-Piep“) zu jeder vollen Sekunde',
   'pattern.smpte75lz': 'SMPTE 75 % Balken + PLUGE (LZ)',

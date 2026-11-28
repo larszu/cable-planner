@@ -9,19 +9,35 @@ import { num, t } from './i18n';
 import { transferLabel } from './color';
 import { button, hint, row } from './ui';
 import { colorimetryMismatch, hex2, summarise, transferMismatch, type VancSummary } from './vanc';
+import { edhErrors, fieldSwapHints, type EdhFlags } from './anc';
+import { TeletextDecoder } from './teletext';
 
 /** VANC older than this counts as gone (the helper sends at least 4/s while packets change, else on every change). */
 const STALE_MS = 3000;
 
 const cache = new WeakMap<object, VancSummary>();
+/** Teletext rows collected over the VANC records of a source (OP-47, ST 2031; #235). */
+const teletext = new WeakMap<object, TeletextDecoder>();
+export const teletextOf = (src: Source | null) => (src ? teletext.get(src) ?? null : null);
 /** Decoded VANC of a source, null without a fresh record. */
 export function vancOf(src: Source | null): VancSummary | null {
   const v = src?.vanc;
   if (!v || performance.now() - v.at > STALE_MS) return null;
   let s = cache.get(v);
-  if (!s) { s = summarise(v.packets); cache.set(v, s); }
+  if (!s) {
+    s = summarise(v.packets); cache.set(v, s);
+    // the helper sends a snapshot every 250 ms, not every frame: rows add up over several records
+    const rows = [...(s.op47?.lines.map((l) => l.raw) ?? []), ...s.st2031.flatMap((d) => (d.raw42 ? [d.raw42] : []))];
+    if (rows.length && src) {
+      let dec = teletext.get(src);
+      if (!dec) { dec = new TeletextDecoder(); teletext.set(src, dec); }
+      for (const r of rows) dec.push(r, v.at);
+    }
+  }
   return s;
 }
+
+const flagText = (f: EdhFlags) => (['edh', 'eda', 'idh', 'ida', 'ues'] as const).filter((k) => f[k]).map((k) => k.toUpperCase()).join(' ') || '–';
 
 const TRANSFER_NAME = { sdr: 'SDR', hlg: 'HLG', pq: 'PQ', unspecified: '?' } as const;
 const yesNo = (b: boolean) => (b ? t('sdi.yes') : t('sdi.no'));
@@ -47,6 +63,35 @@ export function sdiRows(s: VancSummary, src: Source): { text: string; kind?: 'he
   }
   for (const a of s.atc) out.push({ text: `ST 12-2 ${a.kind.toUpperCase()}  ${a.tc}  UB ${a.userBits}` });
   if (s.afd) out.push({ text: t('sdi.afd', { code: s.afd.afd.toString(2).padStart(4, '0'), frame: s.afd.frame16x9 ? '16:9' : '4:3' }) });
+  for (const m of s.scte104.slice(0, 4)) {
+    out.push({ text: t('sdi.scte104', { n: m.messageNumber, as: m.asIndex, ts: m.timestamp ?? '–' }) + (m.truncated ? ` · ${t('sdi.truncated')}` : ''), kind: 'head' });
+    for (const o of m.ops) {
+      if (o.splice) out.push({ text: t('sdi.splice', { type: o.splice.typeName, id: o.splice.eventId, pre: o.splice.preRollMs, dur: num(o.splice.breakTenths / 10, 1), ret: yesNo(o.splice.autoReturn) }) });
+      else if (o.segmentation) out.push({ text: t('sdi.segmentation', { id: o.segmentation.eventId, type: `0x${hex2(o.segmentation.typeId)}`, dur: o.segmentation.durationS, seg: o.segmentation.segmentNum, of: o.segmentation.segmentsExpected }) + (o.segmentation.cancel ? ` · ${t('sdi.cancel')}` : '') });
+      else out.push({ text: o.name + (o.preRollMs !== undefined ? ` · pre-roll ${o.preRollMs} ms` : '') });
+    }
+  }
+  if (s.cdp) {
+    const c = s.cdp, sw = fieldSwapHints(c.field1, c.field2);
+    out.push({ text: t('sdi.cdp', { rate: c.rate ?? '?', n: c.ccCount, f1: c.field1.length, f2: c.field2.length, dtv: c.dtvcc, seq: c.sequence }) + (c.timecode ? ` · TC ${c.timecode}` : '') });
+    if (!c.identifierOk || c.checksumOk === false) out.push({ text: t('sdi.cdpBad'), kind: 'warn' });
+    if (sw.inField1 || sw.inField2) out.push({ text: t('sdi.fieldSwap'), kind: 'warn' });
+  }
+  if (s.op47) {
+    const o = s.op47;
+    out.push({ text: t('sdi.op47', { lines: o.lines.map((l) => `${l.line}/${l.field}`).join(', ') || '–', seq: o.sequence }), kind: 'head' });
+    if (!o.identifierOk || !o.checksumOk || o.lines.some((l) => !l.runInOk || !l.packet)) out.push({ text: t('sdi.op47Bad'), kind: 'warn' });
+  }
+  for (const d of s.st2031.slice(0, 4)) out.push({ text: t('sdi.st2031', { unit: d.unitName, field: d.field, line: d.lineOffset }) });
+  const dec = teletextOf(src), tt = dec?.current();
+  if (dec && tt) {
+    out.push({ text: t('sdi.teletext', { page: tt.page, parity: dec.parityErrors, hamming: dec.hammingErrors }), kind: 'head' });
+    for (const r of tt.rows.slice(-4)) out.push({ text: `${String(r.row).padStart(2, ' ')}  ${r.text}` });
+  }
+  if (s.edh) {
+    const e = s.edh, bad = edhErrors(e);
+    out.push({ text: t('sdi.edh', { ap: flagText(e.ap), ff: flagText(e.ff), anc: flagText(e.anc) }), kind: bad ? 'warn' : 'ok' });
+  }
   out.push({ text: t('sdi.presence', { c708: yesNo(s.cea708), c608: yesNo(s.cea608), audio: s.audioGroups.length ? s.audioGroups.join(', ') : '–', ctrl: s.audioControl.length ? s.audioControl.join(', ') : '–' }) });
   out.push({ text: t('sdi.packets', { n: s.packets.length }), kind: 'head' });
   for (const k of s.packets) {

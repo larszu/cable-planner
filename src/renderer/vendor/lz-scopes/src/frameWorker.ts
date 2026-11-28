@@ -14,7 +14,7 @@ import { meanLuma } from './luma';
 import { decodedFullRange, yuv420ToRgba } from './yuv';
 import { t as tr } from './i18n';
 import { DelayBuffer } from './delayBuffer';
-import { v210Bytes, v210Message } from './v210';
+import { v210At, v210Bytes, v210Message, v210MeanLuma } from './v210';
 
 export interface FrameMeta {
   /** Date.now() when the frame arrived here (raw) or left the decoder (H.264) */
@@ -31,7 +31,7 @@ export interface FrameMeta {
   av?: [number, number][];
 }
 
-type In = { type: 'open'; url: string; delayMs?: number } | { type: 'ack' } | { type: 'close' } | { type: 'send'; data: string };
+type In = { type: 'open'; url: string; delayMs?: number; unpackV210?: boolean } | { type: 'ack' } | { type: 'close' } | { type: 'send'; data: string };
 export type Out =
   | { type: 'text'; data: string }
   | { type: 'bin'; data: ArrayBuffer; meta?: FrameMeta }
@@ -43,6 +43,8 @@ let ws: WebSocket | null = null;
 let info: { width: number; height: number; depth: number; proto?: number; decodeMatrix?: string; range?: string; transport?: string; format?: string; pack?: string; audio?: unknown } | null = null;
 let waiting: { data: ArrayBuffer; meta: FrameMeta } | null = null;
 let inflight = false, replaced = 0;
+/** debug switch {"v210":"worker"}: unpack v210 here as before #258 step 2, instead of in the shader */
+let unpackV210 = false;
 /** fixed playout delay (#244): pictures wait here until their slot; null = newest at once */
 let delay: DelayBuffer<{ data: ArrayBuffer; meta: Omit<FrameMeta, 'replaced'> }> | null = null;
 let delayTimer: ReturnType<typeof setTimeout> | null = null;
@@ -157,11 +159,16 @@ function open(url: string) {
     }
     let buf = ev.data as ArrayBuffer;
     const now = Date.now();
-    // v210 passthrough (#258): unpack to the Y′CbCr layout here, off the main thread
+    // v210 passthrough (#258): the packed words go on as they are (the shader and the CPU readers
+    // decode them, src/v210.ts); with the debug switch unpacked here to the Y′CbCr layout
+    let packed = false;
     if (info?.pack === 'v210') {
       const head = info.proto === 2 ? 16 : 0;
       const lzv = !head || new DataView(buf).getUint32(0, true) === 0x3156_5a4c; // 'LZV1'
-      if (lzv && buf.byteLength === head + v210Bytes(info.width, info.height)) buf = v210Message(buf, info.width, info.height, head);
+      if (lzv && buf.byteLength === head + v210Bytes(info.width, info.height)) {
+        if (unpackV210) buf = v210Message(buf, info.width, info.height, head);
+        else packed = true;
+      }
     }
     if (info?.proto === 2) {
       const head = new DataView(buf, 0, 16);
@@ -171,17 +178,21 @@ function open(url: string) {
       if (magic === 'LZHK' || magic === 'LZHD') { decode(buf, magic === 'LZHK', n, hv); return; }
       if (magic !== 'LZV1' || !info) return;
       const max = info.depth === 16 ? 65535 : 255;
+      const words = packed ? new Uint32Array(buf, 16) : null;
       const px = info.depth === 16 ? new Uint16Array(buf, 16) : new Uint8Array(buf, 16);
-      const st = readStamp(px, info.width, info.height, max);
+      const st = readStamp(words ? v210At(words, info.width) : px, info.width, info.height, max);
       // LZV1 header value = PTS in s (#24), not a bridge clock
-      if (info.audio && info.width) { av.push([hv, meanLuma(px, info.width, info.height, max, info.format === 'yuv')]); if (av.length > 250) av.shift(); }
+      if (info.audio && info.width) {
+        av.push([hv, words ? v210MeanLuma(words, info.width, info.height) : meanLuma(px, info.width, info.height, max, info.format === 'yuv')]);
+        if (av.length > 250) av.shift();
+      }
       // capture time: the PTS, or without one (no sound) the frame number at the nominal rate
       const fps = Number((info as { fps?: number }).fps) || 0;
       offer(buf, { arrive: now, bridge: NaN, stamp: st?.ms ?? null }, Number.isFinite(hv) ? hv : fps > 0 ? n / fps : NaN);
       return;
     }
     if (!info) return;
-    const px = info.depth === 16 ? new Uint16Array(buf) : new Uint8Array(buf);
+    const px = packed ? v210At(new Uint32Array(buf), info.width) : info.depth === 16 ? new Uint16Array(buf) : new Uint8Array(buf);
     const st = readStamp(px, info.width, info.height, info.depth === 16 ? 65535 : 255);
     queue(buf, { arrive: now, bridge: NaN, stamp: st?.ms ?? null });
   };
@@ -191,7 +202,7 @@ function open(url: string) {
 
 self.onmessage = (e: MessageEvent<In>) => {
   const m = e.data;
-  if (m.type === 'open') { delay = m.delayMs && m.delayMs > 0 ? new DelayBuffer(m.delayMs) : null; open(m.url); }
+  if (m.type === 'open') { unpackV210 = !!m.unpackV210; delay = m.delayMs && m.delayMs > 0 ? new DelayBuffer(m.delayMs) : null; open(m.url); }
   else if (m.type === 'ack') { inflight = false; flush(); }
   else if (m.type === 'send') { if (ws?.readyState === WebSocket.OPEN) ws.send(m.data); }
   else if (m.type === 'close') { const s = ws; ws = null; s?.close(); decoder?.close(); decoder = null; self.close(); }

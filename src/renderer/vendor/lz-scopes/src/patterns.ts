@@ -279,6 +279,15 @@ function avSync(ctx: CanvasRenderingContext2D, w: number, h: number) {
   if (ph < AV_FLASH_MS) { fill(ctx, gray(1), 0, 0, w, h); return; }
   fill(ctx, gray(0), 0, 0, w, h);
   const y = h * 0.62, x0 = w * 0.1, x1 = w * 0.9;
+  // early/late zones (#236): where the marker stands when the beep is heard in a recording.
+  // Marker at +x ms = sound x ms after the picture = −x in the BT.1359-1 sign, so the
+  // detectability range +45/−125 ms lies at −45 … +125 here, acceptability +90/−185 at −90 … +185.
+  const xr = (ms: number) => x0 + ((ms + 500) / 1000) * (x1 - x0);
+  const zh = Math.round(h * 0.03), zy = Math.round(y - h * 0.13);
+  ctx.fillStyle = 'rgb(150, 110, 30)'; ctx.fillRect(Math.round(xr(-90)), zy, Math.round(xr(185) - xr(-90)), zh);
+  ctx.fillStyle = 'rgb(40, 130, 60)'; ctx.fillRect(Math.round(xr(-45)), zy, Math.round(xr(125) - xr(-45)), zh);
+  text(ctx, t('pattern.av.early'), (x0 + xr(-90)) / 2, zy + zh / 2, h * 0.022, css(gray(0.6)));
+  text(ctx, t('pattern.av.late'), (x1 + xr(185)) / 2, zy + zh / 2, h * 0.022, css(gray(0.6)));
   ctx.fillStyle = css(gray(0.5));
   for (let i = -10; i <= 10; i++) {
     const x = x0 + ((i + 10) / 20) * (x1 - x0), big = i % 5 === 0;

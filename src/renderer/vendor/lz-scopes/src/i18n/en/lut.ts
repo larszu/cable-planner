@@ -25,4 +25,10 @@ export default {
   'lut.src.arriNote': 'Redistribution only with consent (arri.com/en/legal)',
   'lut.src.redNote': 'Terms behind a consent checkbox, text not viewable',
   'lut.src.bmdNote': 'only with DaVinci Resolve (folder LUT/Blackmagic Design), no separate download page',
+  'lut.bbc.2a': 'PQ 4000 cd/m² → HLG (with tone mapping)',
+  'lut.bbc.3a': 'BT.709 SDR → HLG, direct mapping (display light)',
+  'lut.bbc.5a': 'BT.709 SDR → HLG, up-mapping (display light)',
+  'lut.bbc.8a': 'HLG → BT.709 SDR, down-mapping (display light)',
+  'lut.bbc.http': 'download failed (HTTP {status})',
+  'lut.bbc.mismatch': 'LUT expects {want}, the slot receives {have}',
 } as const satisfies Messages;

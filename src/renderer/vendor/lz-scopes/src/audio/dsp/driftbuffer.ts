@@ -29,6 +29,8 @@ export class DriftBuffer {
   overruns = 0;
   /** source channel for each output channel (default: 1 → 1, 2 → 2, mono on both) */
   map: number[] | null = null;
+  /** mix instead of map: output c = Σ matrix[c][k] · channel k (dsp/downmix.ts, #234) */
+  matrix: number[][] | null = null;
   static readonly MAX_CORR = 0.002;
 
   constructor(channels: number, fs: number, targetMs = 120, capacityMs = 1000) {
@@ -89,7 +91,15 @@ export class DriftBuffer {
       const ip = Math.floor(this.r), fr = this.r - ip;
       const p0 = ip % this.cap, p1 = (ip + 1) % this.cap;
       this.gain = Math.min(1, this.gain + fade);
+      const mx = this.matrix;
       for (let c = 0; c < out.length; c++) {
+        if (mx) {
+          const row = mx[c] ?? mx[0];
+          let v = 0;
+          for (let k = 0; k < this.channels; k++) { const g = row[k]; if (g) { const b = this.buf[k]; v += g * (b[p0] + (b[p1] - b[p0]) * fr); } }
+          out[c][i] = v * this.gain;
+          continue;
+        }
         const b = this.buf[Math.min(this.map?.[c] ?? c, this.channels - 1)];
         out[c][i] = (b[p0] + (b[p1] - b[p0]) * fr) * this.gain;
       }

@@ -29,4 +29,5 @@ export default {
   'output.keysView': 'F full screen · double-click full screen',
   'output.streamEnded': 'ended',
   'output.labels8': 'captions 8 bit',
+  'widget.noSource': 'No source given (?src=…)',
 } as const satisfies Messages;
